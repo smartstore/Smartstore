@@ -1,6 +1,8 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using Autofac.Core;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -8,6 +10,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -27,6 +30,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly ILocalizationService _localizationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly IEventPublisher _eventPublisher;
 
         public ShoppingCartValidator(
             SmartDbContext db,
@@ -39,7 +43,8 @@ namespace Smartstore.Core.Checkout.Cart
             IStoreMappingService storeMappingService,
             ILocalizationService localizationService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            IEventPublisher eventPublisher)
         {
             _db = db;
             _aclService = aclService;
@@ -52,6 +57,7 @@ namespace Smartstore.Core.Checkout.Cart
             _localizationService = localizationService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _eventPublisher = eventPublisher;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -176,9 +182,12 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
+            var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
+            await _eventPublisher.PublishAsync(validatingCartEvent);
+
             warnings.AddRange(currentWarnings);
 
-            return currentWarnings.Count == 0;
+            return warnings.Count == 0;
         }
 
         public virtual async Task<bool> ValidateAddToCartItemAsync(AddToCartContext ctx, ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems)
