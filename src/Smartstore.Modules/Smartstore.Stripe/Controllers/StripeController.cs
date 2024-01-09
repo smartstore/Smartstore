@@ -161,16 +161,34 @@ namespace Smartstore.StripeElements.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetUpdatePaymentRequest()
+        public async Task<IActionResult> GetUpdatePaymentRequest(ProductVariantQuery query, bool? useRewardPoints)
         {
-            var stripePaymentRequest = await _stripeHelper.GetStripePaymentRequestAsync();
+            var success = false;
+            var message = string.Empty;
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var warnings = new List<string>();
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            stripePaymentRequest.RequestPayerName = false;
-            stripePaymentRequest.RequestPayerEmail = false;
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
+            if (isCartValid)
+            {
 
-            var paymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+                var stripePaymentRequest = await _stripeHelper.GetStripePaymentRequestAsync();
 
-            return Json(new { success = true, paymentRequest });
+                stripePaymentRequest.RequestPayerName = false;
+                stripePaymentRequest.RequestPayerEmail = false;
+
+                var paymentRequest = JsonConvert.SerializeObject(stripePaymentRequest);
+
+                return Json(new { success = true, paymentRequest });
+            }
+            else
+            {
+                message = string.Join(Environment.NewLine, warnings);
+            }
+
+            return Json(new { success, message });
         }
 
         /// <summary>
