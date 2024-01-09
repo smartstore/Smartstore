@@ -77,12 +77,12 @@ namespace Smartstore.Core.Migrations
 
 
             builder.AddOrUpdate("Admin.Rules.ProductAttribute.OneCondition",
-                "<span>Display the attribute if at least</span> {0} <span>of the following conditions is true.</span>",
-                "<span>Das Attribut anzeigen, wenn mindestens</span> {0} <span>der folgenden Bedingungen zutrifft.</span>");
+                "<span>Only show the attribute if at least</span> {0} <span>of the following conditions is true.</span>",
+                "<span>Das Attribut nur anzeigen, wenn mindestens</span> {0} <span>der folgenden Bedingungen zutrifft.</span>");
 
             builder.AddOrUpdate("Admin.Rules.ProductAttribute.AllConditions",
-                "<span>Display the attribute if</span> {0} <span>of the following conditions are true.</span>",
-                "<span>Das Attribut anzeigen, wenn</span> {0} <span>der folgenden Bedingungen erfüllt sind.</span>");
+                "<span>Only show the attribute if</span> {0} <span>of the following conditions are true.</span>",
+                "<span>Das Attribut nur anzeigen, wenn</span> {0} <span>der folgenden Bedingungen erfüllt sind.</span>");
 
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRulesForProduct",

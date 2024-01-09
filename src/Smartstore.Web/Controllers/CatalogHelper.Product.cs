@@ -715,7 +715,7 @@ namespace Smartstore.Web.Controllers
 
             foreach (var attribute in model.ProductVariantAttributes)
             {
-                attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(product, attribute.ProductAttribute, selectedValues));
+                attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(product, attribute.ProductAttribute, model.SelectedCombination, selectedValues));
                 if (!attribute.IsActive)
                 {
                     continue;

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Rules
     {
         public void Configure(EntityTypeBuilder<RuleSetEntity> builder)
         {
-            // INFO: optional one-to-one foreign key relationship. Can also specified by EF convention, except for constraint name.
+            // INFO: optional one-to-one foreign key relationship. We do not use EF convention because of the constraint name.
             builder.HasOne(c => c.ProductVariantAttribute)
                 .WithOne(c => c.RuleSet)
                 .HasForeignKey<RuleSetEntity>(c => c.ProductVariantAttributeId)

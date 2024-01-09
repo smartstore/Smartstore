@@ -517,7 +517,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             foreach (var attribute in product.ProductVariantAttributes)
             {
-                if (!attribute.IsRequired || !await ruleProvider.IsAttributeActiveAsync(new(product, attribute, selectedValues)))
+                if (!attribute.IsRequired || !await ruleProvider.IsAttributeActiveAsync(new(product, attribute, combination, selectedValues)))
                 {
                     continue;
                 }

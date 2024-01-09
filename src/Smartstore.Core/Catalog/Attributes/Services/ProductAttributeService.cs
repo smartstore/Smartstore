@@ -7,16 +7,10 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public partial class ProductAttributeService : IProductAttributeService
+    public partial class ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService) : IProductAttributeService
     {
-        private readonly SmartDbContext _db;
-        private readonly ILocalizedEntityService _localizedEntityService;
-
-        public ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService)
-        {
-            _db = db;
-            _localizedEntityService = localizedEntityService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ILocalizedEntityService _localizedEntityService = localizedEntityService;
 
         public virtual async Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix)
         {
@@ -72,20 +66,16 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 await _db.LoadCollectionAsync(productVariantAttribute, x => x.ProductVariantAttributeValues);
 
-                var pvavIds = productVariantAttribute.ProductVariantAttributeValues
-                    .Select(x => x.Id)
-                    .ToArray();
-
-                if (pvavIds.Length > 0)
+                var valueIds = productVariantAttribute.ProductVariantAttributeValues.Select(x => x.Id).ToArray();
+                if (valueIds.Length > 0)
                 {
                     _db.ProductVariantAttributeValues.RemoveRange(productVariantAttribute.ProductVariantAttributeValues);
                     await _db.SaveChangesAsync();
 
-                    var oldLocalizedProperties = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(pvavName, pvavIds);
+                    var oldLocalizedProperties = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(pvavName, valueIds);
                     if (oldLocalizedProperties.Count > 0)
                     {
                         clearLocalizedEntityCache = true;
-
                         _db.LocalizedProperties.RemoveRange(oldLocalizedProperties);
                         await _db.SaveChangesAsync();
                     }
@@ -96,18 +86,16 @@ namespace Smartstore.Core.Catalog.Attributes
                 .AsNoTracking()
                 .Where(x => x.ProductAttributeOptionsSetId == productAttributeOptionsSetId)
                 .ToListAsync();
-
             if (optionsToCopy.Count == 0)
             {
                 return 0;
             }
 
+            var newValues = new Dictionary<int, ProductVariantAttributeValue>();
             var existingValueNames = await _db.ProductVariantAttributeValues
                 .Where(x => x.ProductVariantAttributeId == productVariantAttribute.Id)
                 .Select(x => x.Name)
                 .ToListAsync();
-
-            var newValues = new Dictionary<int, ProductVariantAttributeValue>();
 
             foreach (var option in optionsToCopy)
             {
@@ -115,7 +103,6 @@ namespace Smartstore.Core.Catalog.Attributes
                 {
                     var pvav = option.Clone();
                     pvav.ProductVariantAttributeId = productVariantAttribute.Id;
-
                     newValues[option.Id] = pvav;
                 }
             }
@@ -127,22 +114,21 @@ namespace Smartstore.Core.Catalog.Attributes
 
             // Save because we need the primary keys.
             await _db.ProductVariantAttributeValues.AddRangeAsync(newValues.Select(x => x.Value));
-            var addedValues = await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
-            var localizedProperties = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(nameof(ProductAttributeOption), newValues.Select(x => x.Key).ToArray());
-            if (localizedProperties.Any())
+            var localizations = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(nameof(ProductAttributeOption), newValues.Select(x => x.Key).ToArray());
+            if (localizations.Count > 0)
             {
                 clearLocalizedEntityCache = true;
-
-                var localizedPropertiesMap = localizedProperties.ToMultimap(x => x.EntityId, x => x);
+                var localizationsMap = localizations.ToMultimap(x => x.EntityId, x => x);
 
                 foreach (var option in optionsToCopy)
                 {
-                    if (newValues.TryGetValue(option.Id, out var value) && localizedPropertiesMap.ContainsKey(option.Id))
+                    if (newValues.TryGetValue(option.Id, out var value) && localizationsMap.TryGetValues(option.Id, out var props))
                     {
-                        foreach (var prop in localizedPropertiesMap[option.Id])
+                        foreach (var prop in props)
                         {
-                            _db.LocalizedProperties.Add(new LocalizedProperty
+                            _db.LocalizedProperties.Add(new()
                             {
                                 EntityId = value.Id,
                                 LocaleKeyGroup = pvavName,
@@ -167,7 +153,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 await _localizedEntityService.ClearCacheAsync();
             }
 
-            return addedValues;
+            return newValues.Count;
         }
 
         public virtual Task<ICollection<int>> GetAttributeCombinationFileIdsAsync(Product product)

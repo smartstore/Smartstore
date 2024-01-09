@@ -38,9 +38,11 @@
                     </button>
                 </div>
             </div>
-        </div>
-        <div class="r-rule-error" attr-class='(error.HasValue(), "hide")'>
-            <span class="field-validation-error">@error</span>
+            <div class="row flex-nowrap r-rule-error" attr-class='(error.IsEmpty(), "hide")'>
+                <div class="col">
+                    <span class="field-validation-error">@error</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
