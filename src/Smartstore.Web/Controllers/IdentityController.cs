@@ -150,7 +150,6 @@ namespace Smartstore.Web.Controllers
 
                         if (returnUrl.IsEmpty()
                             || returnUrl == "/"
-                            || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
                             || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase)
                             || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
                             || !Url.IsLocalUrl(returnUrl))
