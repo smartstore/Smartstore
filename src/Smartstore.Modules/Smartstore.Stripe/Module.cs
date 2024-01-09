@@ -16,7 +16,8 @@ namespace Smartstore.StripeElements
     internal class Module : ModuleBase, IConfigurable, ICookiePublisher
     {
         // INFO: Update API Version when updating Stripe.net dll
-        public static string ApiVersion => "2022-08-01";
+        // Also test webhook endpoint because thats where errors are most likely to occur.
+        public static string ApiVersion => "2023-10-16";
 
         private readonly IPaymentService _paymentService;
 

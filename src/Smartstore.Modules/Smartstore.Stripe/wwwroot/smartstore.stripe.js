@@ -140,7 +140,9 @@
                             paymentRequest.update(JSON.parse(data.paymentRequest))
                         }
                         else {
+                            // This prevents the stripe terminal from opening.
                             event.preventDefault();
+
                             displayNotification(data.message, 'error');
                         }
                     }
