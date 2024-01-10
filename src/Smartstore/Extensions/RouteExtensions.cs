@@ -5,11 +5,30 @@ namespace Smartstore
 {
     public static class RouteExtensions
     {
+        const string ModuleTokenName = "module";
+        
+        private readonly static CompositeFormat _formatRouteIdent = CompositeFormat.Parse("{0}{1}.{2}");
+
+        public static string GetAreaName(this RouteData routeData)
+            => Guard.NotNull(routeData).Values.GetAreaName();
+
+        public static string GetControllerName(this RouteData routeData)
+            => Guard.NotNull(routeData).Values.GetControllerName();
+
+        public static string GetActionName(this RouteData routeData)
+            => Guard.NotNull(routeData).Values.GetActionName();
+
+        public static string GetCultureCode(this RouteData routeData)
+            => Guard.NotNull(routeData).Values.GetCultureCode();
+
+        public static string GetModuleName(this RouteData routeData)
+            => (string)Guard.NotNull(routeData).DataTokens[ModuleTokenName];
+
         public static string GetAreaName(this RouteValueDictionary values)
         {
-            if (values.TryGetValue("area", out object value))
+            if (values.TryGetValueAs<string>("area", out var value))
             {
-                return (value as string);
+                return value;
             }
 
             return null;
@@ -17,9 +36,9 @@ namespace Smartstore
 
         public static string GetControllerName(this RouteValueDictionary values)
         {
-            if (values.TryGetValue("controller", out object value))
+            if (values.TryGetValueAs<string>("controller", out var value))
             {
-                return (value as string);
+                return value;
             }
 
             return null;
@@ -27,9 +46,9 @@ namespace Smartstore
 
         public static string GetActionName(this RouteValueDictionary values)
         {
-            if (values.TryGetValue("action", out object value))
+            if (values.TryGetValueAs<string>("action", out var value))
             {
-                return (value as string);
+                return value;
             }
 
             return null;
@@ -37,15 +56,14 @@ namespace Smartstore
 
         public static string GetCultureCode(this RouteValueDictionary values)
         {
-            if (values.TryGetValue("culture", out object value))
+            if (values.TryGetValueAs<string>("culture", out var value))
             {
-                return (value as string);
+                return value;
             }
 
             return null;
         }
 
-        private readonly static CompositeFormat _formatRouteIdent = CompositeFormat.Parse("{0}{1}.{2}");
         /// <summary>
         /// Generates an identifier for the given route in the form "[{area}.]{controller}.{action}"
         /// </summary>
@@ -61,7 +79,9 @@ namespace Smartstore
         public static bool IsSameRoute(this RouteValueDictionary values, string area, string controller, string action)
         {
             if (values == null)
+            {
                 return false;
+            }
 
             return area.EqualsNoCase(values.GetAreaName())
                 && controller.EqualsNoCase(values.GetControllerName())
@@ -71,7 +91,9 @@ namespace Smartstore
         public static bool IsSameRoute(this RouteValueDictionary values, string controller, string action)
         {
             if (values == null)
+            {
                 return false;
+            }
 
             return controller.EqualsNoCase(values.GetControllerName())
                 && action.EqualsNoCase(values.GetActionName());
