@@ -1,7 +1,6 @@
 "use strict";
 
 (function ($, window, document, undefined) {
-
     var PayPalButton = window.PayPalButton = (function () {
         function PayPalButton(buttonContainerSelector, funding) {
             this.buttonContainer = $(buttonContainerSelector);
@@ -92,6 +91,11 @@
                 },
                 onError: function (err) {
                     console.log(err);
+
+                    // Do not display error message if no order id was passed. It means that the cart may not be valid.
+                    if (error.message.indexOf('Expected an order id to be passed') >= 0)
+                        return;
+
                     displayNotification(err, 'error');
                 }
             })
@@ -228,8 +232,13 @@
             data: { paymentSource: paymentSource },
             url: createOrderUrl,
             cache: false,
-            success: function (resp) {
-                orderId = resp.id;
+            success: function (response) {
+                if (response.success) {
+                    orderId = response.id;
+                }
+                else {
+                    displayNotification(response.message, response.messageType);
+                }
             }
         });
         

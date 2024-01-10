@@ -1,5 +1,5 @@
 $.extend(true, $.summernote.lang, {
-	'en-ES-DE': { /* Spanish */
+	'en-ES': { /* Spanish */
 		attrs: {
 			cssClass: 'CSS Clases',
 			cssStyle: 'CSS Estilo',

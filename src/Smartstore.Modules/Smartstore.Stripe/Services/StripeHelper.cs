@@ -114,12 +114,12 @@ namespace Smartstore.StripeElements.Services
                 {
                     ApiVersion = Module.ApiVersion,
                     Url = storeUrl + "stripe/webhookhandler",
-                    EnabledEvents = new List<string>
-                    {
+                    EnabledEvents =
+                    [
                         "payment_intent.succeeded",
                         "payment_intent.canceled",
                         "charge.refunded"
-                    }
+                    ]
                 };
 
                 var webhook = await service.CreateAsync(createOptions);

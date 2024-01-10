@@ -118,46 +118,58 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(string paymentSource)
+        public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource)
         {
-            var session = HttpContext.Session;
-
-            if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var warnings = new List<string>();
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
+            if (isCartValid)
             {
-                processPaymentRequest = new ProcessPaymentRequest
+                var session = HttpContext.Session;
+
+                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
                 {
-                    OrderGuid = Guid.NewGuid()
-                };
+                    processPaymentRequest = new ProcessPaymentRequest
+                    {
+                        OrderGuid = Guid.NewGuid()
+                    };
+                }
+
+                session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+                var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
+                var response = await _client.CreateOrderAsync(orderMessage);
+                var rawResponse = response.Body<object>().ToString();
+                dynamic jResponse = JObject.Parse(rawResponse);
+
+                var selectedPaymentMethod = string.Empty;
+                switch (paymentSource)
+                {
+                    case "paypal-creditcard-hosted-fields-container":
+                        selectedPaymentMethod = "Payments.PayPalCreditCard";
+                        break;
+                    case "paypal-sepa-button-container":
+                        selectedPaymentMethod = "Payments.PayPalSepa";
+                        break;
+                    case "paypal-paylater-button-container":
+                        selectedPaymentMethod = "Payments.PayPalPayLater";
+                        break;
+                    case "paypal-button-container":
+                    default:
+                        selectedPaymentMethod = "Payments.PayPalStandard";
+                        break;
+                }
+
+                Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
+
+                return Json(jResponse);
             }
-
-            session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
-            var response = await _client.CreateOrderAsync(orderMessage);
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
-
-            var selectedPaymentMethod = string.Empty;
-            switch (paymentSource)
+            else
             {
-                case "paypal-creditcard-hosted-fields-container":
-                    selectedPaymentMethod = "Payments.PayPalCreditCard";
-                    break;
-                case "paypal-sepa-button-container":
-                    selectedPaymentMethod = "Payments.PayPalSepa";
-                    break;
-                case "paypal-paylater-button-container":
-                    selectedPaymentMethod = "Payments.PayPalPayLater";
-                    break;
-                case "paypal-button-container":
-                default:
-                    selectedPaymentMethod = "Payments.PayPalStandard";
-                    break;
+                return Json(new { success = false, message = string.Join(Environment.NewLine, warnings) });
             }
-
-            Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
-
-            return Json(jResponse);
         }
 
         /// <summary>

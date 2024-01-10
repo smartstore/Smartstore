@@ -12,7 +12,7 @@
             $.ajax({
                 type: 'POST',
                 url: container.data("validate-cart-url"),
-                data: $('#startcheckout').closest('form').serialize(),
+                data: $('#stripe-payment-request-button').closest('form').serialize(),
                 cache: false,
                 success: function (resp) {
                     if (resp.success) {
@@ -133,10 +133,17 @@
                     async: false,   // IMPORTANT INFO: we must wait to get the correct cart value.
                     type: 'POST',
                     url: paymentRequestButton.data("get-current-payment-request-url"),
+                    data: $('#stripe-payment-request-button').closest('form').serialize(),
                     dataType: 'json',
                     success: function (data) {
                         if (data.success) {
                             paymentRequest.update(JSON.parse(data.paymentRequest))
+                        }
+                        else {
+                            // This prevents the stripe terminal from opening.
+                            event.preventDefault();
+
+                            displayNotification(data.message, 'error');
                         }
                     }
                 });

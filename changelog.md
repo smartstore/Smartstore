@@ -4,6 +4,10 @@
 
 ### New Features
 
+- Updated to **.NET 8**
+  - Faster app startup
+  - Increased overall performance
+  - ~10 % less memory usage after app start
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - Affiliates
   - #896 Added a cart rule for affiliates.
@@ -50,11 +54,14 @@
 - Page Builder
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
-- #951 The forum post page counter is always incremented by 2 when the page is opened.
+- Forum:
+  - #951 The forum post page counter is always incremented by 2 when the page is opened.
+  - Fixed HTML links are not displayed in posts.
 - Fixed a filter reset of the product grid does not work correctly.
 - Fixed validation issues when saving guest customers
 - #897 Discount code input seems to be confirmed (border color and check icon)
-- #964 Removed meta information from publication according to catalog settings 
+- #964 Removed meta information from publication according to catalog settings
+- Fixed shoping cart MinOrderValidation 
 
 ## Smartstore 5.1.0
 
