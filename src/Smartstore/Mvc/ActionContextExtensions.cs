@@ -24,7 +24,7 @@ namespace Smartstore
         public static bool ControllerIs<TController>(this ActionContext context, Expression<Action<TController>> actionSelector)
             where TController : Controller
         {
-            Guard.NotNull(actionSelector, nameof(actionSelector));
+            Guard.NotNull(actionSelector);
 
             if (context is ControllerContext controllerContext)
             {
@@ -43,7 +43,7 @@ namespace Smartstore
         public static bool ControllerIs<TController>(this ActionContext context, Expression<Func<TController, Task<IActionResult>>> actionSelector)
             where TController : Controller
         {
-            Guard.NotNull(actionSelector, nameof(actionSelector));
+            Guard.NotNull(actionSelector);
 
             if (context is ControllerContext controllerContext)
             {
@@ -62,7 +62,7 @@ namespace Smartstore
         public static bool ControllerIs<TController>(this ActionContext context, Expression<Func<TController, IActionResult>> actionSelector)
             where TController : Controller
         {
-            Guard.NotNull(actionSelector, nameof(actionSelector));
+            Guard.NotNull(actionSelector);
 
             if (context is ControllerContext controllerContext)
             {
@@ -81,7 +81,7 @@ namespace Smartstore
         public static bool ControllerIs<TController>(this ActionContext context, Func<ControllerContext, bool> actionPredicate)
             where TController : Controller
         {
-            Guard.NotNull(actionPredicate, nameof(actionPredicate));
+            Guard.NotNull(actionPredicate);
 
             if (context is ControllerContext controllerContext)
             {
@@ -99,7 +99,7 @@ namespace Smartstore
         /// </summary>
         public static bool ControllerIs(this ActionContext context, Func<ControllerContext, bool> actionPredicate)
         {
-            Guard.NotNull(actionPredicate, nameof(actionPredicate));
+            Guard.NotNull(actionPredicate);
 
             if (context is ControllerContext controllerContext)
             {
