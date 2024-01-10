@@ -19,7 +19,7 @@
 		factory(window.jQuery);
 	}
 }(function ($) {
-	var inlineTags = 'b big i small tt abbr acronym cite code dfn em kbd strong samp var a bdo br img map object q script span sub sup button input label select textarea'.split(' ');
+	var inlineTags = 'b big i small tt abbr acronym caption cite code col dfn em kbd strong samp var a bdo br img map object q script span sub sup button input label select textarea'.split(' ');
 
 	function isInlineElement(el) {
 		return _.contains(inlineTags, el.tagName.toLowerCase());
