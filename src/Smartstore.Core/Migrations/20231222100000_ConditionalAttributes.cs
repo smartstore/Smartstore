@@ -108,6 +108,14 @@ namespace Smartstore.Core.Migrations
 
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AttributePriceAdjustment", "Price adjustment", "Mehr-/Minderpreis");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductWeight", "Weight", "Gewicht");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes", "Transfer attributes", "Attribute übernehmen");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote",
+                "Please select the product whose attributes, options and rules you would like to transfer.",
+                "Bitte wählen Sie das Produkt aus, dessen Attribute, Optionen und Bedingungen Sie übernehmen möchten.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes", "No attributes available", "Keine Attribute verfügbar");
         }
     }
 }

@@ -289,6 +289,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
+        // AJAX.
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> CopyAttributeOptions(int productVariantAttributeId, int optionsSetId, bool deleteExistingValues)
@@ -318,6 +319,57 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(string.Empty);
+        }
+
+        // AJAX.
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.EditVariant)]
+        public Task<IActionResult> CopyAttributes(int productVariantAttributeId, int transferAttributesProductId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> CopyAttributesInfo(int transferAttributesProductId)
+        {
+            if (!await _db.Products.AnyAsync(x => x.Id == transferAttributesProductId))
+            {
+                NotifyError(T("Products.NotFound", transferAttributesProductId));
+                return new EmptyResult();
+            }
+
+            var language = _workContext.WorkingLanguage;
+            var attributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductAttribute)
+                .Include(x => x.RuleSet)
+                .ThenInclude(x => x.Rules)
+                .Include(x => x.ProductVariantAttributeValues)
+                .Where(x => x.ProductId == transferAttributesProductId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            var attributesModels = attributes.Select(pva =>
+            {
+                var model = new CopyAttributesInfoModel.AttributeInfo
+                {
+                    Id = pva.ProductAttributeId,
+                    Name = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
+                    NumberOfRules = pva.RuleSet?.Rules?.Count ?? 0,
+                    Values = pva.ProductVariantAttributeValues
+                        .Select(x => x.GetLocalized(x => x.Name, language, true, false).Value)
+                        .ToList()
+                };
+
+                return model;
+            })
+            .ToList();
+
+            return PartialView("_CopyAttributesInfo", new CopyAttributesInfoModel
+            {
+                Id = transferAttributesProductId,
+                Attributes = attributesModels
+            });
         }
 
         #endregion

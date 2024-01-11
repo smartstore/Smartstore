@@ -11,28 +11,40 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules
 {
-    public class AttributeRuleProvider(
-        AttributeRuleProviderContext context,
-        SmartDbContext db,
-        IWorkContext workContext,
-        IComponentContext componentContext,
-        IRequestCache requestCache,
-        IRuleService ruleService,
-        ICurrencyService currencyService,
-        Lazy<IProductService> productService)
-        : RuleProviderBase(RuleScope.ProductAttribute), IAttributeRuleProvider
+    public class AttributeRuleProvider : RuleProviderBase, IAttributeRuleProvider
     {
         // {0} = Product.Id
         private readonly static CompositeFormat DescriptorsByProductIdKey = CompositeFormat.Parse("ruledescriptors:byproduct-{0}");
 
-        private readonly AttributeRuleProviderContext _ctx = context;
-        private readonly SmartDbContext _db = db;
-        private readonly IWorkContext _workContext = workContext;
-        private readonly IComponentContext _componentContext = componentContext;
-        private readonly IRequestCache _requestCache = requestCache;
-        private readonly IRuleService _ruleService = ruleService;
-        private readonly ICurrencyService _currencyService = currencyService;
-        private readonly Lazy<IProductService> _productService = productService;
+        private readonly AttributeRuleProviderContext _ctx;
+        private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly IComponentContext _componentContext;
+        private readonly IRequestCache _requestCache;
+        private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
+        private readonly Lazy<IProductService> _productService;
+
+        public AttributeRuleProvider(
+            AttributeRuleProviderContext context,
+            SmartDbContext db,
+            IWorkContext workContext,
+            IComponentContext componentContext,
+            IRequestCache requestCache,
+            IRuleService ruleService,
+            ICurrencyService currencyService,
+            Lazy<IProductService> productService) 
+            : base(RuleScope.ProductAttribute)
+        {
+            _ctx = context;
+            _db = db;
+            _workContext = workContext;
+            _componentContext = componentContext;
+            _requestCache = requestCache;
+            _ruleService = ruleService;
+            _currencyService = currencyService;
+            _productService = productService;
+        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

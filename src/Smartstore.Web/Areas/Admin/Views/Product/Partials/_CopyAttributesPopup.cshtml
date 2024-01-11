@@ -1,0 +1,81 @@
+﻿@*INFO: "data-focus" must be "false", otherwise search of select2 will not work correctly.*@
+<modal id="copy-attributes-popup" sm-render-at-page-end="true" sm-size="Large" data-focus="false">
+    <modal-header sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes")"></modal-header>
+    <modal-body>
+        <form asp-action="CopyAttributes" method="POST">
+            <input type="hidden" name="productVariantAttributeId" value="" />
+            <div class="form-group">
+                <div class="text-muted mb-2">
+                    @T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote")
+                </div>
+                <select class="form-control"
+                        id="transferAttributesProductId"
+                        name="transferAttributesProductId"
+                        data-remote-url="@Url.Action("AllProducts")">
+                </select>
+                <div id="copy-attributes-info" class="mt-2"></div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
+            <span>@T("Common.Close")</span>
+        </button>
+        <button id="btnCopyAttributes" type="button" class="btn btn-primary disabled" disabled>
+            <i class="far fa-copy"></i>
+            <span>@T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="Scripts" data-origin="copy-attributes-popup">
+    $(function () {
+
+        $('#transferAttributesProductId').on('change', function () {
+            var productId = $(this).val();
+            var noProductId = _.isEmpty(productId);
+            var info = $('#copy-attributes-info');
+
+            $('#btnCopyAttributes').toggleClass('disabled', noProductId).prop('disabled', noProductId);
+
+            $(info).ajax({
+                global: false,
+                type: 'GET',
+                url: '@Url.Action("CopyAttributesInfo")?transferAttributesProductId=' + productId,
+                smallIcon: info,
+                beforeSend: function () {
+                    info.empty();
+                },
+                success: function (response) {
+                    info.html(response);
+                }
+            });
+        });
+
+        // Transfer attributes from other product.
+        $(document).on('click', '#btnCopyAttributes', function (e) {
+			e.preventDefault();
+            var form = $('#copy-attributes-popup').find('form:first');
+
+			$.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@Url.Action("CopyAttributes")',
+				data: form.serialize(),
+				dataType: 'json',
+				success: function () {
+                    window["productvariantattributes-grid"].$children[0].read();
+                },
+                complete: function () {
+                    $('#copy-attributes-popup').modal('hide');
+                },
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        displayNotification(objXml.responseText, 'error');
+                    }
+                }
+			});
+			return false;
+        });
+    });
+</script>

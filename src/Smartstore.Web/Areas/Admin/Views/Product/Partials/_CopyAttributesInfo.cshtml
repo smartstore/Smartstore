@@ -1,0 +1,18 @@
+﻿@model CopyAttributesInfoModel
+
+<div class="well d-flex flex-nowrap">
+    @if (Model.Attributes.Count > 0)
+    {
+        <table class="product-attribute-table">
+            @foreach (var attribute in Model.Attributes)
+            {
+                <tr>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <span>@T("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes")</span>
+    }
+</div>

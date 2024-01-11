@@ -1,6 +1,4 @@
-﻿@using Smartstore.Core.Catalog.Products
-
-@model ProductModel
+﻿@model ProductModel
 
 @{
     ViewBag.Title = @Model.Name.Truncate(45, "...") + " / " + T("Admin.Common.Edit").Value;
@@ -50,6 +48,7 @@
 @if (Model.Id != 0 && Model.NumberOfAvailableProductAttributes > 0)
 {
     <partial name="_CopyAttributeOptionsDialog" />
+    <partial name="Partials/_CopyAttributesPopup" />
 }
 
 <partial name="_CopyProductDialog" model="Model" />
