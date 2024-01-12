@@ -20,7 +20,7 @@ namespace Smartstore.Core.Localization
     /// </summary>
     [Index(nameof(LocaleKeyGroup), Name = "IX_LocalizedProperty_LocaleKeyGroup")]
     [Index(nameof(EntityId), nameof(LocaleKey), nameof(LocaleKeyGroup), nameof(LanguageId), Name = "IX_LocalizedProperty_Compound")]
-    public partial class LocalizedProperty : BaseEntity
+    public partial class LocalizedProperty : BaseEntity, ICloneable<LocalizedProperty>
     {
         /// <summary>
         /// Gets or sets the entity identifier
@@ -105,5 +105,27 @@ namespace Smartstore.Core.Localization
             get => _language ?? LazyLoader.Load(this, ref _language);
             set => _language = value;
         }
+
+        public LocalizedProperty Clone()
+        {
+            return new()
+            {
+                EntityId = EntityId,
+                LanguageId = LanguageId,
+                LocaleKeyGroup = LocaleKeyGroup,
+                LocaleKey = LocaleKey,
+                LocaleValue = LocaleValue,
+                IsHidden = IsHidden,
+                CreatedOnUtc = DateTime.UtcNow,
+                UpdatedOnUtc = null,
+                CreatedBy = CreatedBy,
+                UpdatedBy = UpdatedBy,
+                TranslatedOnUtc = TranslatedOnUtc,
+                //MasterChecksum = MasterChecksum//??
+            };
+        }
+
+        object ICloneable.Clone()
+            => Clone();
     }
 }

@@ -31,7 +31,7 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(AttributeControlTypeId), Name = "IX_AttributeControlTypeId")]
     [Index(nameof(ProductId), nameof(DisplayOrder), Name = "IX_Product_ProductAttribute_Mapping_ProductId_DisplayOrder")]
     [LocalizedEntity("!Product.Deleted and Product.Published")]
-    public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder
+    public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder, ICloneable<ProductVariantAttribute>
     {
         /// <summary>
         /// Gets or sets the product identifier.
@@ -143,5 +143,22 @@ namespace Smartstore.Core.Catalog.Attributes
             get => _ruleSet ?? LazyLoader.Load(this, ref _ruleSet);
             set => _ruleSet = value;
         }
+
+        public ProductVariantAttribute Clone()
+        {
+            return new()
+            {
+                ProductId = ProductId,
+                ProductAttributeId = ProductAttributeId,
+                TextPrompt = TextPrompt,
+                CustomData = CustomData,
+                IsRequired = IsRequired,
+                AttributeControlTypeId = AttributeControlTypeId,
+                DisplayOrder = DisplayOrder,
+            };
+        }
+
+        object ICloneable.Clone()
+            => Clone();
     }
 }

@@ -1,18 +1,34 @@
 ﻿@model CopyAttributesInfoModel
 
-<div class="well d-flex flex-nowrap">
-    @if (Model.Attributes.Count > 0)
-    {
-        <table class="product-attribute-table">
-            @foreach (var attribute in Model.Attributes)
+@if (Model.Attributes.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-borderless mb-0">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col" style="width: 60%;">@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")</th>
+                <th scope="col" class="text-center">@T("Admin.Catalog.Products.ProductVariantAttributes.Rules")</th>
+            </tr>
+            @foreach (var item in Model.Attributes)
             {
                 <tr>
+                    <td class="col-form-label @(item.IsRequired ? " required" : string.Empty)" title="@item.AttributeControlType">
+                        @item.Name
+                    </td>
+                    <td>
+                        @string.Join(", ", item.Values)
+                    </td>
+                    <td class="text-center">
+                        @item.NumberOfRules.ToString("N0")
+                    </td>
                 </tr>
             }
         </table>
-    }
-    else
-    {
-        <span>@T("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes")</span>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        @T("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes")
+    </div>
+}

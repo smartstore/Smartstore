@@ -1,20 +1,17 @@
-﻿@*INFO: "data-focus" must be "false", otherwise search of select2 will not work correctly.*@
+﻿@model ProductModel
+@*INFO: "data-focus" must be "false", otherwise search of select2 will not work correctly.*@
 <modal id="copy-attributes-popup" sm-render-at-page-end="true" sm-size="Large" data-focus="false">
     <modal-header sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes")"></modal-header>
     <modal-body>
         <form asp-action="CopyAttributes" method="POST">
-            <input type="hidden" name="productVariantAttributeId" value="" />
-            <div class="form-group">
-                <div class="text-muted mb-2">
-                    @T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote")
-                </div>
-                <select class="form-control"
-                        id="transferAttributesProductId"
-                        name="transferAttributesProductId"
-                        data-remote-url="@Url.Action("AllProducts")">
-                </select>
-                <div id="copy-attributes-info" class="mt-2"></div>
+            <input type="hidden" name="attributesTargetProductId" value="@Model.Id" />
+            <div class="text-muted mb-2">
+                @T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote")
             </div>
+            <div class="mb-3">
+                <select class="form-control" id="attributesSourceProductId" name="attributesSourceProductId" data-remote-url="@Url.Action("AllProducts")"></select>
+            </div>
+            <div id="copy-attributes-info"></div>
         </form>
     </modal-body>
     <modal-footer>
@@ -31,7 +28,7 @@
 <script sm-target-zone="Scripts" data-origin="copy-attributes-popup">
     $(function () {
 
-        $('#transferAttributesProductId').on('change', function () {
+        $('#attributesSourceProductId').on('change', function () {
             var productId = $(this).val();
             var noProductId = _.isEmpty(productId);
             var info = $('#copy-attributes-info');
@@ -41,7 +38,7 @@
             $(info).ajax({
                 global: false,
                 type: 'GET',
-                url: '@Url.Action("CopyAttributesInfo")?transferAttributesProductId=' + productId,
+                url: '@Url.Action("CopyAttributesInfo")?attributesSourceProductId=' + productId,
                 smallIcon: info,
                 beforeSend: function () {
                     info.empty();

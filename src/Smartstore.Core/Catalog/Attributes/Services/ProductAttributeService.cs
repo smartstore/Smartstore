@@ -318,5 +318,99 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
             }
         }
+
+        public virtual async Task<int> CopyAttributesAsync(int sourceProductId, int targetProductId)
+        {
+            Guard.NotZero(sourceProductId);
+            Guard.NotZero(targetProductId);
+
+            var existingAttributeIds = await _db.ProductVariantAttributes
+                .Where(x => x.ProductId == targetProductId)
+                .Select(x => x.ProductAttributeId)
+                .ToArrayAsync();
+
+            var sourceAttributes = (await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributeValues)
+                .Include(x => x.RuleSet)
+                .ThenInclude(x => x.Rules)
+                .Where(x => x.ProductId == sourceProductId && !existingAttributeIds.Contains(x.ProductAttributeId))
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync())
+                .ToDictionarySafe(x => x.ProductAttributeId, x => x);
+            if (sourceAttributes.Count == 0)
+            {
+                return 0;
+            }
+
+            var clearLocalizedEntityCache = false;
+            var newAttributes = new Dictionary<int, ProductVariantAttribute>();
+            var newValues = new Dictionary<int, ProductVariantAttributeValue>();
+
+            // Copy attributes.
+            foreach (var pair in sourceAttributes)
+            {
+                var target = pair.Value.Clone();
+                target.ProductId = targetProductId;
+                newAttributes[pair.Key] = target;
+            }
+
+            _db.ProductVariantAttributes.AddRange(newAttributes.Select(x => x.Value));
+            await _db.SaveChangesAsync();
+
+            // Copy values to new attributes.
+            foreach (var pair in newAttributes)
+            {
+                var newAttribute = pair.Value;
+                if (!newAttribute.IsTransientRecord() && sourceAttributes.TryGetValue(pair.Key, out var source))
+                {
+                    foreach (var value in source.ProductVariantAttributeValues)
+                    {
+                        var target = value.Clone();
+                        target.ProductVariantAttributeId = newAttribute.Id;
+                        newValues[value.Id] = target;
+                    }
+                }
+            }
+
+            if (newValues.Count > 0)
+            {
+                _db.ProductVariantAttributeValues.AddRange(newValues.Select(x => x.Value));
+                await _db.SaveChangesAsync();
+
+                var localizations = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(nameof(ProductVariantAttributeValue), newValues.Select(x => x.Key).ToArray());
+                var newLocalizations = localizations
+                    .Select(x =>
+                    {
+                        if (newValues.TryGetValue(x.EntityId, out var newValue))
+                        {
+                            var target = x.Clone();
+                            target.EntityId = newValue.Id;
+                            return target;
+                        }
+                        return null;
+                    })
+                    .Where(x => x != null)
+                    .ToList();
+
+                if (newLocalizations.Count > 0)
+                {
+                    _db.LocalizedProperties.AddRange(newLocalizations);
+                    await _db.SaveChangesAsync();
+                    clearLocalizedEntityCache = true;
+                }
+            }
+
+            // Copy rules.
+
+
+            if (clearLocalizedEntityCache)
+            {
+                await _localizedEntityService.ClearCacheAsync();
+            }
+
+            return newAttributes.Count;
+        }
     }
 }

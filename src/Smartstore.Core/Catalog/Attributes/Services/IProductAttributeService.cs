@@ -47,5 +47,14 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="productId">Product identifier.</param>
         /// <returns>Number of added attribute combinations.</returns>
         Task<int> CreateAllAttributeCombinationsAsync(int productId);
+
+        /// <summary>
+        /// Copies all attributes, attribute values and rules from a source to a target product.
+        /// Existing attributes of the target product are not changed.
+        /// </summary>
+        /// <param name="sourceProductId">Identifier of the source product.</param>
+        /// <param name="targetProductId">Identifier of the target product.</param>
+        /// <returns>Number of added <see cref="ProductVariantAttribute"/> entities.</returns>
+        Task<int> CopyAttributesAsync(int sourceProductId, int targetProductId);
     }
 }

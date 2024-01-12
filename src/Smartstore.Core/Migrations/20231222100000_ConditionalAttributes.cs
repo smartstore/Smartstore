@@ -112,8 +112,8 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes", "Transfer attributes", "Attribute übernehmen");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote",
-                "Please select the product whose attributes, options and rules you would like to transfer.",
-                "Bitte wählen Sie das Produkt aus, dessen Attribute, Optionen und Bedingungen Sie übernehmen möchten.");
+                "Please select the product whose attributes, options and rules you would like to transfer. Existing attributes are not changed.",
+                "Bitte wählen Sie das Produkt aus, dessen Attribute, Optionen und Bedingungen Sie übernehmen möchten. Bereits vorhandene Attribute werden dabei nicht verändert.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes", "No attributes available", "Keine Attribute verfügbar");
         }

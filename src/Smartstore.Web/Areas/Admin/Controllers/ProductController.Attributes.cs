@@ -161,15 +161,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var pvaIds = productVariantAttributes.Select(x => x.Id).ToList();
-
-            // INFO: avoid MySQL InvalidOperationException "The LINQ expression '[Microsoft.EntityFrameworkCore.Query.ParameterQueryRootExpression]' could not be translated."
-            // in where-clause.
-            var rulesCount = (await _db.RuleSets
-                .Where(x => x.ProductVariantAttributeId != null && pvaIds.Contains(x.ProductVariantAttributeId.Value))
-                .Select(x => new { x.ProductVariantAttributeId, x.Rules.Count })
-                .ToListAsync())
-                .ToDictionarySafe(x => x.ProductVariantAttributeId, x => x.Count);
+            var rulesCount = await GetRulesCount(productVariantAttributes.Select(x => x.Id).ToList());
 
             var rows = productVariantAttributes.Select(x =>
             {
@@ -324,17 +316,17 @@ namespace Smartstore.Admin.Controllers
         // AJAX.
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        public Task<IActionResult> CopyAttributes(int productVariantAttributeId, int transferAttributesProductId)
+        public Task<IActionResult> CopyAttributes(int attributesSourceProductId, int attributesTargetProductId)
         {
             throw new NotImplementedException();
         }
 
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> CopyAttributesInfo(int transferAttributesProductId)
+        public async Task<IActionResult> CopyAttributesInfo(int attributesSourceProductId)
         {
-            if (!await _db.Products.AnyAsync(x => x.Id == transferAttributesProductId))
+            if (!await _db.Products.AnyAsync(x => x.Id == attributesSourceProductId))
             {
-                NotifyError(T("Products.NotFound", transferAttributesProductId));
+                NotifyError(T("Products.NotFound", attributesSourceProductId));
                 return new EmptyResult();
             }
 
@@ -342,12 +334,12 @@ namespace Smartstore.Admin.Controllers
             var attributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
                 .Include(x => x.ProductAttribute)
-                .Include(x => x.RuleSet)
-                .ThenInclude(x => x.Rules)
                 .Include(x => x.ProductVariantAttributeValues)
-                .Where(x => x.ProductId == transferAttributesProductId)
+                .Where(x => x.ProductId == attributesSourceProductId)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
+
+            var rulesCount = await GetRulesCount(attributes.Select(x => x.Id).ToList());
 
             var attributesModels = attributes.Select(pva =>
             {
@@ -355,7 +347,9 @@ namespace Smartstore.Admin.Controllers
                 {
                     Id = pva.ProductAttributeId,
                     Name = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
-                    NumberOfRules = pva.RuleSet?.Rules?.Count ?? 0,
+                    IsRequired = pva.IsRequired,
+                    AttributeControlType = Services.Localization.GetLocalizedEnum(pva.AttributeControlType),
+                    NumberOfRules = rulesCount.Get(pva.Id),
                     Values = pva.ProductVariantAttributeValues
                         .Select(x => x.GetLocalized(x => x.Name, language, true, false).Value)
                         .ToList()
@@ -367,7 +361,7 @@ namespace Smartstore.Admin.Controllers
 
             return PartialView("_CopyAttributesInfo", new CopyAttributesInfoModel
             {
-                Id = transferAttributesProductId,
+                Id = attributesSourceProductId,
                 Attributes = attributesModels
             });
         }
@@ -1250,6 +1244,23 @@ namespace Smartstore.Admin.Controllers
             ViewBag.formId = formId;
             ViewBag.RefreshPage = refreshPage;
             ViewBag.IsEdit = isEdit;
+        }
+
+        private async Task<Dictionary<int, int>> GetRulesCount(List<int> productVariantAttributeIds)
+        {
+            if (productVariantAttributeIds.IsNullOrEmpty())
+            {
+                return [];
+            }
+
+            // INFO: avoid MySQL InvalidOperationException "The LINQ expression '[Microsoft.EntityFrameworkCore.Query.ParameterQueryRootExpression]' could not be translated."
+            // in where-clause.
+            var rulesCount = await _db.RuleSets
+                .Where(x => x.ProductVariantAttributeId != null && productVariantAttributeIds.Contains(x.ProductVariantAttributeId.Value))
+                .Select(x => new { AttributeId = x.ProductVariantAttributeId.Value, x.Rules.Count })
+                .ToListAsync();
+
+            return rulesCount.ToDictionarySafe(x => x.AttributeId, x => x.Count);
         }
 
         #endregion
