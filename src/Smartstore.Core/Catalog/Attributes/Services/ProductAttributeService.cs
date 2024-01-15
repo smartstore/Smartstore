@@ -332,6 +332,11 @@ namespace Smartstore.Core.Catalog.Attributes
             Guard.NotZero(sourceProductId);
             Guard.NotZero(targetProductId);
 
+            if (sourceProductId == targetProductId)
+            {
+                return 0;
+            }
+
             var existingAttributeIds = await _db.ProductVariantAttributes
                 .Where(x => x.ProductId == targetProductId)
                 .Select(x => x.ProductAttributeId)

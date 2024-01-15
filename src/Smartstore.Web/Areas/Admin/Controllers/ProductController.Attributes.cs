@@ -332,6 +332,7 @@ namespace Smartstore.Admin.Controllers
             return Json(string.Empty);
         }
 
+        // AJAX.
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> CopyAttributesInfo(int attributesSourceProductId)
         {
@@ -370,10 +371,16 @@ namespace Smartstore.Admin.Controllers
             })
             .ToList();
 
-            return PartialView("_CopyAttributesInfo", new CopyAttributesInfoModel
+            var info = await InvokePartialViewAsync("_CopyAttributesInfo", new CopyAttributesInfoModel
             {
                 Id = attributesSourceProductId,
                 Attributes = attributesModels
+            });
+
+            return Json(new
+            {
+                info,
+                numberOfAttributes = attributesModels.Count,
             });
         }
 

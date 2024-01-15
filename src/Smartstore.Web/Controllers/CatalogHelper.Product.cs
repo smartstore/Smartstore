@@ -713,21 +713,24 @@ namespace Smartstore.Web.Controllers
             // Explicitly selected values always discards values preselected by merchant.
             var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
 
-            foreach (var attribute in model.ProductVariantAttributes)
-            {
-                attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(product, attribute.ProductAttribute, model.SelectedCombination, selectedValues));
-                if (!attribute.IsActive)
-                {
-                    continue;
-                }
+            await CheckAttributesRules(product, model, ruleProvider, selectedValues);
 
+            foreach (var attribute in model.ProductVariantAttributes.Where(x => x.IsActive))
+            {
                 var updatePreselection = selectedValueIds.Length > 0 && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
 
                 foreach (var value in attribute.Values.Cast<ProductDetailsModel.ProductVariantAttributeValueModel>())
                 {
+                    var isSelected = selectedValueIds.Contains(value.Id);
+
                     if (updatePreselection)
                     {
-                        value.IsPreSelected = selectedValueIds.Contains(value.Id);
+                        value.IsPreSelected = isSelected;
+                    }
+
+                    if (isSelected)
+                    {
+                        model.WeightValue += value.ProductAttributeValue.WeightAdjustment;
                     }
 
                     if (!_priceSettings.ShowVariantCombinationPriceAdjustment)
@@ -762,9 +765,6 @@ namespace Smartstore.Web.Controllers
                     }
                 }
             }
-
-            // Apply weight adjustments.
-            selectedValues.Each(x => model.WeightValue += x.WeightAdjustment);
         }
 
         protected async Task PrepareProductPropertiesModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext)
@@ -1305,6 +1305,36 @@ namespace Smartstore.Web.Controllers
 
             // Return for chaining
             return file;
+        }
+
+        private static async Task CheckAttributesRules(
+            Product product,
+            ProductDetailsModel model,
+            IAttributeRuleProvider ruleProvider,
+            IList<ProductVariantAttributeValue> selectedValues)
+        {
+            var deactivatedAttributeIds = new HashSet<int>();
+
+            foreach (var attribute in model.ProductVariantAttributes)
+            {
+                if (attribute.IsActive)
+                {
+                    attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(product, attribute.ProductAttribute, model.SelectedCombination, selectedValues));
+                    if (!attribute.IsActive)
+                    {
+                        deactivatedAttributeIds.Add(attribute.Id);
+                    }
+                }
+            }
+
+            if (deactivatedAttributeIds.Count > 0)
+            {
+                var modifiedSelectedValues = selectedValues
+                    .Where(x => !deactivatedAttributeIds.Contains(x.ProductVariantAttributeId))
+                    .ToList();
+
+                await CheckAttributesRules(product, model, ruleProvider, modifiedSelectedValues);
+            }
         }
     }
 }

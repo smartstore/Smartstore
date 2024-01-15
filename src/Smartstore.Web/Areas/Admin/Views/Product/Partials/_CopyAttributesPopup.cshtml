@@ -9,7 +9,9 @@
                 @T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote")
             </div>
             <div class="mb-3">
-                <select class="form-control" id="attributesSourceProductId" name="attributesSourceProductId" data-remote-url="@Url.Action("AllProducts")"></select>
+                <select class="form-control" id="attributesSourceProductId" name="attributesSourceProductId" 
+                        data-remote-url="@Url.Action("AllProducts")"
+                        placeholder="@T("Common.Unspecified")"></select>
             </div>
             <div id="copy-attributes-info"></div>
         </form>
@@ -33,18 +35,21 @@
             var noProductId = _.isEmpty(productId);
             var info = $('#copy-attributes-info');
 
-            $('#btnCopyAttributes').toggleClass('disabled', noProductId).prop('disabled', noProductId);
+            info.empty();
+            disableCopyButton(noProductId);
+
+            if (noProductId) {
+                return;
+            }
 
             $(info).ajax({
                 global: false,
                 type: 'GET',
                 url: '@Url.Action("CopyAttributesInfo")?attributesSourceProductId=' + productId,
                 smallIcon: info,
-                beforeSend: function () {
-                    info.empty();
-                },
                 success: function (response) {
-                    info.html(response);
+                    info.html(response.info);
+                    disableCopyButton(response.numberOfAttributes == 0);
                 }
             });
         });
@@ -74,5 +79,9 @@
 			});
 			return false;
         });
+
+        function disableCopyButton(disable) {
+            $('#btnCopyAttributes').toggleClass('disabled', disable).prop('disabled', disable);
+        }
     });
 </script>
