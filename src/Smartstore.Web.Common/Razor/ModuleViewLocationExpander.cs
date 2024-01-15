@@ -15,7 +15,7 @@ namespace Smartstore.Web.Razor
 
         public ModuleViewLocationExpander(IModuleCatalog moduleCatalog)
         {
-            _moduleCatalog = Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
+            _moduleCatalog = Guard.NotNull(moduleCatalog);
         }
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)

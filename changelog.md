@@ -62,6 +62,8 @@
 - #897 Discount code input seems to be confirmed (border color and check icon)
 - #964 Removed meta information from publication according to catalog settings
 - Fixed shoping cart MinOrderValidation 
+- Added quantity information on non-editable wishlist page.
+
 
 ## Smartstore 5.1.0
 

@@ -39,7 +39,7 @@ namespace Smartstore.Web.Filters
 
         public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
         {
-            Guard.NotNull(serviceProvider, nameof(serviceProvider));
+            Guard.NotNull(serviceProvider);
 
             if (_factory == null)
             {

@@ -65,8 +65,8 @@ namespace Smartstore.Core.Widgets
         /// <param name="widget">Widget to register</param>
         public static void RegisterWidget(this IWidgetProvider provider, string zone, Widget widget)
         {
-            Guard.NotEmpty(zone, nameof(zone));
-            provider.RegisterWidget(new[] { zone }, widget);
+            Guard.NotEmpty(zone);
+            provider.RegisterWidget([zone], widget);
         }
 
         /// <summary>
@@ -77,8 +77,8 @@ namespace Smartstore.Core.Widgets
         /// <param name="order">Sort order within the specified widget zone</param>
         public static void RegisterHtml(this IWidgetProvider provider, string zone, IHtmlContent html, int order = 0)
         {
-            Guard.NotEmpty(zone, nameof(zone));
-            provider.RegisterWidget(new[] { zone }, new HtmlWidget(html) { Order = order });
+            Guard.NotEmpty(zone);
+            provider.RegisterWidget([zone], new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace Smartstore.Core.Widgets
         public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string zone, object arguments = null, int order = 0)
             where TComponent : ViewComponent
         {
-            Guard.NotEmpty(zone, nameof(zone));
-            provider.RegisterWidget(new[] { zone }, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
+            Guard.NotEmpty(zone);
+            provider.RegisterWidget([zone], new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
 
         /// <summary>

@@ -16,14 +16,13 @@ namespace Smartstore.Core.Catalog.Products
 
             var values = product.MergedDataValues;
 
-            if (values != null)
-                values.Clear();
+            values?.Clear();
 
             if (combination == null)
                 return;
 
             if (values == null)
-                product.MergedDataValues = values = new Dictionary<string, object>();
+                product.MergedDataValues = values = [];
 
             if (ManageInventoryMethod.ManageStockByAttributes == (ManageInventoryMethod)product.ManageInventoryMethodId)
             {
@@ -67,7 +66,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>A value indicating whether the product is available by stock</returns>
         public static bool IsAvailableByStock(this Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
             {
@@ -88,8 +87,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>Product stock message.</returns>
         public static string FormatStockMessage(this Product product, ILocalizationService localizationService)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(localizationService, nameof(localizationService));
+            Guard.NotNull(product);
+            Guard.NotNull(localizationService);
 
             var stockMessage = string.Empty;
 
@@ -101,7 +100,7 @@ namespace Smartstore.Core.Catalog.Products
                     if (product.DisplayStockQuantity)
                     {
                         var str = localizationService.GetResource("Products.Availability.InStockWithQuantity");
-                        stockMessage = str.FormatCurrent(product.StockQuantity);
+                        stockMessage = str.FormatInvariant(product.StockQuantity.ToString("N0"));
                     }
                     else
                     {
@@ -132,8 +131,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>A value indicating whether to display the delivery time according to stock quantity.</returns>
         public static bool DisplayDeliveryTimeAccordingToStock(this Product product, CatalogSettings catalogSettings)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(catalogSettings, nameof(catalogSettings));
+            Guard.NotNull(product);
+            Guard.NotNull(catalogSettings);
 
             if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
             {
@@ -156,7 +155,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>The delivery time identifier according to stock quantity. <c>null</c> if not specified.</returns>
         public static int? GetDeliveryTimeIdAccordingToStock(this Product product, CatalogSettings catalogSettings)
         {
-            Guard.NotNull(catalogSettings, nameof(catalogSettings));
+            Guard.NotNull(catalogSettings);
 
             if (product == null)
             {
@@ -200,7 +199,7 @@ namespace Smartstore.Core.Catalog.Products
 
             if (product.AllowedQuantities.IsEmpty())
             {
-                return Array.Empty<int>();
+                return [];
             }
 
             return product.AllowedQuantities
@@ -246,7 +245,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>List of required product identifiers.</returns>
         public static int[] ParseRequiredProductIds(this Product product)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(product);
 
             return product.RequiredProductIds
                 .SplitSafe(',', StringSplitOptions.TrimEntries)
@@ -259,7 +258,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             if (product != null && product.ProductType != ProductType.SimpleProduct)
             {
-                var key = "Admin.Catalog.Products.ProductType.{0}.Label".FormatInvariant(product.ProductType.ToString());
+                var key = "Admin.Catalog.Products.ProductType.{0}.Label".FormatInvariant(product.ProductType.ToStringInvariant());
                 return localizationService.GetResource(key);
             }
 
