@@ -1,4 +1,5 @@
-﻿using FluentMigrator;
+﻿using System.Data;
+using FluentMigrator;
 using FluentMigrator.SqlServer;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
@@ -26,7 +27,8 @@ namespace Smartstore.Core.Migrations
                 Create.Column(AttributeIdColumn).OnTable(RuleSetTable)
                     .AsInt32()
                     .Nullable()
-                    .ForeignKey(FkAttributeId, "Product_ProductAttribute_Mapping", nameof(BaseEntity.Id));
+                    .ForeignKey(FkAttributeId, "Product_ProductAttribute_Mapping", nameof(BaseEntity.Id))
+                    .OnDelete(Rule.Cascade);
             }
 
             if (!ruleSet.Index(IxAttributeId).Exists())
@@ -116,6 +118,10 @@ namespace Smartstore.Core.Migrations
                 "Bitte wählen Sie das Produkt aus, dessen Attribute, Optionen und Bedingungen Sie übernehmen möchten. Bereits vorhandene Attribute werden dabei nicht verändert.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes", "No attributes available", "Keine Attribute verfügbar");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes",
+                "{0} attribute(s) including options and rules were copied.",
+                "Es wurden {0} Attribut(e) einschließlich Optionen und Bedingungen kopiert.");
         }
     }
 }

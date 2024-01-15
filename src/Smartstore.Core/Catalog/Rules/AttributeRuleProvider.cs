@@ -159,7 +159,7 @@ namespace Smartstore.Core.Catalog.Rules
         {
             var result = await _requestCache.GetAsync(DescriptorsByProductIdKey.FormatInvariant(_ctx.ProductId), async () =>
             {
-                var attributeSelectedRuleType = typeof(ProductAttributeRule);
+                var productAttributeRuleType = typeof(ProductAttributeRule);
                 var language = _workContext.WorkingLanguage;
                 var currencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
@@ -196,16 +196,16 @@ namespace Smartstore.Core.Catalog.Rules
 
                     var descriptor = new AttributeRuleDescriptor
                     {
-                        Name = $"Variant{attribute.Id}",
+                        Name = $"Variant{attribute.ProductAttributeId}",
                         DisplayName = attribute.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
                         GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
                         RuleType = RuleType.IntArray,
-                        ProcessorType = attributeSelectedRuleType,
+                        ProcessorType = productAttributeRuleType,
                         IsComparingSequences = attribute.IsMultipleChoice,
                         SelectList = new LocalRuleValueSelectList(values) { Multiple = true }
                     };
 
-                    descriptor.Metadata["Id"] = attribute.Id;
+                    descriptor.Metadata["ParentId"] = attribute.Id;
 
                     descriptors.Add(descriptor);
                 }

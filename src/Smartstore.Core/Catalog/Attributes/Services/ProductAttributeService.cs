@@ -1,7 +1,10 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
+using Smartstore.Core.Catalog.Rules.Impl;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 
@@ -11,11 +14,16 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly Lazy<IRuleProviderFactory> _ruleProviderFactory;
 
-        public ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService)
+        public ProductAttributeService(
+            SmartDbContext db,
+            ILocalizedEntityService localizedEntityService,
+            Lazy<IRuleProviderFactory> ruleProviderFactory)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
+            _ruleProviderFactory = ruleProviderFactory;
         }
 
         public virtual async Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix)
@@ -331,6 +339,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var sourceAttributes = (await _db.ProductVariantAttributes
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.ProductAttribute)
                 .Include(x => x.ProductVariantAttributeValues)
                 .Include(x => x.RuleSet)
@@ -344,22 +353,25 @@ namespace Smartstore.Core.Catalog.Attributes
                 return 0;
             }
 
-            var clearLocalizedEntityCache = false;
+            // Maps old entity ID to new entity.
             var newAttributes = new Dictionary<int, ProductVariantAttribute>();
             var newValues = new Dictionary<int, ProductVariantAttributeValue>();
+            var newRuleSets = new Dictionary<int, RuleSetEntity>();
+            var newRules = new List<RuleEntity>();
+            var clearLocalizedEntityCache = false;
 
             // Copy attributes.
             foreach (var pair in sourceAttributes)
             {
-                var target = pair.Value.Clone();
-                target.ProductId = targetProductId;
-                newAttributes[pair.Key] = target;
+                var newAttribute = pair.Value.Clone();
+                newAttribute.ProductId = targetProductId;
+                newAttributes[pair.Key] = newAttribute;
             }
 
             _db.ProductVariantAttributes.AddRange(newAttributes.Select(x => x.Value));
             await _db.SaveChangesAsync();
 
-            // Copy values to new attributes.
+            // Copy attribute values.
             foreach (var pair in newAttributes)
             {
                 var newAttribute = pair.Value;
@@ -367,9 +379,21 @@ namespace Smartstore.Core.Catalog.Attributes
                 {
                     foreach (var value in source.ProductVariantAttributeValues)
                     {
-                        var target = value.Clone();
-                        target.ProductVariantAttributeId = newAttribute.Id;
-                        newValues[value.Id] = target;
+                        var newValue = value.Clone();
+                        newValue.ProductVariantAttributeId = newAttribute.Id;
+                        newValues[value.Id] = newValue;
+                    }
+
+                    if (source.RuleSet != null && !source.RuleSet.Rules.IsNullOrEmpty())
+                    {
+                        newRuleSets[pair.Key] = new RuleSetEntity
+                        {
+                            Scope = RuleScope.ProductAttribute,
+                            IsActive = true,
+                            IsSubGroup = false,
+                            LogicalOperator = LogicalRuleOperator.And,
+                            ProductVariantAttributeId = newAttribute.Id
+                        };
                     }
                 }
             }
@@ -385,9 +409,9 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         if (newValues.TryGetValue(x.EntityId, out var newValue))
                         {
-                            var target = x.Clone();
-                            target.EntityId = newValue.Id;
-                            return target;
+                            var newLocalization = x.Clone();
+                            newLocalization.EntityId = newValue.Id;
+                            return newLocalization;
                         }
                         return null;
                     })
@@ -402,8 +426,38 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
             }
 
-            // Copy rules.
+            // Copy rule sets and rules.
+            if (newRuleSets.Count > 0)
+            {
+                var ruleProvider = _ruleProviderFactory.Value.GetProvider(RuleScope.ProductAttribute, new AttributeRuleProviderContext(sourceProductId));
+                var descriptors = await ruleProvider.GetRuleDescriptorsAsync();
 
+                _db.RuleSets.AddRange(newRuleSets.Select(x => x.Value));
+                await _db.SaveChangesAsync();
+
+                foreach (var pair in newRuleSets)
+                {
+                    var newRuleSet = pair.Value;
+                    if (!newRuleSet.IsTransientRecord() && sourceAttributes.TryGetValue(pair.Key, out var source))
+                    {
+                        newRules.AddRange(source.RuleSet.Rules
+                            .Select(x =>
+                            {
+                                var newRule = x.Clone();
+                                newRule.RuleSetId = newRuleSet.Id;
+
+                                // Migrate rule value. It contains the IDs of ProductVariantAttributeValue.
+                                return MigrateRule(newRule, newValues, descriptors);
+                            }));
+                    }
+                }
+
+                if (newRules.Count > 0)
+                {
+                    _db.Rules.AddRange(newRules);
+                    await _db.SaveChangesAsync();
+                }
+            }
 
             if (clearLocalizedEntityCache)
             {
@@ -411,6 +465,23 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             return newAttributes.Count;
+        }
+
+        protected virtual RuleEntity MigrateRule(RuleEntity rule, Dictionary<int, ProductVariantAttributeValue> newValueMap, RuleDescriptorCollection descriptors)
+        {
+            if (descriptors.FindDescriptor(rule.RuleType) is AttributeRuleDescriptor descriptor
+                && descriptor.ProcessorType == typeof(ProductAttributeRule))
+            {
+                var valueIds = rule.Value
+                    .ToIntArray()
+                    .Select(x => newValueMap.TryGetValue(x, out var newValue) ? newValue.Id : 0)
+                    .Where(x => x != 0)
+                    .ToArray();
+
+                rule.Value = valueIds.Length > 0 ? string.Join(',', valueIds) : null;
+            }
+
+            return rule;
         }
     }
 }

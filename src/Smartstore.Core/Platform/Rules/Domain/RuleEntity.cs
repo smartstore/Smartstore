@@ -8,7 +8,7 @@ namespace Smartstore.Core.Rules
     [Table("Rule")]
     [Index(nameof(RuleType), Name = "IX_PageBuilder_RuleType")]
     [Index(nameof(DisplayOrder), Name = "IX_PageBuilder_DisplayOrder")]
-    public partial class RuleEntity : BaseEntity
+    public partial class RuleEntity : BaseEntity, ICloneable<RuleEntity>
     {
         [Required]
         public int RuleSetId { get; set; }
@@ -35,5 +35,20 @@ namespace Smartstore.Core.Rules
 
         [NotMapped]
         public bool IsGroup => RuleType.EqualsNoCase("Group");
+
+        public RuleEntity Clone()
+        {
+            return new()
+            {
+                RuleSetId = RuleSetId,
+                RuleType = RuleType,
+                Operator = Operator,
+                Value = Value,
+                DisplayOrder = DisplayOrder
+            };
+        }
+
+        object ICloneable.Clone()
+            => Clone();
     }
 }

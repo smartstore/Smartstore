@@ -290,24 +290,23 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.ProductVariantAttributeValues)
                 .FindByIdAsync(productVariantAttributeId, false);
 
-            if (pva == null)
-            {
-                NotifyError(T("Products.Variants.NotFound", productVariantAttributeId));
-            }
-            else
+            if (pva != null)
             {
                 try
                 {
                     var numberOfCopiedOptions = await _productAttributeService.Value.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
 
-                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed")
-                        + " "
-                        + T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions));
+                    NotifySuccess(T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions));
                 }
                 catch (Exception ex)
                 {
                     NotifyError(ex.Message);
+                    Logger.Error(ex);
                 }
+            }
+            else
+            {
+                NotifyError(T("Products.Variants.NotFound", productVariantAttributeId));
             }
 
             return Json(string.Empty);
@@ -316,9 +315,21 @@ namespace Smartstore.Admin.Controllers
         // AJAX.
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditVariant)]
-        public Task<IActionResult> CopyAttributes(int attributesSourceProductId, int attributesTargetProductId)
+        public async Task<IActionResult> CopyAttributes(int attributesSourceProductId, int attributesTargetProductId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var numberOfCopiedAttributes = await _productAttributeService.Value.CopyAttributesAsync(attributesSourceProductId, attributesTargetProductId);
+
+                NotifySuccess(T("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes", numberOfCopiedAttributes));
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.Message);
+                Logger.Error(ex);
+            }
+
+            return Json(string.Empty);
         }
 
         [Permission(Permissions.Catalog.Product.Read)]

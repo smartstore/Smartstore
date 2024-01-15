@@ -8,7 +8,7 @@ namespace Smartstore.Core.Catalog.Rules.Impl
         public Task<bool> MatchAsync(AttributeRuleContext context, RuleExpression expression)
         {
             var match = false;
-            var ruleAttributeId = expression.Descriptor.Metadata.Get("Id")?.Convert<int>() ?? 0;
+            var ruleAttributeId = expression.Descriptor.Metadata.Get("ParentId")?.Convert<int>() ?? 0;
             if (ruleAttributeId != 0)
             {
                 var valueIds = context.SelectedValues
