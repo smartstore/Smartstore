@@ -234,7 +234,7 @@
             cache: false,
             success: function (response) {
                 if (response.success) {
-                    orderId = response.id;
+                    orderId = response.data.id;
                 }
                 else {
                     displayNotification(response.message, response.messageType);
