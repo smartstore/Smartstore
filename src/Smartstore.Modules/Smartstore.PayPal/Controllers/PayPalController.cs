@@ -164,7 +164,7 @@ namespace Smartstore.PayPal.Controllers
 
                 Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
 
-                return Json(jResponse);
+                return Json(new { success = true, data = jResponse });
             }
             else
             {
