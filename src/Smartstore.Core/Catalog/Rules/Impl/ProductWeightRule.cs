@@ -4,14 +4,21 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules.Impl
 {
-    internal class ProductWeightRule(
-        SmartDbContext db,
-        ICurrencyService currencyService,
-        IRoundingHelper roundingHelper) : IRule<AttributeRuleContext>
+    internal class ProductWeightRule : IRule<AttributeRuleContext>
     {
-        private readonly SmartDbContext _db = db;
-        private readonly ICurrencyService _currencyService = currencyService;
-        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly SmartDbContext _db;
+        private readonly ICurrencyService _currencyService;
+        private readonly IRoundingHelper _roundingHelper;
+
+        public ProductWeightRule(
+            SmartDbContext db,
+            ICurrencyService currencyService,
+            IRoundingHelper roundingHelper)
+        {
+            _db = db;
+            _currencyService = currencyService;
+            _roundingHelper = roundingHelper;
+        }
 
         public async Task<bool> MatchAsync(AttributeRuleContext context, RuleExpression expression)
         {

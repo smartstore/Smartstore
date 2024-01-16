@@ -35,10 +35,9 @@
             var noProductId = _.isEmpty(productId);
             var info = $('#copy-attributes-info');
 
-            info.empty();
-            disableCopyButton(noProductId);
-
             if (noProductId) {
+                info.empty();
+                disableCopyButton(true);
                 return;
             }
 
@@ -50,6 +49,10 @@
                 success: function (response) {
                     info.html(response.info);
                     disableCopyButton(response.numberOfAttributes == 0);
+                },
+                error: function () {
+                    info.empty();
+                    disableCopyButton(true);
                 }
             });
         });

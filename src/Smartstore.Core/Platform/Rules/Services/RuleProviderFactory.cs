@@ -5,9 +5,14 @@ using Smartstore.Core.Identity.Rules;
 
 namespace Smartstore.Core.Rules
 {
-    public class RuleProviderFactory(ILifetimeScope lifetimeScope) : IRuleProviderFactory
+    public class RuleProviderFactory : IRuleProviderFactory
     {
-        private readonly ILifetimeScope _lifetimeScope = lifetimeScope;
+        private readonly ILifetimeScope _lifetimeScope;
+
+        public RuleProviderFactory(ILifetimeScope lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
+        }
 
         public virtual IRuleProvider GetProvider(RuleScope scope, object context = null)
         {

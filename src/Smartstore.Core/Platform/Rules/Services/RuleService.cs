@@ -6,14 +6,21 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Rules
 {
-    public partial class RuleService(
-        SmartDbContext db,
-        IWorkContext workContext,
-        Lazy<IEnumerable<IRuleOptionsProvider>> ruleOptionsProviders) : IRuleService
+    public partial class RuleService : IRuleService
     {
-        private readonly SmartDbContext _db = db;
-        private readonly IWorkContext _workContext = workContext;
-        private readonly Lazy<IEnumerable<IRuleOptionsProvider>> _ruleOptionsProviders = ruleOptionsProviders;
+        private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly Lazy<IEnumerable<IRuleOptionsProvider>> _ruleOptionsProviders;
+
+        public RuleService(
+            SmartDbContext db,
+            IWorkContext workContext,
+            Lazy<IEnumerable<IRuleOptionsProvider>> ruleOptionsProviders)
+        {
+            _db = db;
+            _workContext = workContext;
+            _ruleOptionsProviders = ruleOptionsProviders;
+        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

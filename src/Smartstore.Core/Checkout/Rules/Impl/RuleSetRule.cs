@@ -2,10 +2,16 @@
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class RuleSetRule(IRuleService ruleService, IRuleProviderFactory ruleProviderFactory) : IRule<CartRuleContext>
+    public class RuleSetRule : IRule<CartRuleContext>
     {
-        private readonly IRuleService _ruleService = ruleService;
-        private readonly ICartRuleProvider _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
+        private readonly IRuleService _ruleService;
+        private readonly ICartRuleProvider _cartRuleProvider;
+
+        public RuleSetRule(IRuleService ruleService, IRuleProviderFactory ruleProviderFactory)
+        {
+            _ruleService = ruleService;
+            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
+        }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

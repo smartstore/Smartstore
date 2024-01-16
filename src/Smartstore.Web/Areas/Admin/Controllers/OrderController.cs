@@ -1526,6 +1526,8 @@ namespace Smartstore.Admin.Controllers
             var product = await _db.Products
                 .Include(x => x.ProductVariantAttributes)
                 .ThenInclude(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.RuleSet)
                 .FindByIdAsync(model.ProductId);
 
             if (order == null || product == null)

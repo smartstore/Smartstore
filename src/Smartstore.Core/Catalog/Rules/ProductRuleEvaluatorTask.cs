@@ -11,14 +11,21 @@ namespace Smartstore.Core.Catalog.Rules
     /// <summary>
     /// Updates the system assignments to categories for rules.
     /// </summary>
-    public partial class ProductRuleEvaluatorTask(
-        SmartDbContext db,
-        IRuleService ruleService,
-        IRuleProviderFactory ruleProviderFactory) : ITask
+    public partial class ProductRuleEvaluatorTask : ITask
     {
-        protected readonly SmartDbContext _db = db;
-        protected readonly IRuleService _ruleService = ruleService;
-        protected readonly IProductRuleProvider _productRuleProvider = ruleProviderFactory.GetProvider<IProductRuleProvider>(RuleScope.Product);
+        protected readonly SmartDbContext _db;
+        protected readonly IRuleService _ruleService;
+        protected readonly IProductRuleProvider _productRuleProvider;
+
+        public ProductRuleEvaluatorTask(
+            SmartDbContext db,
+            IRuleService ruleService,
+            IRuleProviderFactory ruleProviderFactory)
+        {
+            _db = db;
+            _ruleService = ruleService;
+            _productRuleProvider = ruleProviderFactory.GetProvider<IProductRuleProvider>(RuleScope.Product);
+        }
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
@@ -28,10 +35,7 @@ namespace Smartstore.Core.Catalog.Rules
             var numCategories = 0;
             var pageSize = 500;
             var pageIndex = -1;
-
-            var categoryIds = ctx.Parameters.ContainsKey("CategoryIds")
-                ? ctx.Parameters["CategoryIds"].ToIntArray()
-                : null;
+            var categoryIds = ctx.Parameters.TryGetValue("CategoryIds", out string value) ? value.ToIntArray() : null;
 
             // Hooks are enabled because search index needs to be updated.
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Normal, deferCommit: true))

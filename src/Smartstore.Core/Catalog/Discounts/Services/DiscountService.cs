@@ -12,24 +12,33 @@ using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public partial class DiscountService(
-        SmartDbContext db,
-        IRequestCache requestCache,
-        IStoreContext storeContext,
-        IRuleProviderFactory ruleProviderFactory,
-        Lazy<IShoppingCartService> cartService) : AsyncDbSaveHook<Discount>, IDiscountService
+    public partial class DiscountService : AsyncDbSaveHook<Discount>, IDiscountService
     {
         // {0} = discountType, {1} = includeHidden, {2} = couponCode.
         private readonly static CompositeFormat DiscountsAllKey = CompositeFormat.Parse("discount.all-{0}-{1}-{2}");
         internal const string DiscountsPatternKey = "discount.*";
 
-        private readonly SmartDbContext _db = db;
-        private readonly IRequestCache _requestCache = requestCache;
-        private readonly IStoreContext _storeContext = storeContext;
-        private readonly ICartRuleProvider _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
-        private readonly Lazy<IShoppingCartService> _cartService = cartService;
+        private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
+        private readonly IStoreContext _storeContext;
+        private readonly ICartRuleProvider _cartRuleProvider;
+        private readonly Lazy<IShoppingCartService> _cartService ;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = [];
         private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
+
+        public DiscountService(
+            SmartDbContext db,
+            IRequestCache requestCache,
+            IStoreContext storeContext,
+            IRuleProviderFactory ruleProviderFactory,
+            Lazy<IShoppingCartService> cartService)
+        {
+            _db = db;
+            _requestCache = requestCache;
+            _storeContext = storeContext;
+            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
+            _cartService = cartService;
+        }
 
         #region Hook
 

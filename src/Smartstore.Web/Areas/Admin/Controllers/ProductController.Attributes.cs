@@ -336,52 +336,70 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> CopyAttributesInfo(int attributesSourceProductId)
         {
-            if (!await _db.Products.AnyAsync(x => x.Id == attributesSourceProductId))
+            var success = false;
+            string error = null;
+            string info = null;
+            var numberOfAttributes = 0;
+
+            try
             {
-                NotifyError(T("Products.NotFound", attributesSourceProductId));
-                return new EmptyResult();
+                if (await _db.Products.AnyAsync(x => x.Id == attributesSourceProductId))
+                {
+                    var language = _workContext.WorkingLanguage;
+                    var attributes = await _db.ProductVariantAttributes
+                        .AsNoTracking()
+                        .Include(x => x.ProductAttribute)
+                        .Include(x => x.ProductVariantAttributeValues)
+                        .Where(x => x.ProductId == attributesSourceProductId)
+                        .OrderBy(x => x.DisplayOrder)
+                        .ToListAsync();
+
+                    var rulesCount = await GetRulesCount(attributes.Select(x => x.Id).ToList());
+
+                    var attributesModels = attributes.Select(pva =>
+                    {
+                        var model = new CopyAttributesInfoModel.AttributeInfo
+                        {
+                            Id = pva.ProductAttributeId,
+                            Name = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
+                            IsRequired = pva.IsRequired,
+                            AttributeControlType = Services.Localization.GetLocalizedEnum(pva.AttributeControlType),
+                            NumberOfRules = rulesCount.Get(pva.Id),
+                            Values = pva.ProductVariantAttributeValues
+                                .Select(x => x.GetLocalized(x => x.Name, language, true, false).Value)
+                                .ToList()
+                        };
+
+                        return model;
+                    })
+                    .ToList();
+
+                    info = await InvokePartialViewAsync("_CopyAttributesInfo", new CopyAttributesInfoModel
+                    {
+                        Id = attributesSourceProductId,
+                        Attributes = attributesModels
+                    });
+
+                    numberOfAttributes = attributesModels.Count;
+                    success = true;
+                }
+                else
+                {
+                    error = T("Products.NotFound", attributesSourceProductId);
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                Logger.Error(ex);
             }
 
-            var language = _workContext.WorkingLanguage;
-            var attributes = await _db.ProductVariantAttributes
-                .AsNoTracking()
-                .Include(x => x.ProductAttribute)
-                .Include(x => x.ProductVariantAttributeValues)
-                .Where(x => x.ProductId == attributesSourceProductId)
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-
-            var rulesCount = await GetRulesCount(attributes.Select(x => x.Id).ToList());
-
-            var attributesModels = attributes.Select(pva =>
+            if (!success && error.HasValue())
             {
-                var model = new CopyAttributesInfoModel.AttributeInfo
-                {
-                    Id = pva.ProductAttributeId,
-                    Name = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
-                    IsRequired = pva.IsRequired,
-                    AttributeControlType = Services.Localization.GetLocalizedEnum(pva.AttributeControlType),
-                    NumberOfRules = rulesCount.Get(pva.Id),
-                    Values = pva.ProductVariantAttributeValues
-                        .Select(x => x.GetLocalized(x => x.Name, language, true, false).Value)
-                        .ToList()
-                };
+                info = $"<div class='alert alert-danger'>{error}</div>";
+            }
 
-                return model;
-            })
-            .ToList();
-
-            var info = await InvokePartialViewAsync("_CopyAttributesInfo", new CopyAttributesInfoModel
-            {
-                Id = attributesSourceProductId,
-                Attributes = attributesModels
-            });
-
-            return Json(new
-            {
-                info,
-                numberOfAttributes = attributesModels.Count,
-            });
+            return Json(new { success, info, numberOfAttributes });
         }
 
         #endregion

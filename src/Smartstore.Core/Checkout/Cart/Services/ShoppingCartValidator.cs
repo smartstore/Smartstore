@@ -515,7 +515,8 @@ namespace Smartstore.Core.Checkout.Cart
             // Check product variant attributes.
             await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes, false, q => q
                 .Include(x => x.ProductAttribute)
-                .Include(x => x.ProductVariantAttributeValues));
+                .Include(x => x.ProductVariantAttributeValues)
+                .Include(x => x.RuleSet));
 
             var currentWarnings = new List<string>();
             var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);

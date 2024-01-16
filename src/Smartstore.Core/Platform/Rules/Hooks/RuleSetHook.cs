@@ -3,10 +3,15 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Rules
 {
-    internal class RuleSetHook(SmartDbContext db) : AsyncDbSaveHook<RuleSetEntity>
+    internal class RuleSetHook : AsyncDbSaveHook<RuleSetEntity>
     {
-        private readonly SmartDbContext _db = db;
+        private readonly SmartDbContext _db;
         private readonly HashSet<int> _subRuleSetIdsToDelete = new();
+
+        public RuleSetHook(SmartDbContext db)
+        {
+            _db = db;
+        }
 
         protected override async Task<HookResult> OnDeletingAsync(RuleSetEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {

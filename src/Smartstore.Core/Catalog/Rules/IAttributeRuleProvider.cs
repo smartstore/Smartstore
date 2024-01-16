@@ -38,10 +38,14 @@ namespace Smartstore.Core.Catalog.Rules
     /// Context object provided when instantiating <see cref="IAttributeRuleProvider"/>.
     /// Only required in case of <see cref="IAttributeRuleProvider"/> at the moment.
     /// </summary>
-    /// <param name="productId">Identifier of the product.</param>
-    public partial class AttributeRuleProviderContext(int productId)
+    public partial class AttributeRuleProviderContext
     {
-        public int ProductId { get; } = Guard.NotZero(productId);
+        public AttributeRuleProviderContext(int productId)
+        {
+            ProductId = Guard.NotZero(productId);
+        }
+
+        public int ProductId { get; }
         public List<ProductVariantAttribute>? Attributes { get; init; }
         public ProductBatchContext? BatchContext { get; init; }
     }
