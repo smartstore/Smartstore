@@ -8,6 +8,9 @@
   - Faster app startup
   - Increased overall performance
   - ~10 % less memory usage after app start
+- **Conditional product attributes**
+  - Makes the visibility of an attribute dependent on the selection state of other attributes.
+  - Copying attributes, options and rules from one product to another.
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - Affiliates
   - #896 Added a cart rule for affiliates.
