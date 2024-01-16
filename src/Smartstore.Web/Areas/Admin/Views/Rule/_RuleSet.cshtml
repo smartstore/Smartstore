@@ -1,20 +1,41 @@
 ﻿@model IRuleExpressionGroup
 
 @{
-    var orButton = ViewBag.ConditionsOrButton as string;
-    var andButton = ViewBag.ConditionsAndButton as string;
+    var scope = Model.Provider.Scope;
     var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
+    var orButton = await GetConditionsButtonString(LogicalRuleOperator.Or);
+    var andButton = await GetConditionsButtonString(LogicalRuleOperator.And);
+    string oneCondition;
+    string allCondition;
+
+    if (!Model.IsSubGroup && scope == RuleScope.ProductAttribute)
+    {
+        oneCondition = T("Admin.Rules.ProductAttribute.OneCondition", orButton);
+        allCondition = T("Admin.Rules.ProductAttribute.AllConditions", andButton);
+    }
+    else
+    {
+        oneCondition = T("Admin.Rules.OneCondition", orButton);
+        allCondition = T("Admin.Rules.AllConditions", andButton);
+    }
+
+    async Task<string> GetConditionsButtonString(LogicalRuleOperator op)
+    {
+        // INFO: "cshtml" extension is mandatory here, as this partial is invoked with a complete path in case of RuleScope.ProductAttribute.
+        var content = await Html.PartialAsync("_RuleSetConditionsButton.cshtml", Model, new ViewDataDictionary(ViewData) { ["ruleOperator"] = op });
+        return content.ToHtmlString().ToString();
+    }
 }
 
 <div class="ruleset" data-ruleset-id="@Model.Id" data-refrule-id="@Model.RefRuleId">
     <div class="ruleset-header hstack justify-content-between">
-        <div class="ruleset-operator" data-url="@Url.Action("ChangeOperator")">
+        <div class="ruleset-operator">
             <input type="hidden" asp-for="LogicalOperator" />
             <div class="ruleset-op-one align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hide" : "d-flex")">
-                @Html.Raw(T("Admin.Rules.OneCondition", orButton))
+                @Html.Raw(oneCondition)
             </div>
             <div class="ruleset-op-all align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "d-flex" : "hide")">
-                @Html.Raw(T("Admin.Rules.AllConditions", andButton))
+                @Html.Raw(allCondition)
             </div>
         </div>
         <div sm-if="Model.RefRuleId == 0" class="d-flex align-items-center">
@@ -26,7 +47,7 @@
     <div class="ruleset-body">
         @foreach (var expression in Model.Expressions)
         {
-            <partial name="@(expression is IRuleExpressionGroup ? "_RuleSet" : "_Rule")" model="expression" />
+            <partial name="@(expression is IRuleExpressionGroup ? "_RuleSet.cshtml" : "_Rule.cshtml")" model="expression" />
         }
     </div>
     <div class="ruleset-footer">
@@ -51,7 +72,7 @@
                     }
                 </select>
             </div>
-            <div sm-if="Model.Provider.Scope != RuleScope.Product" class="col-8 col-md-9 col-xl-10">
+            <div sm-if="scope != RuleScope.Product" class="col-8 col-md-9 col-xl-10">
                 <button type="button" class="btn btn-outline-secondary btn-to-primary r-add-group">
                     <span>@T("Admin.Rules.AddGroup")</span>
                 </button>

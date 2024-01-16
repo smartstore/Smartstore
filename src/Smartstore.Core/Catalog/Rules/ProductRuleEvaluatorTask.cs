@@ -20,11 +20,11 @@ namespace Smartstore.Core.Catalog.Rules
         public ProductRuleEvaluatorTask(
             SmartDbContext db,
             IRuleService ruleService,
-            IProductRuleProvider productRuleProvider)
+            IRuleProviderFactory ruleProviderFactory)
         {
             _db = db;
             _ruleService = ruleService;
-            _productRuleProvider = productRuleProvider;
+            _productRuleProvider = ruleProviderFactory.GetProvider<IProductRuleProvider>(RuleScope.Product);
         }
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
@@ -35,10 +35,7 @@ namespace Smartstore.Core.Catalog.Rules
             var numCategories = 0;
             var pageSize = 500;
             var pageIndex = -1;
-
-            var categoryIds = ctx.Parameters.ContainsKey("CategoryIds")
-                ? ctx.Parameters["CategoryIds"].ToIntArray()
-                : null;
+            var categoryIds = ctx.Parameters.TryGetValue("CategoryIds", out string value) ? value.ToIntArray() : null;
 
             // Hooks are enabled because search index needs to be updated.
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Normal, deferCommit: true))

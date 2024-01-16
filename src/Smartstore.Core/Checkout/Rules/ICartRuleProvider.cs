@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.Rules
         /// </summary>
         /// <param name="expression">Rule expression.</param>
         /// <returns>Rule processor.</returns>
-        IRule GetProcessor(RuleExpression expression);
+        IRule<CartRuleContext> GetProcessor(RuleExpression expression);
 
         /// <summary>
         /// Creates a rule expression group.

@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
 
-namespace Smartstore.Admin.Models.Rules
+namespace Smartstore.Core.Rules.Rendering
 {
+    /// <summary>
+    /// Represents an edit item for rules.
+    /// </summary>
     public class RuleEditItem
     {
         [JsonProperty("ruleId")]

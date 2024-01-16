@@ -235,17 +235,13 @@ namespace Smartstore.Web.Models.Catalog
             public ProductVariantAttribute ProductAttribute { get; set; }
 
             public override string BuildControlId()
-            {
-                return ProductVariantQueryItem.CreateKey(ProductId, BundleItemId, ProductAttributeId, Id);
-            }
+                => ProductVariantQueryItem.CreateKey(ProductId, BundleItemId, ProductAttributeId, Id);
 
             public override string GetFileUploadUrl(IUrlHelper url)
-            {
-                return url.Action("UploadFileProductAttribute", "ShoppingCart", new { productId = ProductId, productAttributeId = ProductAttributeId });
-            }
+                => url.Action("UploadFileProductAttribute", "ShoppingCart", new { productId = ProductId, productAttributeId = ProductAttributeId });
 
             public bool ShouldBeRendered
-                => !(ProductAttribute?.IsListTypeAttribute() ?? false) || Values.Count > 0;
+                => IsActive && (Values.Count > 0 || !(ProductAttribute?.IsListTypeAttribute() ?? false));
         }
 
         public partial class ProductVariantAttributeValueModel : ChoiceItemModel

@@ -1,17 +1,16 @@
 ﻿using System.Globalization;
-using System.Linq.Dynamic.Core;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -31,37 +30,31 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;
-        private readonly IRuleTemplateSelector _ruleTemplateSelector;
-        private readonly Func<RuleScope, IRuleProvider> _ruleProvider;
+        private readonly IRuleProviderFactory _ruleProviderFactory;
         private readonly IEnumerable<IRuleOptionsProvider> _ruleOptionsProviders;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<ModuleManager> _moduleManager;
         private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CustomerSettings _customerSettings;
-        private readonly MediaSettings _mediaSettings;
 
         public RuleController(
             SmartDbContext db,
             IRuleService ruleService,
-            IRuleTemplateSelector ruleTemplateSelector,
-            Func<RuleScope, IRuleProvider> ruleProvider,
+            IRuleProviderFactory ruleProviderFactory,
             IEnumerable<IRuleOptionsProvider> ruleOptionsProviders,
             Lazy<IPaymentService> paymentService,
             Lazy<ModuleManager> moduleManager,
             AdminAreaSettings adminAreaSettings,
-            CustomerSettings customerSettings,
-            MediaSettings mediaSettings)
+            CustomerSettings customerSettings)
         {
             _db = db;
             _ruleService = ruleService;
-            _ruleTemplateSelector = ruleTemplateSelector;
-            _ruleProvider = ruleProvider;
+            _ruleProviderFactory = ruleProviderFactory;
             _ruleOptionsProviders = ruleOptionsProviders;
             _paymentService = paymentService;
             _moduleManager = moduleManager;
             _adminAreaSettings = adminAreaSettings;
             _customerSettings = customerSettings;
-            _mediaSettings = mediaSettings;
         }
 
         /// <summary>
@@ -163,7 +156,6 @@ namespace Smartstore.Admin.Controllers
             var model = new RuleSetModel();
 
             await PrepareModel(model, null, scope);
-            PrepareTemplateViewBag(0);
 
             return View(model);
         }
@@ -195,7 +187,6 @@ namespace Smartstore.Admin.Controllers
             var ruleSet = await _db.RuleSets
                 .Include(x => x.Rules)
                 .FindByIdAsync(id);
-
             if (ruleSet == null)
             {
                 return NotFound();
@@ -204,8 +195,6 @@ namespace Smartstore.Admin.Controllers
             var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(ruleSet);
 
             await PrepareModel(model, ruleSet);
-            await PrepareExpressions(model.ExpressionGroup);
-            PrepareTemplateViewBag(ruleSet.Id);
 
             return View(model);
         }
@@ -217,7 +206,6 @@ namespace Smartstore.Admin.Controllers
             var ruleSet = await _db.RuleSets
                 .Include(x => x.Rules)
                 .FindByIdAsync(model.Id);
-
             if (ruleSet == null)
             {
                 return NotFound();
@@ -230,8 +218,9 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
+                    var provider = await GetProvider(ruleSet);
 
-                    await ApplyRuleData(ruleData, model.Scope);
+                    await _ruleService.ApplyRuleDataAsync(ruleData, provider);
                 }
                 catch (Exception ex)
                 {
@@ -296,11 +285,12 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            var provider = await GetProvider(ruleSet);
+
             if (ruleSet.Scope == RuleScope.Customer)
             {
-                var provider = _ruleProvider(ruleSet.Scope) as ITargetGroupService;
                 var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as FilterExpression;
-                var customers = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, command.Page - 1, command.PageSize);
+                var customers = ((ITargetGroupService)provider).ProcessFilter([expression], LogicalRuleOperator.And, command.Page - 1, command.PageSize);
                 var guestStr = T("Admin.Customers.Guest").Value;
 
                 var model = new GridModel<CustomerModel>
@@ -329,9 +319,8 @@ namespace Smartstore.Admin.Controllers
             }
             else if (ruleSet.Scope == RuleScope.Product)
             {
-                var provider = _ruleProvider(ruleSet.Scope) as IProductRuleProvider;
                 var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
-                var searchResult = await provider.SearchAsync(new[] { expression }, command.Page - 1, command.PageSize);
+                var searchResult = await ((IProductRuleProvider)provider).SearchAsync([expression], command.Page - 1, command.PageSize);
                 var hits = await searchResult.GetHitsAsync();
                 var rows = await hits.MapAsync(Services.MediaService);
 
@@ -347,26 +336,25 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Create)]
-        public async Task<IActionResult> AddRule(int ruleSetId, RuleScope scope, string ruleType)
+        public async Task<IActionResult> AddRule(RuleCommand command)
         {
-            var provider = _ruleProvider(scope);
-            var descriptors = await provider.GetRuleDescriptorsAsync();
-            var descriptor = descriptors.FindDescriptor(ruleType);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                command.RuleSetId = await CreateProductAttributeRuleSet(command);
+            }
 
-            RuleOperator op;
-            if (descriptor.RuleType == RuleType.NullableInt || descriptor.RuleType == RuleType.NullableFloat)
-            {
-                op = descriptor.Operators.FirstOrDefault(x => x == RuleOperator.GreaterThanOrEqualTo);
-            }
-            else
-            {
-                op = descriptor.Operators.First();
-            }
+            var provider = await GetProvider(null, command);
+            var descriptors = await provider.GetRuleDescriptorsAsync();
+            var descriptor = descriptors.FindDescriptor(command.RuleType);
+
+            var op = (descriptor.RuleType == RuleType.NullableInt || descriptor.RuleType == RuleType.NullableFloat)
+                ? descriptor.Operators.FirstOrDefault(x => x == RuleOperator.GreaterThanOrEqualTo)
+                : descriptor.Operators.First();
 
             var rule = new RuleEntity
             {
-                RuleSetId = ruleSetId,
-                RuleType = ruleType,
+                RuleSetId = command.RuleSetId,
+                RuleType = command.RuleType,
                 Operator = op.Operator
             };
 
@@ -387,18 +375,18 @@ namespace Smartstore.Admin.Controllers
 
             var expression = await provider.VisitRuleAsync(rule);
 
-            PrepareTemplateViewBag(ruleSetId);
-
             return PartialView("_Rule", expression);
         }
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Update)]
-        public async Task<IActionResult> UpdateRules(RuleEditItem[] ruleData, RuleScope ruleScope)
+        public async Task<IActionResult> UpdateRules(RuleCommand command)
         {
             try
             {
-                await ApplyRuleData(ruleData, ruleScope);
+                var provider = await GetProvider(null, command);
+
+                await _ruleService.ApplyRuleDataAsync(command.RuleData, provider);
                 await _db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -411,30 +399,37 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Delete)]
-        public async Task<IActionResult> DeleteRule(int ruleId)
+        public async Task<IActionResult> DeleteRule(RuleCommand command)
         {
-            var rule = await _db.Rules.FindByIdAsync(ruleId);
+            var rule = await _db.Rules.FindByIdAsync(command.RuleId);
             if (rule == null)
             {
-                NotifyError(T("Admin.Rules.NotFound", ruleId));
+                NotifyError(T("Admin.Rules.NotFound", command.RuleId));
                 return Json(new { Success = false });
             }
 
             _db.Rules.Remove(rule);
             await _db.SaveChangesAsync();
+            //await DeleteRuleSetIfNotRequired(command);
 
             return Json(new { Success = true });
         }
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Update)]
-        public async Task<IActionResult> ChangeOperator(int ruleSetId, string op)
+        public async Task<IActionResult> ChangeOperator(RuleCommand command)
         {
-            var andOp = op.EqualsNoCase("and");
-            var ruleSet = await _db.RuleSets.FindByIdAsync(ruleSetId);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                NotifyWarning(T("Admin.Rules.AddRuleWarning"));
+                return Json(new { Success = false });
+            }
+
+            var andOp = command.Op.EqualsNoCase("and");
+            var ruleSet = await _db.RuleSets.FindByIdAsync(command.RuleSetId);
             if (ruleSet == null)
             {
-                NotifyError(T("Admin.Rules.GroupNotFound", ruleSetId));
+                NotifyError(T("Admin.Rules.GroupNotFound", command.RuleSetId));
                 return Json(new { Success = false });
             }
 
@@ -453,15 +448,20 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Create)]
-        public async Task<IActionResult> AddGroup(int ruleSetId, RuleScope scope)
+        public async Task<IActionResult> AddGroup(RuleCommand command)
         {
-            var provider = _ruleProvider(scope);
+            if (await IsProductAttributeRuleSetMissing(command))
+            {
+                command.RuleSetId = await CreateProductAttributeRuleSet(command);
+            }
+
+            var provider = await GetProvider(null, command);
 
             var group = new RuleSetEntity
             {
                 IsActive = true,
                 IsSubGroup = true,
-                Scope = scope
+                Scope = command.Scope
             };
 
             // RuleSet ID required.
@@ -470,7 +470,7 @@ namespace Smartstore.Admin.Controllers
 
             var groupRefRule = new RuleEntity
             {
-                RuleSetId = ruleSetId,
+                RuleSetId = command.RuleSetId,
                 RuleType = "Group",
                 Operator = RuleOperator.IsEqualTo,
                 Value = group.Id.ToString()
@@ -487,31 +487,32 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Delete)]
-        public async Task<IActionResult> DeleteGroup(int refRuleId)
+        public async Task<IActionResult> DeleteGroup(RuleCommand command)
         {
-            var refRule = await _db.Rules.FindByIdAsync(refRuleId);
+            var refRule = await _db.Rules.FindByIdAsync(command.RuleId);
             var ruleSetId = refRule?.Value?.ToInt() ?? 0;
 
-            var group = ruleSetId != 0
-                ? await _db.RuleSets.FindByIdAsync(ruleSetId)
-                : null;
+            var group = await _db.RuleSets.FindByIdAsync(ruleSetId);
             if (group == null)
             {
                 NotifyError(T("Admin.Rules.GroupNotFound", ruleSetId));
                 return Json(new { Success = false });
             }
 
+            // INFO: "refRule" must be deleted manually (a foreign key relationship does not exist).
+            // Descendant sub rule sets are deleted by RuleSetHook.
             _db.Rules.Remove(refRule);
             _db.RuleSets.Remove(group);
 
             await _db.SaveChangesAsync();
+            //await DeleteRuleSetIfNotRequired(command);
 
             return Json(new { Success = true });
         }
 
         [HttpPost]
         [Permission(Permissions.System.Rule.Execute)]
-        public async Task<IActionResult> Execute(int ruleSetId)
+        public async Task<IActionResult> Execute(RuleCommand command)
         {
             var success = true;
             var message = string.Empty;
@@ -520,34 +521,33 @@ namespace Smartstore.Admin.Controllers
             {
                 var ruleSet = await _db.RuleSets
                     .Include(x => x.Rules)
-                    .FindByIdAsync(ruleSetId);
+                    .FindByIdAsync(command.RuleSetId);
+
+                var provider = await GetProvider(ruleSet);
 
                 switch (ruleSet.Scope)
                 {
                     case RuleScope.Cart:
                     {
                         var customer = Services.WorkContext.CurrentCustomer;
-                        var provider = _ruleProvider(ruleSet.Scope) as ICartRuleProvider;
                         var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as RuleExpression;
-                        var match = await provider.RuleMatchesAsync(new[] { expression }, LogicalRuleOperator.And);
+                        var match = await ((ICartRuleProvider)provider).RuleMatchesAsync([expression], LogicalRuleOperator.And);
 
                         message = T(match ? "Admin.Rules.Execute.MatchCart" : "Admin.Rules.Execute.DoesNotMatchCart", customer.Username.NullEmpty() ?? customer.Email);
                     }
                     break;
                     case RuleScope.Customer:
                     {
-                        var provider = _ruleProvider(ruleSet.Scope) as ITargetGroupService;
                         var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as FilterExpression;
-                        var result = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, 0, 1);
+                        var result = ((ITargetGroupService)provider).ProcessFilter([expression], LogicalRuleOperator.And, 0, 1);
 
                         message = T("Admin.Rules.Execute.MatchCustomers", result.TotalCount.ToString("N0"));
                     }
                     break;
                     case RuleScope.Product:
                     {
-                        var provider = _ruleProvider(ruleSet.Scope) as IProductRuleProvider;
                         var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
-                        var result = await provider.SearchAsync(new[] { expression }, 0, 1);
+                        var result = await ((IProductRuleProvider)provider).SearchAsync([expression], 0, 1);
 
                         message = T("Admin.Rules.Execute.MatchProducts", result.TotalHitsCount.ToString("N0"));
                     }
@@ -580,13 +580,8 @@ namespace Smartstore.Admin.Controllers
             string descriptorMetadataKey,
             string rawValue)
         {
-            var rule = await _db.Rules.FindByIdAsync(ruleId);
-            if (rule == null)
-            {
-                throw new Exception(T("Admin.Rules.NotFound", ruleId));
-            }
-
-            var provider = _ruleProvider(rule.RuleSet.Scope);
+            var rule = await _db.Rules.Include(x => x.RuleSet).FindByIdAsync(ruleId) ?? throw new Exception(T("Admin.Rules.NotFound", ruleId));
+            var provider = await GetProvider(rule.RuleSet);
             var expression = await provider.VisitRuleAsync(rule);
 
             Func<RuleValueSelectListOption, bool> optionsPredicate = x => true;
@@ -617,17 +612,15 @@ namespace Smartstore.Admin.Controllers
                         Language = Services.WorkContext.WorkingLanguage
                     });
 
-                    if (list.DataSource == "CartRule" || list.DataSource == "TargetGroup")
+                    if (rule.RuleSet.IsSubGroup)
                     {
+                        // The root rule set must not be selected as a subgroup.
                         optionsPredicate = x => x.Value != rootRuleSetId.ToString();
                     }
                 }
             }
 
-            if (options == null)
-            {
-                options = new RuleOptionsResult();
-            }
+            options ??= new RuleOptionsResult();
 
             var data = options.Options
                 .Where(optionsPredicate)
@@ -646,59 +639,50 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        private async Task ApplyRuleData(RuleEditItem[] ruleData, RuleScope ruleScope)
+        private async Task<bool> IsProductAttributeRuleSetMissing(RuleCommand command)
         {
-            var ruleIds = ruleData?.Select(x => x.RuleId)?.Distinct()?.ToArray() ?? Array.Empty<int>();
-
-            if (!ruleIds.Any())
-            {
-                return;
-            }
-
-            var rules = await _db.Rules
-                .Include(x => x.RuleSet)
-                .Where(x => ruleIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id);
-
-            var provider = _ruleProvider(ruleScope);
-            var descriptors = await provider.GetRuleDescriptorsAsync();
-
-            foreach (var data in ruleData)
-            {
-                if (rules.TryGetValue(data.RuleId, out var entity))
-                {
-                    if (data.Value.HasValue())
-                    {
-                        var descriptor = descriptors.FindDescriptor(entity.RuleType);
-
-                        if (data.Op == RuleOperator.IsEmpty || data.Op == RuleOperator.IsNotEmpty ||
-                            data.Op == RuleOperator.IsNull || data.Op == RuleOperator.IsNotNull)
-                        {
-                            data.Value = null;
-                        }
-                        else if (descriptor.RuleType == RuleType.DateTime || descriptor.RuleType == RuleType.NullableDateTime)
-                        {
-                            // Always store invariant formatted UTC values, otherwise database queries return inaccurate results.
-                            var dt = data.Value.Convert<DateTime>(CultureInfo.CurrentCulture).ToUniversalTime();
-                            data.Value = dt.ToString(CultureInfo.InvariantCulture);
-                        }
-                    }
-
-                    entity.Operator = data.Op;
-                    entity.Value = data.Value;
-                }
-            }
+            return command.Scope == RuleScope.ProductAttribute 
+                && (command.RuleSetId == 0 || !await _db.RuleSets.AnyAsync(x => x.Id == command.RuleSetId));
         }
 
-        private async Task PrepareModel(RuleSetModel model, RuleSetEntity entity, RuleScope? scope = null)
+        private async Task<int> CreateProductAttributeRuleSet(RuleCommand command)
         {
-            var scopes = (entity?.Scope ?? scope ?? RuleScope.Cart).ToSelectList();
+            var attributeId = Guard.NotZero(command.EntityId ?? 0);
+
+            var existingRuleSetId = await _db.RuleSets
+                .Where(x => x.ProductVariantAttributeId == attributeId && x.Scope == RuleScope.ProductAttribute && !x.IsSubGroup)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync();
+
+            if (existingRuleSetId == 0)
+            {
+                var ruleSet = new RuleSetEntity
+                {
+                    Scope = RuleScope.ProductAttribute,
+                    IsActive = true,
+                    IsSubGroup = false,
+                    LogicalOperator = LogicalRuleOperator.And,
+                    ProductVariantAttributeId = attributeId
+                };
+
+                _db.Add(ruleSet);
+                await _db.SaveChangesAsync();
+
+                return ruleSet.Id;
+            }
+
+            return existingRuleSetId;
+        }
+
+        private async Task PrepareModel(RuleSetModel model, RuleSetEntity ruleSet, RuleScope? scope = null)
+        {
+            var scopes = (ruleSet?.Scope ?? scope ?? RuleScope.Cart).ToSelectList();
 
             ViewBag.Scopes = scopes
                 .Select(x =>
                 {
                     var ruleScope = (RuleScope)x.Value.ToInt();
-                    if (ruleScope == RuleScope.Other)
+                    if (ruleScope >= RuleScope.ProductAttribute)
                     {
                         return null;
                     }
@@ -717,42 +701,42 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x != null)
                 .ToList();
 
-            if ((entity?.Id ?? 0) != 0)
+            if (ruleSet != null && ruleSet.Id != 0)
             {
-                var provider = _ruleProvider(entity.Scope);
+                var provider = await GetProvider(ruleSet);
 
-                model.ScopeName = Services.Localization.GetLocalizedEnum(entity.Scope);
-                model.ExpressionGroup = await _ruleService.CreateExpressionGroupAsync(entity, provider, true);
+                model.ScopeName = Services.Localization.GetLocalizedEnum(ruleSet.Scope);
+                model.ExpressionGroup = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true);
 
-                ViewBag.AssignedToDiscounts = entity.Discounts
+                await _ruleService.ApplyMetadataAsync(model.ExpressionGroup);
+
+                ViewBag.AssignedToDiscounts = ruleSet.Discounts
                     .Select(x => new RuleSetAssignedToEntityModel { Id = x.Id, Name = x.Name.NullEmpty() ?? x.Id.ToString() })
                     .ToList();
 
-                ViewBag.AssignedToShippingMethods = entity.ShippingMethods
+                ViewBag.AssignedToShippingMethods = ruleSet.ShippingMethods
                     .Select(x => new RuleSetAssignedToEntityModel { Id = x.Id, Name = x.GetLocalized(y => y.Name) })
                     .ToList();
 
-                ViewBag.AssignedToCustomerRoles = entity.CustomerRoles
+                ViewBag.AssignedToCustomerRoles = ruleSet.CustomerRoles
                     .Select(x => new RuleSetAssignedToEntityModel { Id = x.Id, Name = x.Name })
                     .ToList();
 
-                ViewBag.AssignedToCategories = entity.Categories
+                ViewBag.AssignedToCategories = ruleSet.Categories
                     .Select(x => new RuleSetAssignedToEntityModel { Id = x.Id, Name = x.GetLocalized(y => y.Name) })
                     .ToList();
 
-                var paymentMethods = entity.PaymentMethods;
-                if (paymentMethods.Any())
+                var paymentMethods = ruleSet.PaymentMethods;
+                if (paymentMethods.Count != 0)
                 {
                     var paymentProviders = (await _paymentService.Value.LoadAllPaymentProvidersAsync()).ToDictionarySafe(x => x.Metadata.SystemName);
 
                     ViewBag.AssignedToPaymentMethods = paymentMethods
                         .Select(x =>
                         {
-                            string friendlyName = null;
-                            if (paymentProviders.TryGetValue(x.PaymentMethodSystemName, out var paymentProvider))
-                            {
-                                friendlyName = _moduleManager.Value.GetLocalizedFriendlyName(paymentProvider.Metadata);
-                            }
+                            var friendlyName = paymentProviders.TryGetValue(x.PaymentMethodSystemName, out var paymentProvider)
+                                ? _moduleManager.Value.GetLocalizedFriendlyName(paymentProvider.Metadata)
+                                : null;
 
                             return new RuleSetAssignedToEntityModel
                             {
@@ -763,56 +747,32 @@ namespace Smartstore.Admin.Controllers
                         })
                         .ToList();
                 }
-
-                ViewBag.ConditionsOrButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.Or });
-                ViewBag.ConditionsAndButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.And });
             }
         }
 
-        private async Task PrepareExpressions(IRuleExpressionGroup group)
+        private async Task<IRuleProvider> GetProvider(RuleSetEntity ruleSet, RuleCommand command = null)
         {
-            if (group == null)
+            var scope = ruleSet?.Scope ?? command?.Scope ?? RuleScope.Cart;
+
+            if (scope == RuleScope.ProductAttribute)
             {
-                return;
+                int productId;
+
+                if (ruleSet != null)
+                {
+                    await _db.LoadReferenceAsync(ruleSet, x => x.ProductVariantAttribute);
+                    productId = ruleSet.ProductVariantAttribute.ProductId;
+                }
+                else
+                {
+                    var attributeId = Guard.NotZero(command?.EntityId ?? 0);
+                    productId = await _db.ProductVariantAttributes.Where(x => x.Id == attributeId).Select(x => x.ProductId).FirstOrDefaultAsync();
+                }
+
+                return _ruleProviderFactory.GetProvider(scope, new AttributeRuleProviderContext(productId));
             }
 
-            foreach (var expression in group.Expressions)
-            {
-                if (expression is IRuleExpressionGroup subGroup)
-                {
-                    await PrepareExpressions(subGroup);
-                    continue;
-                }
-
-                if (!expression.Descriptor.IsValid)
-                {
-                    expression.Metadata["Error"] = T("Admin.Rules.InvalidDescriptor").Value;
-                }
-
-                // Load name and subtitle (e.g. SKU) for selected options.
-                if (expression.Descriptor.SelectList is RemoteRuleValueSelectList list)
-                {
-                    var optionsProvider = _ruleOptionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
-                    if (optionsProvider != null)
-                    {
-                        var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, expression)
-                        {
-                            PageSize = int.MaxValue,
-                            Language = Services.WorkContext.WorkingLanguage
-                        });
-
-                        expression.Metadata["SelectedItems"] = options.Options.ToDictionarySafe(
-                            x => x.Value,
-                            x => new RuleSelectItem { Text = x.Text, Hint = x.Hint });
-                    }
-                }
-            }
-        }
-
-        private void PrepareTemplateViewBag(int rootRuleSetId)
-        {
-            ViewBag.RootRuleSetId = rootRuleSetId;
-            ViewBag.TemplateSelector = _ruleTemplateSelector;
+            return _ruleProviderFactory.GetProvider(scope);
         }
     }
 }

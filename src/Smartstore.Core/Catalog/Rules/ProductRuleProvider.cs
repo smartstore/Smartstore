@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -241,7 +241,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Admin.Rules.FilterDescriptor.Store"),
                     RuleType = RuleType.Int,
                     SelectList = new LocalRuleValueSelectList(stores),
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.AllowedCustomerRoles(x))
                 {
@@ -249,28 +249,28 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Admin.Rules.FilterDescriptor.IsInCustomerRole"),
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("CustomerRole") { Multiple = true },
-                    Operators = new RuleOperator[] { RuleOperator.In }
+                    Operators = [RuleOperator.In]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.PublishedOnly(x))
                 {
                     Name = "Published",
                     DisplayName = T("Admin.Catalog.Products.Fields.Published"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.AvailableOnly(x))
                 {
                     Name = "AvailableByStock",
                     DisplayName = T("Products.Availability.InStock"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.AvailableByDate(x))
                 {
                     Name = "AvailableByDate",
                     DisplayName = T("Admin.Rules.FilterDescriptor.AvailableByDate"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<int>((ctx, x) => ctx.Query.WithVisibility((ProductVisibility)x))
                 {
@@ -278,7 +278,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Admin.Catalog.Products.Fields.Visibility"),
                     RuleType = RuleType.Int,
                     SelectList = new LocalRuleValueSelectList(visibilities),
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithProductIds(x))
                 {
@@ -286,7 +286,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Common.Entity.Product"),
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("Product") { Multiple = true },
-                    Operators = new RuleOperator[] { RuleOperator.In }
+                    Operators = [RuleOperator.In]
                 },
                 new SearchFilterDescriptor<int>((ctx, x) => ctx.Query.IsProductType((ProductType)x))
                 {
@@ -294,7 +294,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Admin.Catalog.Products.Fields.ProductType"),
                     RuleType = RuleType.Int,
                     SelectList = new LocalRuleValueSelectList(productTypes),
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<int[]>(categoryFilter)
                 {
@@ -302,7 +302,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Common.Entity.Category"),
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("Category") { Multiple = true },
-                    Operators = new RuleOperator[] { RuleOperator.In }
+                    Operators = [RuleOperator.In]
                 },
                 new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithManufacturerIds(null, x))
                 {
@@ -310,7 +310,7 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Common.Entity.Manufacturer"),
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("Manufacturer") { Multiple = true },
-                    Operators = new RuleOperator[] { RuleOperator.In }
+                    Operators = [RuleOperator.In]
                 },
                 // Same logic as the filter above product list.
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.HasAnyCategory(!x))
@@ -318,14 +318,14 @@ namespace Smartstore.Core.Catalog.Rules
                     Name = "WithoutCategory",
                     DisplayName = T("Admin.Catalog.Products.List.SearchWithoutCategories"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.HasAnyManufacturer(!x))
                 {
                     Name = "WithoutManufacturer",
                     DisplayName = T("Admin.Catalog.Products.List.SearchWithoutManufacturers"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithProductTagIds(x))
                 {
@@ -333,14 +333,14 @@ namespace Smartstore.Core.Catalog.Rules
                     DisplayName = T("Admin.Catalog.Products.Fields.ProductTags"),
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("ProductTag") { Multiple = true },
-                    Operators = new RuleOperator[] { RuleOperator.In }
+                    Operators = [RuleOperator.In]
                 },
                 new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithDeliveryTimeIds(x))
                 {
                     Name = "DeliveryTime",
                     DisplayName = T("Admin.Catalog.Products.Fields.DeliveryTime"),
                     RuleType = RuleType.IntArray,
-                    Operators = new RuleOperator[] { RuleOperator.In },
+                    Operators = [RuleOperator.In],
                     SelectList = new RemoteRuleValueSelectList("DeliveryTime") { Multiple = true }
                 },
                 new SearchFilterDescriptor<int>(stockQuantityFilter)
@@ -366,7 +366,7 @@ namespace Smartstore.Core.Catalog.Rules
                     Name = "Rating",
                     DisplayName = T("Admin.Catalog.ProductReviews.Fields.Rating"),
                     RuleType = RuleType.Float,
-                    Operators = new RuleOperator[] { RuleOperator.GreaterThanOrEqualTo },
+                    Operators = [RuleOperator.GreaterThanOrEqualTo],
                     SelectList = new LocalRuleValueSelectList(ratings)
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.HomePageProductsOnly(x))
@@ -374,56 +374,56 @@ namespace Smartstore.Core.Catalog.Rules
                     Name = "HomepageProduct",
                     DisplayName = T("Admin.Catalog.Products.Fields.ShowOnHomePage"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.DownloadOnly(x))
                 {
                     Name = "Download",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsDownload"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.RecurringOnly(x))
                 {
                     Name = "Recurring",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsRecurring"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.ShipEnabledOnly(x))
                 {
                     Name = "ShipEnabled",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsShipEnabled"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.FreeShippingOnly(x))
                 {
                     Name = "FreeShipping",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsFreeShipping"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.TaxExemptOnly(x))
                 {
                     Name = "TaxExempt",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsTaxExempt"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.EsdOnly(x))
                 {
                     Name = "Esd",
                     DisplayName = T("Admin.Catalog.Products.Fields.IsEsd"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 },
                 new SearchFilterDescriptor<bool>((ctx, x) => ctx.Query.HasDiscount(x))
                 {
                     Name = "Discount",
                     DisplayName = T("Admin.Catalog.Products.Fields.HasDiscountsApplied"),
                     RuleType = RuleType.Boolean,
-                    Operators = new RuleOperator[] { RuleOperator.IsEqualTo }
+                    Operators = [RuleOperator.IsEqualTo]
                 }
             };
 
@@ -452,10 +452,12 @@ namespace Smartstore.Core.Catalog.Rules
                             DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
                             GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
                             RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList("VariantValue") { Multiple = true },
-                            Operators = new RuleOperator[] { RuleOperator.In }
+                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
+                            Operators = [RuleOperator.In]
                         };
                         descriptor.Metadata["ParentId"] = variant.Id;
+                        descriptor.Metadata["AllowFiltering"] = true;
+                        descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
 
                         descriptors.Add(descriptor);
                     }
@@ -482,8 +484,8 @@ namespace Smartstore.Core.Catalog.Rules
                             DisplayName = attribute.GetLocalized(x => x.Name, language, true, false),
                             GroupKey = "Admin.Catalog.Attributes.SpecificationAttributes",
                             RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList("AttributeOption") { Multiple = true },
-                            Operators = new RuleOperator[] { RuleOperator.In }
+                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AttributeOption) { Multiple = true },
+                            Operators = [RuleOperator.In]
                         };
                         descriptor.Metadata["ParentId"] = attribute.Id;
 

@@ -4,7 +4,7 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class IPCountryRule : IRule
+    internal class IPCountryRule : IRule<CartRuleContext>
     {
         private readonly IGeoCountryLookup _countryLookup;
         private readonly IWebHelper _webHelper;

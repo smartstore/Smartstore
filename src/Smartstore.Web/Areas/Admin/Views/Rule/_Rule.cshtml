@@ -1,7 +1,7 @@
 ﻿@model IRuleExpression
 
 @{
-    var templateSelector = ViewBag.TemplateSelector as IRuleTemplateSelector;
+    var templateSelector = Resolve<IRuleTemplateSelector>();
     var templateInfo = templateSelector.GetTemplate(Model.Descriptor);
     var error = Model.Metadata.TryGetValue("Error", out var errorObj) ? errorObj.ToString() : string.Empty;
 }
@@ -9,10 +9,10 @@
 <div class="rule-row">
     <div class="rule row gx-1 gx-md-2 gx-lg-3" data-rule-id="@Model.Id" data-has-error="@error.HasValue().ToString().ToLower()">
         <div class="col-2">
-            <partial name="_Rule.Descriptor" model="Model" />
+            <partial name="_Rule.Descriptor.cshtml" model="Model" />
         </div>
         <div class="col-2">
-            <partial name="_Rule.Operator" model="Model" />
+            <partial name="_Rule.Operator.cshtml" model="Model" />
         </div>
         <div class="col-8">
             <div class="row flex-nowrap g-2">
@@ -20,7 +20,7 @@
                     @{
                         try
                         {
-                            <partial name="@templateInfo.TemplateName" model="Model" />
+                            <partial name="@templateInfo.TemplateName.EnsureEndsWith(".cshtml")" model="Model" />
                         }
                         catch (Exception ex)
                         {
@@ -38,9 +38,11 @@
                     </button>
                 </div>
             </div>
-        </div>
-        <div class="r-rule-error" attr-class='(error.HasValue(), "hide")'>
-            <span class="field-validation-error">@error</span>
+            <div class="row flex-nowrap r-rule-error" attr-class='(error.IsEmpty(), "hide")'>
+                <div class="col">
+                    <span class="field-validation-error">@error</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

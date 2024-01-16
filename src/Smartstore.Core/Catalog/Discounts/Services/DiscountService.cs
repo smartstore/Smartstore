@@ -5,6 +5,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 using EState = Smartstore.Data.EntityState;
@@ -21,21 +22,21 @@ namespace Smartstore.Core.Catalog.Discounts
         private readonly IRequestCache _requestCache;
         private readonly IStoreContext _storeContext;
         private readonly ICartRuleProvider _cartRuleProvider;
-        private readonly Lazy<IShoppingCartService> _cartService;
-        private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
+        private readonly Lazy<IShoppingCartService> _cartService ;
+        private readonly Dictionary<DiscountKey, bool> _discountValidityCache = [];
         private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
         public DiscountService(
             SmartDbContext db,
             IRequestCache requestCache,
             IStoreContext storeContext,
-            ICartRuleProvider cartRuleProvider,
+            IRuleProviderFactory ruleProviderFactory,
             Lazy<IShoppingCartService> cartService)
         {
             _db = db;
             _requestCache = requestCache;
             _storeContext = storeContext;
-            _cartRuleProvider = cartRuleProvider;
+            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
             _cartService = cartService;
         }
 

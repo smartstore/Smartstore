@@ -79,11 +79,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CustomerImporter>().Keyed<IEntityImporter>(ImportEntityType.Customer).InstancePerLifetimeScope();
 
             // Rules.
-            builder.RegisterType<TargetGroupService>()
-                .As<ITargetGroupService>()
-                .Keyed<IRuleProvider>(RuleScope.Customer)
-                .InstancePerLifetimeScope();
-
+            builder.RegisterType<TargetGroupService>().As<ITargetGroupService>().InstancePerLifetimeScope();
             builder.RegisterType<CustomerRoleRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
 

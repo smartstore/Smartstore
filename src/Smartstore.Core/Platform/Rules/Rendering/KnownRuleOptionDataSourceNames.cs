@@ -1,10 +1,8 @@
-﻿namespace Smartstore.Core.Rules.Rendering
+﻿namespace Smartstore.Core.Rules
 {
     public static partial class KnownRuleOptionDataSourceNames
     {
         public const string Affiliate = "Affiliate";
-        public const string AttributeOption = "AttributeOption";
-        public const string CartRule = "CartRule";
         public const string Category = "Category";
         public const string Country = "Country";
         public const string Currency = "Currency";
@@ -17,7 +15,10 @@
         public const string ProductTag = "ProductTag";
         public const string ShippingMethod = "ShippingMethod";
         public const string ShippingRateComputationMethod = "ShippingRateComputationMethod";
+
+        public const string CartRule = "CartRule";
         public const string TargetGroup = "TargetGroup";
         public const string VariantValue = "VariantValue";
+        public const string AttributeOption = "AttributeOption";
     }
 }

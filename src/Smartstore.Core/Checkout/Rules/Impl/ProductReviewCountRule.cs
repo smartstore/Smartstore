@@ -5,7 +5,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class ProductReviewCountRule : IRule
+    internal class ProductReviewCountRule : IRule<CartRuleContext>
     {
         private readonly SmartDbContext _db;
 

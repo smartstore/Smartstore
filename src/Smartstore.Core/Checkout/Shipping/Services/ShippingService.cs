@@ -9,6 +9,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
@@ -30,7 +31,7 @@ namespace Smartstore.Core.Checkout.Shipping
         public ShippingService(
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            ICartRuleProvider cartRuleProvider,
+            IRuleProviderFactory ruleProviderFactory,
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _cartRuleProvider = cartRuleProvider;
+            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
@@ -49,7 +50,7 @@ namespace Smartstore.Core.Checkout.Shipping
             _db = db;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+    public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual IEnumerable<Provider<IShippingRateComputationMethod>> LoadEnabledShippingProviders(int storeId = 0, string systemName = null)

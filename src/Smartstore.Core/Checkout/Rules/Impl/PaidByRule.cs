@@ -3,7 +3,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class PaidByRule : IRule
+    internal class PaidByRule : IRule<CartRuleContext>
     {
         private readonly SmartDbContext _db;
 

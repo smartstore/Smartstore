@@ -2,15 +2,20 @@
 using System.Runtime.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
 
+// TODO: (mg) way too many classes for one file. Move all attribute models to a subfolder "Attributes"
+// after Conditional Attributes are completed. No need to make all these "nested".
+// TODO: (mg) DRY: ProductModel.ProductVariantAttributeValueModel -> ProductAttributeOptionModelBase.
 namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
@@ -528,11 +533,13 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
 
-            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
+            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules")]
             public string EditUrl { get; set; }
-            public string EditText { get; set; }
+            public string EditLinkText { get; set; }
             public List<object> OptionSets { get; set; } = new();
-            public int ValueCount { get; set; }
+
+            public int NumberOfOptions { get; set; }
+            public int NumberOfRules { get; set; }
         }
 
         public class ProductVariantAttributeValueListModel : ModelBase
@@ -541,9 +548,12 @@ namespace Smartstore.Admin.Models.Catalog
             public string ProductName { get; set; }
             public int ProductVariantAttributeId { get; set; }
             public string ProductVariantAttributeName { get; set; }
+            public bool IsListTypeAttribute { get; set; }
+
+            public IRuleExpressionGroup ExpressionGroup { get; set; }
+            public string RawRuleData { get; set; }
         }
 
-        // TODO: DRY. see ProductAttributeOptionModelBase
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
         public class ProductVariantAttributeValueModel : EntityModelBase, ILocalizedModel<ProductVariantAttributeValueLocalizedModel>
         {

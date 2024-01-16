@@ -9,9 +9,11 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Test.Common;
 
@@ -55,11 +57,14 @@ namespace Smartstore.Core.Tests.Shipping
             DbContext.ShippingMethods.Add(new() { Name = "3" });
             DbContext.ShippingMethods.Add(new() { Name = "4" });
             DbContext.SaveChanges();
-            
+
+            var ruleProviderFactoryMock = new Mock<IRuleProviderFactory>();
+            ruleProviderFactoryMock.Setup(x => x.GetProvider(RuleScope.Cart, null)).Returns(new Mock<ICartRuleProvider>().Object);
+
             _shippingService = new ShippingService(
                 _productAttributeMaterializer,
                 null,
-                null,
+                ruleProviderFactoryMock.Object,
                 _shippingSettings,
                 ProviderManager,
                 null,

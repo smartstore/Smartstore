@@ -134,12 +134,13 @@
 
     <div id="ruleset-root" class="ruleset-root" 
          data-dirty="false"
-         data-scope="@((int)Model.Scope)" 
+         data-scope="@((int)Model.Scope)"
          data-url-addgroup="@Url.Action("AddGroup")" 
          data-url-deletegroup="@Url.Action("DeleteGroup")"
-         data-url-updaterules="@Url.Action("UpdateRules", new { ruleScope = (int)Model.Scope })"
+         data-url-updaterules="@Url.Action("UpdateRules")"
          data-url-addrule="@Url.Action("AddRule")"
-         data-url-deleterule="@Url.Action("DeleteRule")">
+         data-url-deleterule="@Url.Action("DeleteRule")"
+         data-url-changeoperator="@Url.Action("ChangeOperator")">
          <partial name="_RuleSet" model="Model.ExpressionGroup" />
     </div>
 </div>

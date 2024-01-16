@@ -24,7 +24,7 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(ValueTypeId), Name = "IX_ValueTypeId")]
     [Index(nameof(ProductVariantAttributeId), nameof(DisplayOrder), Name = "IX_ProductVariantAttributeValue_ProductVariantAttributeId_DisplayOrder")]
     [LocalizedEntity("!ProductVariantAttribute.Product.Deleted and ProductVariantAttribute.Product.Published")]
-    public partial class ProductVariantAttributeValue : BaseEntity, ILocalizedEntity, ISearchAlias, IDisplayOrder
+    public partial class ProductVariantAttributeValue : BaseEntity, ILocalizedEntity, ISearchAlias, IDisplayOrder, ICloneable<ProductVariantAttributeValue>
     {
         /// <summary>
         /// Gets or sets the product variant attribute mapping identifier.
@@ -110,5 +110,27 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets or sets the quantity for the linked product.
         /// </summary>
         public int Quantity { get; set; }
+
+        public ProductVariantAttributeValue Clone()
+        {
+            return new()
+            {
+                ProductVariantAttributeId = ProductVariantAttributeId,
+                Name = Name,
+                Alias = Alias,
+                MediaFileId = MediaFileId,
+                Color = Color,
+                PriceAdjustment = PriceAdjustment,
+                WeightAdjustment = WeightAdjustment,
+                IsPreSelected = IsPreSelected,
+                DisplayOrder = DisplayOrder,
+                ValueTypeId = ValueTypeId,
+                LinkedProductId = LinkedProductId,
+                Quantity = Quantity
+            };
+        }
+
+        object ICloneable.Clone()
+            => Clone();
     }
 }

@@ -31,14 +31,14 @@
             Options = new List<RuleValueSelectListOption>(options ?? Enumerable.Empty<RuleValueSelectListOption>());
         }
 
-        public IEnumerable<RuleValueSelectListOption> Options { get; protected set; }
+        public IEnumerable<RuleValueSelectListOption> Options { get; }
     }
 
     public class RemoteRuleValueSelectList : RuleValueSelectList
     {
         public RemoteRuleValueSelectList(string dataSource)
         {
-            Guard.NotEmpty(dataSource, nameof(dataSource));
+            Guard.NotEmpty(dataSource);
 
             DataSource = dataSource;
         }
@@ -46,6 +46,6 @@
         /// <summary>
         /// Name of the data source.
         /// </summary>
-        public string DataSource { get; protected set; }
+        public string DataSource { get; }
     }
 }

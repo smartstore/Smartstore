@@ -26,6 +26,8 @@ namespace Smartstore.Core.Catalog.Attributes.Rules
                 return null;
             }
 
+            var metadata = context.Descriptor.Metadata;
+
             if (context.Reason == RuleOptionsRequestReason.SelectedDisplayNames)
             {
                 var variants = await _db.ProductVariantAttributeValues.GetManyAsync(context.Value.ToIntArray());
@@ -37,18 +39,27 @@ namespace Smartstore.Core.Catalog.Attributes.Rules
 
                 return RuleOptionsResult.Create(context, options);
             }
-            else if (context.Descriptor.Metadata.TryGetValue("ParentId", out var objParentId))
+            else if (metadata.TryGetValue("ParentId", out var objParentId))
             {
                 var pIndex = -1;
                 var existingValues = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
                 var options = new List<RuleValueSelectListOption>();
 
-                var query = _db.ProductVariantAttributeValues
+                var tmpQuery = _db.ProductVariantAttributeValues
                     .AsNoTracking()
-                    .Where(x => x.ProductVariantAttribute.ProductAttributeId == (int)objParentId &&
-                        x.ProductVariantAttribute.ProductAttribute.AllowFiltering &&
-                        x.ValueTypeId == (int)ProductVariantAttributeValueType.Simple)
-                    .ApplyListTypeFilter();
+                    .Where(x => x.ProductVariantAttribute.ProductAttributeId == (int)objParentId);
+
+                if (metadata.TryGetValue("AllowFiltering", out var val))
+                {
+                    tmpQuery = tmpQuery.Where(x => x.ProductVariantAttribute.ProductAttribute.AllowFiltering == (bool)val);
+                }
+
+                if (metadata.TryGetValue("ValueType", out val))
+                {
+                    tmpQuery = tmpQuery.Where(x => x.ValueTypeId == (int)(ProductVariantAttributeValueType)val);
+                }
+
+                var query = tmpQuery.ApplyListTypeFilter();
 
                 while (true)
                 {

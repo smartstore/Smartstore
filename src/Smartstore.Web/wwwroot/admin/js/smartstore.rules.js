@@ -123,13 +123,15 @@ Smartstore.Admin.Rules = (function () {
     // Add group.
     $(document).on('click', '.r-add-group', function (e) {
         var parentSet = $(this).closest('.ruleset');
-        var parentSetId = parentSet.data('ruleset-id');
-        var scope = parentSet.closest('.ruleset-root').data('scope');
 
         $.ajax({
             cache: false,
             url: root.data('url-addgroup'),
-            data: { ruleSetId: parentSetId, scope: scope },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleSetId: parentSet.data('ruleset-id')
+            },
             type: "POST",
             success: function (html) {
                 appendToRuleSetBody(parentSet, html);
@@ -143,12 +145,15 @@ Smartstore.Admin.Rules = (function () {
     // Delete group.
     $(document).on('click', '.r-delete-group', function () {
         var parentSet = $(this).closest('.ruleset');
-        var refRuleId = parentSet.data('refrule-id');
 
         $.ajax({
             cache: false,
             url: root.data('url-deletegroup'),
-            data: { refRuleId: refRuleId },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleId: parentSet.data('refrule-id')
+            },
             type: "POST",
             success: function (result) {
                 if (result.Success) {
@@ -167,14 +172,18 @@ Smartstore.Admin.Rules = (function () {
         e.preventDefault();
 
         var item = $(this);
-        var parentSetId = item.closest('.ruleset').data('ruleset-id');
         var operator = item.closest('.ruleset-operator');
         var op = item.data('value');
 
         $.ajax({
             cache: false,
-            url: operator.data('url'),
-            data: { ruleSetId: parentSetId, op: op },
+            url: root.data('url-changeoperator'),
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleSetId: item.closest('.ruleset').data('ruleset-id'),
+                op
+            },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {
@@ -212,12 +221,16 @@ Smartstore.Admin.Rules = (function () {
 
     // Save rules.
     $(document).on('click', 'button.ruleset-save', function () {
-        var data = getRuleData();
-        
+        var ruleData = getRuleData();
+
         $.ajax({
             cache: false,
             url: root.data('url-updaterules'),
-            data: { ruleData: data },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleData
+            },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {
@@ -240,13 +253,16 @@ Smartstore.Admin.Rules = (function () {
             return;
 
         var parentSet = select.closest('.ruleset');
-        var parentSetId = parentSet.data('ruleset-id');
-        var scope = parentSet.closest('.ruleset-root').data('scope');
 
         $.ajax({
             cache: false,
             url: root.data('url-addrule'),
-            data: { ruleSetId: parentSetId, scope: scope, ruleType: ruleType },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleSetId: parentSet.data('ruleset-id'),
+                ruleType
+            },
             type: "POST",
             success: function (html) {
                 appendToRuleSetBody(parentSet, html);
@@ -260,12 +276,15 @@ Smartstore.Admin.Rules = (function () {
     // Delete rule.
     $(document).on('click', '.r-delete-rule', function () {
         var rule = $(this).closest('.rule');
-        var ruleId = rule.data('rule-id');
 
         $.ajax({
             cache: false,
             url: root.data('url-deleterule'),
-            data: { ruleId: ruleId },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleId: rule.data('rule-id')
+            },
             type: "POST",
             success: function (result) {
                 if (result.Success) {
@@ -281,12 +300,15 @@ Smartstore.Admin.Rules = (function () {
     // Execute rule.
     $(document).on('click', '#execute-rules', function () {
         var ruleSet = $(".ruleset-root > .ruleset")
-        var ruleSetId = ruleSet.data('ruleset-id');
 
         $.ajax({
             cache: false,
             url: $(this).attr('href'),
-            data: { ruleSetId: ruleSetId },
+            data: {
+                scope: root.data('scope'),
+                entityId: root.data('entity-id'),
+                ruleSetId: ruleSet.data('ruleset-id')
+            },
             type: "POST",
             success: function (result) {
                 $('#excute-result')

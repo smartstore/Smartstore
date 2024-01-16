@@ -1,30 +1,30 @@
 ﻿using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Checkout.Rules
+namespace Smartstore.Core.Catalog.Rules
 {
-    public class CompositeRule : IRule
+    public class AttributeCompositeRule : IRule<AttributeRuleContext>
     {
         private readonly RuleExpressionGroup _group;
-        private readonly CartRuleProvider _cartRuleProvider;
+        private readonly AttributeRuleProvider _attributeRuleProvider;
 
-        public CompositeRule(RuleExpressionGroup group, CartRuleProvider cartRuleProvider)
+        public AttributeCompositeRule(RuleExpressionGroup group, AttributeRuleProvider attributeRuleProvider)
         {
             _group = group;
-            _cartRuleProvider = cartRuleProvider;
+            _attributeRuleProvider = attributeRuleProvider;
         }
 
-        public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
+        public async Task<bool> MatchAsync(AttributeRuleContext context, RuleExpression expression)
         {
             var match = false;
 
             foreach (var expr in _group.Expressions.Cast<RuleExpression>())
             {
-                if (expr.Descriptor is not CartRuleDescriptor descriptor)
+                if (expr.Descriptor is not AttributeRuleDescriptor descriptor)
                 {
                     continue;
                 }
 
-                var processor = _cartRuleProvider.GetProcessor(expr);
+                var processor = _attributeRuleProvider.GetProcessor(expr);
 
                 match = await processor.MatchAsync(context, expr);
 

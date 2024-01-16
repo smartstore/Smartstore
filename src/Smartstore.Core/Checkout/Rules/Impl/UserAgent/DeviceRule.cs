@@ -4,7 +4,7 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class DeviceRule : IRule
+    internal class DeviceRule : IRule<CartRuleContext>
     {
         private readonly IUserAgent _userAgent;
 

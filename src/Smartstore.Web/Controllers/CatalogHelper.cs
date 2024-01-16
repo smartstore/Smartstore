@@ -17,6 +17,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Infrastructure.Hooks;
@@ -37,6 +38,7 @@ namespace Smartstore.Web.Controllers
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
+        private readonly IRuleProviderFactory _ruleProviderFactory;
         private readonly ITaxService _taxService;
         private readonly ITaxCalculator _taxCalculator;
         private readonly ICurrencyService _currencyService;
@@ -74,6 +76,7 @@ namespace Smartstore.Web.Controllers
             IProductAttributeService productAttributeService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IProductAttributeFormatter productAttributeFormatter,
+            IRuleProviderFactory ruleProviderFactory,
             ITaxService taxService,
             ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
@@ -110,6 +113,7 @@ namespace Smartstore.Web.Controllers
             _productAttributeService = productAttributeService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _productAttributeFormatter = productAttributeFormatter;
+            _ruleProviderFactory = ruleProviderFactory;
             _taxService = taxService;
             _taxCalculator = taxCalculator;
             _currencyService = currencyService;

@@ -1,17 +1,28 @@
-﻿using Autofac;
-
+﻿using System.Globalization;
+using Autofac;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Rules
 {
     public partial class RuleService : IRuleService
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly Lazy<IEnumerable<IRuleOptionsProvider>> _ruleOptionsProviders;
 
-        public RuleService(SmartDbContext db)
+        public RuleService(
+            SmartDbContext db,
+            IWorkContext workContext,
+            Lazy<IEnumerable<IRuleOptionsProvider>> ruleOptionsProviders)
         {
             _db = db;
+            _workContext = workContext;
+            _ruleOptionsProviders = ruleOptionsProviders;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual async Task<bool> ApplyRuleSetMappingsAsync<T>(T entity, int[] selectedRuleSetIds)
             where T : BaseEntity, IRulesContainer
@@ -103,31 +114,130 @@ namespace Smartstore.Core.Rules
             return group;
         }
 
-        private async Task<IRuleExpressionGroup> CreateExpressionGroup(RuleSetEntity ruleSet, RuleEntity refRule, IRuleVisitor visitor)
+        public virtual async Task<int> ApplyRuleDataAsync(RuleEditItem[] ruleData, IRuleProvider provider)
         {
-            if (ruleSet.Scope != visitor.Scope)
+            Guard.NotNull(ruleData);
+            Guard.NotNull(provider);
+
+            var ruleIds = ruleData?.Select(x => x.RuleId)?.Distinct()?.ToArray();
+            if (ruleIds.IsNullOrEmpty())
             {
-                // TODO: ErrHandling (ruleSet is for a different scope)
-                return null;
+                return 0;
             }
 
-            await _db.LoadCollectionAsync(ruleSet, x => x.Rules);
-
-            var group = visitor.VisitRuleSet(ruleSet);
-            if (refRule != null)
+            var rules = await _db.Rules
+                .Where(x => ruleIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id);
+            if (rules.Count == 0)
             {
-                group.RefRuleId = refRule.Id;
+                return 0;
             }
 
-            var expressions = await ruleSet.Rules
-                .SelectAwait(x => CreateExpression(x, visitor))
-                .Where(x => x != null)
-                .AsyncToArray();
+            var num = 0;
+            var descriptors = await provider.GetRuleDescriptorsAsync();
 
-            group.AddExpressions(expressions);
+            foreach (var data in ruleData)
+            {
+                if (rules.TryGetValue(data.RuleId, out var entity))
+                {
+                    if (data.Value.HasValue())
+                    {
+                        var descriptor = descriptors.FindDescriptor(entity.RuleType);
 
-            return group;
+                        if (data.Op == RuleOperator.IsEmpty || data.Op == RuleOperator.IsNotEmpty ||
+                            data.Op == RuleOperator.IsNull || data.Op == RuleOperator.IsNotNull)
+                        {
+                            data.Value = null;
+                        }
+                        else if (descriptor.RuleType == RuleType.DateTime || descriptor.RuleType == RuleType.NullableDateTime)
+                        {
+                            // Always store invariant formatted UTC values, otherwise database queries return inaccurate results.
+                            var dt = data.Value.Convert<DateTime>(CultureInfo.CurrentCulture).ToUniversalTime();
+                            data.Value = dt.ToString(CultureInfo.InvariantCulture);
+                        }
+                    }
+
+                    entity.Operator = data.Op;
+                    entity.Value = data.Value;
+                    ++num;
+                }
+            }
+
+            return num;
         }
+
+        public virtual Task ApplyMetadataAsync(IRuleExpressionGroup group, Language language = null)
+        {
+            return ApplyMetadataInternal(group, language ?? _workContext.WorkingLanguage, group.Id);
+        }
+
+        private async Task ApplyMetadataInternal(IRuleExpressionGroup group, Language language, int rootRuleSetId)
+        {
+            if (group == null)
+            {
+                return;
+            }
+
+            foreach (var expression in group.Expressions)
+            {
+                if (expression is IRuleExpressionGroup subGroup)
+                {
+                    await ApplyMetadataInternal(subGroup, language, rootRuleSetId);
+                    continue;
+                }
+
+                if (!expression.Descriptor.IsValid)
+                {
+                    expression.Metadata["Error"] = T("Admin.Rules.InvalidDescriptor").Value;
+                }
+
+                // Load name and subtitle (e.g. SKU) for selected options.
+                if (expression.Descriptor.SelectList is RemoteRuleValueSelectList list)
+                {
+                    var optionsProvider = _ruleOptionsProviders.Value.FirstOrDefault(x => x.Matches(list.DataSource));
+                    if (optionsProvider != null)
+                    {
+                        var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, expression)
+                        {
+                            PageSize = int.MaxValue,
+                            Language = language
+                        });
+
+                        expression.Metadata["SelectedItems"] = options.Options.ToDictionarySafe(
+                            x => x.Value,
+                            x => new RuleSelectItem { Text = x.Text, Hint = x.Hint });
+
+                        expression.Metadata["RootRuleSetId"] = rootRuleSetId;
+                    }
+                }
+            }
+        }
+
+        //private async Task<IRuleExpressionGroup> CreateExpressionGroup(RuleSetEntity ruleSet, RuleEntity refRule, IRuleVisitor visitor)
+        //{
+        //    if (ruleSet.Scope != visitor.Scope)
+        //    {
+        //        // TODO: ErrHandling (ruleSet is for a different scope)
+        //        return null;
+        //    }
+
+        //    await _db.LoadCollectionAsync(ruleSet, x => x.Rules);
+
+        //    var group = visitor.VisitRuleSet(ruleSet);
+        //    if (refRule != null)
+        //    {
+        //        group.RefRuleId = refRule.Id;
+        //    }
+
+        //    var expressions = await ruleSet.Rules
+        //        .SelectAwait(x => CreateExpression(x, visitor))
+        //        .Where(x => x != null)
+        //        .AsyncToArray();
+
+        //    group.AddExpressions(expressions);
+
+        //    return group;
+        //}
 
         private async Task<IRuleExpression> CreateExpression(RuleEntity ruleEntity, IRuleVisitor visitor)
         {

@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class ProductWithDeliveryTimeInCartRule : IRule
+    internal class ProductWithDeliveryTimeInCartRule : IRule<CartRuleContext>
     {
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
