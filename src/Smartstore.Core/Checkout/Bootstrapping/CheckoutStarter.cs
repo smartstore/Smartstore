@@ -10,6 +10,7 @@ using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Shipping.Rules;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Builders;
@@ -65,6 +66,7 @@ namespace Smartstore.Core.Bootstrapping
 
             // Rule options provider.
             builder.RegisterType<PaymentMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<AuthenticationMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingRateComputationMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<AffiliateRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();

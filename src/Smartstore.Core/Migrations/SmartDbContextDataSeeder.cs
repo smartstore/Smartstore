@@ -65,6 +65,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Affiliate", "Affiliate", "Partner");
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Authentication", "Authentication", "Authentifizierung");
 
             builder.AddOrUpdate("Admin.Customers.RemoveAffiliateAssignment",
                 "Remove assignment to affiliate",

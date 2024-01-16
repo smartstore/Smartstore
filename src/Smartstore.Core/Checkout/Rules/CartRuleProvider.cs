@@ -203,7 +203,7 @@ namespace Smartstore.Core.Checkout.Rules
                 DisplayName = T("Admin.Rules.FilterDescriptor.CartItemQuantity"),
                 RuleType = RuleType.String,
                 ProcessorType = typeof(CartItemQuantityRule),
-                Operators = new[] { RuleOperator.IsEqualTo }
+                Operators = [RuleOperator.IsEqualTo]
             };
             cartItemQuantity.Metadata["ValueTemplateName"] = "ValueTemplates/CartItemQuantity";
             cartItemQuantity.Metadata["ChildRuleDescriptor"] = new CartRuleDescriptor
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Checkout.Rules
                 Name = "CartItemQuantity.Product",
                 RuleType = RuleType.Int,
                 ProcessorType = typeof(CartItemQuantityRule),
-                Operators = new[] { RuleOperator.IsEqualTo },
+                Operators = [RuleOperator.IsEqualTo],
                 SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product)
             };
 
@@ -221,7 +221,7 @@ namespace Smartstore.Core.Checkout.Rules
                 DisplayName = T("Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity"),
                 RuleType = RuleType.String,
                 ProcessorType = typeof(CartItemFromCategoryQuantityRule),
-                Operators = new[] { RuleOperator.IsEqualTo }
+                Operators = [RuleOperator.IsEqualTo]
             };
             cartItemFromCategoryQuantity.Metadata["ValueTemplateName"] = "ValueTemplates/CartItemQuantity";
             cartItemFromCategoryQuantity.Metadata["ChildRuleDescriptor"] = new CartRuleDescriptor
@@ -229,7 +229,7 @@ namespace Smartstore.Core.Checkout.Rules
                 Name = "CartItemQuantity.Category",
                 RuleType = RuleType.Int,
                 ProcessorType = typeof(CartItemFromCategoryQuantityRule),
-                Operators = new[] { RuleOperator.IsEqualTo },
+                Operators = [RuleOperator.IsEqualTo],
                 SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category)
             };
 
@@ -283,6 +283,15 @@ namespace Smartstore.Core.Checkout.Rules
                     RuleType = RuleType.IntArray,
                     ProcessorType = typeof(CustomerRoleRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CustomerRole) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "CustomerAuthentication",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.Authentication"),
+                    RuleType = RuleType.StringArray,
+                    ProcessorType = typeof(CustomerAuthenticationRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AuthenticationMethod) { Multiple = true },
                     IsComparingSequences = true
                 },
                 new()
@@ -414,7 +423,7 @@ namespace Smartstore.Core.Checkout.Rules
                     DisplayName = T("Admin.Rules.FilterDescriptor.RuleSet"),
                     RuleType = RuleType.Int,
                     ProcessorType = typeof(RuleSetRule),
-                    Operators = new[] { RuleOperator.IsEqualTo, RuleOperator.IsNotEqualTo },
+                    Operators = [RuleOperator.IsEqualTo, RuleOperator.IsNotEqualTo],
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CartRule),
                 },
 

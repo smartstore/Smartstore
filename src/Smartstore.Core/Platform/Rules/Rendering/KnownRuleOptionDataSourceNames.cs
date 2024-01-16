@@ -11,6 +11,7 @@
         public const string Language = "Language";
         public const string Manufacturer = "Manufacturer";
         public const string PaymentMethod = "PaymentMethod";
+        public const string AuthenticationMethod = "AuthenticationMethod";
         public const string Product = "Product";
         public const string ProductTag = "ProductTag";
         public const string ShippingMethod = "ShippingMethod";
