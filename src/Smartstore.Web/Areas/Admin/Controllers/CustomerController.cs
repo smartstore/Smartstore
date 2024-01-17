@@ -1,11 +1,9 @@
-﻿using AngleSharp.Dom;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Cart;
 using Smartstore.Admin.Models.Customers;
-using Smartstore.Admin.Models.Scheduling;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -21,7 +19,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -34,8 +31,6 @@ namespace Smartstore.Admin.Controllers
         private readonly ICustomerService _customerService;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
-        private readonly IProviderManager _providerManager;
-        private readonly ModuleManager _moduleManager;
         private readonly IMessageFactory _messageFactory;
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly TaxSettings _taxSettings;
@@ -45,15 +40,13 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
-        private readonly Lazy<IShoppingCartService> _shoppingCartService;
+        private readonly IShoppingCartService _shoppingCartService;
 
         public CustomerController(
             SmartDbContext db,
             ICustomerService customerService,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
-            IProviderManager providerManager,
-            ModuleManager moduleManager,
             IMessageFactory messageFactory,
             DateTimeSettings dateTimeSettings,
             TaxSettings taxSettings,
@@ -63,14 +56,12 @@ namespace Smartstore.Admin.Controllers
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
-            Lazy<IShoppingCartService> shoppingCartService)
+            IShoppingCartService shoppingCartService)
         {
             _db = db;
             _customerService = customerService;
             _userManager = userManager;
             _signInManager = signInManager;
-            _providerManager = providerManager;
-            _moduleManager = moduleManager;
             _messageFactory = messageFactory;
             _dateTimeSettings = dateTimeSettings;
             _taxSettings = taxSettings;
@@ -85,39 +76,29 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        private async Task<List<CustomerModel.AssociatedExternalAuthModel>> GetAssociatedExternalAuthRecords(Customer customer)
+        private async Task<List<CustomerModel.AssociatedExternalAuthModel>> GetAssociatedExternalAuthRecordsAsync(Customer customer)
         {
-            Guard.NotNull(customer);
+            Guard.NotNull(customer, nameof(customer));
 
-            await _db.LoadCollectionAsync(customer, x => x.ExternalAuthenticationRecords);
+            var result = new List<CustomerModel.AssociatedExternalAuthModel>();
+            var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            foreach (var ear in customer.ExternalAuthenticationRecords)
+            {
+                var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-            var authSchemes = await _signInManager.GetExternalAuthenticationSchemesAsync();
-            var authProviders = _providerManager.GetAllProviders<IExternalAuthenticationMethod>()
-                .ToDictionarySafe(x => x.Metadata.SystemName, x => x, StringComparer.OrdinalIgnoreCase);
+                if (provider == null)
+                    continue;
 
-            return customer.ExternalAuthenticationRecords
-                .Select(x =>
+                result.Add(new CustomerModel.AssociatedExternalAuthModel
                 {
-                    var methodName = authProviders.TryGetValue(x.ProviderSystemName, out var provider)
-                        ? _moduleManager.GetLocalizedFriendlyName(provider.Metadata).NullEmpty() ?? provider.Metadata.FriendlyName.NullEmpty()
-                        : null;
+                    Id = ear.Id,
+                    Email = ear.Email,
+                    ExternalIdentifier = ear.ExternalIdentifier,
+                    AuthMethodName = provider.Name
+                });
+            }
 
-                    if (methodName == null)
-                    {
-                        // Method has a system name mapping.
-                        var authScheme = authSchemes.FirstOrDefault(scheme => x.ProviderSystemName.Contains(scheme.Name, StringComparison.OrdinalIgnoreCase));
-                        methodName = authScheme?.Name;
-                    }
-
-                    return new CustomerModel.AssociatedExternalAuthModel
-                    {
-                        Id = x.Id,
-                        Email = x.Email,
-                        ExternalIdentifier = x.ExternalIdentifier,
-                        AuthMethodName = methodName ?? x.ProviderSystemName
-                    };
-                })
-                .ToList();
+            return result;
         }
 
         private async Task PrepareCustomerModel(CustomerModel model, Customer customer)
@@ -170,7 +151,7 @@ namespace Smartstore.Admin.Controllers
                 model.LastIpAddress = customer.LastIpAddress;
                 model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
                 model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
-                model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecords(customer);
+                model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
                 model.IsGuest = customer.IsGuest();
@@ -1300,7 +1281,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var cart = await _shoppingCartService.Value.GetCartAsync(customer, (ShoppingCartType)cartTypeId);
+            var cart = await _shoppingCartService.GetCartAsync(customer, (ShoppingCartType)cartTypeId);
             var models = await cart.MapAsync();
 
             var gridModel = new GridModel<ShoppingCartItemModel>

@@ -532,13 +532,9 @@ namespace Smartstore.Core.Identity
 
         public static string TranslateProviderToSystemName(string provider)
         {
-            // INFO: clarification. This maps in the opposite direction than expected, from new to old, so that
-            // ExternalAuthenticationRecord.ProviderSystemName always contains the old system name, even for new logins.
-            // This means that the database contains "Smartstore.FacebookAuth" or "SmartStore.FacebookAuth", but never "Facebook" or "Smartstore.Facebook.Auth".
-
             // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
             // But for now we keep it this way for compatibility.
-            switch (provider.EmptyNull().ToLowerInvariant())
+            switch (provider.ToLowerInvariant())
             {
                 case "facebook":
                     return "Smartstore.FacebookAuth";
@@ -555,7 +551,7 @@ namespace Smartstore.Core.Identity
         {
             // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
             // But for now we keep it this way for compatibility.
-            switch (systemName.EmptyNull().ToLowerInvariant())
+            switch (systemName.ToLowerInvariant())
             {
                 case "smartstore.facebookauth":
                     return "Facebook";
