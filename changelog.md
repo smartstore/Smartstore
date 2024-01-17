@@ -33,6 +33,7 @@
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC: Only export images (not videos or other media types).
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
+- #968 Allow to specify a language in which the notification is to be sent for manually created gift cards.
 - Added meta properties name and uploadDate for videos
 - (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
 
