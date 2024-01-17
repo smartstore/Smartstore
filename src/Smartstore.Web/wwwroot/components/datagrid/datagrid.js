@@ -27,7 +27,7 @@ Vue.component("sm-datagrid", {
 
             <div v-if="hasSearchPanel" class="dg-search d-flex flex-column" :class="{ show: options.showSearch }">
                 <div class="dg-search-header d-flex py-3 mx-3">
-                    <h6 class="m-0 text-muted">Filter</h6>
+                    <h6 class="m-0 text-muted">{{ T.filter }}</h6>
                     <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-light btn-flat btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
                         <i class="fa fa-filter-circle-xmark"></i>
                         <span>{{ T.resetState }}</span>
