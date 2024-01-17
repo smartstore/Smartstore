@@ -67,6 +67,7 @@
 - #964 Removed meta information from publication according to catalog settings
 - Fixed shoping cart MinOrderValidation 
 - Added quantity information on non-editable wishlist page.
+- Some external authentication methods (like AmazonPay) were not displayed on customer pages.
 
 
 ## Smartstore 5.1.0

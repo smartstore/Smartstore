@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
@@ -14,6 +15,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
@@ -38,6 +40,8 @@ namespace Smartstore.Web.Controllers
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
+        private readonly IProviderManager _providerManager;
+        private readonly ModuleManager _moduleManager;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly DateTimeSettings _dateTimeSettings;
@@ -63,6 +67,8 @@ namespace Smartstore.Web.Controllers
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
+            IProviderManager providerManager,
+            ModuleManager moduleManager,
             IDateTimeHelper dateTimeHelper,
             ProductUrlHelper productUrlHelper,
             DateTimeSettings dateTimeSettings,
@@ -87,6 +93,8 @@ namespace Smartstore.Web.Controllers
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
+            _providerManager = providerManager;
+            _moduleManager = moduleManager;
             _dateTimeHelper = dateTimeHelper;
             _productUrlHelper = productUrlHelper;
             _dateTimeSettings = dateTimeSettings;
@@ -931,8 +939,8 @@ namespace Smartstore.Web.Controllers
 
         private async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(model);
+            Guard.NotNull(customer);
 
             model.Id = customer.Id;
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
@@ -1030,23 +1038,35 @@ namespace Smartstore.Web.Controllers
             }
 
             // External authentication.
-            var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            await _db.LoadCollectionAsync(customer, x => x.ExternalAuthenticationRecords);
 
-            foreach (var ear in customer.ExternalAuthenticationRecords)
-            {
-                var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name)).FirstOrDefault();
+            var authSchemes = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            var authProviders = _providerManager.GetAllProviders<IExternalAuthenticationMethod>()
+                .ToDictionarySafe(x => x.Metadata.SystemName, x => x, StringComparer.OrdinalIgnoreCase);
 
-                if (provider == null)
-                    continue;
-
-                model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
+            model.AssociatedExternalAuthRecords = customer.ExternalAuthenticationRecords
+                .Select(x =>
                 {
-                    Id = ear.Id,
-                    Email = ear.Email,
-                    ExternalIdentifier = ear.ExternalIdentifier,
-                    AuthMethodName = provider.Name
-                });
-            }
+                    var methodName = authProviders.TryGetValue(x.ProviderSystemName, out var provider)
+                        ? _moduleManager.GetLocalizedFriendlyName(provider.Metadata).NullEmpty() ?? provider.Metadata.FriendlyName.NullEmpty()
+                        : null;
+
+                    if (methodName == null)
+                    {
+                        // Method has a system name mapping.
+                        var authScheme = authSchemes.FirstOrDefault(scheme => x.ProviderSystemName.Contains(scheme.Name, StringComparison.OrdinalIgnoreCase));
+                        methodName = authScheme?.Name;
+                    }
+
+                    return new CustomerInfoModel.AssociatedExternalAuthModel
+                    {
+                        Id = x.Id,
+                        Email = x.Email,
+                        ExternalIdentifier = x.ExternalIdentifier,
+                        AuthMethodName = methodName ?? x.ProviderSystemName
+                    };
+                })
+                .ToList();
         }
 
         private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
