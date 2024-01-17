@@ -48,6 +48,9 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
 
+        [LocalizedDisplay("*Language")]
+        public int LanguageId { get; set; }
+
         public string EditUrl { get; set; }
     }
 

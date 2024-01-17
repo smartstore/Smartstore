@@ -33,3 +33,35 @@
 
     <partial name="_CreateOrUpdate" />
 </form>
+
+@if (Model.Id != 0)
+{
+    <modal id="notify-recipient-popup" sm-render-at-page-end="true" sm-size="Medium" data-focus="false">
+        <modal-header sm-title="@T("Admin.GiftCards.Fields.IsRecipientNotified.Notify")"></modal-header>
+        <modal-body>
+            <form id="notify-recipient-form" asp-action="NotifyRecipient" method="POST">
+                <input asp-for="Id" type="hidden" />
+                <div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="LanguageId" />
+                        </div>
+                        <div class="adminData">
+                            <select asp-for="LanguageId" asp-items="ViewBag.AllLanguages"></select>
+                            <span asp-validation-for="LanguageId"></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </modal-body>
+        <modal-footer>
+            <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
+                <span>@T("Common.Close")</span>
+            </button>
+            <button type="button" class="btn btn-primary" onclick="$('#notify-recipient-form').submit();">
+                <i class="fa fa-envelope"></i>
+                <span>@T("Admin.GiftCards.Fields.IsRecipientNotified.Notify")</span>
+            </button>
+        </modal-footer>
+    </modal>
+}

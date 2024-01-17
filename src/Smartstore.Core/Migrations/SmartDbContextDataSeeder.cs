@@ -92,6 +92,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob in der Sprachauswahl die Sprachnamen in der nativen Landesprache angezeigt werden soll. Ansonsten wird der im Backend hinterlegte Name verwendet.");
 
             builder.AddOrUpdate("Common.PageNotFound", "The page does not exist.", "Die Seite existiert nicht.");
+
+            builder.AddOrUpdate("Admin.GiftCards.Fields.Language",
+                "Language",
+                "Sprache",
+                "Specifies the language of the message content.",
+                "Legt die Sprache des Nachrichteninhalts fest.");
         }
     }
 }
