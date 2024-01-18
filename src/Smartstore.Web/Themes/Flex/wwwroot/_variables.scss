@@ -59,9 +59,6 @@ $color-contrast-light:          $yiq-text-light;
 $gray-150:                      mix($gray-100, $gray-200) !default;
 $gray-650:                      mix($gray-600, $gray-700) !default;
 
-$body-secondary-color:          $gray-600;
-$body-tertiary-color:           $gray-500;
-
 $grays:  ( 
     "150": $gray-150,
     "650": $gray-650

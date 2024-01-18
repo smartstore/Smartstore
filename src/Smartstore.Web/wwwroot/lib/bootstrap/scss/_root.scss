@@ -62,7 +62,7 @@
   --#{$prefix}body-color: #{$body-color};
   --#{$prefix}body-color-rgb: #{to-rgb($body-color)};
   --#{$prefix}body-bg: #{$body-bg};
-  --#{$prefix}body-bg-rgb: #{to-rgb($body-bg)};
+  --#{$prefix}body-bg-rgb: #{to-rgb($body-bg)}; 
 
   --#{$prefix}emphasis-color: #{$body-emphasis-color};
   --#{$prefix}emphasis-color-rgb: #{to-rgb($body-emphasis-color)};
