@@ -19,6 +19,7 @@ namespace Smartstore.Admin.Models.Orders
             var products = await services.DbContext.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
+                .SelectSummary()
                 .ToDictionaryAsync(x => x.Id);
 
             dynamic parameters = new ExpandoObject();
