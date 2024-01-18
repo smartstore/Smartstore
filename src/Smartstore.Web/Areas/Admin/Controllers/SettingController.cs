@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Smartstore.Admin.Models;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
+using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -29,6 +30,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Search.Indexing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -1199,6 +1201,19 @@ namespace Smartstore.Admin.Controllers
             return NotifyAndRedirect(nameof(RewardPoints));
         }
 
+        public IActionResult RewardPointsForPurchasesInfo(decimal amount, int points)
+        {
+            if (amount == decimal.Zero && points == 0)
+            {
+                return new EmptyResult();
+            }
+
+            var amountFormatted = _currencyService.ConvertFromPrimaryCurrency(amount, Services.WorkContext.WorkingCurrency).ToString();
+            var info = T("RewardPoints.PointsForPurchasesInfo", amountFormatted, points.ToString("N0"));
+
+            return Content(info);
+        }
+
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
         public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings)
@@ -1470,7 +1485,7 @@ namespace Smartstore.Admin.Controllers
             return num;
         }
 
-        private IActionResult NotifyAndRedirect(string actionMethod)
+        private RedirectToActionResult NotifyAndRedirect(string actionMethod)
         {
             NotifySuccess(T("Admin.Configuration.Updated"));
             return RedirectToAction(actionMethod);

@@ -61,7 +61,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete(
                 "Account.ChangePassword.Errors.PasswordIsNotProvided",
                 "Common.Wait...",
-                "Topic.Button");
+                "Topic.Button",
+                "Admin.Configuration.Settings.RewardPoints.Earning.Hint1",
+                "Admin.Configuration.Settings.RewardPoints.Earning.Hint2",
+                "Admin.Configuration.Settings.RewardPoints.Earning.Hint3");
 
             builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Affiliate", "Affiliate", "Partner");
@@ -98,6 +101,11 @@ namespace Smartstore.Core.Data.Migrations
                 "Sprache",
                 "Specifies the language of the message content.",
                 "Legt die Sprache des Nachrichteninhalts fest.");
+
+            builder.AddOrUpdate("RewardPoints.OrderAmount", "Order amount", "Bestellwert");
+            builder.AddOrUpdate("RewardPoints.PointsForPurchasesInfo",
+                "For every {0} order amount {1} points are awarded.",
+                "Für je {0} Auftragswert werden {1} Punkte gewährt.");
         }
     }
 }

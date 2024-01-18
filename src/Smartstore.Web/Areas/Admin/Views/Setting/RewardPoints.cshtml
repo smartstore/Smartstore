@@ -94,29 +94,20 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="PointsForPurchases_Amount" />
+                    <smart-label asp-for="PointsForPurchases_Points" />
                 </div>
                 <div class="adminData">
-                    <setting-editor asp-for="PointsForPurchases_Amount">
-                        <div class="form-row flex-nowrap">
-                            <div class="col-auto">
-                                <div class="form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint1")</div>
-                            </div>
-                            <div class="col w-25">
-                                <editor asp-for="PointsForPurchases_Amount" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
-                            </div>
-                            <div class="col-auto">
-                                <div class=" form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint2")</div>
-                            </div>
-                            <div class="col w-25">
-                                <editor asp-for="PointsForPurchases_Points" />
-                            </div>
-                            <div class="col-auto">
-                                <div class=" form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint3")</div>
-                            </div>
+                    <div class="form-row flex-nowrap">
+                        <div class="col w-50">
+                            <setting-editor asp-for="PointsForPurchases_Amount" sm-postfix="@Model.PrimaryStoreCurrencyCode" placeholder="@T("RewardPoints.OrderAmount")"></setting-editor>
+                            <span asp-validation-for="PointsForPurchases_Amount"></span>
                         </div>
-                    </setting-editor>
-                    <span asp-validation-for="PointsForPurchases_Amount"></span>
+                        <div class="col w-50">
+                            <setting-editor asp-for="PointsForPurchases_Points" placeholder="@T("RewardPoints.Fields.Points")"></setting-editor>
+                            <span asp-validation-for="PointsForPurchases_Points"></span>
+                        </div>
+                    </div>
+                    <div id="PointsForPurchasesInfo" class="text-muted mt-1"></div>
                 </div>
             </div>
             <div class="adminRow">
@@ -140,3 +131,34 @@
         </div>
     </div>
 </form>
+
+<script sm-target-zone="scripts" data-origin="rewardpoints-settings">
+    $(function () {
+        var pointsForPurchasesAmount = $('#@Html.IdFor(x => x.PointsForPurchases_Amount)');
+        var pointsForPurchasesPoints = $('#@Html.IdFor(x => x.PointsForPurchases_Points)');
+
+        pointsForPurchasesAmount.on('blur', getRewardPointsForPurchasesInfo);
+        pointsForPurchasesPoints.on('change', getRewardPointsForPurchasesInfo).trigger('change');
+
+        function getRewardPointsForPurchasesInfo() {
+            var amount = pointsForPurchasesAmount.val();
+            var points = pointsForPurchasesPoints.val();
+
+            $.ajax({
+                cache: false,
+                global: false,
+                type: 'GET',
+                url: `@(Url.Action("RewardPointsForPurchasesInfo"))?amount=${amount}&points=${points}`,
+                success: function (response) {
+                    $('#PointsForPurchasesInfo').html(response);
+                },
+                error: function (objXml) {
+                    if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                        console.log(objXml.responseText);
+                    }
+                }
+            });
+        }
+
+    });
+</script>

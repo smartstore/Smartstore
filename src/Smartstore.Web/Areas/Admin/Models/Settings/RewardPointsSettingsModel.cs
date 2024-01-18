@@ -24,8 +24,11 @@ namespace Smartstore.Admin.Models
         public int PointsForProductReview { get; set; }
 
         [LocalizedDisplay("*PointsForPurchases_Amount")]
-        public decimal PointsForPurchases_Amount { get; set; }
         public int PointsForPurchases_Points { get; set; }
+
+        [AdditionalMetadata("min", 0)]
+        [LocalizedDisplay("*PointsForPurchases_Amount")]
+        public decimal PointsForPurchases_Amount { get; set; }
 
         [LocalizedDisplay("*PointsForPurchases_Awarded")]
         public OrderStatus PointsForPurchases_Awarded { get; set; }
@@ -40,7 +43,9 @@ namespace Smartstore.Admin.Models
     {
         public RewardPointsSettingsValidator(Localizer T)
         {
-            RuleFor(x => x.PointsForPurchases_Amount).GreaterThan(0);
+            RuleFor(x => x.PointsForPurchases_Amount)
+                .GreaterThan(0)
+                .When(x => x.PointsForPurchases_Points != 0);
 
             RuleFor(x => x.PointsForPurchases_Awarded).NotEqual(OrderStatus.Pending)
                 .WithMessage(T("Admin.Configuration.Settings.RewardPoints.PointsForPurchases_Awarded.Pending"));

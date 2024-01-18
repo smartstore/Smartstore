@@ -54,6 +54,11 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 var additionalViewData = new RouteValueDictionary { ["postfix"] = Postfix };
 
+                if (output.Attributes.TryGetAttribute("placeholder", out var placeholder))
+                {
+                    additionalViewData["placeholder"] = placeholder.ValueAsString();
+                }
+
                 if (output.Attributes.TryGetAttribute("data-toggler-for", out var togglerFor))
                 {
                     // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
