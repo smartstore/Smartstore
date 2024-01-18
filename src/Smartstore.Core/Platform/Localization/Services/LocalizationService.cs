@@ -26,13 +26,18 @@ namespace Smartstore.Core.Localization
         private readonly ICacheManager _cache;
         private readonly Lazy<IWorkContext> _workContext;
         private readonly ILanguageService _languageService;
-        private readonly bool _isMultiLanguageEnvironment;
+        private bool? _isMultiLanguageEnvironment;
 
         // Scope cache
         private int? _masterLanguageId;
         private Dictionary<string, string> _singleCacheSegment;
         private Dictionary<int, Dictionary<string, string>> _cacheSegments;
         private readonly HashSet<(string Key, int LangId)> _missedKeysInScope = new();
+
+        private bool IsMultiLanguageEnvironment
+        {
+            get => _isMultiLanguageEnvironment ??= _languageService.IsMultiLanguageEnvironment();
+        }
 
         public LocalizationService(
             SmartDbContext db,
@@ -44,7 +49,6 @@ namespace Smartstore.Core.Localization
             _cache = cache;
             _workContext = workContext;
             _languageService = languageService;
-            _isMultiLanguageEnvironment = languageService.IsMultiLanguageEnvironment();
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -75,7 +79,7 @@ namespace Smartstore.Core.Localization
         protected virtual Dictionary<string, string> GetCacheSegment(int languageId)
         {
             // Perf (hot path): first try faster lookup in request scope, then access cache.
-            if (!_isMultiLanguageEnvironment)
+            if (!IsMultiLanguageEnvironment)
             {
                 if (_singleCacheSegment != null)
                 {
@@ -112,7 +116,7 @@ namespace Smartstore.Core.Localization
             });
 
             // Put resolved segment to scope cache
-            if (!_isMultiLanguageEnvironment)
+            if (!IsMultiLanguageEnvironment)
             {
                 _singleCacheSegment = cacheSegment;
             }
@@ -201,7 +205,7 @@ namespace Smartstore.Core.Localization
             }
             else
             {
-                if (_isMultiLanguageEnvironment)
+                if (IsMultiLanguageEnvironment)
                 {
                     // Try fallback to default/master language
                     if (!_masterLanguageId.HasValue)
