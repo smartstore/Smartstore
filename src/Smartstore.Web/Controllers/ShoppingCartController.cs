@@ -293,6 +293,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="query"><see cref="ProductVariantQuery"/> with selected checkout attributes.</param>
         /// <param name="useRewardPoints">A value indicating whether to use reward points. <c>null</c> if it is called from the off-canvas card.</param>
         [HttpPost]
+        [DisallowRobot]
         public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool? useRewardPoints)
         {
             var warnings = new List<string>();
@@ -446,6 +447,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/> </param>
         /// <param name="forceRedirection">A value indicating whether to force a redirection to the shopping cart.</param>
         [HttpPost]
+        [DisallowRobot]
         [IgnoreAntiforgeryToken]
         [SaveChanges<SmartDbContext>(false)]
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
@@ -464,33 +466,22 @@ namespace Smartstore.Web.Controllers
             // Filter out cases where a product cannot be added to the cart.
             if (product.ProductType == ProductType.GroupedProduct || product.CustomerEntersPrice || product.IsGiftCard)
             {
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
-                });
+                return await RedirectToProduct();
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Any())
+            if (allowedQuantities.Length > 0)
             {
                 // The user must select a quantity from the dropdown list, therefore the product cannot be added to the cart.
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
-                });
+                return await RedirectToProduct();
             }
-
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var cartType = (ShoppingCartType)shoppingCartTypeId;
-
-            var quantityToAdd = product.GetMinOrderQuantity();
 
             // Product looks good so far, let's try adding the product to the cart (with product attribute validation etc.).
             var addToCartContext = new AddToCartContext
             {
                 Product = product,
-                CartType = cartType,
-                Quantity = quantityToAdd,
+                CartType = (ShoppingCartType)shoppingCartTypeId,
+                Quantity = product.GetMinOrderQuantity(),
                 AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
                 AutomaticallyAddBundleProducts = true
             };
@@ -498,10 +489,7 @@ namespace Smartstore.Web.Controllers
             if (!await _shoppingCartService.AddToCartAsync(addToCartContext))
             {
                 // Item could not be added to the cart. Most likely, the customer has to select something on the product detail page e.g. variant attributes, giftcard infos, etc..
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
-                });
+                return await RedirectToProduct();
             }
 
             // Product has been added to the cart. Add to activity log.
@@ -521,6 +509,14 @@ namespace Smartstore.Web.Controllers
                 success = true,
                 message = T("Products.ProductHasBeenAddedToTheCart", Url.RouteUrl("ShoppingCart")).Value
             });
+
+            async Task<JsonResult> RedirectToProduct()
+            {
+                return Json(new
+                {
+                    redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
+                });
+            }
         }
 
         /// <summary>
@@ -530,6 +526,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/>.</param>
         /// <param name="query">The <see cref="ProductVariantQuery"/> of selected attributes.</param>
         [HttpPost]
+        [DisallowRobot]
         [IgnoreAntiforgeryToken]
         [SaveChanges<SmartDbContext>(false)]
         [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
@@ -578,14 +575,11 @@ namespace Smartstore.Web.Controllers
                 _ = int.TryParse(form[key2], out quantity);
             }
 
-            // Save item
-            var cartType = (ShoppingCartType)shoppingCartTypeId;
-
             var addToCartContext = new AddToCartContext
             {
                 Product = product,
                 VariantQuery = query,
-                CartType = cartType,
+                CartType = (ShoppingCartType)shoppingCartTypeId,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
                 Quantity = quantity,
                 AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
@@ -594,8 +588,7 @@ namespace Smartstore.Web.Controllers
 
             if (!await _shoppingCartService.AddToCartAsync(addToCartContext))
             {
-                // Product could not be added to the cart/wishlist
-                // Display warnings.
+                // Product could not be added to the cart/wishlist.
                 return Json(new
                 {
                     success = false,
@@ -604,30 +597,24 @@ namespace Smartstore.Web.Controllers
             }
 
             // Product was successfully added to the cart/wishlist.
-            // Log activity and redirect if enabled.
-
             bool redirect;
             string routeUrl, activity, resourceName;
 
-            switch (cartType)
+            switch (addToCartContext.CartType)
             {
                 case ShoppingCartType.Wishlist:
-                {
                     redirect = _shoppingCartSettings.DisplayWishlistAfterAddingProduct;
                     routeUrl = "Wishlist";
                     activity = KnownActivityLogTypes.PublicStoreAddToWishlist;
                     resourceName = "ActivityLog.PublicStore.AddToWishlist";
                     break;
-                }
                 case ShoppingCartType.ShoppingCart:
                 default:
-                {
                     redirect = _shoppingCartSettings.DisplayCartAfterAddingProduct;
                     routeUrl = "ShoppingCart";
                     activity = KnownActivityLogTypes.PublicStoreAddToShoppingCart;
                     resourceName = "ActivityLog.PublicStore.AddToShoppingCart";
                     break;
-                }
             }
 
             _activityLogger.LogActivity(activity, T(resourceName), product.Name);
@@ -646,14 +633,14 @@ namespace Smartstore.Web.Controllers
         /// <param name="cartItemId">The identifier of <see cref="OrganizedShoppingCartItem"/>.</param>
         /// <param name="cartType">The <see cref="ShoppingCartType"/> from which to move the item from.</param>
         /// <param name="isCartPage">A value indicating whether the user is on cart page (prepares model).</param>        
-        [HttpPost]
+        [HttpPost, ActionName("MoveItemBetweenCartAndWishlist")]
+        [DisallowRobot]
         [IgnoreAntiforgeryToken]
-        [ActionName("MoveItemBetweenCartAndWishlist")]
         [SaveChanges<SmartDbContext>(false)]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
-            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
-                || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) ||
+                !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
                 return Json(new
                 {
@@ -757,12 +744,13 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("Wishlist")]
+        [DisallowRobot]
         [FormValueRequired("addtocartbutton")]
         [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
         public async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid)
         {
-            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
-                || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) ||
+                !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
                 return RedirectToRoute("Homepage");
             }
@@ -782,8 +770,8 @@ namespace Smartstore.Web.Controllers
             var form = HttpContext.Request.Form;
 
             var allIdsToAdd = form["addtocart"].FirstOrDefault() != null
-                ? form["addtocart"].Select(x => int.Parse(x)).ToList()
-                : new List<int>();
+                ? form["addtocart"].Select(int.Parse).ToList()
+                : [];
 
             foreach (var cartItem in pageCart.Items.Where(x => allIdsToAdd.Contains(x.Item.Id)))
             {
@@ -834,11 +822,13 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> EmailWishlist()
         {
             if (!_shoppingCartSettings.EmailWishlistEnabled || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            {
                 return RedirectToRoute("Homepage");
+            }
 
             var customer = Services.WorkContext.CurrentCustomer;
             var wishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
-            if (!wishlist.Items.Any())
+            if (wishlist.Items.Length == 0)
             {
                 return RedirectToRoute("Homepage");
             }
@@ -865,7 +855,7 @@ namespace Smartstore.Web.Controllers
 
             var customer = Services.WorkContext.CurrentCustomer;
             var wishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
-            if (!wishlist.Items.Any())
+            if (wishlist.Items.Length == 0)
             {
                 return RedirectToRoute("Homepage");
             }
@@ -1084,7 +1074,7 @@ namespace Smartstore.Web.Controllers
                     var giftCard = await _db.GiftCards
                         .Include(x => x.GiftCardUsageHistory)
                         .AsNoTracking()
-                        .ApplyCouponFilter(new[] { giftCardCouponCode })
+                        .ApplyCouponFilter([giftCardCouponCode])
                         .FirstOrDefaultAsync();
 
                     var isGiftCardValid = giftCard != null && await _giftCardService.ValidateGiftCardAsync(giftCard, cart.StoreId);

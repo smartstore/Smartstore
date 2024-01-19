@@ -460,7 +460,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(cart);
 
-            if (couponCode.IsEmpty())
+            if (couponCode.IsEmpty() || cart.Customer.IsBot())
             {
                 return (false, null);
             }

@@ -106,6 +106,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("RewardPoints.PointsForPurchasesInfo",
                 "For every {0} order amount {1} points are awarded.",
                 "Für je {0} Auftragswert werden {1} Punkte gewährt.");
+
+            builder.AddOrUpdate("Common.Error.BotsNotPermitted",
+                "This process is not permitted for search engine queries (bots).",
+                "Dieser Vorgang ist für Suchmaschinenanfragen (Bots) nicht zulässig.");
         }
     }
 }

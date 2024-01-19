@@ -73,11 +73,15 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(ctx.Item);
 
             var customer = ctx.Customer ?? _workContext.CurrentCustomer;
+            if (customer.IsBot())
+            {
+                return;
+            }
 
             customer.ShoppingCartItems.Add(ctx.Item);
             await _db.SaveChangesAsync();
 
-            if (ctx.ChildItems.Any())
+            if (ctx.ChildItems.Count > 0)
             {
                 foreach (var childItem in ctx.ChildItems)
                 {
@@ -96,6 +100,12 @@ namespace Smartstore.Core.Checkout.Cart
             // This is called when customer adds a product to cart
             ctx.Customer ??= _workContext.CurrentCustomer;
             ctx.StoreId ??= _storeContext.CurrentStore.Id;
+            
+            if (ctx.Customer.IsBot())
+            {
+                ctx.Warnings.Add(T("Common.Error.BotsNotPermitted"));
+                return false;
+            }
 
             ctx.Customer.ResetCheckoutData(ctx.StoreId.Value);
             await _db.SaveChangesAsync();
@@ -141,7 +151,7 @@ namespace Smartstore.Core.Checkout.Cart
             if (ctx.AutomaticallyAddRequiredProducts)
             {
                 var requiredProductIds = ctx.Product.ParseRequiredProductIds();
-                if (requiredProductIds.Any())
+                if (requiredProductIds.Length > 0)
                 {
                     var cartProductIds = cart.Items.Select(x => x.Item.ProductId);
                     var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
@@ -262,7 +272,7 @@ namespace Smartstore.Core.Checkout.Cart
                 && ctx.Warnings.Count == 0)
             {
                 var bundleItems = await _db.ProductBundleItem
-                    .ApplyBundledProductsFilter(new[] { ctx.Product.Id }, true)
+                    .ApplyBundledProductsFilter([ctx.Product.Id], true)
                     .Include(x => x.Product)
                     .ToListAsync();
 
@@ -300,7 +310,7 @@ namespace Smartstore.Core.Checkout.Cart
                 await AddItemToCartAsync(ctx);
             }
 
-            return !ctx.Warnings.Any();
+            return ctx.Warnings.Count == 0;
         }
 
         public virtual async Task<bool> CopyAsync(AddToCartContext ctx)
@@ -308,7 +318,7 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(ctx);
 
             var childItems = ctx.ChildItems;
-            ctx.ChildItems = new();
+            ctx.ChildItems = [];
 
             foreach (var childItem in childItems)
             {
@@ -331,14 +341,14 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            if (ctx.Warnings.Any() || !await AddToCartAsync(ctx))
+            if (ctx.Warnings.Count > 0 || !await AddToCartAsync(ctx))
             {
                 return false;
             }
 
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 
-            return !ctx.Warnings.Any();
+            return ctx.Warnings.Count == 0;
         }
 
         public virtual async Task DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
@@ -436,13 +446,13 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(fromCustomer);
             Guard.NotNull(toCustomer);
 
-            if (fromCustomer.Id == toCustomer.Id)
+            if (fromCustomer.Id == toCustomer.Id || toCustomer.IsBot())
             {
                 return false;
             }
 
             var cartItems = await OrganizeCartItemsAsync(fromCustomer.ShoppingCartItems);
-            if (!cartItems.Any())
+            if (cartItems.Count == 0)
             {
                 return false;
             }
@@ -549,6 +559,12 @@ namespace Smartstore.Core.Checkout.Cart
             bool validateCheckoutAttributes = true)
         {
             cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+
+            if (cart.Customer.IsBot())
+            {
+                warnings.Add(T("Common.Error.BotsNotPermitted"));
+                return false;
+            }
 
             if (resetCheckoutData)
             {
@@ -661,7 +677,7 @@ namespace Smartstore.Core.Checkout.Cart
                 result.Add(parentItem);
             }
 
-            if (mergeRequiringItems.Any())
+            if (mergeRequiringItems.Count > 0)
             {
                 await _productAttributeMaterializer.MergeWithCombinationAsync(mergeRequiringItems);
             }

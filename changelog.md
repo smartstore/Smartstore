@@ -36,6 +36,7 @@
 - #968 Allow to specify a language in which the notification is to be sent for manually created gift cards.
 - Added meta properties name and uploadDate for videos
 - (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
+- #965 Prevent adding of products to the shopping cart by system customers such as *builtin@search-engine-record.com*.
 
 ### Bugfixes
 
