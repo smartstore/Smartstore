@@ -4,7 +4,7 @@
     margin-bottom: 0;
 }
 
-.alert a {
+.alert a:not(.btn) {
     @extend .link-duu;
     @extend .link-transition;
 }
