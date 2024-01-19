@@ -49,14 +49,14 @@ namespace Smartstore.Core.Catalog.Attributes.Rules
                     .AsNoTracking()
                     .Where(x => x.ProductVariantAttribute.ProductAttributeId == (int)objParentId);
 
-                if (metadata.TryGetValue("AllowFiltering", out var val))
+                if (metadata.TryGetValueAs<bool>("AllowFiltering", out var allowFiltering))
                 {
-                    tmpQuery = tmpQuery.Where(x => x.ProductVariantAttribute.ProductAttribute.AllowFiltering == (bool)val);
+                    tmpQuery = tmpQuery.Where(x => x.ProductVariantAttribute.ProductAttribute.AllowFiltering == allowFiltering);
                 }
 
-                if (metadata.TryGetValue("ValueType", out val))
+                if (metadata.TryGetValueAs<ProductVariantAttributeValueType>("ValueType", out var valueType))
                 {
-                    tmpQuery = tmpQuery.Where(x => x.ValueTypeId == (int)(ProductVariantAttributeValueType)val);
+                    tmpQuery = tmpQuery.Where(x => x.ValueTypeId == (int)valueType);
                 }
 
                 var query = tmpQuery.ApplyListTypeFilter();

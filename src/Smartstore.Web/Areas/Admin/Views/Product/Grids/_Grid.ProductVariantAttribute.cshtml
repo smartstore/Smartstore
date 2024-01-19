@@ -2,9 +2,15 @@
 
 @{
     var parentModel = ViewData["Parent"] as ProductModel;
+
+    // TODO: (mg) Make numbers in "EditLinkText" bold
+    // TODO: (mg) Catalog / Product Attributes / Option Sets / Editing a set option --> HTTP 404
+    // TODO: (mg) Catalog / Product Attributes / Grid: show number of option sets and total num of options in new column
+    // TODO: (mg) Copy attributes: it should not be possible to select the current product.
+    // TODO: (mg) Change DE term: Bedingung --> Regel
 }
 
-<datagrid id="productvariantattributes-grid"
+<datagrid id="productvariantattributes-grid" version="2"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
@@ -34,7 +40,7 @@
         </toolbar-group>
         <toolbar-group>
             <a href="#copy-attributes-popup" data-toggle="modal" class="btn btn-primary btn-flat">
-                <i class="fa fa-tasks"></i>
+                <i class="far fa-copy"></i>
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes")…</span>
             </a>
         </toolbar-group>

@@ -7,11 +7,11 @@ namespace Smartstore.Core.Rules
 {
     public class RuleProviderFactory : IRuleProviderFactory
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        private readonly ILifetimeScope _scope;
 
         public RuleProviderFactory(ILifetimeScope lifetimeScope)
         {
-            _lifetimeScope = lifetimeScope;
+            _scope = lifetimeScope;
         }
 
         public virtual IRuleProvider GetProvider(RuleScope scope, object context = null)
@@ -19,14 +19,14 @@ namespace Smartstore.Core.Rules
             switch (scope)
             {
                 case RuleScope.Cart:
-                    return _lifetimeScope.Resolve<ICartRuleProvider>();
+                    return _scope.Resolve<ICartRuleProvider>();
                 case RuleScope.Customer:
-                    return _lifetimeScope.Resolve<ITargetGroupService>();
+                    return _scope.Resolve<ITargetGroupService>();
                 case RuleScope.Product:
-                    return _lifetimeScope.Resolve<IProductRuleProvider>();
+                    return _scope.Resolve<IProductRuleProvider>();
                 case RuleScope.ProductAttribute:
                     var parameter = TypedParameter.From(Guard.NotNull(context as AttributeRuleProviderContext));
-                    return _lifetimeScope.Resolve<IAttributeRuleProvider>(parameter);
+                    return _scope.Resolve<IAttributeRuleProvider>(parameter);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(scope), $"Cannot get rule provider for scope {scope}. There is no known provider for this scope.");
             }

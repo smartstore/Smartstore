@@ -29,8 +29,8 @@
 
         protected virtual async Task ConvertRuleAsync(RuleEntity entity, RuleExpression expression)
         {
-            Guard.NotNull(entity, nameof(entity));
-            Guard.NotNull(expression, nameof(expression));
+            Guard.NotNull(entity);
+            Guard.NotNull(expression);
 
             var descriptors = await GetRuleDescriptorsAsync();
             var descriptor = descriptors.FindDescriptor(entity.RuleType);

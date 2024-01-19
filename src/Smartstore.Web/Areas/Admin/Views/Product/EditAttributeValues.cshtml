@@ -12,6 +12,9 @@
 
     var attributes = ViewBag.ProductVariantAttributes as List<ExtendedSelectListItem>;
     var selectedAttribute = attributes.FirstOrDefault(x => x.Selected);
+
+    // TODO: (mg) Too wide title section. The new dropdown button displays the attr name already. No need to display in page title also.
+    //       Suggestion: Edit attribute. Product: <span class="fs-h6 text-muted">{Name}</span>
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
@@ -24,21 +27,23 @@
                 <a sm-backto asp-action="Edit" asp-controller="Product" asp-route-Id="@Model.ProductId"
                    style="margin: 0 !important;"
                    title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.BackToProduct")"></a>
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle text-truncate"
+                        style="max-width: 15vw"
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="true"
                         data-boundary="window"
                         title="@selectedAttribute?.Text">
-                    <span>@selectedAttribute?.Text</span>
+                    <span class="d-none d-md-inline text-truncate">@selectedAttribute?.Text</span>
                 </button>
                 <div class="dropdown-menu">
                     @foreach (var item in attributes)
                     {
                         <a href="@Url.Action("EditAttributeValues", new { productVariantAttributeId = item.Value })"
                            title="@(item.Get<string>("LinkTitle"))"
+                           style="line-height: var(--body-line-height)"
                            class="dropdown-item@(item.Disabled ? " disabled" : string.Empty)">
-                            @item.Text
+                            <span>@item.Text</span>
                         </a>
                     }
                 </div>

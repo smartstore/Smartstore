@@ -2,6 +2,12 @@
 
 @model IList<ProductDetailsModel.ProductVariantAttributeModel>
 
+@{
+    // TODO: (mg) Configured price surcharge not displayed (anymore?)
+    // TODO: (mg) --> (mh) File uploader is broken
+    // TODO: (mg) Text type attribute desperately needs some sort of user constraint (e.g. Regex)
+}
+
 <div class="pd-variants">
     @foreach (var attribute in Model.Where(x => x.ShouldBeRendered))
     {

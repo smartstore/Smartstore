@@ -78,7 +78,7 @@
 
     &[role=group] {
         padding: 0 !important;
-        padding-block-start: 0.75em !important;
+        //padding-block-start: 0.75em !important;
     }
 
     &[aria-disabled=true] {
@@ -94,10 +94,6 @@
     &--highlighted[aria-selected] {
         background-color: var(--select2-drop-active-bg);
         color: var(--select2-drop-active-color);
-    }
-
-    .select2-results__option {
-        --select2-option-indent: 2;
     }
 }
 

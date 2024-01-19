@@ -3,26 +3,30 @@
 @if (Model.Attributes.Count > 0)
 {
     <div class="table-responsive">
-        <table class="table table-sm table-borderless mb-0">
-            <tr>
-                <th scope="col"></th>
-                <th scope="col" style="width: 60%;">@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")</th>
-                <th scope="col" class="text-center">@T("Admin.Catalog.Products.ProductVariantAttributes.Rules")</th>
-            </tr>
-            @foreach (var item in Model.Attributes)
-            {
+        <table class="table table-sm table-striped mb-0">
+            <thead>
                 <tr>
-                    <td class="col-form-label @(item.IsRequired ? " required" : string.Empty)" title="@item.AttributeControlType">
-                        @item.Name
-                    </td>
-                    <td>
-                        @string.Join(", ", item.Values)
-                    </td>
-                    <td class="text-center">
-                        @item.NumberOfRules.ToString("N0")
-                    </td>
+                    <th scope="col"></th>
+                    <th scope="col" style="width: 60%;">@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")</th>
+                    <th scope="col" class="text-center">@T("Admin.Catalog.Products.ProductVariantAttributes.Rules")</th>
                 </tr>
-            }
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Attributes)
+                {
+                    <tr>
+                        <td class="col-form-label @(item.IsRequired ? " required" : string.Empty)" title="@item.AttributeControlType">
+                            @item.Name
+                        </td>
+                        <td>
+                            @string.Join(", ", item.Values)
+                        </td>
+                        <td class="text-center">
+                            @item.NumberOfRules.ToString("N0")
+                        </td>
+                    </tr>
+                }
+            </tbody>
         </table>
     </div>
 }

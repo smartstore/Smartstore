@@ -100,6 +100,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 .AsNoTracking()
                 .Where(x => x.ProductAttributeOptionsSetId == productAttributeOptionsSetId)
                 .ToListAsync();
+
             if (optionsToCopy.Count == 0)
             {
                 return 0;
