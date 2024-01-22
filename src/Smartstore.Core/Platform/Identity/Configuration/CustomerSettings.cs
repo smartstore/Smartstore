@@ -81,9 +81,9 @@ namespace Smartstore.Core.Identity
         public bool AllowCustomersToUploadAvatars { get; set; }
 
         /// <summary>
-        /// Gets or sets a maximum avatar size (in bytes).
+        /// Gets or sets the maximum file size of an avatar (in KB). The default is 10,240 (10 MB).
         /// </summary>
-        public int AvatarMaximumSizeBytes { get; set; } = 512000;
+        public long MaxAvatarFileSize { get; set; } = 10240;
 
         /// <summary>
         /// Gets or sets a value indicating whether customers location is shown.

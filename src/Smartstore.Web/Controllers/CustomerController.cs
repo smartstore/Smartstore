@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Customers;
@@ -17,7 +18,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
-using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Rendering;
@@ -741,7 +741,7 @@ namespace Smartstore.Web.Controllers
             var model = new CustomerAvatarEditModel
             {
                 Avatar = await customer.MapAsync(null, true, true),
-                MaxFileSize = Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)
+                MaxFileSize = _customerSettings.MaxAvatarFileSize.Kilobytes().Humanize()
             };
 
             return View(model);
@@ -750,22 +750,18 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadAvatar()
         {
+            long maxFileSize = _customerSettings.MaxAvatarFileSize * 1024;
             var customer = Services.WorkContext.CurrentCustomer;
             var success = false;
             string avatarUrl = null;
 
-            try
+            if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
             {
-                if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
+                var uploadedFile = Request.Form.Files[0];
+                if (uploadedFile != null && uploadedFile.FileName.HasValue())
                 {
-                    var uploadedFile = Request.Form.Files[0];
-                    if (uploadedFile != null && uploadedFile.FileName.HasValue())
+                    if (uploadedFile.Length <= maxFileSize)
                     {
-                        if (uploadedFile.Length > _customerSettings.AvatarMaximumSizeBytes)
-                        {
-                            throw new MaxMediaFileSizeExceededException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
-                        }
-
                         var oldAvatar = await _db.MediaFiles.FindByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0);
                         if (oldAvatar != null)
                         {
@@ -786,11 +782,11 @@ namespace Smartstore.Web.Controllers
                             success = avatarUrl.HasValue();
                         }
                     }
+                    else
+                    {
+                        NotifyError(T("Account.Avatar.MaximumUploadedFileSize", _customerSettings.MaxAvatarFileSize.Kilobytes().Humanize()));
+                    }
                 }
-            }
-            catch
-            {
-                throw;
             }
 
             return Json(new { success, avatarUrl });

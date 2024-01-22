@@ -43,6 +43,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToUploadAvatars")]
             public bool AllowCustomersToUploadAvatars { get; set; }
 
+            [LocalizedDisplay("*MaxAvatarFileSize")]
+            public long MaxAvatarFileSize { get; set; } = 10240;
+
             [LocalizedDisplay("*ShowCustomersLocation")]
             public bool ShowCustomersLocation { get; set; }
 
@@ -332,6 +335,7 @@ namespace Smartstore.Admin.Models
     {
         public CustomerUserSettingsValidator()
         {
+            RuleFor(x => x.CustomerSettings.MaxAvatarFileSize).GreaterThan(0);
             RuleFor(x => x.CustomerSettings.PasswordMinLength).GreaterThanOrEqualTo(4);
             RuleFor(x => x.CustomerSettings.PasswordRequiredUniqueChars).GreaterThanOrEqualTo(0);
 

@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Identity
+@using Humanizer.Bytes 
 
 @model CustomerUserSettingsModel
 
@@ -190,8 +191,17 @@
                         <smart-label asp-for="CustomerSettings.AllowCustomersToUploadAvatars" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.AllowCustomersToUploadAvatars"></setting-editor>
+                        <setting-editor asp-for="CustomerSettings.AllowCustomersToUploadAvatars" data-toggler-for="#pnlUploadAvatar"></setting-editor>
                         <span asp-validation-for="CustomerSettings.AllowCustomersToUploadAvatars"></span>
+                    </div>
+                </div>
+                <div id="pnlUploadAvatar" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.MaxAvatarFileSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.MaxAvatarFileSize" sm-postfix="@ByteSize.KilobyteSymbol"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.MaxAvatarFileSize"></span>
                     </div>
                 </div>
                 <div class="adminRow">

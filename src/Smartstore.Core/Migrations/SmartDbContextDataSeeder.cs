@@ -10,6 +10,11 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            await context.MigrateSettingsAsync(builder =>
+            {
+                builder.Delete("CustomerSettings.AvatarMaximumSizeBytes");
+            });
+
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
         }
@@ -169,6 +174,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.OpenRuleSet", "Open rule set", "Regelsatz öffnen");
             builder.Delete("Admin.Rules.EditRule", "Admin.Rules.OpenRule");
             // ----- Conditional attributes review (end)
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
+                "Maximum avatar size",
+                "Maximale Avatar-Größe",
+                "Specifies the maximum file size of an avatar (in KB). The default is 10,240 (10 MB).",
+                "Legt die maximale Dateigröße eines Avatar in KB fest. Der Standardwert ist 10.240 (10 MB).");
         }
     }
 }
