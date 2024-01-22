@@ -27,6 +27,12 @@ namespace Smartstore.Web.Models
         public bool Selected { get; set; }
 
         /// <summary>
+        /// A value indicating whether the item is disabled.
+        /// </summary>
+        [JsonProperty("disabled")]
+        public bool Disabled { get; set; }
+
+        /// <summary>
         /// Optional description.
         /// </summary>
         [JsonProperty(PropertyName = "description", NullValueHandling = NullValueHandling.Ignore)]

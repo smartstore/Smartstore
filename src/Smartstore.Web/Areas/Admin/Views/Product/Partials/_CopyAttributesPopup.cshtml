@@ -10,7 +10,7 @@
             </div>
             <div class="mb-3">
                 <select class="form-control" id="attributesSourceProductId" name="attributesSourceProductId" 
-                        data-remote-url="@Url.Action("AllProducts")"
+                        data-remote-url="@Url.Action("AllProducts", new { disabledIds = Model.Id })"
                         placeholder="@T("Common.Unspecified")"></select>
             </div>
             <div id="copy-attributes-info"></div>

@@ -3,18 +3,14 @@
 @{
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 
-    ViewBag.Title = T(Model.IsListTypeAttribute ? "Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRulesForProduct" : "Admin.Catalog.Products.ProductVariantAttributes.RulesForProduct",
-        Model.ProductVariantAttributeName,
-        Model.ProductName);
+    string titleTemplate = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails");
+    ViewBag.Title = titleTemplate.FormatInvariant(Model.ProductName);
 
     var gridViewData = new ViewDataDictionary(this.ViewData);
     gridViewData["Parent"] = Model;
 
     var attributes = ViewBag.ProductVariantAttributes as List<ExtendedSelectListItem>;
     var selectedAttribute = attributes.FirstOrDefault(x => x.Selected);
-
-    // TODO: (mg) Too wide title section. The new dropdown button displays the attr name already. No need to display in page title also.
-    //       Suggestion: Edit attribute. Product: <span class="fs-h6 text-muted">{Name}</span>
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
@@ -48,7 +44,7 @@
                     }
                 </div>
             </div>
-            <span>@ViewBag.Title</span>
+            <span>@Html.Raw(titleTemplate.FormatInvariant($"<span class=\"fs-h6 text-muted\">{Model.ProductName}</span>"))</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

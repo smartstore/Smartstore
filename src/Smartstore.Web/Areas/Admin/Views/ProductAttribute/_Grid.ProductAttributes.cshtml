@@ -48,6 +48,11 @@
             </display-template>
         </column>
         <column for="Alias" />
+        <column for="OptionsSetsInfo" sortable="false">
+            <display-template>
+                <div v-html="item.row.OptionsSetsInfo" class="text-truncate" v-bind:class="{ muted: item.row.NumberOfOptionsSets == 0 }"></div>
+            </display-template>
+        </column>
         <column for="AllowFiltering" halign="center" />
         <column for="DisplayOrder" halign="center" />
         <column for="IndexOptionNames" halign="center" visible="false" />

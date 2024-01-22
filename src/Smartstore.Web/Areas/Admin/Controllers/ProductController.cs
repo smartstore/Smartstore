@@ -341,12 +341,13 @@ namespace Smartstore.Admin.Controllers
         /// <param name="page">Zero based page index.</param>
         /// <param name="term">Optional search term.</param>
         /// <param name="selectedIds">Selected product identifiers.</param>
-        public async Task<IActionResult> AllProducts(int page, string term, string selectedIds)
+        public async Task<IActionResult> AllProducts(int page, string term, string selectedIds, string disabledIds)
         {
             const int pageSize = 100;
 
             var hasMoreData = false;
-            var ids = selectedIds.ToIntArray();
+            var idsSelected = selectedIds.ToIntArray();
+            var idsDisabled = disabledIds.ToIntArray();
             IList<Product> products = null;
 
             if (term.HasValue())
@@ -414,7 +415,8 @@ namespace Smartstore.Admin.Controllers
                 Id = x.Id.ToString(),
                 Text = x.Name,
                 Hint = x.Sku,
-                Selected = ids.Contains(x.Id)
+                Selected = idsSelected.Contains(x.Id),
+                Disabled = idsDisabled.Contains(x.Id)
             })
             .ToList();
 

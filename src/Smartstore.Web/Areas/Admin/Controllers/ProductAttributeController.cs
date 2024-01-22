@@ -88,6 +88,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Variant.Read)]
         public async Task<IActionResult> ProductAttributeList(GridCommand command, ProductAttributeListModel model)
         {
+            string optionSetsInfo = T("Admin.Catalog.Attributes.ProductAttributes.OptionsSetsInfo");
             var language = Services.WorkContext.WorkingLanguage;
             var mapper = MapperFactory.GetMapper<ProductAttribute, ProductAttributeModel>();
             var query = _db.ProductAttributes.AsNoTracking();
@@ -114,12 +115,29 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var attributeIds = attributes.Select(x => x.Id).ToArray();
+            var optionsSetsInfo = await _db.ProductAttributes
+                .Where(x => attributeIds.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    NumberOfSets = _db.ProductAttributeOptionsSets.Count(y => y.ProductAttributeId == x.Id),
+                    NumberOfOptions = _db.ProductAttributeOptions.Count(y => y.ProductAttributeOptionsSet.ProductAttributeId == x.Id)
+                })
+                .ToDictionaryAsync(x => x.Id, x => x);
+
             var rows = await attributes
                 .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
-                    model.EditUrl = Url.Action("Edit", "ProductAttribute", new { id = x.Id, area = "Admin" });
+                    model.EditUrl = Url.Action(nameof(Edit), "ProductAttribute", new { id = x.Id, area = "Admin" });
                     model.LocalizedFacetTemplateHint = x.FacetTemplateHint.GetLocalizedEnum(language.Id);
+
+                    if (optionsSetsInfo.TryGetValue(x.Id, out var info))
+                    {
+                        model.NumberOfOptionsSets = info.NumberOfSets;
+                        model.OptionsSetsInfo = optionSetsInfo.FormatInvariant(info.NumberOfSets.ToString("N0"), info.NumberOfOptions.ToString("N0"));
+                    }
 
                     return model;
                 })

@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Controllers
                     Id = x.Id.ToString(),
                     Text = x.Name,
                     Selected = selectedArr.Contains(x.Id),
-                    UrlTitle = x.Id == -1 ? string.Empty : T("Admin.Rules.OpenRule").Value,
+                    UrlTitle = x.Id == -1 ? string.Empty : T("Admin.Rules.OpenRuleSet").Value,
                     Url = x.Id == -1
                         ? Url.Action("Create", "Rule", new { scope, area = "Admin" })
                         : Url.Action("Edit", "Rule", new { id = x.Id, area = "Admin" })

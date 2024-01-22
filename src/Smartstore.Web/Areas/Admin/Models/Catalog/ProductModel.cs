@@ -2,7 +2,6 @@
 using System.Runtime.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;

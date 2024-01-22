@@ -3,11 +3,8 @@
 @{
     var parentModel = ViewData["Parent"] as ProductModel;
 
-    // TODO: (mg) Make numbers in "EditLinkText" bold
     // TODO: (mg) Catalog / Product Attributes / Option Sets / Editing a set option --> HTTP 404
-    // TODO: (mg) Catalog / Product Attributes / Grid: show number of option sets and total num of options in new column
-    // TODO: (mg) Copy attributes: it should not be possible to select the current product.
-    // TODO: (mg) Change DE term: Bedingung --> Regel
+    // RE: I cannot reproduce this.
 }
 
 <datagrid id="productvariantattributes-grid" version="2"
@@ -71,9 +68,7 @@
         <column for="DisplayOrder" entity-member="DisplayOrder" halign="center" />
         <column for="EditUrl" width="1fr" sortable="false">
             <display-template>
-                <a :href="item.row.EditUrl">
-                    {{ item.row.EditLinkText }}
-                </a>
+                <a :href="item.row.EditUrl" v-html="item.row.EditLinkText"></a>
             </display-template>
             <edit-template>
                 <div v-if="item.row.OptionSets.length > 0" :id="'OptionsSetsContainer' + item.row.Id">

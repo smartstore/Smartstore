@@ -50,7 +50,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ExportMappings")]
         public string ExportMappings { get; set; }
 
-        public List<ProductAttributeLocalizedModel> Locales { get; set; } = new();
+        [LocalizedDisplay("Admin.Catalog.Attributes.OptionsSets")]
+        public string OptionsSetsInfo { get; set; }
+        public int NumberOfOptionsSets { get; set; }
+
+        public List<ProductAttributeLocalizedModel> Locales { get; set; } = [];
 
         public string EditUrl { get; set; }
     }

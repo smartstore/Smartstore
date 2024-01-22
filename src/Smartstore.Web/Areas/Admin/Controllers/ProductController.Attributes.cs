@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
                 if (x.IsListTypeAttribute())
                 {
                     model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
-                    model.EditLinkText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions, model.NumberOfRules);
+                    model.EditLinkText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions.ToString("N0"), model.NumberOfRules.ToString("N0"));
 
                     if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
                     {
@@ -198,7 +198,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    model.EditLinkText = editRulesStr.FormatInvariant(model.NumberOfRules);
+                    model.EditLinkText = editRulesStr.FormatInvariant(model.NumberOfRules.ToString("N0"));
                 }
 
                 return model;

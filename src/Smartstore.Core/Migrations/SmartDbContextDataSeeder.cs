@@ -110,6 +110,65 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.Error.BotsNotPermitted",
                 "This process is not permitted for search engine queries (bots).",
                 "Dieser Vorgang ist für Suchmaschinenanfragen (Bots) nicht zulässig.");
+
+            // ----- Conditional attributes review (begin)
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails",
+                "Edit attribute. Product: {0}",
+                "Attribut bearbeiten. Produkt: {0}");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.OptionsSetsInfo",
+                "<strong>{0}</strong> option sets and <strong>{1}</strong> options",
+                "<strong>{0}</strong> Options-Sets und <strong>{1}</strong> Optionen");
+
+            builder.AddOrUpdate("Admin.Rules.ProductAttribute.OneCondition",
+                "<span>Only show the attribute if at least</span> {0} <span>of the following rules are true.</span>",
+                "<span>Das Attribut nur anzeigen, wenn mindestens</span> {0} <span>der folgenden Regeln zutrifft.</span>");
+
+            builder.AddOrUpdate("Admin.Rules.ProductAttribute.AllConditions",
+                "<span>Only show the attribute if</span> {0} <span>of the following rules are true.</span>",
+                "<span>Das Attribut nur anzeigen, wenn</span> {0} <span>der folgenden Regeln erfüllt sind.</span>");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditRules",
+                "Edit <strong>{0}</strong> rules",
+                "<strong>{0}</strong> Regeln bearbeiten");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules",
+                "Edit <strong>{0}</strong> options and <strong>{1}</strong> rules",
+                "<strong>{0}</strong> Optionen und <strong>{1}</strong> Regeln bearbeiten");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules", "Options and rules", "Optionen und Regeln");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Regeln");
+
+            builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Regel hinzufügen.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote",
+                "Please select the product whose attributes, options and rules are to be transferred. Existing attributes are not changed.",
+                "Bitte wählen Sie das Produkt, dessen Attribute, Optionen und Regeln übernommen werden sollen. Bereits vorhandene Attribute werden dabei nicht verändert.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes",
+                "{0} attribute(s) including options and rules were copied.",
+                "Es wurden {0} Attribut(e) einschließlich Optionen und Regeln kopiert.");
+
+            builder.AddOrUpdate("Admin.Rules.AddCondition", "Add rule", "Regel hinzufügen");
+            builder.AddOrUpdate("Admin.Rules.AllConditions", 
+                "<span>If</span> {0} <span>of the following rules are true.</span>", 
+                "<span>Wenn</span> {0} <span>der folgenden Regeln erfüllt sind.</span>");
+
+            builder.AddOrUpdate("Admin.Rules.OneCondition",
+                "<span>If at least</span> {0} <span>of the following rules are true.</span>",
+                "<span>Wenn mindestens</span> {0} <span>der folgenden Regeln zutrifft.</span>");
+
+            builder.AddOrUpdate("Admin.Rules.SaveConditions", "Save all rules", "Alle Regeln speichern");
+            builder.AddOrUpdate("Admin.Rules.SaveToCreateConditions",
+                "Rules can only be created after saving.",
+                "Regeln können erst nach einem Speichern festgelegt werden.");
+
+            builder.AddOrUpdate("Admin.Rules.TestConditions").Value("de", "Regeln {0} Testen {1}");
+            
+            builder.AddOrUpdate("Admin.Rules.EditRuleSet", "Edit rule set", "Regelsatz bearbeiten");
+            builder.AddOrUpdate("Admin.Rules.OpenRuleSet", "Open rule set", "Regelsatz öffnen");
+            builder.Delete("Admin.Rules.EditRule", "Admin.Rules.OpenRule");
+            // ----- Conditional attributes review (end)
         }
     }
 }

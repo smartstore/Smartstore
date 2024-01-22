@@ -73,55 +73,12 @@ namespace Smartstore.Core.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.Delete(
-                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink",
-                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails");
-
-
-            builder.AddOrUpdate("Admin.Rules.ProductAttribute.OneCondition",
-                "<span>Only show the attribute if at least</span> {0} <span>of the following conditions is true.</span>",
-                "<span>Das Attribut nur anzeigen, wenn mindestens</span> {0} <span>der folgenden Bedingungen zutrifft.</span>");
-
-            builder.AddOrUpdate("Admin.Rules.ProductAttribute.AllConditions",
-                "<span>Only show the attribute if</span> {0} <span>of the following conditions are true.</span>",
-                "<span>Das Attribut nur anzeigen, wenn</span> {0} <span>der folgenden Bedingungen erfüllt sind.</span>");
-
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRulesForProduct",
-                "Options and rules for attribute \"{0}\". Product: {1}",
-                "Optionen und Bedingungen für Attribut \"{0}\". Produkt: {1}");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.RulesForProduct",
-                "Rules for attribute \"{0}\". Product: {1}",
-                "Bedingungen für Attribut \"{0}\". Produkt: {1}");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules",
-                "Edit {0} options and {1} rules",
-                "{0} Optionen und {1} Bedingungen bearbeiten");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditRules",
-                "Edit {0} rules",
-                "{0} Bedingungen bearbeiten");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules", "Options and rules", "Optionen und Bedingungen");
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Bedingungen");
-
-            builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Bedingung hinzufügen.");
+            builder.Delete("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink");
 
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AttributePriceAdjustment", "Price adjustment", "Mehr-/Minderpreis");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductWeight", "Weight", "Gewicht");
-
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes", "Transfer attributes", "Attribute übernehmen");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote",
-                "Please select the product whose attributes, options and rules are to be transferred. Existing attributes are not changed.",
-                "Bitte wählen Sie das Produkt, dessen Attribute, Optionen und Bedingungen übernommen werden sollen. Bereits vorhandene Attribute werden dabei nicht verändert.");
-
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes", "No attributes available.", "Keine Attribute verfügbar.");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes",
-                "{0} attribute(s) including options and rules were copied.",
-                "Es wurden {0} Attribut(e) einschließlich Optionen und Bedingungen kopiert.");
         }
     }
 }
