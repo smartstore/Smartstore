@@ -24,7 +24,7 @@
                 return false;
             });
 
-            $(el).on('keydown', '.qty-input .form-control', function (e) {
+            $(el).on('keydown', '.qty-input .form-control, .choice-textbox', function (e) {
                 if (e.keyCode == 13) {
                     e.preventDefault();
                     return false;

@@ -147,10 +147,11 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
+            var isTextArea = key.EndsWith("-textarea");
 
-            if (isDate || isFile || isText)
+            if (isDate || isFile || isText || isTextArea)
             {
-                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var value = GetValue(values, isText, isTextArea);
                 var variant = new ProductVariantQueryItem
                 {
                     Value = value,
@@ -159,7 +160,8 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                     AttributeId = ids[2].ToInt(),
                     VariantAttributeId = ids[3].ToInt(),
                     IsFile = isFile,
-                    IsText = isText
+                    IsText = isText,
+                    IsTextArea = isTextArea
                 };
 
                 if (isDate)
@@ -197,8 +199,9 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
+            var isTextArea = key.EndsWith("-textarea");
 
-            if (isDate || isFile || isText)
+            if (isDate || isFile || isText || isTextArea)
             {
                 ids = ids.Take(len - 1).ToArray();
                 len = ids.Length;
@@ -220,9 +223,9 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                 return;
             }
 
-            if (isDate || isFile || isText)
+            if (isDate || isFile || isText || isTextArea)
             {
-                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var value = GetValue(values, isText, isTextArea);
                 var variant = new ProductVariantQueryItem
                 {
                     Value = value,
@@ -232,7 +235,8 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                     VariantAttributeId = variantAttributeId,
                     Alias = alias,
                     IsFile = isFile,
-                    IsText = isText
+                    IsText = isText,
+                    IsTextArea = isTextArea,
                 };
 
                 if (isDate)
@@ -299,16 +303,18 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             var isDate = key.EndsWith("-date");
             var isFile = key.EndsWith("-file");
             var isText = key.EndsWith("-text");
+            var isTextArea = key.EndsWith("-textarea");
 
-            if (isDate || isFile || isText)
+            if (isDate || isFile || isText || isTextArea)
             {
-                var value = isText ? string.Join(',', values) : values.First().EmptyNull();
+                var value = GetValue(values, isText, isTextArea);
                 var attribute = new CheckoutAttributeQueryItem
                 {
                     Value = value,
                     AttributeId = attributeId,
                     IsFile = isFile,
-                    IsText = isText
+                    IsText = isText,
+                    IsTextArea = isTextArea
                 };
 
                 if (isDate)
@@ -322,7 +328,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             {
                 foreach (var value in values)
                 {
-                    query.AddCheckoutAttribute(new CheckoutAttributeQueryItem
+                    query.AddCheckoutAttribute(new()
                     {
                         Value = value.EmptyNull(),
                         AttributeId = attributeId
@@ -335,7 +341,21 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
         {
         }
 
-        #region GeneratedRegex
+        protected virtual string GetValue(ICollection<string> values, bool isText, bool isTextArea)
+        {
+            if (isText)
+            {
+                return string.Join(',', values.Select(x => TextRegex().Replace(x, " ")));
+            }
+            else if (isTextArea)
+            {
+                return string.Join(',', values.Select(x => TextAreaRegex().Replace(x, " ")));
+            }
+
+            return values.First().EmptyNull();
+        }
+
+        #region Regex
 
         [GeneratedRegex("pvari[0-9]+-[0-9]+-[0-9]+-[0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
         private static partial Regex IsVariantKeyRegex();
@@ -348,6 +368,18 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         [GeneratedRegex("cattr[0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
         private static partial Regex IsCheckoutAttributeKeyRegex();
+
+        /// <summary>
+        /// Matches non-printable and control characters.
+        /// </summary>
+        [GeneratedRegex(@"\p{C}+", RegexOptions.None)]
+        private static partial Regex TextRegex();
+
+        /// <summary>
+        /// Matches non-printable and control characters except new line.
+        /// </summary>
+        [GeneratedRegex(@"[^\P{C}\n]+", RegexOptions.None)]
+        private static partial Regex TextAreaRegex();
 
         #endregion
     }

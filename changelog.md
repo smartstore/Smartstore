@@ -71,6 +71,7 @@
 - Fixed shoping cart MinOrderValidation 
 - Added quantity information on non-editable wishlist page.
 - Some external authentication methods (like AmazonPay) were not displayed on customer pages.
+- Hitting the return key in the text field of a product variant resulted in a 404 status error.
 
 
 ## Smartstore 5.1.0

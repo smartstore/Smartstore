@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
@@ -59,7 +58,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(query);
 
-            var qs = InitialQuery ?? new MutableQueryCollection();
+            var qs = InitialQuery ?? [];
             var languageId = _workContext.WorkingLanguage.Id;
 
             // Checkout attributes.
@@ -91,9 +90,9 @@ namespace Smartstore.Core.Catalog.Products
 
                 if (item.Date.HasValue)
                 {
-                    qs.Add(item.ToString(), string.Join("-", item.Date.Value.Year, item.Date.Value.Month, item.Date.Value.Day));
+                    qs.Add(item.ToString(), string.Join('-', item.Date.Value.Year, item.Date.Value.Month, item.Date.Value.Day));
                 }
-                else if (item.IsFile || item.IsText)
+                else if (item.IsFile || item.IsText || item.IsTextArea)
                 {
                     qs.Add(item.ToString(), item.Value);
                 }
@@ -176,7 +175,8 @@ namespace Smartstore.Core.Catalog.Products
                             Alias = _catalogSearchQueryAliasMapper.Value.GetVariantAliasById(attribute.ProductAttributeId, languageId),
                             Date = date,
                             IsFile = attribute.AttributeControlType == AttributeControlType.FileUpload,
-                            IsText = attribute.AttributeControlType == AttributeControlType.TextBox || attribute.AttributeControlType == AttributeControlType.MultilineTextbox
+                            IsText = attribute.AttributeControlType == AttributeControlType.TextBox,
+                            IsTextArea = attribute.AttributeControlType == AttributeControlType.MultilineTextbox
                         };
 
                         if (attribute.IsListTypeAttribute())

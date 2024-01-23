@@ -21,9 +21,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="variantAttributeId">Product variant attribute identifier.</param>
         /// <returns>Key.</returns>
         public static string CreateKey(int productId, int bundleItemId, int attributeId, int variantAttributeId)
-        {
-            return $"pvari{productId}-{bundleItemId}-{attributeId}-{variantAttributeId}";
-        }
+            => $"pvari{productId}-{bundleItemId}-{attributeId}-{variantAttributeId}";
 
         /// <summary>
         /// The <see cref="Product"/> identifier.
@@ -79,9 +77,9 @@ namespace Smartstore.Core.Catalog.Attributes
         public bool IsFile { get; set; }
 
         public bool IsText { get; set; }
+        public bool IsTextArea { get; set; }
 
-        public string Alias { get; set; }
-        
+        public string Alias { get; set; }        
         public string ValueAlias { get; set; }
 
         public override string ToString()
@@ -101,6 +99,10 @@ namespace Smartstore.Core.Catalog.Attributes
             else if (IsText)
             {
                 return key + "-text";
+            }
+            else if (IsTextArea)
+            {
+                return key + "-textarea";
             }
 
             return key;

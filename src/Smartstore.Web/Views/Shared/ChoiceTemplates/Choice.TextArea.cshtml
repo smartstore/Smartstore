@@ -5,4 +5,4 @@
     var placeholder = Model.Description.RemoveHtml().TrimSafe();
 }
 
-<textarea rows="2" id="@(controlId)" name="@(controlId)-text" class="form-control skip-pd-ajax-update" placeholder="@placeholder" attr-disabled='(Model.IsDisabled, "disabled")'>@Model.TextValue</textarea>
+<textarea rows="2" id="@(controlId)" name="@(controlId)-textarea" class="form-control skip-pd-ajax-update" placeholder="@placeholder" attr-disabled='(Model.IsDisabled, "disabled")'>@Model.TextValue</textarea>

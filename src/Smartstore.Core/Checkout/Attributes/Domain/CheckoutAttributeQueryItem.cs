@@ -50,10 +50,8 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public bool IsFile { get; set; }
 
-        /// <summary>
-        /// Gets or sets a Value indicating whether the attribute is text.
-        /// </summary>
         public bool IsText { get; set; }
+        public bool IsTextArea { get; set; }
 
         public override string ToString()
         {
@@ -70,6 +68,10 @@ namespace Smartstore.Core.Checkout.Attributes
             else if (IsText)
             {
                 return key + "-text";
+            }
+            else if (IsTextArea)
+            {
+                return key + "-textarea";
             }
 
             return key;
