@@ -913,7 +913,7 @@ namespace Smartstore.Web.Controllers
             // Ensure that this attribute belongs to this product and has the "file upload" type
             var variantAttribute = await _db.ProductVariantAttributes
                 .AsNoTracking()
-                .ApplyProductFilter(new[] { productId })
+                .ApplyProductFilter([productId])
                 .Include(x => x.ProductAttribute)
                 .Where(x => x.ProductAttributeId == productAttributeId)
                 .FirstOrDefaultAsync();

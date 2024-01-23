@@ -12,7 +12,7 @@ namespace Smartstore.Core.Data.Migrations
         {
             await context.MigrateSettingsAsync(builder =>
             {
-                builder.Delete("CustomerSettings.AvatarMaximumSizeBytes");
+                builder.Delete("CustomerSettings.AvatarMaximumSizeBytes", "CatalogSettings.FileUploadMaximumSizeBytes");
             });
 
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
@@ -69,7 +69,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Topic.Button",
                 "Admin.Configuration.Settings.RewardPoints.Earning.Hint1",
                 "Admin.Configuration.Settings.RewardPoints.Earning.Hint2",
-                "Admin.Configuration.Settings.RewardPoints.Earning.Hint3");
+                "Admin.Configuration.Settings.RewardPoints.Earning.Hint3",
+                "ShoppingCart.MaximumUploadedFileSize");
 
             builder.AddOrUpdate("Admin.Report.MediaFilesSize", "Media size", "Mediengröße");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Affiliate", "Affiliate", "Partner");

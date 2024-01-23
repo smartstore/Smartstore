@@ -251,27 +251,20 @@ namespace Smartstore.Core.Catalog.Attributes
                                     var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
                                     if (postedFile != null && postedFile.FileName.HasValue())
                                     {
-                                        if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
+                                        var download = new Download
                                         {
-                                            warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
-                                        }
-                                        else
-                                        {
-                                            var download = new Download
-                                            {
-                                                DownloadGuid = Guid.NewGuid(),
-                                                UseDownloadUrl = false,
-                                                DownloadUrl = string.Empty,
-                                                UpdatedOnUtc = DateTime.UtcNow,
-                                                EntityId = productId,
-                                                EntityName = "ProductAttribute"
-                                            };
+                                            DownloadGuid = Guid.NewGuid(),
+                                            UseDownloadUrl = false,
+                                            DownloadUrl = string.Empty,
+                                            UpdatedOnUtc = DateTime.UtcNow,
+                                            EntityId = productId,
+                                            EntityName = "ProductAttribute"
+                                        };
 
-                                            using var stream = postedFile.OpenReadStream();
-                                            await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
+                                        using var stream = postedFile.OpenReadStream();
+                                        await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
 
-                                            selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
-                                        }
+                                        selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
                                     }
                                 }
                             }
