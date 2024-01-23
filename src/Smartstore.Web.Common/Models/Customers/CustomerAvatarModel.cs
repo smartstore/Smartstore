@@ -17,6 +17,7 @@ namespace Smartstore.Web.Models.Customers
     public partial class CustomerAvatarEditModel : ModelBase
     {
         public string MaxFileSize { get; set; }
+        public long MaxFileSizeValue { get; set; }
         public CustomerAvatarModel Avatar { get; set; }
     }
 }

@@ -741,6 +741,7 @@ namespace Smartstore.Web.Controllers
             var model = new CustomerAvatarEditModel
             {
                 Avatar = await customer.MapAsync(null, true, true),
+                MaxFileSizeValue = _customerSettings.MaxAvatarFileSize,
                 MaxFileSize = _customerSettings.MaxAvatarFileSize.Kilobytes().Humanize()
             };
 

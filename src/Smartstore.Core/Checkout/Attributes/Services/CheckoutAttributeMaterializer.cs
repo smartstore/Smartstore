@@ -20,9 +20,9 @@ namespace Smartstore.Core.Checkout.Attributes
 
             var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
 
-            if (ids.Length == 00)
+            if (ids.Length == 0)
             {
-                return new();
+                return [];
             }
 
             return await _db.CheckoutAttributes
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Attributes
             var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
             if (attributeIds.Length == 0)
             {
-                return new();
+                return [];
             }
 
             // AttributesMap can also contain numeric values of text fields that are not CheckoutAttributeValue IDs!
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
             if (numericValues.Length == 0)
             {
-                return new();
+                return [];
             }
 
             var values = await _db.CheckoutAttributeValues
