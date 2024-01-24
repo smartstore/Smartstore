@@ -118,6 +118,8 @@ namespace Smartstore.Core.DataExchange.Export
             result.ProductCategories = null;
             result.ProductManufacturers = null;
             result.ProductTags = null;
+            result.RelatedProducts = null;
+            result.CrossSellProducts = null;
             result.ProductSpecificationAttributes = null;
             result.ProductBundleItems = null;
             result.Name = localizedName;
