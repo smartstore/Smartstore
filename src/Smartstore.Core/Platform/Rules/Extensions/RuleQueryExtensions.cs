@@ -10,7 +10,9 @@
             bool includeSubGroups = false,
             bool includeHidden = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
+
+            query = query.Where(x => x.Scope < RuleScope.ProductAttribute);
 
             if (!includeHidden)
             {
