@@ -72,7 +72,7 @@
             </display-template>
             <edit-template>
                 <div v-if="item.row.OptionSets.length > 0" :id="'OptionsSetsContainer' + item.row.Id">
-                    <select class='form-control' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.ValueCount'>
+                    <select class='form-control' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.NumberOfOptions'>
                         <option v-for="o in item.row.OptionSets" v-bind:value="o.Id">{{ o.Name }}</option>
                     </select>
                 </div>
