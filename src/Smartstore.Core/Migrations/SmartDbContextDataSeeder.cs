@@ -134,6 +134,11 @@ namespace Smartstore.Core.Data.Migrations
                 "<span>Only show the attribute if</span> {0} <span>of the following rules are true.</span>",
                 "<span>Das Attribut nur anzeigen, wenn</span> {0} <span>der folgenden Regeln erfüllt sind.</span>");
 
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditOptions",
+                "Edit <strong>{0}</strong> options",
+                "<strong>{0}</strong> Optionen bearbeiten");
+
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.EditRules",
                 "Edit <strong>{0}</strong> rules",
                 "<strong>{0}</strong> Regeln bearbeiten");
@@ -142,8 +147,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Edit <strong>{0}</strong> options and <strong>{1}</strong> rules",
                 "<strong>{0}</strong> Optionen und <strong>{1}</strong> Regeln bearbeiten");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules", "Options and rules", "Optionen und Regeln");
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.Rules", "Rules", "Regeln");
 
             builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Regel hinzufügen.");
 

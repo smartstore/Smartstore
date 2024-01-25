@@ -1,7 +1,6 @@
 ﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
-using Smartstore.Core.Catalog.Rules.Impl;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -475,17 +474,18 @@ namespace Smartstore.Core.Catalog.Attributes
 
         protected virtual RuleEntity MigrateRule(RuleEntity rule, Dictionary<int, ProductVariantAttributeValue> newValueMap, RuleDescriptorCollection descriptors)
         {
-            if (descriptors.FindDescriptor(rule.RuleType) is AttributeRuleDescriptor descriptor
-                && descriptor.ProcessorType == typeof(ProductAttributeRule))
-            {
-                var valueIds = rule.Value
-                    .ToIntArray()
-                    .Select(x => newValueMap.TryGetValue(x, out var newValue) ? newValue.Id : 0)
-                    .Where(x => x != 0)
-                    .ToArray();
+            // TODO: (mg)(rules) required, do not comment-out! Move code to module.
+            //if (descriptors.FindDescriptor(rule.RuleType) is AttributeRuleDescriptor descriptor
+            //    && descriptor.ProcessorType == typeof(ProductAttributeRule))
+            //{
+            //    var valueIds = rule.Value
+            //        .ToIntArray()
+            //        .Select(x => newValueMap.TryGetValue(x, out var newValue) ? newValue.Id : 0)
+            //        .Where(x => x != 0)
+            //        .ToArray();
 
-                rule.Value = valueIds.Length > 0 ? string.Join(',', valueIds) : null;
-            }
+            //    rule.Value = valueIds.Length > 0 ? string.Join(',', valueIds) : null;
+            //}
 
             return rule;
         }

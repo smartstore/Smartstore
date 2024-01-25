@@ -36,7 +36,6 @@ namespace Smartstore.Core.Catalog.Rules
 
     /// <summary>
     /// Context object provided when instantiating <see cref="IAttributeRuleProvider"/>.
-    /// Only required in case of <see cref="IAttributeRuleProvider"/> at the moment.
     /// </summary>
     public partial class AttributeRuleProviderContext(int productId)
     {

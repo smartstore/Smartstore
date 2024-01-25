@@ -532,25 +532,23 @@ namespace Smartstore.Admin.Models.Catalog
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
 
-            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.OptionsAndRules")]
+            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
             public string EditUrl { get; set; }
             public string EditLinkText { get; set; }
-            public List<object> OptionSets { get; set; } = new();
+            public List<object> OptionSets { get; set; } = [];
 
             public int NumberOfOptions { get; set; }
             public int NumberOfRules { get; set; }
         }
 
-        public class ProductVariantAttributeValueListModel : ModelBase
+        public class ProductVariantAttributeValueListModel : TabbableModel
         {
             public int ProductId { get; set; }
             public string ProductName { get; set; }
-            public int ProductVariantAttributeId { get; set; }
             public string ProductVariantAttributeName { get; set; }
             public bool IsListTypeAttribute { get; set; }
 
-            public IRuleExpressionGroup ExpressionGroup { get; set; }
-            public string RawRuleData { get; set; }
+            public bool CanEditRules { get; set; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]

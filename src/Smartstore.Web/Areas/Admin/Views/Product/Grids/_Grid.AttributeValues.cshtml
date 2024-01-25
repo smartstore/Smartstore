@@ -8,7 +8,7 @@
           allow-resize="true" 
           allow-row-selection="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("ProductAttributeValueList", new { productVariantAttributeId = parentModel.ProductVariantAttributeId })"
+    <datasource read="@Url.Action("ProductAttributeValueList", new { productVariantAttributeId = parentModel.Id })"
                 delete="@Url.Action("ProductAttributeValueDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <sorting enabled="true">
@@ -68,7 +68,7 @@
         $(document).on('click', '#btnAddNewValue', function (e) {
             e.preventDefault();
 
-            var href = '@Url.Action("ProductAttributeValueCreatePopup", "Product", new { productVariantAttributeId = parentModel.ProductVariantAttributeId, btnId = "btnRefresh", formId = "productvariantattribute-form" })';
+            var href = '@Url.Action("ProductAttributeValueCreatePopup", "Product", new { productVariantAttributeId = parentModel.Id, btnId = "btnRefresh", formId = "productvariantattribute-form" })';
             openPopup(href, true);
 			return false;
         });

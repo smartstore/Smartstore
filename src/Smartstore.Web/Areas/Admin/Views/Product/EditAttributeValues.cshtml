@@ -14,8 +14,7 @@
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
-    <input type="hidden" asp-for="ProductVariantAttributeId" />
-    <input type="hidden" asp-for="RawRuleData" />
+    <input type="hidden" asp-for="Id" />
 
     <div class="section-header">
         <div class="title">
@@ -36,7 +35,6 @@
                     @foreach (var item in attributes)
                     {
                         <a href="@Url.Action("EditAttributeValues", new { productVariantAttributeId = item.Value })"
-                           title="@(item.Get<string>("LinkTitle"))"
                            style="line-height: var(--body-line-height)"
                            class="dropdown-item@(item.Disabled ? " disabled" : string.Empty)">
                             <span>@item.Text</span>
@@ -47,29 +45,31 @@
             <span>@Html.Raw(titleTemplate.FormatInvariant($"<span class=\"fs-h6 text-muted\">{Model.ProductName}</span>"))</span>
         </div>
         <div class="options">
-            <button type="submit" name="save" value="save" class="btn btn-warning">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.Save")</span>
-            </button>
-            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
-                <span>@T("Admin.Common.SaveContinue")</span>
-            </button>
+            @if (Model.CanEditRules)
+            {
+                <button type="submit" name="save" value="save" class="btn btn-warning">
+                    <i class="fa fa-check"></i>
+                    <span>@T("Admin.Common.Save")</span>
+                </button>
+                <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                    <span>@T("Admin.Common.SaveContinue")</span>
+                </button>
+            }
         </div>
     </div>
+
+    <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top" sm-onajaxsuccess="attributeValuesEditTab_onAjaxSuccess">
+        @if (Model.IsListTypeAttribute)
+        {
+            <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
+                <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
+            </tab>
+        }
+    </tabstrip>
 </form>
 
-@if (Model.IsListTypeAttribute)
-{
-    <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
-        <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
-            <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
-        </tab>
-        <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Rules")">
-            <partial name="Partials/_ProductVariantAttributeRules" />
-        </tab>
-    </tabstrip>
-}
-else
-{
-    <partial name="Partials/_ProductVariantAttributeRules" />
-}
+<script sm-target-zone="scripts" data-origin="edit-attribute-values">
+    function attributeValuesEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+    }
+</script>

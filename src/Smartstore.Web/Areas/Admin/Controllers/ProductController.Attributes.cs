@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -10,7 +9,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
-using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
@@ -146,9 +144,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeList(GridCommand command, int productId)
         {
-            var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
-            var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
-            var copyOptionsStr = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value;
+            var strRes = new Dictionary<string, string>
+            {
+                { "EditOptions", T("Admin.Catalog.Products.ProductVariantAttributes.EditOptions") },
+                { "EditRules", T("Admin.Catalog.Products.ProductVariantAttributes.EditRules") },
+                { "EditOptionsAndRules", T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules") },
+                { "CopyOptions", T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions") }
+            };
 
             var productVariantAttributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
@@ -161,7 +163,9 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rulesCount = await GetRulesCount(productVariantAttributes.Select(x => x.Id).ToList());
+            var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(productId));
+            var canEditRules = provider is not NullAttributeRuleProvider;
+            var rulesCount = canEditRules ? await GetRulesCount(productVariantAttributes.Select(x => x.Id).ToList()) : [];
 
             var rows = productVariantAttributes.Select(x =>
             {
@@ -184,11 +188,13 @@ namespace Smartstore.Admin.Controllers
                 if (x.IsListTypeAttribute())
                 {
                     model.NumberOfOptions = x.ProductVariantAttributeValues?.Count ?? 0;
-                    model.EditLinkText = editOptionsAndRulesStr.FormatInvariant(model.NumberOfOptions.ToString("N0"), model.NumberOfRules.ToString("N0"));
+                    model.EditLinkText = canEditRules
+                        ? strRes["EditOptionsAndRules"].FormatInvariant(model.NumberOfOptions.ToString("N0"), model.NumberOfRules.ToString("N0"))
+                        : strRes["EditOptions"].FormatInvariant(model.NumberOfOptions.ToString("N0"));
 
                     if (x.ProductAttribute.ProductAttributeOptionsSets.Count > 0)
                     {
-                        model.OptionSets.Add(new { Id = string.Empty, Name = copyOptionsStr });
+                        model.OptionSets.Add(new { Id = string.Empty, Name = strRes["CopyOptions"] });
 
                         x.ProductAttribute.ProductAttributeOptionsSets.Each(set =>
                         {
@@ -196,9 +202,9 @@ namespace Smartstore.Admin.Controllers
                         });
                     }
                 }
-                else
+                else if (canEditRules)
                 {
-                    model.EditLinkText = editRulesStr.FormatInvariant(model.NumberOfRules.ToString("N0"));
+                    model.EditLinkText = strRes["EditRules"].FormatInvariant(model.NumberOfRules.ToString("N0"));
                 }
 
                 return model;
@@ -208,7 +214,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<ProductModel.ProductVariantAttributeModel>
             {
                 Rows = rows,
-                Total = await productVariantAttributes.GetTotalCountAsync(),
+                Total = await productVariantAttributes.GetTotalCountAsync()
             });
         }
 
@@ -502,48 +508,30 @@ namespace Smartstore.Admin.Controllers
                     AttributeId = x.ProductAttributeId,
                     AttributeName = x.ProductAttribute.Name,
                     NumberOfOptions = x.ProductVariantAttributeValues.Count,
-                    NumberOfRules = x.RuleSet.Rules.Count,
+                    NumberOfRules = x.RuleSet != null ? x.RuleSet.Rules.Count : 0
                 })
                 .OrderBy(x => x.Pva.DisplayOrder)
-                .ToListAsync();
+            .ToListAsync();
 
-            var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
-            {
-                Attributes = attributes.Select(x => x.Pva).Where(x => x.Id != pva.Id).ToList()
-            });
+            var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id));
 
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
+                Id = pva.Id,
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
-                ProductVariantAttributeId = pva.Id,
                 ProductVariantAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
-                ExpressionGroup = await provider.CreateExpressionGroupAsync(pva, true)
+                CanEditRules = provider is not NullAttributeRuleProvider
             };
 
-            // Attribute navigation list (near page title).
-            var editOptionsAndRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditOptionsAndRules").Value;
-            var editRulesStr = T("Admin.Catalog.Products.ProductVariantAttributes.EditRules").Value;
-
             ViewBag.ProductVariantAttributes = attributes
-                .Select(x =>
+                .Select(x => new ExtendedSelectListItem
                 {
-                    var linkTitle = x.Pva.IsListTypeAttribute()
-                        ? editOptionsAndRulesStr.FormatInvariant(x.NumberOfOptions, x.NumberOfRules)
-                        : editRulesStr.FormatInvariant(x.NumberOfRules);
-
-                    return new ExtendedSelectListItem
-                    {
-                        Text = x.AttributeName,
-                        Value = x.Pva.Id.ToString(),
-                        Disabled = x.Pva.Id == productVariantAttributeId,
-                        Selected = x.Pva.Id == productVariantAttributeId,
-                        CustomProperties = new()
-                        {
-                            { "LinkTitle", linkTitle }
-                        }
-                    };
+                    Text = x.AttributeName,
+                    Value = x.Pva.Id.ToString(),
+                    Disabled = x.Pva.Id == productVariantAttributeId,
+                    Selected = x.Pva.Id == productVariantAttributeId
                 })
                 .ToList();
 
@@ -594,27 +582,28 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> EditAttributeValues(ProductModel.ProductVariantAttributeValueListModel model, bool continueEditing)
         {
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.ProductVariantAttributeId, false);
+            var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.Id, false);
             if (pva == null)
             {
-                return NotFound(T("Products.Variants.NotFound", model.ProductVariantAttributeId));
+                return NotFound(T("Products.Variants.NotFound", model.Id));
             }
 
-            if (model.RawRuleData.HasValue())
-            {
-                try
-                {
-                    var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
-                    var provider = _ruleProviderFactory.Value.GetProvider(RuleScope.ProductAttribute, new AttributeRuleProviderContext(pva.ProductId));
+            // TODO: (mg)(rules) save button for attribute rules must save rules.
+            //if (model.RawRuleData.HasValue())
+            //{
+            //    try
+            //    {
+            //        var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
+            //        var provider = GetAttributeRuleProvider(pva.ProductId);
 
-                    await _ruleService.Value.ApplyRuleDataAsync(ruleData, provider);
-                    await _db.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    NotifyError(ex);
-                }
-            }
+            //        await _ruleService.Value.ApplyRuleDataAsync(ruleData, provider);
+            //        await _db.SaveChangesAsync();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        NotifyError(ex);
+            //    }
+            //}
 
             return continueEditing
                 ? RedirectToAction(nameof(EditAttributeValues), new { productVariantAttributeId = pva.Id })

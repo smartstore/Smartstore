@@ -15,7 +15,6 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
@@ -74,14 +73,8 @@ namespace Smartstore.Core.Bootstrapping
             DiscoverCalculators(builder, appContext);
 
             // Rules.
-            var attributeRuleTypes = appContext.TypeScanner.FindTypes<IRule<AttributeRuleContext>>().ToList();
-            foreach (var ruleType in attributeRuleTypes)
-            {
-                builder.RegisterType(ruleType).Keyed<IRule<AttributeRuleContext>>(ruleType).InstancePerLifetimeScope();
-            }
-
             builder.RegisterType<ProductRuleProvider>().As<IProductRuleProvider>().InstancePerLifetimeScope();
-            builder.RegisterType<AttributeRuleProvider>().As<IAttributeRuleProvider>().InstancePerDependency();
+            builder.RegisterType<NullAttributeRuleProvider>().As<IAttributeRuleProvider>().InstancePerLifetimeScope();
 
             // Rule options provider.
             builder.RegisterType<ProductVariantAttributeValueRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
