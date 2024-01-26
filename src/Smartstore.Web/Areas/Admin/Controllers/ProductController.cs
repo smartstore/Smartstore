@@ -61,7 +61,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IRuleProviderFactory> _ruleProviderFactory;
-        private readonly Lazy<IRuleService> _ruleService;
         private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly MeasureSettings _measureSettings;
@@ -97,7 +96,6 @@ namespace Smartstore.Admin.Controllers
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IRuleProviderFactory> ruleProviderFactory,
-            Lazy<IRuleService> ruleService,
             AdminAreaSettings adminAreaSettings,
             CatalogSettings catalogSettings,
             MeasureSettings measureSettings,
@@ -132,7 +130,6 @@ namespace Smartstore.Admin.Controllers
             _catalogSearchService = catalogSearchService;
             _productUrlHelper = productUrlHelper;
             _ruleProviderFactory = ruleProviderFactory;
-            _ruleService = ruleService;
             _adminAreaSettings = adminAreaSettings;
             _catalogSettings = catalogSettings;
             _measureSettings = measureSettings;

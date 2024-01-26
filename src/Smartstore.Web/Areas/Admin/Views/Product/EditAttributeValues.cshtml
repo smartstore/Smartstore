@@ -45,31 +45,21 @@
             <span>@Html.Raw(titleTemplate.FormatInvariant($"<span class=\"fs-h6 text-muted\">{Model.ProductName}</span>"))</span>
         </div>
         <div class="options">
-            @if (Model.CanEditRules)
-            {
-                <button type="submit" name="save" value="save" class="btn btn-warning">
-                    <i class="fa fa-check"></i>
-                    <span>@T("Admin.Common.Save")</span>
-                </button>
-                <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
-                    <span>@T("Admin.Common.SaveContinue")</span>
-                </button>
-            }
+            <zone name="admin_button_toolbar_before" />
+            <zone name="admin_button_toolbar_after" />
         </div>
     </div>
 
-    <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top" sm-onajaxsuccess="attributeValuesEditTab_onAjaxSuccess">
-        @if (Model.IsListTypeAttribute)
-        {
+    @if (Model.IsListTypeAttribute)
+    {
+        <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
             <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
                 <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
             </tab>
-        }
-    </tabstrip>
-</form>
-
-<script sm-target-zone="scripts" data-origin="edit-attribute-values">
-    function attributeValuesEditTab_onAjaxSuccess(tab, pane) {
-        applyCommonPlugins(pane);
+        </tabstrip>
     }
-</script>
+    else
+    {
+        <zone name="productvariantattribute_edit_novalues"></zone>
+    }
+</form>

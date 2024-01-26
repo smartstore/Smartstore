@@ -497,24 +497,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound(T("Products.NotFound", pva.ProductId));
             }
 
-            var attributes = await _db.ProductVariantAttributes
-                .AsNoTracking()
-                .Include(x => x.ProductAttribute)
-                .Include(x => x.ProductVariantAttributeValues)
-                .Where(x => x.ProductId == pva.ProductId)
-                .Select(x => new
-                {
-                    Pva = x,
-                    AttributeId = x.ProductAttributeId,
-                    AttributeName = x.ProductAttribute.Name,
-                    NumberOfOptions = x.ProductVariantAttributeValues.Count,
-                    NumberOfRules = x.RuleSet != null ? x.RuleSet.Rules.Count : 0
-                })
-                .OrderBy(x => x.Pva.DisplayOrder)
-            .ToListAsync();
-
             var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id));
-
             var model = new ProductModel.ProductVariantAttributeValueListModel
             {
                 Id = pva.Id,
@@ -524,6 +507,19 @@ namespace Smartstore.Admin.Controllers
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
                 CanEditRules = provider is not NullAttributeRuleProvider
             };
+
+            var attributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Where(x => x.ProductId == pva.ProductId)
+                .Select(x => new
+                {
+                    Pva = x,
+                    AttributeName = x.ProductAttribute.Name,
+                    NumberOfOptions = x.ProductVariantAttributeValues.Count,
+                    NumberOfRules = x.RuleSet != null ? x.RuleSet.Rules.Count : 0
+                })
+                .OrderBy(x => x.Pva.DisplayOrder)
+                .ToListAsync();
 
             ViewBag.ProductVariantAttributes = attributes
                 .Select(x => new ExtendedSelectListItem
@@ -576,38 +572,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return null;
-        }
-
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Catalog.Product.EditVariant)]
-        public async Task<IActionResult> EditAttributeValues(ProductModel.ProductVariantAttributeValueListModel model, bool continueEditing)
-        {
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.Id, false);
-            if (pva == null)
-            {
-                return NotFound(T("Products.Variants.NotFound", model.Id));
-            }
-
-            // TODO: (mg)(rules) save button for attribute rules must save rules.
-            //if (model.RawRuleData.HasValue())
-            //{
-            //    try
-            //    {
-            //        var ruleData = JsonConvert.DeserializeObject<RuleEditItem[]>(model.RawRuleData);
-            //        var provider = GetAttributeRuleProvider(pva.ProductId);
-
-            //        await _ruleService.Value.ApplyRuleDataAsync(ruleData, provider);
-            //        await _db.SaveChangesAsync();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        NotifyError(ex);
-            //    }
-            //}
-
-            return continueEditing
-                ? RedirectToAction(nameof(EditAttributeValues), new { productVariantAttributeId = pva.Id })
-                : RedirectToAction(nameof(Edit), new { id = pva.ProductId });
         }
 
         [Permission(Permissions.Catalog.Product.EditVariant)]

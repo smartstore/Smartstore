@@ -8,7 +8,6 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
 
@@ -543,12 +542,12 @@ namespace Smartstore.Admin.Models.Catalog
 
         public class ProductVariantAttributeValueListModel : TabbableModel
         {
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-            public string ProductVariantAttributeName { get; set; }
-            public bool IsListTypeAttribute { get; set; }
+            public int ProductId { get; init; }
+            public string ProductName { get; init; }
+            public string ProductVariantAttributeName { get; init; }
 
-            public bool CanEditRules { get; set; }
+            public bool IsListTypeAttribute { get; init; }
+            public bool CanEditRules { get; init; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
