@@ -295,7 +295,9 @@ namespace Smartstore.Core.Catalog.Products
                     // SaveChanges is not necessary because SendQuantityBelowStoreOwnerNotificationAsync
                     // does not reload anything that has been changed in the meantime.
 
-                    if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
+                    if (decrease
+                        && result.StockQuantityOld != result.StockQuantityNew
+                        && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
                     {
                         await _messageFactory.SendQuantityBelowStoreOwnerNotificationAsync(product, _localizationSettings.DefaultAdminLanguageId);
                     }
