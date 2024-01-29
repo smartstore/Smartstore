@@ -5,14 +5,11 @@ using Smartstore.Web.TagHelpers.Shared;
 
 namespace Smartstore.Web.Rendering.Events
 {
-    /// <summary>
-    /// Tabstrip created event
-    /// </summary>
     public class TabStripCreated
     {
         public TabStripCreated(TabStripTagHelper tabStrip, TagHelperContext context)
         {
-            Guard.NotNull(tabStrip, nameof(tabStrip));
+            Guard.NotNull(tabStrip);
 
             TabStrip = tabStrip;
             TabFactory = new TabFactory(tabStrip, context);
@@ -30,15 +27,21 @@ namespace Smartstore.Web.Rendering.Events
         public object Model { get; }
 
         /// <summary>
-        /// Renders a widget into a dynamically created special tab called 'Plugins' 
+        /// Gets the number of tabs of the tabstrip.
         /// </summary>
-        /// <param name="widget">Widget to render</param>
-        /// <remarks>Should only be called for admin tabstrips</remarks>
+        public int NumberOfTabs
+            => TabStrip.Tabs.Count;
+
+        /// <summary>
+        /// Renders a widget into a dynamically created special tab called 'Plugins'.
+        /// </summary>
+        /// <param name="widget">Widget to render.</param>
+        /// <remarks>Should only be called for admin tabstrips.</remarks>
         public void AddWidget(Widget widget)
         {
             Guard.NotNull(widget, nameof(widget));
 
-            (Widgets ??= new List<Widget>()).Add(widget);
+            (Widgets ??= []).Add(widget);
         }
     }
 }

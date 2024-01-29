@@ -150,14 +150,6 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Regel hinzufügen.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributesNote",
-                "Please select the product whose attributes, options and rules are to be transferred. Existing attributes are not changed.",
-                "Bitte wählen Sie das Produkt, dessen Attribute, Optionen und Regeln übernommen werden sollen. Bereits vorhandene Attribute werden dabei nicht verändert.");
-
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes",
-                "{0} attribute(s) including options and rules were copied.",
-                "Es wurden {0} Attribut(e) einschließlich Optionen und Regeln kopiert.");
-
             builder.AddOrUpdate("Admin.Rules.AddCondition", "Add rule", "Regel hinzufügen");
             builder.AddOrUpdate("Admin.Rules.AllConditions", 
                 "<span>If</span> {0} <span>of the following rules are true.</span>", 
@@ -176,7 +168,10 @@ namespace Smartstore.Core.Data.Migrations
             
             builder.AddOrUpdate("Admin.Rules.EditRuleSet", "Edit rule set", "Regelsatz bearbeiten");
             builder.AddOrUpdate("Admin.Rules.OpenRuleSet", "Open rule set", "Regelsatz öffnen");
-            builder.Delete("Admin.Rules.EditRule", "Admin.Rules.OpenRule");
+            builder.Delete(
+                "Admin.Rules.EditRule",
+                "Admin.Rules.OpenRule",
+                "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink");
             // ----- Conditional attributes review (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

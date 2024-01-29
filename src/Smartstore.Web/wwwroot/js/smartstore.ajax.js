@@ -54,7 +54,8 @@
 
             if (!_.isUndefined(opts.data)) {
                 $.each(opts.data, function (key, val) {
-                    form += '<input type="hidden" name="' + key + '" value="' + $('<div/>').text(val).html() + '" />';
+                    var value = $('<div/>').text(val).html() || '';
+                    form += '<input type="hidden" name="' + key + '" value="' + value.replace(/"/g, '&quot;') + '" />';
                 });
             }
 
@@ -62,7 +63,7 @@
             form += '</form>';
 
             $('body').append(form);
-            $('#' + id).submit();
+            $('#' + id).trigger('submit');
         }
 
         this.each(function () {

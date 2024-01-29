@@ -1,15 +1,13 @@
 ﻿using System.Data;
 using FluentMigrator;
 using FluentMigrator.SqlServer;
-using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Rules;
-using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Migrations
 {
     [MigrationVersion("2023-12-22 10:00:00", "Core: conditional attributes")]
-    internal class ConditionalAttributes : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
+    internal class ConditionalAttributes : Migration
     {
         const string RuleSetTable = "RuleSet";
         const string AttributeIdColumn = nameof(RuleSetEntity.ProductVariantAttributeId);
@@ -61,24 +59,6 @@ namespace Smartstore.Core.Migrations
             {
                 Delete.Column(AttributeIdColumn).FromTable(RuleSetTable);
             }
-        }
-
-        public DataSeederStage Stage => DataSeederStage.Early;
-        public bool AbortOnFailure => true;
-
-        public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
-        {
-            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
-        }
-
-        public void MigrateLocaleResources(LocaleResourcesBuilder builder)
-        {
-            builder.Delete("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink");
-
-            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AttributePriceAdjustment", "Price adjustment", "Mehr-/Minderpreis");
-            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductWeight", "Weight", "Gewicht");
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.TransferAttributes", "Transfer attributes", "Attribute übernehmen");
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.NoAttributes", "No attributes available.", "Keine Attribute verfügbar.");
         }
     }
 }

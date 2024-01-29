@@ -152,7 +152,7 @@ namespace Smartstore.Admin.Controllers
                 { "CopyOptions", T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions") }
             };
 
-            var productVariantAttributes = await _db.ProductVariantAttributes
+            var attributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(x => x.ProductVariantAttributeValues)
@@ -162,12 +162,20 @@ namespace Smartstore.Admin.Controllers
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
+            var attributeIds = attributes.Select(x => x.Id);
 
             var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(productId));
             var canEditRules = provider is not NullAttributeRuleProvider;
-            var rulesCount = canEditRules ? await GetRulesCount(productVariantAttributes.Select(x => x.Id).ToList()) : [];
 
-            var rows = productVariantAttributes.Select(x =>
+            // INFO: avoid MySQL InvalidOperationException "The LINQ expression '[Microsoft.EntityFrameworkCore.Query.ParameterQueryRootExpression]' could not be translated."
+            // in where-clause.
+            var rulesCount = (await _db.RuleSets
+                .Where(x => x.ProductVariantAttributeId != null && attributeIds.Contains(x.ProductVariantAttributeId.Value))
+                .Select(x => new { AttributeId = x.ProductVariantAttributeId.Value, x.Rules.Count })
+                .ToListAsync())
+                .ToDictionarySafe(x => x.AttributeId, x => x.Count);
+
+            var rows = attributes.Select(x =>
             {
                 var model = new ProductModel.ProductVariantAttributeModel
                 {
@@ -214,7 +222,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<ProductModel.ProductVariantAttributeModel>
             {
                 Rows = rows,
-                Total = await productVariantAttributes.GetTotalCountAsync()
+                Total = await attributes.GetTotalCountAsync()
             });
         }
 
@@ -318,96 +326,6 @@ namespace Smartstore.Admin.Controllers
             return Json(string.Empty);
         }
 
-        // AJAX.
-        [HttpPost]
-        [Permission(Permissions.Catalog.Product.EditVariant)]
-        public async Task<IActionResult> CopyAttributes(int attributesSourceProductId, int attributesTargetProductId)
-        {
-            try
-            {
-                var numberOfCopiedAttributes = await _productAttributeService.Value.CopyAttributesAsync(attributesSourceProductId, attributesTargetProductId);
-
-                NotifySuccess(T("Admin.Catalog.Products.ProductVariantAttributes.NumberOfCopiedAttributes", numberOfCopiedAttributes));
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex.Message);
-                Logger.Error(ex);
-            }
-
-            return Json(string.Empty);
-        }
-
-        // AJAX.
-        [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> CopyAttributesInfo(int attributesSourceProductId)
-        {
-            var success = false;
-            string error = null;
-            string info = null;
-            var numberOfAttributes = 0;
-
-            try
-            {
-                if (await _db.Products.AnyAsync(x => x.Id == attributesSourceProductId))
-                {
-                    var language = _workContext.WorkingLanguage;
-                    var attributes = await _db.ProductVariantAttributes
-                        .AsNoTracking()
-                        .Include(x => x.ProductAttribute)
-                        .Include(x => x.ProductVariantAttributeValues)
-                        .Where(x => x.ProductId == attributesSourceProductId)
-                        .OrderBy(x => x.DisplayOrder)
-                        .ToListAsync();
-
-                    var rulesCount = await GetRulesCount(attributes.Select(x => x.Id).ToList());
-
-                    var attributesModels = attributes.Select(pva =>
-                    {
-                        var model = new CopyAttributesInfoModel.AttributeInfo
-                        {
-                            Id = pva.ProductAttributeId,
-                            Name = pva.ProductAttribute.GetLocalized(x => x.Name, language, true, false),
-                            IsRequired = pva.IsRequired,
-                            AttributeControlType = Services.Localization.GetLocalizedEnum(pva.AttributeControlType),
-                            NumberOfRules = rulesCount.Get(pva.Id),
-                            Values = pva.ProductVariantAttributeValues
-                                .Select(x => x.GetLocalized(x => x.Name, language, true, false).Value)
-                                .ToList()
-                        };
-
-                        return model;
-                    })
-                    .ToList();
-
-                    info = await InvokePartialViewAsync("_CopyAttributesInfo", new CopyAttributesInfoModel
-                    {
-                        Id = attributesSourceProductId,
-                        Attributes = attributesModels
-                    });
-
-                    numberOfAttributes = attributesModels.Count;
-                    success = true;
-                }
-                else
-                {
-                    error = T("Products.NotFound", attributesSourceProductId);
-                }
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-                Logger.Error(ex);
-            }
-
-            if (!success && error.HasValue())
-            {
-                info = $"<div class='alert alert-danger'>{error}</div>";
-            }
-
-            return Json(new { success, info, numberOfAttributes });
-        }
-
         #endregion
 
         #region Product variant attribute values
@@ -497,15 +415,13 @@ namespace Smartstore.Admin.Controllers
                 return NotFound(T("Products.NotFound", pva.ProductId));
             }
 
-            var provider = _ruleProviderFactory.Value.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id));
-            var model = new ProductModel.ProductVariantAttributeValueListModel
+            var model = new EditProductAttributeModel
             {
                 Id = pva.Id,
                 ProductName = product.Name,
                 ProductId = pva.ProductId,
-                ProductVariantAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
-                IsListTypeAttribute = pva.IsListTypeAttribute(),
-                CanEditRules = provider is not NullAttributeRuleProvider
+                ProductAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
+                IsListTypeAttribute = pva.IsListTypeAttribute()
             };
 
             var attributes = await _db.ProductVariantAttributes
@@ -1233,23 +1149,6 @@ namespace Smartstore.Admin.Controllers
             ViewBag.formId = formId;
             ViewBag.RefreshPage = refreshPage;
             ViewBag.IsEdit = isEdit;
-        }
-
-        private async Task<Dictionary<int, int>> GetRulesCount(List<int> productVariantAttributeIds)
-        {
-            if (productVariantAttributeIds.IsNullOrEmpty())
-            {
-                return [];
-            }
-
-            // INFO: avoid MySQL InvalidOperationException "The LINQ expression '[Microsoft.EntityFrameworkCore.Query.ParameterQueryRootExpression]' could not be translated."
-            // in where-clause.
-            var rulesCount = await _db.RuleSets
-                .Where(x => x.ProductVariantAttributeId != null && productVariantAttributeIds.Contains(x.ProductVariantAttributeId.Value))
-                .Select(x => new { AttributeId = x.ProductVariantAttributeId.Value, x.Rules.Count })
-                .ToListAsync();
-
-            return rulesCount.ToDictionarySafe(x => x.AttributeId, x => x.Count);
         }
 
         #endregion

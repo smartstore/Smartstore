@@ -540,16 +540,6 @@ namespace Smartstore.Admin.Models.Catalog
             public int NumberOfRules { get; set; }
         }
 
-        public class ProductVariantAttributeValueListModel : TabbableModel
-        {
-            public int ProductId { get; init; }
-            public string ProductName { get; init; }
-            public string ProductVariantAttributeName { get; init; }
-
-            public bool IsListTypeAttribute { get; init; }
-            public bool CanEditRules { get; init; }
-        }
-
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
         public class ProductVariantAttributeValueModel : EntityModelBase, ILocalizedModel<ProductVariantAttributeValueLocalizedModel>
         {

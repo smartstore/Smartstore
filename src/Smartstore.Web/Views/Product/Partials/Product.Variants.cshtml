@@ -2,11 +2,6 @@
 
 @model IList<ProductDetailsModel.ProductVariantAttributeModel>
 
-@{
-    // TODO: (mg) Configured price surcharge not displayed (anymore?)
-    // RE: it's displayed for me according to ProductVariantAttributeValueModel.GetItemLabel(). Tested with all list control types.
-}
-
 <div class="pd-variants">
     @foreach (var attribute in Model.Where(x => x.ShouldBeRendered))
     {

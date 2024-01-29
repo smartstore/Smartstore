@@ -1,4 +1,4 @@
-﻿@model ProductModel.ProductVariantAttributeValueListModel
+﻿@model EditProductAttributeModel
 
 @{
     Assets.BodyAttributes.AppendCssClass("spa-layout");
@@ -14,8 +14,6 @@
 }
 
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
-    <input type="hidden" asp-for="Id" />
-
     <div class="section-header">
         <div class="title">
             <div class="btn-group mr-3" role="group">
@@ -50,16 +48,12 @@
         </div>
     </div>
 
-    @if (Model.IsListTypeAttribute)
-    {
-        <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tabstrip id="productvariantattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
+        @if (Model.IsListTypeAttribute)
+        {
             <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")" sm-selected="true" sm-adaptive-height="true">
                 <partial name="Grids/_Grid.AttributeValues" model="null" view-data="gridViewData" />
             </tab>
-        </tabstrip>
-    }
-    else
-    {
-        <zone name="productvariantattribute_edit_novalues"></zone>
-    }
+        }
+    </tabstrip>
 </form>
