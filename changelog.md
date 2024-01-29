@@ -72,6 +72,7 @@
 - Added quantity information on non-editable wishlist page.
 - Some external authentication methods (like AmazonPay) were not displayed on customer pages.
 - Hitting the return key in the text field of a product variant resulted in a 404 status error.
+- Fixed *QuantityBelowStoreOwnerNotification* was sent twice.
 
 
 ## Smartstore 5.1.0
