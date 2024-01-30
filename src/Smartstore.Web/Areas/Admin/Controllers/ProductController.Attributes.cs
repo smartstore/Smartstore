@@ -404,21 +404,17 @@ namespace Smartstore.Admin.Controllers
             var pva = await LoadAttributeSafe(productVariantAttributeId);
             if (pva == null)
             {
-                return NotFound(T("Products.Variants.NotFound", productVariantAttributeId));
+                return NotFound();
             }
 
             var product = await _db.Products
                 .Select(x => new { x.Id, x.Name })
                 .FirstOrDefaultAsync(x => x.Id == pva.ProductId);
-            if (product == null)
-            {
-                return NotFound(T("Products.NotFound", pva.ProductId));
-            }
 
             var model = new EditProductAttributeModel
             {
                 Id = pva.Id,
-                ProductName = product.Name,
+                ProductName = product?.Name?.EmptyNull(),
                 ProductId = pva.ProductId,
                 ProductAttributeName = pva.ProductAttribute.GetLocalized(x => x.Name, _workContext.WorkingLanguage, true, false),
                 IsListTypeAttribute = pva.IsListTypeAttribute()
@@ -493,8 +489,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> ProductAttributeValueCreatePopup(string btnId, string formId, int productVariantAttributeId)
         {
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false) 
-                ?? throw new ArgumentException(T("Products.Variants.NotFound", productVariantAttributeId));
+            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false);
+            if (pva == null)
+            {
+                return NotFound();
+            }
 
             var model = new ProductModel.ProductVariantAttributeValueModel
             {
@@ -963,8 +962,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> CreateAllAttributeCombinations(int productId)
         {
-            var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
-            if (!hasProduct)
+            if (!await _db.Products.AnyAsync(x => x.Id == productId))
             {
                 throw new ArgumentException(T("Products.NotFound", productId));
             }
@@ -978,8 +976,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> DeleteAllAttributeCombinations(int productId)
         {
-            var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
-            if (!hasProduct)
+            if (!await _db.Products.AnyAsync(x => x.Id == productId))
             {
                 throw new ArgumentException(T("Products.NotFound", productId));
             }

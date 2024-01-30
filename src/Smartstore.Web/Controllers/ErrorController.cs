@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.IO;
@@ -15,8 +14,6 @@ namespace Smartstore.Web.Controllers
 {
     public class ErrorController : Controller
     {
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
         [Route("/error/{status?}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(int? status)
