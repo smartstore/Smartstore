@@ -81,7 +81,7 @@ namespace Smartstore.Core.Catalog.Search
                 if (await HasEntityDuplicate<ProductSpecificationAttribute>(
                     entry,
                     entity,
-                    x => x.SpecificationAttributeOption?.Name,
+                    x => x.SpecificationAttributeOption?.Name ?? _db.SpecificationAttributeOptions.Where(o => o.Id == x.SpecificationAttributeOptionId).Select(o => o.Name).FirstOrDefault(),
                     x => x.ProductId == specAttribute.ProductId && x.SpecificationAttributeOptionId == specAttribute.SpecificationAttributeOptionId,
                     cancelToken))
                 {
@@ -127,7 +127,7 @@ namespace Smartstore.Core.Catalog.Search
                 if (await HasEntityDuplicate<ProductVariantAttribute>(
                     entry,
                     entity,
-                    x => x.ProductAttribute?.Name,
+                    x => x.ProductAttribute?.Name ?? _db.ProductAttributes.Where(a => a.Id == x.ProductAttributeId).Select(a => a.Name).FirstOrDefault(),
                     x => x.ProductId == productAttribute.ProductId && x.ProductAttributeId == productAttribute.ProductAttributeId,
                     cancelToken))
                 {
