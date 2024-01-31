@@ -25,16 +25,14 @@ namespace Smartstore.Core.Catalog.Rules
         Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false);
 
         /// <summary>
-        /// Gets inactive attributes. Also removes inactive attributes from <paramref name="selection"/>.
+        /// Gets inactive attributes.
         /// </summary>
-        /// <param name="product">The product whose attributes are to be checked.</param>
-        /// <param name="attributes">The attributes to be checked. Loaded from the database if <c>null</c>.</param>
+        /// <param name="product">The product to get inactive attributes for.</param>
         /// <param name="selection">The selected attributes.</param>
         /// <param name="logicalOperator">Rule operator.</param>
         /// <returns>Inactive attributes.</returns>
         Task<ProductVariantAttribute[]> GetInactiveAttributesAsync(
             Product product,
-            IEnumerable<ProductVariantAttribute>? attributes,
             ProductVariantAttributeSelection selection,
             LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
 
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Catalog.Rules
     public partial class AttributeRuleProviderContext(int productId)
     {
         public int ProductId { get; } = Guard.NotZero(productId);
-        public List<ProductVariantAttribute>? Attributes { get; init; }
+        public List<ProductVariantAttribute>? Attributes { get; set; }
         public ProductBatchContext? BatchContext { get; init; }
     }
 }

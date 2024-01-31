@@ -20,11 +20,7 @@ namespace Smartstore.Core.Catalog.Rules
         public IRuleExpressionGroup VisitRuleSet(RuleSetEntity ruleSet)
             => null;
 
-        public Task<ProductVariantAttribute[]> GetInactiveAttributesAsync(
-            Product product,
-            IEnumerable<ProductVariantAttribute> attributes, 
-            ProductVariantAttributeSelection selection, 
-            LogicalRuleOperator logicalOperator)
+        public Task<ProductVariantAttribute[]> GetInactiveAttributesAsync(Product product, ProductVariantAttributeSelection selection, LogicalRuleOperator logicalOperator)
             => Task.FromResult(Array.Empty<ProductVariantAttribute>());
 
         public Task<bool> IsAttributeActiveAsync(AttributeRuleContext context, LogicalRuleOperator logicalOperator)

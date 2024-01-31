@@ -672,7 +672,7 @@ namespace Smartstore.Web.Controllers
             {
                 { "Products.Availability.IsNotActive", T("Products.Availability.IsNotActive") },
                 { "Products.Availability.OutOfStock", T("Products.Availability.OutOfStock") },
-                { "Products.Availability.Backordering", T("Products.Availability.Backordering") },
+                { "Products.Availability.Backordering", T("Products.Availability.Backordering") }
             };
 
             if (query.VariantCombinationId != 0)
@@ -686,13 +686,22 @@ namespace Smartstore.Web.Controllers
                 modelContext.SelectedAttributes = selection;
             }
 
-            var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, attributes, modelContext.SelectedAttributes);
+            var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, modelContext.SelectedAttributes);
+            if (inactiveAttributes.Length > 0)
+            {
+                var inactiveAttributesIds = inactiveAttributes.Select(x => x.Id).ToArray();
+
+                // Remove inactive attributes so that they are excluded from price calculation.
+                modelContext.SelectedAttributes.RemoveAttributes(inactiveAttributesIds);
+
+                // Hide inactive attributes on product page.
+                model.ProductVariantAttributes
+                    .Where(x => inactiveAttributesIds.Contains(x.Id))
+                    .Each(x => x.IsActive = false);
+            }
+
             var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(modelContext.SelectedAttributes);
-
-            model.ProductVariantAttributes
-                .Where(x => inactiveAttributes.Any(y => y.Id == x.Id))
-                .Each(x => x.IsActive = false);
-
+                
             if (isBundlePricing)
             {
                 model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
