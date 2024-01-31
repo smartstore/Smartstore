@@ -520,14 +520,11 @@ namespace Smartstore.Core.Checkout.Cart
 
             var currentWarnings = new List<string>();
             var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
-            var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id)
-            {
-                Attributes = product.ProductVariantAttributes.ToList()
-            });
+            var ruleProvider = _ruleProviderFactory.GetProvider<IAttributeRuleProvider>(RuleScope.ProductAttribute, new AttributeRuleProviderContext(product.Id));
 
             foreach (var attribute in product.ProductVariantAttributes)
             {
-                if (!attribute.IsRequired || !await ruleProvider.IsAttributeActiveAsync(new(product, attribute, combination, selectedValues)))
+                if (!attribute.IsRequired || !await ruleProvider.IsAttributeActiveAsync(new(product, attribute, selectedValues)))
                 {
                     continue;
                 }

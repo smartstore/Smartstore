@@ -8,12 +8,10 @@ namespace Smartstore.Core.Catalog.Rules
         public AttributeRuleContext(
             Product product,
             ProductVariantAttribute attribute,
-            ProductVariantAttributeCombination attributeCombination,
             IList<ProductVariantAttributeValue> selectedValues)
         {
             Product = Guard.NotNull(product);
             Attribute = Guard.NotNull(attribute);
-            AttributeCombination = attributeCombination;
             SelectedValues = Guard.NotNull(selectedValues);
         }
 
@@ -28,11 +26,6 @@ namespace Smartstore.Core.Catalog.Rules
         /// Gets the current product attribute to be checked.
         /// </summary>
         public ProductVariantAttribute Attribute { get; }
-
-        /// <summary>
-        /// Gets the current attribute combination. <c>null</c> if no attribute combination exists for the current attribute selection.
-        /// </summary>
-        public ProductVariantAttributeCombination AttributeCombination { get; }
 
         /// <summary>
         /// Gets the values of the currently selected product attributes.

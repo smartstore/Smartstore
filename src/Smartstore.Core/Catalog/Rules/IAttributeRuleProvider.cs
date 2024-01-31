@@ -25,6 +25,20 @@ namespace Smartstore.Core.Catalog.Rules
         Task<IRuleExpressionGroup> CreateExpressionGroupAsync(ProductVariantAttribute attribute, bool includeHidden = false);
 
         /// <summary>
+        /// Gets inactive attributes. Also removes inactive attributes from <paramref name="selection"/>.
+        /// </summary>
+        /// <param name="product">The product whose attributes are to be checked.</param>
+        /// <param name="attributes">The attributes to be checked. Loaded from the database if <c>null</c>.</param>
+        /// <param name="selection">The selected attributes.</param>
+        /// <param name="logicalOperator">Rule operator.</param>
+        /// <returns>Inactive attributes.</returns>
+        Task<ProductVariantAttribute[]> GetInactiveAttributesAsync(
+            Product product,
+            IEnumerable<ProductVariantAttribute>? attributes,
+            ProductVariantAttributeSelection selection,
+            LogicalRuleOperator logicalOperator = LogicalRuleOperator.And);
+
+        /// <summary>
         /// Checks whether <see cref="ProductVariantAttribute"/> is active (whether the assigned rule is met).
         /// </summary>
         /// <param name="context">Attribute rule context.</param>

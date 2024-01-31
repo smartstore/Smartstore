@@ -686,7 +686,12 @@ namespace Smartstore.Web.Controllers
                 modelContext.SelectedAttributes = selection;
             }
 
+            var inactiveAttributes = await ruleProvider.GetInactiveAttributesAsync(product, attributes, modelContext.SelectedAttributes);
             var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(modelContext.SelectedAttributes);
+
+            model.ProductVariantAttributes
+                .Where(x => inactiveAttributes.Any(y => y.Id == x.Id))
+                .Each(x => x.IsActive = false);
 
             if (isBundlePricing)
             {
@@ -712,8 +717,6 @@ namespace Smartstore.Web.Controllers
 
             // Explicitly selected values always discards values preselected by merchant.
             var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
-
-            await CheckAttributesRules(product, model, ruleProvider, selectedValues);
 
             foreach (var attribute in model.ProductVariantAttributes.Where(x => x.IsActive))
             {
@@ -1305,36 +1308,6 @@ namespace Smartstore.Web.Controllers
 
             // Return for chaining
             return file;
-        }
-
-        private static async Task CheckAttributesRules(
-            Product product,
-            ProductDetailsModel model,
-            IAttributeRuleProvider ruleProvider,
-            IList<ProductVariantAttributeValue> selectedValues)
-        {
-            var deactivatedAttributeIds = new HashSet<int>();
-
-            foreach (var attribute in model.ProductVariantAttributes)
-            {
-                if (attribute.IsActive)
-                {
-                    attribute.IsActive = await ruleProvider.IsAttributeActiveAsync(new(product, attribute.ProductAttribute, model.SelectedCombination, selectedValues));
-                    if (!attribute.IsActive)
-                    {
-                        deactivatedAttributeIds.Add(attribute.Id);
-                    }
-                }
-            }
-
-            if (deactivatedAttributeIds.Count > 0)
-            {
-                var modifiedSelectedValues = selectedValues
-                    .Where(x => !deactivatedAttributeIds.Contains(x.ProductVariantAttributeId))
-                    .ToList();
-
-                await CheckAttributesRules(product, model, ruleProvider, modifiedSelectedValues);
-            }
         }
     }
 }

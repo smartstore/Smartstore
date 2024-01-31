@@ -104,8 +104,10 @@ namespace Smartstore.Domain
         /// <param name="attributeId">Attribute identifier.</param>
         public void RemoveAttribute(int attributeId)
         {
-            _attributes.Attributes.RemoveAll(attributeId);
-            _dirty = true;
+            if (_attributes.Attributes.RemoveAll(attributeId))
+            {
+                _dirty = true;
+            }
         }
 
         /// <summary>
@@ -116,10 +118,11 @@ namespace Smartstore.Domain
         {
             foreach (var attributeId in attributeIds)
             {
-                _attributes.Attributes.RemoveAll(attributeId);
+                if (_attributes.Attributes.RemoveAll(attributeId))
+                {
+                    _dirty = true;
+                }
             }
-
-            _dirty = true;
         }
 
         /// <summary>
@@ -131,8 +134,10 @@ namespace Smartstore.Domain
         {
             Guard.NotNull(value);
 
-            _attributes.Attributes.Remove(attributeId, value);
-            _dirty = true;
+            if (_attributes.Attributes.Remove(attributeId, value))
+            {
+                _dirty = true;
+            }
         }
 
         /// <summary>
