@@ -23,11 +23,23 @@ namespace Smartstore.Core.Messaging.Tasks
         {
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
 
-            var numDeleted = await _db.QueuedEmails
-                .Where(x => x.CreatedOnUtc < olderThan && (x.SentOnUtc.HasValue || x.SentTries >= 3))
-                .ExecuteDeleteAsync(cancellationToken: cancelToken);
+            var numTotalDeleted = 0;
+            while (true)
+            {
+                var numDeleted = await _db.QueuedEmails
+                    .Where(x => x.CreatedOnUtc < olderThan && (x.SentOnUtc.HasValue || x.SentTries >= 3))
+                    .Take(500)
+                    .ExecuteDeleteAsync(cancellationToken: cancelToken);
 
-            if (numDeleted > 100 && _db.DataProvider.CanShrink)
+                numTotalDeleted += numDeleted;
+                if (numDeleted == 0)
+                {
+                    break;
+                }
+            }
+
+
+            if (numTotalDeleted > 100 && _db.DataProvider.CanShrink)
             {
                 await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
             }
