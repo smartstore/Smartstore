@@ -32,7 +32,7 @@ namespace Smartstore.Core.Messaging.Tasks
                     .ExecuteDeleteAsync(cancellationToken: cancelToken);
 
                 numTotalDeleted += numDeleted;
-                if (numDeleted == 0)
+                if (numDeleted < 500)
                 {
                     break;
                 }
