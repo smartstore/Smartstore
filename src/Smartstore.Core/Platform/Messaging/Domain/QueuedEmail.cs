@@ -54,7 +54,7 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         public string Body { get; set; }
 
         /// <summary>

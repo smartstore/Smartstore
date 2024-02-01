@@ -27,7 +27,7 @@ namespace Smartstore.Core.Messaging.Tasks
                     .ApplyTimeFilter(null, null, true)
                     .ApplySorting(true)
                     .Include(x => x.Attachments)
-                    .ToPagedList(pageIndex, 1000)
+                    .ToPagedList(pageIndex, 500)
                     .LoadAsync(cancelToken: cancelToken);
 
                 await _queuedEmailService.SendMailsAsync(queuedEmails, cancelToken);
