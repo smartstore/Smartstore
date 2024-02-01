@@ -270,6 +270,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
                                 availability = entity.AvailableForPreOrder ? "preorder" : "out of stock";
                             }
                         }
+                        else if (entity.ManageInventoryMethod == ManageInventoryMethod.DontManageStock && entity.DisableBuyButton)
+                        {
+                            availability = "out of stock";
+                        }
 
                         WriteString(writer, "id", (string)product._UniqueId);
                         writer.WriteCData("title", ((string)product.Name).Truncate(70));
