@@ -31,7 +31,9 @@
 - Security: #886 Replace CoreFTP with FluentFTP.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
-- GMC: Only export images (not videos or other media types).
+- GMC
+  - Only export images (not videos or other media types).
+  - Export *out of stock* if inventory management and the buy button are deactivated.
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
 - #968 Allow to specify a language in which the notification is to be sent for manually created gift cards.
 - Added meta properties name and uploadDate for videos
