@@ -434,7 +434,7 @@ namespace Smartstore.Core.Catalog.Attributes
             else
             {
                 // Create key to test currentValue.
-                foreach (var attribute in attributes.OrderBy(x => x.Id))
+                foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()).OrderBy(x => x.Id))
                 {
                     IEnumerable<int> valueIds;
                     

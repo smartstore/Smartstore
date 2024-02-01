@@ -700,8 +700,9 @@ namespace Smartstore.Web.Controllers
                     .Each(x => x.IsActive = false);
             }
 
-            var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(modelContext.SelectedAttributes);
-                
+            var selectedValues = modelContext.SelectedAttributes.MaterializeProductVariantAttributeValues(attributes);
+            var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
+
             if (isBundlePricing)
             {
                 model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
@@ -724,15 +725,13 @@ namespace Smartstore.Web.Controllers
             // and for product.IsAvailableByStock() call in PrepareProductPropertiesModelAsync.
             product.MergeWithCombination(model.SelectedCombination);
 
-            // Explicitly selected values always discards values preselected by merchant.
-            var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
-
             foreach (var attribute in model.ProductVariantAttributes.Where(x => x.IsActive))
             {
                 var updatePreselection = selectedValueIds.Length > 0 && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
 
                 foreach (var value in attribute.Values.Cast<ProductDetailsModel.ProductVariantAttributeValueModel>())
                 {
+                    // Explicitly selected values always discards values preselected by merchant.
                     var isSelected = selectedValueIds.Contains(value.Id);
 
                     if (updatePreselection)

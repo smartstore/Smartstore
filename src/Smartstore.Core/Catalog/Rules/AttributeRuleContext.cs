@@ -5,6 +5,8 @@ namespace Smartstore.Core.Catalog.Rules
 {
     public class AttributeRuleContext
     {
+        private int[] _selectedValueIds;
+
         public AttributeRuleContext(
             Product product,
             ProductVariantAttribute attribute,
@@ -14,8 +16,6 @@ namespace Smartstore.Core.Catalog.Rules
             Attribute = Guard.NotNull(attribute);
             SelectedValues = Guard.NotNull(selectedValues);
         }
-
-        private int[] _selectedValueIds;
 
         /// <summary>
         /// Gets the product belonging to <see cref="Attribute"/>.
