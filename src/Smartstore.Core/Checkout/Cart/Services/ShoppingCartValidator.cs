@@ -1,5 +1,4 @@
-﻿using Autofac.Core;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Attributes;
@@ -554,8 +553,9 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 if (!found &&
-                    (bundleItem?.FilterAttributes ?? false) &&
-                    !bundleItem.AttributeFilters.Any(x => x.AttributeId == attribute.ProductAttributeId))
+                    bundleItem != null &&
+                    bundleItem.FilterAttributes &&
+                    !bundleItem.AttributeFilters.Any(x => x.AttributeId == attribute.Id))
                 {
                     // Attribute is filtered out by bundle item. It cannot be selected by the customer.
                     found = true;

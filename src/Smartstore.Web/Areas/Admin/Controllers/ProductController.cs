@@ -1602,6 +1602,13 @@ namespace Smartstore.Admin.Controllers
                     .Distinct()
                     .CountAsync();
 
+
+                var maxDisplayOrder = (await _db.ProductSpecificationAttributes
+                    .Where(x => x.ProductId == product.Id)
+                    .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+
+                model.AddSpecificationAttributeModel.DisplayOrder = ++maxDisplayOrder;
+
                 // Downloads.
                 var productDownloads = await _db.Downloads
                     .AsNoTracking()
@@ -1748,7 +1755,6 @@ namespace Smartstore.Admin.Controllers
             var measureDimensionKeys = await _db.MeasureDimensions.AsNoTracking().OrderBy(x => x.DisplayOrder).Select(x => x.SystemKeyword).ToListAsync();
             var measureUnits = new HashSet<string>(measureUnitKeys.Concat(measureDimensionKeys), StringComparer.OrdinalIgnoreCase);
 
-            // Don't forget biz import!
             if (product != null && !setPredefinedValues && product.BasePriceMeasureUnit.HasValue())
             {
                 measureUnits.Add(product.BasePriceMeasureUnit);

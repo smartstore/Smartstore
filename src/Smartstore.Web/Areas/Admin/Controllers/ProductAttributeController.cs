@@ -428,10 +428,15 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            var maxDisplayOrder = (await _db.ProductAttributeOptions
+                .Where(x => x.ProductAttributeOptionsSetId == optionsSet.Id)
+                .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+
             var model = new ProductAttributeOptionModel
             {
                 Quantity = 1,
-                Color = string.Empty
+                Color = string.Empty,
+                DisplayOrder = ++maxDisplayOrder
             };
 
             await PrepareProductAttributeOptionModel(model, null, null);

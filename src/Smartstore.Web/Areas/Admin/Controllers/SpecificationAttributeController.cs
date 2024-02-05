@@ -354,11 +354,16 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Attribute.EditOption)]
-        public IActionResult SpecificationAttributeOptionCreatePopup(string btnId, string formId, int specificationAttributeId)
+        public async Task<IActionResult> SpecificationAttributeOptionCreatePopup(string btnId, string formId, int specificationAttributeId)
         {
+            var maxDisplayOrder = (await _db.SpecificationAttributeOptions
+                .Where(x => x.SpecificationAttributeId == specificationAttributeId)
+                .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+
             var model = new SpecificationAttributeOptionModel
             {
-                SpecificationAttributeId = specificationAttributeId
+                SpecificationAttributeId = specificationAttributeId,
+                DisplayOrder = ++maxDisplayOrder
             };
 
             AddLocales(model.Locales);
@@ -508,7 +513,7 @@ namespace Smartstore.Admin.Controllers
                     }
                 }
 
-                if (options.Any())
+                if (options.Count > 0)
                 {
                     _db.SpecificationAttributeOptions.AddRange(options.Select(x => x.Value));
                     await _db.SaveChangesAsync();

@@ -495,13 +495,18 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            var maxDisplayOrder = (await _db.ProductVariantAttributeValues
+                .Where(x => x.ProductVariantAttribute.ProductId == pva.ProductId)
+                .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+
             var model = new ProductModel.ProductVariantAttributeValueModel
             {
                 ProductId = pva.ProductId,
                 ProductVariantAttributeId = productVariantAttributeId,
                 IsListTypeAttribute = pva.IsListTypeAttribute(),
                 Color = string.Empty,
-                Quantity = 1
+                Quantity = 1,
+                DisplayOrder = ++maxDisplayOrder
             };
 
             AddLocales(model.Locales);
