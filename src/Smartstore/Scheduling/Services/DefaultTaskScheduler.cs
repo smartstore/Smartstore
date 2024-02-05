@@ -258,24 +258,21 @@ namespace Smartstore.Scheduling
         {
             string msg = "Error while calling TaskScheduler endpoint '{0}'.".FormatInvariant(uri.OriginalString);
             var requestException = exception as HttpRequestException;
+            var statusCode = requestException?.StatusCode;
 
             isTimeout = (exception is TaskCanceledException tce && tce.InnerException is TimeoutException)
-                || requestException?.StatusCode == HttpStatusCode.RequestTimeout
-                || requestException?.StatusCode == HttpStatusCode.GatewayTimeout;
+                || statusCode == HttpStatusCode.RequestTimeout
+                || statusCode == HttpStatusCode.GatewayTimeout;
 
-            if (requestException == null)
+            if (statusCode == null)
             {
                 Logger.Error(exception, msg);
             }
-            else
+            else if ((int)statusCode < 500)
             {
-                var statusCode = (int)requestException.StatusCode;
-                if (statusCode < 500)
-                {
-                    // Any internal server error (>= 500) already handled by middleware
-                    msg += " HTTP {0}, {1}".FormatCurrent(statusCode, requestException.StatusCode?.Humanize());
-                    Logger.Error(msg);
-                }
+                // Any internal server error (>= 500) already handled by middleware
+                msg += " HTTP {0}, {1}".FormatInvariant((int)statusCode, statusCode.Humanize());
+                Logger.Error(msg);
             }
         }
 
