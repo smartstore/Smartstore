@@ -51,7 +51,10 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*IndexOptionNames")]
         public bool IndexOptionNames { get; set; }
 
-        public List<SpecificationAttributeLocalizedModel> Locales { get; set; } = new();
+        [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options")]
+        public int NumberOfOptions { get; set; }
+
+        public List<SpecificationAttributeLocalizedModel> Locales { get; set; } = [];
 
         public string EditUrl { get; set; }
     }

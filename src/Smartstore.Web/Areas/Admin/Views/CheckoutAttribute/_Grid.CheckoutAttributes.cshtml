@@ -45,8 +45,9 @@
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="TextPrompt" />
+        <column for="TextPrompt" visible="false" />
         <column for="AttributeControlTypeName" entity-member="AttributeControlType" sortable="false" />
+        <column for="NumberOfOptions" halign="center" sortable="false" readonly="true" format="{0:N0}" />
         <column for="IsActive" halign="center" />
         <column for="IsRequired" halign="center" />
         <column for="DisplayOrder" halign="center" />

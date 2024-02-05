@@ -159,13 +159,28 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var attributeIds = attributes.Select(x => x.Id).ToArray();
+            var numberOfOptions = await _db.SpecificationAttributes
+                .Where(x => attributeIds.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    NumberOfOptions = _db.SpecificationAttributeOptions.Count(y => y.SpecificationAttributeId == x.Id)
+                })
+                .ToDictionaryAsync(x => x.Id, x => x);
+
             var rows = await attributes
                 .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
-                    model.EditUrl = Url.Action("Edit", "SpecificationAttribute", new { id = x.Id, area = "Admin" });
+                    model.EditUrl = Url.Action(nameof(Edit), "SpecificationAttribute", new { id = x.Id, area = "Admin" });
                     model.LocalizedFacetSorting = x.FacetSorting.GetLocalizedEnum(language.Id);
                     model.LocalizedFacetTemplateHint = x.FacetTemplateHint.GetLocalizedEnum(language.Id);
+
+                    if (numberOfOptions.TryGetValue(x.Id, out var info))
+                    {
+                        model.NumberOfOptions = info.NumberOfOptions;
+                    }
 
                     return model;
                 })

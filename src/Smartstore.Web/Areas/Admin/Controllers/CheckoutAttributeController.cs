@@ -65,6 +65,16 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var attributeIds = checkoutAttributes.Select(x => x.Id).ToArray();
+            var numberOfOptions = await _db.CheckoutAttributes
+                .Where(x => attributeIds.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    NumberOfOptions = _db.CheckoutAttributeValues.Count(y => y.CheckoutAttributeId == x.Id)
+                })
+                .ToDictionaryAsync(x => x.Id, x => x);
+
             var mapper = MapperFactory.GetMapper<CheckoutAttribute, CheckoutAttributeModel>();
             var checkoutAttributesModels = await checkoutAttributes
                 .SelectAwait(async x =>
@@ -72,6 +82,11 @@ namespace Smartstore.Admin.Controllers
                     var model = await mapper.MapAsync(x);
                     model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
                     model.EditUrl = Url.Action(nameof(Edit), "CheckoutAttribute", new { id = x.Id });
+
+                    if (numberOfOptions.TryGetValue(x.Id, out var info))
+                    {
+                        model.NumberOfOptions = info.NumberOfOptions;
+                    }
 
                     return model;
                 })

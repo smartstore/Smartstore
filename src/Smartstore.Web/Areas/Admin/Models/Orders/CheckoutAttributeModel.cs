@@ -47,6 +47,10 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public bool LimitedToStores { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values")]
+        public int NumberOfOptions { get; set; }
+
         public string EditUrl { get; set; }
     }
 
