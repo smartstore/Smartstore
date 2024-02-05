@@ -11,12 +11,13 @@ namespace Smartstore.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(string systemName, bool bodyOnly = false, bool isLead = false)
         {
             var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
 
             var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_SYSTEMNAME_KEY,
                 systemName.ToLower(),
                 Services.WorkContext.WorkingLanguage.Id,
                 store.Id,
-                Services.WorkContext.CurrentCustomer.GetRolesIdent());
+                customer.GetRolesIdent());
 
             var cacheModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
@@ -24,11 +25,13 @@ namespace Smartstore.Web.Components
                 var topic = await Services.DbContext.Topics
                     .AsNoTracking()
                     .Where(x => x.SystemName == systemName)
-                    .ApplyStandardFilter(true, null, store.Id)
+                    .ApplyStandardFilter(false, customer.GetRoleIds(), store.Id)
                     .FirstOrDefaultAsync();
 
                 if (topic == null || !topic.IsPublished)
+                {
                     return null;
+                }
 
                 return PrepareTopicModel(topic);
             });
