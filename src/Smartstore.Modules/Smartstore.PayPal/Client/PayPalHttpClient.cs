@@ -49,6 +49,7 @@ namespace Smartstore.PayPal.Client
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IRoundingHelper _roundingHelper;
 
         public PayPalHttpClient(
             HttpClient client,
@@ -63,7 +64,8 @@ namespace Smartstore.PayPal.Client
             ITaxService taxService,
             IPriceCalculationService priceCalculationService,
             IProductService productService,
-            IOrderCalculationService orderCalculationService)
+            IOrderCalculationService orderCalculationService,
+            IRoundingHelper roundingHelper)
         {
             _client = client;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -78,6 +80,7 @@ namespace Smartstore.PayPal.Client
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _orderCalculationService = orderCalculationService;
+            _roundingHelper = roundingHelper;
         }
 
         #region Payment processing
@@ -489,7 +492,7 @@ namespace Smartstore.PayPal.Client
                 orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
             }
 
-            decimal discountAmount = orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount;
+            decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount);
             purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
             {
                 Value = discountAmount.ToStringInvariant("F"),
@@ -501,7 +504,7 @@ namespace Smartstore.PayPal.Client
             decimal shippingTotalAmount = 0;
             if (shippingTotal.ShippingTotal != null)
             {
-                shippingTotalAmount = shippingTotal.ShippingTotal.Value.Amount;
+                shippingTotalAmount = _roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount);
                 purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
                 {
                     Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
