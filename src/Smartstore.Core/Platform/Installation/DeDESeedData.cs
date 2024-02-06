@@ -33,7 +33,7 @@ namespace Smartstore.Core.Installation
 {
     public class DeDESeedData : InvariantSeedData
     {
-        private readonly IDictionary<string, TaxCategory> _taxCategories = new Dictionary<string, TaxCategory>();
+        private readonly Dictionary<string, TaxCategory> _taxCategories = [];
         private DeliveryTime _defaultDeliveryTime;
 
         protected override void Alter(Customer entity)
@@ -2270,7 +2270,16 @@ namespace Smartstore.Core.Installation
                 .Alter("style", x => x.Name = "Ausführung")
                 .Alter("framecolor", x => x.Name = "Rahmenfarbe")
                 .Alter("lenscolor", x => x.Name = "Glasfarbe")
-                .Alter("lenstype", x => x.Name = "Glas");
+                .Alter("lenstype", x => x.Name = "Glas")
+                .Alter("engraving-desired", x => x.Name = "Gravur gewünscht")
+                .Alter("engraving-front", x => x.Name = "Gravur vorne")
+                .Alter("engraving-back", x => x.Name = "Gravur hinten")
+                .Alter("font", x => x.Name = "Schriftart")
+                .Alter("galaxy-watch-bundle", x => x.Name = "Im Bundle mit Galaxy Watch")
+                .Alter("galaxy-watch-size", x => x.Name = "Galaxy Watch Größe")
+                .Alter("display-protection-foil", x => x.Name = "Mit Displayschutzfolie")
+                .Alter("galaxy-watch-color", x => x.Name = "Galaxy Watch Farbe")
+                .Alter("included-accessories", x => x.Name = "Mitgeliefertes Zubehör");
         }
 
         protected override void Alter(IList<ProductAttributeOptionsSet> entities)
@@ -2442,7 +2451,7 @@ namespace Smartstore.Core.Installation
             entities.Where(x => x.BadgeText.EqualsNoCase("NEW")).Each(x => x.BadgeText = "NEU");
         }
 
-        private void AlterFashionProducts(IList<Product> entities)
+        private static void AlterFashionProducts(IList<Product> entities)
         {
             entities.WithKey(x => x.Sku)
                 .Alter("Fashion-112355", x =>
@@ -2486,7 +2495,7 @@ namespace Smartstore.Core.Installation
                 });
         }
 
-        private void AlterFurnitureProducts(IList<Product> entities)
+        private static void AlterFurnitureProducts(IList<Product> entities)
         {
             entities.WithKey(x => x.Sku)
                 .Alter("Furniture-lc6", x =>
@@ -2563,6 +2572,22 @@ namespace Smartstore.Core.Installation
                     "Der Couchtisch wurde zwar erst einige Zeit später von Mies van der Rohe für das Haus „Tugendhat“ angefertigt, bildet aber mit den Möbeln der Barcelona-Serie eine attraktive Sitzecke für Büros und Wohnräume. " +
                     "Der Tisch von Mies van der Rohe besteht aus einem Gestell aus Flachstahl und einer 12 mm dicken Glasplatte.Unter der durchsichtigen Platte erscheint durch die Konstruktion ein verchromtes „X“.</p>" +
                     "<p>Abmessung: Breite 90 cm, Höhe 46 cm, Tiefe 90 cm, Glasplatte: 12 mm </p>";
+                });
+        }
+
+        private static void AlterProductsWithConditionalAttributes(IList<Product> entities)
+        {
+            entities.WithKey(x => x.Sku)
+                .Alter("zippo-1", x =>
+                {
+                    x.Name = "Zippo Feuerzeug";
+                    x.ShortDescription = "Original Zippo-Feuerzeug mit optionaler Gravur.";
+                    x.FullDescription = "<div>Zippo-Feuerzeuge sind langlebig, nachfüllbar und für einen lebenslangen Gebrauch ausgelegt. Wird in einem Geschenkkarton verpackt. Für optimale Leistung mit Zippo-Feuerzeugbenzin befüllen.<ul><li>Original Zippo winddichtes Feuerzeug mit unverwechselbarem Zippo \"Klick\".</li><li>Ganzmetallkonstruktion; winddichtes Design funktioniert praktisch überall</li><li>Nachfüllbar für eine lebenslange Nutzung; für optimale Leistung empfehlen wir Original-Zippo-Brennstoff, Feuersteine und Dochte</li><li>Hergestellt in den USA; lebenslange Garantie: \"Es funktioniert oder wir reparieren es kostenlos\".</li><li>Brennstoff: Zippo Feuerzeugbenzin (separat erhältlich)</li></ul><div>Feuerzeug Specs:</div><ul><li>Höhe: 2.25″</li><li>Breite: 0.5″</li><li>Tiefe: 1.5″</li><li>Gewicht: 2.0 oz.</li></ul></div>";
+                })
+                .Alter("samsung-s23", x =>
+                {
+                    x.ShortDescription = "optional mit Samsung Watch.";
+                    x.FullDescription = "<p>Die Galaxy S23-Serie ist Teil der Flaggschiff-Smartphone-Reihe Samsung Galaxy S, die neue Maßstäbe in Sachen Technologie und Innovation setzt. Die drei S23-Modelle bieten Leistung auf höchstem Niveau, professionelle Kameras und eine Fülle anpassbarer Funktionen. In diesem Leitfaden erfahren Sie mehr über die einzelnen Galaxy S23-Smartphones und wie sie im Vergleich zu den neuesten Samsung-Smartphones der Galaxy Z- und A-Serie abschneiden.</p><p>Das Galaxy S23 ist mit einer Größe von 6,1 Zoll das kleinste Modell der Galaxy S23-Serie. Es mag zwar kleiner sein als andere S23-Modelle, hat aber mit dem One UI 6-Betriebssystem und dem Qualcomm Snapdragon® 8 Gen 2-Prozessor eine ganze Menge zu bieten. Mit dem leistungsstarken 3.900-mAh-Akku2, der 25-Watt-Superschnellladefunktion3 und dem neuen und verbesserten Kühlsystem4 ist das Handy ein Kraftpaket, das den Anforderungen des Alltags gewachsen ist. Auf der Rückseite befinden sich drei Profikameras, die dafür optimiert sind, Insta-würdige Inhalte aufzunehmen, egal ob Sie zu Hause oder unterwegs sind. Auf der Vorderseite befindet sich eine 12-MP-Weitwinkelkamera für Selfies, die automatisch für deine sozialen Netzwerke optimiert werden. Und dank revolutionärer Verbesserungen der Kameratechnologie⁴, mit der du mehr Licht, unglaubliche Farben und feinste Details einfangen kannst, gelingen dir jetzt auch bei schlechten Lichtverhältnissen epische Porträts und Selbstporträts. Darüber hinaus ist es jetzt noch einfacher, dein Galaxy Erlebnis individuell zu gestalten. Vom Design des Sperrbildschirms und des Hintergrundbilds bis hin zur Anzeige der Uhr und der Benachrichtigungsleiste können Sie Ihr Galaxy S23 ganz nach Ihrem Geschmack gestalten.</p><p>Es besteht kein Zweifel daran, dass sich das Galaxy S23 mit seiner epischen Kameraausstattung von seinen Konkurrenten abhebt. Mit einer atemberaubenden Auflösung von 200 Megapixeln bei der Galaxy S23 Ultra-Kamera und 50 Megapixeln bei der S23- und S23+-Kamera werden Ihre Fotos hell und scharf, egal ob bei Tag oder Nacht. Mit dem optischen und dem Space-Zoom sowie der KI-gesteuerten Nachtaufnahme wird jede Aufnahme so fantastisch, dass Sie ständig gefragt werden: \"Können Sie mir das schicken?\". Sie nehmen Videos auf? Dank digitaler Bildstabilisierung und verbesserter Rauschunterdrückung sind die Aufnahmen superstabil und butterweich. Alles zusammen bedeutet, dass jede Aufnahme mit Farben und Details aufwartet, die selbst den besten Profikameras Konkurrenz machen.</p>";
                 });
         }
 

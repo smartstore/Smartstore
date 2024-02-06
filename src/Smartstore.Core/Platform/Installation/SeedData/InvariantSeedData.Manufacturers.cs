@@ -139,6 +139,15 @@ namespace Smartstore.Core.Installation
                 DisplayOrder = 1
             };
 
+            var manufacturerSamsung = new Manufacturer
+            {
+                Name = "Samsung",
+                ManufacturerTemplateId = gridOrLinesTemplate.Id,
+                MediaFile = CreatePicture("brand/samsung.png"),
+                Published = true,
+                DisplayOrder = 1
+            };
+
             var manufacturerMicrosoft = new Manufacturer
             {
                 Name = "Microsoft",
@@ -237,15 +246,6 @@ namespace Smartstore.Core.Installation
             //    DisplayOrder = 5
             //};
 
-            //var manufacturerSamsung = new Manufacturer
-            //{
-            //    Name = "Samsung",
-            //    ManufacturerTemplateId = manufacturerTemplateInGridAndLines.Id,
-            //    MediaFile = CreatePicture("brand/samsung.png"),
-            //    Published = true,
-            //    DisplayOrder = 7
-            //};
-
             //var manufacturerAcer = new Manufacturer
             //{
             //    Name = "Acer",
@@ -330,7 +330,7 @@ namespace Smartstore.Core.Installation
             var entities = new List<Manufacturer>
             {
                 manufacturerEASports, manufacturerWarnerHome, manufacturerBreitling, manufacturerTissot, manufacturerSeiko,
-                manufacturerTitleist, manufacturerApple, manufacturerFestina, manufacturerCertina,
+                manufacturerTitleist, manufacturerApple, manufacturerSamsung, manufacturerFestina, manufacturerCertina,
                 manufacturerSony, manufacturerUbisoft, manufacturerOakley, manufacturerRayban, manufacturerAdidas,
                 manufacturerPuma, manufacturerNike,  manufacturerJackWolfskin, manufacturerMicrosoft,
             };
