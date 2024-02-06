@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Installation
 {
@@ -36,17 +35,7 @@ namespace Smartstore.Core.Installation
                 new() { Name = "Lenscolor", Alias = "lenscolor" },
                 new() { Name = "Lenstype", Alias = "lenstype" },
                 new() { Name = "Lenscolor", Alias = "wayfarerlenscolor" },
-                new() { Name = "Framecolor", Alias = "wayfarerframecolor" },
-                new() { Name = "Engraving desired", Alias = "engraving-desired" },
-                new() { Name = "Front engraving", Alias = "engraving-front" },
-                new() { Name = "Engraving on the back", Alias = "engraving-back" },
-                new() { Name = "Font", Alias = "font" },
-                new() { Name = "Bundled with Galaxy Watch", Alias = "galaxy-watch-bundle" },
-                new() { Name = "Galaxy Watch size", Alias = "galaxy-watch-size" },
-                new() { Name = "With display protection foil", Alias = "display-protection-foil" },
-                new() { Name = "Galaxy Watch Connectivity", Alias = "galaxy-watch-connectivity" },
-                new() { Name = "Galaxy Watch color", Alias = "galaxy-watch-color" },
-                new() { Name = "Included accessories", Alias = "included-accessories" },
+                new() { Name = "Framecolor", Alias = "wayfarerframecolor" }
             };
 
             Alter(entities);
@@ -1582,8 +1571,6 @@ namespace Smartstore.Core.Installation
 
             #endregion
 
-            //entities.AddRange(GetConditionalAttributes(products, attributes));
-
             Alter(entities);
             return entities;
         }
@@ -2683,19 +2670,6 @@ namespace Smartstore.Core.Installation
             #endregion
 
             return entities;
-        }
-
-        public List<ProductVariantAttribute> GetConditionalAttributes(
-            Dictionary<string, Product> products,
-            Dictionary<string, ProductAttribute> attributes)
-        {
-            var variants = new List<ProductVariantAttribute>();
-            var zippo = products["zippo-1"];
-            var samsungS23 = products["samsung-s23"];
-
-
-
-            return variants;
         }
     }
 }
