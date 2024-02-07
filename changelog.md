@@ -17,6 +17,7 @@
   - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
 - Import news from RSS news feeds.
 - #971 Add a cart rule to check if the current customer is authenticated with a certain external authentication method.
+- Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 
 ### Improvements
 

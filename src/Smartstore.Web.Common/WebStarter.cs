@@ -239,6 +239,9 @@ namespace Smartstore.Web
             if (config.ForwardProtoHeader)
                 forwardedHeaders |= ForwardedHeaders.XForwardedProto;
 
+            if (config.ForwardPrefixHeader)
+                forwardedHeaders |= ForwardedHeaders.XForwardedPrefix;
+
             var options = new ForwardedHeadersOptions
             {
                 ForwardedHeaders = forwardedHeaders,
@@ -255,6 +258,9 @@ namespace Smartstore.Web
 
             if (config.ForwardedProtoHeaderName.HasValue())
                 options.ForwardedProtoHeaderName = config.ForwardedProtoHeaderName;
+
+            if (config.ForwardedPrefixHeaderName.HasValue())
+                options.ForwardedPrefixHeaderName = config.ForwardedPrefixHeaderName;
 
             if (config.KnownProxies != null)
             {

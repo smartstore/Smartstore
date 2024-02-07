@@ -201,6 +201,11 @@ namespace Smartstore.Engine
             public bool ForwardHostHeader { get; set; } = true;
 
             /// <summary>
+            /// Processes the X-Forwarded-Prefix header, which retrieves the value for the path base.
+            /// </summary>
+            public bool ForwardPrefixHeader { get; set; } = true;
+
+            /// <summary>
             /// Gets or sets the header used to retrieve the originating client IP. Default: "X-Forwarded-For".
             /// </summary>
             public string? ForwardedForHeaderName { get; set; }
@@ -214,6 +219,11 @@ namespace Smartstore.Engine
             ///  Gets or sets the header used to retrieve the original value of the Host header field. Default: "X-Forwarded-Host".
             /// </summary>
             public string? ForwardedHostHeaderName { get; set; }
+
+            /// <summary>
+            ///  Gets or sets the header used to retrieve the value for the path base. Default: "X-Forwarded-Prefix".
+            /// </summary>
+            public string? ForwardedPrefixHeaderName { get; set; }
 
             /// <summary>
             /// Addresses of known proxies to accept forwarded headers from.
