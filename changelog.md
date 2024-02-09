@@ -79,6 +79,7 @@
 - Some external authentication methods (like AmazonPay) were not displayed on customer pages.
 - Hitting the return key in the text field of a product variant resulted in a 404 status error.
 - Fixed *QuantityBelowStoreOwnerNotification* was sent twice.
+- #1001 MediaManager: fix *moov atom not found* ffmpeg issue in `VideoHandler`.
 
 
 ## Smartstore 5.1.0
