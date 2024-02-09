@@ -7,7 +7,7 @@ namespace Smartstore.Core.Installation
 {
     internal sealed class InstallationStarter : StarterBase
     {
-        const string InstallControllerName = "install";
+        const string InstallPath = "/install";
 
         public override bool Matches(IApplicationContext appContext)
             => !appContext.IsInstalled;
@@ -45,11 +45,9 @@ namespace Smartstore.Core.Installation
             {
                 app.Use(async (context, next) =>
                 {
-                    var routeValues = context.GetRouteData().Values;
-
-                    if (!routeValues.GetControllerName().EqualsNoCase(InstallControllerName))
+                    if (!context.Request.Path.StartsWithSegments(InstallPath))
                     {
-                        context.Response.Redirect(context.Request.PathBase.Value + "/" + InstallControllerName);
+                        context.Response.Redirect(context.Request.PathBase.Value + InstallPath);
                         return;
                     }
 
