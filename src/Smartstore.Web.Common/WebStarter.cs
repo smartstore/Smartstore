@@ -128,21 +128,21 @@ namespace Smartstore.Web
                 if (proxy != null && proxy.Enabled)
                 {
                     app.UseForwardedHeaders(MapForwardedHeadersOptions(proxy));
-                }
-
-                // Remove PathBase from Path since UseForwardedHeaders doesn't do it for us
-                app.Use(async (context, next) =>
-                {
-                    if (!string.IsNullOrEmpty(context.Request.PathBase) && context.Request.PathBase != "/")
+                    
+                    // Remove PathBase from Path since UseForwardedHeaders doesn't do it for us
+                    app.Use(async (context, next) =>
                     {
-                        if (context.Request.Path.StartsWithSegments(context.Request.PathBase, out var path))
+                        if (!string.IsNullOrEmpty(context.Request.PathBase) && context.Request.PathBase != "/")
                         {
-                            context.Request.Path = path;
+                            if (context.Request.Path.StartsWithSegments(context.Request.PathBase, out var path))
+                            {
+                                context.Request.Path = path;
+                            }
                         }
-                    }
 
-                    await next();
-                });
+                        await next();
+                    });
+                }
 
                 // Must come very early.
                 app.UseContextState();
