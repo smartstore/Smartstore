@@ -127,7 +127,26 @@ namespace Smartstore.Web
                 var proxy = appContext.AppConfiguration.ReverseProxy;
                 if (proxy != null && proxy.Enabled)
                 {
+                    // Map the ForwaredHeadersMiddleware
                     app.UseForwardedHeaders(MapForwardedHeadersOptions(proxy));
+
+                    if (proxy.ForwardPrefixHeader)
+                    {
+                        // The ForwardedHeadersMiddleware evaluates the X-Forwarded-Prefix correctly
+                        // by setting PathBase, but does not necessarily substitute the base path
+                        // from the current request path (which seems to be by design). In order for routing to
+                        // work correctly we have to deal with it programmatically.
+                        app.Use((context, next) => 
+                        {
+                            var req = context.Request;
+                            if (req.PathBase.HasValue && req.Path.StartsWithSegments(req.PathBase, out var remainingPath))
+                            {
+                                req.Path = remainingPath;
+                            }
+
+                            return next(context);
+                        });
+                    }
                 }
                 
                 // Must come very early.
