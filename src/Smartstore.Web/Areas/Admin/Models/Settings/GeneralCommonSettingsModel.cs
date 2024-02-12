@@ -187,6 +187,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CaptchaShowOnRegistrationPage")]
             public bool ShowOnRegistrationPage { get; set; }
 
+            [LocalizedDisplay("*ShowOnPasswordRecoveryPage")]
+            public bool ShowOnPasswordRecoveryPage { get; set; }
+
             [LocalizedDisplay("*CaptchaShowOnContactUsPage")]
             public bool ShowOnContactUsPage { get; set; }
 

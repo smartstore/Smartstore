@@ -29,7 +29,9 @@
 - Web API
   - Enabling CORS.
   - #928 mask the secret key in backend API user list.  
-- Security: #886 Replace CoreFTP with FluentFTP.
+- Security
+  - #886 Replace CoreFTP with FluentFTP.
+  - #1004 Add captcha to password recovery form.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC

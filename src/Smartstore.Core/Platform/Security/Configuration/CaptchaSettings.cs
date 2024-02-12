@@ -10,6 +10,7 @@ namespace Smartstore.Core.Security
         public bool UseInvisibleReCaptcha { get; set; }
         public bool ShowOnLoginPage { get; set; }
         public bool ShowOnRegistrationPage { get; set; }
+        public bool ShowOnPasswordRecoveryPage { get; set; }
         public bool ShowOnContactUsPage { get; set; }
         public bool ShowOnEmailWishlistToFriendPage { get; set; }
         public bool ShowOnEmailProductToFriendPage { get; set; }

@@ -453,6 +453,15 @@
                     </div>
                     <div class="adminRow">
                         <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnPasswordRecoveryPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnPasswordRecoveryPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnPasswordRecoveryPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
                             <smart-label asp-for="CaptchaSettings.ShowOnContactUsPage" />
                         </div>
                         <div class="adminData">

@@ -500,14 +500,25 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         public IActionResult PasswordRecovery()
         {
-            return View(new PasswordRecoveryModel());
+            var model = new PasswordRecoveryModel
+            {
+                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnPasswordRecoveryPage
+            };
+
+            return View(model);
         }
 
         [HttpPost, DisallowRobot]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnPasswordRecoveryPage))]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         [FormValueRequired("send-email")]
-        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
+        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, string captchaError)
         {
+            if (_captchaSettings.ShowOnPasswordRecoveryPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError(string.Empty, captchaError);
+            }
+
             if (ModelState.IsValid)
             {
                 var customer = await _userManager.FindByEmailAsync(model.Email);
@@ -533,6 +544,8 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
+            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnPasswordRecoveryPage;
+
             return View(model);
         }
 

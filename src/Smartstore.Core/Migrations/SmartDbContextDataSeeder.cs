@@ -179,6 +179,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Maximale Avatar-Größe",
                 "Specifies the maximum file size of an avatar (in KB). The default is 10,240 (10 MB).",
                 "Legt die maximale Dateigröße eines Avatar in KB fest. Der Standardwert ist 10.240 (10 MB).");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ShowOnPasswordRecoveryPage",
+                "Show on password recovery page",
+                "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
         }
     }
 }

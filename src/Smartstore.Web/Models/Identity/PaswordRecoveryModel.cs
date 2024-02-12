@@ -10,8 +10,9 @@ namespace Smartstore.Web.Models.Identity
         public string Email { get; set; }
 
         public string ResultMessage { get; set; }
-
         public PasswordRecoveryResultState ResultState { get; set; }
+
+        public bool DisplayCaptcha { get; set; }
     }
 
     public enum PasswordRecoveryResultState
