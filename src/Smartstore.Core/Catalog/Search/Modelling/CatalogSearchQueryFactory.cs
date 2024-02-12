@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
     public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
     {
-        protected static readonly string[] _instantSearchFields = new[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
+        protected static readonly string[] _instantSearchFields = ["manufacturer", "sku", "gtin", "mpn", "attrname", "variantname"];
 
         protected readonly ICommonServices _services;
         protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
@@ -376,7 +376,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Category, query.LanguageId ?? 0);
 
-            if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Any())
+            if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Count > 0)
             {
                 // TODO; (mc) Get deep ids (???) Make a low-level version of CatalogHelper.GetChildCategoryIds()
                 query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, ids.ToArray());
@@ -427,7 +427,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Brand, query.LanguageId ?? 0);
 
-            if (TryGetValueFor(alias ?? "m", out List<int> ids) && ids != null && ids.Any())
+            if (TryGetValueFor(alias ?? "m", out List<int> ids) && ids != null && ids.Count > 0)
             {
                 query.WithManufacturerIds(null, ids.ToArray());
             }
@@ -596,7 +596,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         {
             var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.DeliveryTime, query.LanguageId ?? 0);
 
-            if (TryGetValueFor(alias ?? "d", out List<int> ids) && ids != null && ids.Any())
+            if (TryGetValueFor(alias ?? "d", out List<int> ids) && ids != null && ids.Count > 0)
             {
                 query.WithDeliveryTimeIds(ids.ToArray());
             }

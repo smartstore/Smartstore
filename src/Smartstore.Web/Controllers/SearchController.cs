@@ -105,7 +105,7 @@ namespace Smartstore.Web.Controllers
             var model = new SearchResultModel(query);
             var term = query?.DefaultTerm;
 
-            if (term == null || term.Length < _searchSettings.InstantSearchTermMinLength)
+            if ((term == null || term.Length < _searchSettings.InstantSearchTermMinLength) && !query.HasSelectedFacets)
             {
                 model.SearchResult = new CatalogSearchResult(query);
                 model.TopProducts = ProductSummaryModel.Empty;

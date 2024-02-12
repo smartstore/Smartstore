@@ -144,6 +144,11 @@ namespace Smartstore.Core.Search
         // Facets
         public IReadOnlyDictionary<string, FacetDescriptor> FacetDescriptors => _facetDescriptors;
 
+        public bool HasSelectedFacets
+        {
+            get => FacetDescriptors.Any(d => d.Value.Values.Any(v => v.IsSelected));
+        }
+
         // Paging
         public int Skip { get; protected set; }
         public int Take { get; protected set; } = int.MaxValue;
