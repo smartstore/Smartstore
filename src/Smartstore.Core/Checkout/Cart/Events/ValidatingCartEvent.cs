@@ -15,12 +15,10 @@ namespace Smartstore.Core.Checkout.Cart.Events
         /// <remarks>Assign an <see cref="ActionResult"/> to <see cref="Result"/> to redirect the user, after the event has been completed.</remarks>
         public ValidatingCartEvent(ShoppingCart cart, IList<string> warnings)
         {
-            Guard.NotNull(cart, nameof(cart));
-            Guard.NotNull(cart.Customer, nameof(cart.Customer));
-            Guard.NotNull(warnings, nameof(warnings));
-
-            Cart = cart;
-            Warnings = warnings;
+            Guard.NotNull(cart.Customer);
+            
+            Cart = Guard.NotNull(cart);
+            Warnings = Guard.NotNull(warnings);
         }
 
         /// <summary>
@@ -36,6 +34,6 @@ namespace Smartstore.Core.Checkout.Cart.Events
         /// <summary>
         /// Gets or sets the result
         /// </summary>
-        public ActionResult Result { get; set; }
+        public IActionResult Result { get; set; }
     }
 }
