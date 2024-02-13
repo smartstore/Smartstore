@@ -26,6 +26,8 @@
 - Theming
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
+- Page Builder
+  - Fixed *boxed titles* spacing and line-height issues
 - Web API
   - Enabling CORS.
   - #928 mask the secret key in backend API user list.  
