@@ -2,24 +2,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Services
+namespace Smartstore.Core.Checkout.Orders
 {
     public partial class CheckoutWorkflow : ICheckoutWorkflow
     {
         const int _maxWarnings = 3;
-        const string _orderPaymentInfoName = "OrderPaymentInfo";
 
         private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly INotifier _notifier;
         private readonly ILogger _logger;
@@ -29,13 +25,12 @@ namespace Smartstore.Core.Checkout.Services
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
+        private readonly IEnumerable<ICheckoutRequirement> _checkoutRequirements;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly OrderSettings _orderSettings;
 
         public CheckoutWorkflow(
             SmartDbContext db,
-            IWorkContext workContext,
             IStoreContext storeContext,
             INotifier notifier,
             ILogger logger,
@@ -45,48 +40,42 @@ namespace Smartstore.Core.Checkout.Services
             IOrderCalculationService orderCalculationService,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
+            IEnumerable<ICheckoutRequirement> checkoutRequirements,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor,
-            OrderSettings orderSettings)
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
-            _workContext = workContext;
             _storeContext = storeContext;
             _notifier = notifier;
             _logger = logger;
+            _eventPublisher = eventPublisher;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
             _orderCalculationService = orderCalculationService;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
+            _checkoutRequirements = checkoutRequirements;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
-            _eventPublisher = eventPublisher;
-            _orderSettings = orderSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual async Task<IActionResult> StartAsync()
         {
+            var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
-            var customer = _workContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
 
-            if (Challenge(customer))
+            var preRequirementResult = await CheckRequirements(cart, true);
+            if (preRequirementResult != null)
             {
-                return new ChallengeResult();
+                return preRequirementResult;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: store.Id);
-            if (!cart.HasItems)
-            {
-                return RedirectToCart();
-            }
-
-            customer.ResetCheckoutData(store.Id);
+            cart.Customer.ResetCheckoutData(store.Id);
             _checkoutStateAccessor.Abandon();
 
-            var warnings = new List<string>();
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
@@ -133,44 +122,23 @@ namespace Smartstore.Core.Checkout.Services
 
         public virtual async Task<IActionResult> AdvanceAsync()
         {
-            var store = _storeContext.CurrentStore;
-            var customer = _workContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
 
-            if (Challenge(customer))
-            {
-                return new ChallengeResult();
-            }
-
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: store.Id);
-            if (!cart.HasItems)
-            {
-                return RedirectToCart();
-            }
-
-
-
-
-            await Task.Delay(10);
-            throw new NotImplementedException();
+            return await CheckRequirements(cart, false) ?? RedirectToCheckout("Confirm");
         }
 
         public virtual async Task<IActionResult> CompleteAsync()
         {
-            var store = _storeContext.CurrentStore;
-            var customer = _workContext.CurrentCustomer;
-
-            if (Challenge(customer))
-            {
-                return new ChallengeResult();
-            }
-
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: store.Id);
-            if (!cart.HasItems)
-            {
-                return RedirectToCart();
-            }
-
             var warnings = new List<string>();
+            var store = _storeContext.CurrentStore;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
+
+            var preRequirementResult = await CheckRequirements(cart, true);
+            if (preRequirementResult != null)
+            {
+                return preRequirementResult;
+            }
+
             var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
             await _eventPublisher.PublishAsync(validatingCartEvent);
 
@@ -186,7 +154,7 @@ namespace Smartstore.Core.Checkout.Services
             }
 
             // Prevent two orders from being placed within a time span of x seconds.
-            if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
+            if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(cart.Customer, store))
             {
                 _notifier.Warning(T("Checkout.MinOrderPlacementInterval"));
                 return RedirectToCheckout("Confirm");
@@ -197,7 +165,7 @@ namespace Smartstore.Core.Checkout.Services
 
             try
             {
-                if (!ctx.Session.TryGetObject<ProcessPaymentRequest>(_orderPaymentInfoName, out var paymentRequest))
+                if (!ctx.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest))
                 {
                     // Check whether payment workflow is required.
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
@@ -212,8 +180,8 @@ namespace Smartstore.Core.Checkout.Services
                 }
 
                 paymentRequest.StoreId = store.Id;
-                paymentRequest.CustomerId = customer.Id;
-                paymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+                paymentRequest.CustomerId = cart.Customer.Id;
+                paymentRequest.PaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
 
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
@@ -262,7 +230,7 @@ namespace Smartstore.Core.Checkout.Services
             }
             finally
             {
-                ctx.Session.TrySetObject<ProcessPaymentRequest>(_orderPaymentInfoName, null);
+                ctx.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
                 _checkoutStateAccessor.Abandon();
             }
 
@@ -287,13 +255,30 @@ namespace Smartstore.Core.Checkout.Services
             }
         }
 
-        protected virtual bool Challenge(Customer customer)
-            => !customer.IsRegistered() && !_orderSettings.AnonymousCheckoutAllowed;
+        private async Task<IActionResult> CheckRequirements(ShoppingCart cart, bool preRequirementsOnly)
+        {
+            var requirements = preRequirementsOnly
+                ? _checkoutRequirements.Where(x => x.Order < 0)
+                : _checkoutRequirements;
 
-        private static RedirectToActionResult RedirectToCheckout(string action)
+            foreach (var requirement in requirements.OrderBy(x => x.Order))
+            {
+                if (!await requirement.IsFulfilledAsync(cart))
+                {
+                    return requirement.Fulfill();
+                }
+            }
+
+            return null;
+        }
+
+        //protected virtual bool Challenge(Customer customer)
+        //    => !customer.IsRegistered() && !_orderSettings.AnonymousCheckoutAllowed;
+
+        internal static RedirectToActionResult RedirectToCheckout(string action)
             => new(action, "Checkout", null);
 
-        private static RedirectToRouteResult RedirectToCart()
+        internal static RedirectToRouteResult RedirectToCart()
             => new("ShoppingCart");
     }
 }

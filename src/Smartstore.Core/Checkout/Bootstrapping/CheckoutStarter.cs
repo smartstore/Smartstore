@@ -4,10 +4,10 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Orders.Requirements;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Payment.Rules;
 using Smartstore.Core.Checkout.Rules;
-using Smartstore.Core.Checkout.Services;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Shipping.Rules;
 using Smartstore.Core.Checkout.Tax;
@@ -56,6 +56,14 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<TaxService>().As<ITaxService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxCalculator>().As<ITaxCalculator>().InstancePerLifetimeScope();
             builder.RegisterType<CheckoutWorkflow>().As<ICheckoutWorkflow>().InstancePerLifetimeScope();
+
+            // Checkout requirements.
+            builder.RegisterType<BillingAddressRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
+            builder.RegisterType<CheckoutAllowedRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
+            builder.RegisterType<HasCartItemsRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
+            builder.RegisterType<ShippingAddressRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
+            builder.RegisterType<ShippingMethodRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
+            builder.RegisterType<PaymentMethodRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
 
             // Cart rules.
             var cartRuleTypes = appContext.TypeScanner.FindTypes<IRule<CartRuleContext>>().ToList();

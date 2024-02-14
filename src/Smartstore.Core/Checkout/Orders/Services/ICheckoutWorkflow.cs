@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Smartstore.Core.Checkout.Services
+namespace Smartstore.Core.Checkout.Orders
 {
     public partial interface ICheckoutWorkflow
     {
