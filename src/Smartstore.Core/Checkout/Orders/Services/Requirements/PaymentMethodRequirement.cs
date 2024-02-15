@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
-    public class PaymentMethodRequirement : ICheckoutRequirement
+    public class PaymentMethodRequirement : CheckoutRequirementBase
     {
         private static readonly PaymentMethodType[] _paymentTypes =
         [
@@ -23,8 +24,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public PaymentMethodRequirement(
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
+            IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor, 
             PaymentSettings paymentSettings)
+            : base(CheckoutRequirement.PaymentMethod, httpContextAccessor)
         {
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
@@ -32,13 +35,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _paymentSettings = paymentSettings;
         }
 
-        public static int CheckoutOrder => ShippingMethodRequirement.CheckoutOrder + 10;
-        public int Order => CheckoutOrder;
-
-        public IActionResult Fulfill()
-            => CheckoutWorkflow.RedirectToCheckout("PaymentMethod");
-
-        public async Task<bool> IsFulfilledAsync(ShoppingCart cart)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
@@ -80,6 +77,12 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             return attributes.SelectedPaymentMethod.HasValue();
+        }
+
+
+        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        {
+            throw new NotImplementedException();
         }
     }
 }

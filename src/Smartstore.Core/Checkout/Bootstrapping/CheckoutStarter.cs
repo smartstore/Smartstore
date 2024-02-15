@@ -59,8 +59,6 @@ namespace Smartstore.Core.Bootstrapping
 
             // Checkout requirements.
             builder.RegisterType<BillingAddressRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
-            builder.RegisterType<CheckoutAllowedRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
-            builder.RegisterType<HasCartItemsRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingAddressRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingMethodRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();
             builder.RegisterType<PaymentMethodRequirement>().As<ICheckoutRequirement>().InstancePerLifetimeScope();

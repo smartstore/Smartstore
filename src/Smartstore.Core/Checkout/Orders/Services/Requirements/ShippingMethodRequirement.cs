@@ -1,32 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
-    public class ShippingMethodRequirement : ICheckoutRequirement
+    public class ShippingMethodRequirement : CheckoutRequirementBase
     {
         private readonly IShippingService _shippingService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShippingSettings _shippingSettings;
 
         public ShippingMethodRequirement(
-            IShippingService shippingService, 
+            IShippingService shippingService,
+            IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
             ShippingSettings shippingSettings)
+            : base(CheckoutRequirement.ShippingMethod, httpContextAccessor)
         {
             _shippingService = shippingService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _shippingSettings = shippingSettings;
         }
 
-        public static int CheckoutOrder => ShippingAddressRequirement.CheckoutOrder + 10;
-        public int Order => CheckoutOrder;
-
-        public IActionResult Fulfill()
-            => CheckoutWorkflow.RedirectToCheckout("ShippingMethod");
-
-        public async Task<bool> IsFulfilledAsync(ShoppingCart cart)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart)
         {
             var customer = cart.Customer;
             var attributes = customer.GenericAttributes;
@@ -79,6 +76,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _checkoutStateAccessor.CheckoutState.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
 
             return attributes.SelectedShippingOption != null;
+        }
+
+        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        {
+            throw new NotImplementedException();
         }
     }
 }

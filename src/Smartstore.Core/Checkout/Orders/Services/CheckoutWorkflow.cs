@@ -25,9 +25,10 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
-        private readonly IEnumerable<ICheckoutRequirement> _checkoutRequirements;
+        private readonly IEnumerable<ICheckoutRequirement> _requirementHandlers;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly OrderSettings _orderSettings;
 
         public CheckoutWorkflow(
             SmartDbContext db,
@@ -40,9 +41,10 @@ namespace Smartstore.Core.Checkout.Orders
             IOrderCalculationService orderCalculationService,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
-            IEnumerable<ICheckoutRequirement> checkoutRequirements,
+            IEnumerable<ICheckoutRequirement> requirementHandlers,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            OrderSettings orderSettings)
         {
             _db = db;
             _storeContext = storeContext;
@@ -54,9 +56,10 @@ namespace Smartstore.Core.Checkout.Orders
             _orderCalculationService = orderCalculationService;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
-            _checkoutRequirements = checkoutRequirements;
+            _requirementHandlers = requirementHandlers;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
+            _orderSettings = orderSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -67,10 +70,10 @@ namespace Smartstore.Core.Checkout.Orders
             var store = _storeContext.CurrentStore;
             var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
 
-            var preRequirementResult = await CheckRequirements(cart, true);
-            if (preRequirementResult != null)
+            var preliminaryResult = Preliminary(cart);
+            if (preliminaryResult != null)
             {
-                return preRequirementResult;
+                return preliminaryResult;
             }
 
             cart.Customer.ResetCheckoutData(store.Id);
@@ -120,11 +123,51 @@ namespace Smartstore.Core.Checkout.Orders
             return RedirectToCheckout("BillingAddress");
         }
 
-        public virtual async Task<IActionResult> AdvanceAsync()
+        public virtual async Task<IActionResult> FulfillAsync()
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
 
-            return await CheckRequirements(cart, false) ?? RedirectToCheckout("Confirm");
+            var preliminaryResult = Preliminary(cart);
+            if (preliminaryResult != null)
+            {
+                return preliminaryResult;
+            }
+
+            foreach (var handler in _requirementHandlers.OrderBy(x => x.Requirement))
+            {
+                if (!await handler.IsFulfilledAsync(cart))
+                {
+                    return await handler.FulfillAsync(cart);
+                }
+            }
+
+            return RedirectToCheckout("Confirm");
+        }
+
+        public virtual async Task<IActionResult> AdvanceAsync(CheckoutRequirement requirement, object model)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+
+            var preliminaryResult = Preliminary(cart);
+            if (preliminaryResult != null)
+            {
+                return preliminaryResult;
+            }
+
+            var handler = _requirementHandlers.FirstOrDefault(x => x.Requirement == requirement) 
+                ?? throw new ArgumentException($"Unknown checkout requirement {requirement}.", nameof(requirement));
+
+            // TODO: (mg)(quick-checkout) SHIT.... handlers cannot access models like CheckoutAddressModel!
+
+            var result = await handler.AdvanceAsync(cart, model);
+            if (result != null)
+            {
+                // Cannot advance.
+                return result;
+            }
+
+            // TODO: (mg)(quick-checkout) advance... call route of next requirement that is not fulfilled.
+            throw new NotImplementedException();
         }
 
         public virtual async Task<IActionResult> CompleteAsync()
@@ -133,10 +176,10 @@ namespace Smartstore.Core.Checkout.Orders
             var store = _storeContext.CurrentStore;
             var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
 
-            var preRequirementResult = await CheckRequirements(cart, true);
-            if (preRequirementResult != null)
+            var preliminaryResult = Preliminary(cart);
+            if (preliminaryResult != null)
             {
-                return preRequirementResult;
+                return preliminaryResult;
             }
 
             var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
@@ -255,25 +298,20 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        private async Task<IActionResult> CheckRequirements(ShoppingCart cart, bool preRequirementsOnly)
+        private IActionResult Preliminary(ShoppingCart cart)
         {
-            var requirements = preRequirementsOnly
-                ? _checkoutRequirements.Where(x => x.Order < 0)
-                : _checkoutRequirements;
-
-            foreach (var requirement in requirements.OrderBy(x => x.Order))
+            if (!_orderSettings.AnonymousCheckoutAllowed && !cart.Customer.IsRegistered())
             {
-                if (!await requirement.IsFulfilledAsync(cart))
-                {
-                    return requirement.Fulfill();
-                }
+                return new ChallengeResult();
+            }
+
+            if (!cart.HasItems)
+            {
+                return RedirectToCart();
             }
 
             return null;
         }
-
-        //protected virtual bool Challenge(Customer customer)
-        //    => !customer.IsRegistered() && !_orderSettings.AnonymousCheckoutAllowed;
 
         internal static RedirectToActionResult RedirectToCheckout(string action)
             => new(action, "Checkout", null);

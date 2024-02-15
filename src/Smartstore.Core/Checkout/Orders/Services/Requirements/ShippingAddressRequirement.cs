@@ -1,25 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
-    public class ShippingAddressRequirement : ICheckoutRequirement
+    public class ShippingAddressRequirement : CheckoutRequirementBase
     {
         private readonly SmartDbContext _db;
 
-        public ShippingAddressRequirement(SmartDbContext db)
+        public ShippingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
+            : base(CheckoutRequirement.ShippingAddress, httpContextAccessor)
         {
             _db = db;
         }
 
-        public static int CheckoutOrder => BillingAddressRequirement.CheckoutOrder + 10;
-        public int Order => CheckoutOrder;
-
-        public IActionResult Fulfill()
-            => CheckoutWorkflow.RedirectToCheckout("ShippingAddress");
-
-        public async Task<bool> IsFulfilledAsync(ShoppingCart cart)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart)
         {
             if (cart.IsShippingRequired())
             {
@@ -37,6 +33,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                 return true;
             }
+        }
+
+        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        {
+            throw new NotImplementedException();
         }
     }
 }

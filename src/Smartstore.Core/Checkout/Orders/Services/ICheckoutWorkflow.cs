@@ -7,7 +7,8 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface ICheckoutWorkflow
     {
         Task<IActionResult> StartAsync();
-        Task<IActionResult> AdvanceAsync();
+        Task<IActionResult> FulfillAsync();
+        Task<IActionResult> AdvanceAsync(CheckoutRequirement requirement, object model);
         Task<IActionResult> CompleteAsync();
     }
 
