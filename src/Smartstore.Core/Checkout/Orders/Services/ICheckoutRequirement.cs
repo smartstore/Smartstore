@@ -31,8 +31,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// <returns><c>true</c> if the requirement is fulfilled, otherwise <c>false</c>.</returns>
         Task<bool> IsFulfilledAsync(ShoppingCart cart);
 
-        Task<IActionResult> FulfillAsync(ShoppingCart cart);
+        IActionResult Fulfill();
 
-        Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model);
+        Task<bool> AdvanceAsync(ShoppingCart cart, object model);
     }
 }

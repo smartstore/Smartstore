@@ -137,7 +137,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (!await handler.IsFulfilledAsync(cart))
                 {
-                    return await handler.FulfillAsync(cart);
+                    return handler.Fulfill();
                 }
             }
 
@@ -154,20 +154,30 @@ namespace Smartstore.Core.Checkout.Orders
                 return preliminaryResult;
             }
 
-            var handler = _requirementHandlers.FirstOrDefault(x => x.Requirement == requirement) 
-                ?? throw new ArgumentException($"Unknown checkout requirement {requirement}.", nameof(requirement));
+            var handlers = _requirementHandlers
+                .Where(x => x.Requirement >= requirement)
+                .OrderBy(x => x.Requirement);
 
-            // TODO: (mg)(quick-checkout) SHIT.... handlers cannot access models like CheckoutAddressModel!
-
-            var result = await handler.AdvanceAsync(cart, model);
-            if (result != null)
+            foreach (var handler in handlers)
             {
-                // Cannot advance.
-                return result;
+                if (handler.Requirement == requirement)
+                {
+                    if (!await handler.AdvanceAsync(cart, model))
+                    {
+                        return handler.Fulfill();
+                    }
+                }
+                else
+                {
+                    // Fulfill next requirement.
+                    if (!await handler.IsFulfilledAsync(cart))
+                    {
+                        return handler.Fulfill();
+                    }
+                }
             }
 
-            // TODO: (mg)(quick-checkout) advance... call route of next requirement that is not fulfilled.
-            throw new NotImplementedException();
+            return RedirectToCheckout("Confirm");
         }
 
         public virtual async Task<IActionResult> CompleteAsync()

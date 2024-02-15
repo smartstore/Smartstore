@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -35,9 +34,21 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
         }
 
-        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
         {
-            throw new NotImplementedException();
+            if (model is int addressId)
+            {
+                var address = cart.Customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+                if (address != null)
+                {
+                    cart.Customer.ShippingAddress = address;
+                    await _db.SaveChangesAsync();
+
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

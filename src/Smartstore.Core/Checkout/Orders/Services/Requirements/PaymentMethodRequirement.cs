@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -54,7 +53,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return true;
             }
 
-            // TODO: (mg)(quick-checkout) perf: LoadActivePaymentProvidersAsync called twice (in CheckoutPaymentMethodMapper and PaymentMethodRequirement).
+            // TODO: (mg)(quick-checkout) perf: LoadActivePaymentProvidersAsync called too often (IsFulfilledAsync, AdvanceAsync, CheckoutPaymentMethodMapper).
             // TODO: (mg)(quick-checkout) perf: CheckoutPaymentMethodModel.SkippedSelectShipping is never used!
 
             var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
@@ -79,10 +78,37 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return attributes.SelectedPaymentMethod.HasValue();
         }
 
-
-        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
         {
-            throw new NotImplementedException();
+            if (model is string paymentMethod && paymentMethod.HasValue())
+            {
+                var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
+                if (provider != null)
+                {
+                    var state = _checkoutStateAccessor.CheckoutState;
+                    var form = _httpContextAccessor.HttpContext?.Request?.Form;
+                    var attributes = cart.Customer.GenericAttributes;
+
+                    attributes.SelectedPaymentMethod = paymentMethod;
+                    await attributes.SaveChangesAsync();
+
+                    if (form != null)
+                    {
+                        // Save payment data so that the user must not re-enter it.
+                        foreach (var pair in form)
+                        {
+                            var v = pair.Value;
+                            state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true" 
+                                ? "true" 
+                                : v.ToString();
+                        }
+                    }
+
+                    // Validate info.
+                }
+            }
+
+            return false;
         }
     }
 }

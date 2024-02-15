@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -27,7 +26,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return cart.Customer.BillingAddress != null;
         }
 
-        public override async Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
         {
             if (model is int addressId)
             {
@@ -37,11 +36,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     cart.Customer.BillingAddress = address;
                     await _db.SaveChangesAsync();
 
-                    return null;
+                    return true;
                 }
             }
 
-            return Result;
+            return false;
         }
     }
 }

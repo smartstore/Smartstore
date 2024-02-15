@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
@@ -15,35 +16,24 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected IActionResult Result
-            => CheckoutWorkflow.RedirectToCheckout(Requirement.ToString());
-
         public CheckoutRequirement Requirement { get; }
-
-        //public virtual IActionResult Fulfill()
-        //{
-        //    if (_result is RedirectToActionResult redirectResult)
-        //    {
-        //        var routeData = _httpContextAccessor.HttpContext.GetRouteData();
-
-        //        var isCurrentRoute = redirectResult.ActionName.EqualsNoCase(routeData.GetActionName()) &&
-        //            redirectResult.ControllerName.EqualsNoCase(routeData.GetControllerName()) &&
-        //            redirectResult.RouteValues.GetAreaName().EqualsNoCase(routeData.GetAreaName());
-
-        //        // return "null" to fulfill self, otherwise fulfill other.
-        //        return isCurrentRoute ? null : _result;
-        //    }
-
-        //    return _result;
-        //}
 
         public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart)
             => Task.FromResult(false);
 
-        public virtual Task<IActionResult> FulfillAsync(ShoppingCart cart)
-            => Task.FromResult<IActionResult>(null);
+        public virtual Task<bool> AdvanceAsync(ShoppingCart cart, object model)
+            => Task.FromResult(false);
 
-        public virtual Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
-            => Task.FromResult<IActionResult>(null);
+        public virtual IActionResult Fulfill()
+        {
+            var result = CheckoutWorkflow.RedirectToCheckout(Requirement.ToString());
+            var routeData = _httpContextAccessor.HttpContext.GetRouteData();
+
+            var isCurrentRoute = result.ActionName.EqualsNoCase(routeData.GetActionName()) &&
+                result.ControllerName.EqualsNoCase(routeData.GetControllerName()) &&
+                result.RouteValues.GetAreaName().EqualsNoCase(routeData.GetAreaName());
+
+            return isCurrentRoute ? null : result;
+        }
     }
 }

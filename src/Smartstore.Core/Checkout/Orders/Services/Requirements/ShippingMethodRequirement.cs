@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 
@@ -7,6 +6,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
+        private static readonly string[] _shippingOptionSeparator = ["___"];
+
         private readonly IShippingService _shippingService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShippingSettings _shippingSettings;
@@ -50,7 +51,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (options == null)
             {
-                options = (await _shippingService.GetShippingOptionsAsync(cart, customer.ShippingAddress, storeId: cart.StoreId)).ShippingOptions;
+                options = await GetShippingOptions(cart);
 
                 // TODO: (mg)(quick-checkout) CheckoutShippingMethodMapper: updating customer.GenericAttributes.OfferedShippingOptions is redundant. Done by this requirement.
                 // TODO: (mg)(quick-checkout) CheckoutShippingMethodMapper: use customer.GenericAttributes.OfferedShippingOptions instead of "ShippingOptionResponse" parameter.
@@ -78,9 +79,47 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return attributes.SelectedShippingOption != null;
         }
 
-        public override Task<IActionResult> AdvanceAsync(ShoppingCart cart, object model)
+        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
         {
-            throw new NotImplementedException();
+            if (model is string shippingOption && shippingOption.HasValue())
+            {
+                var splittedOption = shippingOption.Split(_shippingOptionSeparator, StringSplitOptions.RemoveEmptyEntries);
+                if (splittedOption.Length == 2)
+                {
+                    var selectedName = splittedOption[0];
+                    var providerSystemName = splittedOption[1];
+                    var attributes = cart.Customer.GenericAttributes;
+                    var shippingOptions = attributes.OfferedShippingOptions;
+
+                    if (shippingOptions.IsNullOrEmpty())
+                    {
+                        // Shipping option was not found in customer attributes. Load via shipping service.
+                        shippingOptions = await GetShippingOptions(cart, providerSystemName);
+                    }
+                    else
+                    {
+                        // Loaded cached results. Filter result by a chosen shipping rate computation method.
+                        shippingOptions = shippingOptions.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
+                    }
+
+                    var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
+                    if (selectedShippingOption != null)
+                    {
+                        // Save selected shipping option in customer attributes.
+                        attributes.SelectedShippingOption = selectedShippingOption;
+                        await attributes.SaveChangesAsync();
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<List<ShippingOption>> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)
+        {
+            return (await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, providerSystemName, cart.StoreId)).ShippingOptions;
         }
     }
 }
