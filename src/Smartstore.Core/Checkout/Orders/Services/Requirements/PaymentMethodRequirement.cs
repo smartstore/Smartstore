@@ -20,22 +20,19 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly Lazy<IActionContextAccessor> _actionContextAccessor;
         private readonly PaymentSettings _paymentSettings;
 
         public PaymentMethodRequirement(
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
-            IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
-            Lazy<IActionContextAccessor> actionContextAccessor,
+            IActionContextAccessor actionContextAccessor,
             PaymentSettings paymentSettings)
-            : base(httpContextAccessor)
+            : base(actionContextAccessor)
         {
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
-            _actionContextAccessor = actionContextAccessor;
             _paymentSettings = paymentSettings;
         }
 
@@ -51,51 +48,45 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (model != null 
                 && model is string paymentMethod 
-                && IsSameRoute(HttpMethods.Post, "SelectPaymentMethod"))
+                && IsSameRoute(HttpMethods.Post, "PaymentMethod"))
             {
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
-                if (provider != null)
+                if (provider == null)
                 {
-                    attributes.SelectedPaymentMethod = paymentMethod;
-                    await attributes.SaveChangesAsync();
-
-                    var ctx = _httpContextAccessor.HttpContext;
-                    var form = ctx.Request.Form;
-                    if (form != null)
-                    {
-                        // Save payment data so that the user must not re-enter it.
-                        foreach (var pair in form)
-                        {
-                            var v = pair.Value;
-                            state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
-                                ? "true"
-                                : v.ToString();
-                        }
-                    }
-
-                    // Validate payment data.
-                    var validationResult = await provider.Value.ValidatePaymentDataAsync(form);
-                    if (validationResult.IsValid)
-                    {
-                        var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
-                        ctx.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
-                        state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
-                    }
-                    else
-                    {
-                        // TODO: (mg)(quick-checkout) we need to return a second value here
-                        // that allows to break all further requirements check.
-
-                        var modelState = _actionContextAccessor.Value.ActionContext.ModelState;
-                        validationResult.AddToModelState(modelState);
-                    }
-
-                    // INFO: we must return "true" in case of a model state error (invalid payment data).
-                    // Otherwise we will be redirected to "GET PaymentMethod" and model state errors are lost.
-                    return true;
+                    return false;
                 }
 
-                return false;
+                attributes.SelectedPaymentMethod = paymentMethod;
+                await attributes.SaveChangesAsync();
+
+                var form = HttpContext.Request.Form;
+                if (form != null)
+                {
+                    // Save payment data so that the user must not re-enter it.
+                    foreach (var pair in form)
+                    {
+                        var v = pair.Value;
+                        state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
+                            ? "true"
+                            : v.ToString();
+                    }
+                }
+
+                // Validate payment data.
+                var validationResult = await provider.Value.ValidatePaymentDataAsync(form);
+                if (validationResult.IsValid)
+                {
+                    var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
+                    HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
+                    state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
+                }
+                else
+                {
+                    var modelState = _actionContextAccessor.ActionContext.ModelState;
+                    validationResult.AddToModelState(modelState);
+                }
+
+                return validationResult.IsValid;
             }
 
             if (attributes.SelectedPaymentMethod.HasValue() 

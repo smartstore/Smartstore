@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 
@@ -13,10 +14,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public ShippingMethodRequirement(
             IShippingService shippingService,
-            IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
+            IActionContextAccessor actionContextAccessor,
             ShippingSettings shippingSettings)
-            : base(httpContextAccessor)
+            : base(actionContextAccessor)
         {
             _shippingService = shippingService;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -35,38 +36,38 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (model != null
                 && model is string shippingOption 
-                && IsSameRoute(HttpMethods.Post, "SelectShippingMethod"))
+                && IsSameRoute(HttpMethods.Post, "ShippingMethod"))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
-                if (splittedOption.Length == 2)
+                if (splittedOption.Length != 2)
                 {
-                    var selectedName = splittedOption[0];
-                    var providerSystemName = splittedOption[1];
-                    var shippingOptions = attributes.OfferedShippingOptions;
-
-                    if (shippingOptions.IsNullOrEmpty())
-                    {
-                        // Shipping option was not found in customer attributes. Load via shipping service.
-                        shippingOptions = await GetShippingOptions(cart, providerSystemName);
-                    }
-                    else
-                    {
-                        // Loaded cached results. Filter result by a chosen shipping rate computation method.
-                        shippingOptions = shippingOptions.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
-                    }
-
-                    var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
-                    if (selectedShippingOption != null)
-                    {
-                        // Save selected shipping option in customer attributes.
-                        attributes.SelectedShippingOption = selectedShippingOption;
-                        await attributes.SaveChangesAsync();
-
-                        return true;
-                    }
+                    return false;
                 }
 
-                return false;
+                var selectedName = splittedOption[0];
+                var providerSystemName = splittedOption[1];
+                var shippingOptions = attributes.OfferedShippingOptions;
+
+                if (shippingOptions.IsNullOrEmpty())
+                {
+                    // Shipping option was not found in customer attributes. Load via shipping service.
+                    shippingOptions = await GetShippingOptions(cart, providerSystemName);
+                }
+                else
+                {
+                    // Loaded cached results. Filter result by a chosen shipping rate computation method.
+                    shippingOptions = shippingOptions.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
+                }
+
+                var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
+                if (selectedShippingOption != null)
+                {
+                    // Save selected shipping option in customer attributes.
+                    attributes.SelectedShippingOption = selectedShippingOption;
+                    await attributes.SaveChangesAsync();
+                }
+
+                return selectedShippingOption != null;
             }
 
             if (!cart.IsShippingRequired())
