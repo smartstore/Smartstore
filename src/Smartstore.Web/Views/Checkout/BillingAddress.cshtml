@@ -31,7 +31,8 @@
                     <div class="col">
                         <div class="card card-body address-list-item">
                             <div class="address-item">
-                                <button class="btn btn-warning btn-block select-billing-address-button" onclick="setLocation('@Url.Action("SelectBillingAddress", new { addressId = item.Id })')">
+                                <button class="btn btn-warning btn-block select-billing-address-button" 
+                                        data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })">
                                     <span>@T("Checkout.BillToThisAddress")</span>
                                     <i class="fa fa-angle-right"></i>
                                 </button>
@@ -104,3 +105,15 @@
         <zone name="checkout_billing_address_bottom" />
     </div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="billing-address">
+    $(function () {
+
+        $('.select-billing-address-button').on('click', function (e) {
+            e.preventDefault();
+            $(this).postData({ });
+            return false;
+        });
+
+    });
+</script>

@@ -31,7 +31,8 @@
                     <div class="col">
                         <div class="card card-body address-list-item">
                             <div class="address-item">
-                                <button class="btn btn-warning btn-block select-shipping-address-button" onclick="setLocation('@Url.Action("SelectShippingAddress", new { addressId = item.Id })')">
+                                <button class="btn btn-warning btn-block select-shipping-address-button" 
+                                        data-url="@Url.Action("SelectShippingAddress", new { addressId = item.Id })">
                                     <span>@T("Checkout.ShipToThisAddress")</span>
                                     <i class="fa fa-angle-right"></i>
                                 </button>
@@ -104,3 +105,15 @@
         <zone name="checkout_shipping_address_bottom" />
     </div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="shipping-address">
+    $(function () {
+
+        $('.select-shipping-address-button').on('click', function (e) {
+            e.preventDefault();
+            $(this).postData({});
+            return false;
+        });
+
+    });
+</script>

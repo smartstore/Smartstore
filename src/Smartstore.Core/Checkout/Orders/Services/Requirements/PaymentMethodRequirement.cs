@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -18,28 +20,87 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly Lazy<IActionContextAccessor> _actionContextAccessor;
         private readonly PaymentSettings _paymentSettings;
 
         public PaymentMethodRequirement(
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
             IHttpContextAccessor httpContextAccessor,
-            ICheckoutStateAccessor checkoutStateAccessor, 
+            ICheckoutStateAccessor checkoutStateAccessor,
+            Lazy<IActionContextAccessor> actionContextAccessor,
             PaymentSettings paymentSettings)
-            : base(CheckoutRequirement.PaymentMethod, httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _actionContextAccessor = actionContextAccessor;
             _paymentSettings = paymentSettings;
         }
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart)
+        public override int Order => 40;
+
+        protected override RedirectToActionResult FulfillResult
+            => CheckoutWorkflow.RedirectToCheckout("PaymentMethod");
+
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
 
-            if (attributes.SelectedPaymentMethod.HasValue() || !state.IsPaymentRequired || state.IsPaymentSelectionSkipped)
+            if (model != null 
+                && model is string paymentMethod 
+                && IsSameRoute(HttpMethods.Post, "SelectPaymentMethod"))
+            {
+                var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
+                if (provider != null)
+                {
+                    attributes.SelectedPaymentMethod = paymentMethod;
+                    await attributes.SaveChangesAsync();
+
+                    var ctx = _httpContextAccessor.HttpContext;
+                    var form = ctx.Request.Form;
+                    if (form != null)
+                    {
+                        // Save payment data so that the user must not re-enter it.
+                        foreach (var pair in form)
+                        {
+                            var v = pair.Value;
+                            state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
+                                ? "true"
+                                : v.ToString();
+                        }
+                    }
+
+                    // Validate payment data.
+                    var validationResult = await provider.Value.ValidatePaymentDataAsync(form);
+                    if (validationResult.IsValid)
+                    {
+                        var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
+                        ctx.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
+                        state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
+                    }
+                    else
+                    {
+                        // TODO: (mg)(quick-checkout) we need to return a second value here
+                        // that allows to break all further requirements check.
+
+                        var modelState = _actionContextAccessor.Value.ActionContext.ModelState;
+                        validationResult.AddToModelState(modelState);
+                    }
+
+                    // INFO: we must return "true" in case of a model state error (invalid payment data).
+                    // Otherwise we will be redirected to "GET PaymentMethod" and model state errors are lost.
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (attributes.SelectedPaymentMethod.HasValue() 
+                || !state.IsPaymentRequired 
+                || state.IsPaymentSelectionSkipped)
             {
                 return true;
             }
@@ -76,39 +137,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             return attributes.SelectedPaymentMethod.HasValue();
-        }
-
-        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
-        {
-            if (model is string paymentMethod && paymentMethod.HasValue())
-            {
-                var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
-                if (provider != null)
-                {
-                    var state = _checkoutStateAccessor.CheckoutState;
-                    var form = _httpContextAccessor.HttpContext?.Request?.Form;
-                    var attributes = cart.Customer.GenericAttributes;
-
-                    attributes.SelectedPaymentMethod = paymentMethod;
-                    await attributes.SaveChangesAsync();
-
-                    if (form != null)
-                    {
-                        // Save payment data so that the user must not re-enter it.
-                        foreach (var pair in form)
-                        {
-                            var v = pair.Value;
-                            state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true" 
-                                ? "true" 
-                                : v.ToString();
-                        }
-                    }
-
-                    // Validate info.
-                }
-            }
-
-            return false;
         }
     }
 }

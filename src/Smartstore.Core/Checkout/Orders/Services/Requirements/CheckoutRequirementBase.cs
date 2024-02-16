@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
@@ -9,31 +8,37 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
     {
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        protected CheckoutRequirementBase(CheckoutRequirement requirement, IHttpContextAccessor httpContextAccessor)
+        protected CheckoutRequirementBase(IHttpContextAccessor httpContextAccessor)
         {
-            Requirement = requirement;
-
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public CheckoutRequirement Requirement { get; }
+        public abstract int Order { get; }
 
-        public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart)
-            => Task.FromResult(false);
+        protected abstract RedirectToActionResult FulfillResult { get; }
 
-        public virtual Task<bool> AdvanceAsync(ShoppingCart cart, object model)
+        public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
             => Task.FromResult(false);
 
         public virtual IActionResult Fulfill()
         {
-            var result = CheckoutWorkflow.RedirectToCheckout(Requirement.ToString());
-            var routeData = _httpContextAccessor.HttpContext.GetRouteData();
+            var request = _httpContextAccessor.HttpContext.Request;
+            var result = FulfillResult;
 
-            var isCurrentRoute = result.ActionName.EqualsNoCase(routeData.GetActionName()) &&
-                result.ControllerName.EqualsNoCase(routeData.GetControllerName()) &&
-                result.RouteValues.GetAreaName().EqualsNoCase(routeData.GetAreaName());
+            if (request.Method.EqualsNoCase(HttpMethods.Get) &&
+                request.RouteValues.IsSameRoute(result.RouteValues.GetAreaName(), result.ControllerName, result.ActionName))
+            {
+                // Current route. Do not redirect to self.
+                return null;
+            }
 
-            return isCurrentRoute ? null : result;
+            return result;
+        }
+
+        protected bool IsSameRoute(string method, string action, string controller = "Checkout", string area = null)
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return request.Method.EqualsNoCase(method) && request.RouteValues.IsSameRoute(area, controller, action);
         }
     }
 }

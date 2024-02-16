@@ -59,25 +59,6 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
         }
 
-        private async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
-        {
-            var validationResult = await paymentMethod.ValidatePaymentDataAsync(form);
-
-            validationResult.AddToModelState(ModelState);
-            if (!ModelState.IsValid)
-            {
-                return false;
-            }
-
-            var paymentInfo = await paymentMethod.GetPaymentInfoAsync(form);
-            HttpContext.Session.TrySetObject("OrderPaymentInfo", paymentInfo);
-
-            var state = _checkoutStateAccessor.CheckoutState;
-            state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
-
-            return true;
-        }
-
         private async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false)
         {
             // Get existing addresses.
@@ -180,6 +161,7 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public async Task<IActionResult> SelectBillingAddress(int addressId)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -299,6 +281,7 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public async Task<IActionResult> SelectShippingAddress(int addressId)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -488,7 +471,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("PaymentMethod")]
         [FormValueRequired("nextstep")]
-        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, CheckoutPaymentMethodModel model, IFormCollection form)
+        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
@@ -510,8 +493,8 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            var paymentMethodProvider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, storeId);
-            if (paymentMethodProvider == null)
+            var paymentProvider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, storeId);
+            if (paymentProvider == null)
             {
                 return RedirectToAction(nameof(PaymentMethod));
             }
@@ -520,25 +503,27 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
             await customer.GenericAttributes.SaveChangesAsync();
 
-            // Save payment data so that the user must not re-enter it.
             var state = _checkoutStateAccessor.CheckoutState;
-            foreach (var kvp in form)
+            // Save payment data so that the user must not re-enter it.
+            foreach (var pair in form)
             {
-                if (kvp.Value.Count == 2 && kvp.Value[0] == "true")
-                {
-                    state.PaymentData[kvp.Key] = "true";
-                }
-                else
-                {
-                    state.PaymentData[kvp.Key] = kvp.Value.ToString();
-                }
+                var v = pair.Value;
+                state.PaymentData[pair.Key] = v.Count == 2 && v[0] != null && v[0] == "true"
+                    ? "true"
+                    : v.ToString();
             }
 
-            // Validate info
-            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
+            // Validate payment data.
+            var validationResult = await paymentProvider.Value.ValidatePaymentDataAsync(form);
+            validationResult.AddToModelState(ModelState);
+
+            if (!ModelState.IsValid)
             {
                 return await PaymentMethod();
             }
+
+            HttpContext.Session.TrySetObject("OrderPaymentInfo", await paymentProvider.Value.GetPaymentInfoAsync(form));
+            state.PaymentSummary = await paymentProvider.Value.GetPaymentSummaryAsync();
 
             return RedirectToAction(nameof(Confirm));
         }
@@ -549,11 +534,6 @@ namespace Smartstore.Web.Controllers
             if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new EmptyResult();
-            }
-
-            if (paymentMethodSystemName.IsEmpty())
-            {
-                return new NotFoundResult();
             }
 
             var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethodSystemName);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -9,38 +10,44 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly SmartDbContext _db;
 
         public BillingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
-            : base(CheckoutRequirement.BillingAddress, httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _db = db;
         }
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart)
+        public override int Order => 10;
+
+        protected override RedirectToActionResult FulfillResult
+            => CheckoutWorkflow.RedirectToCheckout("BillingAddress");
+
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
         {
-            if (cart.Customer.BillingAddressId == null)
+            var customer = cart.Customer;
+
+            if (model != null 
+                && model is int addressId 
+                && IsSameRoute(HttpMethods.Post, "SelectBillingAddress"))
             {
-                return false;
-            }
-
-            await _db.LoadReferenceAsync(cart.Customer, x => x.BillingAddress);
-
-            return cart.Customer.BillingAddress != null;
-        }
-
-        public override async Task<bool> AdvanceAsync(ShoppingCart cart, object model)
-        {
-            if (model is int addressId)
-            {
-                var address = cart.Customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address != null)
                 {
-                    cart.Customer.BillingAddress = address;
+                    customer.BillingAddress = address;
                     await _db.SaveChangesAsync();
 
                     return true;
                 }
+
+                return false;
             }
 
-            return false;
+            if (customer.BillingAddressId == null)
+            {
+                return false;
+            }
+
+            await _db.LoadReferenceAsync(customer, x => x.BillingAddress);
+
+            return customer.BillingAddress != null;
         }
     }
 }
