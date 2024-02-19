@@ -11,15 +11,17 @@
 <script src="~/admin/js/admin.dashboard.js" sm-target-zone="scripts" sm-key="dashboard"></script>
 
 <div class="report chart-colors" id="orders-report">
-    <div class="report-title-row">
-        <div class="report-title pr-3">@T("Admin.Orders")</div>
-        <div class="pl-1 fs-h5 pr-3">
-            <span id="orders-sum-amount" class="text-muted text-nowrap"></span>
+    <div class="report-title-row flex-wrap">
+        <div class="d-flex flex-nowrap flex-grow-1">
+            <div class="report-title pr-3">@T("Admin.Orders")</div>
+            <div class="pl-1 fs-h5 pr-3">
+                <span id="orders-sum-amount" class="text-muted text-nowrap"></span>
+            </div>
+            <div class="fs-h6 font-weight-medium">
+                <span id="orders-delta-percentage"></span><span id="orders-delta-percentage-chevron" class="chevron pl-1 d-none"></span>
+            </div>
         </div>
-        <div class="fs-h6 font-weight-medium">
-            <span id="orders-delta-percentage"></span><span id="orders-delta-percentage-chevron" class="chevron pl-1 d-none"></span>
-        </div>
-        <div class="btn-group btn-group-toggle ml-auto flex-wrap" data-toggle="buttons">
+        <div class="btn-group btn-group-toggle flex-nowrap" data-toggle="buttons">
             <label class="btn btn-secondary btn-dashboard active">
                 <input type="radio" name="orders-toggle" data-period="0" autocomplete="off" checked>
                 @T("Admin.Report.Today")

@@ -3,9 +3,9 @@
 @model DashboardTopCustomersModel
 
 <div class="report">
-    <div class="report-title-row">
-        <div class="report-title">@T("Admin.SalesReport.TopCustomers")</div>
-        <nav class="ml-auto">
+    <div class="report-title-row flex-wrap">
+        <div class="report-title flex-grow-1 mr-3">@T("Admin.SalesReport.TopCustomers")</div>
+        <nav>
             <div class="nav btn-group" role="tablist">
                 <a class="btn btn-secondary btn-dashboard nav-item active" id="customers-quantity-tab" data-toggle="tab" href="#customers-quantity" role="tab" aria-controls="customers-quantity" aria-selected="true">@T("Admin.SalesReport.ByQuantity")</a>
                 <a class="btn btn-secondary btn-dashboard nav-item" id="customers-amount-tab" data-toggle="tab" href="#customers-amount" role="tab" aria-controls="customers-amount" aria-selected="false">@T("Admin.SalesReport.ByAmount")</a>
