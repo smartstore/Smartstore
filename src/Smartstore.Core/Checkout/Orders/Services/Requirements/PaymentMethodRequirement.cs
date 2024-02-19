@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -26,9 +25,9 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IActionContextAccessor actionContextAccessor,
+            IHttpContextAccessor httpContextAccessor,
             PaymentSettings paymentSettings)
-            : base(actionContextAccessor)
+            : base(httpContextAccessor)
         {
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
@@ -41,7 +40,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         protected override RedirectToActionResult FulfillResult
             => CheckoutWorkflow.RedirectToCheckout("PaymentMethod");
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart,  object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
@@ -82,8 +81,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
                 else
                 {
-                    var modelState = _actionContextAccessor.ActionContext.ModelState;
-                    validationResult.AddToModelState(modelState);
+                    // TODO: (mg)(quick-checkout) howto ModelStateError?
+                    //validationResult.Errors.Each(x => ));
                 }
 
                 return validationResult.IsValid;

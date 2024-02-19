@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -10,8 +9,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
     {
         private readonly SmartDbContext _db;
 
-        public ShippingAddressRequirement(SmartDbContext db, IActionContextAccessor actionContextAccessor)
-            : base(actionContextAccessor)
+        public ShippingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _db = db;
         }

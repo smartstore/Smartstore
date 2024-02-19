@@ -9,7 +9,17 @@ namespace Smartstore.Web.Models.Checkout
 {
     public static partial class CheckoutAddressMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<Address> entity,
+        public static async Task<CheckoutAddressModel> MapAsync(this IEnumerable<Address> entities,
+            bool shipping,
+            int? selectedCountryId = null)
+        {
+            var model = new CheckoutAddressModel();
+            await entities.MapAsync(model, shipping, selectedCountryId);
+
+            return model;
+        }
+
+        public static async Task MapAsync(this IEnumerable<Address> entities,
             CheckoutAddressModel model,
             bool shipping,
             int? selectedCountryId)
@@ -18,7 +28,7 @@ namespace Smartstore.Web.Models.Checkout
             parameters.SelectedCountryId = selectedCountryId;
             parameters.Shipping = shipping;
 
-            await MapperFactory.MapAsync(entity, model, parameters);
+            await MapperFactory.MapAsync(entities, model, parameters);
         }
     }
 
@@ -40,7 +50,7 @@ namespace Smartstore.Web.Models.Checkout
 
         public override async Task MapAsync(IEnumerable<Address> from, CheckoutAddressModel to, dynamic parameters = null)
         {
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(to);
 
             var shipping = parameters?.Shipping == true;
             var selectedCountryId = parameters?.SelectedCountryId as int?;

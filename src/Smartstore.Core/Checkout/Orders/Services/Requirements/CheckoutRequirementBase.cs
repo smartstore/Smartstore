@@ -1,23 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public abstract class CheckoutRequirementBase : ICheckoutRequirement
     {
-        protected readonly IActionContextAccessor _actionContextAccessor;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        protected CheckoutRequirementBase(IActionContextAccessor actionContextAccessor)
+        protected CheckoutRequirementBase(IHttpContextAccessor httpContextAccessor)
         {
-            _actionContextAccessor = actionContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public abstract int Order { get; }
 
         protected HttpContext HttpContext
-            => _actionContextAccessor.ActionContext.HttpContext;
+            => _httpContextAccessor.HttpContext;
 
         protected abstract RedirectToActionResult FulfillResult { get; }
 
@@ -29,9 +28,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             var request = HttpContext.Request;
             var result = FulfillResult;
 
-            var doNotRedirect = request.RouteValues.IsSameRoute(result.RouteValues.GetAreaName(), result.ControllerName, result.ActionName) &&
-                (request.Method.EqualsNoCase(HttpMethods.Get) || 
-                (request.Method.EqualsNoCase(HttpMethods.Post) && !_actionContextAccessor.ActionContext.ModelState.IsValid));
+            var doNotRedirect = request.Method.EqualsNoCase(HttpMethods.Get) &&
+                request.RouteValues.IsSameRoute(result.RouteValues?.GetAreaName(), result.ControllerName, result.ActionName);
 
             return doNotRedirect ? null : result;
         }

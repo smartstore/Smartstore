@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Autofac;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 
@@ -15,9 +15,9 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public ShippingMethodRequirement(
             IShippingService shippingService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IActionContextAccessor actionContextAccessor,
+            IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings)
-            : base(actionContextAccessor)
+            : base(httpContextAccessor)
         {
             _shippingService = shippingService;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -33,6 +33,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         {
             var customer = cart.Customer;
             var attributes = customer.GenericAttributes;
+            var options = attributes.OfferedShippingOptions;
+            var saveAttributes = false;
 
             if (model != null
                 && model is string shippingOption 
@@ -46,20 +48,19 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                 var selectedName = splittedOption[0];
                 var providerSystemName = splittedOption[1];
-                var shippingOptions = attributes.OfferedShippingOptions;
 
-                if (shippingOptions.IsNullOrEmpty())
+                if (options.IsNullOrEmpty())
                 {
                     // Shipping option was not found in customer attributes. Load via shipping service.
-                    shippingOptions = await GetShippingOptions(cart, providerSystemName);
+                    options = await GetShippingOptions(cart, providerSystemName);
                 }
                 else
                 {
                     // Loaded cached results. Filter result by a chosen shipping rate computation method.
-                    shippingOptions = shippingOptions.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
+                    options = options.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
                 }
 
-                var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
+                var selectedShippingOption = options.Find(x => x.Name.EqualsNoCase(selectedName));
                 if (selectedShippingOption != null)
                 {
                     // Save selected shipping option in customer attributes.
@@ -87,15 +88,15 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return true;
             }
 
-            var saveAttributes = false;
-            var options = attributes.OfferedShippingOptions;
-
-            if (options == null)
+            $"- ShippingMethodRequirement: {HttpContext.Request.RouteValues.GenerateRouteIdentifier()}".Dump();
+            
+            if (options.IsNullOrEmpty())
             {
                 options = await GetShippingOptions(cart);
-
-                // TODO: (mg)(quick-checkout) CheckoutShippingMethodMapper: updating customer.GenericAttributes.OfferedShippingOptions is redundant. Done by this requirement.
-                // TODO: (mg)(quick-checkout) CheckoutShippingMethodMapper: use customer.GenericAttributes.OfferedShippingOptions instead of "ShippingOptionResponse" parameter.
+                if (options.Count == 0)
+                {
+                    return false;
+                }
 
                 // Performance optimization. Cache returned shipping options.
                 // We will use them later (after a customer has selected an option).
@@ -122,7 +123,15 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         private async Task<List<ShippingOption>> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)
         {
-            return (await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, providerSystemName, cart.StoreId)).ShippingOptions;
+            var response = await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, providerSystemName, cart.StoreId);
+
+            if (response.ShippingOptions.Count == 0)
+            {
+                // TODO: (mg)(quick-checkout) if Checkout.ShippingMethod then provide errors
+                //response.Errors.Each(x => );
+            }
+
+            return response.ShippingOptions;
         }
     }
 }
