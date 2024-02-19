@@ -183,10 +183,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ShowOnPasswordRecoveryPage",
                 "Show on password recovery page",
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
-
-            builder.AddOrUpdate("Checkout.SpecifyDifferingShippingAddress",
-                "I would like to specify a different delivery address after defining my billing address.",
-                "Ich möchte nach der Festlegung meiner Rechnungsadresse eine abweichende Lieferanschrift festlegen.");
         }
     }
 }

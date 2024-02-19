@@ -180,7 +180,7 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> SelectBillingAddress(int addressId, bool shippingAddressDiffers)
+        public async Task<IActionResult> SelectBillingAddress(int addressId)
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
@@ -193,7 +193,7 @@ namespace Smartstore.Web.Controllers
 
             await _db.SaveChangesAsync();
 
-            return RedirectToAction(shippingAddressDiffers ? nameof(ShippingAddress) : nameof(ShippingMethod));
+            return RedirectToAction(nameof(ShippingAddress));
         }
 
         [HttpPost, ActionName("BillingAddress")]
