@@ -8,6 +8,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
+        const string ActionName = "ShippingMethod";
+
         private readonly IShippingService _shippingService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShippingSettings _shippingSettings;
@@ -27,9 +29,9 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override int Order => 30;
 
         protected override RedirectToActionResult FulfillResult
-            => CheckoutWorkflow.RedirectToCheckout("ShippingMethod");
+            => CheckoutWorkflow.RedirectToCheckout(ActionName);
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
         {
             var customer = cart.Customer;
             var attributes = customer.GenericAttributes;
@@ -38,7 +40,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (model != null
                 && model is string shippingOption 
-                && IsSameRoute(HttpMethods.Post, "ShippingMethod"))
+                && IsSameRoute(HttpMethods.Post, ActionName))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
@@ -52,7 +54,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 if (options.IsNullOrEmpty())
                 {
                     // Shipping option was not found in customer attributes. Load via shipping service.
-                    options = await GetShippingOptions(cart, providerSystemName);
+                    options = await GetShippingOptions(cart, errors, providerSystemName);
                 }
                 else
                 {
@@ -87,12 +89,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             {
                 return true;
             }
-
-            $"- ShippingMethodRequirement: {HttpContext.Request.RouteValues.GenerateRouteIdentifier()}".Dump();
             
             if (options.IsNullOrEmpty())
             {
-                options = await GetShippingOptions(cart);
+                options = await GetShippingOptions(cart, errors);
                 if (options.Count == 0)
                 {
                     return false;
@@ -121,14 +121,13 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return attributes.SelectedShippingOption != null;
         }
 
-        private async Task<List<ShippingOption>> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)
+        private async Task<List<ShippingOption>> GetShippingOptions(ShoppingCart cart, IList<CheckoutWorkflowError> errors, string providerSystemName = null)
         {
             var response = await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, providerSystemName, cart.StoreId);
 
-            if (response.ShippingOptions.Count == 0)
+            if (response.ShippingOptions.Count == 0 && IsSameRoute(HttpMethods.Get, ActionName))
             {
-                // TODO: (mg)(quick-checkout) if Checkout.ShippingMethod then provide errors
-                //response.Errors.Each(x => );
+                response.Errors.Each(x => errors.Add(new(string.Empty, x)));
             }
 
             return response.ShippingOptions;

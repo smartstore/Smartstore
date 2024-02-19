@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         protected abstract RedirectToActionResult FulfillResult { get; }
 
-        public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
             => Task.FromResult(false);
 
         public virtual IActionResult Fulfill()

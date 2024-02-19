@@ -73,9 +73,9 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/checkout", Name = "Checkout")]
         public async Task<IActionResult> Index()
         {
-            var result = await _checkoutWorkflow.StartAsync();
+            var start = await _checkoutWorkflow.StartAsync();
 
-            return result ?? RedirectToRoute("ShoppingCart");
+            return start.Result ?? RedirectToRoute("ShoppingCart");
 
             //var storeId = Services.StoreContext.CurrentStore.Id;
             //var customer = Services.WorkContext.CurrentCustomer;
@@ -145,7 +145,9 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> BillingAddress()
         {
-            return await _checkoutWorkflow.AdvanceAsync() ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
+            var advance = await _checkoutWorkflow.AdvanceAsync();
+
+            return advance.Result ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
@@ -168,7 +170,9 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectBillingAddress(int addressId)
         {
-            return await _checkoutWorkflow.AdvanceAsync() ?? RedirectToAction(nameof(BillingAddress));
+            var advance = await _checkoutWorkflow.AdvanceAsync();
+
+            return advance.Result ?? RedirectToAction(nameof(BillingAddress));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
@@ -247,7 +251,9 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            return await _checkoutWorkflow.AdvanceAsync() ?? View(_workContext.CurrentCustomer.Addresses.MapAsync(true));
+            var advance = await _checkoutWorkflow.AdvanceAsync();
+
+            return advance.Result ?? View(_workContext.CurrentCustomer.Addresses.MapAsync(true));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
@@ -279,7 +285,9 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectShippingAddress(int addressId)
         {
-            return await _checkoutWorkflow.AdvanceAsync() ?? RedirectToAction(nameof(ShippingAddress));
+            var advance = await _checkoutWorkflow.AdvanceAsync();
+
+            return advance.Result ?? RedirectToAction(nameof(ShippingAddress));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
@@ -297,14 +305,16 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingMethod()
         {
-            var result = await _checkoutWorkflow.AdvanceAsync();
-            if (result != null)
+            var advance = await _checkoutWorkflow.AdvanceAsync();
+            if (advance.Result != null)
             {
-                return result;
+                return advance.Result;
             }
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutShippingMethodModel>(cart);
+
+            advance.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
             return View(model);
 

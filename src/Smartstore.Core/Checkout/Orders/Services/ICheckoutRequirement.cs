@@ -29,7 +29,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement.
         /// </param>
         /// <returns><c>true</c> if the requirement is fulfilled, otherwise <c>false</c>.</returns>
-        Task<bool> IsFulfilledAsync(ShoppingCart cart, object? model = null);
+        Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object? model = null);
 
         /// <summary>
         /// Gets the result to fulfill the requirement.

@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         protected override RedirectToActionResult FulfillResult
             => CheckoutWorkflow.RedirectToCheckout("BillingAddress");
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
         {
             var customer = cart.Customer;
 

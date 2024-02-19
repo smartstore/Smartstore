@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Initializes and starts the checkout
         /// </summary>
         /// <returns>The first checkout page.</returns>
-        Task<IActionResult> StartAsync();
+        Task<CheckoutWorkflowResult> StartAsync();
 
         /// <summary>
         /// Checks whether all checkout requirements are fulfilled.
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// A redirect result to the confirmation page if all requirements are fulfilled.
         /// <c>null</c> if the requirement of the current page is not fulfilled and the view of the current page should be displayed.
         /// </returns>
-        Task<IActionResult?> AdvanceAsync(object? model = null);
+        Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
 
         /// <summary>
         /// Completes the checkout and places a new order.
@@ -37,6 +37,18 @@ namespace Smartstore.Core.Checkout.Orders
         /// <returns>
         /// Depending of the result of the processing, a redirect result to a checkout, confirm or completed page.
         /// </returns>
-        Task<IActionResult> CompleteAsync();
+        Task<CheckoutWorkflowResult> CompleteAsync();
+    }
+
+    public partial class CheckoutWorkflowResult(IActionResult? result, List<CheckoutWorkflowError>? errors = null)
+    {
+        public IActionResult? Result { get; } = result;
+        public IList<CheckoutWorkflowError> Errors { get; } = errors ?? [];
+    }
+
+    public class CheckoutWorkflowError(string propertyName, string errorMessage)
+    {
+        public string PropertyName { get; } = propertyName.EmptyNull();
+        public string ErrorMessage { get; } = Guard.NotNull<string>(errorMessage);
     }
 }

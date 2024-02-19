@@ -64,7 +64,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<IActionResult> StartAsync()
+        public virtual async Task<CheckoutWorkflowResult> StartAsync()
         {
             var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Checkout.Orders
             var preliminaryResult = Preliminary(cart);
             if (preliminaryResult != null)
             {
-                return preliminaryResult;
+                return new(preliminaryResult);
             }
 
             cart.Customer.ResetCheckoutData(store.Id);
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (validatingCartEvent.Result != null)
                 {
-                    return validatingCartEvent.Result;
+                    return new(validatingCartEvent.Result);
                 }
 
                 // Validate each shopping cart item.
@@ -115,7 +115,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (warnings.Count > 0)
             {
                 warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
-                return RedirectToCart();
+                return new(RedirectToCart());
             }
 
             await _db.SaveChangesAsync();
@@ -123,27 +123,37 @@ namespace Smartstore.Core.Checkout.Orders
             return await AdvanceAsync();
         }
 
-        public virtual async Task<IActionResult> AdvanceAsync(object model = null)
+        public virtual async Task<CheckoutWorkflowResult> AdvanceAsync(object model = null)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var preliminaryResult = Preliminary(cart);
             if (preliminaryResult != null)
             {
-                return preliminaryResult;
+                return new(preliminaryResult);
             }
+
+            var errors = new List<CheckoutWorkflowError>();
 
             foreach (var requirement in _requirements.OrderBy(x => x.Order))
             {
-                if (!await requirement.IsFulfilledAsync(cart, model))
+                if (!await requirement.IsFulfilledAsync(cart, errors, model))
                 {
-                    return requirement.Fulfill();
+                    if (errors.Count > 0)
+                    {
+                        // Model state or view model error. Do not redirect.
+                        return new(null, errors);
+                    }
+                    else
+                    {
+                        return new(requirement.Fulfill());
+                    }
                 }
             }
 
-            return RedirectToCheckout("Confirm");
+            return new(RedirectToCheckout("Confirm"));
         }
 
-        public virtual async Task<IActionResult> CompleteAsync()
+        public virtual async Task<CheckoutWorkflowResult> CompleteAsync()
         {
             var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
@@ -152,7 +162,7 @@ namespace Smartstore.Core.Checkout.Orders
             var preliminaryResult = Preliminary(cart);
             if (preliminaryResult != null)
             {
-                return preliminaryResult;
+                return new(preliminaryResult);
             }
 
             var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
@@ -160,20 +170,20 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (validatingCartEvent.Result != null)
             {
-                return validatingCartEvent.Result;
+                return new(validatingCartEvent.Result);
             }
 
             if (warnings.Count > 0)
             {
                 warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
-                return RedirectToCart();
+                return new(RedirectToCart());
             }
 
             // Prevent two orders from being placed within a time span of x seconds.
             if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(cart.Customer, store))
             {
                 _notifier.Warning(T("Checkout.MinOrderPlacementInterval"));
-                return RedirectToCheckout("Confirm");
+                return new(RedirectToCheckout("Confirm"));
             }
 
             OrderPlacementResult placeOrderResult = null;
@@ -189,7 +199,7 @@ namespace Smartstore.Core.Checkout.Orders
                     if (!cartTotalBase.Total.HasValue && cartTotalBase.Total.Value != decimal.Zero
                         || !_checkoutStateAccessor.CheckoutState.IsPaymentSelectionSkipped)
                     {
-                        return RedirectToCheckout("PaymentMethod");
+                        return new(RedirectToCheckout("PaymentMethod"));
                     }
 
                     paymentRequest = new();
@@ -210,20 +220,20 @@ namespace Smartstore.Core.Checkout.Orders
             }
             catch (PaymentException ex)
             {
-                return PaymentFailure(ex);
+                return new(PaymentFailure(ex));
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 _notifier.Error(ex.Message);
 
-                return RedirectToCheckout("Confirm");
+                return new(RedirectToCheckout("Confirm"));
             }
 
             if (placeOrderResult == null || !placeOrderResult.Success)
             {
                 placeOrderResult?.Errors?.Take(_maxWarnings)?.Each(x => _notifier.Warning(x));
-                return RedirectToCheckout("Confirm");
+                return new(RedirectToCheckout("Confirm"));
             }
 
             var postPaymentRequest = new PostProcessPaymentRequest
@@ -237,12 +247,12 @@ namespace Smartstore.Core.Checkout.Orders
             }
             catch (PaymentException ex)
             {
-                return PaymentFailure(ex);
+                return new(PaymentFailure(ex));
             }
             catch (Exception ex)
             {
                 _notifier.Error(ex.Message);
-                return RedirectToCheckout("Confirm");
+                return new(RedirectToCheckout("Confirm"));
             }
             finally
             {
@@ -252,10 +262,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (postPaymentRequest.RedirectUrl.HasValue())
             {
-                return new RedirectResult(postPaymentRequest.RedirectUrl);
+                return new(new RedirectResult(postPaymentRequest.RedirectUrl));
             }
 
-            return RedirectToCheckout("Completed");
+            return new(RedirectToCheckout("Completed"));
 
             RedirectToActionResult PaymentFailure(PaymentException ex)
             {

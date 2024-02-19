@@ -8,6 +8,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class PaymentMethodRequirement : CheckoutRequirementBase
     {
+        const string ActionName = "PaymentMethod";
+
         private static readonly PaymentMethodType[] _paymentTypes =
         [
             PaymentMethodType.Standard,
@@ -38,16 +40,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override int Order => 40;
 
         protected override RedirectToActionResult FulfillResult
-            => CheckoutWorkflow.RedirectToCheckout("PaymentMethod");
+            => CheckoutWorkflow.RedirectToCheckout(ActionName);
 
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart,  object model = null)
+        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
 
             if (model != null 
                 && model is string paymentMethod 
-                && IsSameRoute(HttpMethods.Post, "PaymentMethod"))
+                && IsSameRoute(HttpMethods.Post, ActionName))
             {
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
                 if (provider == null)
@@ -81,8 +83,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
                 else
                 {
-                    // TODO: (mg)(quick-checkout) howto ModelStateError?
-                    //validationResult.Errors.Each(x => ));
+                    validationResult.Errors.Each(x => errors.Add(new(x.PropertyName, x.ErrorMessage)));
                 }
 
                 return validationResult.IsValid;
