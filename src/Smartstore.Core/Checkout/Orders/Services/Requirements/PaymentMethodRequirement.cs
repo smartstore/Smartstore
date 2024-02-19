@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -8,8 +7,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class PaymentMethodRequirement : CheckoutRequirementBase
     {
-        const string ActionName = "PaymentMethod";
-
         private static readonly PaymentMethodType[] _paymentTypes =
         [
             PaymentMethodType.Standard,
@@ -37,12 +34,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _paymentSettings = paymentSettings;
         }
 
+        protected override string ActionName => "PaymentMethod";
+
         public override int Order => 40;
 
-        protected override RedirectToActionResult FulfillResult
-            => CheckoutWorkflow.RedirectToCheckout(ActionName);
-
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
+        public override async Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
@@ -54,7 +50,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
                 if (provider == null)
                 {
-                    return false;
+                    return (false, null);
                 }
 
                 attributes.SelectedPaymentMethod = paymentMethod;
@@ -80,20 +76,24 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
                     HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
                     state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
+
+                    return (true, null);
                 }
                 else
                 {
-                    validationResult.Errors.Each(x => errors.Add(new(x.PropertyName, x.ErrorMessage)));
-                }
+                    var errors = validationResult.Errors
+                        .Select(x => new CheckoutWorkflowError(x.PropertyName, x.ErrorMessage))
+                        .ToArray();
 
-                return validationResult.IsValid;
+                    return (false, errors);
+                }
             }
 
             if (attributes.SelectedPaymentMethod.HasValue() 
                 || !state.IsPaymentRequired 
                 || state.IsPaymentSelectionSkipped)
             {
-                return true;
+                return (true, null);
             }
 
             Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             if (!state.IsPaymentRequired)
             {
                 state.IsPaymentSelectionSkipped = true;
-                return true;
+                return (true, null);
             }
 
             // TODO: (mg)(quick-checkout) perf: LoadActivePaymentProvidersAsync called too often (IsFulfilledAsync, AdvanceAsync, CheckoutPaymentMethodMapper).
@@ -127,7 +127,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 await attributes.SaveChangesAsync();
             }
 
-            return attributes.SelectedPaymentMethod.HasValue();
+            return (attributes.SelectedPaymentMethod.HasValue(), null);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// <returns>The first checkout page.</returns>
         Task<CheckoutWorkflowResult> StartAsync();
 
+        Task<CheckoutWorkflowResult> StayAsync(object? model = null);
+
         /// <summary>
         /// Checks whether all checkout requirements are fulfilled.
         /// </summary>
@@ -40,10 +42,10 @@ namespace Smartstore.Core.Checkout.Orders
         Task<CheckoutWorkflowResult> CompleteAsync();
     }
 
-    public partial class CheckoutWorkflowResult(IActionResult? result, List<CheckoutWorkflowError>? errors = null)
+    public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)
     {
         public IActionResult? Result { get; } = result;
-        public IList<CheckoutWorkflowError> Errors { get; } = errors ?? [];
+        public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
     }
 
     public class CheckoutWorkflowError(string propertyName, string errorMessage)

@@ -145,9 +145,9 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> BillingAddress()
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            await _checkoutWorkflow.StayAsync();
 
-            return advance.Result ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
+            return View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
@@ -251,9 +251,9 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            await _checkoutWorkflow.StayAsync();
 
-            return advance.Result ?? View(_workContext.CurrentCustomer.Addresses.MapAsync(true));
+            return View(_workContext.CurrentCustomer.Addresses.MapAsync(true));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
@@ -305,16 +305,12 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingMethod()
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
-            if (advance.Result != null)
-            {
-                return advance.Result;
-            }
+            var stay = await _checkoutWorkflow.StayAsync();
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutShippingMethodModel>(cart);
 
-            advance.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
+            stay.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
             return View(model);
 
@@ -370,71 +366,75 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectShippingMethod(string shippingOption)
         {
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var customer = Services.WorkContext.CurrentCustomer;
+            var advance = await _checkoutWorkflow.AdvanceAsync();
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
-            if (!cart.HasItems)
-            {
-                return RedirectToRoute("ShoppingCart");
-            }
+            return advance.Result ?? RedirectToAction(nameof(ShippingMethod));
 
-            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
-            {
-                return ChallengeOrForbid();
-            }
+            //var storeId = Services.StoreContext.CurrentStore.Id;
+            //var customer = Services.WorkContext.CurrentCustomer;
 
-            if (!cart.IsShippingRequired())
-            {
-                customer.GenericAttributes.SelectedShippingOption = null;
-                await customer.GenericAttributes.SaveChangesAsync();
+            //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
+            //if (!cart.HasItems)
+            //{
+            //    return RedirectToRoute("ShoppingCart");
+            //}
 
-                return RedirectToAction(nameof(PaymentMethod));
-            }
+            //if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            //{
+            //    return ChallengeOrForbid();
+            //}
 
-            // Parse selected method 
-            if (!shippingOption.HasValue())
-            {
-                return RedirectToAction(nameof(ShippingMethod));
-            }
+            //if (!cart.IsShippingRequired())
+            //{
+            //    customer.GenericAttributes.SelectedShippingOption = null;
+            //    await customer.GenericAttributes.SaveChangesAsync();
 
-            var splittedOption = shippingOption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
-            if (splittedOption.Length != 2)
-            {
-                return RedirectToAction(nameof(ShippingMethod));
-            }
+            //    return RedirectToAction(nameof(PaymentMethod));
+            //}
 
-            var selectedName = splittedOption[0];
-            var shippingRateComputationMethodSystemName = splittedOption[1];
+            //// Parse selected method 
+            //if (!shippingOption.HasValue())
+            //{
+            //    return RedirectToAction(nameof(ShippingMethod));
+            //}
 
-            // Find shipping option. For performance reasons, try cached first.
-            var shippingOptions = customer.GenericAttributes.OfferedShippingOptions;
-            if (shippingOptions == null || !shippingOptions.Any())
-            {
-                // Shipping option was not found in customer attributes. Load via shipping service.
-                shippingOptions = (await _shippingService
-                    .GetShippingOptionsAsync(cart, customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId))
-                    .ShippingOptions;
-            }
-            else
-            {
-                // Loaded cached results. Filter result by a chosen shipping rate computation method.
-                shippingOptions = shippingOptions
-                    .Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(shippingRateComputationMethodSystemName))
-                    .ToList();
-            }
+            //var splittedOption = shippingOption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
+            //if (splittedOption.Length != 2)
+            //{
+            //    return RedirectToAction(nameof(ShippingMethod));
+            //}
 
-            var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
-            if (selectedShippingOption == null)
-            {
-                return RedirectToAction(nameof(ShippingMethod));
-            }
+            //var selectedName = splittedOption[0];
+            //var shippingRateComputationMethodSystemName = splittedOption[1];
 
-            // Save selected shipping option in customer attributes.
-            customer.GenericAttributes.SelectedShippingOption = selectedShippingOption;
-            await customer.GenericAttributes.SaveChangesAsync();
+            //// Find shipping option. For performance reasons, try cached first.
+            //var shippingOptions = customer.GenericAttributes.OfferedShippingOptions;
+            //if (shippingOptions == null || !shippingOptions.Any())
+            //{
+            //    // Shipping option was not found in customer attributes. Load via shipping service.
+            //    shippingOptions = (await _shippingService
+            //        .GetShippingOptionsAsync(cart, customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId))
+            //        .ShippingOptions;
+            //}
+            //else
+            //{
+            //    // Loaded cached results. Filter result by a chosen shipping rate computation method.
+            //    shippingOptions = shippingOptions
+            //        .Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(shippingRateComputationMethodSystemName))
+            //        .ToList();
+            //}
 
-            return RedirectToAction(nameof(PaymentMethod));
+            //var selectedShippingOption = shippingOptions.Find(x => x.Name.EqualsNoCase(selectedName));
+            //if (selectedShippingOption == null)
+            //{
+            //    return RedirectToAction(nameof(ShippingMethod));
+            //}
+
+            //// Save selected shipping option in customer attributes.
+            //customer.GenericAttributes.SelectedShippingOption = selectedShippingOption;
+            //await customer.GenericAttributes.SaveChangesAsync();
+
+            //return RedirectToAction(nameof(PaymentMethod));
         }
 
         public async Task<IActionResult> PaymentMethod()

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -15,12 +14,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _db = db;
         }
 
+        protected override string ActionName => "BillingAddress";
+
         public override int Order => 10;
 
-        protected override RedirectToActionResult FulfillResult
-            => CheckoutWorkflow.RedirectToCheckout("BillingAddress");
-
-        public override async Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
+        public override async Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
 
@@ -34,20 +32,20 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     customer.BillingAddress = address;
                     await _db.SaveChangesAsync();
 
-                    return true;
+                    return (true, null);
                 }
 
-                return false;
+                return (false, null);
             }
 
             if (customer.BillingAddressId == null)
             {
-                return false;
+                return (false, null);
             }
 
             await _db.LoadReferenceAsync(customer, x => x.BillingAddress);
 
-            return customer.BillingAddress != null;
+            return (customer.BillingAddress != null, null);
         }
     }
 }

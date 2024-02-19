@@ -20,6 +20,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         int Order { get; }
 
+        bool IsRequirementFor(string action, string controller = "Checkout", string? area = null);
+
         /// <summary>
         /// Gets a value indicating whether the requirement is fulfilled.
         /// The user is redirected to <see cref="Fulfill"/> if the requirement is not fulfilled.
@@ -29,7 +31,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement.
         /// </param>
         /// <returns><c>true</c> if the requirement is fulfilled, otherwise <c>false</c>.</returns>
-        Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object? model = null);
+        Task<(bool Fulfilled, CheckoutWorkflowError[]? Errors)> IsFulfilledAsync(ShoppingCart cart, object? model = null);
 
         /// <summary>
         /// Gets the result to fulfill the requirement.

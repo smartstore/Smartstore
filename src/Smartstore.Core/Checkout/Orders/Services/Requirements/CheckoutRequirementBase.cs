@@ -13,25 +13,34 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public abstract int Order { get; }
-
         protected HttpContext HttpContext
             => _httpContextAccessor.HttpContext;
 
-        protected abstract RedirectToActionResult FulfillResult { get; }
+        protected abstract string ActionName { get; }
 
-        public virtual Task<bool> IsFulfilledAsync(ShoppingCart cart, IList<CheckoutWorkflowError> errors, object model = null)
-            => Task.FromResult(false);
+        protected virtual string ControllerName => "Checkout";
+
+        protected virtual string Area => null;
+
+        public abstract int Order { get; }
+
+        public bool IsRequirementFor(string action, string controller = "Checkout", string area = null)
+            => action.EqualsNoCase(ActionName) && controller.EqualsNoCase(ControllerName) && area.EqualsNoCase(Area);
+
+        public virtual Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
+            => Task.FromResult<(bool, CheckoutWorkflowError[])>((false, null));
 
         public virtual IActionResult Fulfill()
         {
             var request = HttpContext.Request;
-            var result = FulfillResult;
 
-            var doNotRedirect = request.Method.EqualsNoCase(HttpMethods.Get) &&
-                request.RouteValues.IsSameRoute(result.RouteValues?.GetAreaName(), result.ControllerName, result.ActionName);
+            if (request.Method.EqualsNoCase(HttpMethods.Get) && request.RouteValues.IsSameRoute(Area, ControllerName, ActionName))
+            {
+                // Avoid infinite redirection loop.
+                return null;
+            }
 
-            return doNotRedirect ? null : result;
+            return new RedirectToActionResult(ActionName, ControllerName, Area == null ? null : new { area = Area });
         }
 
         protected bool IsSameRoute(string method, string action, string controller = "Checkout", string area = null)
@@ -41,3 +50,4 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         }
     }
 }
+

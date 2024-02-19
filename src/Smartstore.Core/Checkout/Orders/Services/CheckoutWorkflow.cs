@@ -123,6 +123,27 @@ namespace Smartstore.Core.Checkout.Orders
             return await AdvanceAsync();
         }
 
+        public virtual async Task<CheckoutWorkflowResult> StayAsync(object model = null)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+            var preliminaryResult = Preliminary(cart);
+            if (preliminaryResult != null)
+            {
+                return new(preliminaryResult);
+            }
+
+            var routeValues = _httpContextAccessor.HttpContext.Request.RouteValues;
+            var action = routeValues.GetActionName();
+            var controller = routeValues.GetControllerName();
+            var area = routeValues.GetAreaName();
+
+            var requirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller, area));
+
+            var (_, errors) = await requirement?.IsFulfilledAsync(cart, model);
+
+            return new(null, errors);
+        }
+
         public virtual async Task<CheckoutWorkflowResult> AdvanceAsync(object model = null)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
@@ -132,21 +153,12 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
-            var errors = new List<CheckoutWorkflowError>();
-
             foreach (var requirement in _requirements.OrderBy(x => x.Order))
             {
-                if (!await requirement.IsFulfilledAsync(cart, errors, model))
+                var (fulfilled, errors) = await requirement.IsFulfilledAsync(cart, model);
+                if (!fulfilled)
                 {
-                    if (errors.Count > 0)
-                    {
-                        // Model state or view model error. Do not redirect.
-                        return new(null, errors);
-                    }
-                    else
-                    {
-                        return new(requirement.Fulfill());
-                    }
+                    return new(requirement.Fulfill(), errors);
                 }
             }
 
@@ -227,13 +239,17 @@ namespace Smartstore.Core.Checkout.Orders
                 _logger.Error(ex);
                 _notifier.Error(ex.Message);
 
-                return new(RedirectToCheckout("Confirm"));
+                return new(RedirectToCheckout("Confirm"), [new(string.Empty, ex.Message)]);
             }
 
             if (placeOrderResult == null || !placeOrderResult.Success)
             {
-                placeOrderResult?.Errors?.Take(_maxWarnings)?.Each(x => _notifier.Warning(x));
-                return new(RedirectToCheckout("Confirm"));
+                var errors = placeOrderResult?.Errors
+                    ?.Take(_maxWarnings)
+                    ?.Select(x => new CheckoutWorkflowError(string.Empty, x))
+                    ?.ToArray();
+
+                return new(RedirectToCheckout("Confirm"), errors);
             }
 
             var postPaymentRequest = new PostProcessPaymentRequest
@@ -301,10 +317,10 @@ namespace Smartstore.Core.Checkout.Orders
             return null;
         }
 
-        internal static RedirectToActionResult RedirectToCheckout(string action)
+        private static RedirectToActionResult RedirectToCheckout(string action)
             => new(action, "Checkout", null);
 
-        internal static RedirectToRouteResult RedirectToCart()
+        private static RedirectToRouteResult RedirectToCart()
             => new("ShoppingCart");
     }
 }
