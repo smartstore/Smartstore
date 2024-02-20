@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 30;
 
-        public override async Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
             var attributes = customer.GenericAttributes;
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await attributes.SaveChangesAsync();
                 }
 
-                return (true, null);
+                return new(RequirementFulfilled.Yes);
             }
 
             if (model != null
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
                 {
-                    return (false, null);
+                    return new(RequirementFulfilled.No);
                 }
 
                 var selectedName = splittedOption[0];
@@ -79,12 +79,12 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await attributes.SaveChangesAsync();
                 }
 
-                return (selectedShippingOption != null, errors);
+                return new(selectedShippingOption != null, errors);
             }
 
             if (attributes.SelectedShippingOption != null)
             {
-                return (true, null);
+                return new(RequirementFulfilled.Yes);
             }
             
             if (options.IsNullOrEmpty())
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 (options, errors) = await GetShippingOptions(cart);
                 if (options.Count == 0)
                 {
-                    return (false, errors);
+                    return new(RequirementFulfilled.No, errors);
                 }
 
                 // Performance optimization. Cache returned shipping options.
@@ -115,7 +115,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             // TODO: (mg)(quick-checkout) "HasOnlyOneActiveShippingMethod" is redundant. Instead use customer.GenericAttributes.OfferedShippingOptions.Count == 1
             _checkoutStateAccessor.CheckoutState.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
 
-            return (attributes.SelectedShippingOption != null, errors);
+            var fulfilled = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1
+                ? RequirementFulfilled.Always
+                : (attributes.SelectedShippingOption != null ? RequirementFulfilled.Yes : RequirementFulfilled.No);
+
+            return new(fulfilled, errors);
         }
 
         private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)

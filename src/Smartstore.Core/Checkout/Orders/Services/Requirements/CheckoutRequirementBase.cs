@@ -17,36 +17,33 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             => _httpContextAccessor.HttpContext;
 
         protected abstract string ActionName { get; }
-
         protected virtual string ControllerName => "Checkout";
-
-        protected virtual string Area => null;
 
         public abstract int Order { get; }
 
-        public bool IsRequirementFor(string action, string controller = "Checkout", string area = null)
-            => action.EqualsNoCase(ActionName) && controller.EqualsNoCase(ControllerName) && area.EqualsNoCase(Area);
+        public bool IsRequirementFor(string action, string controller = "Checkout")
+            => action.EqualsNoCase(ActionName) && controller.EqualsNoCase(ControllerName);
 
-        public virtual Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
-            => Task.FromResult<(bool, CheckoutWorkflowError[])>((false, null));
+        public virtual Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
+            => Task.FromResult(new CheckoutRequirementResult(RequirementFulfilled.No));
 
         public virtual IActionResult Fulfill()
         {
             var request = HttpContext.Request;
 
-            if (request.Method.EqualsNoCase(HttpMethods.Get) && request.RouteValues.IsSameRoute(Area, ControllerName, ActionName))
+            if (request.Method.EqualsNoCase(HttpMethods.Get) && request.RouteValues.IsSameRoute(ControllerName, ActionName))
             {
                 // Avoid infinite redirection loop.
                 return null;
             }
 
-            return new RedirectToActionResult(ActionName, ControllerName, Area == null ? null : new { area = Area });
+            return new RedirectToActionResult(ActionName, ControllerName, null);
         }
 
-        protected bool IsSameRoute(string method, string action, string controller = "Checkout", string area = null)
+        protected bool IsSameRoute(string method, string action, string controller = "Checkout")
         {
             var request = HttpContext.Request;
-            return request.Method.EqualsNoCase(method) && request.RouteValues.IsSameRoute(area, controller, action);
+            return request.Method.EqualsNoCase(method) && request.RouteValues.IsSameRoute(controller, action);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 20;
 
-        public override async Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
 
@@ -32,17 +32,17 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     customer.ShippingAddress = address;
                     await _db.SaveChangesAsync();
 
-                    return (true, null);
+                    return new(RequirementFulfilled.Yes);
                 }
 
-                return (false, null);
+                return new(RequirementFulfilled.No);
             }
 
             if (cart.IsShippingRequired())
             {
                 await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
 
-                return (customer.ShippingAddress != null, null);
+                return new(customer.ShippingAddress != null);
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await _db.SaveChangesAsync();
                 }
 
-                return (true, null);
+                return new(RequirementFulfilled.Yes);
             }
         }
     }

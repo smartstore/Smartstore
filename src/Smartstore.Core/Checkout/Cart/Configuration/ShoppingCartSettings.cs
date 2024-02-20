@@ -71,20 +71,33 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool ShowGiftCardBox { get; set; } = true;
 
+        #region Checkout
+
+        /// <summary>
+        /// Gets or sets a value indicating whether quick checkout is activated.
+        /// With quick checkout, checkout steps are skipped for registered customers if the required data is already known.
+        /// </summary>
+        public bool QuickCkeckout { get; set; } = true;
+
         /// <summary>
         /// Gets or sets a value indicating whether to show a comment box on shopping cart page
         /// </summary>
         public bool ShowCommentBox { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to show a revocation waiver checkbox box for ESD products
-        /// </summary>
-        public bool ShowEsdRevocationWaiverBox { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to subscribe to newsletters
         /// </summary>
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to show a legal hint in the order summary
+        /// </summary>
+        public bool ShowConfirmOrderLegalHint { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to show a revocation waiver checkbox box for ESD products
+        /// </summary>
+        public bool ShowEsdRevocationWaiverBox { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to let the customer accept to hand over email address to third party
@@ -96,6 +109,8 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         [LocalizedProperty]
         public string ThirdPartyEmailHandOverLabel { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Gets or sets a number of "Cross-sells" on shopping cart page
@@ -120,11 +135,6 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets a value indicating whether to show product images in the mini-shopping cart block
         /// </summary>
         public bool ShowProductImagesInMiniShoppingCart { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to show a legal hint in the order summary
-        /// </summary>
-        public bool ShowConfirmOrderLegalHint { get; set; }
 
         /// <summary>
         /// Specifies the presentation of delivery times in shopping cart.

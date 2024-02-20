@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 40;
 
-        public override async Task<(bool Fulfilled, CheckoutWorkflowError[] Errors)> IsFulfilledAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
                 if (provider == null)
                 {
-                    return (false, null);
+                    return new(RequirementFulfilled.No);
                 }
 
                 attributes.SelectedPaymentMethod = paymentMethod;
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
                     state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
 
-                    return (true, null);
+                    return new(RequirementFulfilled.Yes);
                 }
                 else
                 {
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                         .Select(x => new CheckoutWorkflowError(x.PropertyName, x.ErrorMessage))
                         .ToArray();
 
-                    return (false, errors);
+                    return new(RequirementFulfilled.No, errors);
                 }
             }
 
@@ -93,7 +93,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 || !state.IsPaymentRequired 
                 || state.IsPaymentSelectionSkipped)
             {
-                return (true, null);
+                return new(RequirementFulfilled.Yes);
             }
 
             Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
@@ -102,11 +102,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             if (!state.IsPaymentRequired)
             {
                 state.IsPaymentSelectionSkipped = true;
-                return (true, null);
+                return new(RequirementFulfilled.Yes);
             }
-
-            // TODO: (mg)(quick-checkout) perf: LoadActivePaymentProvidersAsync called too often (IsFulfilledAsync, AdvanceAsync, CheckoutPaymentMethodMapper).
-            // TODO: (mg)(quick-checkout) perf: CheckoutPaymentMethodModel.SkippedSelectShipping is never used!
 
             var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
             if (cart.ContainsRecurringItem())
@@ -127,7 +124,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 await attributes.SaveChangesAsync();
             }
 
-            return (attributes.SelectedPaymentMethod.HasValue(), null);
+            var fulfilled = state.IsPaymentSelectionSkipped
+                ? RequirementFulfilled.Always
+                : (attributes.SelectedPaymentMethod.HasValue() ? RequirementFulfilled.Yes : RequirementFulfilled.No);
+
+            return new(fulfilled);
         }
     }
 }

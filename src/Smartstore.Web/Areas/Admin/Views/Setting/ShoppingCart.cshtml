@@ -48,6 +48,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="AddProductsToBasketInSinglePositions" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddProductsToBasketInSinglePositions"></setting-editor>
+                        <span asp-validation-for="AddProductsToBasketInSinglePositions"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="ShowProductImagesOnShoppingCart" />
                     </div>
                     <div class="adminData">
@@ -222,15 +231,6 @@
                     <div class="adminData">
                         <setting-editor asp-for="ShowEsdRevocationWaiverBox"></setting-editor>
                         <span asp-validation-for="ShowEsdRevocationWaiverBox"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="AddProductsToBasketInSinglePositions" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="AddProductsToBasketInSinglePositions"></setting-editor>
-                        <span asp-validation-for="AddProductsToBasketInSinglePositions"></span>
                     </div>
                 </div>
                 <div class="adminRow">

@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         int Order { get; }
 
-        bool IsRequirementFor(string action, string controller = "Checkout", string? area = null);
+        bool IsRequirementFor(string action, string controller = "Checkout");
 
         /// <summary>
         /// Gets a value indicating whether the requirement is fulfilled.
@@ -31,11 +31,43 @@ namespace Smartstore.Core.Checkout.Orders
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement.
         /// </param>
         /// <returns><c>true</c> if the requirement is fulfilled, otherwise <c>false</c>.</returns>
-        Task<(bool Fulfilled, CheckoutWorkflowError[]? Errors)> IsFulfilledAsync(ShoppingCart cart, object? model = null);
+        Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object? model = null);
 
         /// <summary>
         /// Gets the result to fulfill the requirement.
         /// </summary>
         IActionResult Fulfill();
+    }
+
+
+    public enum RequirementFulfilled
+    {
+        /// <summary>
+        /// The requirement is not fulfilled.
+        /// </summary>
+        No = 0,
+
+        /// <summary>
+        /// The requirement is fulfilled.
+        /// </summary>
+        Yes,
+
+        /// <summary>
+        /// The requirement is always fulfilled. There is no user interaction on the associated checkout page.
+        /// It should therefore never be displayed.
+        /// </summary>
+        /// <example>The store only offers one shipping method.</example>
+        Always
+    }
+
+    public partial class CheckoutRequirementResult(RequirementFulfilled fulfilled, CheckoutWorkflowError[]? errors = null)
+    {
+        public CheckoutRequirementResult(bool isFulfilled, CheckoutWorkflowError[]? errors = null)
+            : this(isFulfilled ? RequirementFulfilled.Yes : RequirementFulfilled.No, errors)
+        {
+        }
+
+        public RequirementFulfilled Fulfilled { get; } = fulfilled;
+        public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
     }
 }

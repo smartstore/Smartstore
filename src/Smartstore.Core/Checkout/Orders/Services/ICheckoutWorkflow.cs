@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface ICheckoutWorkflow
     {
         /// <summary>
-        /// Initializes and starts the checkout
+        /// Initializes and starts the checkout.
         /// </summary>
         /// <returns>The first checkout page.</returns>
         Task<CheckoutWorkflowResult> StartAsync();
@@ -21,7 +21,7 @@ namespace Smartstore.Core.Checkout.Orders
         Task<CheckoutWorkflowResult> StayAsync(object? model = null);
 
         /// <summary>
-        /// Checks whether all checkout requirements are fulfilled.
+        /// Checks whether all checkout requirements are fulfilled and advances in checkout.
         /// </summary>
         /// <param name="model">
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement(s) of the current checkout page.

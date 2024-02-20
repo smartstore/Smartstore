@@ -3,7 +3,6 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
@@ -13,15 +12,21 @@ namespace Smartstore.Web.Models.Checkout
 {
     public class CheckoutPaymentMethodMapper : Mapper<ShoppingCart, CheckoutPaymentMethodModel>
     {
+        private static readonly PaymentMethodType[] _paymentTypes =
+        [
+            PaymentMethodType.Standard,
+            PaymentMethodType.Redirection,
+            PaymentMethodType.StandardAndRedirection,
+            PaymentMethodType.StandardAndButton
+        ];
+
         private readonly IWorkContext _workContext;
         private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
         private readonly ITaxService _taxService;
         private readonly IPaymentService _paymentService;
-        private readonly IShippingService _shippingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
-        private readonly ShippingSettings _shippingSettings;
         private readonly PaymentSettings _paymentSettings;
         
         public CheckoutPaymentMethodMapper(
@@ -30,10 +35,8 @@ namespace Smartstore.Web.Models.Checkout
             ICurrencyService currencyService,
             IPaymentService paymentService,
             ITaxService taxService,
-            IShippingService shippingService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
-            ShippingSettings shippingSettings,
             PaymentSettings paymentSettings)
         {
             _workContext = workContext;
@@ -41,10 +44,8 @@ namespace Smartstore.Web.Models.Checkout
             _currencyService = currencyService;
             _paymentService = paymentService;
             _taxService = taxService;
-            _shippingService = shippingService;
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
-            _shippingSettings = shippingSettings;
             _paymentSettings = paymentSettings;
         }
 
@@ -56,31 +57,18 @@ namespace Smartstore.Web.Models.Checkout
             Guard.NotNull(from);
             Guard.NotNull(to);
 
-            var shippingOptions = (await _shippingService.GetShippingOptionsAsync(from, from.Customer.ShippingAddress, string.Empty, from.StoreId)).ShippingOptions;
+            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
+            var providers = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, _paymentTypes);
+
+            if (from.ContainsRecurringItem())
+            {
+                providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
+            }
 
             to.DisplayPaymentMethodIcons = _paymentSettings.DisplayPaymentMethodIcons;
 
-            if (!from.IsShippingRequired() || (shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption))
+            foreach (var pp in providers)
             {
-                to.SkippedSelectShipping = true;
-            }
-
-            var paymentTypes = new PaymentMethodType[]
-            {
-                PaymentMethodType.Standard,
-                PaymentMethodType.Redirection,
-                PaymentMethodType.StandardAndRedirection,
-                PaymentMethodType.StandardAndButton
-            };
-
-            var boundPaymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, paymentTypes);
-            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-
-            foreach (var pp in boundPaymentProviders)
-            {
-                if (from.ContainsRecurringItem() && pp.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
-                    continue;
-
                 var pmModel = new CheckoutPaymentMethodModel.PaymentMethodModel
                 {
                     Name = _moduleManager.GetLocalizedFriendlyName(pp.Metadata),
