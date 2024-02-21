@@ -251,8 +251,9 @@
 
 .cart-item-attrs {
     display: grid !important;
-    grid-template-columns: max-content 1fr; 
-    gap: 1px 12px;
+    grid-template-columns: fit-content(50%) fit-content(50%); 
+    gap: 4px 12px;
+    line-height: 1.2;
 
     > span:nth-child(odd) {
         font-weight: $font-weight-medium;
