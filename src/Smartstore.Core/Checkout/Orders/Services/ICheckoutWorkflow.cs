@@ -15,21 +15,27 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Initializes and starts the checkout.
         /// </summary>
-        /// <returns>The first checkout page.</returns>
+        /// <returns><see cref="CheckoutWorkflowResult.Result"/> of the first checkout page.</returns>
         Task<CheckoutWorkflowResult> StartAsync();
 
-        Task<CheckoutWorkflowResult> StayAsync(object? model = null);
+        /// <summary>
+        /// Checks the requirement for the current checkout page.
+        /// </summary>
+        /// <returns>
+        /// <see cref="CheckoutWorkflowResult.Result"/> to an adjacent checkout page, if the current page should be skipped.
+        /// Otherwise <see cref="CheckoutWorkflowResult.Result"/> is <c>null</c> (default).
+        /// </returns>
+        Task<CheckoutWorkflowResult> StayAsync();
 
         /// <summary>
-        /// Checks whether all checkout requirements are fulfilled and advances in checkout.
+        /// Checks whether all checkout requirements are fulfilled and advances in checkout, if no error occurred.
         /// </summary>
         /// <param name="model">
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement(s) of the current checkout page.
         /// </param>
         /// <returns>
-        /// The checkout page to be redirected to if the associated requirement is not fulfilled and no model state errors exist.
-        /// A redirect result to the confirmation page if all requirements are fulfilled.
-        /// <c>null</c> if the requirement of the current page is not fulfilled and the view of the current page should be displayed.
+        /// <see cref="CheckoutWorkflowResult.Result"/> to the next checkout page.
+        /// If <see cref="CheckoutWorkflowResult.Result"/> is <c>null</c> (not determinable), then the caller has to specify the next step.
         /// </returns>
         Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
 
@@ -37,7 +43,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// Completes the checkout and places a new order.
         /// </summary>
         /// <returns>
-        /// Depending of the result of the processing, a redirect result to a checkout, confirm or completed page.
+        /// <see cref="CheckoutWorkflowResult.Result"/> to the confirmation page, if operation succeeded.
+        /// Otherwise it redirects to any other checkout page.
         /// </returns>
         Task<CheckoutWorkflowResult> CompleteAsync();
     }

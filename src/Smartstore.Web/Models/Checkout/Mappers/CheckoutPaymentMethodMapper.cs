@@ -26,6 +26,7 @@ namespace Smartstore.Web.Models.Checkout
         private readonly ITaxService _taxService;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ITaxCalculator _taxCalculator;
         private readonly PaymentSettings _paymentSettings;
         
@@ -36,6 +37,7 @@ namespace Smartstore.Web.Models.Checkout
             IPaymentService paymentService,
             ITaxService taxService,
             IOrderCalculationService orderCalculationService,
+            ICheckoutStateAccessor checkoutStateAccessor,
             ITaxCalculator taxCalculator,
             PaymentSettings paymentSettings)
         {
@@ -45,6 +47,7 @@ namespace Smartstore.Web.Models.Checkout
             _paymentService = paymentService;
             _taxService = taxService;
             _orderCalculationService = orderCalculationService;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _taxCalculator = taxCalculator;
             _paymentSettings = paymentSettings;
         }
@@ -57,6 +60,7 @@ namespace Smartstore.Web.Models.Checkout
             Guard.NotNull(from);
             Guard.NotNull(to);
 
+            var state = _checkoutStateAccessor.CheckoutState;
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
             var providers = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, _paymentTypes);
 
@@ -75,15 +79,14 @@ namespace Smartstore.Web.Models.Checkout
                     Description = _moduleManager.GetLocalizedDescription(pp.Metadata),
                     PaymentMethodSystemName = pp.Metadata.SystemName,
                     InfoWidget = pp.Value.GetPaymentInfoWidget(),
-                    RequiresInteraction = pp.Value.RequiresInteraction
+                    RequiresInteraction = pp.Value.RequiresInteraction,
+                    BrandUrl = _moduleManager.GetBrandImage(pp.Metadata)?.DefaultImageUrl
                 };
 
                 if (allPaymentMethods.TryGetValue(pp.Metadata.SystemName, out var paymentMethod))
                 {
                     pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, _workContext.WorkingLanguage);
                 }
-
-                pmModel.BrandUrl = _moduleManager.GetBrandImage(pp.Metadata)?.DefaultImageUrl;
 
                 // Payment method additional fee.
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
@@ -98,6 +101,8 @@ namespace Smartstore.Web.Models.Checkout
 
                 to.PaymentMethods.Add(pmModel);
             }
+
+            state.CustomProperties["HasOnlyOneActivePaymentMethod"] = to.PaymentMethods.Count == 1;
 
             // Find a selected (previously) payment method.
             var selected = false;

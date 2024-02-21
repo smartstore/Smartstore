@@ -8,18 +8,15 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
         private readonly IShippingService _shippingService;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShippingSettings _shippingSettings;
 
         public ShippingMethodRequirement(
             IShippingService shippingService,
-            ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings)
             : base(httpContextAccessor)
         {
             _shippingService = shippingService;
-            _checkoutStateAccessor = checkoutStateAccessor;
             _shippingSettings = shippingSettings;
         }
 
@@ -44,7 +41,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await attributes.SaveChangesAsync();
                 }
 
-                return new(RequirementFulfilled.Yes);
+                return new(RequirementFulfilled.Always);
             }
 
             if (model != null
@@ -82,11 +79,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return new(selectedShippingOption != null, errors);
             }
 
-            if (attributes.SelectedShippingOption != null)
-            {
-                return new(RequirementFulfilled.Yes);
-            }
-            
             if (options.IsNullOrEmpty())
             {
                 (options, errors) = await GetShippingOptions(cart);
@@ -101,7 +93,9 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 saveAttributes = true;
             }
 
-            if (_shippingSettings.SkipShippingIfSingleOption && options.Count == 1)
+            if (_shippingSettings.SkipShippingIfSingleOption
+                && attributes.SelectedShippingOption == null
+                && options.Count == 1)
             {
                 attributes.SelectedShippingOption = options[0];
                 saveAttributes = true;
@@ -111,9 +105,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             {
                 await attributes.SaveChangesAsync();
             }
-
-            // TODO: (mg)(quick-checkout) "HasOnlyOneActiveShippingMethod" is redundant. Instead use customer.GenericAttributes.OfferedShippingOptions.Count == 1
-            _checkoutStateAccessor.CheckoutState.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
 
             var fulfilled = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1
                 ? RequirementFulfilled.Always

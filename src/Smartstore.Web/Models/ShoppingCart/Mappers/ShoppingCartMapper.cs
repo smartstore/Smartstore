@@ -139,7 +139,7 @@ namespace Smartstore.Web.Models.Cart
             Guard.NotNull(from);
             Guard.NotNull(to);
 
-            if (!from.Items.Any())
+            if (!from.HasItems)
             {
                 return;
             }
@@ -174,9 +174,8 @@ namespace Smartstore.Web.Models.Cart
                 to.MeasureUnitName = measure.GetLocalized(x => x.Name);
             }
 
-            to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(
-                HtmlUtility.ConvertHtmlToPlainText(
-                    await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
+            to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
+                await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
 
             // Gift card and gift card boxes.
             to.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
@@ -342,12 +341,12 @@ namespace Smartstore.Web.Models.Cart
                     case AttributeControlType.FileUpload:
                         if (selectedCheckoutAttributes.AttributesMap.Any())
                         {
-                            var FileValue = selectedCheckoutAttributes.AttributesMap
+                            var fileValue = selectedCheckoutAttributes.AttributesMap
                                 .Where(x => x.Key == attribute.Id)
                                 .Select(x => x.Value.ToString())
                                 .FirstOrDefault();
 
-                            if (FileValue.HasValue() && caModel.UploadedFileGuid.HasValue() && Guid.TryParse(caModel.UploadedFileGuid, out var guid))
+                            if (fileValue.HasValue() && caModel.UploadedFileGuid.HasValue() && Guid.TryParse(caModel.UploadedFileGuid, out var guid))
                             {
                                 var download = await _db.Downloads
                                     .Include(x => x.MediaFile)
@@ -374,8 +373,8 @@ namespace Smartstore.Web.Models.Cart
 
             if (prepareEstimateShippingIfEnabled)
             {
-                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled &&
-                    from.Items.Any() &&
+                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled && 
+                    from.HasItems &&
                     from.IncludesMatchingItems(x => x.IsShippingEnabled);
 
                 if (to.EstimateShipping.Enabled)
@@ -401,7 +400,7 @@ namespace Smartstore.Web.Models.Cart
 
                     to.EstimateShipping.AvailableStates = stateProvinces.ToSelectListItems(defaultStateProvinceId ?? 0) ?? new List<SelectListItem>
                     {
-                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                        new() { Text = T("Address.OtherNonUS"), Value = "0" }
                     };
 
                     if (setEstimateShippingDefaultAddress && customer.ShippingAddress != null)
@@ -441,8 +440,6 @@ namespace Smartstore.Web.Models.Cart
 
             if (prepareAndDisplayOrderReviewData)
             {
-                var checkoutState = _checkoutStateAccessor.CheckoutState;
-
                 to.OrderReviewData.Display = true;
 
                 // Billing info.
@@ -456,37 +453,26 @@ namespace Smartstore.Web.Models.Cart
                 if (from.IsShippingRequired())
                 {
                     to.OrderReviewData.IsShippable = true;
+                    to.OrderReviewData.ShippingMethod = customer.GenericAttributes.SelectedShippingOption?.Name;
+                    to.OrderReviewData.DisplayShippingMethodChangeOption = (customer.GenericAttributes.OfferedShippingOptions?.Count ?? int.MaxValue) > 1;
 
-                    var shippingAddress = customer.ShippingAddress;
-                    if (shippingAddress != null)
+                    if (customer.ShippingAddress != null)
                     {
-                        await MapperFactory.MapAsync(shippingAddress, to.OrderReviewData.ShippingAddress);
-                    }
-
-                    // Selected shipping method.
-                    var shippingOption = customer.GenericAttributes.SelectedShippingOption;
-                    if (shippingOption != null)
-                    {
-                        to.OrderReviewData.ShippingMethod = shippingOption.Name;
-                    }
-
-                    if (checkoutState != null && checkoutState.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
-                    {
-                        to.OrderReviewData.DisplayShippingMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActiveShippingMethod");
+                        await MapperFactory.MapAsync(customer.ShippingAddress, to.OrderReviewData.ShippingAddress);
                     }
                 }
 
-                if (checkoutState != null && checkoutState.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
+                var state = _checkoutStateAccessor.CheckoutState;
+                if (state != null && state.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
                 {
-                    to.OrderReviewData.DisplayPaymentMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActivePaymentMethod");
+                    to.OrderReviewData.DisplayPaymentMethodChangeOption = !(bool)state.CustomProperties.Get("HasOnlyOneActivePaymentMethod");
                 }
 
-                var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-                var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(selectedPaymentMethodSystemName);
+                var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
 
                 to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
-                to.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
-                to.OrderReviewData.IsPaymentSelectionSkipped = checkoutState.IsPaymentSelectionSkipped;
+                to.OrderReviewData.PaymentSummary = state.PaymentSummary;
+                to.OrderReviewData.IsPaymentSelectionSkipped = state.IsPaymentSelectionSkipped;
             }
 
             #endregion
@@ -494,7 +480,7 @@ namespace Smartstore.Web.Models.Cart
             var boundPaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(
                 from,
                 store.Id,
-                new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton },
+                [PaymentMethodType.Button, PaymentMethodType.StandardAndButton],
                 false);
 
             var bpmModel = new ButtonPaymentMethodModel();

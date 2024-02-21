@@ -7,12 +7,12 @@ namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Represents a checkout requirement.
-    /// The customer is redirected to the confirmation page if all requirements are fulfilled.
+    /// The customer is redirected to the confirmation page if all requirements are fulfilled and quick checkout is enabled.
     /// </summary>
     /// <remarks>
-    /// <see cref="ICheckoutRequirement"/> attempts to fulfill the requirement automatically, if possible.
+    /// An <see cref="ICheckoutRequirement"/> implementation attempts to fulfill the requirement automatically, if possible.
     /// </remarks>
-    public interface ICheckoutRequirement
+    public interface ICheckoutRequirement : IEquatable<ICheckoutRequirement>
     {
         /// <summary>
         /// Gets a value that corresponds to the order in which the requirements are checked,
@@ -20,21 +20,26 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         int Order { get; }
 
-        bool IsRequirementFor(string action, string controller = "Checkout");
+        /// <summary>
+        /// Gets a value indicating whether the requirement is associated with an action method.
+        /// </summary>
+        /// <param name="action">Name of the action method.</param>
+        /// <param name="controller">Name of the controller.</param>
+        /// <returns><c>true</c> if the requirement is associated with the action method, otherwise <c>false</c>.</returns>
+        bool IsRequirementFor(string action, string controller);
 
         /// <summary>
-        /// Gets a value indicating whether the requirement is fulfilled.
+        /// Checks whether a requirement is fulfilled.
         /// The user is redirected to <see cref="Fulfill"/> if the requirement is not fulfilled.
         /// </summary>
         /// <param name="cart">The shopping cart of the current customer.</param>
         /// <param name="model">
         /// An optional model (usually of a simple type) representing the data to fulfill the requirement.
         /// </param>
-        /// <returns><c>true</c> if the requirement is fulfilled, otherwise <c>false</c>.</returns>
         Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object? model = null);
 
         /// <summary>
-        /// Gets the result to fulfill the requirement.
+        /// Gets an <see cref="IActionResult"/> to fulfill the requirement.
         /// </summary>
         IActionResult Fulfill();
     }

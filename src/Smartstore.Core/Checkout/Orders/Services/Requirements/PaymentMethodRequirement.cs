@@ -89,39 +89,32 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
             }
 
-            if (attributes.SelectedPaymentMethod.HasValue() 
-                || !state.IsPaymentRequired 
-                || state.IsPaymentSelectionSkipped)
-            {
-                return new(RequirementFulfilled.Yes);
-            }
+            var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+            state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
 
-            Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
-            state.IsPaymentRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
-            
             if (!state.IsPaymentRequired)
             {
                 state.IsPaymentSelectionSkipped = true;
-                return new(RequirementFulfilled.Yes);
             }
 
-            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
-            if (cart.ContainsRecurringItem())
+            if (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne
+                && attributes.SelectedPaymentMethod.IsEmpty()
+                && !state.IsPaymentSelectionSkipped)
             {
-                providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
-            }
+                var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
+                if (cart.ContainsRecurringItem())
+                {
+                    providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
+                }
+                var paymentMethods = providers.ToList();
 
-            var paymentMethods = providers.ToList();
+                state.IsPaymentSelectionSkipped = paymentMethods.Count == 1 && !paymentMethods[0].Value.RequiresInteraction;
 
-            state.CustomProperties["HasOnlyOneActivePaymentMethod"] = paymentMethods.Count == 1;
-            state.IsPaymentSelectionSkipped = _paymentSettings.BypassPaymentMethodSelectionIfOnlyOne 
-                && paymentMethods.Count == 1
-                && !paymentMethods[0].Value.RequiresInteraction;
-
-            if (state.IsPaymentSelectionSkipped)
-            {
-                attributes.SelectedPaymentMethod = paymentMethods[0].Metadata.SystemName;
-                await attributes.SaveChangesAsync();
+                if (state.IsPaymentSelectionSkipped)
+                {
+                    attributes.SelectedPaymentMethod = paymentMethods[0].Metadata.SystemName;
+                    await attributes.SaveChangesAsync();
+                }
             }
 
             var fulfilled = state.IsPaymentSelectionSkipped

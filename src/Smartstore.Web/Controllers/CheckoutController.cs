@@ -169,7 +169,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectBillingAddress(int addressId)
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            var advance = await _checkoutWorkflow.AdvanceAsync(addressId);
 
             return advance.Result ?? RedirectToAction(nameof(BillingAddress));
 
@@ -256,7 +256,7 @@ namespace Smartstore.Web.Controllers
                 return stay.Result;
             }
 
-            return View(_workContext.CurrentCustomer.Addresses.MapAsync(true));
+            return View(await _workContext.CurrentCustomer.Addresses.MapAsync(true));
 
             //var customer = Services.WorkContext.CurrentCustomer;
             //var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
@@ -288,7 +288,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectShippingAddress(int addressId)
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            var advance = await _checkoutWorkflow.AdvanceAsync(addressId);
 
             return advance.Result ?? RedirectToAction(nameof(ShippingAddress));
 
@@ -373,7 +373,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectShippingMethod(string shippingOption)
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            var advance = await _checkoutWorkflow.AdvanceAsync(shippingOption);
 
             advance.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
 
@@ -511,7 +511,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
         {
-            var advance = await _checkoutWorkflow.AdvanceAsync();
+            var advance = await _checkoutWorkflow.AdvanceAsync(paymentMethod);
 
             advance.Errors.Each(x => ModelState.AddModelError(x.PropertyName, x.ErrorMessage));
 
@@ -615,7 +615,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Confirm()
         {
-            var stay = await _checkoutWorkflow.StartAsync();
+            var stay = await _checkoutWorkflow.StayAsync();
             if (stay.Result != null)
             {
                 return stay.Result;

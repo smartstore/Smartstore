@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
@@ -35,12 +36,17 @@ namespace Smartstore.Web.Models.Checkout
     public class CheckoutAddressMapper : Mapper<IEnumerable<Address>, CheckoutAddressModel>
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-
-        public CheckoutAddressMapper(SmartDbContext db, ICommonServices services)
+        private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
+        
+        public CheckoutAddressMapper(
+            SmartDbContext db,
+            IStoreContext storeContext,
+            IWorkContext workContext)
         {
             _db = db;
-            _services = services;
+            _storeContext = storeContext;
+            _workContext = workContext;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -72,13 +78,13 @@ namespace Smartstore.Web.Models.Checkout
                 : countriesQuery.Where(x => x.AllowsBilling);
 
             var countries = await countriesQuery
-                .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)
+                .ApplyStandardFilter(false, _storeContext.CurrentStore.Id)
                 .ToListAsync();
 
             await new Address().MapAsync(to.NewAddress);
 
             to.NewAddress.CountryId = selectedCountryId;
-            to.NewAddress.Email = _services.WorkContext.CurrentCustomer.Email;
+            to.NewAddress.Email = _workContext.CurrentCustomer.Email;
 
             if (to.NewAddress.CountryEnabled)
             {

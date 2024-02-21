@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Frozen;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -6,6 +7,12 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class BillingAddressRequirement : CheckoutRequirementBase
     {
+        private static readonly FrozenSet<string> _actionNames = new[]
+        {
+            "BillingAddress",
+            "SelectBillingAddress"
+        }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
         private readonly SmartDbContext _db;
 
         public BillingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
@@ -17,6 +24,9 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         protected override string ActionName => "BillingAddress";
 
         public override int Order => 10;
+
+        public override bool IsRequirementFor(string action, string controller)
+            => _actionNames.Contains(action) && controller.EqualsNoCase(ControllerName);
 
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
