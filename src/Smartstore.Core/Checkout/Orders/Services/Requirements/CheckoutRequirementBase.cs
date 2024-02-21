@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             => _httpContextAccessor.HttpContext;
 
         /// <summary>
-        /// Gets the name of the action associated with the requirement.
+        /// Gets the name of the action method associated with the requirement.
         /// </summary>
         protected abstract string ActionName { get; }
 
@@ -29,11 +29,13 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public abstract int Order { get; }
 
+        public virtual bool Active => true;
+
         public virtual bool IsRequirementFor(string action, string controller)
             => ActionName.EqualsNoCase(action) && controller.EqualsNoCase(ControllerName);
 
         public virtual Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
-            => Task.FromResult(new CheckoutRequirementResult(RequirementFulfilled.No));
+            => Task.FromResult(new CheckoutRequirementResult(false));
 
         public virtual IActionResult Fulfill()
         {

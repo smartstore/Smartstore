@@ -7,6 +7,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
+        private bool? _active;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
 
@@ -24,6 +25,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 30;
 
+        public override bool Active => _active ?? true;
+
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
@@ -34,6 +37,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (!cart.IsShippingRequired())
             {
+                _active = false;
+
                 if (attributes.SelectedShippingOption != null || attributes.OfferedShippingOptions != null)
                 {
                     attributes.SelectedShippingOption = null;
@@ -41,7 +46,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await attributes.SaveChangesAsync();
                 }
 
-                return new(RequirementFulfilled.Always);
+                return new(true);
             }
 
             if (model != null
@@ -51,7 +56,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
                 {
-                    return new(RequirementFulfilled.No);
+                    return new(false);
                 }
 
                 var selectedName = splittedOption[0];
@@ -84,7 +89,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 (options, errors) = await GetShippingOptions(cart);
                 if (options.Count == 0)
                 {
-                    return new(RequirementFulfilled.No, errors);
+                    return new(false, errors);
                 }
 
                 // Performance optimization. Cache returned shipping options.
@@ -93,12 +98,14 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 saveAttributes = true;
             }
 
-            if (_shippingSettings.SkipShippingIfSingleOption
-                && attributes.SelectedShippingOption == null
-                && options.Count == 1)
+            if (_active == null)
             {
-                attributes.SelectedShippingOption = options[0];
-                saveAttributes = true;
+                if (_shippingSettings.SkipShippingIfSingleOption && options.Count == 1)
+                {
+                    _active = false;
+                    attributes.SelectedShippingOption = options[0];
+                    saveAttributes = true;
+                }
             }
 
             if (saveAttributes)
@@ -106,11 +113,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 await attributes.SaveChangesAsync();
             }
 
-            var fulfilled = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1
-                ? RequirementFulfilled.Always
-                : (attributes.SelectedShippingOption != null ? RequirementFulfilled.Yes : RequirementFulfilled.No);
-
-            return new(fulfilled, errors);
+            return new(attributes.SelectedShippingOption != null, errors);
         }
 
         private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)

@@ -42,15 +42,15 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     customer.BillingAddress = address;
                     await _db.SaveChangesAsync();
 
-                    return new(RequirementFulfilled.Yes);
+                    return new(true);
                 }
 
-                return new(RequirementFulfilled.No);
+                return new(false);
             }
 
             if (customer.BillingAddressId == null)
             {
-                return new(RequirementFulfilled.No);
+                return new(false);
             }
 
             await _db.LoadReferenceAsync(customer, x => x.BillingAddress);

@@ -21,6 +21,15 @@ namespace Smartstore.Core.Checkout.Orders
         int Order { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the requirement is active.
+        /// The associated checkout is skipped if <c>false</c>.
+        /// </summary>
+        /// <remarks>
+        /// Always <c>true</c> if <see cref="CheckAsync(ShoppingCart, object?)"/> has not been called yet.
+        /// </remarks>
+        bool Active { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the requirement is associated with an action method.
         /// </summary>
         /// <param name="action">Name of the action method.</param>
@@ -44,35 +53,9 @@ namespace Smartstore.Core.Checkout.Orders
         IActionResult Fulfill();
     }
 
-
-    public enum RequirementFulfilled
+    public partial class CheckoutRequirementResult(bool isFulfilled, CheckoutWorkflowError[]? errors = null)
     {
-        /// <summary>
-        /// The requirement is not fulfilled.
-        /// </summary>
-        No = 0,
-
-        /// <summary>
-        /// The requirement is fulfilled.
-        /// </summary>
-        Yes,
-
-        /// <summary>
-        /// The requirement is always fulfilled. There is no user interaction on the associated checkout page.
-        /// It should therefore never be displayed.
-        /// </summary>
-        /// <example>The store only offers one shipping method.</example>
-        Always
-    }
-
-    public partial class CheckoutRequirementResult(RequirementFulfilled fulfilled, CheckoutWorkflowError[]? errors = null)
-    {
-        public CheckoutRequirementResult(bool isFulfilled, CheckoutWorkflowError[]? errors = null)
-            : this(isFulfilled ? RequirementFulfilled.Yes : RequirementFulfilled.No, errors)
-        {
-        }
-
-        public RequirementFulfilled Fulfilled { get; } = fulfilled;
+        public bool IsFulfilled { get; } = isFulfilled;
         public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
     }
 }

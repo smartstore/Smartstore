@@ -42,10 +42,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     customer.ShippingAddress = address;
                     await _db.SaveChangesAsync();
 
-                    return new(RequirementFulfilled.Yes);
+                    return new(true);
                 }
 
-                return new(RequirementFulfilled.No);
+                return new(false);
             }
 
             if (cart.IsShippingRequired())
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await _db.SaveChangesAsync();
                 }
 
-                return new(RequirementFulfilled.Yes);
+                return new(true);
             }
         }
     }

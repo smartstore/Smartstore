@@ -150,7 +150,8 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 var result = await requirement.CheckAsync(cart);
 
-                if (result.Fulfilled == RequirementFulfilled.Always)
+                // INFO: check "Active" here after the "CheckAsync" call, not before.
+                if (!requirement.Active)
                 {
                     // Do not stay on this checkout page. Always skip it. Redirect to next or previous page.
                     var adjacentResult = Adjacent(requirement);
@@ -178,7 +179,7 @@ namespace Smartstore.Core.Checkout.Orders
                 foreach (var requirement in _requirements)
                 {
                     var result = await requirement.CheckAsync(cart, model);
-                    if (result.Fulfilled == RequirementFulfilled.No)
+                    if (!result.IsFulfilled)
                     {
                         return new(requirement.Fulfill(), result.Errors);
                     }
@@ -198,7 +199,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (requirement != null)
                 {
                     var result = await requirement.CheckAsync(cart, model);
-                    if (result.Fulfilled == RequirementFulfilled.No)
+                    if (!result.IsFulfilled)
                     {
                         return new(requirement.Fulfill(), result.Errors);
                     }
@@ -410,9 +411,12 @@ namespace Smartstore.Core.Checkout.Orders
                 else
                 {
                     var referrerRequirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-                    if (referrerRequirement != null && !referrerRequirement.Equals(requirement))
+                    if (referrerRequirement != null)
                     {
-                        result = GetNextRequirement(requirement, referrerRequirement.Order < requirement.Order)?.Fulfill();
+                        var next = referrerRequirement.Order < requirement.Order;
+
+                        result = GetNextRequirement(requirement, next)?.Fulfill();
+                        result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
                     }
                 }
             }
@@ -447,7 +451,9 @@ namespace Smartstore.Core.Checkout.Orders
         private static RedirectToActionResult RedirectToCheckout(string action)
             => new(action, "Checkout", null);
 
-        private static RedirectToRouteResult RedirectToCart()
-            => new("ShoppingCart");
+        // INFO: do not use RedirectToRouteResult here. It would create an infinite redirection loop.
+        // In CheckoutWorkflow always use RedirectToActionResult with controller and action name.
+        private static RedirectToActionResult RedirectToCart()
+            => new("Cart", "ShoppingCart", null);
     }
 }
