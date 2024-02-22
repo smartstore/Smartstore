@@ -145,18 +145,12 @@ namespace Smartstore.Core.Checkout.Orders
 
             var (action, controller) = GetActionAndController();
             var requirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-
             if (requirement != null)
             {
                 var result = await requirement.CheckAsync(cart);
-
-                // INFO: check "Active" here after the "CheckAsync" call, not before.
-                if (!requirement.Active)
+                if (result.SkipPage)
                 {
-                    // Do not stay on this checkout page. Always skip it. Redirect to next or previous page.
-                    var adjacentResult = Adjacent(requirement);
-
-                    return new(adjacentResult ?? RedirectToCart());
+                    return new(Adjacent(requirement));
                 }
 
                 return new(null, result.Errors);
@@ -174,7 +168,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
-            if (false/*_shoppingCartSettings.QuickCkeckout*/)// TESTING!
+            if (_shoppingCartSettings.QuickCkeckout)
             {
                 foreach (var requirement in _requirements)
                 {
@@ -382,7 +376,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         private IActionResult Adjacent(ICheckoutRequirement requirement)
         {
-            IActionResult result = null;
             var referrer = _webHelper.GetUrlReferrer();
             var path = referrer?.PathAndQuery;
             var routeValues = new RouteValueDictionary();
@@ -395,6 +388,7 @@ namespace Smartstore.Core.Checkout.Orders
                 matcher.TryMatch(path, routeValues);
             }
 
+            var next = true;
             var action = routeValues.GetActionName();
             var controller = routeValues.GetControllerName();
 
@@ -402,24 +396,21 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (action.EqualsNoCase("Index") && controller.EqualsNoCase("Checkout"))
                 {
-                    result = _requirements[0].Fulfill();
+                    next = true;
                 }
                 else if (action.EqualsNoCase("Confirm") && controller.EqualsNoCase("Checkout"))
                 {
-                    result = _requirements[^1].Fulfill();
+                    next = false;
                 }
                 else
                 {
                     var referrerRequirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-                    if (referrerRequirement != null)
-                    {
-                        var next = referrerRequirement.Order < requirement.Order;
-
-                        result = GetNextRequirement(requirement, next)?.Fulfill();
-                        result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
-                    }
+                    next = (referrerRequirement?.Order ?? 0) < requirement.Order;
                 }
             }
+
+            var result = GetNextRequirement(requirement, next)?.Fulfill();
+            result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
 
             return result;
         }

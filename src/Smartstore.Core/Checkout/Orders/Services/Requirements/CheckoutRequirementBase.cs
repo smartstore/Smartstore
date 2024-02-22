@@ -29,8 +29,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public abstract int Order { get; }
 
-        public virtual bool Active => true;
-
         public virtual bool IsRequirementFor(string action, string controller)
             => ActionName.EqualsNoCase(action) && controller.EqualsNoCase(ControllerName);
 

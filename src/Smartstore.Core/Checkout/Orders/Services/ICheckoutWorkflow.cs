@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
-    /// Represents a checkout flow to be processed, which checks the requirements of the individual checkout steps.
+    /// Represents a checkout flow processing, which checks the requirements of the individual checkout steps.
     /// </summary>
     /// <remarks>
     /// Only applicable in the context of a HTTP request.
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <returns>
         /// <see cref="CheckoutWorkflowResult.Result"/> to the confirmation page, if operation succeeded.
-        /// Otherwise it redirects to any other checkout page.
+        /// Otherwise it redirects to an error related checkout page like payment method selection page.
         /// </returns>
         Task<CheckoutWorkflowResult> CompleteAsync();
     }

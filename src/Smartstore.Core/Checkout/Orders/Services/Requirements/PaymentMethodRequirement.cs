@@ -15,7 +15,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             PaymentMethodType.StandardAndButton
         ];
 
-        private bool? _active;
+        private bool? _skip;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
@@ -38,8 +38,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         protected override string ActionName => "PaymentMethod";
 
         public override int Order => 40;
-
-        public override bool Active => _active ?? true;
 
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
@@ -92,7 +90,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
             }
 
-            if (_active == null)
+            if (_skip == null)
             {
                 var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
                 state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
@@ -106,6 +104,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     }
                     var paymentMethods = providers.ToList();
 
+                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = paymentMethods.Count == 1;
                     state.IsPaymentSelectionSkipped = paymentMethods.Count == 1 && !paymentMethods[0].Value.RequiresInteraction;
 
                     if (state.IsPaymentSelectionSkipped)
@@ -120,10 +119,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     state.IsPaymentSelectionSkipped = true;
                 }
 
-                _active = !state.IsPaymentSelectionSkipped;
+                _skip = state.IsPaymentSelectionSkipped;
             }
 
-            return new(attributes.SelectedPaymentMethod.HasValue());
+            return new(attributes.SelectedPaymentMethod.HasValue(), null, _skip ?? false);
         }
     }
 }

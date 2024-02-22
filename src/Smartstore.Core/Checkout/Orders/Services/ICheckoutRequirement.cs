@@ -21,15 +21,6 @@ namespace Smartstore.Core.Checkout.Orders
         int Order { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the requirement is active.
-        /// The associated checkout is skipped if <c>false</c>.
-        /// </summary>
-        /// <remarks>
-        /// Always <c>true</c> if <see cref="CheckAsync(ShoppingCart, object?)"/> has not been called yet.
-        /// </remarks>
-        bool Active { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the requirement is associated with an action method.
         /// </summary>
         /// <param name="action">Name of the action method.</param>
@@ -39,11 +30,10 @@ namespace Smartstore.Core.Checkout.Orders
 
         /// <summary>
         /// Checks whether a requirement is fulfilled.
-        /// The user is redirected to <see cref="Fulfill"/> if the requirement is not fulfilled.
         /// </summary>
-        /// <param name="cart">The shopping cart of the current customer.</param>
+        /// <param name="cart">The shopping cart (usually of the current customer).</param>
         /// <param name="model">
-        /// An optional model (usually of a simple type) representing the data to fulfill the requirement.
+        /// An optional model (usually of a simple type) representing the data to fulfill the requirement (typically in POST requests).
         /// </param>
         Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object? model = null);
 
@@ -53,9 +43,18 @@ namespace Smartstore.Core.Checkout.Orders
         IActionResult Fulfill();
     }
 
-    public partial class CheckoutRequirementResult(bool isFulfilled, CheckoutWorkflowError[]? errors = null)
+    public partial class CheckoutRequirementResult(bool isFulfilled, CheckoutWorkflowError[]? errors = null, bool skipPage = false)
     {
+        /// <summary>
+        /// /// Gets a value indicating whether the requirement is fulfilled.
+        /// </summary>
         public bool IsFulfilled { get; } = isFulfilled;
+
+        /// <summary>
+        /// Gets a value indicating whether the associated checkout page should be skipped.
+        /// </summary>
+        public bool SkipPage { get; set; } = skipPage;
+
         public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
     }
 }

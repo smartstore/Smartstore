@@ -242,7 +242,10 @@ namespace Smartstore.Web.Controllers
 
                 await _db.SaveChangesAsync();
 
-                return RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
+                var advance = await _checkoutWorkflow.AdvanceAsync();
+
+                return advance.Result ?? RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
+                //return RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
             }
 
             return null;

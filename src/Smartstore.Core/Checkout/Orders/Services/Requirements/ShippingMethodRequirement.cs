@@ -7,7 +7,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
-        private bool? _active;
+        private bool? _skip;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
 
@@ -25,8 +25,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 30;
 
-        public override bool Active => _active ?? true;
-
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
@@ -37,7 +35,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (!cart.IsShippingRequired())
             {
-                _active = false;
+                _skip = true;
 
                 if (attributes.SelectedShippingOption != null || attributes.OfferedShippingOptions != null)
                 {
@@ -46,7 +44,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await attributes.SaveChangesAsync();
                 }
 
-                return new(true);
+                return new(true, null, true);
             }
 
             if (model != null
@@ -98,11 +96,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 saveAttributes = true;
             }
 
-            if (_active == null)
+            if (_skip == null)
             {
-                if (_shippingSettings.SkipShippingIfSingleOption && options.Count == 1)
+                _skip = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1;
+                if (_skip.Value)
                 {
-                    _active = false;
                     attributes.SelectedShippingOption = options[0];
                     saveAttributes = true;
                 }
@@ -113,7 +111,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 await attributes.SaveChangesAsync();
             }
 
-            return new(attributes.SelectedShippingOption != null, errors);
+            return new(attributes.SelectedShippingOption != null, errors, _skip ?? false);
         }
 
         private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)

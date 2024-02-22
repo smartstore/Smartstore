@@ -473,31 +473,29 @@ namespace Smartstore.Web.Models.Cart
                 to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
                 to.OrderReviewData.PaymentSummary = state.PaymentSummary;
                 to.OrderReviewData.IsPaymentSelectionSkipped = state.IsPaymentSelectionSkipped;
+                to.OrderReviewData.IsPaymentRequired = state.IsPaymentRequired;
             }
 
             #endregion
 
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(
+            var paymentMethods = await _paymentService.LoadActivePaymentProvidersAsync(
                 from,
                 store.Id,
                 [PaymentMethodType.Button, PaymentMethodType.StandardAndButton],
                 false);
 
-            var bpmModel = new ButtonPaymentMethodModel();
-
-            foreach (var boundPaymentMethod in boundPaymentMethods)
+            if (from.ContainsRecurringItem())
             {
-                if (from.IncludesMatchingItems(x => x.IsRecurring) &&
-                    boundPaymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
-                {
-                    continue;
-                }
-
-                var widget = boundPaymentMethod.Value.GetPaymentInfoWidget();
-                bpmModel.Items.Add(widget);
+                paymentMethods = paymentMethods.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
             }
 
-            to.ButtonPaymentMethods = bpmModel;
+            to.ButtonPaymentMethods = new ButtonPaymentMethodModel();
+
+            foreach (var paymentMethod in paymentMethods)
+            {
+                var widget = paymentMethod.Value.GetPaymentInfoWidget();
+                to.ButtonPaymentMethods.Items.Add(widget);
+            }
         }
     }
 }
