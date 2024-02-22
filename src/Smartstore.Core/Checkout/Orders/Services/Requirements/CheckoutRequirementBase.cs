@@ -57,6 +57,12 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return request.Method.EqualsNoCase(method) && request.RouteValues.IsSameRoute(controller, action);
         }
 
+        /// <summary>
+        /// Gets a request form value.
+        /// </summary>
+        protected string GetFormValue(string key)
+            => HttpContext.Request.Form.TryGetValue(key, out var val) ? val.ToString() : null;
+
         #region Compare
 
         public override bool Equals(object obj)

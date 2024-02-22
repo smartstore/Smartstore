@@ -14,11 +14,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         private readonly SmartDbContext _db;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
-        public BillingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
+        public BillingAddressRequirement(
+            SmartDbContext db,
+            ICheckoutStateAccessor checkoutStateAccessor,
+            IHttpContextAccessor httpContextAccessor)
             : base(httpContextAccessor)
         {
             _db = db;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         protected override string ActionName => "BillingAddress";
@@ -42,11 +47,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     return new(false);
                 }
 
-                var shippingAddressDiffers = HttpContext.Request.Form.TryGetValue("ShippingAddressDiffers", out var val) && val.ToString().ToBool();
+                var shippingAddressDiffers = GetFormValue("ShippingAddressDiffers").ToBool();
 
                 customer.BillingAddress = address;
                 customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
                 await _db.SaveChangesAsync();
+
+                if (!shippingAddressDiffers)
+                {
+                    _checkoutStateAccessor.CheckoutState.CustomProperties["SkipCheckoutShippingAddress"] = true;
+                }
 
                 return new(true);
             }

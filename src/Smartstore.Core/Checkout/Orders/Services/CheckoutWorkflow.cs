@@ -168,7 +168,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
-            if (false/*_shoppingCartSettings.QuickCkeckout*/)//TESTING!
+            if (_shoppingCartSettings.QuickCkeckout)
             {
                 foreach (var requirement in _requirements)
                 {

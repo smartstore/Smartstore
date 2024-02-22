@@ -14,11 +14,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         private readonly SmartDbContext _db;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
-        public ShippingAddressRequirement(SmartDbContext db, IHttpContextAccessor httpContextAccessor)
+        public ShippingAddressRequirement(
+            SmartDbContext db,
+            ICheckoutStateAccessor checkoutStateAccessor,
+            IHttpContextAccessor httpContextAccessor)
             : base(httpContextAccessor)
         {
             _db = db;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         protected override string ActionName => "ShippingAddress";
@@ -52,7 +57,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             {
                 await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
 
-                return new(customer.ShippingAddress != null);
+                var skip = false;
+                var isFulfilled = customer.ShippingAddress != null;
+                var state = _checkoutStateAccessor.CheckoutState;
+
+                if (isFulfilled && state.CustomProperties.TryGetValueAs("SkipCheckoutShippingAddress", out skip))
+                {
+                    state.CustomProperties.Remove("SkipCheckoutShippingAddress");
+                }
+
+                return new(isFulfilled, null, skip);
             }
             else
             {

@@ -24,7 +24,7 @@ namespace Smartstore.Web.Controllers
         //private readonly IShoppingCartValidator _shoppingCartValidator;
         //private readonly IOrderProcessingService _orderProcessingService;
         //private readonly IOrderCalculationService _orderCalculationService;
-        //private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         //private readonly ModuleManager _moduleManager;
         //private readonly ShippingSettings _shippingSettings;
         //private readonly PaymentSettings _paymentSettings;
@@ -41,7 +41,7 @@ namespace Smartstore.Web.Controllers
             //IShoppingCartValidator shoppingCartValidator,
             //IOrderProcessingService orderProcessingService,
             //IOrderCalculationService orderCalculationService,
-            //ICheckoutStateAccessor checkoutStateAccessor,
+            ICheckoutStateAccessor checkoutStateAccessor,
             //ModuleManager moduleManager,
             //ShippingSettings shippingSettings,
             //PaymentSettings paymentSettings,
@@ -56,7 +56,7 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             //_orderProcessingService = orderProcessingService;
             //_orderCalculationService = orderCalculationService;
-            //_checkoutStateAccessor = checkoutStateAccessor;
+            _checkoutStateAccessor = checkoutStateAccessor;
             //_shoppingCartValidator = shoppingCartValidator;
             //_moduleManager = moduleManager;
             //_shippingSettings = shippingSettings;
@@ -231,6 +231,10 @@ namespace Smartstore.Web.Controllers
                 }
 
                 customer.Addresses.Add(address);
+
+                // Save to avoid duplicate addresses.
+                await _db.SaveChangesAsync();
+
                 if (isShippingAddress)
                 {
                     customer.ShippingAddress = address;
@@ -238,6 +242,12 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     customer.BillingAddress = address;
+                    customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
+
+                    if (!model.ShippingAddressDiffers)
+                    {
+                        _checkoutStateAccessor.CheckoutState.CustomProperties["SkipCheckoutShippingAddress"] = true;
+                    }
                 }
 
                 await _db.SaveChangesAsync();
