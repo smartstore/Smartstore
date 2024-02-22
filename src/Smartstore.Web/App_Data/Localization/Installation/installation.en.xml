@@ -17,6 +17,9 @@
     <LocaleResource Name="DbRawConnectionString">
         <Value>Connection string</Value>
     </LocaleResource>
+    <LocaleResource Name="FindMoreInfo">
+        <Value><![CDATA[Find more info <a href="{0}" rel="nofollow" target="_blank">here</a>.]]></Value>
+    </LocaleResource>   
     <LocaleResource Name="ConnectionStringValues">
         <Value>Enter connection values</Value>
     </LocaleResource>
