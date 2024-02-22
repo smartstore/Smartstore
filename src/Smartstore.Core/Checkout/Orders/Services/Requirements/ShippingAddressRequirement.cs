@@ -62,7 +62,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     await _db.SaveChangesAsync();
                 }
 
-                return new(true);
+                return new(true, null, true);
             }
         }
     }

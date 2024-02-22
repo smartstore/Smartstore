@@ -174,6 +174,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink");
             // ----- Conditional attributes review (end)
 
+            // ----- Quick checkout (begin)
+
+            builder.AddOrUpdate("Checkout.SpecifyDifferingShippingAddress",
+                "I would like to specify a different delivery address after defining my billing address.",
+                "Ich möchte nach der Festlegung meiner Rechnungsadresse eine abweichende Lieferanschrift festlegen.");
+
+            // ----- Quick checkout (end)
+
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
                 "Maximum avatar size",
                 "Maximale Avatar-Größe",

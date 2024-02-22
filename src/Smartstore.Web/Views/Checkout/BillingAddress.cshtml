@@ -25,13 +25,20 @@
         <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
             <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
 
+            <div sm-if="Model.IsShippingRequired" class="form-check my-3">
+                <input id="@Html.IdFor(x => x.ShippingAddressDiffers)" name="@Html.NameFor(x => x.ShippingAddressDiffers)" type="checkbox" class="form-check-input" />
+                <label class="form-check-label" for="@Html.NameFor(x => x.ShippingAddressDiffers)">
+                    @T("Checkout.SpecifyDifferingShippingAddress")
+                </label>
+            </div>
+
             <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
                 @foreach (var item in Model.ExistingAddresses)
                 {
                     <div class="col">
                         <div class="card card-body address-list-item">
                             <div class="address-item">
-                                <button class="btn btn-warning btn-block select-billing-address-button" 
+                                <button class="btn btn-warning btn-block select-billing-address-button"
                                         data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })">
                                     <span>@T("Checkout.BillToThisAddress")</span>
                                     <i class="fa fa-angle-right"></i>
@@ -64,12 +71,14 @@
                         </div>
                     </div>
                 }
+
+                <partial name="_AddNewAddress" />
             </div>
         </fieldset>
 
         <zone name="checkout_billing_address_middle" />
 
-        <fieldset class="content-group">
+        <fieldset class="content-group cnt-add-new-address pt-3" attr-style='(Model.ExistingAddresses.Any(), "display:none")'>
             <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
 
             <div class="enter-address">
@@ -111,7 +120,13 @@
 
         $('.select-billing-address-button').on('click', function (e) {
             e.preventDefault();
-            $(this).postData({ });
+
+            var shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
+
+            $(this).postData({
+                data: { shippingAddressDiffers }
+            });
+
             return false;
         });
 

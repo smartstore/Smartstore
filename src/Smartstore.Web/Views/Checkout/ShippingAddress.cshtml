@@ -31,7 +31,7 @@
                     <div class="col">
                         <div class="card card-body address-list-item">
                             <div class="address-item">
-                                <button class="btn btn-warning btn-block select-shipping-address-button" 
+                                <button class="btn btn-warning btn-block select-shipping-address-button"
                                         data-url="@Url.Action("SelectShippingAddress", new { addressId = item.Id })">
                                     <span>@T("Checkout.ShipToThisAddress")</span>
                                     <i class="fa fa-angle-right"></i>
@@ -64,12 +64,14 @@
                         </div>
                     </div>
                 }
+
+                <partial name="_AddNewAddress" />
             </div>
         </fieldset>
 
         <zone name="checkout_shipping_address_middle" />
 
-        <fieldset class="content-group">
+        <fieldset class="content-group cnt-add-new-address" attr-style='(Model.ExistingAddresses.Any(), "display:none")'>
             <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterShippingAddress"))</span></legend>
 
             <div class="enter-address">

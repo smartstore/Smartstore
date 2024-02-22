@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Checkout;
@@ -38,15 +39,18 @@ namespace Smartstore.Web.Models.Checkout
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
-        
+        private readonly IShoppingCartService _shoppingCartService;
+
         public CheckoutAddressMapper(
             SmartDbContext db,
             IStoreContext storeContext,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            IShoppingCartService shoppingCartService)
         {
             _db = db;
             _storeContext = storeContext;
             _workContext = workContext;
+            _shoppingCartService = shoppingCartService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -70,17 +74,10 @@ namespace Smartstore.Web.Models.Checkout
                 to.ExistingAddresses.Add(await address.MapAsync());
             }
 
+            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+            to.IsShippingRequired = cart.IsShippingRequired();
+
             // New address.
-            var countriesQuery = _db.Countries.AsNoTracking();
-
-            countriesQuery = shipping
-                ? countriesQuery.Where(x => x.AllowsShipping)
-                : countriesQuery.Where(x => x.AllowsBilling);
-
-            var countries = await countriesQuery
-                .ApplyStandardFilter(false, _storeContext.CurrentStore.Id)
-                .ToListAsync();
-
             await new Address().MapAsync(to.NewAddress);
 
             to.NewAddress.CountryId = selectedCountryId;
@@ -88,6 +85,16 @@ namespace Smartstore.Web.Models.Checkout
 
             if (to.NewAddress.CountryEnabled)
             {
+                var countriesQuery = _db.Countries.AsNoTracking();
+
+                countriesQuery = shipping
+                    ? countriesQuery.Where(x => x.AllowsShipping)
+                    : countriesQuery.Where(x => x.AllowsBilling);
+
+                var countries = await countriesQuery
+                    .ApplyStandardFilter(false, _storeContext.CurrentStore.Id)
+                    .ToListAsync();
+
                 to.NewAddress.AvailableCountries = countries.ToSelectListItems(selectedCountryId ?? 0);
             }
         }

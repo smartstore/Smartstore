@@ -37,15 +37,18 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 && IsSameRoute(HttpMethods.Post, "SelectBillingAddress"))
             {
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address != null)
+                if (address == null)
                 {
-                    customer.BillingAddress = address;
-                    await _db.SaveChangesAsync();
-
-                    return new(true);
+                    return new(false);
                 }
 
-                return new(false);
+                var shippingAddressDiffers = HttpContext.Request.Form.TryGetValue("ShippingAddressDiffers", out var val) && val.ToString().ToBool();
+
+                customer.BillingAddress = address;
+                customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
+                await _db.SaveChangesAsync();
+
+                return new(true);
             }
 
             if (customer.BillingAddressId == null)

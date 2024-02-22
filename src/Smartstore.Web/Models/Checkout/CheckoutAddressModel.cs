@@ -4,13 +4,10 @@ namespace Smartstore.Web.Models.Checkout
 {
     public partial class CheckoutAddressModel : ModelBase
     {
-        public List<AddressModel> ExistingAddresses { get; set; } = new();
-
+        public List<AddressModel> ExistingAddresses { get; set; } = [];
         public AddressModel NewAddress { get; set; } = new();
 
-        /// <summary>
-        /// Used on one-page checkout page
-        /// </summary>
-        public bool NewAddressPreselected { get; set; }
+        public bool IsShippingRequired { get; set; }
+        public bool ShippingAddressDiffers { get; set; }
     }
 }
