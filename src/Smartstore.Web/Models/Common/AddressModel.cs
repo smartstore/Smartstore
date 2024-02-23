@@ -96,6 +96,12 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
+        public bool EnableDefaultAddressOptions { get; set; }
+        [LocalizedDisplay("*IsDefaultBillingAddress")]
+        public bool IsDefaultBillingAddress { get; set; }
+        [LocalizedDisplay("*IsDefaultShippingAddress")]
+        public bool IsDefaultShippingAddress { get; set; }
+
         public IList<CountrySelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();

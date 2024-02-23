@@ -180,6 +180,20 @@ namespace Smartstore.Core.Data.Migrations
                 "I would like to specify a different delivery address after defining my billing address.",
                 "Ich möchte nach der Festlegung meiner Rechnungsadresse eine abweichende Lieferanschrift festlegen.");
 
+            builder.AddOrUpdate("Address.Fields.IsDefaultBillingAddress",
+                "Set as my default billing address",
+                "Als meine Standard-Rechnungsanschrift festlegen");
+
+            builder.AddOrUpdate("Address.Fields.IsDefaultShippingAddress",
+                "Set as default shipping address",
+                "Als Standard-Versandanschrift festlegen");
+
+            builder.AddOrUpdate("Address.IsDefaultAddress", "Is default address", "Ist Standardadresse");
+
+            builder.AddOrUpdate("Address.SetDefaultAddress",
+                "Sets the address as the default billing and shipping address.",
+                "Legt die Adresse als Standard-Rechnungs- und Versandanschrift fest.");
+
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

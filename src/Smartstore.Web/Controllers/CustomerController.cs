@@ -8,6 +8,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
@@ -345,9 +346,24 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
+            var defaultBillingAddressId = customer.GenericAttributes.DefaultBillingAddressId;
+            var defaultShippingAddressId = customer.GenericAttributes.DefaultShippingAddressId;
+
             var models = await customer.Addresses
-                .SelectAwait(async x => await x.MapAsync())
+                .SelectAwait(async x =>
+                {
+                    var model = await x.MapAsync();
+                    model.IsDefaultBillingAddress = x.Id == defaultBillingAddressId;
+                    model.IsDefaultShippingAddress = x.Id == defaultShippingAddressId;
+
+                    return model;
+                })
                 .AsyncToList();
+
+            models = models
+                .OrderByDescending(x => x.IsDefaultBillingAddress && x.IsDefaultShippingAddress)
+                .ThenByDescending(x => x.Id)
+                .ToList();
 
             return View(models);
         }
@@ -407,13 +423,22 @@ namespace Smartstore.Web.Controllers
             {
                 MiniMapper.Map(model, address);
                 customer.Addresses.Add(address);
+                await _db.SaveChangesAsync();
+
+                if (model.IsDefaultBillingAddress)
+                {
+                    customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                }
+                if (model.IsDefaultShippingAddress)
+                {
+                    customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                }
 
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
             }
 
-            // If we got this far something failed. Redisplay form.
             await PrepareAddressModel(address, model);
 
             return View(model);
@@ -465,20 +490,67 @@ namespace Smartstore.Web.Controllers
             {
                 MiniMapper.Map(model, address);
                 _db.Addresses.Update(address);
+
+                var ga = customer.GenericAttributes;
+
+                if (ga.DefaultBillingAddressId == address.Id && !model.IsDefaultBillingAddress)
+                {
+                    ga.DefaultBillingAddressId = 0;
+                }
+                else if (ga.DefaultBillingAddressId != address.Id && model.IsDefaultBillingAddress)
+                {
+                    ga.DefaultBillingAddressId = address.Id;
+                }
+
+                if (ga.DefaultShippingAddressId == address.Id && !model.IsDefaultShippingAddress)
+                {
+                    ga.DefaultShippingAddressId = 0;
+                }
+                else if (ga.DefaultShippingAddressId != address.Id && model.IsDefaultShippingAddress)
+                {
+                    ga.DefaultShippingAddressId = address.Id;
+                }
+
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
             }
 
-            // If we got this far something failed. Redisplay form.
             await PrepareAddressModel(address, model);
 
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SetDefaultAddress(int id)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return ChallengeOrForbid();
+            }
+
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == id);
+            if (address != null)
+            {
+                customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Addresses));
+        }
+
         private async Task PrepareAddressModel(Address from, AddressModel to)
         {
+            var customer = Services.WorkContext.CurrentCustomer;
+
             await from.MapAsync(to);
+
+            to.EnableDefaultAddressOptions = true;
+            to.IsDefaultBillingAddress = from.Id != 0 && customer.GenericAttributes.DefaultBillingAddressId == from.Id;
+            to.IsDefaultShippingAddress = from.Id != 0 && customer.GenericAttributes.DefaultShippingAddressId == from.Id;
         }
 
         #endregion

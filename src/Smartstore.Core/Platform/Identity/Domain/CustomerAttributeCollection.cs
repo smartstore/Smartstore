@@ -189,6 +189,18 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.ClientIdent, value);
         }
 
+        public int DefaultBillingAddressId
+        {
+            get => Get<int>(SystemCustomerAttributeNames.DefaultBillingAddressId);
+            set => Set(SystemCustomerAttributeNames.DefaultBillingAddressId, value);
+        }
+
+        public int DefaultShippingAddressId
+        {
+            get => Get<int>(SystemCustomerAttributeNames.DefaultShippingAddressId);
+            set => Set(SystemCustomerAttributeNames.DefaultShippingAddressId, value);
+        }
+
         #endregion
 
         #region Depends on store

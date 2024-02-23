@@ -16,7 +16,7 @@
             <span asp-validation-for="Company"></span>
         </div>
     </div>
-    
+
     <div><hr /></div>
 
     <div sm-if="Model.SalutationEnabled || Model.TitleEnabled" class="form-group row">
@@ -87,11 +87,11 @@
             <span asp-validation-for="ZipPostalCode"></span>
         </div>
     </div>
-    
+
     <div sm-if="Model.CountryEnabled" class="form-group row">
         <label asp-for="CountryId" class="col-@(breakpoint)-3 col-form-label@(Model.CountryRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            @{ 
+            @{
                 var countrySelectorViewData = new
                 {
                     nullable = !Model.CountryRequired,
@@ -153,8 +153,32 @@
         </div>
     </div>
 
+    <input asp-for="EnableDefaultAddressOptions" type="hidden" />
+    <div sm-if="Model.EnableDefaultAddressOptions" class="form-group">
+        <div class="row">
+            <div class="col">
+                <div class="form-check">
+                    <input sm-ignore-label="true" sm-switch="false" asp-for="IsDefaultBillingAddress" type="checkbox" class="form-check-input" />
+                    <label class="form-check-label" for="IsDefaultBillingAddress">
+                        @Html.Raw(T("Address.Fields.IsDefaultBillingAddress"))
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check">
+                    <input sm-ignore-label="true" sm-switch="false" asp-for="IsDefaultShippingAddress" type="checkbox" class="form-check-input" />
+                    <label class="form-check-label" for="IsDefaultShippingAddress">
+                        @Html.Raw(T("Address.Fields.IsDefaultShippingAddress"))
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="form-group row">
-        <div class="offset-@breakpoint-3 col-@breakpoint-9 text-muted address-required-hint">
+        <div class="col-@breakpoint-9 text-muted address-required-hint">
             @T("Common.FormFields.Required.Hint")
         </div>
     </div>

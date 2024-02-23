@@ -190,6 +190,9 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 // Addresses.
+                var defaultBillingAddressId = customer.GenericAttributes.DefaultBillingAddressId;
+                var defaultShippingAddressId = customer.GenericAttributes.DefaultShippingAddressId;
+
                 var addresses = customer.Addresses
                     .OrderByDescending(x => x.CreatedOnUtc)
                     .ThenByDescending(x => x.Id)
@@ -197,8 +200,17 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var address in addresses)
                 {
-                    model.Addresses.Add(await address.MapAsync());
+                    var addressModel = await address.MapAsync();
+                    addressModel.IsDefaultBillingAddress = address.Id == defaultBillingAddressId;
+                    addressModel.IsDefaultShippingAddress = address.Id == defaultShippingAddressId;
+
+                    model.Addresses.Add(addressModel);
                 }
+
+                model.Addresses = model.Addresses
+                    .OrderByDescending(x => x.IsDefaultBillingAddress && x.IsDefaultShippingAddress)
+                    .ThenByDescending(x => x.Id)
+                    .ToList();
             }
             else
             {
@@ -226,7 +238,7 @@ namespace Smartstore.Admin.Controllers
                     var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync((int)model.CountryId);
                     ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
-                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                        new() { Text = T("Address.OtherNonUS"), Value = "0" }
                     };
                 }
             }

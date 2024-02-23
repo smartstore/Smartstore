@@ -28,6 +28,8 @@
         public static string MostRecentlyUsedManufacturers => "MostRecentlyUsedManufacturers";
         public static string HasConsentedToGdpr => "HasConsentedToGdpr";
         public static string ClientIdent => "ClientIdent";
+        public static string DefaultBillingAddressId => "DefaultBillingAddressId";
+        public static string DefaultShippingAddressId => "DefaultShippingAddressId";
 
         // Depends on store
         public static string CurrencyId => "CurrencyId";
