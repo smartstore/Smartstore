@@ -80,7 +80,7 @@
                 },
                 // Create order
                 createOrder: function (data, actions) {
-                    return createOrder(self.buttonContainer.data("create-order-url"), self.buttonContainer.attr("id"));
+                    return createOrder(self.buttonContainer.data("create-order-url"), self.buttonContainer.attr("id"), self.buttonContainer.data("route-ident"));
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {
@@ -99,7 +99,7 @@
                     displayNotification(err, 'error');
                 }
             })
-            .render(self.buttonContainer[0]);
+                .render(self.buttonContainer[0]);
         };
 
         return PayPalButton;
@@ -194,7 +194,7 @@
 
                         return false;
                     }
-                    
+
                     cardFields
                         .submit({
                             contingencies: ['SCA_ALWAYS']
@@ -214,7 +214,7 @@
                             console.log(err);
                             displayNotification(err.message, 'error');
                         });
-                    
+
                     return false;
                 })
             });
@@ -223,13 +223,13 @@
         return PayPalHostedFieldsMethod;
     })();
 
-    function createOrder(createOrderUrl, paymentSource) {
+    function createOrder(createOrderUrl, paymentSource, routeIdent) {
         var orderId;
 
         $.ajax({
             async: false,   // IMPORTANT INFO: we must wait to get the order id.
             type: 'POST',
-            data: $('#startcheckout').closest('form').serialize() + "&paymentSource=" + paymentSource + "&routeIdent=" + container.data("route-ident"),
+            data: $('#startcheckout').closest('form').serialize() + "&paymentSource=" + paymentSource + "&routeIdent=" + routeIdent,
             url: createOrderUrl,
             cache: false,
             success: function (response) {
@@ -241,7 +241,7 @@
                 }
             }
         });
-        
+
         return orderId;
     }
 

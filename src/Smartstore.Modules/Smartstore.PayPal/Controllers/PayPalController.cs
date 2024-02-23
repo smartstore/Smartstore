@@ -75,7 +75,7 @@ namespace Smartstore.PayPal.Controllers
             {
                 checkoutState.CustomProperties["PayPalButtonUsed"] = true;
             }
-                
+
             // Store order id temporarily in checkout state.
             checkoutState.CustomProperties["PayPalOrderId"] = orderId;
 
@@ -105,7 +105,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent)
+        public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
             // Only save cart data when we're on shopping cart page.
             if (routeIdent == "ShoppingCart.Cart")
@@ -331,7 +331,7 @@ namespace Smartstore.PayPal.Controllers
 
                 return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
             }
-    
+
             return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
         }
 
