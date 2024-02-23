@@ -57,7 +57,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InitTransaction(ProductVariantQuery query, bool? useRewardPoints, string orderId, string routeIdent)
+        public IActionResult InitTransaction(string orderId, string routeIdent)
         {
             var success = false;
             var message = string.Empty;
@@ -67,109 +67,99 @@ namespace Smartstore.PayPal.Controllers
                 return Json(new { success, message = "No order id has been returned by PayPal." });
             }
 
-            // Save data entered on cart page & validate cart and return warnings for minibasket.
-            var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
-            var warnings = new List<string>();
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var checkoutState = _checkoutStateAccessor.CheckoutState;
 
-            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
-            if (isCartValid)
+            // Only set this if we're not on payment page.
+            if (routeIdent != "Checkout.PaymentMethod")
             {
-                var checkoutState = _checkoutStateAccessor.CheckoutState;
-
-                // Only set this if we're not on payment page.
-                if (routeIdent != "Checkout.PaymentMethod")
-                {
-                    checkoutState.CustomProperties["PayPalButtonUsed"] = true;
-                }
+                checkoutState.CustomProperties["PayPalButtonUsed"] = true;
+            }
                 
-                // Store order id temporarily in checkout state.
-                checkoutState.CustomProperties["PayPalOrderId"] = orderId;
+            // Store order id temporarily in checkout state.
+            checkoutState.CustomProperties["PayPalOrderId"] = orderId;
 
-                var paypalCheckoutState = checkoutState.GetCustomState<PayPalCheckoutState>();
-                paypalCheckoutState.PayPalOrderId = orderId;
+            var paypalCheckoutState = checkoutState.GetCustomState<PayPalCheckoutState>();
+            paypalCheckoutState.PayPalOrderId = orderId;
 
-                var session = HttpContext.Session;
+            var session = HttpContext.Session;
 
-                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
-                {
-                    processPaymentRequest = new ProcessPaymentRequest
-                    {
-                        OrderGuid = Guid.NewGuid()
-                    };
-                }
-
-                processPaymentRequest.PayPalOrderId = orderId;
-                processPaymentRequest.StoreId = Services.StoreContext.CurrentStore.Id;
-                processPaymentRequest.CustomerId = customer.Id;
-                processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-
-                session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-
-                success = true;
-            }
-            else
+            if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
             {
-                message = string.Join(Environment.NewLine, warnings);
+                processPaymentRequest = new ProcessPaymentRequest
+                {
+                    OrderGuid = Guid.NewGuid()
+                };
             }
+
+            processPaymentRequest.PayPalOrderId = orderId;
+            processPaymentRequest.StoreId = Services.StoreContext.CurrentStore.Id;
+            processPaymentRequest.CustomerId = customer.Id;
+            processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+
+            session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+            success = true;
 
             return Json(new { success, message });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource)
+        public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent)
         {
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var warnings = new List<string>();
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
-            if (isCartValid)
+            // Only save cart data when we're on shopping cart page.
+            if (routeIdent == "ShoppingCart.Cart")
             {
-                var session = HttpContext.Session;
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+                var warnings = new List<string>();
+                var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
 
-                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
+                if (!isCartValid)
                 {
-                    processPaymentRequest = new ProcessPaymentRequest
-                    {
-                        OrderGuid = Guid.NewGuid()
-                    };
+                    return Json(new { success = false, message = string.Join(Environment.NewLine, warnings) });
                 }
-
-                session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-
-                var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
-                var response = await _client.CreateOrderAsync(orderMessage);
-                var rawResponse = response.Body<object>().ToString();
-                dynamic jResponse = JObject.Parse(rawResponse);
-
-                var selectedPaymentMethod = string.Empty;
-                switch (paymentSource)
-                {
-                    case "paypal-creditcard-hosted-fields-container":
-                        selectedPaymentMethod = "Payments.PayPalCreditCard";
-                        break;
-                    case "paypal-sepa-button-container":
-                        selectedPaymentMethod = "Payments.PayPalSepa";
-                        break;
-                    case "paypal-paylater-button-container":
-                        selectedPaymentMethod = "Payments.PayPalPayLater";
-                        break;
-                    case "paypal-button-container":
-                    default:
-                        selectedPaymentMethod = "Payments.PayPalStandard";
-                        break;
-                }
-
-                Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
-
-                return Json(new { success = true, data = jResponse });
             }
-            else
+
+            var session = HttpContext.Session;
+
+            if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest) || processPaymentRequest == null)
             {
-                return Json(new { success = false, message = string.Join(Environment.NewLine, warnings) });
+                processPaymentRequest = new ProcessPaymentRequest
+                {
+                    OrderGuid = Guid.NewGuid()
+                };
             }
+
+            session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
+            var response = await _client.CreateOrderAsync(orderMessage);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            var selectedPaymentMethod = string.Empty;
+            switch (paymentSource)
+            {
+                case "paypal-creditcard-hosted-fields-container":
+                    selectedPaymentMethod = "Payments.PayPalCreditCard";
+                    break;
+                case "paypal-sepa-button-container":
+                    selectedPaymentMethod = "Payments.PayPalSepa";
+                    break;
+                case "paypal-paylater-button-container":
+                    selectedPaymentMethod = "Payments.PayPalPayLater";
+                    break;
+                case "paypal-button-container":
+                default:
+                    selectedPaymentMethod = "Payments.PayPalStandard";
+                    break;
+            }
+
+            Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
+
+            return Json(new { success = true, data = jResponse });
         }
 
         /// <summary>

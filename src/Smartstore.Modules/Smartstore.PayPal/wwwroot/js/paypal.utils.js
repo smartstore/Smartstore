@@ -229,7 +229,7 @@
         $.ajax({
             async: false,   // IMPORTANT INFO: we must wait to get the order id.
             type: 'POST',
-            data: { paymentSource: paymentSource },
+            data: $('#startcheckout').closest('form').serialize() + "&paymentSource=" + paymentSource + "&routeIdent=" + container.data("route-ident"),
             url: createOrderUrl,
             cache: false,
             success: function (response) {
@@ -249,7 +249,10 @@
         $.ajax({
             type: 'POST',
             url: container.data("init-transaction-url"),
-            data: $('#startcheckout').closest('form').serialize() + "&orderId=" + data.orderID + "&routeIdent=" + container.data("route-ident"),
+            data: {
+                orderId: data.orderID,
+                routeIdent: container.data("route-ident")
+            },
             cache: false,
             success: function (resp) {
                 if (resp.success) {
