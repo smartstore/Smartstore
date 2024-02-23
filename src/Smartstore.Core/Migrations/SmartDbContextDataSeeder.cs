@@ -183,6 +183,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ShowOnPasswordRecoveryPage",
                 "Show on password recovery page",
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
+
+            builder.Delete("Admin.ContentManagement.Topics.Validation.NoWhiteSpace");
+            
+            builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
+                "Spaces are invalid for the HTML attribute 'id'.",
+                "Leerzeichen sind für das HTML-Attribut 'id' ungültig.");
         }
     }
 }
