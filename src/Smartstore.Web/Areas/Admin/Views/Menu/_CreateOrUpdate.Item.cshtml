@@ -247,9 +247,10 @@
 <script sm-target-zone="scripts" data-origin="menu-item-create-or-update">
     $(function () {
         // Icon colors.
+        const colorVars = Smartstore.Admin.getThemeColorVars();
         $('.icon-color-chooser > option').each(function () {
             var option = $(this);
-            option.data("color", localStorage.getItem('--' + this.value));
+            option.data("color", colorVars['--' + this.value]);
         });
     });
 </script>

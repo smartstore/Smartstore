@@ -55,7 +55,7 @@ Smartstore.Admin = {
                     // ...but first add a hidden input to the form with button's name and value to mimic button click WITHIN the form.
                     var btn = $(e.currentTarget);
                     form.prepend($('<input type="hidden" name="' + btn.attr('name') + '" value="' + btn.attr('value') + '" />'));
-                    form.submit();
+                    form.trigger('submit');
                 }
             });
         }
@@ -135,6 +135,28 @@ Smartstore.Admin = {
                 }
             }
         });
+    },
+    getThemeColorVars: function () {
+        const frameRoot = $(window.document.documentElement);
+        let themeVars = frameRoot.data('themeVars');
+        if (themeVars) {
+            return themeVars;
+        }
+
+        const styles = getComputedStyle(frameRoot.get(0));
+        const colors = styles.getPropertyValue("--varnames");
+
+        // Make array
+        let arr = colors.split(",");
+
+        themeVars = {};
+        $.each(arr, (i, val) => {
+            val = val.trim();
+            themeVars[val] = styles.getPropertyValue(val);
+        });
+
+        frameRoot.data('themeVars', themeVars);
+        return themeVars;
     },
     TaskWatcher: (function () {
         var interval;
