@@ -219,17 +219,6 @@ namespace Smartstore.Web.Controllers
             if (ModelState.IsValid)
             {
                 var address = await MapperFactory.MapAsync<AddressModel, Address>(model.NewAddress);
-                address.CreatedOnUtc = DateTime.UtcNow;
-
-                if (address.CountryId == 0)
-                {
-                    address.CountryId = null;
-                }
-                if (address.StateProvinceId == 0)
-                {
-                    address.StateProvinceId = null;
-                }
-
                 customer.Addresses.Add(address);
 
                 // Save to avoid duplicate addresses.

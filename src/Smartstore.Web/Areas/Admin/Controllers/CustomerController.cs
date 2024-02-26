@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -46,6 +45,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -63,7 +63,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
-            Lazy<IShoppingCartService> shoppingCartService)
+            Lazy<IShoppingCartService> shoppingCartService,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _customerService = customerService;
@@ -81,6 +82,7 @@ namespace Smartstore.Admin.Controllers
             _gdprTool = gdprTool;
             _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         #region Utilities
@@ -174,43 +176,18 @@ namespace Smartstore.Admin.Controllers
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
                 model.IsGuest = customer.IsGuest();
+                model.Addresses = await CreateAddressesModel(customer);
 
                 model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
                     .Select(x => x.CustomerRoleId)
                     .ToArray();
 
-                if (customer.AffiliateId != 0)
-                {
-                    var affiliate = await _db.Affiliates
-                        .Include(x => x.Address)
-                        .FindByIdAsync(customer.AffiliateId, false);
+                var affiliate = await _db.Affiliates
+                    .Include(x => x.Address)
+                    .FindByIdAsync(customer.AffiliateId, false);
 
-                    model.AffiliateFullName = affiliate?.Address?.GetFullName();
-                }
-
-                // Addresses.
-                var defaultBillingAddressId = customer.GenericAttributes.DefaultBillingAddressId;
-                var defaultShippingAddressId = customer.GenericAttributes.DefaultShippingAddressId;
-
-                var addresses = customer.Addresses
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .ThenByDescending(x => x.Id)
-                    .ToList();
-
-                foreach (var address in addresses)
-                {
-                    var addressModel = await address.MapAsync();
-                    addressModel.IsDefaultBillingAddress = address.Id == defaultBillingAddressId;
-                    addressModel.IsDefaultShippingAddress = address.Id == defaultShippingAddressId;
-
-                    model.Addresses.Add(addressModel);
-                }
-
-                model.Addresses = model.Addresses
-                    .OrderByDescending(x => x.IsDefaultBillingAddress && x.IsDefaultShippingAddress)
-                    .ThenByDescending(x => x.Id)
-                    .ToList();
+                model.AffiliateFullName = affiliate?.Address?.GetFullName();
             }
             else
             {
@@ -220,7 +197,7 @@ namespace Smartstore.Admin.Controllers
                 if (model.SelectedCustomerRoleIds == null || model.SelectedCustomerRoleIds.Length == 0)
                 {
                     var role = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Registered);
-                    model.SelectedCustomerRoleIds = new[] { role.Id };
+                    model.SelectedCustomerRoleIds = [role.Id];
                 }
             }
 
@@ -244,9 +221,25 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
+        private async Task<CustomerModel.AddressesModel> CreateAddressesModel(Customer customer)
         {
-            Guard.NotNull(allCustomerRoleIds, nameof(allCustomerRoleIds));
+            var model = new CustomerModel.AddressesModel
+            {
+                Id = customer.Id,
+                Addresses = await customer.Addresses
+                    .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCkeckoutEnabled))
+                    .OrderByDefaultAddresses()
+                    .AsyncToList()
+            };
+
+            return model;
+        }
+
+        private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRoles(
+            int[] selectedCustomerRoleIds,
+            List<int> allCustomerRoleIds)
+        {
+            Guard.NotNull(allCustomerRoleIds);
 
             var newCustomerRoles = new List<CustomerRole>();
             var newCustomerRoleIds = new HashSet<int>();
@@ -262,7 +255,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            if (newCustomerRoleIds.Any())
+            if (newCustomerRoleIds.Count > 0)
             {
                 newCustomerRoles = await _db.CustomerRoles
                     .AsNoTracking()
@@ -364,9 +357,10 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private static async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
+        private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
-            await address.MapAsync(model.Address);
+            await address.MapAsync(model.Address, customer, _shoppingCartSettings.QuickCkeckoutEnabled);
+
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
         }
@@ -502,7 +496,7 @@ namespace Smartstore.Admin.Controllers
 
             // Validate customer roles.
             var allCustomerRoleIds = await _db.CustomerRoles.Select(x => x.Id).ToListAsync();
-            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRoles(model.SelectedCustomerRoleIds, allCustomerRoleIds);
             if (customerRolesError.HasValue())
             {
                 ModelState.AddModelError(nameof(model.SelectedCustomerRoleIds), customerRolesError);
@@ -612,11 +606,11 @@ namespace Smartstore.Admin.Controllers
 
             var allCustomerRoleIds = allowManagingCustomerRoles
                 ? await _db.CustomerRoles.AsNoTracking().Select(x => x.Id).ToListAsync()
-                : new List<int>();
+                : [];
 
             if (allowManagingCustomerRoles)
             {
-                var (_, errMessage) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+                var (_, errMessage) = await ValidateCustomerRoles(model.SelectedCustomerRoleIds, allCustomerRoleIds);
                 if (errMessage.HasValue())
                 {
                     ModelState.AddModelError(string.Empty, errMessage);
@@ -1102,19 +1096,15 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var address = await MapperFactory.MapAsync<AddressModel, Address>(model.Address);
-                address.CreatedOnUtc = DateTime.UtcNow;
-
-                if (address.CountryId == 0)
-                {
-                    address.CountryId = null;
-                }
-                if (address.StateProvinceId == 0)
-                {
-                    address.StateProvinceId = null;
-                }
 
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
+
+                if (_shoppingCartSettings.QuickCkeckoutEnabled)
+                {
+                    model.Address.ApplyDefaultAddresses(customer);
+                    await _db.SaveChangesAsync();
+                }
 
                 NotifySuccess(T("Admin.Customers.Customers.Addresses.Added"));
 
@@ -1131,7 +1121,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Customer.ReadAddress)]
-        public async Task<IActionResult> AddressEdit(int addressId, int customerId)
+        public async Task<IActionResult> AddressEdit(int customerId, int addressId)
         {
             var customer = await _db.Customers.FindByIdAsync(customerId, false);
             if (customer == null)
@@ -1168,9 +1158,17 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            var state = ModelState;
+
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model.Address, address);
+
+                if (_shoppingCartSettings.QuickCkeckoutEnabled)
+                {
+                    model.Address.ApplyDefaultAddresses(customer);
+                }
+
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Customers.Customers.Addresses.Updated"));
@@ -1186,27 +1184,67 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Customer.EditAddress)]
+        public async Task<IActionResult> SetDefaultAddress(int customerId, int addressId)
+        {
+            var customer = await _db.Customers
+                .Include(x => x.Addresses)
+                .ThenInclude(x => x.Country)
+                .FindByIdAsync(customerId);
+
+            var address = customer?.Addresses?.FirstOrDefault(x => x.Id == addressId);
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            var billingAllowed = address.Country?.AllowsBilling ?? true;
+            var shippingAllowed = address.Country?.AllowsShipping ?? true;
+
+            if (billingAllowed && shippingAllowed)
+            {
+                customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                if (!billingAllowed)
+                {
+                    NotifyError(T("Order.CountryNotAllowedForBilling", address.Country?.GetLocalized(x => x.Name)));
+                }
+                if (!shippingAllowed)
+                {
+                    NotifyError(T("Order.CountryNotAllowedForShipping", address.Country?.GetLocalized(x => x.Name)));
+                }
+            }
+
+            var model = await CreateAddressesModel(customer);
+
+            return PartialView("_Addresses", model);
+        }
+
+        [HttpPost]
         [Permission(Permissions.Customer.DeleteAddress)]
         public async Task<IActionResult> AddressDelete(int customerId, int addressId)
         {
-            var success = false;
             var customer = await _db.Customers
                 .Include(x => x.Addresses)
                 .FindByIdAsync(customerId);
 
-            if (customer != null)
+            var address = customer?.Addresses?.FirstOrDefault(x => x.Id == addressId);
+            if (address == null)
             {
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address != null)
-                {
-                    customer.RemoveAddress(address);
-                    _db.Addresses.Remove(address);
-                    await _db.SaveChangesAsync();
-                    success = true;
-                }
+                return NotFound();
             }
 
-            return new JsonResult(success);
+            customer.RemoveAddress(address);
+            _db.Addresses.Remove(address);
+            await _db.SaveChangesAsync();
+
+            var model = await CreateAddressesModel(customer);
+
+            return PartialView("_Addresses", model);
         }
 
         #endregion

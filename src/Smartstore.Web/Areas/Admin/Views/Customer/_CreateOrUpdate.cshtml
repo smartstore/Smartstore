@@ -83,7 +83,15 @@
         }
 
         <tab sm-title="@T("Admin.Customers.Customers.Addresses")" sm-icon="bi:geo-alt">
-            <partial name="_Addresses" />
+            <div>
+                <a asp-action="AddressCreate" asp-route-customerId="@Model.Id" class="btn btn-primary mb-3">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Account.CustomerAddresses.AddNew")</span>
+                </a>
+            </div>
+            <div id="customer-addresses">
+                <partial name="_Addresses" model="Model.Addresses" />
+            </div>
         </tab>
         <tab sm-title="@T("Admin.Customers.Customers.CurrentCart")" sm-icon="bi:cart-check">
             <h5 class="mt-3 text-muted">@T("Admin.Customers.Customers.CurrentShoppingCart")</h5>
@@ -117,6 +125,30 @@
         applyCommonPlugins(pane);
         reinitFormValidator("#customer-form");
     }
+
+    $(function () {
+        var addresses = $('#customer-addresses');
+
+        addresses.on('click', '.delete-address', function () {
+            $(this).ajax({
+                type: 'POST',
+			    ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
+                iconType: 'delete',
+                success: function (response) {
+                    addresses.html(response);
+                }
+		    });
+        });
+
+        addresses.on('click', '.default-address-button', function () {
+            $(this).ajax({
+                type: 'POST',
+                success: function (response) {
+                    $('#customer-addresses').html(response);
+                }
+		    });
+        });
+    });
 </script>
 
 @{

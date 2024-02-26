@@ -8,6 +8,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities;
@@ -227,7 +228,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else if (customer.BillingAddress.Country != null && !customer.BillingAddress.Country.AllowsBilling)
                 {
-                    warnings.Add(T("Order.CountryNotAllowedForBilling", customer.BillingAddress.Country.Name));
+                    warnings.Add(T("Order.CountryNotAllowedForBilling", customer.BillingAddress.Country.GetLocalized(x => x.Name)));
                 }
 
                 if (cart.IsShippingRequired())
@@ -243,7 +244,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                     else if (customer.ShippingAddress.Country != null && !customer.ShippingAddress.Country.AllowsShipping)
                     {
-                        warnings.Add(T("Order.CountryNotAllowedForShipping", customer.ShippingAddress.Country.Name));
+                        warnings.Add(T("Order.CountryNotAllowedForShipping", customer.ShippingAddress.Country.GetLocalized(x => x.Name)));
                     }
                 }
             }

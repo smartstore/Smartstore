@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
@@ -15,15 +16,18 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public BillingAddressRequirement(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ShoppingCartSettings shoppingCartSettings)
             : base(httpContextAccessor)
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         protected override string ActionName => "BillingAddress";
@@ -59,6 +63,22 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
 
                 return new(true);
+            }
+
+            if (_shoppingCartSettings.QuickCkeckoutEnabled)
+            {
+                var defaultAddressId = customer.GenericAttributes.DefaultBillingAddressId;
+                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
+                if (defaultAddress != null)
+                {
+                    if (customer.BillingAddressId != defaultAddress.Id)
+                    {
+                        customer.BillingAddress = defaultAddress;
+                        await _db.SaveChangesAsync();
+                    }
+
+                    return new(true);
+                }
             }
 
             if (customer.BillingAddressId == null)

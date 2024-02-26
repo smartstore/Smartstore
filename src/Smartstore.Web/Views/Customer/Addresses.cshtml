@@ -60,27 +60,35 @@
                        rel="nofollow">
                         <i class="far fa-edit"></i>
                     </a>
-                    <button type="button" class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button" 
-                       data-url="@Url.Action("AddressDelete", new { id = address.Id })"
-                       title="@T("Common.Delete")">
+                    <button type="button" class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button"
+                            data-url="@Url.Action("AddressDelete", new { id = address.Id })"
+                            title="@T("Common.Delete")">
                         <i class="far fa-trash-can"></i>
                     </button>
 
-                    @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
-                    {
-                        <span class="badge badge-success align-self-center p-1 pr-2 ml-auto">
-                            <i class="fa fa-check mx-1"></i>
-                            <span>@T("Address.IsDefaultAddress")</span>
-                        </span>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-light btn-flat btn-sm ml-auto default-address-button"
-                           data-url="@Url.Action("SetDefaultAddress", new { id = address.Id })"
-                           title="@T("Address.SetDefaultAddress")">
-                            <span>@T("Common.SetDefault")</span>
-                        </button>
-                    }
+                    <div sm-if="address.EditDefaultAddressOptions" class="d-flex ml-auto">
+                        @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
+                        {
+                            <span class="badge badge-success align-self-center p-1 pr-2">
+                                <i class="fa fa-check mx-1"></i>
+                                <span>@T("Address.IsDefaultAddress")</span>
+                            </span>
+                        }
+                        else if (address.IsDefaultBillingAddress || address.IsDefaultShippingAddress)
+                        {
+                            <span class="badge badge-info align-self-center py-1 px-2 ml-auto">
+                                <span>@T(address.IsDefaultBillingAddress ? "Address.IsDefaultBillingAddress" : "Address.IsDefaultShippingAddress")</span>
+                            </span>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-light btn-flat btn-sm default-address-button"
+                                    data-url="@Url.Action("SetDefaultAddress", new { id = address.Id })"
+                                    title="@T("Address.SetDefaultAddress")">
+                                <span>@T("Common.SetDefault")</span>
+                            </button>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

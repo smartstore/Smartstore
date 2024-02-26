@@ -4,7 +4,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
-using Smartstore;
 
 namespace Smartstore.Admin.Models.Customers
 {
@@ -146,13 +145,13 @@ namespace Smartstore.Admin.Models.Customers
         public bool DisplayProfileLink { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth")]
-        public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
+        public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = [];
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
         public bool HasOrders { get; set; }
         public PermissionTree PermissionTree { get; set; }
-        public List<AddressModel> Addresses { get; set; } = new();
+        public AddressesModel Addresses { get; set; }
 
         #region Nested classes
 
@@ -198,6 +197,20 @@ namespace Smartstore.Admin.Models.Customers
             public string Body { get; set; }
         }
 
+        public class SendEmailValidator : SmartValidator<SendEmailModel>
+        {
+            public SendEmailValidator()
+            {
+                RuleFor(x => x.Subject).NotEmpty();
+                RuleFor(x => x.Body).NotEmpty();
+            }
+        }
+
+        public class AddressesModel : EntityModelBase
+        {
+            public List<AddressModel> Addresses { get; set; }
+        }
+
         [LocalizedDisplay("Admin.Customers.Customers.Orders.")]
         public class OrderModel : EntityModelBase
         {
@@ -222,15 +235,6 @@ namespace Smartstore.Admin.Models.Customers
             [LocalizedDisplay("Common.CreatedOn")]
             public DateTime CreatedOn { get; set; }
             public string EditUrl { get; set; }
-        }
-
-        public class SendEmailValidator : SmartValidator<SendEmailModel>
-        {
-            public SendEmailValidator()
-            {
-                RuleFor(x => x.Subject).NotEmpty();
-                RuleFor(x => x.Body).NotEmpty();
-            }
         }
 
         [LocalizedDisplay("Account.ChangePassword.Fields.")]

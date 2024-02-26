@@ -6,6 +6,7 @@
 
 <input asp-for="Id" type="hidden" />
 <input asp-for="CreatedOnUtc" type="hidden" />
+<input asp-for="CountryName" type="hidden" />
 
 <div class="form-horizontal">
 
@@ -153,25 +154,26 @@
         </div>
     </div>
 
-    <input asp-for="EnableDefaultAddressOptions" type="hidden" />
-    <div sm-if="Model.EnableDefaultAddressOptions" class="form-group">
-        <div class="row">
+    <div sm-if="Model.EditDefaultAddressOptions">
+        <div class="row form-group">
             <div class="col">
                 <div class="form-check">
                     <input sm-ignore-label="true" sm-switch="false" asp-for="IsDefaultBillingAddress" type="checkbox" class="form-check-input" />
                     <label class="form-check-label" for="IsDefaultBillingAddress">
                         @Html.Raw(T("Address.Fields.IsDefaultBillingAddress"))
                     </label>
+                    <span asp-validation-for="IsDefaultBillingAddress"></span>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row form-group">
             <div class="col">
                 <div class="form-check">
                     <input sm-ignore-label="true" sm-switch="false" asp-for="IsDefaultShippingAddress" type="checkbox" class="form-check-input" />
                     <label class="form-check-label" for="IsDefaultShippingAddress">
                         @Html.Raw(T("Address.Fields.IsDefaultShippingAddress"))
                     </label>
+                    <span asp-validation-for="IsDefaultShippingAddress"></span>
                 </div>
             </div>
         </div>

@@ -175,25 +175,25 @@ namespace Smartstore.Core.Data.Migrations
             // ----- Conditional attributes review (end)
 
             // ----- Quick checkout (begin)
-
             builder.AddOrUpdate("Checkout.SpecifyDifferingShippingAddress",
                 "I would like to specify a different delivery address after defining my billing address.",
                 "Ich möchte nach der Festlegung meiner Rechnungsadresse eine abweichende Lieferanschrift festlegen.");
 
             builder.AddOrUpdate("Address.Fields.IsDefaultBillingAddress",
-                "Set as my default billing address",
-                "Als meine Standard-Rechnungsanschrift festlegen");
+                "Set as default billing address",
+                "Als Standard-Rechnungsanschrift festlegen");
 
             builder.AddOrUpdate("Address.Fields.IsDefaultShippingAddress",
                 "Set as default shipping address",
-                "Als Standard-Versandanschrift festlegen");
+                "Als Standard-Lieferanschrift festlegen");
 
             builder.AddOrUpdate("Address.IsDefaultAddress", "Is default address", "Ist Standardadresse");
+            builder.AddOrUpdate("Address.IsDefaultBillingAddress", "Is default billing address", "Ist Standard-Rechnungsanschrift");
+            builder.AddOrUpdate("Address.IsDefaultShippingAddress", "Is default shipping address", "Ist Standard-Lieferanschrift");
 
             builder.AddOrUpdate("Address.SetDefaultAddress",
                 "Sets the address as the default billing and shipping address.",
-                "Legt die Adresse als Standard-Rechnungs- und Versandanschrift fest.");
-
+                "Legt die Adresse als Standard-Rechnungs- und Lieferanschrift fest.");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

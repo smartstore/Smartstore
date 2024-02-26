@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
@@ -52,6 +52,7 @@ namespace Smartstore.Web.Controllers
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly MediaSettings _mediaSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -78,7 +79,8 @@ namespace Smartstore.Web.Controllers
             LocalizationSettings localizationSettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _newsletterSubscriptionService = newsletterSubscriptionService;
@@ -105,6 +107,7 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
             _mediaSettings = mediaSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         public async Task<IActionResult> Info()
@@ -346,24 +349,10 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var defaultBillingAddressId = customer.GenericAttributes.DefaultBillingAddressId;
-            var defaultShippingAddressId = customer.GenericAttributes.DefaultShippingAddressId;
-
             var models = await customer.Addresses
-                .SelectAwait(async x =>
-                {
-                    var model = await x.MapAsync();
-                    model.IsDefaultBillingAddress = x.Id == defaultBillingAddressId;
-                    model.IsDefaultShippingAddress = x.Id == defaultShippingAddressId;
-
-                    return model;
-                })
+                .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCkeckoutEnabled))
+                .OrderByDefaultAddresses()
                 .AsyncToList();
-
-            models = models
-                .OrderByDescending(x => x.IsDefaultBillingAddress && x.IsDefaultShippingAddress)
-                .ThenByDescending(x => x.Id)
-                .ToList();
 
             return View(models);
         }
@@ -402,8 +391,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var model = new AddressModel();
-            await PrepareAddressModel(new Address(), model);
+            var model = await new Address().MapAsync(customer, _shoppingCartSettings.QuickCkeckoutEnabled);
 
             return View(model);
         }
@@ -425,21 +413,16 @@ namespace Smartstore.Web.Controllers
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
 
-                if (model.IsDefaultBillingAddress)
+                if (_shoppingCartSettings.QuickCkeckoutEnabled)
                 {
-                    customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                    model.ApplyDefaultAddresses(customer);
+                    await _db.SaveChangesAsync();
                 }
-                if (model.IsDefaultShippingAddress)
-                {
-                    customer.GenericAttributes.DefaultShippingAddressId = address.Id;
-                }
-
-                await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
             }
 
-            await PrepareAddressModel(address, model);
+            await address.MapAsync(model, customer, _shoppingCartSettings.QuickCkeckoutEnabled);
 
             return View(model);
         }
@@ -464,8 +447,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(Addresses));
             }
 
-            var model = new AddressModel();
-            await PrepareAddressModel(address, model);
+            var model = await address.MapAsync(customer, _shoppingCartSettings.QuickCkeckoutEnabled);
 
             return View(model);
         }
@@ -491,24 +473,9 @@ namespace Smartstore.Web.Controllers
                 MiniMapper.Map(model, address);
                 _db.Addresses.Update(address);
 
-                var ga = customer.GenericAttributes;
-
-                if (ga.DefaultBillingAddressId == address.Id && !model.IsDefaultBillingAddress)
+                if (_shoppingCartSettings.QuickCkeckoutEnabled)
                 {
-                    ga.DefaultBillingAddressId = 0;
-                }
-                else if (ga.DefaultBillingAddressId != address.Id && model.IsDefaultBillingAddress)
-                {
-                    ga.DefaultBillingAddressId = address.Id;
-                }
-
-                if (ga.DefaultShippingAddressId == address.Id && !model.IsDefaultShippingAddress)
-                {
-                    ga.DefaultShippingAddressId = 0;
-                }
-                else if (ga.DefaultShippingAddressId != address.Id && model.IsDefaultShippingAddress)
-                {
-                    ga.DefaultShippingAddressId = address.Id;
+                    model.ApplyDefaultAddresses(customer);
                 }
 
                 await _db.SaveChangesAsync();
@@ -516,7 +483,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(Addresses));
             }
 
-            await PrepareAddressModel(address, model);
+            await address.MapAsync(model, customer, _shoppingCartSettings.QuickCkeckoutEnabled);
 
             return View(model);
         }
@@ -533,24 +500,29 @@ namespace Smartstore.Web.Controllers
             var address = customer.Addresses.FirstOrDefault(x => x.Id == id);
             if (address != null)
             {
-                customer.GenericAttributes.DefaultBillingAddressId = address.Id;
-                customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                var billingAllowed = address.Country?.AllowsBilling ?? true;
+                var shippingAllowed = address.Country?.AllowsShipping ?? true;
 
-                await _db.SaveChangesAsync();
+                if (billingAllowed && shippingAllowed)
+                {
+                    customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                    customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    if (!billingAllowed)
+                    {
+                        NotifyError(T("Order.CountryNotAllowedForBilling", address.Country?.GetLocalized(x => x.Name)));
+                    }
+                    if (!shippingAllowed)
+                    {
+                        NotifyError(T("Order.CountryNotAllowedForShipping", address.Country?.GetLocalized(x => x.Name)));
+                    }
+                }
             }
 
             return RedirectToAction(nameof(Addresses));
-        }
-
-        private async Task PrepareAddressModel(Address from, AddressModel to)
-        {
-            var customer = Services.WorkContext.CurrentCustomer;
-
-            await from.MapAsync(to);
-
-            to.EnableDefaultAddressOptions = true;
-            to.IsDefaultBillingAddress = from.Id != 0 && customer.GenericAttributes.DefaultBillingAddressId == from.Id;
-            to.IsDefaultShippingAddress = from.Id != 0 && customer.GenericAttributes.DefaultShippingAddressId == from.Id;
         }
 
         #endregion

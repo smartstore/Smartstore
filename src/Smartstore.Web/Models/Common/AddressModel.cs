@@ -96,7 +96,7 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
-        public bool EnableDefaultAddressOptions { get; set; }
+        public bool EditDefaultAddressOptions { get; set; }
         [LocalizedDisplay("*IsDefaultBillingAddress")]
         public bool IsDefaultBillingAddress { get; set; }
         [LocalizedDisplay("*IsDefaultShippingAddress")]
@@ -153,8 +153,11 @@ namespace Smartstore.Web.Models.Common
     
     public class AddressValidator : SmartValidator<AddressModel>
     {
-        public AddressValidator(Localizer T, AddressSettings addressSettings, SmartDbContext db)
-        {            
+        public AddressValidator(
+            SmartDbContext db,
+            Localizer T, 
+            AddressSettings addressSettings)
+        {
             RuleFor(x => x.FirstName).ValidName(T);
             RuleFor(x => x.LastName).ValidName(T);
 
@@ -224,6 +227,19 @@ namespace Smartstore.Web.Models.Common
                     .Equal(x => x.Email)
                     .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
             }
+
+            When(x => x.CountryId != null && x.EditDefaultAddressOptions, () =>
+            {
+                RuleFor(x => x.IsDefaultBillingAddress)
+                    .Must((model, x) => db.Countries.Any(x => x.Id == model.CountryId.Value && x.AllowsBilling))
+                    .When(x => x.IsDefaultBillingAddress)
+                    .WithMessage((model, x) => T("Order.CountryNotAllowedForBilling", model.CountryName));
+
+                RuleFor(x => x.IsDefaultShippingAddress)
+                    .Must((model, x) => db.Countries.Any(x => x.Id == model.CountryId.Value && x.AllowsShipping))
+                    .When(x => x.IsDefaultShippingAddress)
+                    .WithMessage((model, x) => T("Order.CountryNotAllowedForShipping", model.CountryName));
+            });
         }
     }
 }
