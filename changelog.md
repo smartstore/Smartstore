@@ -18,6 +18,8 @@
 - Import news from RSS news feeds.
 - #971 Add a cart rule to check if the current customer is authenticated with a certain external authentication method.
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
+- Page Builder
+	- Added **AudioPlayer** block
 
 ### Improvements
 
