@@ -102,7 +102,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         &.active:before {
             content: "";
-            inset-inline-end: 0;
+            inset-inline-end: 4px;
             position: absolute;
             border-bottom: 10px solid $megamenu-dropdown-bg;
             border-right: 12px solid transparent;
@@ -113,7 +113,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         &.active:after {
             content: "";
-            inset-inline-end: -2px;
+            inset-inline-end: 2px;
             position: absolute;
             border-bottom: 12px solid $dropdown-border-color;
             border-right: 14px solid transparent;
