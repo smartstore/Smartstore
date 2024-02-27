@@ -77,7 +77,7 @@ namespace Smartstore.Web.Components
         private async Task PrepareCookieManagerModelAsync(CookieManagerModel model)
         {
             // Get cookie infos from modules.
-            model.CookiesInfos = [.. (await _cookieConsentManager.GetCookieInfosAsync(true))];
+            model.CookiesInfos = new List<CookieInfo>(await _cookieConsentManager.GetCookieInfosAsync(true));
 
             var cookie = _cookieConsentManager.GetCookieData();
 
