@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Localization;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
 {
