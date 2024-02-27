@@ -248,10 +248,10 @@
     $(function () {
         // Icon colors.
         const colorVars = Smartstore.Admin.getThemeColorVars();
-        var colorChooser = $('.icon-color-chooser');
+        const colorChooser = $('.icon-color-chooser');
 
         colorChooser.find('option').each(function () {
-            var option = $(this);
+            const option = $(this);
             option.data("color", colorVars['--' + this.value]);
         });
 
