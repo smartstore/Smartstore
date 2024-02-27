@@ -19,10 +19,9 @@
         <h1 class="h3">@T("Checkout.ShippingAddress")</h1>
     </div>
     <div class="page-body checkout-data">
-
         <zone name="checkout_shipping_address_top" />
 
-        <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
+        <fieldset sm-if="Model.ExistingAddresses.Count > 0" class="content-group mb-3">
             <legend><span>@T("Checkout.SelectShippingAddress")</span></legend>
 
             <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
@@ -71,9 +70,8 @@
 
         <zone name="checkout_shipping_address_middle" />
 
-        <fieldset class="content-group cnt-add-new-address" attr-style='(Model.ExistingAddresses.Any(), "display:none")'>
+        <fieldset class="content-group cnt-add-new-address" attr-style='(Model.ExistingAddresses.Count > 0 && ViewData.ModelState.IsValid, "display:none")'>
             <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterShippingAddress"))</span></legend>
-
             <div class="enter-address">
                 <form asp-action="ShippingAddress" asp-controller="Checkout" method="post">
                     <div class="enter-address-body">
@@ -95,7 +93,7 @@
                         </a>
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
 
-                        <button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                        <button type="button" class="btn btn-warning btn-lg new-address-next-step-button">
                             <span>@T("Checkout.NextButton")</span>
                             <i class="fa fa-angle-right"></i>
                         </button>
@@ -114,6 +112,12 @@
         $('.select-shipping-address-button').on('click', function (e) {
             e.preventDefault();
             $(this).postData({});
+            return false;
+        });
+
+        $('.new-address-next-step-button').on('click', function (e) {
+            e.preventDefault();
+            $('#nextstep').trigger('click');
             return false;
         });
 

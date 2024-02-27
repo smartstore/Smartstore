@@ -52,19 +52,10 @@ namespace Smartstore.Web.Models.Checkout
             var options = customer.GenericAttributes.OfferedShippingOptions ??
                 (await _shippingService.GetShippingOptionsAsync(from, customer.ShippingAddress, storeId: from.StoreId)).ShippingOptions;
 
-            //var shippingOptionResponse = (parameters?.ShippingOptionResponse as ShippingOptionResponse) ?? new ShippingOptionResponse();
-            //Guard.NotNull(shippingOptionResponse);
-
-            //if (shippingOptionResponse.Success)
             if (options.Count > 0)
             {
-                // Performance optimization. cache returned shipping options.
-                // We'll use them later (after a customer has selected an option).
-                //customer.GenericAttributes.OfferedShippingOptions = shippingOptionResponse.ShippingOptions;
-
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(from.StoreId);
 
-                //foreach (var option in shippingOptionResponse.ShippingOptions)
                 foreach (var option in options)
                 {
                     var model = new CheckoutShippingMethodModel.ShippingMethodModel
@@ -118,10 +109,6 @@ namespace Smartstore.Web.Models.Checkout
                     }
                 }
             }
-            //else
-            //{
-            //    shippingOptionResponse.Errors.Each(to.Warnings.Add);
-            //}
         }
     }
 }

@@ -19,10 +19,9 @@
         <h1 class="h3">@T("Checkout.BillingAddress")</h1>
     </div>
     <div class="page-body checkout-data">
-
         <zone name="checkout_billing_address_top" />
 
-        <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
+        <fieldset sm-if="Model.ExistingAddresses.Count > 0" class="content-group mb-3">
             <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
 
             <div sm-if="Model.IsShippingRequired" class="form-check my-3">
@@ -78,9 +77,8 @@
 
         <zone name="checkout_billing_address_middle" />
 
-        <fieldset class="content-group cnt-add-new-address pt-3" attr-style='(Model.ExistingAddresses.Any(), "display:none")'>
+        <fieldset class="content-group cnt-add-new-address pt-3" attr-style='(Model.ExistingAddresses.Count > 0 && ViewData.ModelState.IsValid, "display:none")'>
             <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
-
             <div class="enter-address">
                 <form asp-action="BillingAddress" asp-controller="Checkout" method="post">
                     <div class="enter-address-body">
@@ -100,9 +98,10 @@
                             <i class="fa fa-angle-left"></i>
                             <span>@T("Common.Back")</span>
                         </a>
+
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
 
-                        <button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                        <button type="button" class="btn btn-warning btn-lg new-address-next-step-button">
                             <span>@T("Checkout.NextButton")</span>
                             <i class="fa fa-angle-right"></i>
                         </button>
@@ -120,13 +119,18 @@
 
         $('.select-billing-address-button').on('click', function (e) {
             e.preventDefault();
-
             var shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
 
             $(this).postData({
                 data: { shippingAddressDiffers }
             });
 
+            return false;
+        });
+
+        $('.new-address-next-step-button').on('click', function (e) {
+            e.preventDefault();
+            $('#nextstep').trigger('click');
             return false;
         });
 

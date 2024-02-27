@@ -1,7 +1,6 @@
 ﻿using System.Collections.Frozen;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
@@ -68,39 +67,41 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return new(true, null, true);
             }
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            var state = _checkoutStateAccessor.CheckoutState;
+            var stay = state.CustomProperties.TryGetValueAs("ShippingAddressDiffers", out bool shippingAddressDiffers) && shippingAddressDiffers;
+            state.CustomProperties.Remove("ShippingAddressDiffers");
+
+            if (stay)
+            {
+                return new(await IsFulfilled(), null, true);
+            }
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled && customer.ShippingAddressId == null)
             {
                 var defaultAddressId = customer.GenericAttributes.DefaultShippingAddressId;
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
                 if (defaultAddress != null)
                 {
-                    if (customer.ShippingAddressId != defaultAddress.Id)
-                    {
-                        customer.ShippingAddress = defaultAddress;
-                        await _db.SaveChangesAsync();
-                    }
+                    customer.ShippingAddress = defaultAddress;
+                    await _db.SaveChangesAsync();
 
                     return new(true);
                 }
             }
 
-            if (customer.ShippingAddressId == null)
+            return new(await IsFulfilled());
+
+            async Task<bool> IsFulfilled()
             {
-                return new(false);
+                if (customer.ShippingAddressId == null)
+                {
+                    return false;
+                }
+
+                await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
+
+                return customer.ShippingAddress != null;
             }
-
-            await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
-
-            var skip = false;
-            var isFulfilled = customer.ShippingAddress != null;
-            var state = _checkoutStateAccessor.CheckoutState;
-
-            if (isFulfilled && state.CustomProperties.TryGetValueAs("SkipCheckoutShippingAddress", out skip))
-            {
-                state.CustomProperties.Remove("SkipCheckoutShippingAddress");
-            }
-
-            return new(isFulfilled, null, skip);
         }
     }
 }

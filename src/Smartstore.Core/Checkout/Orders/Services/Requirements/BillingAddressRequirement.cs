@@ -51,30 +51,23 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
 
                 var shippingAddressDiffers = GetFormValue("ShippingAddressDiffers").ToBool();
+                _checkoutStateAccessor.CheckoutState.CustomProperties["ShippingAddressDiffers"] = shippingAddressDiffers;
 
                 customer.BillingAddress = address;
                 customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
                 await _db.SaveChangesAsync();
 
-                if (!shippingAddressDiffers)
-                {
-                    _checkoutStateAccessor.CheckoutState.CustomProperties["SkipCheckoutShippingAddress"] = true;
-                }
-
                 return new(true);
             }
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            if (_shoppingCartSettings.QuickCheckoutEnabled && customer.BillingAddressId == null)
             {
                 var defaultAddressId = customer.GenericAttributes.DefaultBillingAddressId;
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
                 if (defaultAddress != null)
                 {
-                    if (customer.BillingAddressId != defaultAddress.Id)
-                    {
-                        customer.BillingAddress = defaultAddress;
-                        await _db.SaveChangesAsync();
-                    }
+                    customer.BillingAddress = defaultAddress;
+                    await _db.SaveChangesAsync();
 
                     return new(true);
                 }
