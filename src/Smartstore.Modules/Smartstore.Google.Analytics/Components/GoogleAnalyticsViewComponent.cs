@@ -151,8 +151,10 @@ namespace Smartstore.Google.Analytics.Components
                 }
 
                 var cookiesAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+                var adUserDataAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdUserData);
+                var adPersonalizationAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdPersonalization);
 
-                rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed)
+                rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed, adUserDataAllowed, adPersonalizationAllowed)
                     .Replace("{ECOMMERCE}", specificScript);
             }
             catch (Exception ex)

@@ -146,6 +146,8 @@ namespace Smartstore.Core.Identity
 
                     if ((cookieData.AllowAnalytics && cookieType == CookieType.Analytics) ||
                         (cookieData.AllowThirdParty && cookieType == CookieType.ThirdParty) ||
+                        (cookieData.AdUserDataConsent && cookieType == CookieType.ConsentAdUserData) ||
+                        (cookieData.AdPersonalizationConsent && cookieType == CookieType.ConsentAdPersonalization) ||
                         cookieType == CookieType.Required)
                     {
                         return true;
@@ -192,7 +194,11 @@ namespace Smartstore.Core.Identity
             return null;
         }
 
-        public virtual void SetConsentCookie(bool allowAnalytics = false, bool allowThirdParty = false)
+        public virtual void SetConsentCookie(
+            bool allowAnalytics = false, 
+            bool allowThirdParty = false,
+            bool adUserDataConsent = false,
+            bool adPersonalizationConsent = false)
         {
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
@@ -200,7 +206,9 @@ namespace Smartstore.Core.Identity
                 var cookieData = new ConsentCookie
                 {
                     AllowAnalytics = allowAnalytics,
-                    AllowThirdParty = allowThirdParty
+                    AllowThirdParty = allowThirdParty,
+                    AdUserDataConsent = adUserDataConsent,
+                    AdPersonalizationConsent = adPersonalizationConsent
                 };
 
                 var cookies = context.Response.Cookies;
@@ -253,7 +261,24 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class ConsentCookie
     {
+        /// <summary>
+        /// A value indicating whether analytical cookies are allowed to be set.
+        /// </summary>
         public bool AllowAnalytics { get; set; }
+
+        /// <summary>
+        /// A value indicating whether third party cookies are allowed to be set.
+        /// </summary>
         public bool AllowThirdParty { get; set; }
+
+        /// <summary>
+        /// A value indicating whether sending of user data is allowed.
+        /// </summary>
+        public bool AdUserDataConsent { get; set; }
+
+        /// <summary>
+        /// A value indicating whether personalization is allowed.
+        /// </summary>
+        public bool AdPersonalizationConsent { get; set; }
     }
 }

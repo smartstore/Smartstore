@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Localization;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
 {
@@ -57,8 +56,29 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public enum CookieType
     {
+        /// <summary>
+        /// Specifies that required cookies can be set.
+        /// </summary>
         Required,
+
+        /// <summary>
+        /// Specifies that analytical cookies can be set.
+        /// </summary>
         Analytics,
-        ThirdParty
+
+        /// <summary>
+        /// Specifies that third party cookies can be set.
+        /// </summary>
+        ThirdParty,
+
+        /// <summary>
+        /// Specifies that ad user data can be sent to third parties.
+        /// </summary>
+        ConsentAdUserData,
+
+        /// <summary>
+        /// Specifies that ad personalization is desired by the user.
+        /// </summary>
+        ConsentAdPersonalization
     }
 }

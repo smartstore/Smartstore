@@ -14,5 +14,9 @@ namespace Smartstore.Web.Models.Common
         public bool AnalyticsConsent { get; set; }
 
         public bool ThirdPartyConsent { get; set; }
+
+        public bool AdUserDataConsent { get; set; }
+
+        public bool AdPersonalizationConsent { get; set; }
     }
 }
