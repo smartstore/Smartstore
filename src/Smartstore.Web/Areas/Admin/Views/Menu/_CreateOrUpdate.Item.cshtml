@@ -251,6 +251,7 @@
         $('.icon-color-chooser > option').each(function () {
             var option = $(this);
             option.data("color", colorVars['--' + this.value]);
+            option.trigger('change.select2');
         });
     });
 </script>
