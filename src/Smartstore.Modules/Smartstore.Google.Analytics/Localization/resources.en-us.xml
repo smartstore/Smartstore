@@ -72,6 +72,12 @@
     <LocaleResource Name="CookieInfo">
         <Value>Google Analytics helps us analyze and improve the user behavior of our website to provide you with the best possible user experience.</Value>
     </LocaleResource>
+    <LocaleResource Name="ConsentAdUserData">
+        <Value>By consenting to the transmission of advertising-related user data, you authorise us to transmit a unique identifier linked to your customer account to Google.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsentAdPersonalization">
+        <Value>If you allow personalised advertising, you will receive ads from Google services that are tailored to your personal interests.</Value>
+    </LocaleResource>
     <LocaleResource Name="RestoreScripts">
         <Value>Restore scripts</Value>
     </LocaleResource>

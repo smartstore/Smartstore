@@ -9,12 +9,16 @@
     var requiredCookieInfos = new List<CookieInfo>();
     var analyticsCookieInfos = new List<CookieInfo>();
     var thirdPartyCookieInfos = new List<CookieInfo>();
+    var consentAdUserData = new List<CookieInfo>();
+    var consentAdPersonalization = new List<CookieInfo>();
 
     if (Model.CookiesInfos != null)
     {
         requiredCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.Required).ToList();
         analyticsCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.Analytics).ToList();
         thirdPartyCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.ThirdParty).ToList();
+        consentAdUserData = Model.CookiesInfos.Where(x => x.CookieType == CookieType.ConsentAdUserData).ToList();
+        consentAdPersonalization = Model.CookiesInfos.Where(x => x.CookieType == CookieType.ConsentAdPersonalization).ToList();
     }
 }
 
@@ -116,6 +120,60 @@
                         </table>
                     </div>
                 </div>
+
+                <div sm-if="consentAdUserData.Any()" class="cm-consent">
+                    <div class="row nav-toggler align-items-center g-0 px-0">
+                        <div class="cm-consent-switch col col-auto">
+                            <input type="checkbox" asp-for="AdUserDataConsent" sm-switch="true" />
+                        </div>
+                        <h5 class="cm-consent-title collapsed col m-0 pl-3" data-toggle="collapse" data-target="#ad-user-data-consent" aria-controls="ad-user-data-consent" aria-expanded="false">
+                            @T("CookieManager.Dialog.AdUserDataConsent.Heading")
+                            <i class="fas fa-angle-up collapse-chevron"></i>
+                        </h5>
+                    </div>
+
+                    <div id="ad-user-data-consent" class="collapse nav-collapse small" data-parent="#cookie-manager">
+                        <p class="cm-consent-intro">
+                            @T("CookieManager.Dialog.AdUserDataConsent.Intro")
+                        </p>
+                        <table class="cm-info-table table table-striped fs-xs m-0">
+                            @foreach (var info in consentAdUserData)
+                            {
+                                <tr>
+                                    <th scope="row">@info.Name</th>
+                                    <td>@info.Description</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <div sm-if="consentAdPersonalization.Any()" class="cm-consent">
+                    <div class="row nav-toggler align-items-center g-0 px-0">
+                        <div class="cm-consent-switch col col-auto">
+                            <input type="checkbox" asp-for="AdPersonalizationConsent" sm-switch="true" />
+                        </div>
+                        <h5 class="cm-consent-title collapsed col m-0 pl-3" data-toggle="collapse" data-target="#ad-personalization-consent" aria-controls="ad-personalization-consent" aria-expanded="false">
+                            @T("CookieManager.Dialog.AdPersonalizationConsent.Heading")
+                            <i class="fas fa-angle-up collapse-chevron"></i>
+                        </h5>
+                    </div>
+
+                    <div id="ad-personalization-consent" class="collapse nav-collapse small" data-parent="#cookie-manager">
+                        <p class="cm-consent-intro">
+                            @T("CookieManager.Dialog.AdPersonalizationConsent.Intro")
+                        </p>
+                        <table class="cm-info-table table table-striped fs-xs m-0">
+                            @foreach (var info in consentAdPersonalization)
+                            {
+                                <tr>
+                                    <th scope="row">@info.Name</th>
+                                    <td>@info.Description</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
             </div>
         </form>
 
@@ -136,7 +194,7 @@
     </modal-body>
 </modal>
 
-@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX*@
+@*INFO: No sm-target-zone here, because this component is loaded via AJAX*@
 <script>
 	$(function () {
         $('#cookie-manager-window').modal('show');
@@ -147,9 +205,11 @@
 			elem.val(acceptAll ? "True" : "False");
 
             if (acceptAll) {
-				// Set all options of CookieManager view to true for next load via ajax.
-                $("#@Html.IdFor(x => x.AnalyticsConsent)").attr("checked", "checked");
-                $("#@Html.IdFor(x => x.ThirdPartyConsent)").attr("checked", "checked");
+				// Set all options of CookieManager view to true.
+                updateCheckboxUIState($("#@Html.IdFor(x => x.AnalyticsConsent)"));
+                updateCheckboxUIState($("#@Html.IdFor(x => x.ThirdPartyConsent)"));
+                updateCheckboxUIState($("#@Html.IdFor(x => x.AdUserDataConsent)"));
+                updateCheckboxUIState($("#@Html.IdFor(x => x.AdPersonalizationConsent)"));
             }
 
             $("#cookie-manager-consent").submit();
@@ -159,4 +219,12 @@
     function OnConsented() {
         $('#cookie-manager-window').modal('hide');
     };
+
+    function updateCheckboxUIState (elem) {
+        var checked = elem.is(":checked");
+
+        if (!checked) {
+            elem.trigger("click");
+        }
+    }
 </script>

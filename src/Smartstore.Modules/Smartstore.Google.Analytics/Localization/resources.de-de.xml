@@ -49,6 +49,15 @@
     <LocaleResource Name="RenderWithUserConsentOnly.Hint">
         <Value>Bestimmt, ob das Analytics-Script nur nach Einwilligung des Kunden zu analytischen Cookies geladen wird.</Value>
     </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds">
+        <Value>Zustimmung zu Google Ads anzeigen</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds.Hint">
+        <Value>
+            Bestimmt, ob die Zustimmung zur Personalisierung und Weitergabe von Daten im Cookie-Manager angezeigt wird. 
+            Aktivieren Sie diese Option nur wenn, Sie auch Google Ads verwenden.
+        </Value>
+    </LocaleResource>
     <LocaleResource Name="TrackingScript">
         <Value>Tracking-Code mit {ECOMMERCE}-Zeile</Value>
     </LocaleResource>
@@ -72,6 +81,12 @@
     </LocaleResource>
     <LocaleResource Name="CookieInfo">
         <Value>Google Analytics hilft uns das Nutzerverhalten unserer Webseite zu analysieren und aufgrund dessen zu verbessern, um Ihnen die bestmögliche Nutzererfahrung zu bieten.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsentAdUserData">
+        <Value>Mit der Einwilligung zur Übermittlung von werbebezogenen Nutzerdaten, erlauben Sie uns, eine eindeutige Kennung, die mit Ihrem Kundenkonto verknüpft ist, an Google zu übermitteln.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsentAdPersonalization">
+        <Value>Wenn Sie personalisierte Werbung zulassen, erhalten Sie von Google-Diensten Anzeigen, die auf Ihre persönlichen Interessen zugeschnitten sind.</Value>
     </LocaleResource>
     <LocaleResource Name="RestoreScripts">
         <Value>Scripte wiederherstellen</Value>

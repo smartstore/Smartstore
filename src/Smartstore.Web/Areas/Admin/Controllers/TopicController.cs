@@ -451,6 +451,18 @@ namespace Smartstore.Admin.Controllers
                     Text = "ThirdParty",
                     Value = ((int)CookieType.ThirdParty).ToString(),
                     Selected = CookieType.ThirdParty == (CookieType?)selectedType
+                },
+                new SelectListItem
+                {
+                    Text = "ConsentAdUserData",
+                    Value = ((int)CookieType.ConsentAdUserData).ToString(),
+                    Selected = CookieType.ConsentAdUserData == (CookieType?)selectedType
+                },
+                new SelectListItem
+                {
+                    Text = "ConsentAdPersonalization",
+                    Value = ((int)CookieType.ConsentAdPersonalization).ToString(),
+                    Selected = CookieType.ConsentAdPersonalization == (CookieType?)selectedType
                 }
             });
         }

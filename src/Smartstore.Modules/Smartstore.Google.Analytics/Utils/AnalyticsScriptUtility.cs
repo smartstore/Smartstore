@@ -25,6 +25,8 @@
     gtag('consent', 'default', {
       'ad_storage': '{STORAGETYPE}',
       'analytics_storage': '{STORAGETYPE}',
+      'ad_user_data': '{ADUSERDATA}',
+      'ad_personalization': '{ADPERSONALIZATION}',
     });
 
     gtag('config', '{GOOGLEID}', { 'anonymize_ip': true });
