@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations

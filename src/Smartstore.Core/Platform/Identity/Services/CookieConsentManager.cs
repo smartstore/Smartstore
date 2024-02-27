@@ -131,7 +131,7 @@ namespace Smartstore.Core.Identity
         public virtual async Task<bool> IsCookieAllowedAsync(CookieType cookieType)
         {
             Guard.NotNull(cookieType);
-
+            
             if (!await IsCookieConsentRequiredAsync())
             {
                 return true;
