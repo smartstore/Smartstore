@@ -75,9 +75,9 @@ namespace Smartstore.Core.Checkout.Cart
 
         /// <summary>
         /// Gets or sets a value indicating whether quick checkout is enabled.
-        /// With quick checkout, checkout steps are skipped for registered customers if the required data is already known.
+        /// With quick checkout, checkout steps are skipped if the required data is already known.
         /// </summary>
-        public bool QuickCkeckoutEnabled { get; set; } = true;
+        public bool QuickCheckoutEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a comment box on shopping cart page

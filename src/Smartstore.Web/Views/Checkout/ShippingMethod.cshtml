@@ -46,7 +46,7 @@
 									<input id="shippingoption_@(i)" type="radio" name="shippingoption" 
 										class="opt-radio form-check-input" 
 										attr-checked='(shippingMethod.Selected, "checked")'
-										value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" />
+										value="@(shippingMethod.ShippingMethodId)___@(shippingMethod.ShippingRateComputationMethodSystemName)" />
 									<label class="form-check-label" for="shippingoption_@(i)">
 										<span class="opt-name">@Html.Raw(shippingMethod.Name.HtmlDecode())</span>
 									</label>

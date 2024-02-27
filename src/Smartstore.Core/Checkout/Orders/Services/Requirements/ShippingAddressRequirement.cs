@@ -68,7 +68,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return new(true, null, true);
             }
 
-            if (_shoppingCartSettings.QuickCkeckoutEnabled)
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
                 var defaultAddressId = customer.GenericAttributes.DefaultShippingAddressId;
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);

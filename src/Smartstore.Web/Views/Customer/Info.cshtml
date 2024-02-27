@@ -8,6 +8,12 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "info";
     ViewBag.PageTitle = T("Account.CustomerInfo").Value;
+
+    var shippingMethods = (List<SelectListItem>)ViewBag.ShippingMethods;
+    var paymentMethods = (List<SelectListItem>)ViewBag.PaymentMethods;
+    var quickCheckoutEnabled = (bool)ViewBag.QuickCheckoutEnabled;
+    var showShippingMethods = quickCheckoutEnabled && shippingMethods.Count > 0;
+    var showPaymentMethods = quickCheckoutEnabled && paymentMethods.Count > 0;
 }
 
 <form asp-action="Info" class="form-horizontal" method="post">
@@ -261,13 +267,27 @@
         </div>
     </fieldset>
 
-    <fieldset sm-if="Model.AllowCustomersToSetTimeZone" class="content-group">
+    <fieldset sm-if="Model.AllowCustomersToSetTimeZone || showShippingMethods || showPaymentMethods" class="content-group">
         <legend><span>@T("Account.Preferences")</span></legend>
-        <div class="form-group row">
+        <div sm-if="Model.AllowCustomersToSetTimeZone" class="form-group row">
             <label asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
                 <span asp-validation-for="TimeZoneId"></span>
+            </div>
+        </div>
+        <div sm-if="showShippingMethods" class="form-group row">
+            <label asp-for="DefaultShippingMethodId" class="col-lg-3 col-form-label"></label>
+            <div class="col-lg-9">
+                <select asp-for="DefaultShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="DefaultShippingMethodId"></span>
+            </div>
+        </div>
+        <div sm-if="showPaymentMethods" class="form-group row">
+            <label asp-for="DefaultPaymentMethod" class="col-lg-3 col-form-label"></label>
+            <div class="col-lg-9">
+                <select asp-for="DefaultPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="DefaultPaymentMethod"></span>
             </div>
         </div>
     </fieldset>

@@ -227,7 +227,7 @@ namespace Smartstore.Admin.Controllers
             {
                 Id = customer.Id,
                 Addresses = await customer.Addresses
-                    .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCkeckoutEnabled))
+                    .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled))
                     .OrderByDefaultAddresses()
                     .AsyncToList()
             };
@@ -359,7 +359,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
-            await address.MapAsync(model.Address, customer, _shoppingCartSettings.QuickCkeckoutEnabled);
+            await address.MapAsync(model.Address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
@@ -1100,7 +1100,7 @@ namespace Smartstore.Admin.Controllers
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
 
-                if (_shoppingCartSettings.QuickCkeckoutEnabled)
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {
                     model.Address.ApplyDefaultAddresses(customer);
                     await _db.SaveChangesAsync();
@@ -1164,7 +1164,7 @@ namespace Smartstore.Admin.Controllers
             {
                 await MapperFactory.MapAsync(model.Address, address);
 
-                if (_shoppingCartSettings.QuickCkeckoutEnabled)
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {
                     model.Address.ApplyDefaultAddresses(customer);
                 }

@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
@@ -20,19 +21,22 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PaymentSettings _paymentSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public PaymentMethodRequirement(
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
-            PaymentSettings paymentSettings)
+            PaymentSettings paymentSettings,
+            ShoppingCartSettings shoppingCartSettings)
             : base(httpContextAccessor)
         {
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _paymentSettings = paymentSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         protected override string ActionName => "PaymentMethod";
@@ -43,6 +47,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var attributes = cart.Customer.GenericAttributes;
+            List<Provider<IPaymentMethod>> providers = null;
 
             if (model != null 
                 && model is string paymentMethod 
@@ -97,19 +102,14 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                 if (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne)
                 {
-                    var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
-                    if (cart.ContainsRecurringItem())
-                    {
-                        providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
-                    }
-                    var paymentMethods = providers.ToList();
+                    providers ??= await GetPaymentMethods(cart);
 
-                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = paymentMethods.Count == 1;
-                    state.IsPaymentSelectionSkipped = paymentMethods.Count == 1 && !paymentMethods[0].Value.RequiresInteraction;
+                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = providers.Count == 1;
+                    state.IsPaymentSelectionSkipped = providers.Count == 1 && !providers[0].Value.RequiresInteraction;
 
                     if (state.IsPaymentSelectionSkipped)
                     {
-                        attributes.SelectedPaymentMethod = paymentMethods[0].Metadata.SystemName;
+                        attributes.SelectedPaymentMethod = providers[0].Metadata.SystemName;
                         await attributes.SaveChangesAsync();
                     }
                 }
@@ -122,7 +122,38 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 _skip = state.IsPaymentSelectionSkipped;
             }
 
+            if (_shoppingCartSettings.QuickCheckoutEnabled 
+                && state.IsPaymentRequired
+                && attributes.SelectedPaymentMethod.IsEmpty())
+            {
+                var defaultMethod = attributes.DefaultPaymentMethod;
+                if (defaultMethod.HasValue())
+                {
+                    providers ??= await GetPaymentMethods(cart);
+
+                    if (providers.Any(x => x.Metadata.SystemName.EqualsNoCase(defaultMethod)))
+                    {
+                        attributes.SelectedPaymentMethod = defaultMethod;
+                        await attributes.SaveChangesAsync();
+
+                        state.IsPaymentSelectionSkipped = true;
+                    }
+                }
+            }
+
             return new(attributes.SelectedPaymentMethod.HasValue(), null, _skip ?? false);
+        }
+
+        private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)
+        {
+            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
+            
+            if (cart.ContainsRecurringItem())
+            {
+                providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
+            }
+
+            return providers.ToList();
         }
     }
 }

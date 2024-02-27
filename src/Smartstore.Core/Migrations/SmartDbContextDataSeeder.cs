@@ -194,6 +194,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Address.SetDefaultAddress",
                 "Sets the address as the default billing and shipping address.",
                 "Legt die Adresse als Standard-Rechnungs- und Lieferanschrift fest.");
+
+            builder.AddOrUpdate("Account.Fields.DefaultShippingMethod", "Default shipping method", "Standard-Versandart");
+            builder.AddOrUpdate("Account.Fields.DefaultPaymentMethod", "Default payment method", "Standard-Zahlungsart");
+
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

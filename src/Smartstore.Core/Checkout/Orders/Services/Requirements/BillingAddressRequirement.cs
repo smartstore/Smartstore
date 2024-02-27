@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
@@ -65,7 +64,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 return new(true);
             }
 
-            if (_shoppingCartSettings.QuickCkeckoutEnabled)
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
                 var defaultAddressId = customer.GenericAttributes.DefaultBillingAddressId;
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);

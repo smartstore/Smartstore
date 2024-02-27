@@ -10,15 +10,18 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private bool? _skip;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public ShippingMethodRequirement(
             IShippingService shippingService,
             IHttpContextAccessor httpContextAccessor,
-            ShippingSettings shippingSettings)
+            ShippingSettings shippingSettings,
+            ShoppingCartSettings shoppingCartSettings)
             : base(httpContextAccessor)
         {
             _shippingService = shippingService;
             _shippingSettings = shippingSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         protected override string ActionName => "ShippingMethod";
@@ -57,7 +60,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     return new(false);
                 }
 
-                var selectedName = splittedOption[0];
+                var selectedId = splittedOption[0].ToInt();
                 var providerSystemName = splittedOption[1];
 
                 if (options.IsNullOrEmpty())
@@ -71,7 +74,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     options = options.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
                 }
 
-                var selectedShippingOption = options.Find(x => x.Name.EqualsNoCase(selectedName));
+                var selectedShippingOption = options.FirstOrDefault(x => x.ShippingMethodId == selectedId);
                 if (selectedShippingOption != null)
                 {
                     // Save selected shipping option in customer attributes.
@@ -103,6 +106,32 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 {
                     attributes.SelectedShippingOption = options[0];
                     saveAttributes = true;
+                }
+            }
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled && attributes.SelectedShippingOption == null)
+            {
+                var defaultOption = attributes.DefaultShippingOption;
+                if (defaultOption != null && defaultOption.ShippingMethodId != 0)
+                {
+                    ShippingOption option = null;
+                    
+                    if (defaultOption.ShippingRateComputationMethodSystemName.HasValue())
+                    {
+                        option = options.FirstOrDefault(x => x.ShippingMethodId == defaultOption.ShippingMethodId &&
+                            x.ShippingRateComputationMethodSystemName.EqualsNoCase(defaultOption.ShippingRateComputationMethodSystemName));
+                    }
+
+                    option ??= options
+                        .Where(x => x.ShippingMethodId == defaultOption.ShippingMethodId)
+                        .OrderBy(x => x.Rate)
+                        .FirstOrDefault();
+
+                    if (option != null)
+                    {
+                        attributes.SelectedShippingOption = option;
+                        saveAttributes = true;
+                    }
                 }
             }
 
