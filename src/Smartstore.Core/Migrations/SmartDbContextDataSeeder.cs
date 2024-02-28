@@ -206,6 +206,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Consent to personalisation enables us to offer enhanced functionality and personalisation. They can be set by us or by third-party providers whose services we use on our pages.",
                 "Die Zustimmung zur Personalisierung ermöglicht es uns, erweiterte Funktionalität und Personalisierung anzubieten. Sie können von uns oder von Drittanbietern gesetzt werden, deren Dienste wir auf unseren Seiten nutzen.");
 
+            // ---- Access Orders
+            builder.AddOrUpdate("Permissions.DisplayName.AccessOrders", "Access orders", "Aufträge zugreifen");
         }
     }
 }
