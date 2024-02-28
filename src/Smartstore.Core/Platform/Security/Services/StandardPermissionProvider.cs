@@ -41,6 +41,7 @@ namespace Smartstore.Core.Security
                     PermissionRecords = new[]
                     {
                         new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                        new PermissionRecord { SystemName = Permissions.Cart.AccessOrders },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
                         new PermissionRecord { SystemName = Permissions.System.AccessShop }
@@ -52,6 +53,7 @@ namespace Smartstore.Core.Security
                     PermissionRecords = new[]
                     {
                         new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                        new PermissionRecord { SystemName = Permissions.Cart.AccessOrders },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
                         new PermissionRecord { SystemName = Permissions.System.AccessShop }
@@ -63,6 +65,7 @@ namespace Smartstore.Core.Security
                     PermissionRecords = new[]
                     {
                         new PermissionRecord { SystemName = Permissions.Catalog.DisplayPrice },
+                        new PermissionRecord { SystemName = Permissions.Cart.AccessOrders },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessShoppingCart },
                         new PermissionRecord { SystemName = Permissions.Cart.AccessWishlist },
                         new PermissionRecord { SystemName = Permissions.System.AccessShop }

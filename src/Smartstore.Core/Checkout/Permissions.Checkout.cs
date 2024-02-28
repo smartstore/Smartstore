@@ -83,6 +83,7 @@
         {
             public const string Self = "cart";
             public const string Read = "cart.read";
+            public const string AccessOrders = "cart.accessorders";
             public const string AccessShoppingCart = "cart.accessshoppingcart";
             public const string AccessWishlist = "cart.accesswishlist";
 

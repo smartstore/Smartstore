@@ -189,6 +189,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
                 "Spaces are invalid for the HTML attribute 'id'.",
                 "Leerzeichen sind für das HTML-Attribut 'id' ungültig.");
+
+            // ---- Access Orders
+            builder.AddOrUpdate("Permissions.DisplayName.AccessOrders", "Access orders", "Aufträge zugreifen");
+
         }
     }
 }

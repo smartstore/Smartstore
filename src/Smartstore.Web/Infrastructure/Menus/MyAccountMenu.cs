@@ -3,6 +3,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Web.Infrastructure
 {
@@ -110,16 +111,20 @@ namespace Smartstore.Web.Infrastructure
                     Icon = "fal fa-address-book",
                     ActionName = "Addresses",
                     ControllerName = "Customer"
-                },
-                new MenuItem
+                }
+            });
+
+            if (await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessOrders))
+            {
+                root.Append(new MenuItem
                 {
                     Id = "orders",
                     Text = T("Account.CustomerOrders"),
                     Icon = "fal fa-file-lines",
                     ActionName = "Orders",
                     ControllerName = "Customer"
-                }
-            });
+                });
+            }
 
             if (_orderSettings.ReturnRequestsEnabled)
             {

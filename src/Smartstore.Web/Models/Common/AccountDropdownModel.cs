@@ -10,6 +10,7 @@ namespace Smartstore.Web.Models.Common
         public bool ShoppingCartEnabled { get; set; }
         public int ShoppingCartItems { get; set; }
         public bool WishlistEnabled { get; set; }
+        public bool OrdersEnabled { get; set; }
         public int WishlistItems { get; set; }
 
         public List<MenuItem> MenuItems { get; } = new();

@@ -18,6 +18,7 @@ namespace Smartstore.Web.Components
                 DisplayAdminLink = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend),
                 ShoppingCartEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart),
                 WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
+                OrdersEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessOrders),
                 //ShoppingCartItems = await Services.DbContext.ShoppingCartItems.CountCartItemsAsync(customer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id),
                 //WishlistItems = await Services.DbContext.ShoppingCartItems.CountCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id)
             };
@@ -29,12 +30,15 @@ namespace Smartstore.Web.Components
                 .Text(T("Account.MyAccount"))
                 .AsItem());
 
-            model.MenuItems.Add(new MenuItem().ToBuilder()
-                .Action("Orders", "Customer")
-                .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
-                .Icon("fal fa-file-lines fa-fw")
-                .Text(T("Account.MyOrders"))
-                .AsItem());
+            if (model.OrdersEnabled)
+            {
+                model.MenuItems.Add(new MenuItem().ToBuilder()
+                    .Action("Orders", "Customer")
+                    .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
+                    .Icon("fal fa-file-lines fa-fw")
+                    .Text(T("Account.MyOrders"))
+                    .AsItem());
+            }
 
             if (model.DisplayAdminLink)
             {

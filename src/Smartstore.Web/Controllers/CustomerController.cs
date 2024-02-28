@@ -494,6 +494,11 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessOrders))
+            {
+                return RedirectToRoute("Homepage");
+            }
+
             var ordersPageIndex = Math.Max((page ?? 0) - 1, 0);
             var rpPageIndex = Math.Max((recurringPaymentsPage ?? 0) - 1, 0);
 
