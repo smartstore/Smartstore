@@ -119,7 +119,7 @@ namespace Smartstore.Web.Controllers
                     customer.BillingAddress = address;
                     customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
 
-                    _checkoutStateAccessor.CheckoutState.CustomProperties["ShippingAddressDiffers"] = model.ShippingAddressDiffers;
+                    _checkoutStateAccessor.CheckoutState.CustomProperties["SkipShippingAddress"] = !model.ShippingAddressDiffers;
                 }
 
                 await _db.SaveChangesAsync();

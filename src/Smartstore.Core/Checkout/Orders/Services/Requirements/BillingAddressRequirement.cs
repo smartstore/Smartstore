@@ -50,8 +50,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     return new(false);
                 }
 
-                var shippingAddressDiffers = GetFormValue("ShippingAddressDiffers").ToBool();
-                _checkoutStateAccessor.CheckoutState.CustomProperties["ShippingAddressDiffers"] = shippingAddressDiffers;
+                var shippingAddressDiffers = GetFormValue("ShippingAddressDiffers").ToBool(true);
+                _checkoutStateAccessor.CheckoutState.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers;
 
                 customer.BillingAddress = address;
                 customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;

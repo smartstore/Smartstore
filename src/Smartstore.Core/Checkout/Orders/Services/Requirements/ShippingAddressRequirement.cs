@@ -68,16 +68,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             var state = _checkoutStateAccessor.CheckoutState;
-            state.CustomProperties.TryGetValueAs("ShippingAddressDiffers", out bool shippingAddressDiffers);
-            state.CustomProperties.Remove("ShippingAddressDiffers");
+            state.CustomProperties.TryGetValueAs("SkipShippingAddress", out bool skip);
+            state.CustomProperties.Remove("SkipShippingAddress");
 
-            // TODO: (mg)(quick-checkout) does not work: nav back from confirm.
-            if (!shippingAddressDiffers && await IsFulfilled())
-            {
-                return new(true, null, true);
-            }
-
-            if (_shoppingCartSettings.QuickCheckoutEnabled && customer.ShippingAddressId == null)
+            if (!skip && _shoppingCartSettings.QuickCheckoutEnabled && customer.ShippingAddressId == null)
             {
                 var defaultAddressId = customer.GenericAttributes.DefaultShippingAddressId;
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
@@ -90,7 +84,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
             }
 
-            return new(await IsFulfilled());
+            return new(await IsFulfilled(), null, skip);
 
             async Task<bool> IsFulfilled()
             {

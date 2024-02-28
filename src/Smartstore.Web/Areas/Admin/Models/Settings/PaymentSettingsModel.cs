@@ -13,5 +13,8 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*DisplayPaymentMethodIcons")]
         public bool DisplayPaymentMethodIcons { get; set; }
+
+        [LocalizedDisplay("*SkipPaymentSelectionIfSingleOption")]
+        public bool SkipPaymentSelectionIfSingleOption { get; set; }
     }
 }

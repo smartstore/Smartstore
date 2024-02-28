@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
                 state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
 
-                if (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne)
+                if (_paymentSettings.SkipPaymentSelectionIfSingleOption)
                 {
                     providers ??= await GetPaymentMethods(cart);
 

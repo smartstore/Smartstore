@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -59,6 +60,10 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             await db.SaveChangesAsync(cancelToken);
+
+            await db.Settings
+                .Where(x => x.Name == "PaymentSettings.BypassPaymentMethodSelectionIfOnlyOne")
+                .ExecuteUpdateAsync(x => x.SetProperty(s => s.Name, s => "PaymentSettings.SkipPaymentSelectionIfSingleOption"), cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -205,6 +210,12 @@ namespace Smartstore.Core.Data.Migrations
                 + " This allows the customer to go directly to the order confirmation page and complete the purchase.",
                 "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
                 + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Payment.SkipPaymentSelectionIfSingleOption",
+                "Only display payment method selection if more than one payment method is available",
+                "Zahlartauswahl nur anzeigen, wenn mehr als eine Zahlart zur Verfügung steht",
+                "Specifies whether the payment method selection in checkout is only displayed if more than one payment method is available.",
+                "Legt fest, ob die Zahlartauswahl im Checkout nur angezeigt wird, wenn mehr als eine Zahlart zur Verfügung steht.");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
