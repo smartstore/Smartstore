@@ -2,9 +2,11 @@
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Net;
 
@@ -15,6 +17,9 @@ namespace Smartstore.Core.Identity
         private readonly static object _lock = new();
         private static IList<Type> _cookiePublisherTypes = null;
 
+        // {0} = CustomerId, {1} = StoreId
+        const string CookieConsentKey = "consent:{0}-{1}";
+
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHelper _webHelper;
@@ -22,6 +27,9 @@ namespace Smartstore.Core.Identity
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
         private readonly IGeoCountryLookup _countryLookup;
+        private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
+        private readonly IRequestCache _requestCache;
 
         private bool? _isCookieConsentRequired;
 
@@ -32,7 +40,10 @@ namespace Smartstore.Core.Identity
             ITypeScanner typeScanner,
             PrivacySettings privacySettings,
             IComponentContext componentContext,
-            IGeoCountryLookup countryLookup)
+            IGeoCountryLookup countryLookup,
+            IStoreContext storeContext,
+            IWorkContext workContext,
+            IRequestCache requestCache)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
@@ -41,6 +52,9 @@ namespace Smartstore.Core.Identity
             _privacySettings = privacySettings;
             _componentContext = componentContext;
             _countryLookup = countryLookup;
+            _storeContext = storeContext;
+            _workContext = workContext;
+            _requestCache = requestCache;
         }
 
         public async Task<bool> IsCookieConsentRequiredAsync()
@@ -131,33 +145,51 @@ namespace Smartstore.Core.Identity
         public virtual async Task<bool> IsCookieAllowedAsync(CookieType cookieType)
         {
             Guard.NotNull(cookieType);
-
+            
             if (!await IsCookieConsentRequiredAsync())
             {
                 return true;
             }
 
-            var request = _httpContextAccessor?.HttpContext?.Request;
-            if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
-            {
-                try
-                {
-                    var cookieData = JsonConvert.DeserializeObject<ConsentCookie>(value);
+            var cacheKey = CookieConsentKey.FormatInvariant(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id);
 
-                    if ((cookieData.AllowAnalytics && cookieType == CookieType.Analytics) ||
-                        (cookieData.AllowThirdParty && cookieType == CookieType.ThirdParty) ||
-                        cookieType == CookieType.Required)
+            var consentCookie = _requestCache.Get(cacheKey, () =>
+            {
+                var request = _httpContextAccessor?.HttpContext?.Request;
+                if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
+                {
+                    try
                     {
-                        return true;
+                        return JsonConvert.DeserializeObject<ConsentCookie>(value);
+                    }
+                    catch
+                    {
+                        // Let's be tolerant in case of error.
+                        return new ConsentCookie {
+                            AllowAnalytics = true,
+                            AllowThirdParty = true,
+                            AdPersonalizationConsent = true,
+                            AdUserDataConsent = true
+                        };
                     }
                 }
-                catch
-                {
-                    // Let's be tolerant in case of error.
-                    return true;
-                }
-            }
 
+                return null;
+            });
+
+            if (consentCookie != null)
+            {
+                // Initialise allowedTypes with the required value, as this is always permitted.
+                CookieType allowedTypes = CookieType.Required;
+
+                if (consentCookie.AllowAnalytics) allowedTypes |= CookieType.Analytics;
+                if (consentCookie.AllowThirdParty) allowedTypes |= CookieType.ThirdParty;
+                if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
+                if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
+
+                return (allowedTypes & cookieType) == cookieType;
+            }
+            
             // If no cookie was set return false.
             return false;
         }
@@ -192,7 +224,11 @@ namespace Smartstore.Core.Identity
             return null;
         }
 
-        public virtual void SetConsentCookie(bool allowAnalytics = false, bool allowThirdParty = false)
+        public virtual void SetConsentCookie(
+            bool allowAnalytics = false, 
+            bool allowThirdParty = false,
+            bool adUserDataConsent = false,
+            bool adPersonalizationConsent = false)
         {
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
@@ -200,7 +236,9 @@ namespace Smartstore.Core.Identity
                 var cookieData = new ConsentCookie
                 {
                     AllowAnalytics = allowAnalytics,
-                    AllowThirdParty = allowThirdParty
+                    AllowThirdParty = allowThirdParty,
+                    AdUserDataConsent = adUserDataConsent,
+                    AdPersonalizationConsent = adPersonalizationConsent
                 };
 
                 var cookies = context.Response.Cookies;
@@ -216,6 +254,10 @@ namespace Smartstore.Core.Identity
 
                 cookies.Delete(cookieName, options);
                 cookies.Append(cookieName, JsonConvert.SerializeObject(cookieData), options);
+
+                var cacheKey = CookieConsentKey.FormatInvariant(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id);
+
+                _requestCache.Remove(cacheKey);
             }
         }
 
@@ -253,7 +295,24 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class ConsentCookie
     {
+        /// <summary>
+        /// A value indicating whether analytical cookies are allowed to be set.
+        /// </summary>
         public bool AllowAnalytics { get; set; }
+
+        /// <summary>
+        /// A value indicating whether third party cookies are allowed to be set.
+        /// </summary>
         public bool AllowThirdParty { get; set; }
+
+        /// <summary>
+        /// A value indicating whether sending of user data is allowed.
+        /// </summary>
+        public bool AdUserDataConsent { get; set; }
+
+        /// <summary>
+        /// A value indicating whether personalization is allowed.
+        /// </summary>
+        public bool AdPersonalizationConsent { get; set; }
     }
 }

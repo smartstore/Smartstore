@@ -389,6 +389,11 @@ namespace Smartstore.PayPal.Controllers
                         return NotFound();
                     }
 
+                    if (!order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
+                    {
+                        return NotFound();
+                    }
+
                     // Add order note.
                     order.AddOrderNote($"Webhook: {Environment.NewLine}{rawRequest}", false);
 

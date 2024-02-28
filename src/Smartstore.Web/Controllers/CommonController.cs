@@ -269,9 +269,11 @@ namespace Smartstore.Web.Controllers
             {
                 model.AnalyticsConsent = true;
                 model.ThirdPartyConsent = true;
+                model.AdUserDataConsent = true;
+                model.AdPersonalizationConsent = true;
             }
 
-            _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent);
+            _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
 
             if (!HttpContext.Request.IsAjax())
             {

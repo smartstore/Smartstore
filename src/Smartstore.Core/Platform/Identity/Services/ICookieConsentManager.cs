@@ -40,6 +40,12 @@
         /// </summary>
         /// <param name="allowAnalytics">A value indicating whether analytical cookies are allowed to be set.</param>
         /// <param name="allowThirdParty">A value indicating whether third party cookies are allowed to be set.</param>
-        void SetConsentCookie(bool allowAnalytics = false, bool allowThirdParty = false);
+        /// <param name="adUserDataConsent">A value indicating whether sending of user data is allowed.</param>
+        /// <param name="adPersonalizationConsent">A value indicating whether personalization is allowed.</param>
+        void SetConsentCookie(
+            bool allowAnalytics = false, 
+            bool allowThirdParty = false, 
+            bool adUserDataConsent = false, 
+            bool adPersonalizationConsent = false);
     }
 }

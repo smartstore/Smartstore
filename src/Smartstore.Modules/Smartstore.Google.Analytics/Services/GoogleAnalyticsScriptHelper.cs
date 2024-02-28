@@ -61,7 +61,7 @@ namespace Smartstore.Google.Analytics.Services
         /// Generates global GA script
         /// </summary>
         /// <param name="cookiesAllowed">Defines whether cookies can be used by Google and sets ad_storage & analytics_storage of the consent tag accordingly.</param>
-        public string GetTrackingScript(bool cookiesAllowed)
+        public string GetTrackingScript(bool cookiesAllowed, bool adUserDataAllowed, bool adPersonalizationAllowed)
         {
             using var writer = new StringWriter();
 
@@ -72,7 +72,9 @@ namespace Smartstore.Google.Analytics.Services
 
                 // If no consent to third party cookies was given, set storage type to denied.
                 ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
-                ["USERID"] = () => _workContext.CurrentCustomer.CustomerGuid.ToString()
+                ["USERID"] = _workContext.CurrentCustomer.CustomerGuid.ToString,
+                ["ADUSERDATA"] = () => adUserDataAllowed ? "granted" : "denied",
+                ["ADPERSONALIZATION"] = () => adPersonalizationAllowed ? "granted" : "denied"
             };
 
             ParseScript(_settings.TrackingScript, writer, globalTokens);
