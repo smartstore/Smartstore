@@ -52,33 +52,34 @@ namespace Smartstore.Core.Identity
     }
 
     /// <summary>
-    /// Type of the cookie.
+    /// Type of the cookie or consent.
     /// </summary>
+    [Flags]
     public enum CookieType
     {
         /// <summary>
         /// Specifies that required cookies can be set.
         /// </summary>
-        Required,
+        Required = 1,
 
         /// <summary>
         /// Specifies that analytical cookies can be set.
         /// </summary>
-        Analytics,
+        Analytics = 1 << 1,
 
         /// <summary>
         /// Specifies that third party cookies can be set.
         /// </summary>
-        ThirdParty,
+        ThirdParty = 1 << 2,
 
         /// <summary>
         /// Specifies that ad user data can be sent to third parties.
         /// </summary>
-        ConsentAdUserData,
+        ConsentAdUserData = 1 << 3,
 
         /// <summary>
         /// Specifies that ad personalization is desired by the user.
         /// </summary>
-        ConsentAdPersonalization
+        ConsentAdPersonalization = 1 << 4
     }
 }
