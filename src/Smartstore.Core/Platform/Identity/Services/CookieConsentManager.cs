@@ -17,8 +17,7 @@ namespace Smartstore.Core.Identity
         private readonly static object _lock = new();
         private static IList<Type> _cookiePublisherTypes = null;
 
-        // {0} = CustomerId, {1} = StoreId
-        const string CookieConsentKey = "consent:{0}-{1}";
+        const string CookieConsentKey = "cookieconsent";
 
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -27,8 +26,6 @@ namespace Smartstore.Core.Identity
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
         private readonly IGeoCountryLookup _countryLookup;
-        private readonly IStoreContext _storeContext;
-        private readonly IWorkContext _workContext;
         private readonly IRequestCache _requestCache;
 
         private bool? _isCookieConsentRequired;
@@ -41,8 +38,6 @@ namespace Smartstore.Core.Identity
             PrivacySettings privacySettings,
             IComponentContext componentContext,
             IGeoCountryLookup countryLookup,
-            IStoreContext storeContext,
-            IWorkContext workContext,
             IRequestCache requestCache)
         {
             _db = db;
@@ -52,8 +47,6 @@ namespace Smartstore.Core.Identity
             _privacySettings = privacySettings;
             _componentContext = componentContext;
             _countryLookup = countryLookup;
-            _storeContext = storeContext;
-            _workContext = workContext;
             _requestCache = requestCache;
         }
 
@@ -124,7 +117,7 @@ namespace Smartstore.Core.Identity
             {
                 var cookieInfos = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
 
-                if (cookieInfos?.Any() ?? false)
+                if (cookieInfos != null && cookieInfos.Count > 0)
                 {
                     if (translated)
                     {
@@ -151,9 +144,7 @@ namespace Smartstore.Core.Identity
                 return true;
             }
 
-            var cacheKey = CookieConsentKey.FormatInvariant(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id);
-
-            var consentCookie = _requestCache.Get(cacheKey, () =>
+            var consentCookie = _requestCache.Get(CookieConsentKey, () =>
             {
                 var request = _httpContextAccessor?.HttpContext?.Request;
                 if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
@@ -165,7 +156,8 @@ namespace Smartstore.Core.Identity
                     catch
                     {
                         // Let's be tolerant in case of error.
-                        return new ConsentCookie {
+                        return new ConsentCookie 
+                        {
                             AllowAnalytics = true,
                             AllowThirdParty = true,
                             AdPersonalizationConsent = true,
@@ -187,7 +179,7 @@ namespace Smartstore.Core.Identity
                 if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
                 if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
 
-                return (allowedTypes & cookieType) == cookieType;
+                return allowedTypes.HasFlag(cookieType);
             }
             
             // If no cookie was set return false.
@@ -255,9 +247,7 @@ namespace Smartstore.Core.Identity
                 cookies.Delete(cookieName, options);
                 cookies.Append(cookieName, JsonConvert.SerializeObject(cookieData), options);
 
-                var cacheKey = CookieConsentKey.FormatInvariant(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id);
-
-                _requestCache.Remove(cacheKey);
+                _requestCache.Remove(CookieConsentKey);
             }
         }
 
