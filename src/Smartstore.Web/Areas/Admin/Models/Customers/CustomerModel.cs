@@ -112,13 +112,18 @@ namespace Smartstore.Admin.Models.Customers
 
         [LocalizedDisplay("*TimeZoneId")]
         public string TimeZoneId { get; set; }
-
         public bool AllowCustomersToSetTimeZone { get; set; }
 
         [LocalizedDisplay("*VatNumber")]
         public string VatNumber { get; set; }
         public string VatNumberStatusNote { get; set; }
         public bool DisplayVatNumber { get; set; }
+
+        [LocalizedDisplay("Account.Fields.DefaultShippingMethod")]
+        public int? DefaultShippingMethodId { get; set; }
+
+        [LocalizedDisplay("Account.Fields.DefaultPaymentMethod")]
+        public string DefaultPaymentMethod { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }

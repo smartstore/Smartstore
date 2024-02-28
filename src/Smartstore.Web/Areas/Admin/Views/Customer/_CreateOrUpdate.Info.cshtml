@@ -1,5 +1,10 @@
 ﻿@model CustomerModel
 
+@{
+    var shippingMethods = (ViewBag.ShippingMethods as List<SelectListItem>) ?? new();
+    var paymentMethods = (ViewBag.PaymentMethods as List<SelectListItem>) ?? new();
+}
+
 <div class="adminContent">
     <div sm-if="Model.Id != 0" class="adminRow">
         <div class="adminTitle">
@@ -286,6 +291,24 @@
         <div class="adminData">
             <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
             <span asp-validation-for="TimeZoneId"></span>
+        </div>
+    </div>
+    <div sm-if="shippingMethods.Count > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DefaultShippingMethodId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="DefaultShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="DefaultShippingMethodId"></span>
+        </div>
+    </div>
+    <div sm-if="paymentMethods.Count > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DefaultPaymentMethod" />
+        </div>
+        <div class="adminData">
+            <select asp-for="DefaultPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="DefaultPaymentMethod"></span>
         </div>
     </div>
     <div sm-if="Model.AffiliateId != 0" class="adminRow">

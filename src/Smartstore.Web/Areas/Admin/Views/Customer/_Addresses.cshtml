@@ -30,7 +30,7 @@
                     <i class="far fa-trash-can"></i>
                 </button>
 
-                <div sm-if="address.EditDefaultAddressOptions" class="ml-auto d-flex">
+                <div sm-if="address.DefaultAddressesEnabled" class="ml-auto d-flex">
                     @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
                     {
                         <span class="badge badge-success align-self-center p-1 pr-2">

@@ -8,14 +8,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class PaymentMethodRequirement : CheckoutRequirementBase
     {
-        private static readonly PaymentMethodType[] _paymentTypes =
-        [
-            PaymentMethodType.Standard,
-            PaymentMethodType.Redirection,
-            PaymentMethodType.StandardAndRedirection,
-            PaymentMethodType.StandardAndButton
-        ];
-
         private bool? _skip;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -146,7 +138,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)
         {
-            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, _paymentTypes);
+            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, CheckoutWorkflow.CheckoutPaymentTypes);
             
             if (cart.ContainsRecurringItem())
             {

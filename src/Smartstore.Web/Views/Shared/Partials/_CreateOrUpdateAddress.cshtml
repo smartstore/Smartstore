@@ -8,7 +8,7 @@
 <input asp-for="CreatedOnUtc" type="hidden" />
 @*INFO: required by AddressValidator*@
 <input asp-for="CountryName" type="hidden" />
-<input asp-for="EditDefaultAddressOptions" type="hidden" />
+<input asp-for="DefaultAddressesEnabled" type="hidden" />
 
 <div class="form-horizontal">
 
@@ -156,7 +156,7 @@
         </div>
     </div>
 
-    <div sm-if="Model.EditDefaultAddressOptions">
+    <div sm-if="Model.DefaultAddressesEnabled && Model.Id != 0">
         <div class="row form-group">
             <div class="col">
                 <div class="form-check">

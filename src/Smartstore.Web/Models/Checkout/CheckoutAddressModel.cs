@@ -1,13 +1,19 @@
-﻿using Smartstore.Web.Models.Common;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
 {
     public partial class CheckoutAddressModel : ModelBase
     {
+        public bool IsShippingRequired { get; set; }
+
+        [ValidateNever]
+        public bool ShippingAddressDiffers { get; set; }
+
+        public bool HasAddresses =>
+            !ExistingAddresses.IsNullOrEmpty();
+
         public List<AddressModel> ExistingAddresses { get; set; } = [];
         public AddressModel NewAddress { get; set; } = new();
-
-        public bool IsShippingRequired { get; set; }
-        public bool ShippingAddressDiffers { get; set; }
     }
 }

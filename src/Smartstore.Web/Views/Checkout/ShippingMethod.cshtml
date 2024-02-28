@@ -73,7 +73,7 @@
 								{
 									@Html.Raw(shippingMethod.Description);
 								}
-							</div>						
+							</div>
 						</li>
 					}
 				</ul>
@@ -84,10 +84,8 @@
                     <i class="fa fa-angle-left"></i>
                     <span>@T("Common.Back")</span>
                 </a>
-
                 <input type="submit" name="nextstep" id="nextstep" class="d-none" />
-
-                <button class="btn btn-warning btn-lg shipping-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                <button type="button" class="btn btn-warning btn-lg shipping-method-next-step-button">
 					<span>@T("Checkout.NextButton")</span>
                     <i class="fa fa-angle-right"></i>
                 </button>
@@ -104,6 +102,11 @@
             $('.checkout-data .opt-list-item').removeClass('active');
             var item = $(this).closest('.opt-list-item');
             item.addClass("active");
+		});
+
+        $('.shipping-method-next-step-button').on('click', function () {
+            $('#nextstep').trigger('click');
+            return false;
         });
     });
 </script>

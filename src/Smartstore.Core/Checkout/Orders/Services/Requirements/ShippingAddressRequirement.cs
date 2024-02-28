@@ -68,12 +68,13 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             var state = _checkoutStateAccessor.CheckoutState;
-            var stay = state.CustomProperties.TryGetValueAs("ShippingAddressDiffers", out bool shippingAddressDiffers) && shippingAddressDiffers;
+            state.CustomProperties.TryGetValueAs("ShippingAddressDiffers", out bool shippingAddressDiffers);
             state.CustomProperties.Remove("ShippingAddressDiffers");
 
-            if (stay)
+            // TODO: (mg)(quick-checkout) does not work: nav back from confirm.
+            if (!shippingAddressDiffers && await IsFulfilled())
             {
-                return new(await IsFulfilled(), null, true);
+                return new(true, null, true);
             }
 
             if (_shoppingCartSettings.QuickCheckoutEnabled && customer.ShippingAddressId == null)

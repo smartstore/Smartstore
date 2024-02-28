@@ -161,7 +161,7 @@
         </div>
     </div>
 
-    <div sm-if="Model.EditDefaultAddressOptions">
+    <div sm-if="Model.DefaultAddressesEnabled && Model.Id != 0">
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="IsDefaultBillingAddress" />

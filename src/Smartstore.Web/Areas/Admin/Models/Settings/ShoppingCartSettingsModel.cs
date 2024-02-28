@@ -77,6 +77,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*MaxQuantityInputDropdownItems")]
         public int MaxQuantityInputDropdownItems { get; set; }
 
+        [LocalizedDisplay("*QuickCheckoutEnabled")]
+        public bool QuickCheckoutEnabled { get; set; }
+
         [LocalizedDisplay("*ShowCommentBox")]
         public bool ShowCommentBox { get; set; }
 

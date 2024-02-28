@@ -189,6 +189,17 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.ShoppingCart.Checkout")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="QuickCheckoutEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="QuickCheckoutEnabled"></setting-editor>
+                        <span asp-validation-for="QuickCheckoutEnabled"></span>
+                    </div>
+                </div>
+            </div>
             <div class="adminContent mb-3">
                 <div class="adminRow">
                     <div class="admin-config-group">

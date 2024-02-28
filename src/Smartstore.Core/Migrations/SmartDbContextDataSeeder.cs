@@ -198,6 +198,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.Fields.DefaultShippingMethod", "Default shipping method", "Standard-Versandart");
             builder.AddOrUpdate("Account.Fields.DefaultPaymentMethod", "Default payment method", "Standard-Zahlungsart");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.QuickCheckoutEnabled",
+                "Quick Checkout",
+                "Quick Checkout",
+                "With Quick Checkout, the customer's default purchase settings (e.g. for the billing and shipping address) are applied and the associated checkout steps are skipped."
+                + " This allows the customer to go directly to the order confirmation page and complete the purchase.",
+                "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
+                + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

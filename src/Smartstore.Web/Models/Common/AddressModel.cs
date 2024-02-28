@@ -96,7 +96,7 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
-        public bool EditDefaultAddressOptions { get; set; }
+        public bool DefaultAddressesEnabled { get; set; }
         [LocalizedDisplay("*IsDefaultBillingAddress")]
         public bool IsDefaultBillingAddress { get; set; }
         [LocalizedDisplay("*IsDefaultShippingAddress")]
@@ -228,7 +228,7 @@ namespace Smartstore.Web.Models.Common
                     .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
             }
 
-            When(x => x.CountryId != null && x.EditDefaultAddressOptions, () =>
+            When(x => x.CountryId != null && x.DefaultAddressesEnabled, () =>
             {
                 RuleFor(x => x.IsDefaultBillingAddress)
                     .Must((model, x) => db.Countries.Any(x => x.Id == model.CountryId.Value && x.AllowsBilling))

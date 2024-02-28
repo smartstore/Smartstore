@@ -45,6 +45,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
+        private readonly Lazy<IShippingService> _shippingService;
+        private readonly Lazy<IPaymentService> _paymentService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerController(
@@ -64,6 +66,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
             Lazy<IShoppingCartService> shoppingCartService,
+            Lazy<IShippingService> shippingService,
+            Lazy<IPaymentService> paymentService,
             ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
@@ -82,6 +86,8 @@ namespace Smartstore.Admin.Controllers
             _gdprTool = gdprTool;
             _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
+            _shippingService = shippingService;
+            _paymentService = paymentService;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -176,7 +182,12 @@ namespace Smartstore.Admin.Controllers
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
                 model.IsGuest = customer.IsGuest();
-                model.Addresses = await CreateAddressesModel(customer);
+
+                model.Addresses = new CustomerModel.AddressesModel
+                {
+                    Id = customer.Id,
+                    Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+                };
 
                 model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
@@ -219,20 +230,34 @@ namespace Smartstore.Admin.Controllers
                     };
                 }
             }
-        }
 
-        private async Task<CustomerModel.AddressesModel> CreateAddressesModel(Customer customer)
-        {
-            var model = new CustomerModel.AddressesModel
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                Id = customer.Id,
-                Addresses = await customer.Addresses
-                    .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled))
-                    .OrderByDefaultAddresses()
-                    .AsyncToList()
-            };
+                var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
+                var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync(null, 0, CheckoutWorkflow.CheckoutPaymentTypes, false);
+                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
+                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
 
-            return model;
+                ViewBag.ShippingMethods = shippingMethods
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.GetLocalized(y => y.Name),
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == defaultShippingMethodId
+                    })
+                    .ToList();
+
+                ViewBag.PaymentMethods = paymentProviders
+                    .Where(x => !x.Value.RequiresInteraction)
+                    .Select(x => x.Metadata)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Value = x.SystemName,
+                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                    })
+                    .ToList();
+            }
         }
 
         private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRoles(
@@ -343,6 +368,15 @@ namespace Smartstore.Admin.Controllers
             if (_customerSettings.FaxEnabled)
             {
                 to.GenericAttributes.Fax = from.Fax;
+            }
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            {
+                to.GenericAttributes.DefaultShippingOption = from.DefaultShippingMethodId != null
+                    ? new ShippingOption { ShippingMethodId = from.DefaultShippingMethodId.Value }
+                    : null;
+
+                to.GenericAttributes.DefaultPaymentMethod = from.DefaultPaymentMethod.NullEmpty();
             }
         }
 
@@ -1095,16 +1129,11 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var address = await MapperFactory.MapAsync<AddressModel, Address>(model.Address);
+                var address = new Address();
+                await model.Address.MapAsync(address);
 
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
-
-                if (_shoppingCartSettings.QuickCheckoutEnabled)
-                {
-                    model.Address.ApplyDefaultAddresses(customer);
-                    await _db.SaveChangesAsync();
-                }
 
                 NotifySuccess(T("Admin.Customers.Customers.Addresses.Added"));
 
@@ -1162,13 +1191,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await MapperFactory.MapAsync(model.Address, address);
-
-                if (_shoppingCartSettings.QuickCheckoutEnabled)
-                {
-                    model.Address.ApplyDefaultAddresses(customer);
-                }
-
+                await model.Address.MapAsync(address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Customers.Customers.Addresses.Updated"));
@@ -1219,7 +1242,11 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            var model = await CreateAddressesModel(customer);
+            var model = new CustomerModel.AddressesModel
+            {
+                Id = customer.Id,
+                Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+            };
 
             return PartialView("_Addresses", model);
         }
@@ -1242,7 +1269,11 @@ namespace Smartstore.Admin.Controllers
             _db.Addresses.Remove(address);
             await _db.SaveChangesAsync();
 
-            var model = await CreateAddressesModel(customer);
+            var model = new CustomerModel.AddressesModel
+            {
+                Id = customer.Id,
+                Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+            };
 
             return PartialView("_Addresses", model);
         }

@@ -75,11 +75,24 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        /// <summary>
+        /// Gets a list of all payment method types that are represented on the payment method page in checkout.
+        /// Methods of type <see cref="PaymentMethodType.Button"/> are not included.
+        /// </summary>
+        public static PaymentMethodType[] CheckoutPaymentTypes =>
+        [
+            PaymentMethodType.Standard,
+            PaymentMethodType.Redirection,
+            PaymentMethodType.StandardAndButton,
+            PaymentMethodType.StandardAndRedirection
+        ];
+
         public virtual async Task<CheckoutWorkflowResult> StartAsync()
         {
             var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
             var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
+            var customer = cart.Customer;
 
             var preliminaryResult = Preliminary(cart);
             if (preliminaryResult != null)
@@ -87,8 +100,17 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
-            cart.Customer.ResetCheckoutData(store.Id);
+            customer.ResetCheckoutData(store.Id);
             _checkoutStateAccessor.Abandon();
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled && (
+                (customer.BillingAddressId != null && customer.BillingAddressId != customer.GenericAttributes.DefaultBillingAddressId) ||
+                (customer.ShippingAddressId != null && customer.ShippingAddressId != customer.GenericAttributes.DefaultShippingAddressId)))
+            {
+                // Reset because otherwise the default addresses will not be applied.
+                customer.BillingAddressId = customer.ShippingAddressId = null;
+                customer.BillingAddress = customer.ShippingAddress = null;
+            }
 
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
@@ -123,13 +145,13 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
+            await _db.SaveChangesAsync();
+
             if (warnings.Count > 0)
             {
                 warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
                 return new(RedirectToCart());
             }
-
-            await _db.SaveChangesAsync();
 
             return await AdvanceAsync();
         }

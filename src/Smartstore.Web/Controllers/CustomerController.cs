@@ -363,10 +363,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var models = await customer.Addresses
-                .SelectAwait(async x => await x.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled))
-                .OrderByDefaultAddresses()
-                .AsyncToList();
+            var models = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(models);
         }
@@ -423,15 +420,9 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, address);
+                await model.MapAsync(address);
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
-
-                if (_shoppingCartSettings.QuickCheckoutEnabled)
-                {
-                    model.ApplyDefaultAddresses(customer);
-                    await _db.SaveChangesAsync();
-                }
 
                 return RedirectToAction(nameof(Addresses));
             }
@@ -484,14 +475,7 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, address);
-                _db.Addresses.Update(address);
-
-                if (_shoppingCartSettings.QuickCheckoutEnabled)
-                {
-                    model.ApplyDefaultAddresses(customer);
-                }
-
+                await model.MapAsync(address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
@@ -1116,38 +1100,33 @@ namespace Smartstore.Web.Controllers
                 })
                 .ToList();
 
-            // Quick checkout.
-            var paymentTypes = new[]
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                PaymentMethodType.Standard,
-                PaymentMethodType.Redirection,
-                PaymentMethodType.StandardAndRedirection,
-                PaymentMethodType.StandardAndButton
-            };
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
-            var paymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(null, store.Id, paymentTypes, false);
-            var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
-            var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
+                var paymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(null, store.Id, CheckoutWorkflow.CheckoutPaymentTypes, false);
+                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
+                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
 
-            ViewBag.ShippingMethods = shippingMethods
-                .Select(x => new SelectListItem {
-                    Text = x.GetLocalized(y => y.Name), 
-                    Value = x.Id.ToString(), 
-                    Selected = x.Id == defaultShippingMethodId
-                })
-                .ToList();
+                ViewBag.ShippingMethods = shippingMethods
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.GetLocalized(y => y.Name),
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == defaultShippingMethodId
+                    })
+                    .ToList();
 
-            ViewBag.PaymentMethods = paymentProviders
-                .Where(x => !x.Value.RequiresInteraction)
-                .Select(x => x.Metadata)
-                .Select(x => new SelectListItem {
-                    Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
-                    Value = x.SystemName,
-                    Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
-                })
-                .ToList();
-
-            ViewBag.QuickCheckoutEnabled = _shoppingCartSettings.QuickCheckoutEnabled;
+                ViewBag.PaymentMethods = paymentProviders
+                    .Where(x => !x.Value.RequiresInteraction)
+                    .Select(x => x.Metadata)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Value = x.SystemName,
+                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                    })
+                    .ToList();
+            }
         }
 
         private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
