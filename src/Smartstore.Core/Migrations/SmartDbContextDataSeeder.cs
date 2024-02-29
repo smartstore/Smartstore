@@ -211,6 +211,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
                 + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultShipping",
+                "Customers can change their default shipping method",
+                "Kunden können Ihre Standard-Versandart ändern");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultPayment",
+                "Customers can change their default payment method",
+                "Kunden können Ihre Standard-Zahlungsart ändern");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Payment.SkipPaymentSelectionIfSingleOption",
                 "Only display payment method selection if more than one payment method is available",
                 "Zahlartauswahl nur anzeigen, wenn mehr als eine Zahlart zur Verfügung steht",

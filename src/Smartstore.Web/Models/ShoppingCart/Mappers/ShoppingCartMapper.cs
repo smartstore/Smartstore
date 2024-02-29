@@ -463,12 +463,10 @@ namespace Smartstore.Web.Models.Cart
                 }
 
                 var state = _checkoutStateAccessor.CheckoutState;
-                if (state != null && state.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
-                {
-                    to.OrderReviewData.DisplayPaymentMethodChangeOption = !(bool)state.CustomProperties.Get("HasOnlyOneActivePaymentMethod");
-                }
-
                 var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
+
+                state.CustomProperties.TryGetValueAs("HasOnlyOneActivePaymentMethod", out bool singlePaymentMethod);
+                to.OrderReviewData.DisplayPaymentMethodChangeOption = !singlePaymentMethod;
 
                 to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
                 to.OrderReviewData.PaymentSummary = state.PaymentSummary;

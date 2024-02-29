@@ -195,8 +195,30 @@
                         <smart-label asp-for="QuickCheckoutEnabled" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="QuickCheckoutEnabled"></setting-editor>
+                        <setting-editor asp-for="QuickCheckoutEnabled" data-toggler-for=".quick-checkout-option"></setting-editor>
                         <span asp-validation-for="QuickCheckoutEnabled"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="adminContent quick-checkout-option">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomersCanChangeDefaultShipping" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomersCanChangeDefaultShipping"></setting-editor>
+                        <span asp-validation-for="CustomersCanChangeDefaultShipping"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="adminContent quick-checkout-option">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomersCanChangeDefaultPayment" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomersCanChangeDefaultPayment"></setting-editor>
+                        <span asp-validation-for="CustomersCanChangeDefaultPayment"></span>
                     </div>
                 </div>
             </div>

@@ -54,10 +54,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> BillingAddress()
         {
-            var stay = await _checkoutWorkflow.StayAsync();
-            if (stay.Result != null)
+            var check = await _checkoutWorkflow.CheckRequirementAsync();
+            if (check.Result != null)
             {
-                return stay.Result;
+                return check.Result;
             }
 
             return View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
@@ -134,10 +134,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            var stay = await _checkoutWorkflow.StayAsync();
-            if (stay.Result != null)
+            var check = await _checkoutWorkflow.CheckRequirementAsync();
+            if (check.Result != null)
             {
-                return stay.Result;
+                return check.Result;
             }
 
             return View(await _workContext.CurrentCustomer.Addresses.MapAsync(true));
@@ -153,16 +153,16 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingMethod()
         {
-            var stay = await _checkoutWorkflow.StayAsync();
-            if (stay.Result != null)
+            var check = await _checkoutWorkflow.CheckRequirementAsync();
+            if (check.Result != null)
             {
-                return stay.Result;
+                return check.Result;
             }
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutShippingMethodModel>(cart);
 
-            stay.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
+            check.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
             return View(model);
         }
@@ -180,10 +180,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> PaymentMethod()
         {
-            var stay = await _checkoutWorkflow.StayAsync();
-            if (stay.Result != null)
+            var check = await _checkoutWorkflow.CheckRequirementAsync();
+            if (check.Result != null)
             {
-                return stay.Result;
+                return check.Result;
             }
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
@@ -245,10 +245,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Confirm()
         {
-            var stay = await _checkoutWorkflow.StayAsync();
-            if (stay.Result != null)
+            var check = await _checkoutWorkflow.CheckRequirementAsync();
+            if (check.Result != null)
             {
-                return stay.Result;
+                return check.Result;
             }
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);

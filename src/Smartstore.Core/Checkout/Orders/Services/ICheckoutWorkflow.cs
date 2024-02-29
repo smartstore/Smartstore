@@ -25,7 +25,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <see cref="CheckoutWorkflowResult.Result"/> to an adjacent checkout page, if the current page should be skipped.
         /// Otherwise <see cref="CheckoutWorkflowResult.Result"/> is <c>null</c> (default).
         /// </returns>
-        Task<CheckoutWorkflowResult> StayAsync();
+        Task<CheckoutWorkflowResult> CheckRequirementAsync();
 
         /// <summary>
         /// Checks whether all checkout requirements are fulfilled and advances in checkout, if no error occurred.

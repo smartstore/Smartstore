@@ -80,6 +80,16 @@ namespace Smartstore.Core.Checkout.Cart
         public bool QuickCheckoutEnabled { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether customers can change their default shipping method.
+        /// </summary>
+        public bool CustomersCanChangeDefaultShipping { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether customers can change their default payment method.
+        /// </summary>
+        public bool CustomersCanChangeDefaultPayment { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to show a comment box on shopping cart page
         /// </summary>
         public bool ShowCommentBox { get; set; } = true;

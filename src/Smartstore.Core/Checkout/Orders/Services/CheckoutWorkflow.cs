@@ -156,7 +156,7 @@ namespace Smartstore.Core.Checkout.Orders
             return await AdvanceAsync();
         }
 
-        public virtual async Task<CheckoutWorkflowResult> StayAsync()
+        public virtual async Task<CheckoutWorkflowResult> CheckRequirementAsync()
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var preliminaryResult = Preliminary(cart);
