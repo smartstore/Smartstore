@@ -16,7 +16,7 @@
     @(await Html.ProviderList(Model,
         buttonTemplate: @<a href="@Url.Action("ActivateProvider", new { systemName = item.SystemName })"
 			data-systemname="@item.SystemName" data-activate="@(!item.IsPrimaryTaxProvider ? "true" : "false")"
-            class="activate-provider btn btn-sm @(item.IsPrimaryTaxProvider ? "btn-outline-secondary btn-to-danger" : "btn-success")">
+            class="activate-provider btn btn-sm @(item.IsPrimaryTaxProvider ? "btn-outline-dark disabled" : "btn-success")">
             <bootstrap-icon name="check-lg" attr-class='(item.IsPrimaryTaxProvider, "d-none")' />
 			@if (item.IsPrimaryTaxProvider)
 			{
