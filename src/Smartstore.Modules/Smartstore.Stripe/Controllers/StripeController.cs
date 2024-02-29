@@ -9,6 +9,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -213,6 +214,7 @@ namespace Smartstore.StripeElements.Controllers
                     paymentRequest = new ProcessPaymentRequest();
                 }
 
+
                 paymentRequest.StoreId = store.Id;
                 paymentRequest.CustomerId = customer.Id;
                 paymentRequest.PaymentMethodSystemName = StripeElementsProvider.SystemName;
@@ -234,6 +236,9 @@ namespace Smartstore.StripeElements.Controllers
                             Currency = state.PaymentIntent.Currency,
                             PaymentMethod = state.PaymentMethod
                         };
+
+                        var shippingOption = customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, store.Id);
+                        await AddShippingAddressAsync(intentUpdateOptions, customer, shippingOption.Name);
 
                         var service = new PaymentIntentService();
                         var paymentIntent = await service.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
@@ -271,6 +276,26 @@ namespace Smartstore.StripeElements.Controllers
             }
 
             return Json(new { success, redirectUrl, messages });
+        }
+
+        private async Task AddShippingAddressAsync(PaymentIntentUpdateOptions intentUpdateOptions, Core.Identity.Customer customer, string carrier)
+        {
+            var address = customer.ShippingAddress ?? customer.BillingAddress;
+            var country = await _db.Countries.FindAsync(address.CountryId);
+
+            intentUpdateOptions.Shipping = new ChargeShippingOptions
+            {
+                Carrier = carrier,
+                Name = $"{address.FirstName} {address.LastName}",
+                Address = new AddressOptions
+                {
+                    City = address.City,
+                    Country = country.TwoLetterIsoCode,
+                    Line1 = address.Address1,
+                    Line2 = address.Address2,
+                    PostalCode = address.ZipPostalCode
+                }
+            };
         }
 
         public IActionResult RedirectionResult(string redirect_status)

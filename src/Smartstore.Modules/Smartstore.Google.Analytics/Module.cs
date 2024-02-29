@@ -23,11 +23,13 @@ namespace Smartstore.Google.Analytics
     {
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
+        private readonly GoogleAnalyticsSettings _settings;
 
-        public Module(IProviderManager providerManager,  WidgetSettings widgetSettings)
+        public Module(IProviderManager providerManager,  WidgetSettings widgetSettings, GoogleAnalyticsSettings settings)
         {
             _providerManager = providerManager;
             _widgetSettings = widgetSettings;
+            _settings = settings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -44,14 +46,34 @@ namespace Smartstore.Google.Analytics
                 return Task.FromResult(Enumerable.Empty<CookieInfo>());
             }
 
-            var cookieInfo = new CookieInfo
+            var cookieInfos = new List<CookieInfo> 
             {
-                Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
-                Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
-                CookieType = CookieType.Analytics
+                new() {
+                    Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
+                    Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
+                    CookieType = CookieType.Analytics
+                }
             };
 
-            return Task.FromResult(new CookieInfo[] { cookieInfo }.AsEnumerable());
+            if (_settings.DisplayCookieInfosForAds)
+            {
+                cookieInfos.AddRange(new CookieInfo[] {
+                    new()
+                    {
+                        Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
+                        Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdUserData"),
+                        CookieType = CookieType.ConsentAdUserData
+                    },
+                    new()
+                    {
+                        Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
+                        Description = T("Plugins.Widgets.GoogleAnalytics.ConsentAdPersonalization"),
+                        CookieType = CookieType.ConsentAdPersonalization
+                    }
+                });
+            }
+
+            return Task.FromResult<IEnumerable<CookieInfo>>(cookieInfos);
         }
 
         public Widget GetDisplayWidget(string widgetZone, object model, int storeId)

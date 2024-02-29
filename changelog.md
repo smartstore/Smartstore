@@ -18,6 +18,8 @@
 - Import news from RSS news feeds.
 - #971 Add a cart rule to check if the current customer is authenticated with a certain external authentication method.
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
+- Page Builder
+	- Added **AudioPlayer** block
 
 ### Improvements
 
@@ -26,6 +28,8 @@
 - Theming
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
+- Page Builder
+  - Fixed *boxed titles* spacing and line-height issues
 - Web API
   - Enabling CORS.
   - #928 mask the secret key in backend API user list.  
@@ -43,6 +47,7 @@
 - (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
 - #965 Prevent adding of products to the shopping cart by system customers such as *builtin@search-engine-record.com*.
 - Increased the default maximum file size of an avatar and added a customer setting for this in backend.
+- Stripe: Update shipping address on confirm order.
 
 ### Bugfixes
 

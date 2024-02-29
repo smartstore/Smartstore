@@ -47,6 +47,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="DisplayCookieInfosForAds" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayCookieInfosForAds" />
+                <span asp-validation-for="DisplayCookieInfosForAds"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="RenderCatalogScripts" />
             </div>
             <div class="adminData">

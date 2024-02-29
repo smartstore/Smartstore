@@ -75,10 +75,11 @@
 <script sm-target-zone="scripts" data-origin="contact-us">
     $(function () {
         setRememberedFormFields("registerVals");
-    });
 
-    const form = document.getElementById('contact-form');
-    form.addEventListener('focusout', (event) => {
-        rememberFormFields("contact-form", "registerVals");
+        const form = document.getElementById('contact-form');
+
+        form.addEventListener('focusout', (event) => {
+            rememberFormFields("contact-form", "registerVals");
+        });
     });
 </script>

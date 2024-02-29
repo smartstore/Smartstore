@@ -76,13 +76,15 @@ namespace Smartstore.Web.Components
 
         private async Task PrepareCookieManagerModelAsync(CookieManagerModel model)
         {
-            // Get cookie infos from plugins.
-            model.CookiesInfos = (await _cookieConsentManager.GetCookieInfosAsync(true)).ToList();
+            // Get cookie infos from modules.
+            model.CookiesInfos = [.. (await _cookieConsentManager.GetCookieInfosAsync(true))];
 
             var cookie = _cookieConsentManager.GetCookieData();
 
             model.AnalyticsConsent = cookie != null && cookie.AllowAnalytics;
             model.ThirdPartyConsent = cookie != null && cookie.AllowThirdParty;
+            model.AdUserDataConsent = cookie != null && cookie.AdUserDataConsent;
+            model.AdPersonalizationConsent = cookie != null && cookie.AdPersonalizationConsent;
             model.ModalCookieConsent = _privacySettings.ModalCookieConsent;
         }
     }
