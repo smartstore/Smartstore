@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Attributes;
+﻿using Newtonsoft.Json;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
@@ -191,24 +192,55 @@ namespace Smartstore.Core.Identity
 
         #endregion
 
-        #region Depends on store
+        #region Checkout
 
-        public int? CurrencyId
+        public int DefaultBillingAddressId
         {
-            get => Get<int?>(SystemCustomerAttributeNames.CurrencyId, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.CurrencyId, value, CurrentStoreId);
+            get => Get<int>(SystemCustomerAttributeNames.DefaultBillingAddressId, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.DefaultBillingAddressId, value, CurrentStoreId);
         }
 
-        public int? LanguageId
+        public int DefaultShippingAddressId
         {
-            get => Get<int?>(SystemCustomerAttributeNames.LanguageId, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.LanguageId, value, CurrentStoreId);
+            get => Get<int>(SystemCustomerAttributeNames.DefaultShippingAddressId, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.DefaultShippingAddressId, value, CurrentStoreId);
         }
 
-        public string SelectedPaymentMethod
+        public ShippingOption DefaultShippingOption
         {
-            get => Get<string>(SystemCustomerAttributeNames.SelectedPaymentMethod, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.SelectedPaymentMethod, value, CurrentStoreId);
+            get
+            {
+                var rawOption = Get<string>(SystemCustomerAttributeNames.DefaultShippingOption, CurrentStoreId);
+                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : new();
+            }
+            set
+            {
+                var rawOption = JsonConvert.SerializeObject(new ShippingOption
+                {
+                    ShippingMethodId = value?.ShippingMethodId ?? 0,
+                    ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
+                });
+
+                Set(SystemCustomerAttributeNames.DefaultShippingOption, rawOption, CurrentStoreId);
+            }
+        }
+
+        public string DefaultPaymentMethod
+        {
+            get => Get<string>(SystemCustomerAttributeNames.DefaultPaymentMethod, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.DefaultPaymentMethod, value, CurrentStoreId);
+        }
+
+        public bool UseRewardPointsDuringCheckout
+        {
+            get => Get<bool>(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, value, CurrentStoreId);
+        }
+
+        public decimal UseCreditBalanceDuringCheckout
+        {
+            get => Get<decimal>(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, value, CurrentStoreId);
         }
 
         public ShippingOption SelectedShippingOption
@@ -223,6 +255,28 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.OfferedShippingOptions, value, CurrentStoreId);
         }
 
+        public string SelectedPaymentMethod
+        {
+            get => Get<string>(SystemCustomerAttributeNames.SelectedPaymentMethod, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.SelectedPaymentMethod, value, CurrentStoreId);
+        }
+
+        #endregion
+
+        #region Depends on store
+
+        public int? CurrencyId
+        {
+            get => Get<int?>(SystemCustomerAttributeNames.CurrencyId, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.CurrencyId, value, CurrentStoreId);
+        }
+
+        public int? LanguageId
+        {
+            get => Get<int?>(SystemCustomerAttributeNames.LanguageId, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.LanguageId, value, CurrentStoreId);
+        }
+
         public string LastContinueShoppingPage
         {
             get => Get<string>(SystemCustomerAttributeNames.LastContinueShoppingPage, CurrentStoreId);
@@ -233,18 +287,6 @@ namespace Smartstore.Core.Identity
         {
             get => Get<string>(SystemCustomerAttributeNames.WorkingThemeName, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.WorkingThemeName, value, CurrentStoreId);
-        }
-
-        public bool UseRewardPointsDuringCheckout
-        {
-            get => Get<bool>(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, value, CurrentStoreId);
-        }
-
-        public decimal UseCreditBalanceDuringCheckout
-        {
-            get => Get<decimal>(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, value, CurrentStoreId);
         }
 
         #endregion

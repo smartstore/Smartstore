@@ -57,5 +57,14 @@
                 <span asp-validation-for="DisplayPaymentMethodIcons"></span>
             </div>
         </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SkipPaymentSelectionIfSingleOption" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SkipPaymentSelectionIfSingleOption"></setting-editor>
+                <span asp-validation-for="SkipPaymentSelectionIfSingleOption"></span>
+            </div>
+        </div>
     </div>
 </form>

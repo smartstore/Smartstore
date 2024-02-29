@@ -106,7 +106,7 @@
                         </div>
                         <p>@Model.ShippingMethod</p>
                     }
-                    @if (Model.PaymentMethod.HasValue() && !Model.IsPaymentSelectionSkipped)
+                    @if (Model.PaymentMethod.HasValue() && Model.IsPaymentRequired)
                     {
                         <div class="row sm-gutters">
                             <div class="col">

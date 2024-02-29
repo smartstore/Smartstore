@@ -995,7 +995,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         protected virtual async Task<(decimal? Amount, Discount AppliedDiscount)> GetAdjustedShippingTotalAsync(ShoppingCart cart)
         {
-            var shippingOption = cart.Customer?.GenericAttributes?.SelectedShippingOption?.Convert<ShippingOption>();
+            var shippingOption = cart.Customer?.GenericAttributes?.SelectedShippingOption;
 
             if (shippingOption != null)
             {

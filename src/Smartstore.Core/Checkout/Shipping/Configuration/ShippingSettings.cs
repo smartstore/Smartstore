@@ -45,7 +45,7 @@ namespace Smartstore.Core.Checkout.Shipping
         public bool ReturnValidOptionsIfThereAreAny { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to display shipping options during checkout process only if more then one option is available
+        /// Gets or sets a value indicating whether to skip the shipping selection during checkout, if only one shipping method is available.
         /// </summary>
         public bool SkipShippingIfSingleOption { get; set; }
 

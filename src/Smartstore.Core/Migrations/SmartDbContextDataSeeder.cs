@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
@@ -59,6 +60,10 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             await db.SaveChangesAsync(cancelToken);
+
+            await db.Settings
+                .Where(x => x.Name == "PaymentSettings.BypassPaymentMethodSelectionIfOnlyOne")
+                .ExecuteUpdateAsync(x => x.SetProperty(s => s.Name, s => "PaymentSettings.SkipPaymentSelectionIfSingleOption"), cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -173,6 +178,53 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Rules.OpenRule",
                 "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink");
             // ----- Conditional attributes review (end)
+
+            // ----- Quick checkout (begin)
+            builder.AddOrUpdate("Checkout.SpecifyDifferingShippingAddress",
+                "I would like to specify a different delivery address after defining my billing address.",
+                "Ich möchte nach der Festlegung meiner Rechnungsadresse eine abweichende Lieferanschrift festlegen.");
+
+            builder.AddOrUpdate("Address.Fields.IsDefaultBillingAddress",
+                "Set as default billing address",
+                "Als Standard-Rechnungsanschrift festlegen");
+
+            builder.AddOrUpdate("Address.Fields.IsDefaultShippingAddress",
+                "Set as default shipping address",
+                "Als Standard-Lieferanschrift festlegen");
+
+            builder.AddOrUpdate("Address.IsDefaultAddress", "Is default address", "Ist Standardadresse");
+            builder.AddOrUpdate("Address.IsDefaultBillingAddress", "Is default billing address", "Ist Standard-Rechnungsanschrift");
+            builder.AddOrUpdate("Address.IsDefaultShippingAddress", "Is default shipping address", "Ist Standard-Lieferanschrift");
+
+            builder.AddOrUpdate("Address.SetDefaultAddress",
+                "Sets the address as the default billing and shipping address.",
+                "Legt die Adresse als Standard-Rechnungs- und Lieferanschrift fest.");
+
+            builder.AddOrUpdate("Account.Fields.DefaultShippingMethod", "Default shipping method", "Standard-Versandart");
+            builder.AddOrUpdate("Account.Fields.DefaultPaymentMethod", "Default payment method", "Standard-Zahlungsart");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.QuickCheckoutEnabled",
+                "Quick Checkout",
+                "Quick Checkout",
+                "With Quick Checkout, the customer's default purchase settings (e.g. for the billing and shipping address) are applied and the associated checkout steps are skipped."
+                + " This allows the customer to go directly to the order confirmation page and complete the purchase.",
+                "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
+                + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultShipping",
+                "Customers can change their default shipping method",
+                "Kunden können Ihre Standard-Versandart ändern");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultPayment",
+                "Customers can change their default payment method",
+                "Kunden können Ihre Standard-Zahlungsart ändern");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Payment.SkipPaymentSelectionIfSingleOption",
+                "Only display payment method selection if more than one payment method is available",
+                "Zahlartauswahl nur anzeigen, wenn mehr als eine Zahlart zur Verfügung steht",
+                "Specifies whether the payment method selection in checkout is only displayed if more than one payment method is available.",
+                "Legt fest, ob die Zahlartauswahl im Checkout nur angezeigt wird, wenn mehr als eine Zahlart zur Verfügung steht.");
+            // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
                 "Maximum avatar size",

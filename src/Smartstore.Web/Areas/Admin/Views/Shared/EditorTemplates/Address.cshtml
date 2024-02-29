@@ -23,6 +23,7 @@
 <input type="hidden" asp-for="PhoneRequired" />
 <input type="hidden" asp-for="FaxEnabled" />
 <input type="hidden" asp-for="FaxRequired" />
+<input type="hidden" asp-for="CountryName" />
 
 <div class="adminContent">
     <div sm-if="Model.TitleEnabled" class="adminRow">
@@ -157,6 +158,27 @@
         <div class="adminData">
             <input asp-for="FaxNumber" />
             <span asp-validation-for="FaxNumber"></span>
+        </div>
+    </div>
+
+    <div sm-if="Model.DefaultAddressesEnabled && Model.Id != 0">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsDefaultBillingAddress" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsDefaultBillingAddress" />
+                <span asp-validation-for="IsDefaultBillingAddress"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsDefaultShippingAddress" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsDefaultShippingAddress" />
+                <span asp-validation-for="IsDefaultShippingAddress"></span>
+            </div>
         </div>
     </div>
 </div>

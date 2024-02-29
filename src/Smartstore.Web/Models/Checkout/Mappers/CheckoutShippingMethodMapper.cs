@@ -9,17 +9,9 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public static partial class ShoppingCartMappingExtensions
-    {
-        public static async Task MapAsync(this ShoppingCart cart, CheckoutShippingMethodModel model, dynamic parameters = null)
-        {
-            await MapperFactory.MapAsync(cart, model, parameters);
-        }
-    }
-
     public class CheckoutShippingMethodMapper : Mapper<ShoppingCart, CheckoutShippingMethodModel>
     {
-        private readonly ICommonServices _services;
+        private readonly IWorkContext _workContext;
         private readonly IProviderManager _providerManager;
         private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
@@ -29,7 +21,7 @@ namespace Smartstore.Web.Models.Checkout
         private readonly ITaxCalculator _taxCalculator;
 
         public CheckoutShippingMethodMapper(
-            ICommonServices services,
+            IWorkContext workContext,
             IProviderManager providerManager,
             ModuleManager moduleManager,
             ICurrencyService currencyService,
@@ -38,7 +30,7 @@ namespace Smartstore.Web.Models.Checkout
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator)
         {
-            _services = services;
+            _workContext = workContext;
             _providerManager = providerManager;
             _moduleManager = moduleManager;
             _currencyService = currencyService;
@@ -53,48 +45,41 @@ namespace Smartstore.Web.Models.Checkout
 
         public override async Task MapAsync(ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
-            var shippingOptionResponse = (parameters?.ShippingOptionResponse as ShippingOptionResponse) ?? new ShippingOptionResponse();
-            Guard.NotNull(shippingOptionResponse, nameof(shippingOptionResponse));
+            var customer = from.Customer;
+            var options = customer.GenericAttributes.OfferedShippingOptions ??
+                (await _shippingService.GetShippingOptionsAsync(from, customer.ShippingAddress, storeId: from.StoreId)).ShippingOptions;
 
-            var store = _services.StoreContext.CurrentStore;
-            var customer = _services.WorkContext.CurrentCustomer;
-
-            if (shippingOptionResponse.Success)
+            if (options.Count > 0)
             {
-                // Performance optimization. cache returned shipping options.
-                // We'll use them later (after a customer has selected an option).
-                customer.GenericAttributes.OfferedShippingOptions = shippingOptionResponse.ShippingOptions;
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(from.StoreId);
 
-                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
-
-                foreach (var shippingOption in shippingOptionResponse.ShippingOptions)
+                foreach (var option in options)
                 {
-                    var soModel = new CheckoutShippingMethodModel.ShippingMethodModel
+                    var model = new CheckoutShippingMethodModel.ShippingMethodModel
                     {
-                        ShippingMethodId = shippingOption.ShippingMethodId,
-                        Name = shippingOption.Name,
-                        Description = shippingOption.Description,
-                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName
+                        ShippingMethodId = option.ShippingMethodId,
+                        Name = option.Name,
+                        Description = option.Description,
+                        ShippingRateComputationMethodSystemName = option.ShippingRateComputationMethodSystemName
                     };
 
-                    var srcmProvider = _providerManager.GetProvider<IShippingRateComputationMethod>(shippingOption.ShippingRateComputationMethodSystemName);
-
-                    if (srcmProvider != null)
+                    var provider = _providerManager.GetProvider<IShippingRateComputationMethod>(option.ShippingRateComputationMethodSystemName);
+                    if (provider != null)
                     {
-                        soModel.BrandUrl = _moduleManager.GetBrandImage(srcmProvider.Metadata)?.DefaultImageUrl;
+                        model.BrandUrl = _moduleManager.GetBrandImage(provider.Metadata)?.DefaultImageUrl;
                     }
 
                     // Adjust rate.
                     var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
-                    var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(from, shippingOption.Rate, shippingOption, shippingMethods);
+                    var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(from, option.Rate, option, shippingMethods);
                     var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
-                    var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);
-                    soModel.Fee = rate.WithPostFormat(shippingTaxFormat);
+                    var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _workContext.WorkingCurrency);
+                    model.Fee = rate.WithPostFormat(shippingTaxFormat);
 
-                    to.ShippingMethods.Add(soModel);
+                    to.ShippingMethods.Add(model);
                 }
 
                 // Find a selected (previously) shipping method.
@@ -103,11 +88,10 @@ namespace Smartstore.Web.Models.Checkout
                 {
                     var shippingOptionToSelect = to.ShippingMethods
                         .ToList()
-                        .Find(
-                            so => so.Name.HasValue() &&
-                                  so.Name.EqualsNoCase(selectedShippingOption.Name) &&
-                                  so.ShippingRateComputationMethodSystemName.HasValue() &&
-                                  so.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
+                        .Find(so => so.Name.HasValue() &&
+                            so.Name.EqualsNoCase(selectedShippingOption.Name) &&
+                            so.ShippingRateComputationMethodSystemName.HasValue() &&
+                            so.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
 
                     if (shippingOptionToSelect != null)
                     {
@@ -116,20 +100,13 @@ namespace Smartstore.Web.Models.Checkout
                 }
 
                 // If no option has been selected, let's do it for the first one.
-                if (to.ShippingMethods.Where(so => so.Selected).FirstOrDefault() == null)
+                if (to.ShippingMethods.FirstOrDefault(so => so.Selected) == null)
                 {
                     var shippingOptionToSelect = to.ShippingMethods.FirstOrDefault();
                     if (shippingOptionToSelect != null)
                     {
                         shippingOptionToSelect.Selected = true;
                     }
-                }
-            }
-            else
-            {
-                foreach (var error in shippingOptionResponse.Errors)
-                {
-                    to.Warnings.Add(error);
                 }
             }
         }

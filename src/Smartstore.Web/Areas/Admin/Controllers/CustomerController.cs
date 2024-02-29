@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -46,6 +45,9 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
+        private readonly Lazy<IShippingService> _shippingService;
+        private readonly Lazy<IPaymentService> _paymentService;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -63,7 +65,10 @@ namespace Smartstore.Admin.Controllers
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
-            Lazy<IShoppingCartService> shoppingCartService)
+            Lazy<IShoppingCartService> shoppingCartService,
+            Lazy<IShippingService> shippingService,
+            Lazy<IPaymentService> paymentService,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _customerService = customerService;
@@ -81,6 +86,9 @@ namespace Smartstore.Admin.Controllers
             _gdprTool = gdprTool;
             _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
+            _shippingService = shippingService;
+            _paymentService = paymentService;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         #region Utilities
@@ -175,30 +183,22 @@ namespace Smartstore.Admin.Controllers
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
                 model.IsGuest = customer.IsGuest();
 
+                model.Addresses = new CustomerModel.AddressesModel
+                {
+                    Id = customer.Id,
+                    Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+                };
+
                 model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
                     .Select(x => x.CustomerRoleId)
                     .ToArray();
 
-                if (customer.AffiliateId != 0)
-                {
-                    var affiliate = await _db.Affiliates
-                        .Include(x => x.Address)
-                        .FindByIdAsync(customer.AffiliateId, false);
+                var affiliate = await _db.Affiliates
+                    .Include(x => x.Address)
+                    .FindByIdAsync(customer.AffiliateId, false);
 
-                    model.AffiliateFullName = affiliate?.Address?.GetFullName();
-                }
-
-                // Addresses.
-                var addresses = customer.Addresses
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .ThenByDescending(x => x.Id)
-                    .ToList();
-
-                foreach (var address in addresses)
-                {
-                    model.Addresses.Add(await address.MapAsync());
-                }
+                model.AffiliateFullName = affiliate?.Address?.GetFullName();
             }
             else
             {
@@ -208,7 +208,7 @@ namespace Smartstore.Admin.Controllers
                 if (model.SelectedCustomerRoleIds == null || model.SelectedCustomerRoleIds.Length == 0)
                 {
                     var role = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Registered);
-                    model.SelectedCustomerRoleIds = new[] { role.Id };
+                    model.SelectedCustomerRoleIds = [role.Id];
                 }
             }
 
@@ -226,15 +226,45 @@ namespace Smartstore.Admin.Controllers
                     var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync((int)model.CountryId);
                     ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
-                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                        new() { Text = T("Address.OtherNonUS"), Value = "0" }
                     };
                 }
             }
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            {
+                var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
+                var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync(null, 0, CheckoutWorkflow.CheckoutPaymentTypes, false);
+                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
+                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
+
+                ViewBag.ShippingMethods = shippingMethods
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.GetLocalized(y => y.Name),
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == defaultShippingMethodId
+                    })
+                    .ToList();
+
+                ViewBag.PaymentMethods = paymentProviders
+                    .Where(x => !x.Value.RequiresInteraction)
+                    .Select(x => x.Metadata)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Value = x.SystemName,
+                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                    })
+                    .ToList();
+            }
         }
 
-        private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
+        private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRoles(
+            int[] selectedCustomerRoleIds,
+            List<int> allCustomerRoleIds)
         {
-            Guard.NotNull(allCustomerRoleIds, nameof(allCustomerRoleIds));
+            Guard.NotNull(allCustomerRoleIds);
 
             var newCustomerRoles = new List<CustomerRole>();
             var newCustomerRoleIds = new HashSet<int>();
@@ -250,7 +280,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            if (newCustomerRoleIds.Any())
+            if (newCustomerRoleIds.Count > 0)
             {
                 newCustomerRoles = await _db.CustomerRoles
                     .AsNoTracking()
@@ -339,6 +369,15 @@ namespace Smartstore.Admin.Controllers
             {
                 to.GenericAttributes.Fax = from.Fax;
             }
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            {
+                to.GenericAttributes.DefaultShippingOption = from.DefaultShippingMethodId != null
+                    ? new ShippingOption { ShippingMethodId = from.DefaultShippingMethodId.Value }
+                    : null;
+
+                to.GenericAttributes.DefaultPaymentMethod = from.DefaultPaymentMethod.NullEmpty();
+            }
         }
 
         private void AddModelErrors(IdentityResult result, string key)
@@ -352,9 +391,10 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private static async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
+        private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
-            await address.MapAsync(model.Address);
+            await address.MapAsync(model.Address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
+
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
         }
@@ -490,7 +530,7 @@ namespace Smartstore.Admin.Controllers
 
             // Validate customer roles.
             var allCustomerRoleIds = await _db.CustomerRoles.Select(x => x.Id).ToListAsync();
-            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRoles(model.SelectedCustomerRoleIds, allCustomerRoleIds);
             if (customerRolesError.HasValue())
             {
                 ModelState.AddModelError(nameof(model.SelectedCustomerRoleIds), customerRolesError);
@@ -600,11 +640,11 @@ namespace Smartstore.Admin.Controllers
 
             var allCustomerRoleIds = allowManagingCustomerRoles
                 ? await _db.CustomerRoles.AsNoTracking().Select(x => x.Id).ToListAsync()
-                : new List<int>();
+                : [];
 
             if (allowManagingCustomerRoles)
             {
-                var (_, errMessage) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+                var (_, errMessage) = await ValidateCustomerRoles(model.SelectedCustomerRoleIds, allCustomerRoleIds);
                 if (errMessage.HasValue())
                 {
                     ModelState.AddModelError(string.Empty, errMessage);
@@ -1089,17 +1129,8 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var address = await MapperFactory.MapAsync<AddressModel, Address>(model.Address);
-                address.CreatedOnUtc = DateTime.UtcNow;
-
-                if (address.CountryId == 0)
-                {
-                    address.CountryId = null;
-                }
-                if (address.StateProvinceId == 0)
-                {
-                    address.StateProvinceId = null;
-                }
+                var address = new Address();
+                await model.Address.MapAsync(address);
 
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
@@ -1119,7 +1150,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Customer.ReadAddress)]
-        public async Task<IActionResult> AddressEdit(int addressId, int customerId)
+        public async Task<IActionResult> AddressEdit(int customerId, int addressId)
         {
             var customer = await _db.Customers.FindByIdAsync(customerId, false);
             if (customer == null)
@@ -1156,9 +1187,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            var state = ModelState;
+
             if (ModelState.IsValid)
             {
-                await MapperFactory.MapAsync(model.Address, address);
+                await model.Address.MapAsync(address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Customers.Customers.Addresses.Updated"));
@@ -1174,27 +1207,75 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Customer.EditAddress)]
+        public async Task<IActionResult> SetDefaultAddress(int customerId, int addressId)
+        {
+            var customer = await _db.Customers
+                .Include(x => x.Addresses)
+                .ThenInclude(x => x.Country)
+                .FindByIdAsync(customerId);
+
+            var address = customer?.Addresses?.FirstOrDefault(x => x.Id == addressId);
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            var billingAllowed = address.Country?.AllowsBilling ?? true;
+            var shippingAllowed = address.Country?.AllowsShipping ?? true;
+
+            if (billingAllowed && shippingAllowed)
+            {
+                customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                if (!billingAllowed)
+                {
+                    NotifyError(T("Order.CountryNotAllowedForBilling", address.Country?.GetLocalized(x => x.Name)));
+                }
+                if (!shippingAllowed)
+                {
+                    NotifyError(T("Order.CountryNotAllowedForShipping", address.Country?.GetLocalized(x => x.Name)));
+                }
+            }
+
+            var model = new CustomerModel.AddressesModel
+            {
+                Id = customer.Id,
+                Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+            };
+
+            return PartialView("_Addresses", model);
+        }
+
+        [HttpPost]
         [Permission(Permissions.Customer.DeleteAddress)]
         public async Task<IActionResult> AddressDelete(int customerId, int addressId)
         {
-            var success = false;
             var customer = await _db.Customers
                 .Include(x => x.Addresses)
                 .FindByIdAsync(customerId);
 
-            if (customer != null)
+            var address = customer?.Addresses?.FirstOrDefault(x => x.Id == addressId);
+            if (address == null)
             {
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address != null)
-                {
-                    customer.RemoveAddress(address);
-                    _db.Addresses.Remove(address);
-                    await _db.SaveChangesAsync();
-                    success = true;
-                }
+                return NotFound();
             }
 
-            return new JsonResult(success);
+            customer.RemoveAddress(address);
+            _db.Addresses.Remove(address);
+            await _db.SaveChangesAsync();
+
+            var model = new CustomerModel.AddressesModel
+            {
+                Id = customer.Id,
+                Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
+            };
+
+            return PartialView("_Addresses", model);
         }
 
         #endregion

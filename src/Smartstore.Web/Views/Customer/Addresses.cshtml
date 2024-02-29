@@ -8,7 +8,9 @@
     ViewBag.PageTitle = T("Account.CustomerAddresses").Value;
 }
 
-<div sm-if="Model.Count == 0" class="alert alert-warning">@T("Account.CustomerAddresses.NoAddresses")</div>
+<div sm-if="Model.Count == 0" class="alert alert-warning">
+    @T("Account.CustomerAddresses.NoAddresses")
+</div>
 
 <div class="add-address">
     <a asp-action="AddressAdd" class="btn btn-primary btn-lg add-address-button mb-4" rel="nofollow">
@@ -23,44 +25,90 @@
 }
 
 <div class="row card-grid g-3 row-cols-1 row-cols-lg-2 address-list">
-    @for (int i = 0; i < Model.Count; i++)
+    @foreach (var address in Model)
     {
-        var address = Model[i];
-
         <div class="col">
             <div class="card address-list-item">
                 <div class="card-body">
-                    <h4 class="card-title h5">@address.GetFormattedName()</h4>
+                    <h4 class="card-title h5">
+                        <a href="@Url.Action("AddressEdit", new { id = address.Id })" title="@T("Common.Edit")" rel="nofollow">
+                            @address.GetFormattedName()
+                        </a>
+                    </h4>
                     <div class="mb-2">
                         <div class="email">
-                            <label asp-for="@Model[i].Email" class="m-0"></label>:
+                            <label asp-for="@address.Email" class="m-0"></label>:
                             @address.Email
                         </div>
                         <div sm-if="address.PhoneEnabled" class="phone">
-                            <label asp-for="@Model[i].PhoneNumber" class="m-0"></label>:
+                            <label asp-for="@address.PhoneNumber" class="m-0"></label>:
                             @address.PhoneNumber
                         </div>
                         <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
-                            <label asp-for="@Model[i].FaxNumber" class="m-0"></label>:
+                            <label asp-for="@address.FaxNumber" class="m-0"></label>:
                             @address.FaxNumber
                         </div>
                     </div>
-
                     <div>
                         @Html.Raw(address.FormattedAddress)
                     </div>
                 </div>
 
                 <div class="card-footer d-flex p-2">
-                    <a class="btn btn-light btn-sm btn-flat edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id">
-                        <span>@T("Common.Edit")</span>
+                    <a class="btn btn-light btn-flat btn-icon btn-sm edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id"
+                       title="@T("Common.Edit")"
+                       rel="nofollow">
+                        <i class="far fa-edit"></i>
                     </a>
-                    <a class="btn btn-light btn-to-danger btn-flat btn-sm delete-address-button ml-auto" asp-action="AddressDelete" asp-route-id="@address.Id" onclick='return confirm(@T("Common.AreYouSure").JsValue);'>
+                    <button type="button" class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button"
+                            data-url="@Url.Action("AddressDelete", new { id = address.Id })"
+                            title="@T("Common.Delete")">
                         <i class="far fa-trash-can"></i>
-                        <span>@T("Common.Delete")</span>
-                    </a>
+                    </button>
+
+                    <div sm-if="address.DefaultAddressesEnabled" class="d-flex ml-auto">
+                        @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
+                        {
+                            <span class="badge badge-success align-self-center p-1 pr-2">
+                                <i class="fa fa-check mx-1"></i>
+                                <span>@T("Address.IsDefaultAddress")</span>
+                            </span>
+                        }
+                        else if (address.IsDefaultBillingAddress || address.IsDefaultShippingAddress)
+                        {
+                            <span class="badge badge-info align-self-center py-1 px-2 ml-auto">
+                                <span>@T(address.IsDefaultBillingAddress ? "Address.IsDefaultBillingAddress" : "Address.IsDefaultShippingAddress")</span>
+                            </span>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-light btn-flat btn-sm default-address-button"
+                                    data-url="@Url.Action("SetDefaultAddress", new { id = address.Id })"
+                                    title="@T("Address.SetDefaultAddress")">
+                                <span>@T("Common.SetDefault")</span>
+                            </button>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     }
 </div>
+
+<script sm-target-zone="scripts" data-origin="myaccount-addresses">
+    $(function () {
+        $('.delete-address-button').on('click', function (e) {
+            e.preventDefault();
+            $(this).postData({
+                ask: @T("Admin.Common.AskToProceed").JsValue
+            });
+            return false;
+        });
+
+        $('.default-address-button').on('click', function (e) {
+            e.preventDefault();
+            $(this).postData({ });
+            return false;
+        });
+    });
+</script>

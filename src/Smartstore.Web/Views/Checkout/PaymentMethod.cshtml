@@ -120,8 +120,7 @@
                         <span>@T("Common.Back")</span>
                     </a>
                     <input type="submit" name="nextstep" id="nextstep" class="d-none" />
-
-                    <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                    <button type="button" class="btn btn-warning btn-lg payment-method-next-step-button">
                         <span>@T("Checkout.NextButton")</span>
                         <i class="fa fa-angle-right"></i>
                     </button>
@@ -147,6 +146,11 @@
         if (validationSummary.length) {
             $.scrollTo(validationSummary, 600, { offset: -100 });
         }
+
+        $('.payment-method-next-step-button').on('click', function () {
+            $('#nextstep').trigger('click');
+            return false;
+        });
 
         @if (Model.DisplayPaymentMethodIcons)
         {

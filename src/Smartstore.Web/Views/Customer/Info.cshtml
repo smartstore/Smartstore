@@ -1,6 +1,9 @@
-﻿@using Smartstore.Web.Models.Customers;
+﻿@using Smartstore.Web.Models.Customers
+@using Smartstore.Core.Checkout.Cart 
 
 @model CustomerInfoModel
+
+@inject ShoppingCartSettings CartSettings
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
@@ -8,10 +11,14 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "info";
     ViewBag.PageTitle = T("Account.CustomerInfo").Value;
+
+    var shippingMethods = (ViewBag.ShippingMethods as List<SelectListItem>) ?? new();
+    var paymentMethods = (ViewBag.PaymentMethods as List<SelectListItem>) ?? new();
+    var canChangeDefaultShipping = shippingMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangeDefaultShipping;
+    var canChangeDefaultPayment = paymentMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangeDefaultPayment;
 }
 
 <form asp-action="Info" class="form-horizontal" method="post">
-
     <div asp-validation-summary="ModelOnly"></div>
 
     <zone name="customer_info_top"></zone>
@@ -60,10 +67,10 @@
                 <label asp-for="DateOfBirth" class="col-form-label"></label>
             </div>
             <div class="col-lg-9">
-                <input type="date" asp-for="DateOfBirth" 
-                    class="native-validation"
-                    max="@DateTime.Now.ToString("yyyy-MM-dd")" 
-                    min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
+                <input type="date" asp-for="DateOfBirth"
+                       class="native-validation"
+                       max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                       min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
             </div>
         </div>
 
@@ -200,7 +207,7 @@
         <div sm-if="Model.CountryEnabled" class="form-group row">
             <label asp-for="CountryId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                @{ 
+                @{
                     var countrySelectorViewData = new
                     {
                         nullable = true,
@@ -261,13 +268,27 @@
         </div>
     </fieldset>
 
-    <fieldset sm-if="Model.AllowCustomersToSetTimeZone" class="content-group">
+    <fieldset sm-if="Model.AllowCustomersToSetTimeZone || canChangeDefaultShipping || canChangeDefaultPayment" class="content-group">
         <legend><span>@T("Account.Preferences")</span></legend>
-        <div class="form-group row">
+        <div sm-if="Model.AllowCustomersToSetTimeZone" class="form-group row">
             <label asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
                 <span asp-validation-for="TimeZoneId"></span>
+            </div>
+        </div>
+        <div sm-if="canChangeDefaultShipping" class="form-group row">
+            <label asp-for="DefaultShippingMethodId" class="col-lg-3 col-form-label"></label>
+            <div class="col-lg-9">
+                <select asp-for="DefaultShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="DefaultShippingMethodId"></span>
+            </div>
+        </div>
+        <div sm-if="canChangeDefaultPayment" class="form-group row">
+            <label asp-for="DefaultPaymentMethod" class="col-lg-3 col-form-label"></label>
+            <div class="col-lg-9">
+                <select asp-for="DefaultPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="DefaultPaymentMethod"></span>
             </div>
         </div>
     </fieldset>

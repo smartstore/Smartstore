@@ -15,11 +15,6 @@ namespace Smartstore.Core.Checkout.Payment
         public bool AllowRePostingPayments { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should bypass 'select payment method' page if we have only one payment method
-        /// </summary>
-        public bool BypassPaymentMethodSelectionIfOnlyOne { get; set; }
-
-        /// <summary>
         /// Gets or sets the reason for automatic payment capturing
         /// </summary>
         public CapturePaymentReason? CapturePaymentReason { get; set; }
@@ -27,11 +22,16 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets the system names of payment methods that should be displayed on product detail pages.
         /// </summary>
-        public string ProductDetailPaymentMethodSystemNames { get; set; }
+        public string[] ProductDetailPaymentMethodSystemNames { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether small payment icons should be used on payment selection page.
         /// </summary>
         public bool DisplayPaymentMethodIcons { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip the payment selection during checkout, if only one payment method is available.
+        /// </summary>
+        public bool SkipPaymentSelectionIfSingleOption { get; set; }
     }
 }

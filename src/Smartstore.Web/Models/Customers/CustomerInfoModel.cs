@@ -106,7 +106,13 @@ namespace Smartstore.Web.Models.Customers
         public bool DisplayVatNumber { get; set; }
 
         [LocalizedDisplay("Account.AssociatedExternalAuth")]
-        public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
+        public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = [];
+
+        [LocalizedDisplay("*DefaultShippingMethod")]
+        public int? DefaultShippingMethodId { get; set; }
+
+        [LocalizedDisplay("*DefaultPaymentMethod")]
+        public string DefaultPaymentMethod { get; set; }
 
         public partial class AssociatedExternalAuthModel : EntityModelBase
         {

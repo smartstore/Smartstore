@@ -10,8 +10,9 @@
 }
 
 <form asp-action="AddressAdd">
+    <div asp-validation-summary="All"></div>
     <partial name="_CreateOrUpdateAddress" model="Model" />
-    
+
     <div class="form-group row">
         <div class="col">
             <button type="submit" class="btn btn-primary btn-lg save-address-button">

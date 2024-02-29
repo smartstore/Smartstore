@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Smartstore.Admin.Models;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -30,7 +29,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
-using Smartstore.Core.Search.Indexing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -985,15 +983,9 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public IActionResult Payment(PaymentSettings settings)
+        public async Task<IActionResult> Payment(PaymentSettings settings)
         {
-            var model = new PaymentSettingsModel
-            {
-                CapturePaymentReason = settings.CapturePaymentReason,
-                ProductDetailPaymentMethodSystemNames = settings.ProductDetailPaymentMethodSystemNames.SplitSafe(",").ToArray(),
-                DisplayPaymentMethodIcons = settings.DisplayPaymentMethodIcons
-            };
-
+            var model = await MapperFactory.MapAsync<PaymentSettings, PaymentSettingsModel>(settings);
             var providers = _providerManager.GetAllProviders<IPaymentMethod>();
 
             var selectListItems = providers
@@ -1012,14 +1004,12 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Payment(settings);
+                return await Payment(settings);
             }
 
             ModelState.Clear();
 
-            settings.CapturePaymentReason = model.CapturePaymentReason;
-            settings.DisplayPaymentMethodIcons = model.DisplayPaymentMethodIcons;
-            settings.ProductDetailPaymentMethodSystemNames = model.ProductDetailPaymentMethodSystemNames.Convert<string>();
+            await MapperFactory.MapAsync(model, settings);
 
             await _cache.RemoveByPatternAsync(PaymentService.ProductDetailPaymentIconsPatternKey);
 

@@ -1,12 +1,15 @@
-﻿using Humanizer;
+﻿using System.Linq.Expressions;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -37,6 +40,7 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly IDownloadService _downloadService;
         private readonly ICurrencyService _currencyService;
+        private readonly IShippingService _shippingService;
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
@@ -51,6 +55,7 @@ namespace Smartstore.Web.Controllers
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly MediaSettings _mediaSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -64,6 +69,7 @@ namespace Smartstore.Web.Controllers
             IMediaService mediaService,
             IDownloadService downloadService,
             ICurrencyService currencyService,
+            IShippingService shippingService,
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
@@ -77,7 +83,8 @@ namespace Smartstore.Web.Controllers
             LocalizationSettings localizationSettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _newsletterSubscriptionService = newsletterSubscriptionService;
@@ -90,6 +97,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _downloadService = downloadService;
             _currencyService = currencyService;
+            _shippingService = shippingService;
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -104,6 +112,7 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
             _mediaSettings = mediaSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         public async Task<IActionResult> Info()
@@ -274,6 +283,15 @@ namespace Smartstore.Web.Controllers
                         customer.TimeZoneId = model.TimeZoneId;
                     }
 
+                    if (_shoppingCartSettings.QuickCheckoutEnabled)
+                    {
+                        customer.GenericAttributes.DefaultShippingOption = model.DefaultShippingMethodId != null
+                            ? new ShippingOption { ShippingMethodId = model.DefaultShippingMethodId.Value }
+                            : null;
+
+                        customer.GenericAttributes.DefaultPaymentMethod = model.DefaultPaymentMethod.NullEmpty();
+                    }
+
                     var updateResult = await _userManager.UpdateAsync(customer);
                     if (updateResult.Succeeded)
                     {
@@ -345,9 +363,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var models = await customer.Addresses
-                .SelectAwait(async x => await x.MapAsync())
-                .AsyncToList();
+            var models = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(models);
         }
@@ -386,8 +402,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var model = new AddressModel();
-            await PrepareAddressModel(new Address(), model);
+            var model = await new Address().MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(model);
         }
@@ -405,16 +420,14 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, address);
+                await model.MapAsync(address);
                 customer.Addresses.Add(address);
-
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
             }
 
-            // If we got this far something failed. Redisplay form.
-            await PrepareAddressModel(address, model);
+            await address.MapAsync(model, customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(model);
         }
@@ -439,8 +452,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(Addresses));
             }
 
-            var model = new AddressModel();
-            await PrepareAddressModel(address, model);
+            var model = await address.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(model);
         }
@@ -463,22 +475,52 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, address);
-                _db.Addresses.Update(address);
+                await model.MapAsync(address, customer, _shoppingCartSettings.QuickCheckoutEnabled);
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Addresses));
             }
 
-            // If we got this far something failed. Redisplay form.
-            await PrepareAddressModel(address, model);
+            await address.MapAsync(model, customer, _shoppingCartSettings.QuickCheckoutEnabled);
 
             return View(model);
         }
 
-        private async Task PrepareAddressModel(Address from, AddressModel to)
+        [HttpPost]
+        public async Task<IActionResult> SetDefaultAddress(int id)
         {
-            await from.MapAsync(to);
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return ChallengeOrForbid();
+            }
+
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == id);
+            if (address != null)
+            {
+                var billingAllowed = address.Country?.AllowsBilling ?? true;
+                var shippingAllowed = address.Country?.AllowsShipping ?? true;
+
+                if (billingAllowed && shippingAllowed)
+                {
+                    customer.GenericAttributes.DefaultBillingAddressId = address.Id;
+                    customer.GenericAttributes.DefaultShippingAddressId = address.Id;
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    if (!billingAllowed)
+                    {
+                        NotifyError(T("Order.CountryNotAllowedForBilling", address.Country?.GetLocalized(x => x.Name)));
+                    }
+                    if (!shippingAllowed)
+                    {
+                        NotifyError(T("Order.CountryNotAllowedForShipping", address.Country?.GetLocalized(x => x.Name)));
+                    }
+                }
+            }
+
+            return RedirectToAction(nameof(Addresses));
         }
 
         #endregion
@@ -939,6 +981,9 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(model);
             Guard.NotNull(customer);
 
+            var store = Services.StoreContext.CurrentStore;
+            var language = Services.WorkContext.WorkingLanguage;
+
             model.Id = customer.Id;
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
 
@@ -949,7 +994,7 @@ namespace Smartstore.Web.Controllers
             {
                 var newsletterSubscription = await _db.NewsletterSubscriptions
                     .AsNoTracking()
-                    .ApplyMailAddressFilter(customer.Email, Services.StoreContext.CurrentStore.Id)
+                    .ApplyMailAddressFilter(customer.Email, store.Id)
                     .FirstOrDefaultAsync();
 
                 model.Company = customer.Company;
@@ -981,22 +1026,19 @@ namespace Smartstore.Web.Controllers
             }
 
             // Countries and state provinces.
-            if (_customerSettings.CountryEnabled)
+            if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
             {
-                if (_customerSettings.StateProvinceEnabled)
+                var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
+                ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                 {
-                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
-                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
-                    {
-                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
-                    };
-                }
+                    new() { Text = T("Address.OtherNonUS"), Value = "0" }
+                };
             }
 
             model.FirstNameRequired = _customerSettings.FirstNameRequired;
             model.LastNameRequired = _customerSettings.LastNameRequired;
             model.DisplayVatNumber = _taxSettings.EuVatEnabled;
-            model.VatNumberStatusNote = ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
+            model.VatNumberStatusNote = ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnum(language.Id);
             model.GenderEnabled = _customerSettings.GenderEnabled;
             model.TitleEnabled = _customerSettings.TitleEnabled;
             model.DateOfBirthEnabled = _customerSettings.DateOfBirthEnabled;
@@ -1023,16 +1065,9 @@ namespace Smartstore.Web.Controllers
             model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
                 && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;
 
-            if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
+            model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
                 && (_customerSettings.CustomerNumberVisibility == CustomerNumberVisibility.Editable
-                || (_customerSettings.CustomerNumberVisibility == CustomerNumberVisibility.EditableIfEmpty && model.CustomerNumber.IsEmpty())))
-            {
-                model.CustomerNumberEnabled = true;
-            }
-            else
-            {
-                model.CustomerNumberEnabled = false;
-            }
+                || (_customerSettings.CustomerNumberVisibility == CustomerNumberVisibility.EditableIfEmpty && model.CustomerNumber.IsEmpty()));
 
             // External authentication.
             await _db.LoadCollectionAsync(customer, x => x.ExternalAuthenticationRecords);
@@ -1064,6 +1099,34 @@ namespace Smartstore.Web.Controllers
                     };
                 })
                 .ToList();
+
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            {
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
+                var paymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(null, store.Id, CheckoutWorkflow.CheckoutPaymentTypes, false);
+                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
+                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
+
+                ViewBag.ShippingMethods = shippingMethods
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.GetLocalized(y => y.Name),
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == defaultShippingMethodId
+                    })
+                    .ToList();
+
+                ViewBag.PaymentMethods = paymentProviders
+                    .Where(x => !x.Value.RequiresInteraction)
+                    .Select(x => x.Metadata)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Value = x.SystemName,
+                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                    })
+                    .ToList();
+            }
         }
 
         private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
@@ -1142,6 +1205,30 @@ namespace Smartstore.Web.Controllers
             model.RecurringPayments = rpModels.ToPagedList(recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
 
             return model;
+        }
+
+        private async Task<Product> GetShippableProduct(Customer customer)
+        {
+            Expression<Func<Product, bool>> predicate = x => x.Published
+                && x.Visibility < ProductVisibility.ProductPage
+                && !x.IsDownload
+                && !x.IsRecurring
+                && x.IsShippingEnabled
+                && !x.IsFreeShipping
+                && !x.IsSystemProduct
+                && x.ProductType == ProductType.SimpleProduct;
+
+            var product = await _db.Orders
+                .AsNoTracking()
+                .Where(x => x.CustomerId == customer.Id)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .SelectMany(x => x.OrderItems.Select(y => y.Product))
+                .Where(predicate)
+                .FirstOrDefaultAsync() 
+                ?? await _db.Products.AsNoTracking().Where(predicate).FirstOrDefaultAsync() 
+                ?? await _db.Products.FirstOrDefaultAsync();
+
+            return product;
         }
 
         #endregion

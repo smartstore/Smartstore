@@ -214,8 +214,7 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         private async Task PrepareAvailablePaymentMethodsAsync()
         {
-            // Get available payment methods
-            if (!_paymentSettings.ProductDetailPaymentMethodSystemNames.HasValue())
+            if (_paymentSettings.ProductDetailPaymentMethodSystemNames.IsNullOrEmpty())
             {
                 return;
             } 
@@ -229,9 +228,8 @@ namespace Smartstore.Web.Controllers
                     
                 // Get all providers.
                 var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>();
-                var productDetailMethods = _paymentSettings.ProductDetailPaymentMethodSystemNames.Convert<string[]>();
 
-                foreach (var systemName in productDetailMethods)
+                foreach (var systemName in _paymentSettings.ProductDetailPaymentMethodSystemNames)
                 {
                     var provider = providers.Where(x => x.Metadata.SystemName == systemName).FirstOrDefault();
 

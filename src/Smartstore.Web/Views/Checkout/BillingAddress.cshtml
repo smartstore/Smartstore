@@ -19,60 +19,68 @@
         <h1 class="h3">@T("Checkout.BillingAddress")</h1>
     </div>
     <div class="page-body checkout-data">
+        <form asp-action="BillingAddress" asp-controller="Checkout" method="post">
+            <zone name="checkout_billing_address_top" />
 
-        <zone name="checkout_billing_address_top" />
+            <fieldset sm-if="Model.HasAddresses" class="content-group mb-3">
+                <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
 
-        <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
-            <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
+                <div sm-if="Model.IsShippingRequired" class="form-check my-3">
+                    <input asp-for="ShippingAddressDiffers" class="form-check-input" type="checkbox" sm-switch="false" />
+                    <label class="form-check-label" for="@Html.NameFor(x => x.ShippingAddressDiffers)">
+                        @T("Checkout.SpecifyDifferingShippingAddress")
+                    </label>
+                </div>
 
-            <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
-                @foreach (var item in Model.ExistingAddresses)
-                {
-                    <div class="col">
-                        <div class="card card-body address-list-item">
-                            <div class="address-item">
-                                <button class="btn btn-warning btn-block select-billing-address-button" onclick="setLocation('@Url.Action("SelectBillingAddress", new { addressId = item.Id })')">
-                                    <span>@T("Checkout.BillToThisAddress")</span>
-                                    <i class="fa fa-angle-right"></i>
-                                </button>
+                <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
+                    @foreach (var item in Model.ExistingAddresses)
+                    {
+                        <div class="col">
+                            <div class="card card-body address-list-item">
+                                <div class="address-item">
+                                    <button class="btn btn-warning btn-block select-billing-address-button"
+                                            data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })">
+                                        <span>@T("Checkout.BillToThisAddress")</span>
+                                        <i class="fa fa-angle-right"></i>
+                                    </button>
 
-                                <div class="address-data mt-3">
-                                    <div class="name pb-2">
-                                        <strong>
-                                            <span class="bidi-embed">@item.FirstName</span>
-                                            <span class="bidi-embed">@item.LastName</span>
-                                        </strong>
-                                    </div>
-                                    <div class="email">
-                                        <span>@T("Address.Fields.Email"):</span>
-                                        <span>@item.Email</span>
-                                    </div>
-                                    <div sm-if="item.PhoneEnabled" class="phone">
-                                        <span>@T("Address.Fields.PhoneNumber"):</span>
-                                        <span>@item.PhoneNumber</span>
-                                    </div>
-                                    <div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
-                                        <span>@T("Address.Fields.FaxNumber"):</span>
-                                        <span>@item.FaxNumber</span>
-                                    </div>
-                                    <div class="address">
-                                        @Html.Raw(item.FormattedAddress)
+                                    <div class="address-data mt-3">
+                                        <div class="name pb-2">
+                                            <strong>
+                                                <span class="bidi-embed">@item.FirstName</span>
+                                                <span class="bidi-embed">@item.LastName</span>
+                                            </strong>
+                                        </div>
+                                        <div class="email">
+                                            <span>@T("Address.Fields.Email"):</span>
+                                            <span>@item.Email</span>
+                                        </div>
+                                        <div sm-if="item.PhoneEnabled" class="phone">
+                                            <span>@T("Address.Fields.PhoneNumber"):</span>
+                                            <span>@item.PhoneNumber</span>
+                                        </div>
+                                        <div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
+                                            <span>@T("Address.Fields.FaxNumber"):</span>
+                                            <span>@item.FaxNumber</span>
+                                        </div>
+                                        <div class="address">
+                                            @Html.Raw(item.FormattedAddress)
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
-        </fieldset>
+                    }
 
-        <zone name="checkout_billing_address_middle" />
+                    <partial name="_AddNewAddress" />
+                </div>
+            </fieldset>
 
-        <fieldset class="content-group">
-            <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
+            <zone name="checkout_billing_address_middle" />
 
-            <div class="enter-address">
-                <form asp-action="BillingAddress" asp-controller="Checkout" method="post">
+            <fieldset class="content-group cnt-add-new-address pt-3" attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'>
+                <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterBillingAddress")</span></legend>
+                <div class="enter-address">
                     <div class="enter-address-body">
                         @{
                             var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
@@ -91,16 +99,35 @@
                             <span>@T("Common.Back")</span>
                         </a>
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
-
-                        <button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                        <button type="button" class="btn btn-warning btn-lg new-address-next-step-button">
                             <span>@T("Checkout.NextButton")</span>
                             <i class="fa fa-angle-right"></i>
                         </button>
                     </div>
-                </form>
-            </div>
-        </fieldset>
+                </div>
+            </fieldset>
 
-        <zone name="checkout_billing_address_bottom" />
+            <zone name="checkout_billing_address_bottom" />
+        </form>
     </div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="billing-address">
+    $(function () {
+        $('.select-billing-address-button').on('click', function (e) {
+            e.preventDefault();
+            var shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
+
+            $(this).postData({
+                data: { shippingAddressDiffers }
+            });
+
+            return false;
+        });
+
+        $('.new-address-next-step-button').on('click', function () {
+            $('#nextstep').trigger('click');
+            return false;
+        });
+    });
+</script>

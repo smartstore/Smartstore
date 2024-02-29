@@ -1,0 +1,26 @@
+﻿<div class="col">
+    <div class="card card-body text-center d-flex" style="border-style: dashed;">
+        <div class="fs-h3 mt-3 mb-2 text-uppercase">
+            @T("Common.Or")
+        </div>
+        <div class="fs-display-3 text-muted">
+            <i class="fa fa-plus"></i>
+        </div>
+        <div class="align-self-stretch h-100 d-flex">
+            <button type="button" class="btn btn-primary btn-block add-new-address align-self-end">
+                <span>@T("Admin.Customers.Customers.Addresses.AddNew")</span>
+                <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="add-new-address">
+    $(function () {
+        $('.add-new-address').on('click', function (e) {
+            e.preventDefault();
+            $('.cnt-add-new-address').slideDown();
+            return false;
+        });
+    });
+</script>

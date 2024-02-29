@@ -35,6 +35,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ICheckoutWorkflow _checkoutWorkflow;
         private readonly IPaymentService _paymentService;
         private readonly IRoundingHelper _roundingHelper;
         private readonly AmazonPaySettings _settings;
@@ -49,6 +50,7 @@ namespace Smartstore.AmazonPay.Controllers
             ICheckoutStateAccessor checkoutStateAccessor,
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
+            ICheckoutWorkflow checkoutWorkflow,
             IPaymentService paymentService,
             IRoundingHelper roundingHelper,
             AmazonPaySettings amazonPaySettings,
@@ -62,6 +64,7 @@ namespace Smartstore.AmazonPay.Controllers
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
+            _checkoutWorkflow = checkoutWorkflow;
             _paymentService = paymentService;
             _roundingHelper = roundingHelper;
             _settings = amazonPaySettings;
@@ -152,6 +155,12 @@ namespace Smartstore.AmazonPay.Controllers
 
                 if (result.Success)
                 {
+                    var advance = await _checkoutWorkflow.AdvanceAsync();
+                    if (advance.Result != null)
+                    {
+                        return advance.Result;
+                    }
+
                     var actionName = result.IsShippingMethodMissing
                         ? nameof(CheckoutController.ShippingMethod)
                         : nameof(CheckoutController.Confirm);
