@@ -61,7 +61,8 @@
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
 - Fixed `NullReferenceException` calling search page without any search term.
-- Fixes `NullReferenceException` *typeFilter was null* when uploading a video.
+- Fixed `NullReferenceException` *typeFilter was null* when uploading a video.
+- Fixed `NullReferenceException` on product detail page if the main menu is not published.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
