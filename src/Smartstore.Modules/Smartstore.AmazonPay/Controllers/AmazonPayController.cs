@@ -200,7 +200,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            if (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest())
+            if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
             {
                 NotifyWarning(T("Checkout.AnonymousNotAllowed"));
                 return result;
