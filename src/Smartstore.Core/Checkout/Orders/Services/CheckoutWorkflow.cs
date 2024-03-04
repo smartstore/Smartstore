@@ -75,18 +75,6 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        /// <summary>
-        /// Gets a list of all payment method types that are represented on the payment method page in checkout.
-        /// Methods of type <see cref="PaymentMethodType.Button"/> are not included.
-        /// </summary>
-        public static PaymentMethodType[] CheckoutPaymentTypes =>
-        [
-            PaymentMethodType.Standard,
-            PaymentMethodType.Redirection,
-            PaymentMethodType.StandardAndButton,
-            PaymentMethodType.StandardAndRedirection
-        ];
-
         public virtual async Task<CheckoutWorkflowResult> StartAsync()
         {
             var warnings = new List<string>();
@@ -103,13 +91,19 @@ namespace Smartstore.Core.Checkout.Orders
             customer.ResetCheckoutData(store.Id);
             _checkoutStateAccessor.Abandon();
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled && (
-                (customer.BillingAddressId != null && customer.BillingAddressId != customer.GenericAttributes.DefaultBillingAddressId) ||
-                (customer.ShippingAddressId != null && customer.ShippingAddressId != customer.GenericAttributes.DefaultShippingAddressId)))
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                // Reset because otherwise the default addresses will not be applied.
-                customer.BillingAddressId = customer.ShippingAddressId = null;
-                customer.BillingAddress = customer.ShippingAddress = null;
+                if (customer.BillingAddressId != null && customer.BillingAddressId != customer.GenericAttributes.DefaultBillingAddressId)
+                {
+                    // Reset because otherwise the default address will not be applied.
+                    customer.BillingAddressId = null;
+                    customer.BillingAddress = null;
+                }
+                if (customer.ShippingAddressId != null && customer.ShippingAddressId != customer.GenericAttributes.DefaultShippingAddressId)
+                {
+                    customer.ShippingAddressId = null;
+                    customer.ShippingAddress = null;
+                }
             }
 
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))

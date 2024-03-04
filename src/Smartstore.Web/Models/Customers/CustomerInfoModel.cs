@@ -108,11 +108,11 @@ namespace Smartstore.Web.Models.Customers
         [LocalizedDisplay("Account.AssociatedExternalAuth")]
         public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = [];
 
-        [LocalizedDisplay("*DefaultShippingMethod")]
-        public int? DefaultShippingMethodId { get; set; }
+        [LocalizedDisplay("*PreferredShippingMethod")]
+        public int? PreferredShippingMethodId { get; set; }
 
-        [LocalizedDisplay("*DefaultPaymentMethod")]
-        public string DefaultPaymentMethod { get; set; }
+        [LocalizedDisplay("*PreferredPaymentMethod")]
+        public string PreferredPaymentMethod { get; set; }
 
         public partial class AssociatedExternalAuthModel : EntityModelBase
         {

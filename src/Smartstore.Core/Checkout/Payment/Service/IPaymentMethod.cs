@@ -20,6 +20,14 @@ namespace Smartstore.Core.Checkout.Payment
         bool RequiresInteraction { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the payment method requires the payment selection page in checkout
+        /// before proceeding. For example, to create a payment transaction at this stage.
+        /// If <c>false</c>, then the payment method is qualified for Quick Checkout and 
+        /// <see cref="CreateProcessPaymentRequestAsync"/> must be implemented.
+        /// </summary>
+        bool RequiresPaymentSelection { get; }
+
+        /// <summary>
         /// Gets a value indicating whether (later) capturing of the payment amount is supported,
         /// for instance when the goods are shipped.
         /// </summary>
@@ -94,6 +102,18 @@ namespace Smartstore.Core.Checkout.Payment
         /// <returns>Payment summary. <c>null</c> if there is no summary.</returns>
         /// <remarks>Typically used to display the brand name and a masked credit card number.</remarks>
         Task<string> GetPaymentSummaryAsync();
+
+        /// <summary>
+        /// Creates a <see cref="ProcessPaymentRequest"/> for automatic fulfillment of a payment request (Quick Checkout).
+        /// Only required if <see cref="RequiresPaymentSelection"/> is <c>false</c>.
+        /// </summary>
+        /// <param name="cart">Current shopping cart.</param>
+        /// <param name="lastOrder">The last order of the current customer.</param>
+        /// <returns>
+        /// <see cref="ProcessPaymentRequest"/> or <c>null</c> if the payment request cannot be fulfilled automatically.
+        /// In this case, the customer will be directed to the payment selection page.
+        /// </returns>
+        Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart, Order lastOrder);
 
         /// <summary>
         /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.

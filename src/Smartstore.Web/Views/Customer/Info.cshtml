@@ -14,8 +14,8 @@
 
     var shippingMethods = (ViewBag.ShippingMethods as List<SelectListItem>) ?? new();
     var paymentMethods = (ViewBag.PaymentMethods as List<SelectListItem>) ?? new();
-    var canChangeDefaultShipping = shippingMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangeDefaultShipping;
-    var canChangeDefaultPayment = paymentMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangeDefaultPayment;
+    var canChangePreferredShipping = shippingMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangePreferredShipping;
+    var canChangePreferredPayment = paymentMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangePreferredPayment;
 }
 
 <form asp-action="Info" class="form-horizontal" method="post">
@@ -268,7 +268,7 @@
         </div>
     </fieldset>
 
-    <fieldset sm-if="Model.AllowCustomersToSetTimeZone || canChangeDefaultShipping || canChangeDefaultPayment" class="content-group">
+    <fieldset sm-if="Model.AllowCustomersToSetTimeZone || canChangePreferredShipping || canChangePreferredPayment" class="content-group">
         <legend><span>@T("Account.Preferences")</span></legend>
         <div sm-if="Model.AllowCustomersToSetTimeZone" class="form-group row">
             <label asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
@@ -277,18 +277,18 @@
                 <span asp-validation-for="TimeZoneId"></span>
             </div>
         </div>
-        <div sm-if="canChangeDefaultShipping" class="form-group row">
-            <label asp-for="DefaultShippingMethodId" class="col-lg-3 col-form-label"></label>
+        <div sm-if="canChangePreferredShipping" class="form-group row">
+            <label asp-for="PreferredShippingMethodId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="DefaultShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
-                <span asp-validation-for="DefaultShippingMethodId"></span>
+                <select asp-for="PreferredShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="PreferredShippingMethodId"></span>
             </div>
         </div>
-        <div sm-if="canChangeDefaultPayment" class="form-group row">
-            <label asp-for="DefaultPaymentMethod" class="col-lg-3 col-form-label"></label>
+        <div sm-if="canChangePreferredPayment" class="form-group row">
+            <label asp-for="PreferredPaymentMethod" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="DefaultPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
-                <span asp-validation-for="DefaultPaymentMethod"></span>
+                <select asp-for="PreferredPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <span asp-validation-for="PreferredPaymentMethod"></span>
             </div>
         </div>
     </fieldset>

@@ -285,11 +285,11 @@ namespace Smartstore.Web.Controllers
 
                     if (_shoppingCartSettings.QuickCheckoutEnabled)
                     {
-                        customer.GenericAttributes.DefaultShippingOption = model.DefaultShippingMethodId != null
-                            ? new ShippingOption { ShippingMethodId = model.DefaultShippingMethodId.Value }
+                        customer.GenericAttributes.PreferredShippingOption = model.PreferredShippingMethodId != null
+                            ? new ShippingOption { ShippingMethodId = model.PreferredShippingMethodId.Value }
                             : null;
 
-                        customer.GenericAttributes.DefaultPaymentMethod = model.DefaultPaymentMethod.NullEmpty();
+                        customer.GenericAttributes.PreferredPaymentMethod = model.PreferredPaymentMethod.NullEmpty();
                     }
 
                     var updateResult = await _userManager.UpdateAsync(customer);
@@ -1103,27 +1103,27 @@ namespace Smartstore.Web.Controllers
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
-                var paymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(null, store.Id, CheckoutWorkflow.CheckoutPaymentTypes, false);
-                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
-                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
+                var paymentProviders = await _paymentService.LoadActivePaymentProvidersAsync(null, store.Id);
+                var preferredShippingMethodId = customer.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
+                var preferredPaymentMethod = customer.GenericAttributes.PreferredPaymentMethod;
 
                 ViewBag.ShippingMethods = shippingMethods
                     .Select(x => new SelectListItem
                     {
                         Text = x.GetLocalized(y => y.Name),
                         Value = x.Id.ToString(),
-                        Selected = x.Id == defaultShippingMethodId
+                        Selected = x.Id == preferredShippingMethodId
                     })
                     .ToList();
 
                 ViewBag.PaymentMethods = paymentProviders
-                    .Where(x => !x.Value.RequiresInteraction)
+                    .Where(x => !x.Value.RequiresPaymentSelection)
                     .Select(x => x.Metadata)
                     .Select(x => new SelectListItem
                     {
                         Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
                         Value = x.SystemName,
-                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                        Selected = x.SystemName.EqualsNoCase(preferredPaymentMethod)
                     })
                     .ToList();
             }

@@ -206,11 +206,11 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.DefaultShippingAddressId, value, CurrentStoreId);
         }
 
-        public ShippingOption DefaultShippingOption
+        public ShippingOption PreferredShippingOption
         {
             get
             {
-                var rawOption = Get<string>(SystemCustomerAttributeNames.DefaultShippingOption, CurrentStoreId);
+                var rawOption = Get<string>(SystemCustomerAttributeNames.PreferredShippingOption, CurrentStoreId);
                 return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : new();
             }
             set
@@ -221,14 +221,14 @@ namespace Smartstore.Core.Identity
                     ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
                 });
 
-                Set(SystemCustomerAttributeNames.DefaultShippingOption, rawOption, CurrentStoreId);
+                Set(SystemCustomerAttributeNames.PreferredShippingOption, rawOption, CurrentStoreId);
             }
         }
 
-        public string DefaultPaymentMethod
+        public string PreferredPaymentMethod
         {
-            get => Get<string>(SystemCustomerAttributeNames.DefaultPaymentMethod, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.DefaultPaymentMethod, value, CurrentStoreId);
+            get => Get<string>(SystemCustomerAttributeNames.PreferrePaymentMethod, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.PreferrePaymentMethod, value, CurrentStoreId);
         }
 
         public bool UseRewardPointsDuringCheckout

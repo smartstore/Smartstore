@@ -234,27 +234,27 @@ namespace Smartstore.Admin.Controllers
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
                 var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
-                var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync(null, 0, CheckoutWorkflow.CheckoutPaymentTypes, false);
-                var defaultShippingMethodId = customer.GenericAttributes.DefaultShippingOption?.ShippingMethodId ?? 0;
-                var defaultPaymentMethod = customer.GenericAttributes.DefaultPaymentMethod;
+                var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync();
+                var preferredShippingMethodId = customer.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
+                var preferredPaymentMethod = customer.GenericAttributes.PreferredPaymentMethod;
 
                 ViewBag.ShippingMethods = shippingMethods
                     .Select(x => new SelectListItem
                     {
                         Text = x.GetLocalized(y => y.Name),
                         Value = x.Id.ToString(),
-                        Selected = x.Id == defaultShippingMethodId
+                        Selected = x.Id == preferredShippingMethodId
                     })
                     .ToList();
 
                 ViewBag.PaymentMethods = paymentProviders
-                    .Where(x => !x.Value.RequiresInteraction)
+                    .Where(x => !x.Value.RequiresPaymentSelection)
                     .Select(x => x.Metadata)
                     .Select(x => new SelectListItem
                     {
                         Text = _moduleManager.GetLocalizedFriendlyName(x) ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
                         Value = x.SystemName,
-                        Selected = x.SystemName.EqualsNoCase(defaultPaymentMethod)
+                        Selected = x.SystemName.EqualsNoCase(preferredPaymentMethod)
                     })
                     .ToList();
             }
@@ -372,11 +372,11 @@ namespace Smartstore.Admin.Controllers
 
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                to.GenericAttributes.DefaultShippingOption = from.DefaultShippingMethodId != null
-                    ? new ShippingOption { ShippingMethodId = from.DefaultShippingMethodId.Value }
+                to.GenericAttributes.PreferredShippingOption = from.PreferredShippingMethodId != null
+                    ? new ShippingOption { ShippingMethodId = from.PreferredShippingMethodId.Value }
                     : null;
 
-                to.GenericAttributes.DefaultPaymentMethod = from.DefaultPaymentMethod.NullEmpty();
+                to.GenericAttributes.PreferredPaymentMethod = from.PreferredPaymentMethod.NullEmpty();
             }
         }
 

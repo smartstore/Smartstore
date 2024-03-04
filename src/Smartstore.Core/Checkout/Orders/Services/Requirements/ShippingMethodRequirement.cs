@@ -2,23 +2,28 @@
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
         private bool? _skip;
+        private readonly SmartDbContext _db;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public ShippingMethodRequirement(
+            SmartDbContext db,
             IShippingService shippingService,
             IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings,
             ShoppingCartSettings shoppingCartSettings)
             : base(httpContextAccessor)
         {
+            _db = db;
             _shippingService = shippingService;
             _shippingSettings = shippingSettings;
             _shoppingCartSettings = shoppingCartSettings;
@@ -111,28 +116,24 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (_shoppingCartSettings.QuickCheckoutEnabled && attributes.SelectedShippingOption == null)
             {
-                var defaultOption = attributes.DefaultShippingOption;
-                if (defaultOption != null && defaultOption.ShippingMethodId != 0)
-                {
-                    ShippingOption option = null;
-                    
-                    if (defaultOption.ShippingRateComputationMethodSystemName.HasValue())
+                var preferredOption = attributes.PreferredShippingOption;
+                if (preferredOption != null && preferredOption.ShippingMethodId != 0)
+                {                   
+                    if (preferredOption.ShippingRateComputationMethodSystemName.HasValue())
                     {
-                        option = options.FirstOrDefault(x => x.ShippingMethodId == defaultOption.ShippingMethodId &&
-                            x.ShippingRateComputationMethodSystemName.EqualsNoCase(defaultOption.ShippingRateComputationMethodSystemName));
+                        attributes.SelectedShippingOption = options.FirstOrDefault(x => x.ShippingMethodId == preferredOption.ShippingMethodId &&
+                            x.ShippingRateComputationMethodSystemName.EqualsNoCase(preferredOption.ShippingRateComputationMethodSystemName));
                     }
 
-                    option ??= options
-                        .Where(x => x.ShippingMethodId == defaultOption.ShippingMethodId)
+                    attributes.SelectedShippingOption ??= options
+                        .Where(x => x.ShippingMethodId == preferredOption.ShippingMethodId)
                         .OrderBy(x => x.Rate)
                         .FirstOrDefault();
-
-                    if (option != null)
-                    {
-                        attributes.SelectedShippingOption = option;
-                        saveAttributes = true;
-                    }
                 }
+
+                // Fallback to last used shipping.
+                attributes.SelectedShippingOption ??= await GetLastShippingOption(customer, options);
+                saveAttributes = attributes.SelectedShippingOption != null;
             }
 
             if (saveAttributes)
@@ -156,6 +157,37 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             return (response.ShippingOptions, errors);
+        }
+
+        private async Task<ShippingOption> GetLastShippingOption(Customer customer, List<ShippingOption> options)
+        {
+            // Perf: do not filter over field that has no index.
+            var lastShippings = await _db.Orders
+                .Where(x => x.CustomerId == customer.Id)
+                .Select(x => new
+                {
+                    x.CreatedOnUtc,
+                    x.ShippingMethod,
+                    x.ShippingRateComputationMethodSystemName
+                })
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Take(5)
+                .ToListAsync();
+
+            foreach (var lastShipping in lastShippings.Where(x => x.ShippingMethod.HasValue() && x.ShippingRateComputationMethodSystemName.HasValue()))
+            {
+                var option = options.FirstOrDefault(x => x.Name.EqualsNoCase(lastShipping.ShippingMethod) &&
+                    x.ShippingRateComputationMethodSystemName.EqualsNoCase(lastShipping.ShippingRateComputationMethodSystemName));
+
+                option ??= options.FirstOrDefault(x => x.Name.EqualsNoCase(lastShipping.ShippingMethod));
+
+                if (option != null)
+                {
+                    return option;
+                }
+            }
+
+            return null;
         }
     }
 }

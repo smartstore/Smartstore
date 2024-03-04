@@ -200,8 +200,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Sets the address as the default billing and shipping address.",
                 "Legt die Adresse als Standard-Rechnungs- und Lieferanschrift fest.");
 
-            builder.AddOrUpdate("Account.Fields.DefaultShippingMethod", "Default shipping method", "Standard-Versandart");
-            builder.AddOrUpdate("Account.Fields.DefaultPaymentMethod", "Default payment method", "Standard-Zahlungsart");
+            builder.AddOrUpdate("Account.Fields.PreferredShippingMethod", "Preferred shipping method", "Bevorzugte Versandart");
+            builder.AddOrUpdate("Account.Fields.PreferredPaymentMethod", "Preferred payment method", "Bevorzugte Zahlungsart");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.QuickCheckoutEnabled",
                 "Quick Checkout",
@@ -211,13 +211,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
                 + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultShipping",
-                "Customers can change their default shipping method",
-                "Kunden können Ihre Standard-Versandart ändern");
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangePreferredShipping",
+                "Customers can change their preferred shipping method",
+                "Kunden können Ihre bevorzugte Versandart ändern");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangeDefaultPayment",
-                "Customers can change their default payment method",
-                "Kunden können Ihre Standard-Zahlungsart ändern");
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangePreferredPayment",
+                "Customers can change their preferred payment method",
+                "Kunden können Ihre bevorzugte Zahlungsart ändern");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Payment.SkipPaymentSelectionIfSingleOption",
                 "Only display payment method selection if more than one payment method is available",
