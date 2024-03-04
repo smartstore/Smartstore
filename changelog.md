@@ -48,6 +48,7 @@
 - #965 Prevent adding of products to the shopping cart by system customers such as *builtin@search-engine-record.com*.
 - Increased the default maximum file size of an avatar and added a customer setting for this in backend.
 - Stripe: Update shipping address on confirm order.
+- Addresses: make first and last name optional if a company name has been specified.
 
 ### Bugfixes
 

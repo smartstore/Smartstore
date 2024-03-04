@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
@@ -15,5 +16,13 @@ namespace Smartstore.Web.Models.Checkout
 
         public List<AddressModel> ExistingAddresses { get; set; } = [];
         public AddressModel NewAddress { get; set; } = new();
+    }
+
+    public class CheckoutAddressValidator : SmartValidator<CheckoutAddressModel>
+    {
+        public CheckoutAddressValidator(IValidator<AddressModel> addressValidator)
+        {
+            RuleFor(x => x.NewAddress).SetValidator(addressValidator);
+        }
     }
 }

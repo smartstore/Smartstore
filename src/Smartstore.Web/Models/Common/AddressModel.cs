@@ -19,12 +19,10 @@ namespace Smartstore.Web.Models.Common
         public string Title { get; set; }
         public bool TitleEnabled { get; set; }
 
-        [Required]
         [LocalizedDisplay("*FirstName")]
         public string FirstName { get; set; }
         public bool FirstNameEnabled { get; set; } = true;
 
-        [Required]
         [LocalizedDisplay("*LastName")]
         public string LastName { get; set; }
         public bool LastNameEnabled { get; set; } = true;
@@ -108,18 +106,6 @@ namespace Smartstore.Web.Models.Common
 
         public string FormattedAddress { get; set; }
 
-        public string GetFormattedName()
-        {
-            if (LastName.IsEmpty())
-            {
-                return FirstName.EmptyNull();
-            }
-            else
-            {
-                return FirstName.RightPad() + LastName;
-            }
-        }
-
         public string GetFormattedCityStateZip()
         {
             var sb = new StringBuilder(50);
@@ -160,6 +146,12 @@ namespace Smartstore.Web.Models.Common
         {
             RuleFor(x => x.FirstName).ValidName(T);
             RuleFor(x => x.LastName).ValidName(T);
+
+            When(x => x.Company.IsEmpty(), () =>
+            {
+                RuleFor(x => x.FirstName).NotEmpty();
+                RuleFor(x => x.LastName).NotEmpty();
+            });
 
             if (addressSettings.CountryEnabled)
             {

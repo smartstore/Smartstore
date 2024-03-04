@@ -2,6 +2,7 @@
 
 @{
     var breakpoint = (ViewData["breakpoint"] as string).NullEmpty() ?? "md";
+    var nameRequired = !Model.CompanyEnabled;
 }
 
 <input asp-for="Id" type="hidden" />
@@ -10,7 +11,7 @@
 <input asp-for="CountryName" type="hidden" />
 <input asp-for="DefaultAddressesEnabled" type="hidden" />
 
-<div class="form-horizontal">
+<div class="form-horizontal address-form">
 
     <div sm-if="Model.CompanyEnabled" class="form-group row">
         <label asp-for="Company" class="col-@(breakpoint)-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
@@ -41,16 +42,16 @@
         }
     </div>
     <div class="form-group row">
-        <label asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <label asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label@(nameRequired ? " required" : string.Empty)"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="FirstName" sm-required="true" />
+            <input asp-for="FirstName" sm-required="nameRequired ? true : null" />
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
     <div class="form-group row">
-        <label asp-for="LastName" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <label asp-for="LastName" class="col-@(breakpoint)-3 col-form-label@(nameRequired ? " required" : string.Empty)"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="LastName" sm-required="true" />
+            <input asp-for="LastName" sm-required="nameRequired ? true : null" />
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
