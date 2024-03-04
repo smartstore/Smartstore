@@ -132,7 +132,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 }
 
                 // Fallback to last used shipping.
-                attributes.SelectedShippingOption ??= await GetLastShippingOption(customer, options);
+                attributes.SelectedShippingOption ??= await GetLastShippingOption(cart, options);
                 saveAttributes = attributes.SelectedShippingOption != null;
             }
 
@@ -159,18 +159,17 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             return (response.ShippingOptions, errors);
         }
 
-        private async Task<ShippingOption> GetLastShippingOption(Customer customer, List<ShippingOption> options)
+        private async Task<ShippingOption> GetLastShippingOption(ShoppingCart cart, List<ShippingOption> options)
         {
             // Perf: do not filter over field that has no index.
             var lastShippings = await _db.Orders
-                .Where(x => x.CustomerId == customer.Id)
+                .ApplyStandardFilter(cart.Customer.Id, cart.StoreId)
                 .Select(x => new
                 {
                     x.CreatedOnUtc,
                     x.ShippingMethod,
                     x.ShippingRateComputationMethodSystemName
                 })
-                .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(5)
                 .ToListAsync();
 
