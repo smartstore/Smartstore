@@ -59,6 +59,7 @@
 - #996 Limited to customer roles is not working for topics that are displayed as widgets.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
+- #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
 - Fixed `NullReferenceException` calling search page without any search term.
