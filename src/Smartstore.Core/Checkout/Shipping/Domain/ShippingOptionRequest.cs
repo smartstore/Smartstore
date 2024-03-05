@@ -10,6 +10,11 @@ namespace Smartstore.Core.Checkout.Shipping
     public partial class ShippingOptionRequest
     {
         /// <summary>
+        /// Gets or sets a value indicating whether shipping methods must match cart rules.
+        /// </summary>
+        public bool MatchRules { get; init; } = true;
+
+        /// <summary>
         /// Gets the context store identifier
         /// </summary>
         public int StoreId { get; init; }
@@ -22,7 +27,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets organized shopping cart items
         /// </summary>
-        public List<OrganizedShoppingCartItem> Items { get; init; } = new();
+        public List<OrganizedShoppingCartItem> Items { get; init; } = [];
 
         /// <summary>
         /// Gets the shipping address

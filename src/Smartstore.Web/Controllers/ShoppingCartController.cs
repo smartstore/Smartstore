@@ -1217,40 +1217,14 @@ namespace Smartstore.Web.Controllers
                     ZipPostalCode = shippingModel.ZipPostalCode,
                 };
 
-                var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, storeId: storeId);
-                if (!getShippingOptionResponse.Success)
+                var (options, warnings) = await GetEstimatedShippingOptions(cart, address, true);
+                if (options.Count == 0 && warnings.Count > 0)
                 {
-                    model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);
+                    (options, warnings) = await GetEstimatedShippingOptions(cart, address, false);
                 }
-                else
-                {
-                    if (getShippingOptionResponse.ShippingOptions.Any())
-                    {
-                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
-                        var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
 
-                        foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
-                        {
-                            var soModel = new EstimateShippingModel.ShippingOptionModel
-                            {
-                                ShippingMethodId = shippingOption.ShippingMethodId,
-                                Name = shippingOption.Name,
-                                Description = shippingOption.Description
-                            };
-
-                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
-                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
-                            var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
-                            soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
-
-                            model.EstimateShipping.ShippingOptions.Add(soModel);
-                        }
-                    }
-                    else
-                    {
-                        model.EstimateShipping.Warnings.Add(T("Checkout.ShippingIsNotAllowed"));
-                    }
-                }
+                model.EstimateShipping.ShippingOptions.AddRange(options);
+                model.EstimateShipping.Warnings.AddRange(warnings);
             }
 
             var estimateShippingHtml = await InvokePartialViewAsync("EstimateShipping", model.EstimateShipping);
@@ -1263,6 +1237,46 @@ namespace Smartstore.Web.Controllers
                 estimateShippingHtml,
                 displayCheckoutButtons = true
             });
+        }
+
+        private async Task<(List<EstimateShippingModel.ShippingOptionModel> Options, List<string> Warnings)> GetEstimatedShippingOptions(
+            ShoppingCart cart,
+            Address address,
+            bool matchRules)
+        {
+            var options = new List<EstimateShippingModel.ShippingOptionModel>();
+            var optionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, null, cart.StoreId, matchRules);
+
+            if (!optionResponse.Success)
+            {
+                return (options, optionResponse.Errors);
+            }
+
+            if (optionResponse.ShippingOptions.Count == 0)
+            {
+                return (options, [T("Checkout.ShippingIsNotAllowed")]);
+            }
+
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(cart.StoreId, matchRules);
+            var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+            var currency = Services.WorkContext.WorkingCurrency;
+
+            foreach (var shippingOption in optionResponse.ShippingOptions)
+            {
+                var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
+                var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
+                var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
+
+                options.Add(new()
+                {
+                    ShippingMethodId = shippingOption.ShippingMethodId,
+                    Name = shippingOption.Name,
+                    Description = shippingOption.Description,
+                    Price = rate.WithPostFormat(shippingTaxFormat).ToString()
+                });
+            }
+
+            return (options, []);
         }
     }
 }
