@@ -49,6 +49,7 @@
 - Increased the default maximum file size of an avatar and added a customer setting for this in backend.
 - Stripe: Update shipping address on confirm order.
 - Addresses: make first and last name optional if a company name has been specified.
+- #1012 Estimate shipping costs without rules if no shipping method was found with rules.
 
 ### Bugfixes
 
