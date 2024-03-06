@@ -2,28 +2,23 @@
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Requirements
 {
     public class ShippingMethodRequirement : CheckoutRequirementBase
     {
         private bool? _skip;
-        private readonly SmartDbContext _db;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public ShippingMethodRequirement(
-            SmartDbContext db,
             IShippingService shippingService,
             IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings,
             ShoppingCartSettings shoppingCartSettings)
             : base(httpContextAccessor)
         {
-            _db = db;
             _shippingService = shippingService;
             _shippingSettings = shippingSettings;
             _shoppingCartSettings = shoppingCartSettings;
@@ -36,8 +31,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
-            var attributes = customer.GenericAttributes;
-            var options = attributes.OfferedShippingOptions;
+            var ga = customer.GenericAttributes;
+            var options = ga.OfferedShippingOptions;
             CheckoutWorkflowError[] errors = null;
             var saveAttributes = false;
 
@@ -45,11 +40,11 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             {
                 _skip = true;
 
-                if (attributes.SelectedShippingOption != null || attributes.OfferedShippingOptions != null)
+                if (ga.SelectedShippingOption != null || ga.OfferedShippingOptions != null)
                 {
-                    attributes.SelectedShippingOption = null;
-                    attributes.OfferedShippingOptions = null;
-                    await attributes.SaveChangesAsync();
+                    ga.SelectedShippingOption = null;
+                    ga.OfferedShippingOptions = null;
+                    await ga.SaveChangesAsync();
                 }
 
                 return new(true, null, true);
@@ -79,15 +74,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                     options = options.Where(x => x.ShippingRateComputationMethodSystemName.EqualsNoCase(providerSystemName)).ToList();
                 }
 
-                var selectedShippingOption = options.FirstOrDefault(x => x.ShippingMethodId == selectedId);
-                if (selectedShippingOption != null)
+                var selectedOption = options.FirstOrDefault(x => x.ShippingMethodId == selectedId);
+                if (selectedOption != null)
                 {
-                    // Save selected shipping option in customer attributes.
-                    attributes.SelectedShippingOption = selectedShippingOption;
-                    await attributes.SaveChangesAsync();
+                    ga.SelectedShippingOption = selectedOption;
+                    ga.PreferredShippingOption ??= selectedOption;
+
+                    await ga.SaveChangesAsync();
                 }
 
-                return new(selectedShippingOption != null, errors);
+                return new(selectedOption != null, errors);
             }
 
             if (options.IsNullOrEmpty())
@@ -100,7 +96,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                 // Performance optimization. Cache returned shipping options.
                 // We will use them later (after a customer has selected an option).
-                attributes.OfferedShippingOptions = options;
+                ga.OfferedShippingOptions = options;
                 saveAttributes = true;
             }
 
@@ -109,39 +105,37 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
                 _skip = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1;
                 if (_skip.Value)
                 {
-                    attributes.SelectedShippingOption = options[0];
+                    ga.SelectedShippingOption = options[0];
                     saveAttributes = true;
                 }
             }
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled && attributes.SelectedShippingOption == null)
+            if (_shoppingCartSettings.QuickCheckoutEnabled && ga.SelectedShippingOption == null)
             {
-                var preferredOption = attributes.PreferredShippingOption;
+                var preferredOption = ga.PreferredShippingOption;
                 if (preferredOption != null && preferredOption.ShippingMethodId != 0)
                 {                   
                     if (preferredOption.ShippingRateComputationMethodSystemName.HasValue())
                     {
-                        attributes.SelectedShippingOption = options.FirstOrDefault(x => x.ShippingMethodId == preferredOption.ShippingMethodId &&
+                        ga.SelectedShippingOption = options.FirstOrDefault(x => x.ShippingMethodId == preferredOption.ShippingMethodId &&
                             x.ShippingRateComputationMethodSystemName.EqualsNoCase(preferredOption.ShippingRateComputationMethodSystemName));
                     }
 
-                    attributes.SelectedShippingOption ??= options
+                    ga.SelectedShippingOption ??= options
                         .Where(x => x.ShippingMethodId == preferredOption.ShippingMethodId)
                         .OrderBy(x => x.Rate)
                         .FirstOrDefault();
                 }
 
-                // Fallback to last used shipping.
-                attributes.SelectedShippingOption ??= await GetLastShippingOption(cart, options);
-                saveAttributes = attributes.SelectedShippingOption != null;
+                saveAttributes = ga.SelectedShippingOption != null;
             }
 
             if (saveAttributes)
             {
-                await attributes.SaveChangesAsync();
+                await ga.SaveChangesAsync();
             }
 
-            return new(attributes.SelectedShippingOption != null, errors, _skip ?? false);
+            return new(ga.SelectedShippingOption != null, errors, _skip ?? false);
         }
 
         private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)
@@ -157,36 +151,6 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             }
 
             return (response.ShippingOptions, errors);
-        }
-
-        private async Task<ShippingOption> GetLastShippingOption(ShoppingCart cart, List<ShippingOption> options)
-        {
-            // Perf: do not filter over field that has no index.
-            var lastShippings = await _db.Orders
-                .ApplyStandardFilter(cart.Customer.Id, cart.StoreId)
-                .Select(x => new
-                {
-                    x.CreatedOnUtc,
-                    x.ShippingMethod,
-                    x.ShippingRateComputationMethodSystemName
-                })
-                .Take(5)
-                .ToListAsync();
-
-            foreach (var lastShipping in lastShippings.Where(x => x.ShippingMethod.HasValue() && x.ShippingRateComputationMethodSystemName.HasValue()))
-            {
-                var option = options.FirstOrDefault(x => x.Name.EqualsNoCase(lastShipping.ShippingMethod) &&
-                    x.ShippingRateComputationMethodSystemName.EqualsNoCase(lastShipping.ShippingRateComputationMethodSystemName));
-
-                option ??= options.FirstOrDefault(x => x.Name.EqualsNoCase(lastShipping.ShippingMethod));
-
-                if (option != null)
-                {
-                    return option;
-                }
-            }
-
-            return null;
         }
     }
 }

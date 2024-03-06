@@ -42,21 +42,22 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
-            var attributes = cart.Customer.GenericAttributes;
+            var ga = cart.Customer.GenericAttributes;
             List<Provider<IPaymentMethod>> providers = null;
 
             if (model != null 
-                && model is string paymentMethod 
+                && model is string systemName 
                 && IsSameRoute(HttpMethods.Post, ActionName))
             {
-                var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(paymentMethod, true, cart.StoreId);
+                var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, cart.StoreId);
                 if (provider == null)
                 {
                     return new(false);
                 }
 
-                attributes.SelectedPaymentMethod = paymentMethod;
-                await attributes.SaveChangesAsync();
+                ga.SelectedPaymentMethod = systemName;
+                ga.PreferredPaymentMethod ??= systemName;
+                await ga.SaveChangesAsync();
 
                 var form = HttpContext.Request.Form;
                 if (form != null)
@@ -108,8 +109,8 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                         if (state.IsPaymentSelectionSkipped)
                         {
-                            attributes.SelectedPaymentMethod = providers[0].Metadata.SystemName;
-                            await attributes.SaveChangesAsync();
+                            ga.SelectedPaymentMethod  = providers[0].Metadata.SystemName;
+                            await ga.SaveChangesAsync();
                         }
                     }
                 }
@@ -124,54 +125,40 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
             if (_shoppingCartSettings.QuickCheckoutEnabled 
                 && state.IsPaymentRequired
-                && attributes.SelectedPaymentMethod.IsEmpty())
+                && ga.SelectedPaymentMethod.IsEmpty())
             {
                 providers ??= await GetPaymentMethods(cart);
 
-                var preferredMethod = attributes.PreferredPaymentMethod;
-                if (preferredMethod.HasValue() && providers.Any(x => x.Metadata.SystemName.EqualsNoCase(preferredMethod)))
-                {
-                    attributes.SelectedPaymentMethod = preferredMethod;
-                    await attributes.SaveChangesAsync();
+                var preferredMethod = ga.PreferredPaymentMethod;
+                var paymentMethod = preferredMethod.HasValue() ? providers.FirstOrDefault(x => x.Metadata.SystemName.EqualsNoCase(preferredMethod))?.Value : null;
 
+                if (paymentMethod != null)
+                {
+                    ga.SelectedPaymentMethod = preferredMethod;
+                    await ga.SaveChangesAsync();
                     state.IsPaymentSelectionSkipped = true;
-                }
 
-                if (attributes.SelectedPaymentMethod.IsEmpty())
-                {
-                    // Fallback to last used payment.
-                    var quickCheckoutPayments = providers
-                        .Where(x => !x.Value.RequiresPaymentSelection)
-                        .Select(x => x.Metadata.SystemName)
-                        .ToArray();
-                    if (quickCheckoutPayments.Length > 0)
+                    if (paymentMethod.RequiresInteraction && !paymentMethod.RequiresPaymentSelection)
                     {
+                        // Get payment data.
                         var lastOrder = await _db.Orders
-                            .Where(x => quickCheckoutPayments.Contains(x.PaymentMethodSystemName))
+                            .Where(x => x.PaymentMethodSystemName == preferredMethod)
                             .ApplyStandardFilter(cart.Customer.Id, cart.StoreId)
                             .FirstOrDefaultAsync();
                         if (lastOrder != null)
                         {
-                            var provider = providers.FirstOrDefault(x => x.Metadata.SystemName.EqualsNoCase(lastOrder.PaymentMethodSystemName));
-                            if (provider != null)
+                            var request = await paymentMethod.CreateProcessPaymentRequestAsync(cart, lastOrder);
+                            if (request != null)
                             {
-                                var paymentRequest = await provider.Value.CreateProcessPaymentRequestAsync(cart, lastOrder);
-                                if (paymentRequest != null)
-                                {
-                                    attributes.SelectedPaymentMethod = provider.Metadata.SystemName;
-                                    await attributes.SaveChangesAsync();
-
-                                    HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentRequest);
-                                    state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
-                                    state.IsPaymentSelectionSkipped = true;
-                                }
+                                HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, request);
+                                state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
                             }
                         }
                     }
                 }
             }
 
-            return new(attributes.SelectedPaymentMethod.HasValue(), null, _skip ?? false);
+            return new(ga.SelectedPaymentMethod.HasValue(), null, _skip ?? false);
         }
 
         private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)

@@ -194,15 +194,15 @@ namespace Smartstore.Core.Identity
 
         #region Checkout
 
-        public int DefaultBillingAddressId
+        public int? DefaultBillingAddressId
         {
-            get => Get<int>(SystemCustomerAttributeNames.DefaultBillingAddressId, CurrentStoreId);
+            get => Get<int?>(SystemCustomerAttributeNames.DefaultBillingAddressId, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.DefaultBillingAddressId, value, CurrentStoreId);
         }
 
-        public int DefaultShippingAddressId
+        public int? DefaultShippingAddressId
         {
-            get => Get<int>(SystemCustomerAttributeNames.DefaultShippingAddressId, CurrentStoreId);
+            get => Get<int?>(SystemCustomerAttributeNames.DefaultShippingAddressId, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.DefaultShippingAddressId, value, CurrentStoreId);
         }
 
@@ -211,15 +211,21 @@ namespace Smartstore.Core.Identity
             get
             {
                 var rawOption = Get<string>(SystemCustomerAttributeNames.PreferredShippingOption, CurrentStoreId);
-                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : new();
+                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : null;
             }
             set
             {
-                var rawOption = JsonConvert.SerializeObject(new ShippingOption
+                string rawOption = null;
+                var methodId = value?.ShippingMethodId ?? 0;
+
+                if (methodId != 0)
                 {
-                    ShippingMethodId = value?.ShippingMethodId ?? 0,
-                    ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
-                });
+                    rawOption = JsonConvert.SerializeObject(new ShippingOption
+                    {
+                        ShippingMethodId = methodId,
+                        ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
+                    });
+                }
 
                 Set(SystemCustomerAttributeNames.PreferredShippingOption, rawOption, CurrentStoreId);
             }

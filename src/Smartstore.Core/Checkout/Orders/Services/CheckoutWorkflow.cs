@@ -91,21 +91,6 @@ namespace Smartstore.Core.Checkout.Orders
             customer.ResetCheckoutData(store.Id);
             _checkoutStateAccessor.Abandon();
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled)
-            {
-                if (customer.BillingAddressId != null && customer.BillingAddressId != customer.GenericAttributes.DefaultBillingAddressId)
-                {
-                    // Reset because otherwise the default address will not be applied.
-                    customer.BillingAddressId = null;
-                    customer.BillingAddress = null;
-                }
-                if (customer.ShippingAddressId != null && customer.ShippingAddressId != customer.GenericAttributes.DefaultShippingAddressId)
-                {
-                    customer.ShippingAddressId = null;
-                    customer.ShippingAddress = null;
-                }
-            }
-
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 var validatingCartEvent = new ValidatingCartEvent(cart, warnings);

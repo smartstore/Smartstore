@@ -285,10 +285,7 @@ namespace Smartstore.Web.Controllers
 
                     if (_shoppingCartSettings.QuickCheckoutEnabled)
                     {
-                        customer.GenericAttributes.PreferredShippingOption = model.PreferredShippingMethodId != null
-                            ? new ShippingOption { ShippingMethodId = model.PreferredShippingMethodId.Value }
-                            : null;
-
+                        customer.GenericAttributes.PreferredShippingOption = new() { ShippingMethodId = model.PreferredShippingMethodId ?? 0 };
                         customer.GenericAttributes.PreferredPaymentMethod = model.PreferredPaymentMethod.NullEmpty();
                     }
 

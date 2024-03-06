@@ -151,7 +151,7 @@ namespace Smartstore.Web.Models.Common
 
                 if (ga.DefaultBillingAddressId == from.Id && !from.IsDefaultBillingAddress)
                 {
-                    ga.DefaultBillingAddressId = 0;
+                    ga.DefaultBillingAddressId = null;
                 }
                 else if (ga.DefaultBillingAddressId != from.Id && from.IsDefaultBillingAddress)
                 {
@@ -160,7 +160,7 @@ namespace Smartstore.Web.Models.Common
 
                 if (ga.DefaultShippingAddressId == from.Id && !from.IsDefaultShippingAddress)
                 {
-                    ga.DefaultShippingAddressId = 0;
+                    ga.DefaultShippingAddressId = null;
                 }
                 else if (ga.DefaultShippingAddressId != from.Id && from.IsDefaultShippingAddress)
                 {

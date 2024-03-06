@@ -372,10 +372,7 @@ namespace Smartstore.Admin.Controllers
 
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                to.GenericAttributes.PreferredShippingOption = from.PreferredShippingMethodId != null
-                    ? new ShippingOption { ShippingMethodId = from.PreferredShippingMethodId.Value }
-                    : null;
-
+                to.GenericAttributes.PreferredShippingOption = new() { ShippingMethodId = from.PreferredShippingMethodId ?? 0 };
                 to.GenericAttributes.PreferredPaymentMethod = from.PreferredPaymentMethod.NullEmpty();
             }
         }
@@ -1186,8 +1183,6 @@ namespace Smartstore.Admin.Controllers
             {
                 return NotFound();
             }
-
-            var state = ModelState;
 
             if (ModelState.IsValid)
             {

@@ -39,6 +39,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
+            var ga = customer.GenericAttributes;
 
             if (model != null 
                 && model is int addressId 
@@ -55,19 +56,28 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
                 customer.BillingAddress = address;
                 customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
+
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                {
+                    ga.DefaultBillingAddressId ??= customer.BillingAddress.Id;
+                    ga.DefaultShippingAddressId ??= customer.ShippingAddress?.Id;
+                }
+
                 await _db.SaveChangesAsync();
 
                 return new(true);
             }
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled && customer.BillingAddressId == null)
+            if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                var defaultAddressId = customer.GenericAttributes.DefaultBillingAddressId;
-                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
+                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == ga.DefaultBillingAddressId);
                 if (defaultAddress != null)
                 {
-                    customer.BillingAddress = defaultAddress;
-                    await _db.SaveChangesAsync();
+                    if (customer.BillingAddressId != defaultAddress.Id)
+                    {
+                        customer.BillingAddress = defaultAddress;
+                        await _db.SaveChangesAsync();
+                    }
 
                     return new(true);
                 }

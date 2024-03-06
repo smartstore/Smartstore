@@ -39,21 +39,28 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
+            var ga = customer.GenericAttributes;
 
             if (model != null 
                 && model is int addressId 
                 && IsSameRoute(HttpMethods.Post, "SelectShippingAddress"))
             {
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address != null)
+                if (address == null)
                 {
-                    customer.ShippingAddress = address;
-                    await _db.SaveChangesAsync();
-
-                    return new(true);
+                    return new(false);
                 }
 
-                return new(false);
+                customer.ShippingAddress = address;
+
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                {
+                    ga.DefaultShippingAddressId ??= customer.ShippingAddress.Id;
+                }
+
+                await _db.SaveChangesAsync();
+
+                return new(true);
             }
 
             if (!cart.IsShippingRequired())
@@ -71,14 +78,16 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             state.CustomProperties.TryGetValueAs("SkipShippingAddress", out bool skip);
             state.CustomProperties.Remove("SkipShippingAddress");
 
-            if (!skip && _shoppingCartSettings.QuickCheckoutEnabled && customer.ShippingAddressId == null)
+            if (!skip && _shoppingCartSettings.QuickCheckoutEnabled)
             {
-                var defaultAddressId = customer.GenericAttributes.DefaultShippingAddressId;
-                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == defaultAddressId);
+                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == customer.GenericAttributes.DefaultShippingAddressId);
                 if (defaultAddress != null)
                 {
-                    customer.ShippingAddress = defaultAddress;
-                    await _db.SaveChangesAsync();
+                    if (customer.ShippingAddressId != defaultAddress.Id)
+                    {
+                        customer.ShippingAddress = defaultAddress;
+                        await _db.SaveChangesAsync();
+                    }
 
                     return new(true);
                 }
