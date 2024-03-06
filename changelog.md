@@ -50,6 +50,7 @@
 - Stripe: Update shipping address on confirm order.
 - Addresses: make first and last name optional if a company name has been specified.
 - #1012 Estimate shipping costs without rules if no shipping method was found with rules.
+- PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
 
 ### Bugfixes
 
@@ -93,6 +94,8 @@
 - Fixed *QuantityBelowStoreOwnerNotification* was sent twice.
 - #1001 MediaManager: fix *moov atom not found* ffmpeg issue in `VideoHandler`.
 - Fixed the e-mail subject was not transferred when sending an e-mail from customer edit page.
+- Fixed offcanvas problem whith mega sized page builder stories.
+- PayPal: Fixed payment discount problem (discount from a formerly choosen payment method was applied)
 
 
 ## Smartstore 5.1.0
