@@ -54,7 +54,7 @@
                         <smart-label asp-for="ProviderName"/>
                     </div>
                     <div class="adminData">
-                        @Html.Editor("Model", "MenuItem." + Model.ProviderName, "Model")
+                        @Html.Editor("Model", "MenuItem." + Model.ProviderName.Titleize(), "Model")
                         <span asp-validation-for="Model"></span>
                     </div>
                 </div>
