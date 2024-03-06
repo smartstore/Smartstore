@@ -107,11 +107,12 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
+            var customer = Services.WorkContext.CurrentCustomer;
+
             // Only save cart data when we're on shopping cart page.
             if (routeIdent == "ShoppingCart.Cart")
             {
                 var store = Services.StoreContext.CurrentStore;
-                var customer = Services.WorkContext.CurrentCustomer;
                 var warnings = new List<string>();
                 var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
@@ -134,11 +135,6 @@ namespace Smartstore.PayPal.Controllers
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
-            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
-            var response = await _client.CreateOrderAsync(orderMessage);
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
-
             var selectedPaymentMethod = string.Empty;
             switch (paymentSource)
             {
@@ -157,7 +153,13 @@ namespace Smartstore.PayPal.Controllers
                     break;
             }
 
-            Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
+            customer.GenericAttributes.SelectedPaymentMethod = selectedPaymentMethod;
+            await customer.GenericAttributes.SaveChangesAsync();
+
+            var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
+            var response = await _client.CreateOrderAsync(orderMessage);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
 
             return Json(new { success = true, data = jResponse });
         }
