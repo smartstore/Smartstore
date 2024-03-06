@@ -5,9 +5,9 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Checkout.Orders.Requirements
+namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class PaymentMethodRequirement : CheckoutRequirementBase
+    public class PaymentMethodHandler : CheckoutHandlerBase
     {
         private bool? _skip;
         private readonly SmartDbContext _db;
@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly PaymentSettings _paymentSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public PaymentMethodRequirement(
+        public PaymentMethodHandler(
             SmartDbContext db,
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 40;
 
-        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var ga = cart.Customer.GenericAttributes;

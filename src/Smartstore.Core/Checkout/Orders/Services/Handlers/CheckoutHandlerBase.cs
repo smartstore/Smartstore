@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Checkout.Orders.Requirements
+namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public abstract class CheckoutRequirementBase : ICheckoutRequirement
+    public abstract class CheckoutHandlerBase : ICheckoutHandler
     {
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        protected CheckoutRequirementBase(IHttpContextAccessor httpContextAccessor)
+        protected CheckoutHandlerBase(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
@@ -18,24 +18,24 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
             => _httpContextAccessor.HttpContext;
 
         /// <summary>
-        /// Gets the name of the action method associated with the requirement.
+        /// Gets the name of the action method associated with the handler.
         /// </summary>
         protected abstract string ActionName { get; }
 
         /// <summary>
-        /// Gets the name of the controller associated with the requirement.
+        /// Gets the name of the controller associated with the handler.
         /// </summary>
         protected virtual string ControllerName => "Checkout";
 
         public abstract int Order { get; }
 
-        public virtual bool IsRequirementFor(string action, string controller)
+        public virtual bool IsHandlerFor(string action, string controller)
             => ActionName.EqualsNoCase(action) && controller.EqualsNoCase(ControllerName);
 
-        public virtual Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
-            => Task.FromResult(new CheckoutRequirementResult(false));
+        public virtual Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
+            => Task.FromResult(new CheckoutHandlerResult(false));
 
-        public virtual IActionResult Fulfill()
+        public virtual IActionResult GetActionResult()
         {
             var request = HttpContext.Request;
 
@@ -66,12 +66,12 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         #region Compare
 
         public override bool Equals(object obj)
-            => Equals(obj as ICheckoutRequirement);
+            => Equals(obj as ICheckoutHandler);
 
-        bool IEquatable<ICheckoutRequirement>.Equals(ICheckoutRequirement other)
+        bool IEquatable<ICheckoutHandler>.Equals(ICheckoutHandler other)
             => Equals(other);
 
-        protected virtual bool Equals(ICheckoutRequirement other)
+        protected virtual bool Equals(ICheckoutHandler other)
             => GetHashCode() == other.GetHashCode();
 
         public override int GetHashCode()

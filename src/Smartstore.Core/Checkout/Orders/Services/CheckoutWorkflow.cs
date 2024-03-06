@@ -30,7 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
-        private readonly ICheckoutRequirement[] _requirements;
+        private readonly ICheckoutHandler[] _handlers;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly OrderSettings _orderSettings;
@@ -48,7 +48,7 @@ namespace Smartstore.Core.Checkout.Orders
             IOrderCalculationService orderCalculationService,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
-            IEnumerable<ICheckoutRequirement> requirements,
+            IEnumerable<ICheckoutHandler> handlers,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
             OrderSettings orderSettings,
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Checkout.Orders
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
 
-            _requirements = requirements.OrderBy(x => x.Order).ToArray();
+            _handlers = handlers.OrderBy(x => x.Order).ToArray();
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -135,7 +135,7 @@ namespace Smartstore.Core.Checkout.Orders
             return await AdvanceAsync();
         }
 
-        public virtual async Task<CheckoutWorkflowResult> CheckRequirementAsync()
+        public virtual async Task<CheckoutWorkflowResult> ProcessAsync()
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var preliminaryResult = Preliminary(cart);
@@ -145,13 +145,13 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             var (action, controller) = GetActionAndController();
-            var requirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-            if (requirement != null)
+            var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+            if (handler != null)
             {
-                var result = await requirement.CheckAsync(cart);
+                var result = await handler.ProcessAsync(cart);
                 if (result.SkipPage)
                 {
-                    return new(Adjacent(requirement));
+                    return new(Adjacent(handler));
                 }
 
                 return new(null, result.Errors);
@@ -171,12 +171,12 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                foreach (var requirement in _requirements)
+                foreach (var handler in _handlers)
                 {
-                    var result = await requirement.CheckAsync(cart, model);
-                    if (!result.IsFulfilled)
+                    var result = await handler.ProcessAsync(cart, model);
+                    if (!result.Success)
                     {
-                        return new(requirement.Fulfill(), result.Errors);
+                        return new(handler.GetActionResult(), result.Errors);
                     }
                 }
 
@@ -187,27 +187,27 @@ namespace Smartstore.Core.Checkout.Orders
                 var (action, controller) = GetActionAndController();
                 if (action.EqualsNoCase("Index") && controller.EqualsNoCase("Checkout"))
                 {
-                    return new(_requirements[0].Fulfill());
+                    return new(_handlers[0].GetActionResult());
                 }
 
-                var requirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-                if (requirement != null)
+                var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+                if (handler != null)
                 {
-                    var result = await requirement.CheckAsync(cart, model);
-                    if (!result.IsFulfilled)
+                    var result = await handler.ProcessAsync(cart, model);
+                    if (!result.Success)
                     {
-                        return new(requirement.Fulfill(), result.Errors);
+                        return new(handler.GetActionResult(), result.Errors);
                     }
 
-                    if (requirement.Equals(_requirements[^1]))
+                    if (handler.Equals(_handlers[^1]))
                     {
                         return new(RedirectToCheckout("Confirm"));
                     }
                     
-                    var nextRequirement = GetNextRequirement(requirement, true);
-                    if (nextRequirement != null)
+                    var nextHandler = GetNextHandler(handler, true);
+                    if (nextHandler != null)
                     {
-                        return new(nextRequirement.Fulfill());
+                        return new(nextHandler.GetActionResult());
                     }
                 }
 
@@ -352,9 +352,9 @@ namespace Smartstore.Core.Checkout.Orders
                 throw new InvalidOperationException("The checkout workflow is only applicable in the context of a HTTP request.");
             }
 
-            if (_requirements.Length == 0)
+            if (_handlers.Length == 0)
             {
-                throw new InvalidOperationException("No checkout requirements found.");
+                throw new InvalidOperationException("No checkout handlers found.");
             }
 
             if (!_orderSettings.AnonymousCheckoutAllowed && !cart.Customer.IsRegistered())
@@ -375,7 +375,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// In this case, based on the referrer, the user must be redirected to the next or previous page,
         /// depending on the direction from which the user accessed the current page.
         /// </summary>
-        private IActionResult Adjacent(ICheckoutRequirement requirement)
+        private IActionResult Adjacent(ICheckoutHandler handler)
         {
             var referrer = _webHelper.GetUrlReferrer();
             var path = referrer?.PathAndQuery;
@@ -405,30 +405,30 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else
                 {
-                    var referrerRequirement = _requirements.FirstOrDefault(x => x.IsRequirementFor(action, controller));
-                    next = (referrerRequirement?.Order ?? 0) < requirement.Order;
+                    var referrerHandler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+                    next = (referrerHandler?.Order ?? 0) < handler.Order;
                 }
             }
 
-            var result = GetNextRequirement(requirement, next)?.Fulfill();
+            var result = GetNextHandler(handler, next)?.GetActionResult();
             result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
 
             return result;
         }
 
-        private ICheckoutRequirement GetNextRequirement(ICheckoutRequirement requirement, bool next)
+        private ICheckoutHandler GetNextHandler(ICheckoutHandler handler, bool next)
         {
             if (next)
             {
-                return _requirements
-                    .Where(x => x.Order > requirement.Order)
+                return _handlers
+                    .Where(x => x.Order > handler.Order)
                     .OrderBy(x => x.Order)
                     .FirstOrDefault();
             }
             else
             {
-                return _requirements
-                    .Where(x => x.Order < requirement.Order)
+                return _handlers
+                    .Where(x => x.Order < handler.Order)
                     .OrderByDescending(x => x.Order)
                     .FirstOrDefault();
             }

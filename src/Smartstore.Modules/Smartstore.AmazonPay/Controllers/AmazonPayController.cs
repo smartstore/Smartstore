@@ -151,17 +151,16 @@ namespace Smartstore.AmazonPay.Controllers
         {
             try
             {
-                var result = await ProcessCheckoutReview(amazonCheckoutSessionId);
-
-                if (result.Success)
+                var review = await ProcessCheckoutReview(amazonCheckoutSessionId);
+                if (review.Success)
                 {
-                    var advance = await _checkoutWorkflow.AdvanceAsync();
-                    if (advance.Result != null)
+                    var result = await _checkoutWorkflow.AdvanceAsync();
+                    if (result.ActionResult != null)
                     {
-                        return advance.Result;
+                        return result.ActionResult;
                     }
 
-                    var actionName = result.IsShippingMethodMissing
+                    var actionName = review.IsShippingMethodMissing
                         ? nameof(CheckoutController.ShippingMethod)
                         : nameof(CheckoutController.Confirm);
 

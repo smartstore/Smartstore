@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 
-namespace Smartstore.Core.Checkout.Orders.Requirements
+namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class ShippingMethodRequirement : CheckoutRequirementBase
+    public class ShippingMethodHandler : CheckoutHandlerBase
     {
         private bool? _skip;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public ShippingMethodRequirement(
+        public ShippingMethodHandler(
             IShippingService shippingService,
             IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings,
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 30;
 
-        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
             var ga = customer.GenericAttributes;

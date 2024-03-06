@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Core.Checkout.Orders.Requirements
+namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class BillingAddressRequirement : CheckoutRequirementBase
+    public class BillingAddressHandler : CheckoutHandlerBase
     {
         private static readonly FrozenSet<string> _actionNames = new[]
         {
@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public BillingAddressRequirement(
+        public BillingAddressHandler(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
@@ -33,10 +33,10 @@ namespace Smartstore.Core.Checkout.Orders.Requirements
 
         public override int Order => 10;
 
-        public override bool IsRequirementFor(string action, string controller)
+        public override bool IsHandlerFor(string action, string controller)
             => _actionNames.Contains(action) && controller.EqualsNoCase(ControllerName);
 
-        public override async Task<CheckoutRequirementResult> CheckAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
         {
             var customer = cart.Customer;
             var ga = customer.GenericAttributes;
