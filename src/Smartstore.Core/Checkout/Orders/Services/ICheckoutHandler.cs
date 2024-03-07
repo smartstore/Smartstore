@@ -39,19 +39,4 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         IActionResult GetActionResult();
     }
-
-    public partial class CheckoutHandlerResult(bool success, CheckoutWorkflowError[]? errors = null, bool skipPage = false)
-    {
-        /// <summary>
-        /// Gets a value indicating whether the processing of the handler was successful.
-        /// </summary>
-        public bool Success { get; } = success;
-
-        /// <summary>
-        /// Gets a value indicating whether the associated checkout page should be skipped.
-        /// </summary>
-        public bool SkipPage { get; set; } = skipPage;
-
-        public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
-    }
 }

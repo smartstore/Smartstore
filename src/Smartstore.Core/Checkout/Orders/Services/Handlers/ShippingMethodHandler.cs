@@ -7,7 +7,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public class ShippingMethodHandler : CheckoutHandlerBase
     {
-        private bool? _skip;
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -38,8 +37,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (!cart.IsShippingRequired())
             {
-                _skip = true;
-
                 if (ga.SelectedShippingOption != null || ga.OfferedShippingOptions != null)
                 {
                     ga.SelectedShippingOption = null;
@@ -100,14 +97,11 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 saveAttributes = true;
             }
 
-            if (_skip == null)
+            var skip = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1;
+            if (skip)
             {
-                _skip = _shippingSettings.SkipShippingIfSingleOption && options.Count == 1;
-                if (_skip.Value)
-                {
-                    ga.SelectedShippingOption = options[0];
-                    saveAttributes = true;
-                }
+                ga.SelectedShippingOption = options[0];
+                saveAttributes = true;
             }
 
             if (_shoppingCartSettings.QuickCheckoutEnabled && ga.SelectedShippingOption == null)
@@ -135,7 +129,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 await ga.SaveChangesAsync();
             }
 
-            return new(ga.SelectedShippingOption != null, errors, _skip ?? false);
+            return new(ga.SelectedShippingOption != null, errors, skip);
         }
 
         private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)

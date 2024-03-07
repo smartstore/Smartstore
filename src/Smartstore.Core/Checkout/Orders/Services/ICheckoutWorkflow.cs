@@ -38,15 +38,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// If <see cref="CheckoutWorkflowResult.ActionResult"/> is <c>null</c> (not determinable), then the caller has to specify the next step.
         /// </returns>
         Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
-
-        /// <summary>
-        /// Completes the checkout and places a new order.
-        /// </summary>
-        /// <returns>
-        /// <see cref="CheckoutWorkflowResult.ActionResult"/> to the confirmation page, if operation succeeded.
-        /// Otherwise it redirects to an error related checkout page like payment method selection page.
-        /// </returns>
-        Task<CheckoutWorkflowResult> CompleteAsync();
     }
 
     public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)

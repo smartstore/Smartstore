@@ -80,7 +80,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (!skip && _shoppingCartSettings.QuickCheckoutEnabled)
             {
-                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == customer.GenericAttributes.DefaultShippingAddressId);
+                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == ga.DefaultShippingAddressId);
                 if (defaultAddress != null)
                 {
                     if (customer.ShippingAddressId != defaultAddress.Id)
@@ -93,19 +93,14 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 }
             }
 
-            return new(await IsFulfilled(), null, skip);
-
-            async Task<bool> IsFulfilled()
+            if (customer.ShippingAddressId == null)
             {
-                if (customer.ShippingAddressId == null)
-                {
-                    return false;
-                }
-
-                await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
-
-                return customer.ShippingAddress != null;
+                return new(false, null, skip);
             }
+
+            await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
+
+            return new(customer.ShippingAddress != null, null, skip);
         }
     }
 }

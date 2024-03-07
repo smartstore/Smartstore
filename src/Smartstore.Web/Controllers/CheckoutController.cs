@@ -260,7 +260,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("Confirm")]
         public async Task<IActionResult> ConfirmOrder()
         {
-            var result = await _checkoutWorkflow.CompleteAsync();
+            var result = await _checkoutWorkflow.AdvanceAsync();
 
             if (result.Errors.Length > 0)
             {

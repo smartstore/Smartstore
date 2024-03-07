@@ -9,7 +9,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public class PaymentMethodHandler : CheckoutHandlerBase
     {
-        private bool? _skip;
         private readonly SmartDbContext _db;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -92,36 +91,32 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 }
             }
 
-            // INFO: cache result. Only needs to be processed once, not every time the requirements are checked.
-            if (_skip == null)
+            var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+            state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
+
+            if (state.IsPaymentRequired)
             {
-                var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
-                state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
-
-                if (state.IsPaymentRequired)
+                if (_paymentSettings.SkipPaymentSelectionIfSingleOption)
                 {
-                    if (_paymentSettings.SkipPaymentSelectionIfSingleOption)
+                    providers ??= await GetPaymentMethods(cart);
+
+                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = providers.Count == 1;
+                    state.IsPaymentSelectionSkipped = providers.Count == 1 && !providers[0].Value.RequiresPaymentSelection;
+
+                    if (state.IsPaymentSelectionSkipped)
                     {
-                        providers ??= await GetPaymentMethods(cart);
-
-                        state.CustomProperties["HasOnlyOneActivePaymentMethod"] = providers.Count == 1;
-                        state.IsPaymentSelectionSkipped = providers.Count == 1 && !providers[0].Value.RequiresPaymentSelection;
-
-                        if (state.IsPaymentSelectionSkipped)
-                        {
-                            ga.SelectedPaymentMethod  = providers[0].Metadata.SystemName;
-                            await ga.SaveChangesAsync();
-                        }
+                        ga.SelectedPaymentMethod  = providers[0].Metadata.SystemName;
+                        await ga.SaveChangesAsync();
                     }
                 }
-                else
-                {
-                    state.IsPaymentSelectionSkipped = true;
-                }
-
-                // INFO: "_skip" is only set to "true" if the payment selection is always skipped without any exception.
-                _skip = state.IsPaymentSelectionSkipped;
             }
+            else
+            {
+                state.IsPaymentSelectionSkipped = true;
+            }
+
+            // INFO: "skip" is only set to "true" if the payment selection is always skipped without any exception.
+            var skip = state.IsPaymentSelectionSkipped;
 
             if (_shoppingCartSettings.QuickCheckoutEnabled 
                 && state.IsPaymentRequired
@@ -158,7 +153,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 }
             }
 
-            return new(ga.SelectedPaymentMethod.HasValue(), null, _skip ?? false);
+            return new(ga.SelectedPaymentMethod.HasValue(), null, skip);
         }
 
         private async Task<List<Provider<IPaymentMethod>>> GetPaymentMethods(ShoppingCart cart)
