@@ -55,7 +55,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 }
 
                 ga.SelectedPaymentMethod = systemName;
-                ga.PreferredPaymentMethod ??= systemName;
+                ga.PreferredPaymentMethod = systemName;
                 await ga.SaveChangesAsync();
 
                 var form = HttpContext.Request.Form;

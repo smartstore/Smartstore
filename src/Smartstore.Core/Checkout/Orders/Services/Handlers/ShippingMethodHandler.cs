@@ -75,7 +75,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 if (selectedOption != null)
                 {
                     ga.SelectedShippingOption = selectedOption;
-                    ga.PreferredShippingOption ??= selectedOption;
+                    ga.PreferredShippingOption = selectedOption;
 
                     await ga.SaveChangesAsync();
                 }

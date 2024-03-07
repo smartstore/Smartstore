@@ -55,7 +55,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
                 if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {
-                    ga.DefaultShippingAddressId ??= customer.ShippingAddress.Id;
+                    ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
                 }
 
                 await _db.SaveChangesAsync();
