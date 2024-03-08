@@ -40,7 +40,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         /// <summary>
         /// Gets an <see cref="IActionResult"/> where the customer is to be redirected.
-        /// If <c>null</c>, then the <see cref="ICheckoutWorkflow"/> decides whether and where to redirect to.
+        /// If <c>null</c>, then the <see cref="ICheckoutWorkflow"/> implementation decides whether and where to redirect to.
         /// </summary>
         public IActionResult? ActionResult { get; }
     }

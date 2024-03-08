@@ -55,9 +55,9 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<OrderService>().As<IOrderService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxService>().As<ITaxService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxCalculator>().As<ITaxCalculator>().InstancePerLifetimeScope();
-            builder.RegisterType<CheckoutWorkflow>().As<ICheckoutWorkflow>().InstancePerLifetimeScope();
 
-            // Checkout.
+            // Checkout
+            builder.RegisterType<CheckoutWorkflow>().As<ICheckoutWorkflow>().InstancePerLifetimeScope();
             builder.RegisterType<BillingAddressHandler>().As<ICheckoutHandler>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingAddressHandler>().As<ICheckoutHandler>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingMethodHandler>().As<ICheckoutHandler>().InstancePerLifetimeScope();

@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -7,11 +6,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public class ShippingAddressHandler : CheckoutHandlerBase
     {
-        private static readonly FrozenSet<string> _actionNames = new[]
-        {
-            "ShippingAddress",
-            "SelectShippingAddress"
-        }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        private static readonly string[] _actionNames = [ "ShippingAddress", "SelectShippingAddress" ];
 
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;

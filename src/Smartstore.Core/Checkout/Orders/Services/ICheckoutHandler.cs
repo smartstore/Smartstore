@@ -7,7 +7,6 @@ namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Handles a checkout step.
-    /// The customer is redirected to the confirmation page if all handlers are processed and quick checkout is enabled.
     /// </summary>
     public interface ICheckoutHandler : IEquatable<ICheckoutHandler>
     {
@@ -23,6 +22,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="action">Name of the action method.</param>
         /// <param name="controller">Name of the controller.</param>
         /// <returns><c>true</c> if the handler is associated with the action method, otherwise <c>false</c>.</returns>
+        // TODO: (mg) Bad (inflexible) signature. Pass CheckoutContext instead. Members e.g. (all read-only): HttpContext, Action, Controller, Area, Module, ShoppingCart etc.
         bool IsHandlerFor(string action, string controller);
 
         /// <summary>
@@ -32,11 +32,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="model">
         /// An optional model (usually of a simple type) representing a user selection (e.g. address ID, shipping method ID or payment method system name).
         /// </param>
+        // TODO: (mg) Pass CheckoutContext also (as first param) and remove all IHttpContextAccessor ctor dependencies.
         Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object? model = null);
 
         /// <summary>
         /// Gets the <see cref="IActionResult"/> associated action method of the handler.
         /// </summary>
+        // TODO: (mg) Pass CheckoutContext
         IActionResult GetActionResult();
     }
 }

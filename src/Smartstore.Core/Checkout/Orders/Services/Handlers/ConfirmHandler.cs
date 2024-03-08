@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
@@ -16,11 +15,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
     {
         const int _maxWarnings = 3;
 
-        private static readonly FrozenSet<string> _actionNames = new[]
-        {
-            "Confirm",
-            "ConfirmOrder"
-        }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        private static readonly string[] _actionNames = [ "Confirm", "ConfirmOrder" ];
 
         private readonly IStoreContext _storeContext;
         private readonly IEventPublisher _eventPublisher;

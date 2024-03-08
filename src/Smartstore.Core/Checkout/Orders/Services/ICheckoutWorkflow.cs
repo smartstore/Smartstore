@@ -8,8 +8,9 @@ namespace Smartstore.Core.Checkout.Orders
     /// Represents a checkout flow by processing checkout steps through checkout handlers.
     /// </summary>
     /// <remarks>
-    /// Only applicable in the context of a HTTP request.
+    /// Only applicable in the context of an HTTP request.
     /// </remarks>
+    // TODO: (mg) Pass CheckoutContext to applicable methods.
     public partial interface ICheckoutWorkflow
     {
         /// <summary>
@@ -38,6 +39,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// If <see cref="CheckoutWorkflowResult.ActionResult"/> is <c>null</c> (not determinable), then the caller has to specify the next step.
         /// </returns>
         Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
+
+        // TODO: (mg) Insufficient API. CompleteAsync should not be totally replaced by ConfirmHandler. In any case PlaceOrder must be called within Complete.
     }
 
     public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)

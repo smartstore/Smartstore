@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -7,11 +6,8 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public class BillingAddressHandler : CheckoutHandlerBase
     {
-        private static readonly FrozenSet<string> _actionNames = new[]
-        {
-            "BillingAddress",
-            "SelectBillingAddress"
-        }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        // INFO: (mg) The perf break-even hashset vs. array is 3/4.
+        private static readonly string[] _actionNames = ["BillingAddress", "SelectBillingAddress"];
 
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;

@@ -41,6 +41,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (request.Method.EqualsNoCase(HttpMethods.Get) && request.RouteValues.IsSameRoute(ControllerName, ActionName))
             {
+                // TODO: (mg) Why not call IsSameRoute method?
                 // Avoid infinite redirection loop.
                 return null;
             }
@@ -60,6 +61,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
         /// <summary>
         /// Gets a request form value.
         /// </summary>
+        // TODO: (mg) Pass CheckoutContext.
         protected string GetFormValue(string key)
             => HttpContext.Request.Form.TryGetValue(key, out var val) ? val.ToString() : null;
 

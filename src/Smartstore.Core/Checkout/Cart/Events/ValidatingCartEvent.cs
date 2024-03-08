@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.Core.Checkout.Cart.Events
 {
@@ -34,6 +36,6 @@ namespace Smartstore.Core.Checkout.Cart.Events
         /// <summary>
         /// Gets or sets the result
         /// </summary>
-        public IActionResult Result { get; set; }
+        public IActionResult? Result { get; set; }
     }
 }
