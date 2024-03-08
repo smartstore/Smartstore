@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Smartstore.Core.Checkout.Cart;
@@ -25,13 +24,11 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly ILogger _logger;
         private readonly IWebHelper _webHelper;
         private readonly IEventPublisher _eventPublisher;
-        private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
         private readonly ICheckoutHandler[] _handlers;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -42,13 +39,11 @@ namespace Smartstore.Core.Checkout.Orders
             ILogger logger,
             IWebHelper webHelper,
             IEventPublisher eventPublisher,
-            IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
             IEnumerable<ICheckoutHandler> handlers,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings)
         {
@@ -58,12 +53,10 @@ namespace Smartstore.Core.Checkout.Orders
             _logger = logger;
             _webHelper = webHelper;
             _eventPublisher = eventPublisher;
-            _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
             _checkoutStateAccessor = checkoutStateAccessor;
-            _httpContextAccessor = httpContextAccessor;
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
 
@@ -72,20 +65,20 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<CheckoutWorkflowResult> StartAsync()
+        public virtual async Task<CheckoutWorkflowResult> StartAsync(CheckoutContext context)
         {
-            var warnings = new List<string>();
-            var store = _storeContext.CurrentStore;
-            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
-            var customer = cart.Customer;
+            Guard.NotNull(context);
 
-            var preliminaryResult = Preliminary(cart);
+            var warnings = new List<string>();
+            var cart = context.Cart;
+
+            var preliminaryResult = Preliminary(context);
             if (preliminaryResult != null)
             {
                 return new(preliminaryResult);
             }
 
-            customer.ResetCheckoutData(store.Id);
+            cart.Customer.ResetCheckoutData(cart.StoreId);
             _checkoutStateAccessor.Abandon();
 
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
@@ -106,17 +99,17 @@ namespace Smartstore.Core.Checkout.Orders
                         break;
                     }
 
-                    var ctx = new AddToCartContext
+                    var addToCartContext = new AddToCartContext
                     {
-                        StoreId = store.Id,
+                        StoreId = cart.StoreId,
                         Product = item.Item.Product,
                         BundleItem = item.Item.BundleItem,
                         ChildItems = item.ChildItems.Select(x => x.Item).ToList()
                     };
 
-                    if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, item.Item, cart.Items))
+                    if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(addToCartContext, item.Item, cart.Items))
                     {
-                        warnings.AddRange(ctx.Warnings);
+                        warnings.AddRange(addToCartContext.Warnings);
                     }
                 }
             }
@@ -129,26 +122,26 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(RedirectToCart());
             }
 
-            return await AdvanceAsync();
+            return await AdvanceAsync(context);
         }
 
-        public virtual async Task<CheckoutWorkflowResult> ProcessAsync()
+        public virtual async Task<CheckoutWorkflowResult> ProcessAsync(CheckoutContext context)
         {
-            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            var preliminaryResult = Preliminary(cart);
+            Guard.NotNull(context);
+
+            var preliminaryResult = Preliminary(context);
             if (preliminaryResult != null)
             {
                 return new(preliminaryResult);
             }
 
-            var (action, controller) = GetActionAndController();
-            var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+            var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
             if (handler != null)
             {
-                var result = await handler.ProcessAsync(cart);
+                var result = await handler.ProcessAsync(context);
                 if (result.SkipPage)
                 {
-                    return new(result.ActionResult ?? Adjacent(handler));
+                    return new(result.ActionResult ?? Adjacent(handler, context));
                 }
 
                 return new(null, result.Errors);
@@ -157,10 +150,11 @@ namespace Smartstore.Core.Checkout.Orders
             return new(null);
         }
 
-        public virtual async Task<CheckoutWorkflowResult> AdvanceAsync(object model = null)
+        public virtual async Task<CheckoutWorkflowResult> AdvanceAsync(CheckoutContext context)
         {
-            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            var preliminaryResult = Preliminary(cart);
+            Guard.NotNull(context);
+
+            var preliminaryResult = Preliminary(context);
             if (preliminaryResult != null)
             {
                 return new(preliminaryResult);
@@ -170,10 +164,10 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 foreach (var handler in _handlers)
                 {
-                    var result = await handler.ProcessAsync(cart, model);
+                    var result = await handler.ProcessAsync(context);
                     if (!result.Success)
                     {
-                        return new(result.ActionResult ?? handler.GetActionResult(), result.Errors);
+                        return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
                     }
                 }
 
@@ -181,19 +175,18 @@ namespace Smartstore.Core.Checkout.Orders
             }
             else
             {
-                var (action, controller) = GetActionAndController();
-                if (action.EqualsNoCase("Index") && controller.EqualsNoCase("Checkout"))
+                if (context.IsCurrentRoute(null, "Index"))
                 {
-                    return new(_handlers[0].GetActionResult());
+                    return new(_handlers[0].GetActionResult(context));
                 }
 
-                var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+                var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
                 if (handler != null)
                 {
-                    var result = await handler.ProcessAsync(cart, model);
+                    var result = await handler.ProcessAsync(context);
                     if (!result.Success)
                     {
-                        return new(result.ActionResult ?? handler.GetActionResult(), result.Errors);
+                        return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
                     }
 
                     if (handler.Equals(_handlers[^1]))
@@ -204,7 +197,7 @@ namespace Smartstore.Core.Checkout.Orders
                     var nextHandler = GetNextHandler(handler, true);
                     if (nextHandler != null)
                     {
-                        return new(nextHandler.GetActionResult());
+                        return new(nextHandler.GetActionResult(context));
                     }
                 }
 
@@ -212,12 +205,13 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        public virtual async Task<CheckoutWorkflowResult> CompleteAsync()
+        public virtual async Task<CheckoutWorkflowResult> CompleteAsync(CheckoutContext context)
         {
+            Guard.NotNull(context);
+
             var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
-            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
-            var httpContext = _httpContextAccessor.HttpContext;
+            var cart = context.Cart;
             OrderPlacementResult placeOrderResult = null;
 
             var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
@@ -245,7 +239,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             try
             {
-                httpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
+                context.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
                 paymentRequest ??= new();
                 paymentRequest.StoreId = store.Id;
                 paymentRequest.CustomerId = cart.Customer.Id;
@@ -253,9 +247,9 @@ namespace Smartstore.Core.Checkout.Orders
 
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
-                    ["CustomerComment"] = httpContext.Request.Form["customercommenthidden"].ToString(),
-                    ["SubscribeToNewsletter"] = httpContext.Request.Form["SubscribeToNewsletter"].ToString(),
-                    ["AcceptThirdPartyEmailHandOver"] = httpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
+                    ["CustomerComment"] = context.HttpContext.Request.Form["customercommenthidden"].ToString(),
+                    ["SubscribeToNewsletter"] = context.HttpContext.Request.Form["SubscribeToNewsletter"].ToString(),
+                    ["AcceptThirdPartyEmailHandOver"] = context.HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
                 };
 
                 placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, placeOrderExtraData);
@@ -300,7 +294,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
             finally
             {
-                httpContext.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
+                context.HttpContext.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
                 _checkoutStateAccessor.Abandon();
             }
 
@@ -325,9 +319,9 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        private IActionResult Preliminary(ShoppingCart cart)
+        private IActionResult Preliminary(CheckoutContext context)
         {
-            if (_httpContextAccessor.HttpContext?.Request == null)
+            if (context.HttpContext?.Request == null)
             {
                 throw new InvalidOperationException("The checkout workflow is only applicable in the context of a HTTP request.");
             }
@@ -337,12 +331,12 @@ namespace Smartstore.Core.Checkout.Orders
                 throw new InvalidOperationException("No checkout handlers found.");
             }
 
-            if (!_orderSettings.AnonymousCheckoutAllowed && !cart.Customer.IsRegistered())
+            if (!_orderSettings.AnonymousCheckoutAllowed && !context.Cart.Customer.IsRegistered())
             {
                 return new ChallengeResult();
             }
 
-            if (!cart.HasItems)
+            if (!context.Cart.HasItems)
             {
                 return RedirectToCart();
             }
@@ -355,7 +349,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// In this case, based on the referrer, the user must be redirected to the next or previous page,
         /// depending on the direction from which the user accessed the current page.
         /// </summary>
-        private IActionResult Adjacent(ICheckoutHandler handler)
+        private IActionResult Adjacent(ICheckoutHandler handler, CheckoutContext context)
         {
             var referrer = _webHelper.GetUrlReferrer();
             var path = referrer?.PathAndQuery;
@@ -385,12 +379,12 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else
                 {
-                    var referrerHandler = _handlers.FirstOrDefault(x => x.IsHandlerFor(action, controller));
+                    var referrerHandler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
                     next = (referrerHandler?.Order ?? 0) < handler.Order;
                 }
             }
 
-            var result = GetNextHandler(handler, next)?.GetActionResult();
+            var result = GetNextHandler(handler, next)?.GetActionResult(context);
             result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
 
             return result;
@@ -412,12 +406,6 @@ namespace Smartstore.Core.Checkout.Orders
                     .OrderByDescending(x => x.Order)
                     .FirstOrDefault();
             }
-        }
-
-        private (string Action, string Controller) GetActionAndController()
-        {
-            var routeValues = _httpContextAccessor.HttpContext.Request.RouteValues;
-            return (routeValues.GetActionName(), routeValues.GetControllerName());
         }
 
         private static RedirectToActionResult RedirectToCheckout(string action)

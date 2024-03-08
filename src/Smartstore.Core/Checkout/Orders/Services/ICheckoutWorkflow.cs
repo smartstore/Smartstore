@@ -10,14 +10,13 @@ namespace Smartstore.Core.Checkout.Orders
     /// <remarks>
     /// Only applicable in the context of an HTTP request.
     /// </remarks>
-    // TODO: (mg) Pass CheckoutContext to applicable methods.
     public partial interface ICheckoutWorkflow
     {
         /// <summary>
         /// Initializes and starts the checkout.
         /// </summary>
         /// <returns><see cref="CheckoutWorkflowResult.ActionResult"/> of the first checkout page.</returns>
-        Task<CheckoutWorkflowResult> StartAsync();
+        Task<CheckoutWorkflowResult> StartAsync(CheckoutContext context);
 
         /// <summary>
         /// Processes the current checkout step.
@@ -26,19 +25,16 @@ namespace Smartstore.Core.Checkout.Orders
         /// <see cref="CheckoutWorkflowResult.ActionResult"/> to an adjacent checkout page, if the current page should be skipped.
         /// Otherwise <see cref="CheckoutWorkflowResult.ActionResult"/> is <c>null</c> (default).
         /// </returns>
-        Task<CheckoutWorkflowResult> ProcessAsync();
+        Task<CheckoutWorkflowResult> ProcessAsync(CheckoutContext context);
 
         /// <summary>
         /// Advances in checkout.
         /// </summary>
-        /// <param name="model">
-        /// An optional model (usually of a simple type) representing a user selection (e.g. address ID, shipping method ID or payment method system name).
-        /// </param>
         /// <returns>
         /// <see cref="CheckoutWorkflowResult.ActionResult"/> to the next checkout page.
         /// If <see cref="CheckoutWorkflowResult.ActionResult"/> is <c>null</c> (not determinable), then the caller has to specify the next step.
         /// </returns>
-        Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
+        Task<CheckoutWorkflowResult> AdvanceAsync(CheckoutContext context);
 
         /// <summary>
         /// Completes the checkout and places a new order.
@@ -47,7 +43,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <see cref="CheckoutWorkflowResult.ActionResult"/> to the completed page, if operation succeeded.
         /// Otherwise it redirects to an error related checkout page like payment method selection page.
         /// </returns>
-        Task<CheckoutWorkflowResult> CompleteAsync();
+        Task<CheckoutWorkflowResult> CompleteAsync(CheckoutContext context);
     }
 
     public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)

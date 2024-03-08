@@ -13,22 +13,21 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
         public ShippingMethodHandler(
             IShippingService shippingService,
-            IHttpContextAccessor httpContextAccessor,
             ShippingSettings shippingSettings,
             ShoppingCartSettings shoppingCartSettings)
-            : base(httpContextAccessor)
         {
             _shippingService = shippingService;
             _shippingSettings = shippingSettings;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string ActionName => "ShippingMethod";
+        protected override string Action => "ShippingMethod";
 
         public override int Order => 30;
 
-        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
         {
+            var cart = context.Cart;
             var customer = cart.Customer;
             var ga = customer.GenericAttributes;
             var options = ga.OfferedShippingOptions;
@@ -47,9 +46,9 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(true, null, true);
             }
 
-            if (model != null
-                && model is string shippingOption 
-                && IsSameRoute(HttpMethods.Post, ActionName))
+            if (context.Model != null
+                && context.Model is string shippingOption 
+                && context.IsCurrentRoute(HttpMethods.Post, Action))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
@@ -63,7 +62,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 if (options.IsNullOrEmpty())
                 {
                     // Shipping option was not found in customer attributes. Load via shipping service.
-                    (options, errors) = await GetShippingOptions(cart, providerSystemName);
+                    (options, errors) = await GetShippingOptions(context, providerSystemName);
                 }
                 else
                 {
@@ -85,7 +84,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (options.IsNullOrEmpty())
             {
-                (options, errors) = await GetShippingOptions(cart);
+                (options, errors) = await GetShippingOptions(context);
                 if (options.Count == 0)
                 {
                     return new(false, errors);
@@ -132,12 +131,12 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             return new(ga.SelectedShippingOption != null, errors, skip);
         }
 
-        private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(ShoppingCart cart, string providerSystemName = null)
+        private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(CheckoutContext context, string providerSystemName = null)
         {
             CheckoutWorkflowError[] errors = null;
-            var response = await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, providerSystemName, cart.StoreId);
+            var response = await _shippingService.GetShippingOptionsAsync(context.Cart, context.Cart.Customer.ShippingAddress, providerSystemName, context.Cart.StoreId);
 
-            if (response.ShippingOptions.Count == 0 && IsSameRoute(HttpMethods.Get, ActionName))
+            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, Action))
             {
                 errors = response.Errors
                     .Select(x => new CheckoutWorkflowError(string.Empty, x))

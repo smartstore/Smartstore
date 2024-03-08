@@ -6,7 +6,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public class BillingAddressHandler : CheckoutHandlerBase
     {
-        // INFO: (mg) The perf break-even hashset vs. array is 3/4.
         private static readonly string[] _actionNames = ["BillingAddress", "SelectBillingAddress"];
 
         private readonly SmartDbContext _db;
@@ -16,30 +15,28 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
         public BillingAddressHandler(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor,
             ShoppingCartSettings shoppingCartSettings)
-            : base(httpContextAccessor)
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string ActionName => "BillingAddress";
+        protected override string Action => "BillingAddress";
 
         public override int Order => 10;
 
-        public override bool IsHandlerFor(string action, string controller)
-            => _actionNames.Contains(action) && controller.EqualsNoCase(ControllerName);
+        public override bool IsHandlerFor(CheckoutContext context)
+            => IsHandlerFor(_actionNames, context);
 
-        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
         {
-            var customer = cart.Customer;
+            var customer = context.Cart.Customer;
             var ga = customer.GenericAttributes;
 
-            if (model != null 
-                && model is int addressId 
-                && IsSameRoute(HttpMethods.Post, "SelectBillingAddress"))
+            if (context.Model != null 
+                && context.Model is int addressId 
+                && context.IsCurrentRoute(HttpMethods.Post, "SelectBillingAddress"))
             {
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address == null)
@@ -47,11 +44,12 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                     return new(false);
                 }
 
-                var shippingAddressDiffers = GetFormValue("ShippingAddressDiffers").ToBool(true);
-                _checkoutStateAccessor.CheckoutState.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers;
+                var state = _checkoutStateAccessor.CheckoutState;
+                var shippingAddressDiffers = context.GetFormValue("ShippingAddressDiffers")?.ToBool(true) ?? true;
+                state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers;
 
                 customer.BillingAddress = address;
-                customer.ShippingAddress = shippingAddressDiffers || !cart.IsShippingRequired() ? null : address;
+                customer.ShippingAddress = shippingAddressDiffers || !context.Cart.IsShippingRequired() ? null : address;
 
                 if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {

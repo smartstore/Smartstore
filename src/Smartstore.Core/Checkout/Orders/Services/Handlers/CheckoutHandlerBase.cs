@@ -1,69 +1,48 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     public abstract class CheckoutHandlerBase : ICheckoutHandler
     {
-        protected readonly IHttpContextAccessor _httpContextAccessor;
-
-        protected CheckoutHandlerBase(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        protected HttpContext HttpContext
-            => _httpContextAccessor.HttpContext;
-
         /// <summary>
         /// Gets the name of the action method associated with the handler.
         /// </summary>
-        protected abstract string ActionName { get; }
+        protected abstract string Action { get; }
 
         /// <summary>
         /// Gets the name of the controller associated with the handler.
         /// </summary>
-        protected virtual string ControllerName => "Checkout";
+        protected virtual string Controller => "Checkout";
+
+        protected virtual string Area => null;
 
         public abstract int Order { get; }
 
-        public virtual bool IsHandlerFor(string action, string controller)
-            => ActionName.EqualsNoCase(action) && controller.EqualsNoCase(ControllerName);
+        public virtual bool IsHandlerFor(CheckoutContext context)
+            => context.IsCurrentRoute(null, Action, Controller, Area);
 
-        public virtual Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
+        protected bool IsHandlerFor(string[] actions, CheckoutContext context)
+        {
+            return actions.Contains(context.Route.GetActionName(), StringComparer.OrdinalIgnoreCase)
+                && Controller.EqualsNoCase(context.Route.GetControllerName())
+                && Area.NullEmpty().EqualsNoCase(context.Route.GetAreaName().NullEmpty());
+        }
+
+        public virtual Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
             => Task.FromResult(new CheckoutHandlerResult(false));
 
-        public virtual IActionResult GetActionResult()
+        public virtual IActionResult GetActionResult(CheckoutContext context)
         {
-            var request = HttpContext.Request;
-
-            if (request.Method.EqualsNoCase(HttpMethods.Get) && request.RouteValues.IsSameRoute(ControllerName, ActionName))
+            if (context.IsCurrentRoute(HttpMethods.Get, Controller, Action, Area))
             {
-                // TODO: (mg) Why not call IsSameRoute method?
                 // Avoid infinite redirection loop.
                 return null;
             }
 
-            return new RedirectToActionResult(ActionName, ControllerName, null);
+            return new RedirectToActionResult(Action, Controller, Area.HasValue() ? new { area = Area } : null);
         }
-
-        /// <summary>
-        /// Gets a value indicating whether the current request corresponds to a specific route.
-        /// </summary>
-        protected bool IsSameRoute(string method, string action, string controller = "Checkout")
-        {
-            var request = HttpContext.Request;
-            return request.Method.EqualsNoCase(method) && request.RouteValues.IsSameRoute(controller, action);
-        }
-
-        /// <summary>
-        /// Gets a request form value.
-        /// </summary>
-        // TODO: (mg) Pass CheckoutContext.
-        protected string GetFormValue(string key)
-            => HttpContext.Request.Form.TryGetValue(key, out var val) ? val.ToString() : null;
 
         #region Compare
 
@@ -81,8 +60,9 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             var combiner = HashCodeCombiner
                 .Start()
                 .Add(Order)
-                .Add(ActionName)
-                .Add(ControllerName);
+                .Add(Action)
+                .Add(Controller)
+                .Add(Area);
 
             return combiner.CombinedHash;
         }

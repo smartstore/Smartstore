@@ -21,10 +21,8 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor,
             PaymentSettings paymentSettings,
             ShoppingCartSettings shoppingCartSettings)
-            : base(httpContextAccessor)
         {
             _db = db;
             _paymentService = paymentService;
@@ -34,19 +32,20 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string ActionName => "PaymentMethod";
+        protected override string Action => "PaymentMethod";
 
         public override int Order => 40;
 
-        public override async Task<CheckoutHandlerResult> ProcessAsync(ShoppingCart cart, object model = null)
+        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
         {
             var state = _checkoutStateAccessor.CheckoutState;
+            var cart = context.Cart;
             var ga = cart.Customer.GenericAttributes;
             List<Provider<IPaymentMethod>> providers = null;
 
-            if (model != null 
-                && model is string systemName 
-                && IsSameRoute(HttpMethods.Post, ActionName))
+            if (context.Model != null 
+                && context.Model is string systemName 
+                && context.IsCurrentRoute(HttpMethods.Post, Action))
             {
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, cart.StoreId);
                 if (provider == null)
@@ -58,7 +57,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 ga.PreferredPaymentMethod = systemName;
                 await ga.SaveChangesAsync();
 
-                var form = HttpContext.Request.Form;
+                var form = context.HttpContext.Request.Form;
                 if (form != null)
                 {
                     // Save payment data so that the user must not re-enter it.
@@ -76,7 +75,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 if (validationResult.IsValid)
                 {
                     var paymentInfo = await provider.Value.GetPaymentInfoAsync(form);
-                    HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
+                    context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, paymentInfo);
                     state.PaymentSummary = await provider.Value.GetPaymentSummaryAsync();
 
                     return new(true);
@@ -145,7 +144,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                             var request = await paymentMethod.CreateProcessPaymentRequestAsync(cart, lastOrder);
                             if (request != null)
                             {
-                                HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, request);
+                                context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, request);
                                 state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
                             }
                         }
