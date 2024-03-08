@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Events;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -20,10 +22,13 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly INotifier _notifier;
+        private readonly ILogger _logger;
         private readonly IWebHelper _webHelper;
         private readonly IEventPublisher _eventPublisher;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
+        private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IPaymentService _paymentService;
         private readonly ICheckoutHandler[] _handlers;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -34,10 +39,13 @@ namespace Smartstore.Core.Checkout.Orders
             SmartDbContext db,
             IStoreContext storeContext,
             INotifier notifier,
+            ILogger logger,
             IWebHelper webHelper,
             IEventPublisher eventPublisher,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
+            IOrderProcessingService orderProcessingService,
+            IPaymentService paymentService,
             IEnumerable<ICheckoutHandler> handlers,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
@@ -47,10 +55,13 @@ namespace Smartstore.Core.Checkout.Orders
             _db = db;
             _storeContext = storeContext;
             _notifier = notifier;
+            _logger = logger;
             _webHelper = webHelper;
             _eventPublisher = eventPublisher;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
+            _orderProcessingService = orderProcessingService;
+            _paymentService = paymentService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _httpContextAccessor = httpContextAccessor;
             _orderSettings = orderSettings;
@@ -166,7 +177,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                 }
 
-                return new(RedirectToCheckout("Completed"));
+                return new(RedirectToCheckout("Confirm"));
             }
             else
             {
@@ -187,7 +198,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (handler.Equals(_handlers[^1]))
                     {
-                        return new(RedirectToCheckout("Completed"));
+                        return new(RedirectToCheckout("Confirm"));
                     }
                     
                     var nextHandler = GetNextHandler(handler, true);
@@ -198,6 +209,119 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 return new(null);
+            }
+        }
+
+        public virtual async Task<CheckoutWorkflowResult> CompleteAsync()
+        {
+            var warnings = new List<string>();
+            var store = _storeContext.CurrentStore;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
+            var httpContext = _httpContextAccessor.HttpContext;
+            OrderPlacementResult placeOrderResult = null;
+
+            var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
+            await _eventPublisher.PublishAsync(validatingCartEvent);
+
+            if (validatingCartEvent.Result != null)
+            {
+                return new(validatingCartEvent.Result);
+            }
+
+            if (warnings.Count > 0)
+            {
+                warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
+
+                return new(RedirectToCart());
+            }
+
+            // Prevent two orders from being placed within a time span of x seconds.
+            if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(cart.Customer, store))
+            {
+                _notifier.Warning(T("Checkout.MinOrderPlacementInterval"));
+
+                return new(RedirectToCheckout("Confirm"));
+            }
+
+            try
+            {
+                httpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest);
+                paymentRequest ??= new();
+                paymentRequest.StoreId = store.Id;
+                paymentRequest.CustomerId = cart.Customer.Id;
+                paymentRequest.PaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
+
+                var placeOrderExtraData = new Dictionary<string, string>
+                {
+                    ["CustomerComment"] = httpContext.Request.Form["customercommenthidden"].ToString(),
+                    ["SubscribeToNewsletter"] = httpContext.Request.Form["SubscribeToNewsletter"].ToString(),
+                    ["AcceptThirdPartyEmailHandOver"] = httpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
+                };
+
+                placeOrderResult = await _orderProcessingService.PlaceOrderAsync(paymentRequest, placeOrderExtraData);
+            }
+            catch (PaymentException ex)
+            {
+                return new(PaymentFailure(ex));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                return new(null, [new(string.Empty, ex.Message)]);
+            }
+
+            if (placeOrderResult == null || !placeOrderResult.Success)
+            {
+                var errors = placeOrderResult?.Errors
+                    ?.Take(_maxWarnings)
+                    ?.Select(x => new CheckoutWorkflowError(string.Empty, HtmlUtility.ConvertPlainTextToHtml(x)))
+                    ?.ToArray();
+
+                return new(null, errors);
+            }
+
+            var postPaymentRequest = new PostProcessPaymentRequest
+            {
+                Order = placeOrderResult.PlacedOrder
+            };
+
+            try
+            {
+                await _paymentService.PostProcessPaymentAsync(postPaymentRequest);
+            }
+            catch (PaymentException ex)
+            {
+                return new(PaymentFailure(ex));
+            }
+            catch (Exception ex)
+            {
+                _notifier.Error(ex.Message);
+            }
+            finally
+            {
+                httpContext.Session.TrySetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, null);
+                _checkoutStateAccessor.Abandon();
+            }
+
+            if (postPaymentRequest.RedirectUrl.HasValue())
+            {
+                return new(new RedirectResult(postPaymentRequest.RedirectUrl));
+            }
+
+            return new(RedirectToCheckout("Completed"));
+
+            RedirectToActionResult PaymentFailure(PaymentException ex)
+            {
+                _logger.Error(ex);
+                _notifier.Error(ex.Message);
+
+                if (ex.RedirectRoute != null)
+                {
+                    return new RedirectToActionResult(ex.RedirectRoute.Action, ex.RedirectRoute.Controller, ex.RedirectRoute.RouteValues);
+                }
+
+                return RedirectToCheckout("PaymentMethod");
             }
         }
 
@@ -296,12 +420,12 @@ namespace Smartstore.Core.Checkout.Orders
             return (routeValues.GetActionName(), routeValues.GetControllerName());
         }
 
-        internal static RedirectToActionResult RedirectToCheckout(string action)
+        private static RedirectToActionResult RedirectToCheckout(string action)
             => new(action, "Checkout", null);
 
         // INFO: do not use RedirectToRouteResult here. It would create an infinite redirection loop.
         // In CheckoutWorkflow always use RedirectToActionResult with controller and action name.
-        internal static RedirectToActionResult RedirectToCart()
+        private static RedirectToActionResult RedirectToCart()
             => new("Cart", "ShoppingCart", null);
     }
 }

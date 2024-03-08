@@ -40,7 +40,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// </returns>
         Task<CheckoutWorkflowResult> AdvanceAsync(object? model = null);
 
-        // TODO: (mg) Insufficient API. CompleteAsync should not be totally replaced by ConfirmHandler. In any case PlaceOrder must be called within Complete.
+        /// <summary>
+        /// Completes the checkout and places a new order.
+        /// </summary>
+        /// <returns>
+        /// <see cref="CheckoutWorkflowResult.ActionResult"/> to the completed page, if operation succeeded.
+        /// Otherwise it redirects to an error related checkout page like payment method selection page.
+        /// </returns>
+        Task<CheckoutWorkflowResult> CompleteAsync();
     }
 
     public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)
