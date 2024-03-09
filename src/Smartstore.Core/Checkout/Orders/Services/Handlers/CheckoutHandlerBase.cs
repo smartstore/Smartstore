@@ -25,9 +25,9 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
         protected bool IsHandlerFor(string[] actions, CheckoutContext context)
         {
-            return actions.Contains(context.Route.GetActionName(), StringComparer.OrdinalIgnoreCase)
-                && Controller.EqualsNoCase(context.Route.GetControllerName())
-                && Area.NullEmpty().EqualsNoCase(context.Route.GetAreaName().NullEmpty());
+            return actions.Contains(context.RouteValues.GetActionName(), StringComparer.OrdinalIgnoreCase)
+                && Controller.EqualsNoCase(context.RouteValues.GetControllerName())
+                && Area.NullEmpty().EqualsNoCase(context.RouteValues.GetAreaName().NullEmpty());
         }
 
         public virtual Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)

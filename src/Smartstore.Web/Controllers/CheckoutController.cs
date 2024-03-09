@@ -47,14 +47,14 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/checkout", Name = "Checkout")]
         public async Task<IActionResult> Index()
         {
-            var result = await _checkoutWorkflow.StartAsync(await CreateContext());
+            var result = await _checkoutWorkflow.StartAsync(await CreateCheckoutContext());
 
             return result.ActionResult ?? RedirectToRoute("ShoppingCart");
         }
 
         public async Task<IActionResult> BillingAddress()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateContext());
+            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
@@ -66,7 +66,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectBillingAddress(int addressId)
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateContext(addressId));
+            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
 
             return result.ActionResult ?? RedirectToAction(nameof(BillingAddress));
         }
@@ -89,7 +89,7 @@ namespace Smartstore.Web.Controllers
 
         private async Task<IActionResult> AddAddress(CheckoutAddressModel model, bool isShippingAddress)
         {
-            var context = await CreateContext();
+            var context = await CreateCheckoutContext();
             var cart = context.Cart;
 
             if (!cart.HasItems)
@@ -134,7 +134,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateContext());
+            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
@@ -146,14 +146,14 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectShippingAddress(int addressId)
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateContext(addressId));
+            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(addressId));
 
             return result.ActionResult ?? RedirectToAction(nameof(ShippingAddress));
         }
 
         public async Task<IActionResult> ShippingMethod()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateContext());
+            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
@@ -171,7 +171,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectShippingMethod(string shippingOption)
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateContext(shippingOption));
+            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(shippingOption));
 
             result.Errors.Take(3).Each(x => NotifyError(x.ErrorMessage));
 
@@ -180,7 +180,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> PaymentMethod()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateContext());
+            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
         {
-            var result = await _checkoutWorkflow.AdvanceAsync(await CreateContext(paymentMethod));
+            var result = await _checkoutWorkflow.AdvanceAsync(await CreateCheckoutContext(paymentMethod));
 
             result.Errors.Each(x => ModelState.AddModelError(x.PropertyName, x.ErrorMessage));
 
@@ -245,7 +245,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Confirm()
         {
-            var context = await CreateContext();
+            var context = await CreateCheckoutContext();
             var result = await _checkoutWorkflow.ProcessAsync(context);
             if (result.ActionResult != null)
             {
@@ -260,7 +260,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("Confirm")]
         public async Task<IActionResult> ConfirmOrder()
         {
-            var result = await _checkoutWorkflow.CompleteAsync(await CreateContext());
+            var result = await _checkoutWorkflow.CompleteAsync(await CreateCheckoutContext());
 
             if (result.Errors.Length > 0)
             {
@@ -307,7 +307,7 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        private async Task<CheckoutContext> CreateContext(object model = null)
+        private async Task<CheckoutContext> CreateCheckoutContext(object model = null)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             

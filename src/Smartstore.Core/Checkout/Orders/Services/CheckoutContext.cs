@@ -6,23 +6,17 @@ using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class CheckoutContext
+    public partial class CheckoutContext(HttpContext httpContext, ShoppingCart cart)
     {
-        public CheckoutContext(HttpContext httpContext, ShoppingCart cart)
-        {
-            HttpContext = Guard.NotNull(httpContext);
-            Cart = Guard.NotNull(cart);
-        }
-
-        public HttpContext HttpContext { get; }
-
-        public RouteValueDictionary Route
-            => HttpContext.Request.RouteValues;
+        public HttpContext HttpContext { get; } = Guard.NotNull(httpContext);
 
         /// <summary>
         /// The shopping cart of the current customer.
         /// </summary>
-        public ShoppingCart Cart { get; }
+        public ShoppingCart Cart { get; } = Guard.NotNull(cart);
+
+        public RouteValueDictionary RouteValues
+            => HttpContext.Request.RouteValues;
 
         /// <summary>
         /// An optional model (usually of a simple type) representing a user selection (e.g. address ID, shipping method ID or payment method system name).
@@ -36,10 +30,10 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (method.HasValue())
             {
-                return HttpContext.Request.Method.EqualsNoCase(method) && Route.IsSameRoute(area, controller, action);
+                return HttpContext.Request.Method.EqualsNoCase(method) && RouteValues.IsSameRoute(area, controller, action);
             }
 
-            return Route.IsSameRoute(area, controller, action);
+            return RouteValues.IsSameRoute(area, controller, action);
         }
 
         /// <summary>

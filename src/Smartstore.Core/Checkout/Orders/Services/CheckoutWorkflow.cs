@@ -14,6 +14,7 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Orders
 {
+    // TODO: (mg) This class is important but lacks code comments about what is going on. Please write down your "thoughts" where applicable.
     public partial class CheckoutWorkflow : ICheckoutWorkflow
     {
         const int _maxWarnings = 3;
@@ -225,7 +226,6 @@ namespace Smartstore.Core.Checkout.Orders
             if (warnings.Count > 0)
             {
                 warnings.Take(_maxWarnings).Each(x => _notifier.Warning(x));
-
                 return new(RedirectToCart());
             }
 
@@ -233,7 +233,6 @@ namespace Smartstore.Core.Checkout.Orders
             if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(cart.Customer, store))
             {
                 _notifier.Warning(T("Checkout.MinOrderPlacementInterval"));
-
                 return new(RedirectToCheckout("Confirm"));
             }
 
