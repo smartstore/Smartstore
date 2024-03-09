@@ -14,7 +14,6 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    // TODO: (mg) This class is important but lacks code comments about what is going on. Please write down your "thoughts" where applicable.
     public partial class CheckoutWorkflow : ICheckoutWorkflow
     {
         const int _maxWarnings = 3;
@@ -136,15 +135,19 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
+            // Get and process the current handler, based on the request's route values.
             var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
             if (handler != null)
             {
                 var result = await handler.ProcessAsync(context);
                 if (result.SkipPage)
                 {
+                    // Current checkout page should be skipped. For example there is only one shipping method
+                    // and the customer has nothing to select on the associated page.
                     return new(result.ActionResult ?? Adjacent(handler, context));
                 }
 
+                // No redirect (default). Opening the current checkout page is fine.
                 return new(null, result.Errors);
             }
 
@@ -163,15 +166,18 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
+                // Process all handlers in sequence. Open the checkout page associated with the first handler that reports "unsuccessful".
                 foreach (var handler in _handlers)
                 {
                     var result = await handler.ProcessAsync(context);
                     if (!result.Success)
                     {
+                        // Redirect to the checkout page associated with the "unsuccessful" handler.
                         return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
                     }
                 }
 
+                // Processing of all handlers was successful -> redirect to confirm.
                 return new(RedirectToCheckout("Confirm"));
             }
             else
@@ -181,20 +187,24 @@ namespace Smartstore.Core.Checkout.Orders
                     return new(_handlers[0].GetActionResult(context));
                 }
 
+                // Get current handler, based on the request's route values.
                 var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
                 if (handler != null)
                 {
                     var result = await handler.ProcessAsync(context);
                     if (!result.Success)
                     {
+                        // Redirect to the checkout page associated with the "unsuccessful" handler.
                         return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
                     }
 
+                    // Current handler is the last one -> redirect ro confirm.
                     if (handler.Equals(_handlers[^1]))
                     {
                         return new(RedirectToCheckout("Confirm"));
                     }
-                    
+
+                    // Redirect to the checkout page associated with the next handler.
                     var nextHandler = GetNextHandler(handler, true);
                     if (nextHandler != null)
                     {
@@ -202,6 +212,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                 }
 
+                // A redirect target cannot be determined.
                 return new(null);
             }
         }
@@ -318,6 +329,9 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
+        /// <summary>
+        /// Checks whether the checkout can be executed, e.g. whether the shopping cart has items.
+        /// </summary>
         private IActionResult Preliminary(CheckoutContext context)
         {
             if (context.HttpContext?.Request == null)
@@ -344,12 +358,14 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Special case when a checkout page must always be skipped (e.g. if the store only offers a single shipping method).
-        /// In this case, based on the referrer, the user must be redirected to the next or previous page,
-        /// depending on the direction from which the user accessed the current page.
+        /// Special case when the checkout page associated with <paramref name="handler"/> must always be skipped
+        /// (e.g. if the store only offers a single shipping method).
+        /// In this case, based on the referrer, the customer must be redirected to the next or previous page,
+        /// depending on the direction from which the customer accessed the current page.
         /// </summary>
         private IActionResult Adjacent(ICheckoutHandler handler, CheckoutContext context)
         {
+            // Get route values of the URL referrer.
             var referrer = _webHelper.GetUrlReferrer();
             var path = referrer?.PathAndQuery;
             var routeValues = new RouteValueDictionary();
@@ -370,14 +386,18 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (action.EqualsNoCase("Index") && controller.EqualsNoCase("Checkout"))
                 {
+                    // Referrer is the checkout index page -> return the next handler (billing address).
                     next = true;
                 }
                 else if (action.EqualsNoCase("Confirm") && controller.EqualsNoCase("Checkout"))
                 {
+                    // Referrer is the confirm page -> return the previous handler (payment selection).
                     next = false;
                 }
                 else
                 {
+                    // Referrer is any step in checkout -> return the next handler if the referrer's order number
+                    // is less than that of the current handler. Otherwise return previous handler.
                     var referrerHandler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
                     next = (referrerHandler?.Order ?? 0) < handler.Order;
                 }
@@ -389,6 +409,11 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
+        /// <summary>
+        /// Gets the next/previous checkout handler depending on <paramref name="handler"/>.
+        /// </summary>
+        /// <param name="handler">Current handler to get the next/previous checkout handler for.</param>
+        /// <param name="next"><c>true</c> to get the next, <c>false</c> to get the previous handler.</param>
         private ICheckoutHandler GetNextHandler(ICheckoutHandler handler, bool next)
         {
             if (next)
