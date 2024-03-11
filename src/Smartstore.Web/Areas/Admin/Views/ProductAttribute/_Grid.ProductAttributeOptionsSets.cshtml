@@ -124,7 +124,7 @@
             var btn = $(this);
             var optionsSetId = btn.data('setid');
             var id = btn.data('key');
-            var url = '@Url.Action("ProductAttributeOptionEditPopup")';
+            var url = '@Url.Action("ProductAttributeOptionEditPopup").EnsureEndsWith('/')';
             url += `${id}?btnId=btnRefreshOptions&formId=product-attribute-options-grid${optionsSetId}`;
 
             $('#btnRefreshOptions').val(optionsSetId);

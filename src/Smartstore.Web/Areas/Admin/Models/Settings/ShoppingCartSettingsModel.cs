@@ -80,11 +80,11 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*QuickCheckoutEnabled")]
         public bool QuickCheckoutEnabled { get; set; }
 
-        [LocalizedDisplay("*CustomersCanChangeDefaultShipping")]
-        public bool CustomersCanChangeDefaultShipping { get; set; }
+        [LocalizedDisplay("*CustomersCanChangePreferredShipping")]
+        public bool CustomersCanChangePreferredShipping { get; set; }
 
-        [LocalizedDisplay("*CustomersCanChangeDefaultPayment")]
-        public bool CustomersCanChangeDefaultPayment { get; set; }
+        [LocalizedDisplay("*CustomersCanChangePreferredPayment")]
+        public bool CustomersCanChangePreferredPayment { get; set; }
 
         [LocalizedDisplay("*ShowCommentBox")]
         public bool ShowCommentBox { get; set; }

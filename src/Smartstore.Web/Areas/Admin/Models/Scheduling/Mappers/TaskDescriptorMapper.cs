@@ -61,7 +61,7 @@ namespace Smartstore.Admin.Models.Scheduling
             {
                 if (dueIn.Value.TotalSeconds > 0)
                 {
-                    nextRunPretty = from.NextRunUtc.Value.Humanize(true, now);
+                    nextRunPretty = from.NextRunUtc.Value.ToHumanizedString(true, now);
                 }
                 else
                 {

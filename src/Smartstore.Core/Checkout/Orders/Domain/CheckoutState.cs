@@ -27,8 +27,8 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Indicates whether a payment is required. <c>false</c> if the order total is 0 (nothing to pay).
-        /// Set on the payment selection page, if not skipped by a payment module.
+        /// Indicates whether payment is required. <c>false</c> if the order total is 0 (nothing to pay).
+        /// Set on the payment selection page if not skipped by a payment module.
         /// </summary>
         public bool IsPaymentRequired
         {

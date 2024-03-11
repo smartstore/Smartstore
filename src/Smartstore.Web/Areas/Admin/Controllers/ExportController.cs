@@ -934,7 +934,7 @@ namespace Smartstore.Admin.Controllers
                     deploymentModel.LastResult = new ExportDeploymentModel.LastResultInfo
                     {
                         Execution = lastExecution,
-                        ExecutionPretty = lastExecution.Humanize(false),
+                        ExecutionPretty = lastExecution.ToHumanizedString(false),
                         Error = resultInfo.LastError
                     };
                 }

@@ -21,6 +21,8 @@ namespace Smartstore.OfflinePayment
             _settingFactory = settingFactory;
         }
 
+        public override bool RequiresPaymentSelection => false;
+
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         protected virtual Type GetViewComponentType()

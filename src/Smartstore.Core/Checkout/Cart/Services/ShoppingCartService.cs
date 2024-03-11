@@ -147,54 +147,9 @@ namespace Smartstore.Core.Checkout.Cart
 
             var cart = await GetCartAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
-            // Adds required products automatically if it is enabled.
             if (ctx.AutomaticallyAddRequiredProducts)
             {
-                var requiredProductIds = ctx.Product.ParseRequiredProductIds();
-                if (requiredProductIds.Length > 0)
-                {
-                    var cartProductIds = cart.Items.Select(x => x.Item.ProductId);
-                    var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
-                    var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds, false);
-
-                    var cartItems = new List<OrganizedShoppingCartItem>(cart.Items);
-                    var newCartItems = new List<OrganizedShoppingCartItem>();
-
-                    foreach (var product in missingRequiredProducts)
-                    {
-                        var item = new ShoppingCartItem
-                        {
-                            CustomerEnteredPrice = ctx.CustomerEnteredPrice.Amount,
-                            RawAttributes = ctx.AttributeSelection.AsJson(),
-                            ShoppingCartType = ctx.CartType,
-                            StoreId = ctx.StoreId.Value,
-                            Quantity = 1,
-                            Customer = ctx.Customer,
-                            Product = product,
-                            BundleItemId = ctx.BundleItem?.Id
-                        };
-
-                        newCartItems.Add(new OrganizedShoppingCartItem(item));
-                    }
-
-                    cartItems.AddRange(newCartItems);
-
-                    // Checks whether required products are still missing
-                    var valid = await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cartItems, ctx.Warnings);
-
-                    if (valid)
-                    {
-                        foreach (var item in newCartItems)
-                        {
-                            await AddItemToCartAsync(new AddToCartContext
-                            {
-                                Item = item.Item,
-                                ChildItems = ctx.ChildItems,
-                                Customer = ctx.Customer
-                            });
-                        }
-                    }
-                }
+                await AddRequiredProductsAsync(cart, ctx);
             }
 
             var existingCartItem = ctx.BundleItem == null
@@ -720,6 +675,75 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             return idsToRemove.Count;
+        }
+
+        protected virtual async Task AddRequiredProductsAsync(ShoppingCart cart, AddToCartContext ctx)
+        {
+            var productIds = ctx.Product.ParseRequiredProductIds();
+            if (productIds.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var missingProductIds = productIds.Except(cart.Items.Select(x => x.Item.ProductId));
+            var missingProducts = await _db.Products.GetManyAsync(missingProductIds, false);
+            var items = new List<OrganizedShoppingCartItem>(cart.Items);
+            var newItems = new List<OrganizedShoppingCartItem>();
+
+            var attributesMap = (await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductVariantAttributeValues)
+                .Where(x => missingProductIds.Contains(x.ProductId) && x.IsRequired)
+                .ToListAsync())
+                .ToMultimap(x => x.ProductId, x => x);
+
+            foreach (var product in missingProducts)
+            {
+                // Get preselected values of required attributes.
+                var attributeSelection = new ProductVariantAttributeSelection(null);
+
+                if (attributesMap.TryGetValues(product.Id, out var attributes))
+                {
+                    foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()).OrderBy(x => x.Id))
+                    {
+                        var attributeValues = attribute.ProductVariantAttributeValues.Where(x => x.IsPreSelected).ToArray();
+                        if (attributeValues.Length > 0)
+                        {
+                            attributeSelection.AddAttribute(attribute.Id, attributeValues.Select(x => (object)x.Id));
+                        }
+                    }
+                }
+
+                var item = new ShoppingCartItem
+                {
+                    CustomerEnteredPrice = ctx.CustomerEnteredPrice.Amount,
+                    RawAttributes = attributeSelection.AsJson(),
+                    ShoppingCartType = ctx.CartType,
+                    StoreId = ctx.StoreId.Value,
+                    Quantity = 1,
+                    Customer = ctx.Customer,
+                    Product = product,
+                    BundleItemId = ctx.BundleItem?.Id
+                };
+
+                newItems.Add(new OrganizedShoppingCartItem(item));
+            }
+
+            items.AddRange(newItems);
+
+            // Check whether required products are still missing.
+            if (await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, items, ctx.Warnings))
+            {
+                foreach (var item in newItems)
+                {
+                    await AddItemToCartAsync(new()
+                    {
+                        Item = item.Item,
+                        ChildItems = ctx.ChildItems,
+                        Customer = ctx.Customer
+                    });
+                }
+            }
         }
 
         private async Task LoadCartItemCollection(Customer customer, bool force = false)

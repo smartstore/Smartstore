@@ -151,17 +151,17 @@ namespace Smartstore.AmazonPay.Controllers
         {
             try
             {
-                var result = await ProcessCheckoutReview(amazonCheckoutSessionId);
-
-                if (result.Success)
+                var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+                var review = await ProcessCheckoutReview(cart, amazonCheckoutSessionId);
+                if (review.Success)
                 {
-                    var advance = await _checkoutWorkflow.AdvanceAsync();
-                    if (advance.Result != null)
+                    var result = await _checkoutWorkflow.AdvanceAsync(new(HttpContext, cart));
+                    if (result.ActionResult != null)
                     {
-                        return advance.Result;
+                        return result.ActionResult;
                     }
 
-                    var actionName = result.IsShippingMethodMissing
+                    var actionName = review.IsShippingMethodMissing
                         ? nameof(CheckoutController.ShippingMethod)
                         : nameof(CheckoutController.Confirm);
 
@@ -177,7 +177,7 @@ namespace Smartstore.AmazonPay.Controllers
             return RedirectToRoute("ShoppingCart");
         }
 
-        private async Task<CheckoutReviewResult> ProcessCheckoutReview(string checkoutSessionId)
+        private async Task<CheckoutReviewResult> ProcessCheckoutReview(ShoppingCart cart, string checkoutSessionId)
         {
             var result = new CheckoutReviewResult();
 
@@ -187,8 +187,6 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            var store = Services.StoreContext.CurrentStore;
-            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
             var isShippingRequired = cart.IsShippingRequired();
             var customer = cart.Customer;
 
@@ -209,7 +207,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
-            var client = HttpContext.GetAmazonPayApiClient(store.Id);
+            var client = HttpContext.GetAmazonPayApiClient(cart.StoreId);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
             if (session.BillingAddress == null)
@@ -295,11 +293,11 @@ namespace Smartstore.AmazonPay.Controllers
                 _checkoutStateAccessor.CheckoutState.PaymentSummary = string.Join(", ", session.PaymentPreferences.Select(x => x.PaymentDescriptor));
             }
 
-            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest)
+            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest)
                 || paymentRequest == null
                 || paymentRequest.OrderGuid == Guid.Empty)
             {
-                HttpContext.Session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
+                HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
             }
 
             return result;
@@ -327,7 +325,7 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
                 }
 
-                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
+                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var paymentRequest) || paymentRequest == null)
                 {
                     paymentRequest = new ProcessPaymentRequest();
                 }

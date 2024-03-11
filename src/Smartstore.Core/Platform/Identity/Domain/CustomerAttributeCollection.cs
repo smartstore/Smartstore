@@ -194,41 +194,47 @@ namespace Smartstore.Core.Identity
 
         #region Checkout
 
-        public int DefaultBillingAddressId
+        public int? DefaultBillingAddressId
         {
-            get => Get<int>(SystemCustomerAttributeNames.DefaultBillingAddressId, CurrentStoreId);
+            get => Get<int?>(SystemCustomerAttributeNames.DefaultBillingAddressId, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.DefaultBillingAddressId, value, CurrentStoreId);
         }
 
-        public int DefaultShippingAddressId
+        public int? DefaultShippingAddressId
         {
-            get => Get<int>(SystemCustomerAttributeNames.DefaultShippingAddressId, CurrentStoreId);
+            get => Get<int?>(SystemCustomerAttributeNames.DefaultShippingAddressId, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.DefaultShippingAddressId, value, CurrentStoreId);
         }
 
-        public ShippingOption DefaultShippingOption
+        public ShippingOption PreferredShippingOption
         {
             get
             {
-                var rawOption = Get<string>(SystemCustomerAttributeNames.DefaultShippingOption, CurrentStoreId);
-                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : new();
+                var rawOption = Get<string>(SystemCustomerAttributeNames.PreferredShippingOption, CurrentStoreId);
+                return rawOption.HasValue() ? JsonConvert.DeserializeObject<ShippingOption>(rawOption) : null;
             }
             set
             {
-                var rawOption = JsonConvert.SerializeObject(new ShippingOption
-                {
-                    ShippingMethodId = value?.ShippingMethodId ?? 0,
-                    ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
-                });
+                string rawOption = null;
+                var methodId = value?.ShippingMethodId ?? 0;
 
-                Set(SystemCustomerAttributeNames.DefaultShippingOption, rawOption, CurrentStoreId);
+                if (methodId != 0)
+                {
+                    rawOption = JsonConvert.SerializeObject(new ShippingOption
+                    {
+                        ShippingMethodId = methodId,
+                        ShippingRateComputationMethodSystemName = value?.ShippingRateComputationMethodSystemName
+                    });
+                }
+
+                Set(SystemCustomerAttributeNames.PreferredShippingOption, rawOption, CurrentStoreId);
             }
         }
 
-        public string DefaultPaymentMethod
+        public string PreferredPaymentMethod
         {
-            get => Get<string>(SystemCustomerAttributeNames.DefaultPaymentMethod, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.DefaultPaymentMethod, value, CurrentStoreId);
+            get => Get<string>(SystemCustomerAttributeNames.PreferrePaymentMethod, CurrentStoreId);
+            set => Set(SystemCustomerAttributeNames.PreferrePaymentMethod, value, CurrentStoreId);
         }
 
         public bool UseRewardPointsDuringCheckout

@@ -441,17 +441,23 @@ namespace Smartstore.Web.Controllers
         public async Task GetBreadcrumbAsync(IBreadcrumb breadcrumb, ActionContext context, Product product = null)
         {
             var menu = await _menuService.GetMenuAsync("Main");
-            var currentNode = await menu.ResolveCurrentNodeAsync(context);
-
-            if (currentNode != null)
+            if (menu == null)
             {
-                currentNode.Trail.Where(x => !x.IsRoot).Each(x => breadcrumb.Track(x.Value));
+                return;
             }
 
+            var currentNode = await menu.ResolveCurrentNodeAsync(context);
+
+            currentNode?.Trail.Where(x => !x.IsRoot).Each(x => breadcrumb.Track(x.Value));
+
             // Add trail of parent product if product has no category assigned.
-            if (product != null && !(breadcrumb.Trail?.Any() ?? false))
+            if (product != null && !(breadcrumb.Trail?.Any() ?? false) && product.ParentGroupedProductId != 0)
             {
-                var parentProduct = await _db.Products.FindByIdAsync(product.ParentGroupedProductId, false);
+                var parentProduct = await _db.Products
+                    .AsNoTracking()
+                    .SelectSummary()
+                    .FirstOrDefaultAsync(x => x.Id == product.ParentGroupedProductId);
+
                 if (parentProduct != null)
                 {
                     var routeData = new RouteData();

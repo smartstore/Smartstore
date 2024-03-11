@@ -295,20 +295,20 @@
     </div>
     <div sm-if="shippingMethods.Count > 0" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="DefaultShippingMethodId" />
+            <smart-label asp-for="PreferredShippingMethodId" />
         </div>
         <div class="adminData">
-            <select asp-for="DefaultShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
-            <span asp-validation-for="DefaultShippingMethodId"></span>
+            <select asp-for="PreferredShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="PreferredShippingMethodId"></span>
         </div>
     </div>
     <div sm-if="paymentMethods.Count > 0" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="DefaultPaymentMethod" />
+            <smart-label asp-for="PreferredPaymentMethod" />
         </div>
         <div class="adminData">
-            <select asp-for="DefaultPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
-            <span asp-validation-for="DefaultPaymentMethod"></span>
+            <select asp-for="PreferredPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="PreferredPaymentMethod"></span>
         </div>
     </div>
     <div sm-if="Model.AffiliateId != 0" class="adminRow">

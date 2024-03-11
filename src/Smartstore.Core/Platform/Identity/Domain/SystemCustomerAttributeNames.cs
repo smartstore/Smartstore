@@ -32,8 +32,8 @@
         // Checkout
         public static string DefaultBillingAddressId => "DefaultBillingAddressId";
         public static string DefaultShippingAddressId => "DefaultShippingAddressId";
-        public static string DefaultShippingOption => "DefaultShippingOption";
-        public static string DefaultPaymentMethod => "DefaultPaymentMethod";
+        public static string PreferredShippingOption => "PreferredShippingOption";
+        public static string PreferrePaymentMethod => "PreferredPaymentMethod";
 
         public static string UseRewardPointsDuringCheckout => "UseRewardPointsDuringCheckout";
         public static string UseCreditBalanceDuringCheckout => "UseCreditBalanceDuringCheckout";

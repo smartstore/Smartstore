@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -17,16 +20,22 @@ namespace Smartstore.OfflinePayment
     {
         private readonly IValidator<ManualPaymentInfoModel> _validator;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly IEncryptor _encryptor;
 
         public ManualProvider(
             IStoreContext storeContext,
             ISettingFactory settingFactory,
             IValidator<ManualPaymentInfoModel> validator,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ICheckoutStateAccessor checkoutStateAccessor,
+            IEncryptor encryptor)
             : base(storeContext, settingFactory)
         {
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
+            _checkoutStateAccessor = checkoutStateAccessor;
+            _encryptor = encryptor;
         }
 
         internal static Dictionary<string, string> GetCreditCardBrands(Localizer T)
@@ -63,7 +72,7 @@ namespace Smartstore.OfflinePayment
         {
             var result = string.Empty;
 
-            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var pr) && pr != null)
             {
                 var brandName = GetCreditCardBrands(T).Get(pr.CreditCardType.EmptyNull());
 
@@ -99,6 +108,35 @@ namespace Smartstore.OfflinePayment
             };
 
             return Task.FromResult(paymentInfo);
+        }
+
+        public override Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart, Order lastOrder)
+        {
+            if (!lastOrder.AllowStoringCreditCardNumber)
+            {
+                return null;
+            }
+
+            var request = new ProcessPaymentRequest
+            {
+                CreditCardType = _encryptor.DecryptText(lastOrder.CardType),
+                CreditCardName = _encryptor.DecryptText(lastOrder.CardName),
+                CreditCardNumber = _encryptor.DecryptText(lastOrder.CardNumber),
+                CreditCardExpireMonth = _encryptor.DecryptText(lastOrder.CardExpirationMonth).ToInt(),
+                CreditCardExpireYear = _encryptor.DecryptText(lastOrder.CardExpirationYear).ToInt(),
+                CreditCardCvv2 = _encryptor.DecryptText(lastOrder.CardCvv2)
+            };
+
+            // Required when navigating back to payment selection.
+            var state = _checkoutStateAccessor.CheckoutState;
+            state.PaymentData["CreditCardType"] = request.CreditCardType;
+            state.PaymentData["CardholderName"] = request.CreditCardName;
+            state.PaymentData["CardNumber"] = request.CreditCardNumber;
+            state.PaymentData["ExpireMonth"] = request.CreditCardStartMonth.ToStringInvariant();
+            state.PaymentData["ExpireYear"] = request.CreditCardStartYear.ToStringInvariant();
+            state.PaymentData["CardCode"] = request.CreditCardCvv2;
+
+            return Task.FromResult(request);
         }
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)

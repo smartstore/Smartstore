@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using Humanizer;
 
 namespace Smartstore
 {
@@ -212,6 +213,32 @@ namespace Smartstore
         {
             return value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
         }
-    }
 
+        /// <inheritdoc cref="DateHumanizeExtensions.Humanize(DateTime, bool?, DateTime?, CultureInfo)"/>
+        public static string ToHumanizedString(this DateTime value, bool? utcDate = null, DateTime? dateToCompareAgainst = null)
+        {
+            try
+            {
+                return value.Humanize(utcDate, dateToCompareAgainst);
+            }
+            catch (ArgumentException)
+            {
+                // See https://github.com/smartstore/Smartstore/issues/1041
+                return value.Humanize(utcDate, dateToCompareAgainst, CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <inheritdoc cref="DateHumanizeExtensions.Humanize(DateTime?, bool?, DateTime?, CultureInfo)"/>
+        public static string ToHumanizedString(this DateTime? value, bool? utcDate = null, DateTime? dateToCompareAgainst = null)
+        {
+            try
+            {
+                return value.Humanize(utcDate, dateToCompareAgainst);
+            }
+            catch (ArgumentException)
+            {
+                return value.Humanize(utcDate, dateToCompareAgainst, CultureInfo.InvariantCulture);
+            }
+        }
+    }
 }

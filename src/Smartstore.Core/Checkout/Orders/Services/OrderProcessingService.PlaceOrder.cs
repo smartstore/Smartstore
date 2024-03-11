@@ -21,7 +21,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(paymentRequest);
 
-            extraData ??= new();
+            extraData ??= [];
 
             if (paymentRequest.OrderGuid == Guid.Empty)
             {
@@ -137,7 +137,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, paymentRequest.StoreId);
 
-                if (paymentRequest.ShoppingCartItemIds.Any())
+                if (paymentRequest.ShoppingCartItemIds.Count > 0)
                 {
                     cart = new ShoppingCart(cart.Customer, cart.StoreId, cart.Items.Where(x => paymentRequest.ShoppingCartItemIds.Contains(x.Item.Id)))
                     {
@@ -152,7 +152,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
-                if (warnings.Any())
+                if (warnings.Count > 0)
                 {
                     return (warnings, cart);
                 }
@@ -194,7 +194,7 @@ namespace Smartstore.Core.Checkout.Orders
                     warnings.Add(T("Checkout.MaxOrderSubtotalAmount", convertedMax.ToString(true)));
                 }
 
-                if (warnings.Any())
+                if (warnings.Count > 0)
                 {
                     return (warnings, cart);
                 }
@@ -289,17 +289,15 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Payment.
-            if (!warnings.Any() && !skipPaymentWorkflow)
+            if (warnings.Count == 0 && !skipPaymentWorkflow)
             {
-                var isPaymentMethodActive = await _paymentService.IsPaymentProviderActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
-                if (!isPaymentMethodActive)
+                if (paymentMethodSystemName.IsEmpty() || !await _paymentService.IsPaymentProviderActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId))
                 {
                     warnings.Add(T("Payment.MethodNotAvailable"));
                 }
             }
 
-            // Recurring or standard shopping cart?
-            if (!warnings.Any() && !paymentRequest.IsRecurringPayment)
+            if (warnings.Count == 0 && !paymentRequest.IsRecurringPayment)
             {
                 isRecurringCart = cart.ContainsRecurringItem();
                 if (isRecurringCart)
@@ -317,7 +315,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Validate recurring payment type.
-            if (!warnings.Any() && !skipPaymentWorkflow && !paymentRequest.IsMultiOrder)
+            if (warnings.Count == 0 && !skipPaymentWorkflow && !paymentRequest.IsMultiOrder)
             {
                 RecurringPaymentType? recurringPaymentType = isRecurringCart
                     ? await _paymentService.GetRecurringPaymentTypeAsync(paymentRequest.PaymentMethodSystemName)

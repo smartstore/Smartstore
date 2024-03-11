@@ -2,12 +2,12 @@
 
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="CreatedOnUtc" />
+<input type="hidden" asp-for="CompanyEnabled" />
 <input type="hidden" asp-for="TitleEnabled" />
 <input type="hidden" asp-for="FirstNameEnabled" />
 <input type="hidden" asp-for="LastNameEnabled" />
 <input type="hidden" asp-for="EmailEnabled" />
 <input type="hidden" asp-for="ValidateEmailAddress" />
-<input type="hidden" asp-for="CompanyEnabled" />
 <input type="hidden" asp-for="CompanyRequired" />
 <input type="hidden" asp-for="CountryEnabled" />
 <input type="hidden" asp-for="StateProvinceEnabled" />
@@ -26,6 +26,15 @@
 <input type="hidden" asp-for="CountryName" />
 
 <div class="adminContent">
+    <div sm-if="Model.CompanyEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Company" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Company" />
+            <span asp-validation-for="Company"></span>
+        </div>
+    </div>
     <div sm-if="Model.TitleEnabled" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Title" />
@@ -69,15 +78,6 @@
         <div class="adminData">
             <input asp-for="EmailMatch" />
             <span asp-validation-for="EmailMatch"></span>
-        </div>
-    </div>
-    <div sm-if="Model.CompanyEnabled" class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Company" />
-        </div>
-        <div class="adminData">
-            <input asp-for="Company" />
-            <span asp-validation-for="Company"></span>
         </div>
     </div>
     <div sm-if="Model.CountryEnabled" class="adminRow">

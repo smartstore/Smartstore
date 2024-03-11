@@ -150,11 +150,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public string DirectDebitBic { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whetger the shipping method is set.
-        /// </summary>
-        public bool IsShippingMethodSet { get; set; }
-
         #endregion
 
         #region Recurring payments

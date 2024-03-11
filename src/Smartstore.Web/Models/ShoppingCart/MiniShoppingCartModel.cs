@@ -8,7 +8,7 @@ namespace Smartstore.Web.Models.Cart
 {
     public partial class MiniShoppingCartModel : ModelBase
     {
-        public List<ShoppingCartItemModel> Items { get; set; } = new();
+        public List<ShoppingCartItemModel> Items { get; set; } = [];
         public int TotalProducts { get; set; }
         public Money SubTotal { get; set; }
         public bool DisplayCheckoutButton { get; set; }
@@ -24,41 +24,34 @@ namespace Smartstore.Web.Models.Cart
             public int ProductId { get; set; }
 
             public LocalizedValue<string> ProductName { get; set; }
-
             public LocalizedValue<string> ShortDesc { get; set; }
 
             public string ProductSeName { get; set; }
-
             public string ProductUrl { get; set; }
 
             public int EnteredQuantity { get; set; }
+            public int? MaxInStock { get; set; }
 
             public LocalizedValue<string> QuantityUnitName { get; set; }
             public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; } = new();
+            public List<SelectListItem> AllowedQuantities { get; set; } = [];
 
             public int MinOrderAmount { get; set; }
-
             public int MaxOrderAmount { get; set; }
 
             public int QuantityStep { get; set; }
-
-            public int? MaxInStock { get; set; }
-
             public QuantityControlType QuantityControlType { get; set; }
 
             public Money UnitPrice { get; set; }
-
             public string BasePriceInfo { get; set; }
 
             public string AttributeInfo { get; set; }
 
             public ImageModel Image { get; set; } = new();
 
-            public List<ShoppingCartItemBundleItem> BundleItems { get; set; } = new();
+            public List<ShoppingCartItemBundleItem> BundleItems { get; set; } = [];
 
             public DateTime CreatedOnUtc { get; set; }
-
         }
 
         public partial class ShoppingCartItemBundleItem : ModelBase

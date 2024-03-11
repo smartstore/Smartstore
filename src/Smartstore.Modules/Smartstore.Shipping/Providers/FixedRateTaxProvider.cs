@@ -17,11 +17,9 @@ namespace Smartstore.Shipping
         {
             _shippingService = shippingService;
             _settingService = settingService;
-
-            T = NullLocalizer.Instance;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         private decimal GetRate(int shippingMethodId)
         {
@@ -35,11 +33,11 @@ namespace Smartstore.Shipping
 
         public async Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request)
         {
-            Guard.NotNull(request, nameof(request));
-
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
+            Guard.NotNull(request);
 
             var rates = new List<decimal>();
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
+
             foreach (var shippingMethod in shippingMethods)
             {
                 var rate = GetRate(shippingMethod.Id);
@@ -60,17 +58,17 @@ namespace Smartstore.Shipping
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             var response = new ShippingOptionResponse();
 
-            if (request.Items == null || request.Items.Count == 0)
+            if (request.Items.IsNullOrEmpty())
             {
                 response.Errors.Add(T("Admin.System.Warnings.NoShipmentItems"));
                 return response;
             }
 
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
             foreach (var shippingMethod in shippingMethods)
             {
                 var shippingOption = new ShippingOption

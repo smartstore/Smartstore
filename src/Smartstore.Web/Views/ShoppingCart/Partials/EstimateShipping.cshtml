@@ -9,44 +9,50 @@
 		return;
 	}
 
-	var isExpanded = Model.ShippingOptions.Any();
+	var isExpanded = Model.ShippingOptions.Count > 0 || Model.Warnings.Count > 0;
 }
 
 <div class="cart-action cart-action-shipping">
-	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-shipping-body" aria-controls="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
+	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse"
+        data-target="#cart-action-shipping-body" 
+        aria-controls="cart-action-shipping-body" 
+        aria-expanded="@isExpanded.ToString().ToLower()">
 		@T("ShoppingCart.EstimateShipping")
 	</h5>
 
     <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
-		@if (Model.Warnings.Any())
-		{
-			<div class="alert alert-danger">
-				@foreach(var warning in Model.Warnings)
-				{
-					<p>@warning</p>
-				}
-			</div>
-        }
-        else if (Model.ShippingOptions.Count == 0)
+        @if (isExpanded)
         {
-			<div class="alert alert-info">@T("ShoppingCart.EstimateShipping.Tooltip")</div>
-		}
+            <div class="alert @(Model.Warnings.Count > 0 ? "alert-danger" : "alert-success")">
+                @foreach (var warning in Model.Warnings)
+                {
+                    <p>@warning</p>
+                }
+                @foreach (var shippingOption in Model.ShippingOptions)
+                {
+                    <div class="shipping-option-item mb-1">
+                        <div class="option-name font-weight-medium">
+                            <span class="bidi-embed">@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))</span>
+                            <span class="bidi-embed">(@shippingOption.Price)</span>
+                        </div>
+                        <div class="option-description">
+                            @Html.Raw(shippingOption.Description)
+                        </div>
+                    </div>
+                }
 
-		<div sm-if="isExpanded" class="alert alert-success">
-			@foreach (var shippingOption in Model.ShippingOptions)
-			{
-				<div class="shipping-option-item mb-1">
-					<div class="option-name font-weight-medium">
-						@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))
-						(@shippingOption.Price)
-					</div>
-					<div class="option-description">
-						@Html.Raw(shippingOption.Description)
-					</div>
-				</div>
-			}
-		</div>
-		
+                <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted mt-1">
+                    @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                @T("ShoppingCart.EstimateShipping.Tooltip")
+            </div>
+        }
+
         <div class="shipping-options">
             <div class="form-group">
                 <label asp-for="CountryId"></label>
@@ -63,9 +69,9 @@
                 <span asp-validation-for="StateProvinceId"></span>
             </div>
             <div class="form-group">
-				<label asp-for="ZipPostalCode"></label>
-				<input type="text" asp-for="ZipPostalCode" class="zip-input" />
-				<span asp-validation-for="ZipPostalCode"></span>
+                <label asp-for="ZipPostalCode"></label>
+                <input type="text" asp-for="ZipPostalCode" class="zip-input" />
+                <span asp-validation-for="ZipPostalCode"></span>
             </div>
             <div class="form-group">
                 <a href="#"
@@ -75,10 +81,6 @@
                     <span>@T("ShoppingCart.RewardPoints.Button")</span>
                 </a>
             </div>
-        </div>
-
-        <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted mt-1">
-            @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
         </div>
     </div>
 </div>

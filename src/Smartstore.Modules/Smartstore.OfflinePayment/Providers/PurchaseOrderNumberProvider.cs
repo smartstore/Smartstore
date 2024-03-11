@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -29,6 +30,11 @@ namespace Smartstore.OfflinePayment
             _httpContextAccessor = httpContextAccessor;
         }
 
+        // INFO: "true" because purchase order number is unique. It makes no sense to reuse them.
+        public override bool RequiresPaymentSelection => true;
+
+        public override bool RequiresInteraction => true;
+
         protected override Type GetViewComponentType()
             => typeof(PurchaseOrderNumberViewComponent);
 
@@ -39,7 +45,7 @@ namespace Smartstore.OfflinePayment
         {
             var result = string.Empty;
 
-            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var pr) && pr != null)
+            if (_httpContextAccessor.HttpContext.Session.TryGetObject<ProcessPaymentRequest>(CheckoutState.OrderPaymentInfoName, out var pr) && pr != null)
             {
                 result = pr.PurchaseOrderNumber.EmptyNull();
             }
@@ -71,10 +77,7 @@ namespace Smartstore.OfflinePayment
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             var settings = await _settingFactory.LoadSettingsAsync<PurchaseOrderNumberPaymentSettings>(processPaymentRequest.StoreId);
-            var result = new ProcessPaymentResult
-            {
-                AllowStoringCreditCardNumber = true
-            };
+            var result = new ProcessPaymentResult();
 
             switch (settings.TransactMode)
             {
@@ -93,7 +96,5 @@ namespace Smartstore.OfflinePayment
 
             return result;
         }
-
-        public override bool RequiresInteraction => true;
     }
 }

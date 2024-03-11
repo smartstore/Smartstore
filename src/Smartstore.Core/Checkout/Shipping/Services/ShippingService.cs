@@ -145,19 +145,22 @@ namespace Smartstore.Core.Checkout.Shipping
             return cartWeight;
         }
 
-        public virtual ShippingOptionRequest CreateShippingOptionRequest(ShoppingCart cart, Address shippingAddress, int storeId)
+        public virtual ShippingOptionRequest CreateShippingOptionRequest(
+            ShoppingCart cart, 
+            Address shippingAddress, 
+            int storeId,
+            bool matchRules = true)
         {
-            var shippingItems = cart.Items.Where(x => x.Item.IsShippingEnabled);
-
-            return new ShippingOptionRequest
+            return new()
             {
+                MatchRules = matchRules,
                 StoreId = storeId,
                 Customer = cart.Customer,
                 ShippingAddress = shippingAddress,
                 CountryFrom = null,
                 StateProvinceFrom = null,
                 ZipPostalCodeFrom = string.Empty,
-                Items = new List<OrganizedShoppingCartItem>(shippingItems)
+                Items = new List<OrganizedShoppingCartItem>(cart.Items.Where(x => x.Item.IsShippingEnabled))
             };
         }
 

@@ -32,7 +32,9 @@
                 <div class="card-body">
                     <h4 class="card-title h5">
                         <a href="@Url.Action("AddressEdit", new { id = address.Id })" title="@T("Common.Edit")" rel="nofollow">
-                            @address.GetFormattedName()
+                            <span sm-if="address.FirstName.IsEmpty() && address.LastName.IsEmpty()">@address.Company</span>
+                            <span class="bidi-embed">@address.FirstName</span>
+                            <span class="bidi-embed">@address.LastName</span>
                         </a>
                     </h4>
                     <div class="mb-2">

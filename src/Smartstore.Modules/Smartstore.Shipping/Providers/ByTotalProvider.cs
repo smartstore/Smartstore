@@ -36,11 +36,9 @@ namespace Smartstore.Shipping
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _shippingByTotalSettings = shippingByTotalSettings;
-
-            T = NullLocalizer.Instance;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         /// <summary>
         /// Gets the rate for the shipping method
@@ -151,7 +149,7 @@ namespace Smartstore.Shipping
 
             var response = new ShippingOptionResponse();
 
-            if (request.Items == null || request.Items.Count == 0)
+            if (request.Items.IsNullOrEmpty())
             {
                 response.Errors.Add(T("Admin.System.Warnings.NoShipmentItems"));
                 return response;
@@ -196,7 +194,7 @@ namespace Smartstore.Shipping
             var sqThreshold = _shippingByTotalSettings.SmallQuantityThreshold;
             var sqSurcharge = _shippingByTotalSettings.SmallQuantitySurcharge;
 
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, true);
+            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
             foreach (var shippingMethod in shippingMethods)
             {
                 decimal? rate = await GetRateAsync(subTotal, shippingMethod.Id, request.StoreId, countryId, stateProvinceId, zip);

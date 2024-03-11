@@ -119,11 +119,11 @@ namespace Smartstore.Admin.Models.Customers
         public string VatNumberStatusNote { get; set; }
         public bool DisplayVatNumber { get; set; }
 
-        [LocalizedDisplay("Account.Fields.DefaultShippingMethod")]
-        public int? DefaultShippingMethodId { get; set; }
+        [LocalizedDisplay("Account.Fields.PreferredShippingMethod")]
+        public int? PreferredShippingMethodId { get; set; }
 
-        [LocalizedDisplay("Account.Fields.DefaultPaymentMethod")]
-        public string DefaultPaymentMethod { get; set; }
+        [LocalizedDisplay("Account.Fields.PreferredPaymentMethod")]
+        public string PreferredPaymentMethod { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }

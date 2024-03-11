@@ -83,7 +83,7 @@ namespace Smartstore
                 return false;
             }
 
-            return area.EqualsNoCase(values.GetAreaName())
+            return area.NullEmpty().EqualsNoCase(values.GetAreaName().NullEmpty())
                 && controller.EqualsNoCase(values.GetControllerName())
                 && action.EqualsNoCase(values.GetActionName());
         }

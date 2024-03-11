@@ -114,7 +114,7 @@ namespace Smartstore.Web.Models.Cart
             public string ShippingMethod { get; set; }
             public bool DisplayShippingMethodChangeOption { get; set; }
 
-            public string PaymentMethod { get; set; }
+            public string PaymentMethod { get; set; } = string.Empty;
             public string PaymentSummary { get; set; }
             public bool IsPaymentSelectionSkipped { get; set; }
             public bool IsPaymentRequired { get; set; }

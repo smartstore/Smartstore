@@ -55,8 +55,9 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <param name="cart">Shopping cart.</param>
         /// <param name="shippingAddress">Shipping address.</param>
         /// <param name="storeId">Store identifier.</param>
+        /// <param name="matchRules">A value indicating whether shipping methods must match cart rules.</param>
         /// <returns><see cref="ShippingOptionRequest"/>.</returns>
-        ShippingOptionRequest CreateShippingOptionRequest(ShoppingCart cart, Address shippingAddress, int storeId);
+        ShippingOptionRequest CreateShippingOptionRequest(ShoppingCart cart, Address shippingAddress, int storeId, bool matchRules = true);
 
         /// <summary>
         /// Gets shipping options for a shipping option request.
