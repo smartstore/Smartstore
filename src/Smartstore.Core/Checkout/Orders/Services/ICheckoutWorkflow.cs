@@ -1,7 +1,5 @@
 ﻿#nullable enable
 
-using Microsoft.AspNetCore.Mvc;
-
 namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
@@ -52,17 +50,5 @@ namespace Smartstore.Core.Checkout.Orders
         /// Otherwise result to redirect to an error related checkout page like payment method selection page.
         /// </returns>
         Task<CheckoutWorkflowResult> CompleteAsync(CheckoutContext context);
-    }
-
-    public partial class CheckoutWorkflowResult(IActionResult? result, CheckoutWorkflowError[]? errors = null)
-    {
-        public IActionResult? ActionResult { get; } = result;
-        public CheckoutWorkflowError[] Errors { get; } = errors ?? [];
-    }
-
-    public class CheckoutWorkflowError(string propertyName, string errorMessage)
-    {
-        public string PropertyName { get; } = propertyName.EmptyNull();
-        public string ErrorMessage { get; } = Guard.NotNull<string>(errorMessage);
     }
 }

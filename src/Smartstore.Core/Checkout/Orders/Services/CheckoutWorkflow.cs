@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IPaymentService _paymentService;
-        private readonly ICheckoutHandler[] _handlers;
+        private readonly ICheckoutFactory _checkoutFactory;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders
             IShoppingCartValidator shoppingCartValidator,
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
-            IEnumerable<ICheckoutHandler> handlers,
+            ICheckoutFactory checkoutFactory,
             ICheckoutStateAccessor checkoutStateAccessor,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings)
@@ -56,11 +56,10 @@ namespace Smartstore.Core.Checkout.Orders
             _shoppingCartValidator = shoppingCartValidator;
             _orderProcessingService = orderProcessingService;
             _paymentService = paymentService;
+            _checkoutFactory = checkoutFactory;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
-
-            _handlers = handlers.OrderBy(x => x.Order).ToArray();
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -136,19 +135,19 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Get and process the current handler, based on the request's route values.
-            var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
-            if (handler != null)
+            var step = _checkoutFactory.GetCheckoutStep(context);
+            if (step != null)
             {
-                var result = await handler.ProcessAsync(context);
+                var result = await step.ProcessAsync(context);
                 if (result.SkipPage)
                 {
                     // Current checkout page should be skipped. For example there is only one shipping method
                     // and the customer has nothing to select on the associated page.
-                    return new(result.ActionResult ?? Adjacent(handler, context));
+                    return new(result.ActionResult ?? Adjacent(step, context));
                 }
 
                 // No redirect (default). Opening the current checkout page is fine.
-                return new(null, result.Errors);
+                return new(null, null, result.Errors);
             }
 
             return new(null);
@@ -164,16 +163,22 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
+            var steps = _checkoutFactory.GetCheckoutSteps();
+            if (steps.Length == 0)
+            {
+                throw new InvalidOperationException($"No checkout handlers of type {nameof(ICheckoutHandler)} found.");
+            }
+
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                // Process all handlers in sequence. Open the checkout page associated with the first handler that reports "unsuccessful".
-                foreach (var handler in _handlers)
+                // Process all steps in sequence. Open the checkout page associated with the first "unsuccessful" step.
+                foreach (var step in steps)
                 {
-                    var result = await handler.ProcessAsync(context);
+                    var result = await step.ProcessAsync(context);
                     if (!result.Success)
                     {
-                        // Redirect to the checkout page associated with the "unsuccessful" handler.
-                        return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
+                        // Redirect to the checkout page associated with the "unsuccessful" step.
+                        return new(result.ActionResult ?? step.Handler.GetActionResult(context), null, result.Errors);
                     }
                 }
 
@@ -184,31 +189,25 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (context.IsCurrentRoute(null, "Index"))
                 {
-                    return new(_handlers[0].GetActionResult(context));
+                    return new(steps[0].Handler.GetActionResult(context));
                 }
 
                 // Get current handler, based on the request's route values.
-                var handler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
-                if (handler != null)
+                var step = _checkoutFactory.GetCheckoutStep(context);
+                if (step != null)
                 {
-                    var result = await handler.ProcessAsync(context);
+                    var result = await step.ProcessAsync(context);
                     if (!result.Success)
                     {
-                        // Redirect to the checkout page associated with the "unsuccessful" handler.
-                        return new(result.ActionResult ?? handler.GetActionResult(context), result.Errors);
+                        // Redirect to the checkout page associated with the "unsuccessful" step.
+                        return new(result.ActionResult ?? step.Handler.GetActionResult(context), null, result.Errors);
                     }
 
-                    // Current handler is the last one -> redirect ro confirm.
-                    if (handler.Equals(_handlers[^1]))
+                    // Redirect to the checkout page associated with the next step.
+                    var nextStep = _checkoutFactory.GetNextCheckoutStep(step, true);
+                    if (nextStep != null)
                     {
-                        return new(RedirectToCheckout("Confirm"));
-                    }
-
-                    // Redirect to the checkout page associated with the next handler.
-                    var nextHandler = GetNextHandler(handler, true);
-                    if (nextHandler != null)
-                    {
-                        return new(nextHandler.GetActionResult(context));
+                        return new(nextStep.Handler.GetActionResult(context));
                     }
                 }
 
@@ -272,7 +271,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 _logger.Error(ex);
 
-                return new(null, [new(string.Empty, ex.Message)]);
+                return new(null, null, [new(string.Empty, ex.Message)]);
             }
 
             if (placeOrderResult == null || !placeOrderResult.Success)
@@ -282,7 +281,7 @@ namespace Smartstore.Core.Checkout.Orders
                     ?.Select(x => new CheckoutWorkflowError(string.Empty, HtmlUtility.ConvertPlainTextToHtml(x)))
                     ?.ToArray();
 
-                return new(null, errors);
+                return new(null, null, errors);
             }
 
             var postPaymentRequest = new PostProcessPaymentRequest
@@ -339,11 +338,6 @@ namespace Smartstore.Core.Checkout.Orders
                 throw new InvalidOperationException("The checkout workflow is only applicable in the context of a HTTP request.");
             }
 
-            if (_handlers.Length == 0)
-            {
-                throw new InvalidOperationException("No checkout handlers found.");
-            }
-
             if (!_orderSettings.AnonymousCheckoutAllowed && !context.Cart.Customer.IsRegistered())
             {
                 return new ChallengeResult();
@@ -363,7 +357,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// In this case, based on the referrer, the customer must be redirected to the next or previous page,
         /// depending on the direction from which the customer accessed the current page.
         /// </summary>
-        private IActionResult Adjacent(ICheckoutHandler handler, CheckoutContext context)
+        private RedirectToActionResult Adjacent(CheckoutStep step, CheckoutContext context)
         {
             // Get route values of the URL referrer.
             var referrer = _webHelper.GetUrlReferrer();
@@ -398,38 +392,15 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     // Referrer is any step in checkout -> return the next handler if the referrer's order number
                     // is less than that of the current handler. Otherwise return previous handler.
-                    var referrerHandler = _handlers.FirstOrDefault(x => x.IsHandlerFor(context));
-                    next = (referrerHandler?.Order ?? 0) < handler.Order;
+                    var referrerStep = _checkoutFactory.GetCheckoutStep(action, controller, routeValues.GetAreaName());
+                    next = (referrerStep?.Handler?.Metadata?.Order ?? 0) < step.Handler.Metadata.Order;
                 }
             }
 
-            var result = GetNextHandler(handler, next)?.GetActionResult(context);
+            var result = _checkoutFactory.GetNextCheckoutStep(step, next)?.Handler?.GetActionResult(context);
             result ??= next ? RedirectToCheckout("Confirm") : RedirectToCart();
 
             return result;
-        }
-
-        /// <summary>
-        /// Gets the next/previous checkout handler depending on <paramref name="handler"/>.
-        /// </summary>
-        /// <param name="handler">Current handler to get the next/previous checkout handler for.</param>
-        /// <param name="next"><c>true</c> to get the next, <c>false</c> to get the previous handler.</param>
-        private ICheckoutHandler GetNextHandler(ICheckoutHandler handler, bool next)
-        {
-            if (next)
-            {
-                return _handlers
-                    .Where(x => x.Order > handler.Order)
-                    .OrderBy(x => x.Order)
-                    .FirstOrDefault();
-            }
-            else
-            {
-                return _handlers
-                    .Where(x => x.Order < handler.Order)
-                    .OrderByDescending(x => x.Order)
-                    .FirstOrDefault();
-            }
         }
 
         private static RedirectToActionResult RedirectToCheckout(string action)

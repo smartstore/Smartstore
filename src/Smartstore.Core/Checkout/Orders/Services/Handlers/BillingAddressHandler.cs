@@ -4,10 +4,9 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class BillingAddressHandler : CheckoutHandlerBase
+    [CheckoutStep(10, "BillingAddress", "SelectBillingAddress")]
+    public class BillingAddressHandler : ICheckoutHandler
     {
-        private static readonly string[] _actionNames = ["BillingAddress", "SelectBillingAddress"];
-
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -22,14 +21,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string Action => "BillingAddress";
-
-        public override int Order => 10;
-
-        public override bool IsHandlerFor(CheckoutContext context)
-            => IsHandlerFor(_actionNames, context);
-
-        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
         {
             var customer = context.Cart.Customer;
             var ga = customer.GenericAttributes;

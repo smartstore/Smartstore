@@ -1,12 +1,9 @@
 ﻿namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class ConfirmHandler : CheckoutHandlerBase
+    [CheckoutStep(int.MaxValue, "Confirm")]
+    public class ConfirmHandler : ICheckoutHandler
     {
-        protected override string Action => "Confirm";
-
-        public override int Order => int.MaxValue;
-
-        public override Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
             => Task.FromResult(new CheckoutHandlerResult(true));
     }
 }

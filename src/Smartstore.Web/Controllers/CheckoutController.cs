@@ -60,7 +60,9 @@ namespace Smartstore.Web.Controllers
                 return result.ActionResult;
             }
 
-            return View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
+            var model = await _workContext.CurrentCustomer.Addresses.MapAsync(false);
+
+            return View(result.ViewPath, model);
         }
 
         [HttpPost]
@@ -140,7 +142,9 @@ namespace Smartstore.Web.Controllers
                 return result.ActionResult;
             }
 
-            return View(await _workContext.CurrentCustomer.Addresses.MapAsync(true));
+            var model = await _workContext.CurrentCustomer.Addresses.MapAsync(true);
+
+            return View(result.ViewPath, model);
         }
 
         [HttpPost]
@@ -164,7 +168,7 @@ namespace Smartstore.Web.Controllers
 
             result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
-            return View(model);
+            return View(result.ViewPath, model);
         }
 
         [HttpPost, ActionName("ShippingMethod")]
@@ -189,7 +193,7 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutPaymentMethodModel>(cart);
 
-            return View(model);
+            return View(result.ViewPath, model);
         }
 
         [HttpPost, ActionName("PaymentMethod")]
@@ -254,7 +258,7 @@ namespace Smartstore.Web.Controllers
 
             var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutConfirmModel>(context.Cart);
 
-            return View(model);
+            return View(result.ViewPath, model);
         }
 
         [HttpPost, ActionName("Confirm")]

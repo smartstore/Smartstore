@@ -5,8 +5,11 @@ using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class ShippingMethodHandler : CheckoutHandlerBase
+    [CheckoutStep(30, ActionName)]
+    public class ShippingMethodHandler : ICheckoutHandler
     {
+        const string ActionName = "ShippingMethod";
+
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -21,11 +24,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string Action => "ShippingMethod";
-
-        public override int Order => 30;
-
-        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
         {
             var cart = context.Cart;
             var customer = cart.Customer;
@@ -48,7 +47,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null
                 && context.Model is string shippingOption 
-                && context.IsCurrentRoute(HttpMethods.Post, Action))
+                && context.IsCurrentRoute(HttpMethods.Post, ActionName))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
@@ -136,7 +135,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             CheckoutWorkflowError[] errors = null;
             var response = await _shippingService.GetShippingOptionsAsync(context.Cart, context.Cart.Customer.ShippingAddress, providerSystemName, context.Cart.StoreId);
 
-            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, Action))
+            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, ActionName))
             {
                 errors = response.Errors
                     .Select(x => new CheckoutWorkflowError(string.Empty, x))
