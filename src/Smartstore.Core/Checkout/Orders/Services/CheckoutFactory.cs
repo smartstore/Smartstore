@@ -22,7 +22,7 @@
             return handlers;
         }
 
-        public virtual CheckoutStep GetCheckoutStep(string action, string controller, string area = null)
+        public virtual CheckoutStep GetCheckoutStep(string action, string controller = "Checkout", string area = null)
         {
             Guard.NotEmpty(action);
             Guard.NotEmpty(controller);
