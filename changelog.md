@@ -64,6 +64,7 @@
 - #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
+- #1041 Fixed `ArgumentException` "The resource object with key *DateHumanize_MultipleMonthsAgo* was not found (Parameter *resourceKey*)" in Czech language (probably also appears in others).
 - Fixed `NullReferenceException` calling search page without any search term.
 - Fixed `NullReferenceException` *typeFilter was null* when uploading a video.
 - Fixed `NullReferenceException` on product detail page if the main menu is not published.

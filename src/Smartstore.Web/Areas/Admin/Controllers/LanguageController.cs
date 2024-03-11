@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Controllers
                 if (lastImportInfos.TryGetValue(x.Id, out var info))
                 {
                     m.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
-                    m.LastResourcesImportOnString = m.LastResourcesImportOn.Humanize(false);
+                    m.LastResourcesImportOnString = m.LastResourcesImportOn.ToHumanizedString(false);
                 }
 
                 if (x.Id == masterLanguageId)
@@ -879,7 +879,7 @@ namespace Smartstore.Admin.Controllers
                 if (lastImportInfos.TryGetValue(language.Id, out var info))
                 {
                     model.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
-                    model.LastResourcesImportOnString = model.LastResourcesImportOn.Humanize(false);
+                    model.LastResourcesImportOnString = model.LastResourcesImportOn.ToHumanizedString(false);
                 }
 
                 // Provide downloadable resources.
@@ -957,7 +957,7 @@ namespace Smartstore.Admin.Controllers
             model.TranslatedPercentage = resources.TranslatedPercentage;
             model.IsDownloadRunning = state != null && state.Id == resources.Id;
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(resources.UpdatedOn, DateTimeKind.Utc);
-            model.UpdatedOnString = model.UpdatedOn.Humanize(false);
+            model.UpdatedOnString = model.UpdatedOn.ToHumanizedString(false);
             model.FlagImageFileName = GetFlagFileName(resources.Language.Culture, Services.ApplicationContext);
 
             if (language != null && lastImportInfos.TryGetValue(language.Id, out LastResourcesImportInfo info))
@@ -970,7 +970,7 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 model.LastResourcesImportOn = Services.DateTimeHelper.ConvertToUserTime(info.ImportedOn, DateTimeKind.Utc);
-                model.LastResourcesImportOnString = model.LastResourcesImportOn.Humanize(false);
+                model.LastResourcesImportOnString = model.LastResourcesImportOn.ToHumanizedString(false);
             }
         }
 

@@ -437,7 +437,7 @@ namespace Smartstore.Core.Messaging
                     && order.OrderStatus >= OrderStatus.Complete
                     && order.CreatedOnUtc.AddDays(_orderSettings.MaxMessageOrderAgeInDays) < DateTime.UtcNow)
                 {
-                    var createdOnStr = _services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).Humanize(false);
+                    var createdOnStr = _services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToHumanizedString(false);
                     Logger.Info(T("Admin.MessageTemplate.OrderTooOldForMessageInfo", ctx.MessageTemplateName, order.Id, createdOnStr));
 
                     return false;

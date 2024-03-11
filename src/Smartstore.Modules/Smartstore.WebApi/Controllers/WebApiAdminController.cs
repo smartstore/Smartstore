@@ -177,7 +177,7 @@ namespace Smartstore.Web.Api.Controllers
                         if (cachedUser.LastRequest.HasValue)
                         {
                             user.LastRequestDate = Services.DateTimeHelper.ConvertToUserTime(cachedUser.LastRequest.Value, DateTimeKind.Utc);
-                            user.LastRequestDateString = user.LastRequestDate.Humanize(false);
+                            user.LastRequestDateString = user.LastRequestDate.ToHumanizedString(false);
                         }
                         else
                         {

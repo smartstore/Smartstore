@@ -29,13 +29,13 @@ namespace Smartstore.Admin.Models.Scheduling
             to.Error = to.Error.EmptyNull();
             to.StartedOn = _dateTimeHelper.ConvertToUserTime(from.StartedOnUtc, DateTimeKind.Utc);
             to.StartedOnString = to.StartedOn.ToString("g");
-            to.StartedOnPretty = to.StartedOn.Humanize(false);
+            to.StartedOnPretty = to.StartedOn.ToHumanizedString(false);
 
             if (from.FinishedOnUtc.HasValue)
             {
                 to.FinishedOn = _dateTimeHelper.ConvertToUserTime(from.FinishedOnUtc.Value, DateTimeKind.Utc);
                 to.FinishedOnString = to.FinishedOn.Value.ToString("g");
-                to.FinishedOnPretty = to.FinishedOn.Value.Humanize(false);
+                to.FinishedOnPretty = to.FinishedOn.Value.ToHumanizedString(false);
             }
 
             if (from.SucceededOnUtc.HasValue)
