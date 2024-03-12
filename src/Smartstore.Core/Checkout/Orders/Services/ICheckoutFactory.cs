@@ -2,10 +2,10 @@
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public static partial class CheckoutNames
+    public static partial class CheckoutTemplateNames
     {
-        public const string Standard = "standard";
-        public const string Terminal = "terminal";
+        public const string Standard = "Standard";
+        public const string Terminal = "Terminal";
     }
 
     public interface ICheckoutFactory

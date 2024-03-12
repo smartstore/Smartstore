@@ -1,25 +1,39 @@
-﻿namespace Smartstore.Core.Checkout.Orders
+﻿using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders.Handlers;
+
+namespace Smartstore.Core.Checkout.Orders
 {
     public class CheckoutFactory : ICheckoutFactory
     {
         private readonly IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> _handlers;
-        private readonly string _checkoutName;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly bool _isStandardCheckout;
 
-        public CheckoutFactory(IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> handlers)
+        public CheckoutFactory(
+            IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> handlers,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _handlers = handlers.OrderBy(x => x.Metadata.Order);
+            _shoppingCartSettings = shoppingCartSettings;
 
-            // TODO: (mg) get from setting.
-            _checkoutName = CheckoutNames.Standard;
+            _isStandardCheckout = shoppingCartSettings.CheckoutTemplate.EqualsNoCase(CheckoutTemplateNames.Standard);
         }
 
         public virtual CheckoutStep[] GetCheckoutSteps()
         {
-            var handlers = _handlers
-                .Select(x => new CheckoutStep(new(x)))
-                .ToArray();
+            if (_isStandardCheckout)
+            {
+                return _handlers.Select(Convert).ToArray();
+            }
+            
+            if (_shoppingCartSettings.CheckoutTemplate.EqualsNoCase(CheckoutTemplateNames.Terminal))
+            {
+                var confirmHandler = _handlers.FirstOrDefault(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler)));
 
-            return handlers;
+                return [Convert(confirmHandler)];
+            }
+
+            throw new NotSupportedException($"Unknown checkout template \"{_shoppingCartSettings.CheckoutTemplate.NaIfEmpty()}\".");
         }
 
         public virtual CheckoutStep GetCheckoutStep(string action, string controller = "Checkout", string area = null)
@@ -31,7 +45,7 @@
                 && x.Metadata.Controller.EqualsNoCase(controller)
                 && x.Metadata.Area.NullEmpty().EqualsNoCase(area.NullEmpty()));
 
-            return handler != null ? new(new(handler)) : null;
+            return Convert(handler);
         }
 
         public virtual CheckoutStep GetNextCheckoutStep(CheckoutStep step, bool next)
@@ -55,7 +69,19 @@
                     .FirstOrDefault();
             }
 
-            return handler != null ? new(new(handler)) : null;
+            return Convert(handler);
+        }
+
+        protected virtual CheckoutStep Convert(Lazy<ICheckoutHandler, CheckoutHandlerMetadata> handler)
+        {
+            if (handler == null)
+            {
+                return null;
+            }
+
+            var viewPath = _isStandardCheckout ? null : $"{_shoppingCartSettings.CheckoutTemplate}.{handler.Metadata.Actions[0]}";
+
+            return new(new(handler), viewPath);
         }
     }
 }

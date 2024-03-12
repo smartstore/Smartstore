@@ -1,0 +1,148 @@
+﻿@using Smartstore.Web.Models.Checkout
+@using Smartstore.Web.Models.Cart
+@using Smartstore.Core.Checkout.Cart
+
+@model CheckoutConfirmModel
+
+@{
+    Layout = "_Checkout";
+    Assets.AppendTitleParts(T("PageTitle.Checkout.Confirm"));
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.AddMetaRobots();
+
+    var store = CommonServices.StoreContext.CurrentStore;
+    var shoppingCartService = CommonServices.Resolve<IShoppingCartService>();
+    var cart = await shoppingCartService.GetCartAsync(WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, store.Id);
+
+    var model = await cart.MapAsync(
+        isEditable: false,
+        prepareEstimateShippingIfEnabled: false,
+        prepareAndDisplayOrderReviewData: false);
+
+    model.DisplayCommentBox = false;
+}
+
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Confirm }" />
+</widget>
+
+<div class="page checkout-confirm-page">
+    <div class="page-title">
+        <h1 class="h3">@T("Checkout.ConfirmYourOrder")</h1>
+    </div>
+    <div class="page-body checkout-data">
+        <form asp-action="Confirm" id="confirm-order-form" method="post">
+            <zone name="checkout_confirm_top" />
+
+            <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
+
+            <div id="confirm-warnings" class="confirm-order">
+                <div sm-if="Model.Warnings.Any()" class="alert alert-danger mb-3">
+                    <ul>
+                        @foreach (var warning in Model.Warnings)
+                        {
+                            <li>@Html.Raw(warning)</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </form>
+
+        <zone name="checkout_confirm_before_summary" />
+
+        <div class="order-summary-body mb-4">
+            @* Render the buy button into order_summary_actions zone in OrderSummary component *@
+            <div sm-target-zone="order_summary_actions" class="col-12 mt-3 cart-footer-actions">
+                <button class="btn btn-danger btn-lg btn-block btn-buy" onclick="return false;">
+                    <span>@T("Checkout.ConfirmButton")</span>
+                    <i class="fa fa-angle-right ml-3"></i>
+                </button>
+            </div>
+            @await Component.InvokeAsync("OrderSummary", new { model })
+        </div>
+
+        @* Back Button *@
+        <div class="cart-buttons col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 mb-2">
+            <a asp-route="ShoppingCart" class="btn btn-secondary btn-lg btn-block">
+                <i class="fa fa-angle-left mr-3"></i>
+                <span>@T("Common.Back")</span>
+            </a>
+        </div>
+
+        <zone name="checkout_confirm_bottom" />
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="confirm-method">
+    $(function () {
+        var buyButton = $(".btn-buy");
+
+        function setBuyButtonState(disable) {
+            buyButton.prop('disabled', disable);
+            buyButton.find('.fa')
+                .removeClass('fa-angle-right fa-spinner fa-spin')
+                .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+        }
+
+        function processBuyButtonClick(showThrobber) {
+            var submitOrderEvent = jQuery.Event('submitOrder');
+            submitOrderEvent.isOrderValid = true;
+            submitOrderEvent.isMobile = false;
+            submitOrderEvent.disableBuyButton = false;
+
+            $(document).trigger(submitOrderEvent);
+
+            if (true === submitOrderEvent.isOrderValid) {
+                try {
+                    setBuyButtonState(true);
+
+                    if (_.isTrue(showThrobber)) {
+                        $.throbber.show({ white: true, small: false, speed: 0, message: @T("Checkout.OrderCompletes").JsValue});
+                    }
+                }
+                catch (e) { }
+
+                $('#confirm-order-form').submit();
+            }
+            else if (true === submitOrderEvent.disableBuyButton) {
+                setBuyButtonState(true);
+            }
+        }
+
+        // Buy button has been clicked.
+        buyButton.on("click", function () {
+            processBuyButtonClick();
+        });
+
+        // Simulate buy button click.
+        $(document).on('clickBuyButton', function (e) {
+            processBuyButtonClick(e.showThrobber);
+        });
+
+        // Report error.
+        $(document).on('reportError', function (e) {
+            if (!_.isEmpty(e.message)) {
+                var str = '<div class="alert alert-danger mb-3"><ul>';
+                if (_.isArray(e.message)) {
+                    $.each(e.message, function (index, value) {
+                        str += '<li>' + value + '</li>';
+                    });
+                }
+                else {
+                    str += '<li>' + e.message + '</li>';
+                }
+                str += '</ul></div>';
+
+                var warnings = $('#confirm-warnings');
+                warnings.html(str);
+
+                try {
+                    setBuyButtonState(false);
+                    $.throbber.hide(true);
+                    $.scrollTo(warnings, 800, { offset: -20 });
+                }
+                catch (e) { }
+            }
+        });
+    });
+</script>

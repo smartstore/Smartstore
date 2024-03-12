@@ -224,6 +224,15 @@ namespace Smartstore.Core.Data.Migrations
                 "Zahlartauswahl nur anzeigen, wenn mehr als eine Zahlart zur Verfügung steht",
                 "Specifies whether the payment method selection in checkout is only displayed if more than one payment method is available.",
                 "Legt fest, ob die Zahlartauswahl im Checkout nur angezeigt wird, wenn mehr als eine Zahlart zur Verfügung steht.");
+
+            builder.AddOrUpdate("Checkout.Template.Standard", "Standard", "Standard");
+            builder.AddOrUpdate("Checkout.Template.Terminal", "Terminal", "Terminal");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CheckoutTemplate",
+                "Checkout template",
+                "Checkout-Vorlage",
+                "Specifies the checkout template. In the case of \"Terminal\", all checkout steps are omitted and the buyer is directly redirected to the order confirmation.",
+                "Legt die Checkout-Vorlage fest. Bei \"Terminal\" entfallen sämtliche Checkout-Schritte und der Käufer gelangt direkt zur Bestellbestätigung.");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
