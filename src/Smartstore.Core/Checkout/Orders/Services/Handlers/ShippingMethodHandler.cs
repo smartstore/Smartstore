@@ -24,13 +24,13 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var cart = context.Cart;
             var customer = cart.Customer;
             var ga = customer.GenericAttributes;
             var options = ga.OfferedShippingOptions;
-            CheckoutWorkflowError[] errors = null;
+            CheckoutError[] errors = null;
             var saveAttributes = false;
 
             if (!cart.IsShippingRequired())
@@ -130,15 +130,15 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             return new(ga.SelectedShippingOption != null, errors, skip);
         }
 
-        private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(CheckoutContext context, string providerSystemName = null)
+        private async Task<(List<ShippingOption> Options, CheckoutError[] Errors)> GetShippingOptions(CheckoutContext context, string providerSystemName = null)
         {
-            CheckoutWorkflowError[] errors = null;
+            CheckoutError[] errors = null;
             var response = await _shippingService.GetShippingOptionsAsync(context.Cart, context.Cart.Customer.ShippingAddress, providerSystemName, context.Cart.StoreId);
 
             if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, ActionName))
             {
                 errors = response.Errors
-                    .Select(x => new CheckoutWorkflowError(string.Empty, x))
+                    .Select(x => new CheckoutError(string.Empty, x))
                     .ToArray();
             }
 

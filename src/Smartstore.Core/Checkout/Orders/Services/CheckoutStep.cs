@@ -19,8 +19,19 @@ namespace Smartstore.Core.Checkout.Orders
         public string? ViewPath { get; } = viewPath;
 
         /// <inheritdoc cref="ICheckoutHandler.ProcessAsync(CheckoutContext)" />
-        public Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
-            => Handler.Value.ProcessAsync(context);
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
+        {
+            var result = await Handler.Value.ProcessAsync(context);
+            result.ViewPath = ViewPath;
+
+            if (!result.Success)
+            {
+                // Redirect to the page associated with this step.
+                result.ActionResult ??= GetActionResult(context);
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Gets the action result to the associated action method of this checkout step.

@@ -64,7 +64,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<CheckoutWorkflowResult> StartAsync(CheckoutContext context)
+        public virtual async Task<CheckoutResult> StartAsync(CheckoutContext context)
         {
             Guard.NotNull(context);
 
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Checkout.Orders
             return await AdvanceAsync(context);
         }
 
-        public virtual async Task<CheckoutWorkflowResult> ProcessAsync(CheckoutContext context)
+        public virtual async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             Guard.NotNull(context);
 
@@ -134,11 +134,11 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(preliminaryResult);
             }
 
-            // Get and process the current handler, based on the request's route values.
+            // Get and process the current handler (based on the request's route values).
             var step = _checkoutFactory.GetCheckoutStep(context);
             if (step == null)
             {
-                return new(null);
+                return new(false);
             }
 
             var result = await step.ProcessAsync(context);
@@ -148,23 +148,23 @@ namespace Smartstore.Core.Checkout.Orders
                 // and the customer has nothing to select on the associated page.
                 if (result.ActionResult != null)
                 {
-                    return new(result.ActionResult, null, result.Errors);
+                    return result;
                 }
 
                 var adjacentStep = Adjacent(step, context);
                 if (adjacentStep != null)
                 {
-                    return new(adjacentStep.GetActionResult(context), adjacentStep.ViewPath, result.Errors);
+                    return new(adjacentStep.GetActionResult(context), adjacentStep.ViewPath);
                 }
 
                 return new(RedirectToCart());
             }
 
             // No redirect (default). Opening the current checkout page is fine.
-            return new(null, step.ViewPath, result.Errors);
+            return new(result.Errors, result.ViewPath, true);
         }
 
-        public virtual async Task<CheckoutWorkflowResult> AdvanceAsync(CheckoutContext context)
+        public virtual async Task<CheckoutResult> AdvanceAsync(CheckoutContext context)
         {
             Guard.NotNull(context);
 
@@ -182,14 +182,14 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
-                // Process all steps in sequence. Open the checkout page associated with the first "unsuccessful" step.
+                // Process all steps in sequence.
                 foreach (var step in steps)
                 {
                     var result = await step.ProcessAsync(context);
                     if (!result.Success)
                     {
                         // Redirect to the checkout page associated with the "unsuccessful" step.
-                        return new(result.ActionResult ?? step.GetActionResult(context), step.ViewPath, result.Errors);
+                        return result;
                     }
                 }
             }
@@ -200,7 +200,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return new(steps[0].GetActionResult(context), steps[0].ViewPath);
                 }
 
-                // Get current handler, based on the request's route values.
+                // Get and process current handler (based on the request's route values).
                 var step = _checkoutFactory.GetCheckoutStep(context);
                 if (step != null)
                 {
@@ -208,7 +208,7 @@ namespace Smartstore.Core.Checkout.Orders
                     if (!result.Success)
                     {
                         // Redirect to the checkout page associated with the "unsuccessful" step.
-                        return new(result.ActionResult ?? step.GetActionResult(context), step.ViewPath, result.Errors);
+                        return result;
                     }
 
                     // Redirect to the checkout page associated with the next step.
@@ -221,10 +221,10 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // A redirect target cannot be determined.
-            return new(null);
+            return new(false);
         }
 
-        public virtual async Task<CheckoutWorkflowResult> CompleteAsync(CheckoutContext context)
+        public virtual async Task<CheckoutResult> CompleteAsync(CheckoutContext context)
         {
             Guard.NotNull(context);
 
@@ -281,17 +281,17 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 _logger.Error(ex);
 
-                return new(null, confirmStep.ViewPath, [new(string.Empty, ex.Message)]);
+                return new([new(string.Empty, ex.Message)], confirmStep.ViewPath);
             }
 
             if (placeOrderResult == null || !placeOrderResult.Success)
             {
                 var errors = placeOrderResult?.Errors
                     ?.Take(_maxWarnings)
-                    ?.Select(x => new CheckoutWorkflowError(string.Empty, HtmlUtility.ConvertPlainTextToHtml(x)))
+                    ?.Select(x => new CheckoutError(string.Empty, HtmlUtility.ConvertPlainTextToHtml(x)))
                     ?.ToArray();
 
-                return new(null, confirmStep.ViewPath, errors);
+                return new(errors, confirmStep.ViewPath);
             }
 
             var postPaymentRequest = new PostProcessPaymentRequest
@@ -324,7 +324,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             return new(RedirectToCheckout("Completed"));
 
-            CheckoutWorkflowResult PaymentFailure(PaymentException ex)
+            CheckoutResult PaymentFailure(PaymentException ex)
             {
                 _logger.Error(ex);
                 _notifier.Error(ex.Message);

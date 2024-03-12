@@ -21,7 +21,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var customer = context.Cart.Customer;
             var ga = customer.GenericAttributes;

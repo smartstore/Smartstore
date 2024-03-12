@@ -4,7 +4,7 @@
     public class ConfirmHandler : ICheckoutHandler
     {
         // "Success" must be "false" to always open confirm page.
-        public Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
-            => Task.FromResult(new CheckoutHandlerResult(false));
+        public Task<CheckoutResult> ProcessAsync(CheckoutContext context)
+            => Task.FromResult(new CheckoutResult(false));
     }
 }

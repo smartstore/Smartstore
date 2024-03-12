@@ -7,7 +7,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Processes a checkout step.
         /// </summary>
-        Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context);
+        Task<CheckoutResult> ProcessAsync(CheckoutContext context);
     }
 
     public sealed class CheckoutHandler(Lazy<ICheckoutHandler, CheckoutHandlerMetadata> lazy)

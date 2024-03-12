@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var cart = context.Cart;
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 else
                 {
                     var errors = validationResult.Errors
-                        .Select(x => new CheckoutWorkflowError(x.PropertyName, x.ErrorMessage))
+                        .Select(x => new CheckoutError(x.PropertyName, x.ErrorMessage))
                         .ToArray();
 
                     return new(false, errors);
