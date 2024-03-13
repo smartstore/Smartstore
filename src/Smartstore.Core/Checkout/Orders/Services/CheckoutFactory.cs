@@ -79,7 +79,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return null;
             }
 
-            var viewPath = _isStandardCheckout ? null : $"{_shoppingCartSettings.CheckoutTemplate}.{handler.Metadata.Actions[0]}";
+            var viewPath = _isStandardCheckout ? null : $"{_shoppingCartSettings.CheckoutTemplate}.{handler.Metadata.DefaultAction}";
 
             return new(new(handler), viewPath);
         }

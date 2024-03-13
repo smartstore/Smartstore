@@ -10,7 +10,7 @@
 }
 
 <widget target-zone="order_progress">
-    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Complete }" />
+    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.Completed) })
 </widget>
 
 <div class="page checkout-completed-page">

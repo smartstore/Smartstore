@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(int.MaxValue, "Confirm")]
+    [CheckoutStep(10000, "Confirm")]
     public class ConfirmHandler : ICheckoutHandler
     {
         // "Success" must be "false" to always open confirm page.

@@ -1,0 +1,19 @@
+﻿@using Smartstore.Web.Models.Checkout
+
+@model List<CheckoutProgressStepModel>
+
+<zone name="checkout_steps_before" />
+
+<div class="costeps row g-0 mx-auto">
+    @foreach (var step in Model)
+    {
+        <div class="col-2 costep @step.StateClass" data-step="@step.Name">
+            <a class="costep-link" href="@(step.Visited || step.Active ? step.Url : "javascript:;")">
+                <i class="costep-icon"></i>
+                <span class="costep-label">@step.Label</span>
+            </a>
+        </div>
+    }
+</div>
+
+<zone name="checkout_steps_after" />

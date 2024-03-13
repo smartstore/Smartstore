@@ -11,7 +11,7 @@
 }
 
 <widget target-zone="order_progress">
-    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.BillingAddress) })
 </widget>
 
 <div class="page billing-address-page">

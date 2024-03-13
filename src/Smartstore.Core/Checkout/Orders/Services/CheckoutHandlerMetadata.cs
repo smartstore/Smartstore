@@ -18,6 +18,9 @@ namespace Smartstore.Core.Checkout.Orders
 
         /// <inheritdoc cref="CheckoutHandlerMetadata.Order" />
         public int Order { get; } = order;
+
+        /// <inheritdoc cref="CheckoutHandlerMetadata.ProgressLabelKey" />
+        public string? ProgressLabelKey { get; init; }
     }
 
     public sealed class CheckoutHandlerMetadata
@@ -31,6 +34,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// The first action must be the one through which the associated checkout page can be accessed (convention).
         /// </summary>
         public required string[] Actions { get; set; }
+
+        /// <summary>
+        /// Gets the default action (the first element of <see cref="Actions"/>).
+        /// </summary>
+        public string DefaultAction => Actions[0];
 
         /// <summary>
         /// Gets or sets the name of the controller associated with a checkout handler.
@@ -48,7 +56,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public int Order { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the string resource for the checkout progress navigation.
+        /// <c>null</c> to not display the step in checkout progress at all.
+        /// </summary>
+        public string? ProgressLabelKey { get; set; }
+
         public override string ToString()
-            => _formatRouteIdent.FormatInvariant(Area.HasValue() ? Area + '.' : string.Empty, Controller, Actions[0]);
+            => _formatRouteIdent.FormatInvariant(Area.HasValue() ? Area + '.' : string.Empty, Controller, DefaultAction);
     }
 }

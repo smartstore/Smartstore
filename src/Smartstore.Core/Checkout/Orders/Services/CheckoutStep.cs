@@ -42,13 +42,13 @@ namespace Smartstore.Core.Checkout.Orders
 
             var md = Handler.Metadata;
 
-            if (context.IsCurrentRoute(HttpMethods.Get, md.Controller, md.Actions[0], md.Area))
+            if (context.IsCurrentRoute(HttpMethods.Get, md.Controller, md.DefaultAction, md.Area))
             {
                 // Avoid infinite redirection loop.
                 return null;
             }
 
-            return new RedirectToActionResult(md.Actions[0], md.Controller, md.Area.HasValue() ? new { area = md.Area } : null);
+            return new RedirectToActionResult(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : null);
         }
     }
 }

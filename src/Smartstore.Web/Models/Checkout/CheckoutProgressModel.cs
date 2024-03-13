@@ -1,17 +1,28 @@
 ﻿namespace Smartstore.Web.Models.Checkout
 {
-    public partial class CheckoutProgressModel : ModelBase
+    public partial class CheckoutProgressStepModel : ModelBase
     {
-        public CheckoutProgressStep CheckoutProgressStep { get; set; }
-    }
+        public string Name { get; set; }
+        public string Label { get; set; }
+        public string Url { get; set; }
+        public bool Visited { get; set; }
+        public bool Active { get; set; }
 
-    public enum CheckoutProgressStep
-    {
-        Cart,
-        Address,
-        Shipping,
-        Payment,
-        Confirm,
-        Complete
+        public string StateClass
+        {
+            get
+            {
+                if (Visited)
+                {
+                    return "visited";
+                }
+                if (Active)
+                {
+                    return "active";
+                }
+
+                return "inactive";
+            }
+        }
     }
 }

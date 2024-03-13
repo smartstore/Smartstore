@@ -98,6 +98,7 @@ namespace Smartstore.Core.Bootstrapping
                         m.For(x => x.Controller, targetAttribute?.Controller ?? "Checkout");
                         m.For(x => x.Area, targetAttribute?.Area);
                         m.For(x => x.Order, targetAttribute?.Order ?? 0);
+                        m.For(x => x.ProgressLabelKey, targetAttribute?.ProgressLabelKey);
                     });
             }
 
