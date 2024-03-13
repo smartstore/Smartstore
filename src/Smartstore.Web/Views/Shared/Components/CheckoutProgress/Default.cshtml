@@ -8,7 +8,8 @@
     @foreach (var step in Model)
     {
         <div class="col-2 costep @step.StateClass" data-step="@step.Name">
-            <a class="costep-link" href="@(step.Visited || step.Active ? step.Url : "javascript:;")">
+            <a class="costep-link@(step.Visited || step.Active ? string.Empty : " disabled")" 
+               href="@(step.Visited || step.Active ? step.Url : "javascript:;")">
                 <i class="costep-icon"></i>
                 <span class="costep-label">@step.Label</span>
             </a>

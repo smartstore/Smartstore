@@ -10,6 +10,8 @@ namespace Smartstore.Core.Checkout.Cart
     [DebuggerDisplay("{CartType} for {Customer.Email} contains {Items.Length} items.")]
     public partial class ShoppingCart : IEquatable<ShoppingCart>
     {
+        private bool? _isShippingRequired;
+
         public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
             Guard.NotNull(customer);
@@ -30,6 +32,15 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool HasItems
             => Items.Length > 0;
+
+        /// <summary>
+        /// Gets a value indicating whether the cart requires shipping.
+        /// </summary>
+        public bool IsShippingRequired
+        {
+            get => _isShippingRequired ??= Items.Any(x => x.Item.IsShippingEnabled);
+            init => _isShippingRequired = value;
+        }
 
         /// <summary>
         /// Shopping cart type.

@@ -102,7 +102,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            model.RequiresShipping = cart.IsShippingRequired();
+            model.RequiresShipping = cart.IsShippingRequired;
             if (model.RequiresShipping)
             {
                 var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);

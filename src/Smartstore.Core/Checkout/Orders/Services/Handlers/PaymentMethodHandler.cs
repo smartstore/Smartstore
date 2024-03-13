@@ -7,11 +7,9 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(40, ActionName)]
+    [CheckoutStep(40, CheckoutActionNames.PaymentMethod)]
     public class PaymentMethodHandler : ICheckoutHandler
     {
-        const string ActionName = "PaymentMethod";
-
         private readonly SmartDbContext _db;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -44,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null 
                 && context.Model is string systemName 
-                && context.IsCurrentRoute(HttpMethods.Post, ActionName))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.PaymentMethod))
             {
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, cart.StoreId);
                 if (provider == null)

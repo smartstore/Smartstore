@@ -8,11 +8,11 @@ namespace Smartstore.Web.Components
     {
         private static readonly FrozenDictionary<string, string> _knownLabelKeys = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "BillingAddress", "Checkout.Progress.Address" },
-            { "ShippingAddress", null },
-            { "ShippingMethod", "Checkout.Progress.Shipping" },
-            { "PaymentMethod", "Checkout.Progress.Payment" },
-            { "Confirm", "Checkout.Progress.Confirm" }
+            { CheckoutActionNames.BillingAddress, "Checkout.Progress.Address" },
+            { CheckoutActionNames.ShippingAddress, null },
+            { CheckoutActionNames.ShippingMethod, "Checkout.Progress.Shipping" },
+            { CheckoutActionNames.PaymentMethod, "Checkout.Progress.Payment" },
+            { CheckoutActionNames.Confirm, "Checkout.Progress.Confirm" }
         }
         .ToFrozenDictionary();
 
@@ -26,7 +26,7 @@ namespace Smartstore.Web.Components
             var currentMetadata = currentStep?.Handler?.Metadata;
             var currentOrdinal = 0;
 
-            if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
+            if (action.EqualsNoCase(CheckoutActionNames.Completed))
             {
                 currentOrdinal = int.MaxValue;
             }
@@ -80,7 +80,7 @@ namespace Smartstore.Web.Components
                 Name = "complete",
                 Url = "javascript:;",
                 Label = T("Checkout.Progress.Complete"),
-                Active = action.EqualsNoCase(nameof(CheckoutController.Completed)) && controller.EqualsNoCase("Checkout"),
+                Active = action.EqualsNoCase(CheckoutActionNames.Completed) && controller.EqualsNoCase("Checkout"),
                 Visited = false
             });
 

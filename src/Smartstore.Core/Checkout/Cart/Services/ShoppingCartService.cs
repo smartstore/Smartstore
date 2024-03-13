@@ -4,6 +4,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart.Events;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -32,6 +33,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IRoundingHelper _roundingHelper;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly Lazy<ICheckoutFactory> _checkoutFactory;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly Currency _primaryCurrency;
@@ -46,6 +48,7 @@ namespace Smartstore.Core.Checkout.Cart
             IRoundingHelper roundingHelper,
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            Lazy<ICheckoutFactory> checkoutFactory,
             ICurrencyService currencyService,
             RewardPointsSettings rewardPointsSettings,
             ShoppingCartSettings shoppingCartSettings)
@@ -59,6 +62,7 @@ namespace Smartstore.Core.Checkout.Cart
             _roundingHelper = roundingHelper;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _checkoutFactory = checkoutFactory;
             _rewardPointsSettings = rewardPointsSettings;
             _shoppingCartSettings = shoppingCartSettings;
 
@@ -386,10 +390,12 @@ namespace Smartstore.Core.Checkout.Cart
                 await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
 
                 var organizedItems = await OrganizeCartItemsAsync(cartItems);
+                var isShippingRequired = _checkoutFactory.Value.GetCheckoutStep(CheckoutActionNames.ShippingMethod) != null && organizedItems.Any(x => x.Item.IsShippingEnabled);
 
                 return new ShoppingCart(customer, storeId, organizedItems)
                 {
                     CartType = cartType,
+                    IsShippingRequired = isShippingRequired
                 };
             });
 
@@ -655,7 +661,7 @@ namespace Smartstore.Core.Checkout.Cart
             var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
 
             var cart = await GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-            if (!cart.IsShippingRequired())
+            if (!cart.IsShippingRequired)
             {
                 idsToRemove.AddRange(attributes
                     .Where(x => x.ShippableProductRequired)

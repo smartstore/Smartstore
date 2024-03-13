@@ -4,7 +4,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(20, "ShippingAddress", "SelectShippingAddress")]
+    [CheckoutStep(20, CheckoutActionNames.ShippingAddress, "SelectShippingAddress")]
     public class ShippingAddressHandler : ICheckoutHandler
     {
         private readonly SmartDbContext _db;
@@ -48,7 +48,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(true);
             }
 
-            if (!context.Cart.IsShippingRequired())
+            if (!context.Cart.IsShippingRequired)
             {
                 if (customer.ShippingAddressId.GetValueOrDefault() != 0)
                 {

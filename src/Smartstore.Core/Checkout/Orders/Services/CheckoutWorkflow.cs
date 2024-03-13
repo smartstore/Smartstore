@@ -228,7 +228,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(context);
 
-            var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep("Confirm"));
+            var confirmStep = Guard.NotNull(_checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm));
 
             var warnings = new List<string>();
             var store = _storeContext.CurrentStore;
@@ -334,7 +334,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return new(new RedirectToActionResult(ex.RedirectRoute.Action, ex.RedirectRoute.Controller, ex.RedirectRoute.RouteValues));
                 }
 
-                var paymentStep = _checkoutFactory.GetCheckoutStep("PaymentMethod");
+                var paymentStep = _checkoutFactory.GetCheckoutStep(CheckoutActionNames.PaymentMethod);
 
                 return new(paymentStep.GetActionResult(context), paymentStep.ViewPath);
             }
@@ -411,7 +411,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             var result = _checkoutFactory.GetNextCheckoutStep(step, next);
-            result ??= next ? _checkoutFactory.GetCheckoutStep("Confirm") : null;
+            result ??= next ? _checkoutFactory.GetCheckoutStep(CheckoutActionNames.Confirm) : null;
 
             return result;
         }

@@ -8,6 +8,16 @@ namespace Smartstore.Core.Checkout.Orders
         public const string Terminal = "Terminal";
     }
 
+    public static partial class CheckoutActionNames
+    {
+        public const string BillingAddress = "BillingAddress";
+        public const string ShippingAddress = "ShippingAddress";
+        public const string ShippingMethod = "ShippingMethod";
+        public const string PaymentMethod = "PaymentMethod";
+        public const string Confirm = "Confirm";
+        public const string Completed = "Completed";
+    }
+
     public interface ICheckoutFactory
     {
         /// <summary>

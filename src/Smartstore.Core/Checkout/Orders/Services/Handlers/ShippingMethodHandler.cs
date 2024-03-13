@@ -5,11 +5,9 @@ using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(30, ActionName)]
+    [CheckoutStep(30, CheckoutActionNames.ShippingMethod)]
     public class ShippingMethodHandler : ICheckoutHandler
     {
-        const string ActionName = "ShippingMethod";
-
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -33,7 +31,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             CheckoutError[] errors = null;
             var saveAttributes = false;
 
-            if (!cart.IsShippingRequired())
+            if (!cart.IsShippingRequired)
             {
                 if (ga.SelectedShippingOption != null || ga.OfferedShippingOptions != null)
                 {
@@ -47,7 +45,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null
                 && context.Model is string shippingOption 
-                && context.IsCurrentRoute(HttpMethods.Post, ActionName))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.ShippingMethod))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
@@ -135,7 +133,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             CheckoutError[] errors = null;
             var response = await _shippingService.GetShippingOptionsAsync(context.Cart, context.Cart.Customer.ShippingAddress, providerSystemName, context.Cart.StoreId);
 
-            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, ActionName))
+            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, CheckoutActionNames.ShippingMethod))
             {
                 errors = response.Errors
                     .Select(x => new CheckoutError(string.Empty, x))

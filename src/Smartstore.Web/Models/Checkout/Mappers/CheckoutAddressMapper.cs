@@ -75,7 +75,7 @@ namespace Smartstore.Web.Models.Checkout
             }
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            to.IsShippingRequired = cart.IsShippingRequired();
+            to.IsShippingRequired = cart.IsShippingRequired;
 
             // New address.
             await new Address().MapAsync(to.NewAddress);

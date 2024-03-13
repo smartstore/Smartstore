@@ -373,9 +373,7 @@ namespace Smartstore.Web.Models.Cart
 
             if (prepareEstimateShippingIfEnabled)
             {
-                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled && 
-                    from.HasItems &&
-                    from.IncludesMatchingItems(x => x.IsShippingEnabled);
+                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled && from.HasItems && from.IsShippingRequired;
 
                 if (to.EstimateShipping.Enabled)
                 {
@@ -450,7 +448,7 @@ namespace Smartstore.Web.Models.Cart
                 }
 
                 // Shipping info.
-                if (from.IsShippingRequired())
+                if (from.IsShippingRequired)
                 {
                     to.OrderReviewData.IsShippable = true;
                     to.OrderReviewData.ShippingMethod = customer.GenericAttributes.SelectedShippingOption?.Name;

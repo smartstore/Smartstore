@@ -4,7 +4,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(10, "BillingAddress", "SelectBillingAddress")]
+    [CheckoutStep(10, CheckoutActionNames.BillingAddress, "SelectBillingAddress")]
     public class BillingAddressHandler : ICheckoutHandler
     {
         private readonly SmartDbContext _db;
@@ -41,7 +41,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers;
 
                 customer.BillingAddress = address;
-                customer.ShippingAddress = shippingAddressDiffers || !context.Cart.IsShippingRequired() ? null : address;
+                customer.ShippingAddress = shippingAddressDiffers || !context.Cart.IsShippingRequired ? null : address;
 
                 if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {

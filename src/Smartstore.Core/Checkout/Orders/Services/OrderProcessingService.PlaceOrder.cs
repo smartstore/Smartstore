@@ -54,7 +54,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!paymentRequest.IsRecurringPayment)
             {
-                context.CartRequiresShipping = cart.IsShippingRequired();
+                context.CartRequiresShipping = cart.IsShippingRequired;
             }
             else
             {
@@ -231,7 +231,7 @@ namespace Smartstore.Core.Checkout.Orders
                     warnings.Add(T("Order.CountryNotAllowedForBilling", customer.BillingAddress.Country.GetLocalized(x => x.Name)));
                 }
 
-                if (cart.IsShippingRequired())
+                if (cart.IsShippingRequired)
                 {
                     if (customer.ShippingAddress == null)
                     {

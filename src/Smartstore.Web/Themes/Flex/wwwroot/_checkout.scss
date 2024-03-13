@@ -54,6 +54,10 @@
     text-decoration: none !important;
 }
 
+.costep-link.disabled {
+    pointer-events: none;
+}
+
 .costep-icon {
     width: 12px;
     height: 12px;
