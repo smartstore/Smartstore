@@ -164,7 +164,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     if (cargo.NumberOfNewImages > 0)
                     {
-                        context.Result.AddWarning("Importing new images may result in image duplicates if TinyImage is installed or the images are larger than \"Maximum image size\" setting.");
+                        context.Result.AddInfo("Importing new images may result in image duplicates if TinyImage is installed or the images are larger than \"Maximum image size\" setting.");
                     }
                 }
             }

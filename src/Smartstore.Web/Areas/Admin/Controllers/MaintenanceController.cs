@@ -16,6 +16,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
@@ -59,7 +60,11 @@ namespace Smartstore.Admin.Controllers
         private readonly MeasureSettings _measureSettings;
         private readonly IHostApplicationLifetime _appLifetime;
         private readonly AsyncRunner _asyncRunner;
-
+        private readonly MediaHelper _mediaHelper;
+        private readonly IMediaService _mediaService;
+        private readonly IMediaTypeResolver _typeResolver;
+        private readonly IMediaStorageProvider _mediaStorageProvider;
+        
         public MaintenanceController(
             SmartDbContext db,
             IMemoryCache memCache,
@@ -79,7 +84,11 @@ namespace Smartstore.Admin.Controllers
             Lazy<UpdateChecker> updateChecker,
             MeasureSettings measureSettings,
             IHostApplicationLifetime appLifetime,
-            AsyncRunner asyncRunner)
+            AsyncRunner asyncRunner,
+            MediaHelper mediaHelper,
+            IMediaService mediaService,
+            IMediaTypeResolver typeResolver,
+            IMediaStorageProvider mediaStorageProvider)
         {
             _db = db;
             _memCache = memCache;
@@ -100,6 +109,10 @@ namespace Smartstore.Admin.Controllers
             _measureSettings = measureSettings;
             _appLifetime = appLifetime;
             _asyncRunner = asyncRunner;
+            _mediaHelper = mediaHelper;
+            _mediaService = mediaService;
+            _typeResolver = typeResolver;
+            _mediaStorageProvider = mediaStorageProvider;
         }
 
         #region Maintenance
@@ -245,6 +258,60 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Content(message);
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> ReInitMediaFileNames(string folderName = "")
+        {
+            var message = string.Empty;
+
+            var query = _db.MediaFiles
+                .Where(x => x.Name == null || x.Name == "");
+
+            if (folderName.HasValue())
+            {
+                query = query.Where(x => x.Folder.Name == folderName);
+            }
+
+            var files = await query.ToListAsync();
+
+            foreach (var file in files)
+            {
+                var filePath = GetPath(file);
+                var mediaFileInfo = _mediaService.ConvertMediaFile(file);
+                
+                _mediaHelper.TokenizePath(mediaFileInfo.Path + "/" + GetFileName(file), true, out var pathData);
+
+                file.Name = pathData.FileName;
+                file.Extension = pathData.Extension;
+                file.MimeType = pathData.MimeType;
+                file.MediaType ??= _typeResolver.Resolve(pathData.Extension, pathData.MimeType);
+
+                var inStream = _mediaStorageProvider.OpenRead(file);
+
+                file.RefreshMetadata(inStream, null);
+            }
+
+            var num = await _db.SaveChangesAsync();
+
+            message = $"{num} MediaFiles were refreshed.";
+
+            return Content(message);
+        }
+
+        private static string GetPath(MediaFile mediaFile)
+        {
+            var fileName = GetFileName(mediaFile);
+            var subfolder = fileName[..4];
+
+            return PathUtility.Join("Storage", subfolder, fileName);
+        }
+
+        private static string GetFileName(MediaFile mediaFile)
+        {
+            var ext = mediaFile.Extension.NullEmpty() ?? MimeTypes.MapMimeTypeToExtension(mediaFile.MimeType);
+
+            return mediaFile.Id.ToString(ImageCache.IdFormatString).Grow(ext, ".");
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
