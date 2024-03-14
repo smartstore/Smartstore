@@ -6,15 +6,15 @@ namespace Smartstore.Core.Checkout.Orders
     public class CheckoutFactory : ICheckoutFactory
     {
         private readonly IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> _handlers;
-        private readonly string _templateName;
+        private readonly string _checkoutName;
 
         public CheckoutFactory(
             IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> handlers,
             ShoppingCartSettings shoppingCartSettings)
         {
-            if (shoppingCartSettings.CheckoutTemplate.EqualsNoCase(CheckoutTemplateNames.Terminal))
+            if (shoppingCartSettings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Terminal))
             {
-                _templateName = CheckoutTemplateNames.Terminal;
+                _checkoutName = CheckoutProcess.Terminal;
 
                 _handlers = handlers
                     .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler)))
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return null;
             }
 
-            var viewPath = _templateName == null ? null : $"{_templateName}.{handler.Metadata.DefaultAction}";
+            var viewPath = _checkoutName == null ? null : $"{_checkoutName}.{handler.Metadata.DefaultAction}";
 
             return new(new(handler), viewPath);
         }

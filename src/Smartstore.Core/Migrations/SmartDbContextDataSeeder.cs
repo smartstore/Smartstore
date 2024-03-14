@@ -205,10 +205,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.QuickCheckoutEnabled",
                 "Quick Checkout",
-                "Quick Checkout",
+                "Quick-Checkout",
                 "With Quick Checkout, the customer's default purchase settings (e.g. for the billing and shipping address) are applied and the associated checkout steps are skipped."
                 + " This allows the customer to go directly to the order confirmation page and complete the purchase.",
-                "Beim Quick Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
+                "Beim Quick-Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
                 + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangePreferredShipping",
@@ -225,14 +225,23 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether the payment method selection in checkout is only displayed if more than one payment method is available.",
                 "Legt fest, ob die Zahlartauswahl im Checkout nur angezeigt wird, wenn mehr als eine Zahlart zur Verfügung steht.");
 
-            builder.AddOrUpdate("Checkout.Template.Standard", "Standard", "Standard");
-            builder.AddOrUpdate("Checkout.Template.Terminal", "Terminal", "Terminal");
+            builder.AddOrUpdate("Checkout.Process.Standard",
+                "Standard",
+                "Standard",
+                "All required checkout steps are processed.",
+                "Alle erforderlichen Checkout-Schritte werden durchlaufen.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CheckoutTemplate",
-                "Checkout template",
-                "Checkout-Vorlage",
-                "Specifies the checkout template. In the case of \"Terminal\", all checkout steps are omitted and the buyer is directly redirected to the order confirmation.",
-                "Legt die Checkout-Vorlage fest. Bei \"Terminal\" entfallen sämtliche Checkout-Schritte und der Käufer gelangt direkt zur Bestellbestätigung.");
+            builder.AddOrUpdate("Checkout.Process.Terminal",
+                "Terminal",
+                "Terminal",
+                "All checkout steps are skipped. The customer is directly redirected to the confirmation page.",
+                "Alle Checkout-Schritte werden übersprungen. Der Käufer gelangt direkt zur Bestätigungsseite.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CheckoutProcess",
+                "Checkout process",
+                "Checkout-Prozess",
+                "Specifies the type of checkout with the steps to be processed.",
+                "Legt die Art des Checkout mit den zu durchlaufenden Schritten fest.");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
