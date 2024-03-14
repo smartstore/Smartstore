@@ -85,9 +85,9 @@
   - #951 The forum post page counter is always incremented by 2 when the page is opened.
   - Fixed HTML links are not displayed in posts.
 - Fixed a filter reset of the product grid does not work correctly.
-- Fixed validation issues when saving guest customers
+- Fixed validation issues when saving guest customers.
 - #897 Discount code input seems to be confirmed (border color and check icon)
-- #964 Removed meta information from publication according to catalog settings
+- #964 Removed meta information from publication according to catalog settings.
 - Fixed shoping cart MinOrderValidation 
 - Added quantity information on non-editable wishlist page.
 - Some external authentication methods (like AmazonPay) were not displayed on customer pages.
@@ -96,7 +96,8 @@
 - #1001 MediaManager: fix *moov atom not found* ffmpeg issue in `VideoHandler`.
 - Fixed the e-mail subject was not transferred when sending an e-mail from customer edit page.
 - Fixed offcanvas problem whith mega sized page builder stories.
-- PayPal: Fixed payment discount problem (discount from a formerly choosen payment method was applied)
+- PayPal: Fixed payment discount problem (discount from a formerly choosen payment method was applied).
+- #1042 Fixed broken roxy file manager.
 
 
 ## Smartstore 5.1.0
