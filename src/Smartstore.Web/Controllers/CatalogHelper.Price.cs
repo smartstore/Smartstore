@@ -5,6 +5,7 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
 using Smartstore.Diagnostics;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -383,7 +384,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private void AddPromoBadge(CalculatedPrice price, List<ProductBadgeModel> badges)
+        public void AddPromoBadge(CalculatedPrice price, List<ProductBadgeModel> badges)
         {
             // Add default promo badges as configured
             var (label, style) = _priceLabelService.GetPricePromoBadge(price);
@@ -393,7 +394,7 @@ namespace Smartstore.Web.Controllers
                 badges.Add(new ProductBadgeModel
                 {
                     Label = label,
-                    Style = style ?? "dark",
+                    Style = Enum.Parse<BadgeStyle>(style).ToString().ToLower() ?? "dark",
                     DisplayOrder = 10
                 });
             }
