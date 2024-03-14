@@ -75,9 +75,9 @@ namespace Smartstore.Core.Checkout.Cart
         #region Checkout
 
         /// <summary>
-        /// Gets or sets the checkout template name.
+        /// Gets or sets the checkout process.
         /// </summary>
-        public string CheckoutTemplate { get; set; } = CheckoutTemplateNames.Standard;
+        public string CheckoutProcess { get; set; } = Orders.CheckoutProcess.Standard;
 
         /// <summary>
         /// Gets or sets a value indicating whether quick checkout is enabled.

@@ -192,13 +192,18 @@
             <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="CheckoutTemplate" />
+                        <smart-label asp-for="CheckoutProcess" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="CheckoutTemplate">
-                            <select asp-for="CheckoutTemplate" asp-items="ViewBag.CheckoutTemplates"></select>
+                        <setting-editor asp-for="CheckoutProcess">
+                            <select asp-for="CheckoutProcess">
+                                @foreach (var item in (List<ExtendedSelectListItem>)ViewBag.Checkouts)
+                                {
+                                    <option value="@item.Value" attr-selected='(item.Selected, "selected")' data-description="@(item.Get<string>("Description"))">@item.Text</option>
+                                }
+                            </select>
                         </setting-editor>
-                        <span asp-validation-for="CheckoutTemplate"></span>
+                        <span asp-validation-for="CheckoutProcess"></span>
                     </div>
                 </div>
                 <div class="adminRow">

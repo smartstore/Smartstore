@@ -1,11 +1,10 @@
 ﻿using Smartstore.Caching;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Events;
 
-namespace Smartstore.Web.Rendering.Menus
+namespace Smartstore.Core.Content.Menus
 {
     /// <summary>
     /// Invalidates all menus that contain the <see cref="CatalogMenuProvider"/>

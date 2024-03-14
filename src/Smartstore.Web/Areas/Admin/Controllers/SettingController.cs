@@ -1215,11 +1215,23 @@ namespace Smartstore.Admin.Controllers
                 locale.ThirdPartyEmailHandOverLabel = settings.GetLocalizedSetting(x => x.ThirdPartyEmailHandOverLabel, languageId, storeScope, false, false);
             });
 
-            ViewBag.CheckoutTemplates = new List<SelectListItem>
+            var standard = new ExtendedSelectListItem
             {
-                new() { Text = T("Checkout.Template.Standard"), Value = CheckoutTemplateNames.Standard, Selected = settings.CheckoutTemplate.EqualsNoCase(CheckoutTemplateNames.Standard) },
-                new() { Text = T("Checkout.Template.Terminal"), Value = CheckoutTemplateNames.Terminal, Selected = settings.CheckoutTemplate.EqualsNoCase(CheckoutTemplateNames.Terminal) }
+                Text = T("Checkout.Process.Standard"),
+                Value = CheckoutProcess.Standard,
+                Selected = settings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Standard)
             };
+            standard.CustomProperties["Description"] = T("Checkout.Process.Standard.Hint").Value;
+
+            var terminal = new ExtendedSelectListItem
+            {
+                Text = T("Checkout.Process.Terminal"),
+                Value = CheckoutProcess.Terminal,
+                Selected = settings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Terminal)
+            };
+            terminal.CustomProperties["Description"] = T("Checkout.Process.Terminal.Hint").Value;
+
+            ViewBag.Checkouts = new List<ExtendedSelectListItem> { standard, terminal };
 
             return View(model);
         }

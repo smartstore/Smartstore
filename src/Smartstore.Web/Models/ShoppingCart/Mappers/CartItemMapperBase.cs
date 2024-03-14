@@ -9,6 +9,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -20,19 +21,22 @@ namespace Smartstore.Web.Models.Cart
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
+        protected readonly CatalogHelper _catalogHelper;
 
         protected CartItemMapperBase(
             ICommonServices services,
             IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            CatalogHelper catalogHelper)
         {
             _services = services;
             _priceCalculationService = priceCalculationService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
+            _catalogHelper = catalogHelper;
         }
 
         public SmartDbContext Db { get; set; }
@@ -246,7 +250,7 @@ namespace Smartstore.Web.Models.Cart
                 if (PriceSettings.ShowOfferBadge)
                 {
                     // Add default promo badges as configured
-                    AddPromoBadge(unitPrice, priceModel.Badges);
+                    _catalogHelper.AddPromoBadge(unitPrice, priceModel.Badges);
                 }
 
                 // Regular price
@@ -298,22 +302,6 @@ namespace Smartstore.Web.Models.Cart
             Money ConvertMoney(Money money, string postFormat = null)
             {
                 return CurrencyService.ConvertFromPrimaryCurrency(money.Amount, currency).WithPostFormat(postFormat);
-            }
-        }
-
-        private void AddPromoBadge(CalculatedPrice price, List<ProductBadgeModel> badges)
-        {
-            // Add default promo badges as configured
-            var (label, style) = PriceLabelService.GetPricePromoBadge(price);
-
-            if (label.HasValue())
-            {
-                badges.Add(new ProductBadgeModel
-                {
-                    Label = label,
-                    Style = style ?? "dark",
-                    DisplayOrder = 10
-                });
             }
         }
 
