@@ -27,8 +27,9 @@ namespace Smartstore.Web.Models.Cart
             IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings)
-            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
+            CatalogSettings catalogSettings,
+            CatalogHelper catalogHelper)
+            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings, catalogHelper)
         {
             _deliveryTimeService = deliveryTimeService;
         }

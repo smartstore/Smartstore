@@ -394,7 +394,7 @@ namespace Smartstore.Web.Controllers
                 badges.Add(new ProductBadgeModel
                 {
                     Label = label,
-                    Style = Enum.Parse<BadgeStyle>(style).ToString().ToLower() ?? "dark",
+                    Style = (style.IsNumeric() ? Enum.Parse<BadgeStyle>(style).ToString().ToLower() : style) ?? "dark",
                     DisplayOrder = 10
                 });
             }
