@@ -54,6 +54,10 @@
     text-decoration: none !important;
 }
 
+.costep-link.disabled {
+    pointer-events: none;
+}
+
 .costep-icon {
     width: 12px;
     height: 12px;
@@ -128,12 +132,12 @@
         &:before {
             @include fontastic("\e74b", 20px);
         
-            [data-step=cart] &	    { content: '\e74b' /* icm-bag */; }
-            [data-step=address] &	{ content: '\e600' /* icm-home */; }
-            [data-step=shipping] & 	{ content: '\e857' /* icm-truck */; transform: translateY(-3px); }
-            [data-step=payment] & 	{ content: '\e759' /* icm-credit-card */ }
-            [data-step=confirm] & 	{ content: '\e919' /* icm-thumbs-up */; }
-            [data-step=complete] & 	{ content: '\e934' /* icm-check */ }
+            [data-step=cart] &	            { content: '\e74b' /* icm-bag */; }
+            [data-step=billingaddress] &    { content: '\e600' /* icm-home */; }
+            [data-step=shippingmethod] & 	{ content: '\e857' /* icm-truck */; transform: translateY(-3px); }
+            [data-step=paymentmethod] & 	{ content: '\e759' /* icm-credit-card */ }
+            [data-step=confirm] & 	        { content: '\e919' /* icm-thumbs-up */; }
+            [data-step=complete] & 	        { content: '\e934' /* icm-check */ }
         }
     }
 

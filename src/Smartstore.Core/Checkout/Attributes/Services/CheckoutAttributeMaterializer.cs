@@ -75,7 +75,7 @@ namespace Smartstore.Core.Checkout.Attributes
                 .ApplyStandardFilter(false, storeId)
                 .ToListAsync();
 
-            if (!cart.IncludesMatchingItems(x => x.IsShippingEnabled))
+            if (!cart.IsShippingRequired)
             {
                 // Remove attributes which require shippable products.
                 checkoutAttributes = checkoutAttributes

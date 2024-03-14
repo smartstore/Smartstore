@@ -165,7 +165,7 @@ namespace Smartstore.Core.Checkout.Cart
                 if (checkoutAttributes != null)
                 {
                     var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
-                    if (!cart.IsShippingRequired())
+                    if (!cart.IsShippingRequired)
                     {
                         // No shipping required. Filter attributes which require shippable products.
                         existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);

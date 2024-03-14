@@ -5,7 +5,8 @@ using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class ShippingMethodHandler : CheckoutHandlerBase
+    [CheckoutStep(30, CheckoutActionNames.ShippingMethod)]
+    public class ShippingMethodHandler : ICheckoutHandler
     {
         private readonly IShippingService _shippingService;
         private readonly ShippingSettings _shippingSettings;
@@ -21,20 +22,16 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string Action => "ShippingMethod";
-
-        public override int Order => 30;
-
-        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var cart = context.Cart;
             var customer = cart.Customer;
             var ga = customer.GenericAttributes;
             var options = ga.OfferedShippingOptions;
-            CheckoutWorkflowError[] errors = null;
+            CheckoutError[] errors = null;
             var saveAttributes = false;
 
-            if (!cart.IsShippingRequired())
+            if (!cart.IsShippingRequired)
             {
                 if (ga.SelectedShippingOption != null || ga.OfferedShippingOptions != null)
                 {
@@ -48,7 +45,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null
                 && context.Model is string shippingOption 
-                && context.IsCurrentRoute(HttpMethods.Post, Action))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.ShippingMethod))
             {
                 var splittedOption = shippingOption.SplitSafe("___").ToArray();
                 if (splittedOption.Length != 2)
@@ -131,15 +128,15 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             return new(ga.SelectedShippingOption != null, errors, skip);
         }
 
-        private async Task<(List<ShippingOption> Options, CheckoutWorkflowError[] Errors)> GetShippingOptions(CheckoutContext context, string providerSystemName = null)
+        private async Task<(List<ShippingOption> Options, CheckoutError[] Errors)> GetShippingOptions(CheckoutContext context, string providerSystemName = null)
         {
-            CheckoutWorkflowError[] errors = null;
+            CheckoutError[] errors = null;
             var response = await _shippingService.GetShippingOptionsAsync(context.Cart, context.Cart.Customer.ShippingAddress, providerSystemName, context.Cart.StoreId);
 
-            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, Action))
+            if (response.ShippingOptions.Count == 0 && context.IsCurrentRoute(HttpMethods.Get, CheckoutActionNames.ShippingMethod))
             {
                 errors = response.Errors
-                    .Select(x => new CheckoutWorkflowError(string.Empty, x))
+                    .Select(x => new CheckoutError(string.Empty, x))
                     .ToArray();
             }
 

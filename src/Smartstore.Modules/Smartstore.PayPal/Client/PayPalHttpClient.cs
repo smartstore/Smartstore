@@ -171,7 +171,7 @@ namespace Smartstore.PayPal.Client
                 },
                 AppContext = new PayPalApplictionContext
                 {
-                    ShippingPreference = cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
+                    ShippingPreference = cart.IsShippingRequired ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
                 }
             };
 
@@ -578,7 +578,7 @@ namespace Smartstore.PayPal.Client
                 {
                     ShippingPreference = isExpressCheckout
                         ? ShippingPreference.GetFromFile
-                        : cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
+                        : cart.IsShippingRequired ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
                 }
             };
 

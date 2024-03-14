@@ -1,5 +1,4 @@
-﻿@using Smartstore.Web.Models.Cart;
-@using Smartstore.Web.Models.Checkout;
+﻿@using Smartstore.Web.Models.Cart
 
 @model ShoppingCartModel
 
@@ -11,7 +10,7 @@
 }
 
 <widget target-zone="order_progress">
-    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />
+    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(ShoppingCartController.Cart), controller = "ShoppingCart" })
 </widget>
 
 <div class="page shopping-cart-page">

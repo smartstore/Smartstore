@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Common;
+﻿using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 
@@ -72,6 +73,11 @@ namespace Smartstore.Core.Checkout.Cart
         public bool ShowGiftCardBox { get; set; } = true;
 
         #region Checkout
+
+        /// <summary>
+        /// Gets or sets the checkout template name.
+        /// </summary>
+        public string CheckoutTemplate { get; set; } = CheckoutTemplateNames.Standard;
 
         /// <summary>
         /// Gets or sets a value indicating whether quick checkout is enabled.

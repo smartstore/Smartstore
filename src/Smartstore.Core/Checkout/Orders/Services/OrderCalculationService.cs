@@ -364,7 +364,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            if (!cart.IsShippingRequired())
+            if (!cart.IsShippingRequired)
             {
                 return true;
             }

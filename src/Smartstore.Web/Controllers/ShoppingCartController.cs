@@ -1188,7 +1188,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> EstimateShipping(ProductVariantQuery query, EstimateShippingModel shippingModel)
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
-            var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(storeId: storeId);
 
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
@@ -1200,7 +1199,7 @@ namespace Smartstore.Web.Controllers
             model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
             model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
 
-            if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
+            if (cart.IsShippingRequired)
             {
                 var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
                 if (shippingInfoUrl.HasValue())

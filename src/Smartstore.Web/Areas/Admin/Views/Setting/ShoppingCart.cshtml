@@ -192,6 +192,17 @@
             <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="CheckoutTemplate" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CheckoutTemplate">
+                            <select asp-for="CheckoutTemplate" asp-items="ViewBag.CheckoutTemplates"></select>
+                        </setting-editor>
+                        <span asp-validation-for="CheckoutTemplate"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="QuickCheckoutEnabled" />
                     </div>
                     <div class="adminData">
@@ -199,9 +210,7 @@
                         <span asp-validation-for="QuickCheckoutEnabled"></span>
                     </div>
                 </div>
-            </div>
-            <div class="adminContent quick-checkout-option">
-                <div class="adminRow">
+                <div class="adminRow quick-checkout-option">
                     <div class="adminTitle">
                         <smart-label asp-for="CustomersCanChangePreferredShipping" />
                     </div>
@@ -210,9 +219,7 @@
                         <span asp-validation-for="CustomersCanChangePreferredShipping"></span>
                     </div>
                 </div>
-            </div>
-            <div class="adminContent quick-checkout-option">
-                <div class="adminRow">
+                <div class="adminRow quick-checkout-option">
                     <div class="adminTitle">
                         <smart-label asp-for="CustomersCanChangePreferredPayment" />
                     </div>

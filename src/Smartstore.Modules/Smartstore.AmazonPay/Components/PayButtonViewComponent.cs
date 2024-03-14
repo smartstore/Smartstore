@@ -69,7 +69,7 @@ namespace Smartstore.AmazonPay.Components
 
             var model = new AmazonPayButtonModel(
                 _settings,
-                cart.IsShippingRequired() ? "PayAndShip" : "PayOnly",
+                cart.IsShippingRequired ? "PayAndShip" : "PayOnly",
                 currencyCode,
                 Services.WorkContext.WorkingLanguage.UniqueSeoCode);
 

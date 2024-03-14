@@ -7,7 +7,8 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class PaymentMethodHandler : CheckoutHandlerBase
+    [CheckoutStep(40, CheckoutActionNames.PaymentMethod)]
+    public class PaymentMethodHandler : ICheckoutHandler
     {
         private readonly SmartDbContext _db;
         private readonly IPaymentService _paymentService;
@@ -32,11 +33,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string Action => "PaymentMethod";
-
-        public override int Order => 40;
-
-        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var state = _checkoutStateAccessor.CheckoutState;
             var cart = context.Cart;
@@ -45,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null 
                 && context.Model is string systemName 
-                && context.IsCurrentRoute(HttpMethods.Post, Action))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.PaymentMethod))
             {
                 var provider = await _paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, cart.StoreId);
                 if (provider == null)
@@ -83,7 +80,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 else
                 {
                     var errors = validationResult.Errors
-                        .Select(x => new CheckoutWorkflowError(x.PropertyName, x.ErrorMessage))
+                        .Select(x => new CheckoutError(x.PropertyName, x.ErrorMessage))
                         .ToArray();
 
                     return new(false, errors);

@@ -4,10 +4,9 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    public class ShippingAddressHandler : CheckoutHandlerBase
+    [CheckoutStep(20, CheckoutActionNames.ShippingAddress, CheckoutActionNames.SelectShippingAddress)]
+    public class ShippingAddressHandler : ICheckoutHandler
     {
-        private static readonly string[] _actionNames = ["ShippingAddress", "SelectShippingAddress"];
-
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -22,21 +21,14 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        protected override string Action => "ShippingAddress";
-
-        public override int Order => 20;
-
-        public override bool IsHandlerFor(CheckoutContext context)
-            => IsHandlerFor(_actionNames, context);
-
-        public override async Task<CheckoutHandlerResult> ProcessAsync(CheckoutContext context)
+        public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {
             var customer = context.Cart.Customer;
             var ga = customer.GenericAttributes;
 
             if (context.Model != null 
                 && context.Model is int addressId 
-                && context.IsCurrentRoute(HttpMethods.Post, "SelectShippingAddress"))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.SelectShippingAddress))
             {
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address == null)
@@ -56,7 +48,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(true);
             }
 
-            if (!context.Cart.IsShippingRequired())
+            if (!context.Cart.IsShippingRequired)
             {
                 if (customer.ShippingAddressId.GetValueOrDefault() != 0)
                 {

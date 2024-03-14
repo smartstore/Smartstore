@@ -102,7 +102,7 @@ namespace Smartstore.AmazonPay.Controllers
                     };
 
                     // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
-                    if (cart.HasItems && cart.IsShippingRequired())
+                    if (cart.HasItems && cart.IsShippingRequired)
                     {
                         var allowedCountryCodes = await _db.Countries
                             .ApplyStandardFilter(false, store.Id)
@@ -187,7 +187,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            var isShippingRequired = cart.IsShippingRequired();
+            var isShippingRequired = cart.IsShippingRequired;
             var customer = cart.Customer;
 
             result.IsShippingMethodMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
