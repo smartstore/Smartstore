@@ -9,9 +9,9 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 {
     internal class OrderBatchContext
     {
-        protected readonly List<int> _orderIds = new();
-        protected readonly List<int> _customerIds = new();
-        protected readonly List<int> _addressIds = new();
+        protected readonly List<int> _orderIds = [];
+        protected readonly List<int> _customerIds = [];
+        protected readonly List<int> _addressIds = [];
 
         protected readonly SmartDbContext _db;
 
@@ -24,7 +24,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         public OrderBatchContext(IEnumerable<Order> orders, ICommonServices services)
         {
-            Guard.NotNull(services, nameof(services));
+            Guard.NotNull(services);
 
             _db = services.DbContext;
 
@@ -34,7 +34,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
                 _customerIds.AddRange(orders.Select(x => x.CustomerId));
 
                 _addressIds = orders
-                    .Select(x => x.BillingAddressId)
+                    .Select(x => x.BillingAddressId ?? 0)
                     .Union(orders.Select(x => x.ShippingAddressId ?? 0))
                     .Where(x => x != 0)
                     .Distinct()
@@ -47,37 +47,37 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public LazyMultimap<Customer> Customers
         {
             get => _customers ??=
-                new LazyMultimap<Customer>(keys => LoadCustomers(keys), _customerIds);
+                new LazyMultimap<Customer>(LoadCustomers, _customerIds);
         }
 
         public LazyMultimap<GenericAttribute> CustomerGenericAttributes
         {
             get => _customerGenericAttributes ??=
-                new LazyMultimap<GenericAttribute>(keys => LoadCustomerGenericAttributes(keys), _customerIds);
+                new LazyMultimap<GenericAttribute>(LoadCustomerGenericAttributes, _customerIds);
         }
 
         public LazyMultimap<RewardPointsHistory> RewardPointsHistories
         {
             get => _rewardPointsHistories ??=
-                new LazyMultimap<RewardPointsHistory>(keys => LoadRewardPointsHistories(keys), _customerIds);
+                new LazyMultimap<RewardPointsHistory>(LoadRewardPointsHistories, _customerIds);
         }
 
         public LazyMultimap<Address> Addresses
         {
             get => _addresses ??=
-                new LazyMultimap<Address>(keys => LoadAddresses(keys), _addressIds);
+                new LazyMultimap<Address>(LoadAddresses, _addressIds);
         }
 
         public LazyMultimap<OrderItem> OrderItems
         {
             get => _orderItems ??=
-                new LazyMultimap<OrderItem>(keys => LoadOrderItems(keys), _orderIds);
+                new LazyMultimap<OrderItem>(LoadOrderItems, _orderIds);
         }
 
         public LazyMultimap<Shipment> Shipments
         {
             get => _shipments ??=
-                new LazyMultimap<Shipment>(keys => LoadShipments(keys), _orderIds);
+                new LazyMultimap<Shipment>(LoadShipments, _orderIds);
         }
 
         public virtual void Clear()

@@ -26,6 +26,26 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
+        public virtual CheckoutRequirements GetRequirements()
+        {
+            CheckoutRequirements requirements = 0;
+
+            if (_handlers.Any(FindHandler(CheckoutActionNames.BillingAddress)))
+            {
+                requirements |= CheckoutRequirements.BillingAddress;
+            }
+            if (_handlers.Any(FindHandler(CheckoutActionNames.ShippingMethod)))
+            {
+                requirements |= CheckoutRequirements.Shipping;
+            }
+            if (_handlers.Any(FindHandler(CheckoutActionNames.PaymentMethod)))
+            {
+                requirements |= CheckoutRequirements.Payment;
+            }
+
+            return requirements;
+        }
+
         public virtual CheckoutStep[] GetCheckoutSteps()
         {
             return _handlers.Select(Convert).ToArray();
@@ -36,9 +56,7 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotEmpty(action);
             Guard.NotEmpty(controller);
 
-            var handler = _handlers.FirstOrDefault(x => x.Metadata.Actions.Contains(action, StringComparer.OrdinalIgnoreCase)
-                && x.Metadata.Controller.EqualsNoCase(controller)
-                && x.Metadata.Area.NullEmpty().EqualsNoCase(area.NullEmpty()));
+            var handler = _handlers.FirstOrDefault(FindHandler(action, controller, area));
 
             return Convert(handler);
         }
@@ -78,5 +96,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             return new(new(handler), viewPath);
         }
+
+        private static Func<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>, bool> FindHandler(string action, string controller = "Checkout", string area = null)
+            => x => x.Metadata.Actions.Contains(action, StringComparer.OrdinalIgnoreCase)
+                && x.Metadata.Controller.EqualsNoCase(controller)
+                && x.Metadata.Area.NullEmpty().EqualsNoCase(area.NullEmpty());
     }
 }

@@ -356,10 +356,13 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            await MapperFactory.MapAsync(o.BillingAddress, model.BillingAddress);
+            if (o.BillingAddress != null)
+            {
+                await MapperFactory.MapAsync(o.BillingAddress, model.BillingAddress);
+            }
+
             model.VatNumber = o.VatNumber;
 
-            // Payment method.
             var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(o.PaymentMethodSystemName);
             model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : o.PaymentMethodSystemName;
             model.PaymentMethodSystemName = o.PaymentMethodSystemName;

@@ -1793,7 +1793,7 @@ namespace Smartstore.Admin.Controllers
 
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
-            model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress.GetFullName().NaIfEmpty();
+            model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress?.GetFullName().NaIfEmpty();
             model.CustomerEmail = order.BillingAddress?.Email;
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
@@ -1960,7 +1960,10 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            await order.BillingAddress.MapAsync(model.BillingAddress);
+            if (order.BillingAddress != null)
+            {
+                await order.BillingAddress.MapAsync(model.BillingAddress);
+            }
 
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {

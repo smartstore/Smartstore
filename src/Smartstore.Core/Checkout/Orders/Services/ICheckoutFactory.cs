@@ -23,6 +23,11 @@ namespace Smartstore.Core.Checkout.Orders
     public interface ICheckoutFactory
     {
         /// <summary>
+        /// Gets checkout requirements.
+        /// </summary>
+        CheckoutRequirements GetRequirements();
+
+        /// <summary>
         /// Gets a list of checkout steps to be processed.
         /// </summary>
         CheckoutStep[] GetCheckoutSteps();
@@ -30,6 +35,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets the checkout step for route values.
         /// </summary>
+        /// <param name="action">Name of the action method.</param>
+        /// <param name="controller">Name of the controller.</param>
+        /// <param name="area">Area name. <c>null</c> by default.</param>
         CheckoutStep GetCheckoutStep(string action, string controller = "Checkout", string? area = null);
 
         /// <summary>

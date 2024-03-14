@@ -21,18 +21,21 @@ namespace Smartstore.Core.DataExchange.Export
 {
     public partial class DataExporter
     {
-        private readonly static string[] _orderCustomerAttributes = new[]
-        {
+        private readonly static string[] _orderCustomerAttributes =
+        [
             SystemCustomerAttributeNames.VatNumber,
             SystemCustomerAttributeNames.ImpersonatedCustomerId
-        };
+        ];
 
         private async Task<IEnumerable<dynamic>> Convert(Order order, DataExporterContext ctx)
         {
             var result = new List<dynamic>();
 
             ctx.OrderBatchContext.Addresses.Collect(order.ShippingAddressId ?? 0);
-            await ctx.OrderBatchContext.Addresses.GetOrLoadAsync(order.BillingAddressId);
+            if (order.BillingAddressId.HasValue)
+            {
+                await ctx.OrderBatchContext.Addresses.GetOrLoadAsync(order.BillingAddressId.Value);
+            }
 
             var customers = await ctx.OrderBatchContext.Customers.GetOrLoadAsync(order.CustomerId);
             var customer = customers.FirstOrDefault(x => x.Id == order.CustomerId);
@@ -72,7 +75,7 @@ namespace Smartstore.Core.DataExchange.Export
                 dynObject.Customer = null;
             }
 
-            dynObject.BillingAddress = ctx.OrderBatchContext.Addresses.TryGetValues(order.BillingAddressId, out var billingAddresses)
+            dynObject.BillingAddress = order.BillingAddressId.HasValue && ctx.OrderBatchContext.Addresses.TryGetValues(order.BillingAddressId.Value, out var billingAddresses)
                 ? ToDynamic(billingAddresses.FirstOrDefault(), ctx)
                 : null;
 

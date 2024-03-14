@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Utilities;
 
@@ -10,16 +11,11 @@ namespace Smartstore.Core.Checkout.Cart
     [DebuggerDisplay("{CartType} for {Customer.Email} contains {Items.Length} items.")]
     public partial class ShoppingCart : IEquatable<ShoppingCart>
     {
-        private bool? _isShippingRequired;
-
         public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
-            Guard.NotNull(customer);
-            Guard.NotNull(items);
-
-            Customer = customer;
+            Customer = Guard.NotNull(customer);
+            Items = Guard.NotNull(items?.ToArray());
             StoreId = storeId;
-            Items = items.ToArray();
         }
 
         /// <summary>
@@ -32,15 +28,6 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool HasItems
             => Items.Length > 0;
-
-        /// <summary>
-        /// Gets a value indicating whether the cart requires shipping.
-        /// </summary>
-        public bool IsShippingRequired
-        {
-            get => _isShippingRequired ??= Items.Any(x => x.Item.IsShippingEnabled);
-            init => _isShippingRequired = value;
-        }
 
         /// <summary>
         /// Shopping cart type.
@@ -56,6 +43,17 @@ namespace Smartstore.Core.Checkout.Cart
         /// Store identifier.
         /// </summary>
         public int StoreId { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the cart requires shipping.
+        /// </summary>
+        public bool IsShippingRequired
+            => Requirements.HasFlag(CheckoutRequirements.Shipping) && Items.Any(x => x.Item.IsShippingEnabled);
+
+        /// <summary>
+        /// Checkout requirements.
+        /// </summary>
+        public CheckoutRequirements Requirements { get; init; }
 
         #region Compare
 

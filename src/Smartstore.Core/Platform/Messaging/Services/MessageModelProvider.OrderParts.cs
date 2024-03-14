@@ -53,13 +53,22 @@ namespace Smartstore.Core.Messaging
             var m = new HybridExpando(part, allow, MemberOptMethod.Allow);
             var d = m as dynamic;
 
-            d.ID = part.Id;
-            d.Billing = await CreateModelPartAsync(part.BillingAddress, messageContext);
+            if (part.BillingAddress != null)
+            {
+                d.Billing = await CreateModelPartAsync(part.BillingAddress, messageContext);
+                d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
+            }
+            else
+            {
+                d.CustomerEmail = null;
+            }
+
             if (part.ShippingAddress != null)
             {
                 d.Shipping = part.ShippingAddress == part.BillingAddress ? null : (await CreateModelPartAsync(part.ShippingAddress, messageContext));
             }
-            d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
+
+            d.ID = part.Id;
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();
             d.Disclaimer = await _helper.GetTopicAsync("Disclaimer", messageContext);
             d.ConditionsOfUse = await _helper.GetTopicAsync("ConditionsOfUse", messageContext);
