@@ -73,7 +73,7 @@ namespace Smartstore.Web.Controllers
             return result.ActionResult ?? RedirectToAction(nameof(BillingAddress));
         }
 
-        [HttpPost, ActionName("BillingAddress")]
+        [HttpPost, ActionName(CheckoutActionNames.BillingAddress)]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> NewBillingAddress(CheckoutAddressModel model)
         {
@@ -81,7 +81,7 @@ namespace Smartstore.Web.Controllers
                 ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
         }
 
-        [HttpPost, ActionName("ShippingAddress")]
+        [HttpPost, ActionName(CheckoutActionNames.ShippingAddress)]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
         {
@@ -171,7 +171,7 @@ namespace Smartstore.Web.Controllers
             return View(result.ViewPath, model);
         }
 
-        [HttpPost, ActionName("ShippingMethod")]
+        [HttpPost, ActionName(CheckoutActionNames.ShippingMethod)]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectShippingMethod(string shippingOption)
         {
@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
             return View(result.ViewPath, model);
         }
 
-        [HttpPost, ActionName("PaymentMethod")]
+        [HttpPost, ActionName(CheckoutActionNames.PaymentMethod)]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, IFormCollection form)
         {
@@ -261,7 +261,7 @@ namespace Smartstore.Web.Controllers
             return View(result.ViewPath, model);
         }
 
-        [HttpPost, ActionName("Confirm")]
+        [HttpPost, ActionName(CheckoutActionNames.Confirm)]
         public async Task<IActionResult> ConfirmOrder()
         {
             var result = await _checkoutWorkflow.CompleteAsync(await CreateCheckoutContext());

@@ -4,7 +4,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
-    [CheckoutStep(20, CheckoutActionNames.ShippingAddress, "SelectShippingAddress")]
+    [CheckoutStep(20, CheckoutActionNames.ShippingAddress, CheckoutActionNames.SelectShippingAddress)]
     public class ShippingAddressHandler : ICheckoutHandler
     {
         private readonly SmartDbContext _db;
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (context.Model != null 
                 && context.Model is int addressId 
-                && context.IsCurrentRoute(HttpMethods.Post, "SelectShippingAddress"))
+                && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.SelectShippingAddress))
             {
                 var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
                 if (address == null)

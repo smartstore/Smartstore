@@ -322,7 +322,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(new RedirectResult(postPaymentRequest.RedirectUrl));
             }
 
-            return new(RedirectToCheckout("Completed"));
+            return new(RedirectToCheckout(CheckoutActionNames.Completed));
 
             CheckoutResult PaymentFailure(PaymentException ex)
             {
@@ -395,7 +395,7 @@ namespace Smartstore.Core.Checkout.Orders
                     // Referrer is the checkout index page -> return the next handler (billing address).
                     next = true;
                 }
-                else if (action.EqualsNoCase("Confirm") && controller.EqualsNoCase("Checkout"))
+                else if (action.EqualsNoCase(CheckoutActionNames.Confirm) && controller.EqualsNoCase("Checkout"))
                 {
                     // Referrer is the confirm page -> return the previous handler (payment selection).
                     next = false;

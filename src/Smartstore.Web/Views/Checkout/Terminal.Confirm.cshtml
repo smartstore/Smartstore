@@ -35,6 +35,8 @@
             <zone name="checkout_confirm_top" />
 
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
+            @Html.HiddenFor(x => x.SubscribeToNewsletter)
+            @Html.HiddenFor(x => x.AcceptThirdPartyEmailHandOver)
 
             <div id="confirm-warnings" class="confirm-order">
                 <div sm-if="Model.Warnings.Any()" class="alert alert-danger mb-3">

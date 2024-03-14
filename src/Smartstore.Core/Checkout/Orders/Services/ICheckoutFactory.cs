@@ -11,7 +11,9 @@ namespace Smartstore.Core.Checkout.Orders
     public static partial class CheckoutActionNames
     {
         public const string BillingAddress = "BillingAddress";
+        public const string SelectBillingAddress = "SelectBillingAddress";
         public const string ShippingAddress = "ShippingAddress";
+        public const string SelectShippingAddress = "SelectShippingAddress";
         public const string ShippingMethod = "ShippingMethod";
         public const string PaymentMethod = "PaymentMethod";
         public const string Confirm = "Confirm";
