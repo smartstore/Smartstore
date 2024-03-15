@@ -1007,15 +1007,9 @@ namespace Smartstore.Core.Checkout.Orders
                 _activityLogger.LogActivity(KnownActivityLogTypes.PublicStorePlaceOrder, T("ActivityLog.PublicStore.PlaceOrder"), order.GetOrderNumber());
             }
 
-            // Reset checkout data.
             if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
             {
                 ctx.Customer.ResetCheckoutData(ctx.PaymentRequest.StoreId, true, true, true, true, true, true);
-            }
-
-            // Clear shopping cart.
-            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
-            {
                 await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
             }
 

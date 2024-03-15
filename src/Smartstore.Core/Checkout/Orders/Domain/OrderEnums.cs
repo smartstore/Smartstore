@@ -12,7 +12,9 @@
     {
         BillingAddress = 1 << 0,
         Shipping = 1 << 1,
-        Payment = 1 << 2
+        Payment = 1 << 2,
+
+        All = BillingAddress | Shipping | Payment
     }
 
     /// <summary>

@@ -53,7 +53,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Checkout requirements.
         /// </summary>
-        public CheckoutRequirements Requirements { get; init; }
+        public CheckoutRequirements Requirements { get; init; } = CheckoutRequirements.All;
 
         #region Compare
 

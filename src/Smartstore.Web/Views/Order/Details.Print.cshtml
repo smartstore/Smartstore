@@ -83,10 +83,8 @@
 <div class="container">
     @foreach (var order in Model)
     {
-        var colWidths = order.ShowSku ? new int[] { 45, 20, 5, 15, 15 } : new int[] { 65, 0, 5, 15, 15 };
-
+        var colWidths = order.ShowSku ? new[] { 45, 20, 5, 15, 15 } : new[] { 65, 0, 5, 15, 15 };
         var company = order.MerchantCompanyInfo;
-        var address = order.BillingAddress;
 
         <div class="document">
             <zone name="invoice_top" model="@order"></zone>
@@ -103,8 +101,8 @@
                             @JoinValues(new string[] { company.CompanyName, company.Street, company.Street2, city, country }, " &middot; ")
                         </span>
                     </div>
-                    <div class="mt-2">
-                        @Html.Raw(address.FormattedAddress)
+                    <div sm-if="order.BillingAddress != null" class="mt-2">
+                        @Html.Raw(order.BillingAddress.FormattedAddress)
                     </div>
                 </div>
 
@@ -128,7 +126,7 @@
                             <td class="label">@T("Order.ShippingMethod"):</td>
                             <td class="value">@order.ShippingMethod</td>
                         </tr>
-                        <tr>
+                        <tr sm-if="order.PaymentMethod.HasValue()">
                             <td class="label">@T("Order.PaymentMethod"):</td>
                             <td class="value">@order.PaymentMethod</td>
                         </tr>

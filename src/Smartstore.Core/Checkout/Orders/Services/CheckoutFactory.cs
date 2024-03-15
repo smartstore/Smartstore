@@ -6,7 +6,7 @@ namespace Smartstore.Core.Checkout.Orders
     public class CheckoutFactory : ICheckoutFactory
     {
         private readonly IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> _handlers;
-        private readonly string _checkoutName;
+        private readonly bool _isTerminalCheckout;
 
         public CheckoutFactory(
             IEnumerable<Lazy<ICheckoutHandler, CheckoutHandlerMetadata>> handlers,
@@ -14,10 +14,10 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (shoppingCartSettings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Terminal))
             {
-                _checkoutName = CheckoutProcess.Terminal;
+                _isTerminalCheckout = true;
 
                 _handlers = handlers
-                    .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler)))
+                    .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler))/* || x.Metadata.HandlerType.Equals(typeof(PaymentMethodHandler))*/)
                     .OrderBy(x => x.Metadata.Order);
             }
             else
@@ -92,7 +92,9 @@ namespace Smartstore.Core.Checkout.Orders
                 return null;
             }
 
-            var viewPath = _checkoutName == null ? null : $"{_checkoutName}.{handler.Metadata.DefaultAction}";
+            var viewPath = _isTerminalCheckout && handler.Metadata.DefaultAction.EqualsNoCase(CheckoutActionNames.Confirm)
+                ? "Terminal." + handler.Metadata.DefaultAction
+                : null;
 
             return new(new(handler), viewPath);
         }

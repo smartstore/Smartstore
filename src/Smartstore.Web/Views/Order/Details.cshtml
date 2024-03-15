@@ -7,13 +7,15 @@
     Assets.AppendTitleParts(T("PageTitle.OrderDetails"));
 
     var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
+    var hasOrderDetails1 = Model.BillingAddress != null || (Model.IsShippable && Model.ShippingAddress != null);
+    var hasOrderDetails2 = Model.PaymentMethod.HasValue() || Model.IsShippable || Model.VatNumber.HasValue();
 
     async Task RenderAddress(AddressModel address)
     {
         <div class="mb-2">
             @Html.Raw(address.FormattedAddress)
         </div>
-        <div class="email">
+        <div sm-if="address.Email.HasValue()" class="email">
             @T("Order.Email"): @address.Email
         </div>
         <div sm-if="address.PhoneEnabled && address.PhoneNumber.HasValue()" class="phone">
@@ -204,11 +206,11 @@
 
         <zone name="orderdetails_page_overview" />
 
-        <div class="card card-body order-details-box mb-4">
+        <div sm-if="hasOrderDetails1 || hasOrderDetails2" class="card card-body order-details-box mb-4">
             <div class="row">
-                <div class="col-md-8">
+                <div sm-if="hasOrderDetails1" class="col-md-8">
                     <div class="row">
-                        <div class="col mb-4 mb-lg-0 billinginfo">
+                        <div sm-if="Model.BillingAddress != null" class="col mb-4 mb-lg-0 billinginfo">
                             <h5>@T("Order.BillingAddress")</h5>
                             @{ await RenderAddress(Model.BillingAddress); }
                         </div>
@@ -219,7 +221,7 @@
                     </div>
                 </div>
 
-                <div sm-if="Model.PaymentMethod.HasValue() || Model.IsShippable || Model.VatNumber.HasValue()" class="col-md-4">
+                <div sm-if="hasOrderDetails2" class="col-md-4">
                     <div class="row">
                         <div class="col">
                             @if (Model.IsShippable)

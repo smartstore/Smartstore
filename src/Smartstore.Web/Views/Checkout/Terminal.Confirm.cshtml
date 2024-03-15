@@ -12,12 +12,12 @@
 
     var store = CommonServices.StoreContext.CurrentStore;
     var shoppingCartService = CommonServices.Resolve<IShoppingCartService>();
-    var cart = await shoppingCartService.GetCartAsync(WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, store.Id);
+    var cart = await shoppingCartService.GetCartAsync(null, ShoppingCartType.ShoppingCart, store.Id);
 
     var model = await cart.MapAsync(
         isEditable: false,
         prepareEstimateShippingIfEnabled: false,
-        prepareAndDisplayOrderReviewData: false);
+        prepareAndDisplayOrderReviewData: true);
 
     model.DisplayCommentBox = false;
 }

@@ -11,6 +11,11 @@
 @{
     async Task RenderAddress(AddressModel address)
     {
+        if (address == null)
+        {
+            return;
+        }
+
         var cityStateZip = address.GetFormattedCityStateZip();
 
         <div class="mb-2">
@@ -54,9 +59,9 @@
 
 <div class="card card-body order-review-data-box mb-3">
     <div class="row">
-        <div class="col-md-8">
+        <div sm-if="Model.IsBillingAddressRequired || Model.IsShippable" class="col-md-8">
             <div class="row">
-                <div class="col mb-4 mb-lg-0 billinginfo">
+                <div sm-if="Model.IsBillingAddressRequired" class="col mb-4 mb-lg-0 billinginfo">
                     <div class="row sm-gutters">
                         <div class="col">
                             <div class="heading">
@@ -71,7 +76,7 @@
                     </div>
                     @{ await RenderAddress(Model.BillingAddress); }
                 </div>
-                <div sm-if="Model.IsShippable && Model.ShippingAddress != null" class="col mb-4 mb-lg-0 shippinginfo">
+                <div sm-if="Model.IsShippable" class="col mb-4 mb-lg-0 shippinginfo">
                     <div class="row sm-gutters">
                         <div class="col">
                             <div class="heading">
@@ -88,10 +93,10 @@
                 </div>
             </div>
         </div>
-        <div sm-if="Model.PaymentMethod.HasValue() || (Model.IsShippable && Model.ShippingMethod.HasValue())" class="col-md-4">
+        <div sm-if="Model.IsShippable || Model.IsPaymentRequired" class="col-md-4">
             <div class="row">
                 <div class="col">
-                    @if (Model.IsShippable && Model.ShippingMethod.HasValue())
+                    @if (Model.IsShippable)
                     {
                         <div class="row sm-gutters">
                             <div class="col">
@@ -107,7 +112,7 @@
                         </div>
                         <p>@Model.ShippingMethod</p>
                     }
-                    @if (Model.PaymentMethod.HasValue() && Model.IsPaymentRequired)
+                    @if (Model.IsPaymentRequired)
                     {
                         <div class="row sm-gutters">
                             <div class="col">
@@ -143,7 +148,6 @@
                 </div>
             </div>
         </div>
-
         <div sm-if="Model.IsShippable" class="shippinginfo col-md-6 mb-3">
             <div class="card">
                 <div class="card-header d-flex flex-nowrap justify-content-between">

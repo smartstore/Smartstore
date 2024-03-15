@@ -8,15 +8,23 @@
     gridViewData["Parent"] = Model;
 }
 
+@if (!Model.IsShippable && shipTo == null && billTo == null)
+{
+    <div class="alert alert-info">
+        @T("Admin.Orders.ShippingInfo.NotRequired")
+    </div>
+    return;
+}
+
 <div class="row card-grid g-3 row-cols-1 row-cols-lg-3">
-    <div class="col">
+    <div sm-if="billTo != null" class="col">
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title">@T("Order.BillingAddress")</h6>
                 <div class="mb-2">
                     @Html.Raw(billTo.FormattedAddress)
                 </div>
-                <div class="email">
+                <div sm-if="billTo.Email.HasValue()" class="email">
                     @T("Order.Email"): @billTo.Email
                 </div>
                 <div sm-if="billTo.PhoneEnabled && billTo.PhoneNumber.HasValue()" class="phone">
@@ -74,21 +82,18 @@
         </div>
     </div>
 
-    <div class="col">
+    <div sm-if="Model.IsShippable" class="col">
         <div class="card border-0">
-            @if (Model.IsShippable)
-            {
-                <h6>@T("Admin.Orders.Fields.ShippingMethod")</h6>
-                <p>@Model.ShippingMethod</p>
+            <h6>@T("Admin.Orders.Fields.ShippingMethod")</h6>
+            <p>@Model.ShippingMethod</p>
 
-                <h6>@T("Admin.Orders.Fields.ShippingStatus")</h6>
-                <p>@Model.ShippingStatusString</p>
-            }
+            <h6>@T("Admin.Orders.Fields.ShippingStatus")</h6>
+            <p>@Model.ShippingStatusString</p>
         </div>
     </div>
 </div>
 
-<div sm-if="Model.IsShippable && Model.ShippingAddress.Id != 0">
+<div sm-if="Model.IsShippable && shipTo != null">
     <h5 class="text-muted mb-3 mt-4">@T("Admin.Orders.Shipments")</h5>
     <div>
         <partial name="~/Areas/Admin/Views/Shipment/_Grid.Shipments.cshtml" model="null" view-data="gridViewData" />

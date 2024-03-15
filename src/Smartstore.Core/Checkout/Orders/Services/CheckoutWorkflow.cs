@@ -80,6 +80,15 @@ namespace Smartstore.Core.Checkout.Orders
             cart.Customer.ResetCheckoutData(cart.StoreId);
             _checkoutStateAccessor.Abandon();
 
+            if (!cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress))
+            {
+                cart.Customer.BillingAddress = null;
+            }
+            if (!cart.IsShippingRequired)
+            {
+                cart.Customer.ShippingAddress = null;
+            }
+
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 var validatingCartEvent = new ValidatingCartEvent(cart, warnings);

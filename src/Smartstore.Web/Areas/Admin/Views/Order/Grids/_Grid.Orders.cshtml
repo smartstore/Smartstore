@@ -86,7 +86,7 @@
                     <i :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></i>
                     <span v-if="item.row.IsShippable" class="text-truncate">{{ item.row.ShippingAddressString }}</span>
                     <div v-if="item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ViaShippingMethod }}</div>
-                    <span v-if="!item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ShippingStatus }}</span>
+                    <span v-if="!item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ShippingStatusString }}</span>
                 </div>
             </display-template>
         </column>

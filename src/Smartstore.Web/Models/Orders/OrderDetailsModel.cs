@@ -22,10 +22,10 @@ namespace Smartstore.Web.Models.Orders
         public bool IsReturnRequestAllowed { get; set; }
         public bool IsShippable { get; set; }
         public string ShippingStatus { get; set; }
-        public AddressModel ShippingAddress { get; set; } = new();
+        public AddressModel BillingAddress { get; set; }
+        public AddressModel ShippingAddress { get; set; }
         public string ShippingMethod { get; set; }
-        public List<ShipmentBriefModel> Shipments { get; set; } = new();
-        public AddressModel BillingAddress { get; set; } = new();
+        public List<ShipmentBriefModel> Shipments { get; set; } = [];
         public string VatNumber { get; set; }
         public string PaymentMethod { get; set; }
         public string PaymentMethodSystemName { get; set; }
@@ -60,7 +60,7 @@ namespace Smartstore.Web.Models.Orders
         public Money PaymentMethodAdditionalFee { get; set; }
         public string CheckoutAttributeInfo { get; set; }
         public Money Tax { get; set; }
-        public List<TaxRate> TaxRates { get; set; } = new();
+        public List<TaxRate> TaxRates { get; set; } = [];
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
         public Money OrderTotalDiscount { get; set; }
@@ -75,9 +75,9 @@ namespace Smartstore.Web.Models.Orders
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public int BundleThumbSize { get; set; }
-        public List<GiftCard> GiftCards { get; set; } = new();
-        public List<OrderItemModel> Items { get; set; } = new();
-        public List<OrderNote> OrderNotes { get; set; } = new();
+        public List<GiftCard> GiftCards { get; set; } = [];
+        public List<OrderItemModel> Items { get; set; } = [];
+        public List<OrderNote> OrderNotes { get; set; } = [];
 
         #region Nested Classes
 
@@ -97,7 +97,7 @@ namespace Smartstore.Web.Models.Orders
             public bool BundlePerItemPricing { get; set; }
             public bool BundlePerItemShoppingCart { get; set; }
             public ImageModel Image { get; set; }
-            public List<BundleItemModel> BundleItems { get; set; } = new();
+            public List<BundleItemModel> BundleItems { get; set; } = [];
         }
 
         public partial class BundleItemModel : ModelBase
