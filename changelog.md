@@ -7,6 +7,9 @@
 - **Conditional product attributes**
   - Makes the visibility of an attribute dependent on the selection state of other attributes.
   - Copying attributes, options and rules from one product to another.
+- **Simplified checkout process**
+  - Quick-Checkout allows to skip addresses, shipping and payment method selection if these are known.
+  - One-click checkout for sales at retail terminals.
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance
