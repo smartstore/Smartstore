@@ -6,7 +6,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Models.Cart;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
 
@@ -54,13 +53,14 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> BillingAddress()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
+            var context = await CreateCheckoutContext();
+            var result = await _checkoutWorkflow.ProcessAsync(context);
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
             }
 
-            var model = await _workContext.CurrentCustomer.Addresses.MapAsync(false);
+            var model = await context.MapAddressesAsync(false);
 
             return View(result.ViewPath, model);
         }
@@ -77,31 +77,45 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> NewBillingAddress(CheckoutAddressModel model)
         {
-            return await AddAddress(model, false) 
-                ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(false));
+            var context = await CreateCheckoutContext();
+            var result = await AddAddress(model, context, false);
+            if (result.ActionResult != null)
+            {
+                return result.ActionResult;
+            }
+
+            model = await context.MapAddressesAsync(false);
+
+            return View(model);
         }
 
         [HttpPost, ActionName(CheckoutActionNames.ShippingAddress)]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
         {
-            return await AddAddress(model, true) 
-                ?? View(await _workContext.CurrentCustomer.Addresses.MapAsync(true));
+            var context = await CreateCheckoutContext();
+            var result = await AddAddress(model, context, true);
+            if (result.ActionResult != null)
+            {
+                return result.ActionResult;
+            }
+
+            model = await context.MapAddressesAsync(true);
+
+            return View(model);
         }
 
-        private async Task<IActionResult> AddAddress(CheckoutAddressModel model, bool isShippingAddress)
+        private async Task<CheckoutResult> AddAddress(CheckoutAddressModel model, CheckoutContext context, bool isShippingAddress)
         {
-            var context = await CreateCheckoutContext();
             var cart = context.Cart;
-
             if (!cart.HasItems)
             {
-                return RedirectToRoute("ShoppingCart");
+                return new(RedirectToRoute("ShoppingCart"));
             }
 
             if (!_orderSettings.AnonymousCheckoutAllowed && !cart.Customer.IsRegistered())
             {
-                return ChallengeOrForbid();
+                return new(ChallengeOrForbid());
             }
 
             if (ModelState.IsValid)
@@ -127,8 +141,9 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
 
                 var result = await _checkoutWorkflow.AdvanceAsync(context);
+                result.ActionResult ??= RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
 
-                return result.ActionResult ?? RedirectToAction(isShippingAddress ? nameof(ShippingMethod) : nameof(ShippingAddress));
+                return result;
             }
 
             return null;
@@ -136,13 +151,14 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
+            var context = await CreateCheckoutContext();
+            var result = await _checkoutWorkflow.ProcessAsync(context);
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
             }
 
-            var model = await _workContext.CurrentCustomer.Addresses.MapAsync(true);
+            var model = await context.MapAddressesAsync(true);
 
             return View(result.ViewPath, model);
         }
@@ -157,14 +173,14 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingMethod()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
+            var context = await CreateCheckoutContext();
+            var result = await _checkoutWorkflow.ProcessAsync(context);
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutShippingMethodModel>(cart);
+            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutShippingMethodModel>(context);
 
             result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
@@ -184,14 +200,14 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> PaymentMethod()
         {
-            var result = await _checkoutWorkflow.ProcessAsync(await CreateCheckoutContext());
+            var context = await CreateCheckoutContext();
+            var result = await _checkoutWorkflow.ProcessAsync(context);
             if (result.ActionResult != null)
             {
                 return result.ActionResult;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
-            var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutPaymentMethodModel>(cart);
+            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutPaymentMethodModel>(context);
 
             return View(result.ViewPath, model);
         }
@@ -256,7 +272,7 @@ namespace Smartstore.Web.Controllers
                 return result.ActionResult;
             }
 
-            var model = await MapperFactory.MapAsync<ShoppingCart, CheckoutConfirmModel>(context.Cart);
+            var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
 
             return View(result.ViewPath, model);
         }
@@ -269,6 +285,7 @@ namespace Smartstore.Web.Controllers
             if (result.Errors.Length > 0)
             {
                 var model = new CheckoutConfirmModel();
+
                 result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 
                 return View(model);
@@ -315,7 +332,7 @@ namespace Smartstore.Web.Controllers
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: _storeContext.CurrentStore.Id);
             
-            return new(HttpContext, cart)
+            return new(cart, HttpContext, Url)
             {
                 Model = model
             };

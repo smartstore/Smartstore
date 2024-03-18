@@ -29,11 +29,13 @@ namespace Smartstore.Core.Checkout.Orders
                 .WithMany(x => x.Orders)
                 .HasForeignKey(x => x.CustomerId);
 
+            // INFO: DeleteBehavior.ClientSetNull instead of DeleteBehavior.SetNull required because of cycles or multiple cascade paths.
+            // This is of little importance anyway because both addresses are cloned when the order is created and are never deleted afterwards.
             builder
                 .HasOne(o => o.BillingAddress)
                 .WithMany()
                 .HasForeignKey(o => o.BillingAddressId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             builder
                 .HasOne(o => o.ShippingAddress)
@@ -78,7 +80,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the billing address identifier
         /// </summary>
-        public int BillingAddressId { get; set; }
+        public int? BillingAddressId { get; set; }
 
         /// <summary>
         /// Gets or sets the shipping address identifier

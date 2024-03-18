@@ -2,7 +2,7 @@
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public partial class CheckoutPaymentMethodModel : ModelBase
+    public partial class CheckoutPaymentMethodModel : CheckoutModelBase
     {
         public List<PaymentMethodModel> PaymentMethods { get; set; } = [];
 

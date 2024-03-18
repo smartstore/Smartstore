@@ -18,7 +18,7 @@ namespace Smartstore
         /// </summary>
         public static IIncludableQueryable<Order, Country> IncludeBillingAddress(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .Include(x => x.BillingAddress.StateProvince)
@@ -30,7 +30,7 @@ namespace Smartstore
         /// </summary>
         public static IIncludableQueryable<Order, Country> IncludeShippingAddress(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .Include(x => x.ShippingAddress.StateProvince)
@@ -42,7 +42,7 @@ namespace Smartstore
         /// </summary>
         public static IIncludableQueryable<Order, GiftCard> IncludeGiftCardHistory(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .AsSplitQuery()
@@ -56,7 +56,7 @@ namespace Smartstore
         public static IIncludableQueryable<Order, CustomerRole> IncludeCustomer(this IQueryable<Order> query,
             bool includeRewardPoints = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (includeRewardPoints)
             {
@@ -77,7 +77,7 @@ namespace Smartstore
         /// </summary>
         public static IIncludableQueryable<Order, Product> IncludeOrderItems(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .AsSplitQuery()
@@ -90,7 +90,7 @@ namespace Smartstore
         /// </summary>
         public static IIncludableQueryable<Order, ICollection<ShipmentItem>> IncludeShipments(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .AsSplitQuery()
@@ -109,7 +109,7 @@ namespace Smartstore
         /// <returns>Ordered order query.</returns>
         public static IOrderedQueryable<Order> ApplyStandardFilter(this IQueryable<Order> query, int? customerId = null, int? storeId = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (customerId.HasValue)
             {
@@ -134,19 +134,19 @@ namespace Smartstore
         /// <returns>Order query.</returns>
         public static IQueryable<Order> ApplyStatusFilter(this IQueryable<Order> query, int[] orderStatusIds = null, int[] paymentStatusIds = null, int[] shippingStatusIds = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
-            if (orderStatusIds?.Any() ?? false)
+            if (!orderStatusIds.IsNullOrEmpty())
             {
                 query = query.Where(x => orderStatusIds.Contains(x.OrderStatusId));
             }
 
-            if (paymentStatusIds?.Any() ?? false)
+            if (!paymentStatusIds.IsNullOrEmpty())
             {
                 query = query.Where(x => paymentStatusIds.Contains(x.PaymentStatusId));
             }
 
-            if (shippingStatusIds?.Any() ?? false)
+            if (!shippingStatusIds.IsNullOrEmpty())
             {
                 query = query.Where(x => shippingStatusIds.Contains(x.ShippingStatusId));
             }
@@ -168,7 +168,7 @@ namespace Smartstore
             string authorizationTransactionId = null,
             string captureTransactionId = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (authorizationTransactionId.HasValue())
             {
@@ -180,7 +180,7 @@ namespace Smartstore
                 query = query.Where(x => x.CaptureTransactionId == captureTransactionId);
             }
 
-            if (paymentMethodSystemNames?.Any() ?? false)
+            if (!paymentMethodSystemNames.IsNullOrEmpty())
             {
                 query = query.Where(x => paymentMethodSystemNames.Contains(x.PaymentMethodSystemName));
             }
@@ -201,11 +201,12 @@ namespace Smartstore
             string billingName = null,
             int[] billingCountryIds = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (billingEmail.HasValue())
             {
-                query = query.Where(x => x.BillingAddress != null && !string.IsNullOrEmpty(x.BillingAddress.Email) && x.BillingAddress.Email.Contains(billingEmail));
+                query = query.Where(x => x.BillingAddress != null 
+                    && !string.IsNullOrEmpty(x.BillingAddress.Email) && x.BillingAddress.Email.Contains(billingEmail));
             }
 
             if (billingName.HasValue())
@@ -218,7 +219,7 @@ namespace Smartstore
 
             if (!billingCountryIds.IsNullOrEmpty())
             {
-                query = query.Where(x => billingCountryIds.Contains((int)x.BillingAddress.CountryId));
+                query = query.Where(x => x.BillingAddress != null && billingCountryIds.Contains((int)x.BillingAddress.CountryId));
             }
 
             return query;
@@ -232,7 +233,7 @@ namespace Smartstore
         /// <returns>Query without completed orders.</returns>
         public static IQueryable<Order> ApplyIncompleteOrdersFilter(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query
                 .Where(x => x.OrderStatusId != (int)OrderStatus.Cancelled
@@ -247,7 +248,7 @@ namespace Smartstore
         /// <returns>Query with products which have never been sold.</returns>
         public static IQueryable<Product> ApplyNeverSoldProductsFilter(this IQueryable<Order> query, bool includeHidden = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var groupedProductId = (int)ProductType.GroupedProduct;
 
@@ -273,7 +274,7 @@ namespace Smartstore
         /// <returns><see cref="IQueryable"/> of <see cref="OrderDataPoint"/>.</returns>
         public static IQueryable<OrderDataPoint> SelectAsOrderDataPoint(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query.Select(x => new OrderDataPoint
             {
@@ -294,7 +295,7 @@ namespace Smartstore
         public static IQueryable<TopCustomerReportLine> SelectAsTopCustomerReportLine(this IQueryable<Order> query,
             ReportSorting sorting = ReportSorting.ByQuantityDesc)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var groupedQuery =
                 from o in query
@@ -324,7 +325,7 @@ namespace Smartstore
         /// <returns>Product costs</returns>
         public static Task<decimal> GetOrdersProductCostsAsync(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var db = query.GetDbContext<SmartDbContext>();
 
@@ -340,7 +341,7 @@ namespace Smartstore
         /// <returns>Orders totals.</returns>
         public static Task<decimal> GetOrdersTotalAsync(this IQueryable<Order> query)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
         }

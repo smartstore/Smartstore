@@ -1,6 +1,23 @@
 ﻿namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
+    /// Represents requirements of a standard checkout.
+    /// </summary>
+    /// <remarks>
+    /// If you have custom checkout requirements/steps then you must check directly via 
+    /// <see cref="ICheckoutFactory"/> whether they are required.
+    /// </remarks>
+    [Flags]
+    public enum CheckoutRequirements
+    {
+        BillingAddress = 1 << 0,
+        Shipping = 1 << 1,
+        Payment = 1 << 2,
+
+        All = BillingAddress | Shipping | Payment
+    }
+
+    /// <summary>
     /// Represents an order status.
     /// </summary>
     public enum OrderStatus

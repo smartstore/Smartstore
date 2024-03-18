@@ -55,7 +55,7 @@ namespace Smartstore.Core.Common.Services
             if (addressIds.Length > 0)
             {
                 var orders = await _db.Orders
-                    .Where(x => addressIds.Contains(x.BillingAddressId) || (x.ShippingAddressId != null && addressIds.Contains(x.ShippingAddressId.Value)))
+                    .Where(x => (x.BillingAddressId != null && addressIds.Contains(x.BillingAddressId.Value)) || (x.ShippingAddressId != null && addressIds.Contains(x.ShippingAddressId.Value)))
                     .ToListAsync(cancelToken);
 
                 foreach (var order in orders)

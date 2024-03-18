@@ -84,7 +84,7 @@
                         </p>
                     }
                 </div>
-                <div class="col-12 col-md-4">
+                <div sm-if="Model.Order.ShippingAddress != null" class="col-12 col-md-4">
                     <h5>@T("Order.Shipments.ShippingAddress")</h5>
                     @{ await RenderAddress(Model.Order.ShippingAddress); }
                 </div>

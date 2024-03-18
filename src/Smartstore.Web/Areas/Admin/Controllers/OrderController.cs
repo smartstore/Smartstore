@@ -179,8 +179,8 @@ namespace Smartstore.Admin.Controllers
             // Create order query.
             var orderQuery = _db.Orders
                 .Include(x => x.OrderItems)
-                .IncludeBillingAddress()
-                .IncludeShippingAddress()
+                .Include(x => x.BillingAddress)
+                .IncludeCustomer()
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
@@ -1793,8 +1793,8 @@ namespace Smartstore.Admin.Controllers
 
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
-            model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress.GetFullName().NaIfEmpty();
-            model.CustomerEmail = order.BillingAddress?.Email;
+            model.CustomerName = order.Customer?.GetDisplayName(T);
+            model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.FindEmail();
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
             model.PaymentStatusString = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
@@ -1802,7 +1802,7 @@ namespace Smartstore.Admin.Controllers
             model.ShippingMethod = order.ShippingMethod.NaIfEmpty();
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(order.UpdatedOnUtc, DateTimeKind.Utc);
-            model.EditUrl = Url.Action("Edit", "Order", new { id = order.Id });
+            model.EditUrl = Url.Action(nameof(Edit), "Order", new { id = order.Id });
             model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = order.CustomerId });
         }
 
@@ -1960,7 +1960,10 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            await order.BillingAddress.MapAsync(model.BillingAddress);
+            if (order.BillingAddress != null)
+            {
+                await order.BillingAddress.MapAsync(model.BillingAddress);
+            }
 
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {

@@ -410,11 +410,13 @@ namespace Smartstore.Google.Analytics.Services
                     ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
                     ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
                     ["CURRENCY"] = () => order.CustomerCurrencyCode,
-                    ["CITY"] = () => order.BillingAddress == null ? string.Empty : FixIllegalJavaScriptChars(order.BillingAddress.City),
-                    ["STATEPROVINCE"] = () => order.BillingAddress == null || order.BillingAddress.StateProvince == null
+                    ["CITY"] = () => order.BillingAddress == null 
+                        ? string.Empty 
+                        : FixIllegalJavaScriptChars(order.BillingAddress.City),
+                    ["STATEPROVINCE"] = () => order.BillingAddress?.StateProvince == null
                         ? string.Empty
                         : FixIllegalJavaScriptChars(order.BillingAddress.StateProvince.Name),
-                    ["COUNTRY"] = () => order.BillingAddress == null || order.BillingAddress.Country == null
+                    ["COUNTRY"] = () => order.BillingAddress?.Country == null
                         ? string.Empty
                         : FixIllegalJavaScriptChars(order.BillingAddress.Country.Name),
                     ["DETAILS"] = () => ecDetailScript

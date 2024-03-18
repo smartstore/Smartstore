@@ -12,12 +12,12 @@
 
     var store = CommonServices.StoreContext.CurrentStore;
     var shoppingCartService = CommonServices.Resolve<IShoppingCartService>();
-    var cart = await shoppingCartService.GetCartAsync(WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, store.Id);
+    var cart = await shoppingCartService.GetCartAsync(null, ShoppingCartType.ShoppingCart, store.Id);
 
     var model = await cart.MapAsync(
         isEditable: false,
         prepareEstimateShippingIfEnabled: false,
-        prepareAndDisplayOrderReviewData: false);
+        prepareAndDisplayOrderReviewData: true);
 
     model.DisplayCommentBox = false;
 }
@@ -65,7 +65,7 @@
 
         @* Back Button *@
         <div class="cart-buttons col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 mb-2">
-            <a asp-route="ShoppingCart" class="btn btn-secondary btn-lg btn-block">
+            <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg btn-block">
                 <i class="fa fa-angle-left mr-3"></i>
                 <span>@T("Common.Back")</span>
             </a>

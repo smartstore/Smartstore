@@ -80,6 +80,15 @@ namespace Smartstore.Core.Checkout.Orders
             cart.Customer.ResetCheckoutData(cart.StoreId);
             _checkoutStateAccessor.Abandon();
 
+            if (!cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress))
+            {
+                cart.Customer.BillingAddress = null;
+            }
+            if (!cart.IsShippingRequired)
+            {
+                cart.Customer.ShippingAddress = null;
+            }
+
             if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
@@ -141,7 +150,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return new(false);
             }
 
-            var result = await step.ProcessAsync(context);
+            var result = await ProcessInternal(step, context);
             if (result.SkipPage)
             {
                 // Current checkout page should be skipped. For example there is only one shipping method
@@ -185,7 +194,7 @@ namespace Smartstore.Core.Checkout.Orders
                 // Process all steps in sequence.
                 foreach (var step in steps)
                 {
-                    var result = await step.ProcessAsync(context);
+                    var result = await ProcessInternal(step, context);
                     if (!result.Success)
                     {
                         // Redirect to the checkout page associated with the "unsuccessful" step.
@@ -204,7 +213,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var step = _checkoutFactory.GetCheckoutStep(context);
                 if (step != null)
                 {
-                    var result = await step.ProcessAsync(context);
+                    var result = await ProcessInternal(step, context);
                     if (!result.Success)
                     {
                         // Redirect to the checkout page associated with the "unsuccessful" step.
@@ -338,6 +347,23 @@ namespace Smartstore.Core.Checkout.Orders
 
                 return new(paymentStep.GetActionResult(context), paymentStep.ViewPath);
             }
+        }
+
+        /// <summary>
+        /// Executes the handler associated with <paramref name="step"/> and fully prepares <see cref="CheckoutResult"/>.
+        /// </summary>
+        private static async Task<CheckoutResult> ProcessInternal(CheckoutStep step, CheckoutContext context)
+        {
+            var result = await step.Handler.Value.ProcessAsync(context);
+            result.ViewPath = step.ViewPath;
+
+            if (!result.Success)
+            {
+                // Redirect to the page associated with this step.
+                result.ActionResult ??= step.GetActionResult(context);
+            }
+
+            return result;
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace Smartstore
         /// <returns>Order item query.</returns>
         public static IQueryable<OrderItem> ApplyStandardFilter(this IQueryable<OrderItem> query, int? orderId = null, int? customerId = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (orderId.HasValue)
             {
@@ -55,7 +55,7 @@ namespace Smartstore
             int[] shippingStatusIds = null,
             int? billingCountryId = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var db = query.GetDbContext<SmartDbContext>();
 
@@ -68,7 +68,7 @@ namespace Smartstore
                     (orderStatusIds == null || orderStatusIds.Contains(o.OrderStatusId)) &&
                     (paymentStatusIds == null || paymentStatusIds.Contains(o.PaymentStatusId)) &&
                     (shippingStatusIds == null || shippingStatusIds.Contains(o.ShippingStatusId)) &&
-                    (!billingCountryId.HasValue || o.BillingAddress.CountryId == billingCountryId)
+                    (!billingCountryId.HasValue || (o.BillingAddress != null && o.BillingAddress.CountryId == billingCountryId))
                 select oi;
 
             return query;
@@ -84,7 +84,7 @@ namespace Smartstore
             bool includeHidden = false)
         {
             // TODO: (mh) (core) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var db = query.GetDbContext<SmartDbContext>();
 
@@ -114,7 +114,7 @@ namespace Smartstore
             int storeId = 0,
             bool includeHidden = false)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (productId == 0)
             {
@@ -168,7 +168,7 @@ namespace Smartstore
         /// <returns>Query of bestsellers report.</returns>
         public static IQueryable<BestsellersReportLine> SelectAsBestsellersReportLine(this IQueryable<OrderItem> query, ReportSorting sorting = ReportSorting.ByQuantityDesc)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             var selector = query
                 .GroupBy(x => x.ProductId)

@@ -1,14 +1,16 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class CheckoutContext(HttpContext httpContext, ShoppingCart cart)
+    public partial class CheckoutContext(ShoppingCart cart, HttpContext httpContext, IUrlHelper urlHelper)
     {
         public HttpContext HttpContext { get; } = Guard.NotNull(httpContext);
+        public IUrlHelper UrlHelper { get; set; } = Guard.NotNull(urlHelper);
 
         /// <summary>
         /// The shopping cart of the current customer.

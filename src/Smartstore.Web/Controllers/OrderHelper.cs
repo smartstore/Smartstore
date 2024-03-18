@@ -23,6 +23,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Pdf;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.Orders;
 
@@ -329,8 +330,12 @@ namespace Smartstore.Web.Controllers
             if (o.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
-                await MapperFactory.MapAsync(o.ShippingAddress, model.ShippingAddress);
                 model.ShippingMethod = o.ShippingMethod;
+
+                if (o.ShippingAddress != null)
+                {
+                    model.ShippingAddress = await MapperFactory.MapAsync<Address, AddressModel>(o.ShippingAddress);
+                }
 
                 // Shipments (only already shipped).
                 await _db.LoadCollectionAsync(o, x => x.Shipments);
@@ -356,10 +361,13 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            await MapperFactory.MapAsync(o.BillingAddress, model.BillingAddress);
+            if (o.BillingAddress != null)
+            {
+                model.BillingAddress = await MapperFactory.MapAsync<Address, AddressModel>(o.BillingAddress);
+            }
+
             model.VatNumber = o.VatNumber;
 
-            // Payment method.
             var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(o.PaymentMethodSystemName);
             model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : o.PaymentMethodSystemName;
             model.PaymentMethodSystemName = o.PaymentMethodSystemName;

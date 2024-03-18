@@ -20,6 +20,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
@@ -151,10 +152,13 @@ namespace Smartstore.Web.Models.Cart
             var currency = _services.WorkContext.WorkingCurrency;
 
             var isEditable = parameters?.IsEditable == true;
+            var isBillingAddresRequired = from.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
+            var isPaymentRequired = from.Requirements.HasFlag(CheckoutRequirements.Payment);
             var validateCheckoutAttributes = parameters?.ValidateCheckoutAttributes == true;
             var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
             var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
-            var prepareAndDisplayOrderReviewData = parameters?.PrepareAndDisplayOrderReviewData == true;
+            var prepareAndDisplayOrderReviewData = parameters?.PrepareAndDisplayOrderReviewData == true &&
+                (from.IsShippingRequired || isBillingAddresRequired || isPaymentRequired);
 
             #region Simple properties
 
@@ -439,12 +443,12 @@ namespace Smartstore.Web.Models.Cart
             if (prepareAndDisplayOrderReviewData)
             {
                 to.OrderReviewData.Display = true;
+                to.OrderReviewData.IsBillingAddressRequired = isBillingAddresRequired;
 
                 // Billing info.
-                var billingAddress = customer.BillingAddress;
-                if (billingAddress != null)
+                if (customer.BillingAddress != null && to.OrderReviewData.IsBillingAddressRequired)
                 {
-                    await MapperFactory.MapAsync(billingAddress, to.OrderReviewData.BillingAddress);
+                    to.OrderReviewData.BillingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.BillingAddress);
                 }
 
                 // Shipping info.
@@ -456,20 +460,21 @@ namespace Smartstore.Web.Models.Cart
 
                     if (customer.ShippingAddress != null)
                     {
-                        await MapperFactory.MapAsync(customer.ShippingAddress, to.OrderReviewData.ShippingAddress);
+                        to.OrderReviewData.ShippingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.ShippingAddress);
                     }
                 }
 
                 var state = _checkoutStateAccessor.CheckoutState;
                 var paymentMethod = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
 
-                state.CustomProperties.TryGetValueAs("HasOnlyOneActivePaymentMethod", out bool singlePaymentMethod);
-                to.OrderReviewData.DisplayPaymentMethodChangeOption = !singlePaymentMethod;
-
-                to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
+                to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata).NullEmpty() : null;
+                to.OrderReviewData.PaymentMethod ??= customer.GenericAttributes.SelectedPaymentMethod;
                 to.OrderReviewData.PaymentSummary = state.PaymentSummary;
                 to.OrderReviewData.IsPaymentSelectionSkipped = state.IsPaymentSelectionSkipped;
-                to.OrderReviewData.IsPaymentRequired = state.IsPaymentRequired;
+                to.OrderReviewData.IsPaymentRequired = state.IsPaymentRequired && isPaymentRequired;
+
+                state.CustomProperties.TryGetValueAs("HasOnlyOneActivePaymentMethod", out bool singlePaymentMethod);
+                to.OrderReviewData.DisplayPaymentMethodChangeOption = !singlePaymentMethod;
             }
 
             #endregion

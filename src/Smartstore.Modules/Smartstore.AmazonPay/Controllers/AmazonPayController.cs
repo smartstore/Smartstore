@@ -155,7 +155,7 @@ namespace Smartstore.AmazonPay.Controllers
                 var review = await ProcessCheckoutReview(cart, amazonCheckoutSessionId);
                 if (review.Success)
                 {
-                    var result = await _checkoutWorkflow.AdvanceAsync(new(HttpContext, cart));
+                    var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
                     if (result.ActionResult != null)
                     {
                         return result.ActionResult;
@@ -180,6 +180,7 @@ namespace Smartstore.AmazonPay.Controllers
         private async Task<CheckoutReviewResult> ProcessCheckoutReview(ShoppingCart cart, string checkoutSessionId)
         {
             var result = new CheckoutReviewResult();
+            var customer = cart.Customer;
 
             if (checkoutSessionId.IsEmpty())
             {
@@ -187,10 +188,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            var isShippingRequired = cart.IsShippingRequired;
-            var customer = cart.Customer;
-
-            result.IsShippingMethodMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
+            result.IsShippingMethodMissing = cart.IsShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
 
             if (!cart.HasItems)
             {
@@ -210,26 +208,30 @@ namespace Smartstore.AmazonPay.Controllers
             var client = HttpContext.GetAmazonPayApiClient(cart.StoreId);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
-            if (session.BillingAddress == null)
-            {
-                // Orders without a billing address cannot be created.
-                NotifyError(T("Plugins.Payments.AmazonPay.MissingBillingAddress"));
-                return result;
-            }
-
-            var billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
-            if (!billTo.Success)
-            {
-                // We have to redirect the buyer back to the shopping cart because we cannot change the address at this stage.
-                // We cannot store invalid addresses and assign them to a customer.
-                NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
-                result.RequiresAddressUpdate = true;
-                return result;
-            }
-
+            CheckoutAdressResult billTo = null;
             CheckoutAdressResult shipTo = null;
 
-            if (isShippingRequired)
+            if (cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress))
+            {
+                if (session.BillingAddress == null)
+                {
+                    // Orders without a billing address cannot be created.
+                    NotifyError(T("Plugins.Payments.AmazonPay.MissingBillingAddress"));
+                    return result;
+                }
+
+                billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
+                if (!billTo.Success)
+                {
+                    // We have to redirect the buyer back to the shopping cart because we cannot change the address at this stage.
+                    // We cannot store invalid addresses and assign them to a customer.
+                    NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
+                    result.RequiresAddressUpdate = true;
+                    return result;
+                }
+            }
+
+            if (cart.IsShippingRequired)
             {
                 shipTo = await _amazonPayService.CreateAddressAsync(session, customer, false);
                 if (!shipTo.Success)
@@ -241,22 +243,25 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             // Update customer.
-            var billingAddress = customer.FindAddress(billTo.Address);
-            if (billingAddress != null)
+            if (billTo != null)
             {
-                customer.BillingAddress = billingAddress;
+                var billingAddress = customer.FindAddress(billTo.Address);
+                if (billingAddress != null)
+                {
+                    customer.BillingAddress = billingAddress;
+                }
+                else
+                {
+                    customer.Addresses.Add(billTo.Address);
+                    customer.BillingAddress = billTo.Address;
+                }
             }
             else
             {
-                customer.Addresses.Add(billTo.Address);
-                customer.BillingAddress = billTo.Address;
+                customer.BillingAddress = null;
             }
 
-            if (shipTo == null)
-            {
-                customer.ShippingAddress = null;
-            }
-            else
+            if (shipTo != null)
             {
                 var shippingAddress = customer.FindAddress(shipTo.Address);
                 if (shippingAddress != null)
@@ -268,6 +273,10 @@ namespace Smartstore.AmazonPay.Controllers
                     customer.Addresses.Add(shipTo.Address);
                     customer.ShippingAddress = shipTo.Address;
                 }
+            }
+            else
+            {
+                customer.ShippingAddress = null;
             }
 
             customer.GenericAttributes.SelectedPaymentMethod = AmazonPayProvider.SystemName;
