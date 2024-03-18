@@ -115,7 +115,7 @@
                 </ul>
 
                 <div class="buttons">
-                    <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                    <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg">
                         <i class="fa fa-angle-left"></i>
                         <span>@T("Common.Back")</span>
                     </a>

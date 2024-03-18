@@ -146,6 +146,7 @@ namespace Smartstore.Admin.Controllers
                     .Include(x => x.StateProvince));
 
                 model.Id = customer.Id;
+                model.IsGuest = customer.IsGuest();
                 model.Email = customer.Email;
                 model.Username = customer.Username;
                 model.AdminComment = customer.AdminComment;
@@ -158,6 +159,7 @@ namespace Smartstore.Admin.Controllers
                 model.Title = customer.Title;
                 model.FirstName = customer.FirstName;
                 model.LastName = customer.LastName;
+                model.FullName = customer.GetFullName();
                 model.Company = customer.Company;
                 model.CustomerNumber = customer.CustomerNumber;
                 model.Gender = customer.Gender;
@@ -177,13 +179,12 @@ namespace Smartstore.Admin.Controllers
                 model.LastActivityDate = dtHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
                 model.LastIpAddress = customer.LastIpAddress;
                 model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
-                model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
+                model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !model.IsGuest;
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecords(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
-                model.IsGuest = customer.IsGuest();
 
-                model.Addresses = new CustomerModel.AddressesModel
+                model.Addresses = new()
                 {
                     Id = customer.Id,
                     Addresses = await customer.Addresses.MapAsync(customer, _shoppingCartSettings.QuickCheckoutEnabled)
@@ -430,6 +431,8 @@ namespace Smartstore.Admin.Controllers
         {
             var searchQuery = _db.Customers
                 .AsNoTracking()
+                .Include(x => x.BillingAddress)
+                .Include(x => x.ShippingAddress)
                 .IncludeCustomerRoles()
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber)
                 .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt());
@@ -596,6 +599,8 @@ namespace Smartstore.Admin.Controllers
             var customer = await _db.Customers
                 .AsSplitQuery()
                 .IncludeCustomerRoles()
+                .Include(x => x.BillingAddress)
+                .Include(x => x.ShippingAddress)
                 .Include(x => x.Addresses)
                 .Include(x => x.ExternalAuthenticationRecords)
                 .FindByIdAsync(id);

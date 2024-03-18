@@ -10,7 +10,7 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public class CheckoutPaymentMethodMapper : Mapper<ShoppingCart, CheckoutPaymentMethodModel>
+    public class CheckoutPaymentMethodMapper : Mapper<CheckoutContext, CheckoutPaymentMethodModel>
     {
         private static PaymentMethodType[] PaymentTypes =>
         [
@@ -27,6 +27,7 @@ namespace Smartstore.Web.Models.Checkout
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ICheckoutFactory _checkoutFactory;
         private readonly ITaxCalculator _taxCalculator;
         private readonly PaymentSettings _paymentSettings;
         
@@ -38,6 +39,7 @@ namespace Smartstore.Web.Models.Checkout
             ITaxService taxService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
+            ICheckoutFactory checkoutFactory,
             ITaxCalculator taxCalculator,
             PaymentSettings paymentSettings)
         {
@@ -48,28 +50,31 @@ namespace Smartstore.Web.Models.Checkout
             _taxService = taxService;
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _checkoutFactory = checkoutFactory;
             _taxCalculator = taxCalculator;
             _paymentSettings = paymentSettings;
         }
 
-        protected override void Map(ShoppingCart from, CheckoutPaymentMethodModel to, dynamic parameters = null)
+        protected override void Map(CheckoutContext from, CheckoutPaymentMethodModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(ShoppingCart from, CheckoutPaymentMethodModel to, dynamic parameters = null)
+        public override async Task MapAsync(CheckoutContext from, CheckoutPaymentMethodModel to, dynamic parameters = null)
         {
             Guard.NotNull(from);
             Guard.NotNull(to);
 
             var state = _checkoutStateAccessor.CheckoutState;
+            var cart = from.Cart;
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-            var providers = await _paymentService.LoadActivePaymentProvidersAsync(from, from.StoreId, PaymentTypes);
+            var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, PaymentTypes);
 
-            if (from.ContainsRecurringItem())
+            if (cart.ContainsRecurringItem())
             {
                 providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
             }
 
             to.DisplayPaymentMethodIcons = _paymentSettings.DisplayPaymentMethodIcons;
+            to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
 
             foreach (var pp in providers)
             {
@@ -90,7 +95,7 @@ namespace Smartstore.Web.Models.Checkout
 
                 // Payment method additional fee.
                 var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
-                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pp.Metadata.SystemName);
+                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart, pp.Metadata.SystemName);
                 var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee.Amount);
                 var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _workContext.WorkingCurrency);
 
@@ -106,7 +111,7 @@ namespace Smartstore.Web.Models.Checkout
 
             // Find a selected (previously) payment method.
             var selected = false;
-            var selectedPaymentMethodSystemName = from.Customer.GenericAttributes.SelectedPaymentMethod;
+            var selectedPaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
             if (selectedPaymentMethodSystemName.HasValue())
             {
                 var paymentMethodToSelect = to.PaymentMethods.Find(pm => pm.PaymentMethodSystemName.EqualsNoCase(selectedPaymentMethodSystemName));

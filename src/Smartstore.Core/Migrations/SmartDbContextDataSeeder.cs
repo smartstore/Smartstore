@@ -206,10 +206,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.QuickCheckoutEnabled",
                 "Quick Checkout",
                 "Quick-Checkout",
-                "With Quick Checkout, the customer's default purchase settings (e.g. for the billing and shipping address) are applied and the associated checkout steps are skipped."
-                + " This allows the customer to go directly to the order confirmation page and complete the purchase.",
-                "Beim Quick-Checkout werden Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift) und die zugehörigen Checkout-Schritte übersprungen."
-                + " Der Kunde hat so die Möglichkeit direkt auf die Bestellbestätigungsseite zu gelangen und den Kauf abzuschließen.");
+                "With Quick Checkout, settings from the customer's last order or default purchase settings (e.g. for the billing and shipping address) are applied"
+                + " and the associated checkout steps are skipped. This allows the customer to go directly from the shopping cart to the order confirmation page.",
+                "Beim Quick-Checkout werden Einstellungen der letzten Bestellung oder Kaufvoreinstellungen des Kunden angewendet (z.B. für die Rechnungs- und Lieferanschrift)"
+                + " und die zugehörigen Checkout-Schritte übersprungen. Der Kunde hat so die Möglichkeit direkt vom Warenkorb zur Bestellbestätigungsseite zu gelangen.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CustomersCanChangePreferredShipping",
                 "Customers can change their preferred shipping method",
@@ -228,14 +228,20 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Checkout.Process.Standard",
                 "Standard",
                 "Standard",
-                "All required checkout steps are processed.",
-                "Alle erforderlichen Checkout-Schritte werden durchlaufen.");
+                "The customer goes through all the necessary checkout steps.",
+                "Der Kunde durchläuft alle erforderlichen Checkout-Schritte.");
 
             builder.AddOrUpdate("Checkout.Process.Terminal",
                 "Terminal",
                 "Terminal",
-                "All checkout steps are skipped. The customer is directly redirected to the confirmation page.",
-                "Alle Checkout-Schritte werden übersprungen. Der Käufer gelangt direkt zur Bestätigungsseite.");
+                "The customer is directly redirected to the confirmation page. Addresses, shipping and payment methods are skipped.",
+                "Der Kunde gelangt direkt zur Bestätigungsseite. Anschriften, Versand- und Zahlart werden übersprungen.");
+
+            builder.AddOrUpdate("Checkout.Process.Terminal.PaymentMethod",
+                "Terminal with payment",
+                "Terminal mit Zahlung",
+                "The customer is redirected to the confirmation page via the payment method selection. Addresses and shipping methods are skipped.",
+                "Der Kunde gelangt über die Zahlartauswahl zur Bestätigungsseite. Anschriften und Versandart werden übersprungen.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.CheckoutProcess",
                 "Checkout process",

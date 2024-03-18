@@ -4,7 +4,7 @@ using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public partial class CheckoutAddressModel : ModelBase
+    public partial class CheckoutAddressModel : CheckoutModelBase
     {
         public bool IsShippingRequired { get; set; }
 

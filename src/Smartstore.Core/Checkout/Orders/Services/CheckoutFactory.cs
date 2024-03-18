@@ -17,7 +17,15 @@ namespace Smartstore.Core.Checkout.Orders
                 _isTerminalCheckout = true;
 
                 _handlers = handlers
-                    .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler))/* || x.Metadata.HandlerType.Equals(typeof(PaymentMethodHandler))*/)
+                    .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler)))
+                    .OrderBy(x => x.Metadata.Order);
+            }
+            else if (shoppingCartSettings.CheckoutProcess.EqualsNoCase(CheckoutProcess.TerminalWithPayment))
+            {
+                _isTerminalCheckout = true;
+
+                _handlers = handlers
+                    .Where(x => x.Metadata.HandlerType.Equals(typeof(ConfirmHandler)) || x.Metadata.HandlerType.Equals(typeof(PaymentMethodHandler)))
                     .OrderBy(x => x.Metadata.Order);
             }
             else
@@ -63,7 +71,10 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual CheckoutStep GetNextCheckoutStep(CheckoutStep step, bool next)
         {
-            Guard.NotNull(step);
+            if (step == null)
+            {
+                return null;
+            }
 
             Lazy<ICheckoutHandler, CheckoutHandlerMetadata> handler;
 

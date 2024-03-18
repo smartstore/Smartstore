@@ -155,7 +155,7 @@ namespace Smartstore.AmazonPay.Controllers
                 var review = await ProcessCheckoutReview(cart, amazonCheckoutSessionId);
                 if (review.Success)
                 {
-                    var result = await _checkoutWorkflow.AdvanceAsync(new(HttpContext, cart));
+                    var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
                     if (result.ActionResult != null)
                     {
                         return result.ActionResult;

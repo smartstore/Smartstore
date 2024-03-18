@@ -179,9 +179,8 @@ namespace Smartstore.Admin.Controllers
             // Create order query.
             var orderQuery = _db.Orders
                 .Include(x => x.OrderItems)
-                .Include(x => x.Customer)
-                .IncludeBillingAddress()
-                .IncludeShippingAddress()
+                .Include(x => x.BillingAddress)
+                .IncludeCustomer()
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
@@ -1794,8 +1793,8 @@ namespace Smartstore.Admin.Controllers
 
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
-            model.CustomerName = order.Customer.GetFullName().NaIfEmpty();
-            model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.Email;
+            model.CustomerName = order.Customer?.GetDisplayName(T);
+            model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.FindEmail();
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
             model.PaymentStatusString = Services.Localization.GetLocalizedEnum(order.PaymentStatus);

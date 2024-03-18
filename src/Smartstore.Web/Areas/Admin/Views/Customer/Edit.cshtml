@@ -9,7 +9,7 @@
         <div class="title">
             <a sm-backto asp-action="List"></a>
             <i class="far fa-user-edit"></i>
-            <span>@ViewBag.Title - @Model.Username</span>
+            <span>@ViewBag.Title - @(Model.FullName.NullEmpty() ?? (Model.IsGuest ? T("Admin.Customers.Guest") : string.Empty))</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />

@@ -1,10 +1,8 @@
 ﻿namespace Smartstore.Web.Models.Checkout
 {
-    public partial class CheckoutShippingMethodModel : ModelBase
+    public partial class CheckoutShippingMethodModel : CheckoutModelBase
     {
-        public List<ShippingMethodModel> ShippingMethods { get; set; } = new();
-
-        public List<string> Warnings { get; set; } = new();
+        public List<ShippingMethodModel> ShippingMethods { get; set; } = [];
 
         public partial class ShippingMethodModel : ModelBase
         {

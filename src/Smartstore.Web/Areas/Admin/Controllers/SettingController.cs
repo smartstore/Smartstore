@@ -1215,25 +1215,27 @@ namespace Smartstore.Admin.Controllers
                 locale.ThirdPartyEmailHandOverLabel = settings.GetLocalizedSetting(x => x.ThirdPartyEmailHandOverLabel, languageId, storeScope, false, false);
             });
 
-            var standard = new ExtendedSelectListItem
+            ViewBag.Checkouts = new List<ExtendedSelectListItem>
             {
-                Text = T("Checkout.Process.Standard"),
-                Value = CheckoutProcess.Standard,
-                Selected = settings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Standard)
+                CreateCheckoutProcessItem(CheckoutProcess.Standard),
+                CreateCheckoutProcessItem(CheckoutProcess.Terminal),
+                CreateCheckoutProcessItem(CheckoutProcess.TerminalWithPayment)
             };
-            standard.CustomProperties["Description"] = T("Checkout.Process.Standard.Hint").Value;
-
-            var terminal = new ExtendedSelectListItem
-            {
-                Text = T("Checkout.Process.Terminal"),
-                Value = CheckoutProcess.Terminal,
-                Selected = settings.CheckoutProcess.EqualsNoCase(CheckoutProcess.Terminal)
-            };
-            terminal.CustomProperties["Description"] = T("Checkout.Process.Terminal.Hint").Value;
-
-            ViewBag.Checkouts = new List<ExtendedSelectListItem> { standard, terminal };
 
             return View(model);
+
+            ExtendedSelectListItem CreateCheckoutProcessItem(string process)
+            {
+                var item = new ExtendedSelectListItem
+                {
+                    Text = T("Checkout.Process." + process),
+                    Value = process,
+                    Selected = settings.CheckoutProcess.EqualsNoCase(process)
+                };
+
+                item.CustomProperties["Description"] = T($"Checkout.Process.{process}.Hint").Value;
+                return item;
+            }
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]

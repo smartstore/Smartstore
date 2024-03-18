@@ -6,6 +6,7 @@ namespace Smartstore.Core.Checkout.Orders
     {
         public const string Standard = "Standard";
         public const string Terminal = "Terminal";
+        public const string TerminalWithPayment = "Terminal.PaymentMethod";
     }
 
     public static partial class CheckoutActionNames
@@ -38,13 +39,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="action">Name of the action method.</param>
         /// <param name="controller">Name of the controller.</param>
         /// <param name="area">Area name. <c>null</c> by default.</param>
-        CheckoutStep GetCheckoutStep(string action, string controller = "Checkout", string? area = null);
+        CheckoutStep? GetCheckoutStep(string action, string controller = "Checkout", string? area = null);
 
         /// <summary>
         /// Gets the next/previous step in checkout.
         /// </summary>
         /// <param name="step">Step to get the next/previous checkout step for.</param>
         /// <param name="next"><c>true</c> to get the next, <c>false</c> to get the previous checkout step.</param>
-        CheckoutStep GetNextCheckoutStep(CheckoutStep step, bool next);
+        CheckoutStep? GetNextCheckoutStep(CheckoutStep? step, bool next);
     }
 }
