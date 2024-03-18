@@ -63,9 +63,7 @@
                         <smart-label asp-for="ParentItemId"/>
                     </div>
                     <div class="adminData">
-                        <select asp-for="ParentItemId" asp-items="Model.AllItems">
-                            <option>@T("Common.Unspecified")</option>
-                        </select>
+                        <select asp-for="ParentItemId" asp-items="Model.AllItems" asp-placeholder="@T("Common.Unspecified")"></select>
                         <span asp-validation-for="ParentItemId"></span>
                     </div>
                 </div>
@@ -187,9 +185,7 @@
                         <smart-label asp-for="IconColor"/>
                     </div>
                     <div class="adminData">
-                        <select asp-for="IconColor" asp-items="@iconColors" class="icon-color-chooser">
-                            <option>@T("Common.Unspecified")</option>
-                        </select>
+                        <select asp-for="IconColor" asp-items="@iconColors" class="icon-color-chooser" asp-placeholder="@T("Common.Unspecified")"></select>
                         <span asp-validation-for="IconColor"></span>
                     </div>
                 </div>

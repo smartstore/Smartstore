@@ -30,8 +30,7 @@
                     <smart-label asp-for="CloneProfileId" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="CloneProfileId" class="form-control-lg select-customtemplate drop-customtemplate">
-                        <option>@T("Common.Unspecified")</option>
+                    <select asp-for="CloneProfileId" class="form-control-lg select-customtemplate drop-customtemplate" asp-placeholder="@T("Common.Unspecified")">
 						@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
 						{
 							<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@profile.ImageUrl">@profile.FriendlyName</option>
