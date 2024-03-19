@@ -279,6 +279,7 @@
                 if (invisible) {
                     if (frm.data('ajax')) {
                         frm.find("#g-recaptcha-response").val(token);
+                        frm.trigger('recaptchasuccess');
                     }
                     else if (frm) {
                         frm[0].submit();
@@ -288,7 +289,6 @@
         });
 
         if (invisible) {
-
             // if form has attr data-ajax
             if (frm.data('ajax')) {
                 frm.on('ajaxsubmit', function (e) {
