@@ -109,15 +109,12 @@
             options.targetInput = $(self.data('target')).first();
         }
 
-        if (options.targetInput && !_.isArray(options.selected)) {
+        if (options.targetInput) {
             var val = $(options.targetInput).val();
             if (val && val.length > 0) {
+                var returnId = options.returnField.toLowerCase() === 'id';
                 options.selected = _.map(val.split(options.delim), function (x) {
-                    var result = x.trim();
-                    if (options.returnField.toLowerCase() === 'id') {
-                        result = toInt(result);
-                    }
-                    return result;
+                    return returnId ? toInt(x.trim()) : x.trim();
                 });
             }
         }
@@ -157,7 +154,7 @@
             fillList(dialog, { append: false });
 
             setTimeout(function () {
-                dialog.find('.modal-header :input:visible:enabled:first').focus();
+                dialog.find('.modal-header :input:visible:enabled:first')[0].focus();
             }, 800);
         }
 
@@ -200,25 +197,25 @@
     }
 
     function initDialog(context) {
-        var dialog = $(context),
-            keyUpTimer = null,
-            currentValue = '';
+        var dialog = $(context);
+        var keyUpTimer = null;
+        var currentValue = '';
 
         // search entities
-        dialog.find('button[name=SearchEntities]').click(function (e) {
+        dialog.find('button[name=SearchEntities]').on('click', function (e) {
             e.preventDefault();
             fillList(this, { append: false });
             return false;
         });
 
         // toggle filters
-        dialog.find('button[name=FilterEntities]').click(function () {
+        dialog.find('button[name=FilterEntities]').on('click', function () {
             dialog.find('.entpicker-filter').slideToggle(200);
         });
 
         // hit enter or key up starts searching
-        dialog.find('input.entpicker-searchterm').keydown(function (e) {
-            if (e.keyCode == 13) {
+        dialog.find('input.entpicker-searchterm').on('keydown', function (e) {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 return false;
             }
@@ -292,17 +289,10 @@
 
         // return value(s)
         dialog.find('.modal-footer .btn-primary').on('click', function () {
-            var dialog = $(this).closest('.entpicker'),
-                items = dialog.find('.entpicker-list .selected'),
-                opts = dialog.data('entitypicker'),
-                result = '';
-
-            items.each(function (index, elem) {
-                var val = $(elem).attr('data-returnvalue');
-                if (!_.isEmpty(val)) {
-                    result = (_.isEmpty(result) ? val : (result + opts.delim + val));
-                }
-            });
+            var dialog = $(this).closest('.entpicker');
+            var items = dialog.find('.entpicker-list .selected');
+            var opts = dialog.data('entitypicker');
+            var returnId = opts.returnField.toLowerCase() === 'id';
 
             var selectedItems = _.map(items, function (val) {
                 return {
@@ -312,24 +302,20 @@
             });
 
             var selectedValues = _.uniq(_.map(selectedItems, function (x) {
-                var result = x.id;
-                if (opts.returnField.toLowerCase() === 'id' && !_.isNumber(result)) {
-                    result = toInt(result);
-                }
-                return result;
+                return returnId && !_.isNumber(x.id) ? toInt(x.id) : x.id;
             }));
 
             if (opts.appendMode && _.isArray(opts.selected)) {
                 selectedValues = _.union(opts.selected, selectedValues);
             }
 
+            var selectedValuesStr = selectedValues.join(opts.delim);
+
             if (opts.targetInput) {
-                $(opts.targetInput)
-                    .val(selectedValues.join(opts.delim))
-                    .focus()
-                    .blur()
-                    .trigger("change");
+                $(opts.targetInput).val(selectedValuesStr).trigger('change');
             }
+
+            dialog.find('input[name=Selected]').val(selectedValuesStr);
 
             if (_.isFunction(window[opts.onSelectionCompleted])) {
                 if (window[opts.onSelectionCompleted](selectedValues, selectedItems, dialog)) {
@@ -342,7 +328,7 @@
         });
 
         // cancel
-        dialog.find('button[class=btn][data-dismiss=modal]').click(function () {
+        dialog.find('button.entpicker-cancel').on('click', function () {
             dialog.find('.entpicker-list').empty();
             dialog.find('.footer-note span').hide();
             dialog.find('.modal-footer .btn-primary').prop('disabled', true);
@@ -353,8 +339,8 @@
         var dialog = $(context).closest('.entpicker');
 
         if (opt.append) {
-            var pageElement = dialog.find('input[name=PageIndex]'),
-                pageIndex = parseInt(pageElement.val());
+            var pageElement = dialog.find('input[name=PageIndex]');
+            var pageIndex = parseInt(pageElement.val());
 
             pageElement.val(pageIndex + 1);
         }
@@ -363,6 +349,7 @@
         }
 
         $.ajax({
+            global: false,
             cache: false,
             type: 'POST',
             data: dialog.find('form:first').serialize(),
@@ -380,8 +367,8 @@
                 dialog.find('.load-more').append(createCircularSpinner(20, true));
             },
             success: function (response) {
-                var list = dialog.find('.entpicker-list'),
-                    data = dialog.data('entitypicker');
+                var list = dialog.find('.entpicker-list');
+                var data = dialog.data('entitypicker');
 
                 list.stop().append(response);
 
