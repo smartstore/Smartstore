@@ -18,6 +18,9 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*SearchShowOnProductPage")]
         public bool? SearchShowOnProductPage { get; set; }
+
+        [LocalizedDisplay("*SearchEssential")]
+        public bool? SearchEssential { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.")]
@@ -28,6 +31,9 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Alias")]
         public string Alias { get; set; }
+
+        [LocalizedDisplay("*Essential")]
+        public bool Essential { get; set; }
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }

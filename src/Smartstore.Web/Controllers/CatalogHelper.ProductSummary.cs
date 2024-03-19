@@ -610,25 +610,26 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(attributes);
 
-            if (!attributes.Any())
+            if (attributes.IsNullOrEmpty())
+            {
                 return Enumerable.Empty<ProductSpecificationModel>();
+            }
 
             var productId = attributes.First().ProductId;
+            var cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, productId, _workContext.WorkingLanguage.Id);
 
-            string cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, productId, _workContext.WorkingLanguage.Id);
             return _cache.Get(cacheKey, () =>
             {
-                var model = attributes.Select(psa =>
+                var models = attributes.Select(psa => new ProductSpecificationModel
                 {
-                    return new ProductSpecificationModel
-                    {
-                        SpecificationAttributeId = psa.SpecificationAttributeOption.SpecificationAttributeId,
-                        SpecificationAttributeName = psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
-                        SpecificationAttributeOption = psa.SpecificationAttributeOption.GetLocalized(x => x.Name)
-                    };
-                }).ToList();
+                    SpecificationAttributeId = psa.SpecificationAttributeOption.SpecificationAttributeId,
+                    SpecificationAttributeName = psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
+                    SpecificationAttributeOption = psa.SpecificationAttributeOption.GetLocalized(x => x.Name),
+                    Essential = psa.SpecificationAttributeOption.SpecificationAttribute.Essential
+                })
+                .ToList();
 
-                return model;
+                return models;
             });
         }
     }

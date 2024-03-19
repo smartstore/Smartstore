@@ -16,15 +16,16 @@
         <tbody>
             @foreach (var group in grouped)
             {
-                <tr>
+                var count = group.Count();
+                <tr attr-class='(group.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
                     <td class="pd-spec-name" sm-language-attributes-for="group.Key">@group.Key</td>
                     <td class="pd-spec-value">
-                        @if (group.Count() == 1)
+                        @if (count == 1)
                         {
                             var option = group.First().SpecificationAttributeOption;
                             <span sm-language-attributes-for="option">@option</span>
                         }
-                        else if (group.Count() > 1)
+                        else if (count > 1)
                         {
                             <ul class="mb-0 pl-3">
                                 @foreach (var item in group)

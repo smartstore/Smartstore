@@ -162,6 +162,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Operating System",
                 DisplayOrder = 5,
+                Essential = true
             };
             sa5.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
             {
@@ -287,6 +288,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Material",
                 DisplayOrder = 8,
+                Essential = true
             };
             sa8.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
             {
@@ -452,6 +454,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Language",
                 DisplayOrder = 12,
+                Essential = true
             };
             sa12.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
             {
@@ -557,6 +560,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Computer-type",
                 DisplayOrder = 15,
+                Essential = true
             };
             sa15.SpecificationAttributeOptions.Add(new SpecificationAttributeOption()
             {

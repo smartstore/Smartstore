@@ -184,27 +184,23 @@
                         }
                     </tr>
 
-                    @foreach (var specificationAttribute in specificationAttributes)
+                    @foreach (var attribute in specificationAttributes)
                     {
-                        <tr>
+                        <tr attr-class='(attribute.Essential, "pd-spec-essential")'>
                             <th class="caption">
-                                <span sm-language-attributes-for="specificationAttribute.SpecificationAttributeName">
-                                    @specificationAttribute.SpecificationAttributeName
+                                <span sm-language-attributes-for="attribute.SpecificationAttributeName">
+                                    @(attribute.SpecificationAttributeName)
                                 </span>
                             </th>
                             @foreach (var product in Model.Items)
                             {
-                                var foundProductSpecs = product.SpecificationAttributes
-                                    .Where(psa => psa.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId);
-
                                 <td>
-                                    @foreach (var spec in foundProductSpecs)
+                                    @foreach (var spec in product.SpecificationAttributes.Where(x => x.SpecificationAttributeId == attribute.SpecificationAttributeId))
                                     {
-                                        var specValue = spec != null ? spec.SpecificationAttributeOption : null;
-
-                                        if (specValue != null && specValue.Value.HasValue())
+                                        var option = spec?.SpecificationAttributeOption?.Value;
+                                        if (option.HasValue())
                                         {
-                                            <div sm-language-attributes-for="specValue">@specValue</div>
+                                            <div sm-language-attributes-for="option">@option</div>
                                         }
                                         else
                                         {

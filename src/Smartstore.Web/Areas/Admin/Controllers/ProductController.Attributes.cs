@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
-                .ApplyProductsFilter(new[] { productId })
+                .ApplyProductsFilter([productId])
                 .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.DisplayOrder)
                 .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
                 .ApplyGridCommand(command)
@@ -49,6 +49,7 @@ namespace Smartstore.Admin.Controllers
                     AllowFiltering = x.AllowFiltering,
                     ShowOnProductPage = x.ShowOnProductPage,
                     DisplayOrder = x.DisplayOrder,
+                    Essential = x.SpecificationAttributeOption.SpecificationAttribute.Essential,
                     SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId })
                 };
 

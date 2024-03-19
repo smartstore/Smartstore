@@ -11,6 +11,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a specification attribute.
     /// </summary>
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
+    [Index(nameof(Essential), Name = "IX_EssentialAttribute")]
     [LocalizedEntity("ShowOnProductPage or AllowFiltering")]
     public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
@@ -25,6 +26,12 @@ namespace Smartstore.Core.Catalog.Attributes
         [StringLength(30)]
         [LocalizedProperty]
         public string Alias { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the specification attribute is essential.
+        /// Essential attributes are also displayed in the checkout (e.g. on the order confirmation page).
+        /// </summary>
+        public bool Essential { get; set; }
 
         /// <summary>
         /// Gets or sets the display order.

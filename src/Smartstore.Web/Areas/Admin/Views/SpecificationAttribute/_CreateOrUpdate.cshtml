@@ -85,6 +85,15 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
+                    <smart-label asp-for="Essential" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Essential" />
+                    <span asp-validation-for="Essential"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
                     <smart-label asp-for="ShowOnProductPage" />
                 </div>
                 <div class="adminData">

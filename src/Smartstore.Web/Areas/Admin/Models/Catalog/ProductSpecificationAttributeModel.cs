@@ -21,5 +21,8 @@
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Essential")]
+        public bool Essential { get; set; }
     }
 }

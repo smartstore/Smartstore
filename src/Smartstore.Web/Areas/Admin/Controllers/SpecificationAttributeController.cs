@@ -152,6 +152,11 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.ShowOnProductPage == model.SearchShowOnProductPage.Value);
             }
 
+            if (model.SearchEssential.HasValue)
+            {
+                query = query.Where(x => x.Essential == model.SearchEssential.Value);
+            }
+
             var attributes = await query
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name)

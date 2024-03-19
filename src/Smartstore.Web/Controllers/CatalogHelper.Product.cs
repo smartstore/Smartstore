@@ -1206,8 +1206,8 @@ namespace Smartstore.Web.Controllers
 
             var product = modelContext.Product;
             var batchContext = modelContext.BatchContext;
+            var cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
 
-            string cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
             return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 List<ProductSpecificationAttribute> attrs;
@@ -1237,7 +1237,8 @@ namespace Smartstore.Web.Controllers
                     {
                         SpecificationAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
                         SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
-                        SpecificationAttributeOption = x.SpecificationAttributeOption.GetLocalized(x => x.Name)
+                        SpecificationAttributeOption = x.SpecificationAttributeOption.GetLocalized(x => x.Name),
+                        Essential = x.SpecificationAttributeOption.SpecificationAttribute.Essential
                     })
                     .ToList();
             });
