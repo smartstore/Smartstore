@@ -1,21 +1,36 @@
-﻿using Smartstore.ComponentModel;
+﻿using Org.BouncyCastle.Crypto.Parameters;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Catalog;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {
     public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartItem, TModel>
        where TModel : CartEntityModelBase
     {
+        const string AttributeFormatTemplate = "<span>{0}:</span> <span>{1}</span>";
+
+        static readonly ProductAttributeFormatOptions DefaultAttributeFormatOptions = new()
+        {
+            IncludePrices = false,
+            ItemSeparator = Environment.NewLine,
+            FormatTemplate = AttributeFormatTemplate
+        };
+
+        static readonly ProductAttributeFormatOptions AttributeFormatOptionsWithPrice = new()
+        {
+            IncludePrices = true,
+            ItemSeparator = Environment.NewLine,
+            FormatTemplate = AttributeFormatTemplate
+        };
+
         protected readonly ICommonServices _services;
         protected readonly IPriceCalculationService _priceCalculationService;
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -39,8 +54,6 @@ namespace Smartstore.Web.Models.Cart
             _catalogHelper = catalogHelper;
         }
 
-        public SmartDbContext Db { get; set; }
-        public ICurrencyService CurrencyService { get; set; }
         public IShoppingCartService ShoppingCartService { get; set; }
         public IPriceLabelService PriceLabelService { get; set; }
         public IProductAttributeFormatter ProductAttributeFormatter { get; set; }
@@ -62,6 +75,7 @@ namespace Smartstore.Web.Models.Cart
             var shoppingCartType = item.ShoppingCartType;
             var productSeName = await product.GetActiveSlugAsync();
             var batchContext = parameters?.BatchContext as ProductBatchContext;
+            var showEssentialAttributes = parameters?.ShowEssentialAttributes ?? true;
 
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
@@ -77,6 +91,20 @@ namespace Smartstore.Web.Models.Cart
             to.VisibleIndividually = product.Visibility != ProductVisibility.Hidden;
             to.CreatedOnUtc = item.UpdatedOnUtc;
 
+            to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
+                item.AttributeSelection,
+                product,
+                item.BundleItem != null ? DefaultAttributeFormatOptions : AttributeFormatOptionsWithPrice,
+                customer,
+                batchContext);
+
+            if (batchContext != null && showEssentialAttributes)
+            {
+                to.EssentialSpecAttributesInfo = ProductAttributeFormatter.FormatSpecificationAttributes(
+                    await batchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+                    DefaultAttributeFormatOptions);
+            }
+
             await from.MapQuantityInputAsync(to);
 
             if (item.BundleItem != null)
@@ -91,13 +119,6 @@ namespace Smartstore.Web.Models.Cart
                     Title = item.BundleItem.BundleProduct.GetLocalized(x => x.BundleTitleText)
                 };
 
-                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
-                    item.AttributeSelection,
-                    product,
-                    new ProductAttributeFormatOptions { IncludePrices = false, ItemSeparator = Environment.NewLine, FormatTemplate = "<span>{0}:</span> <span>{1}</span>" },
-                    customer,
-                    batchContext: batchContext);
-
                 var bundleItemName = item.BundleItem.GetLocalized(x => x.Name);
                 if (bundleItemName.Value.HasValue())
                 {
@@ -109,15 +130,6 @@ namespace Smartstore.Web.Models.Cart
                 {
                     to.ShortDesc = bundleItemShortDescription;
                 }
-            }
-            else
-            {
-                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
-                    item.AttributeSelection, 
-                    product,
-                    new ProductAttributeFormatOptions { ItemSeparator = Environment.NewLine, FormatTemplate = "<span>{0}:</span> <span>{1}</span>" },
-                    customer, 
-                    batchContext: batchContext);
             }
 
             if (product.IsRecurring)
@@ -256,7 +268,7 @@ namespace Smartstore.Web.Models.Cart
                 // Regular price
                 if (unitPrice.Saving.HasSaving && unitPrice.RegularPrice.HasValue)
                 {
-                    priceModel.RegularPrice = GetComparePriceModel(ConvertMoney(unitPrice.RegularPrice.Value, taxFormat), unitPrice.RegularPriceLabel);
+                    priceModel.RegularPrice = CreateComparePriceModel(ConvertMoney(unitPrice.RegularPrice.Value, taxFormat), unitPrice.RegularPriceLabel);
                     if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
                     {
                         // Change regular price label: "Regular/Lowest" --> "Instead of"
@@ -268,7 +280,7 @@ namespace Smartstore.Web.Models.Cart
                 var canMapRetailPrice = !unitPrice.RegularPrice.HasValue || PriceSettings.AlwaysDisplayRetailPrice;
                 if (canMapRetailPrice && unitPrice.RetailPrice.HasValue)
                 {
-                    priceModel.RetailPrice = GetComparePriceModel(ConvertMoney(unitPrice.RetailPrice.Value, taxFormat), unitPrice.RetailPriceLabel);
+                    priceModel.RetailPrice = CreateComparePriceModel(ConvertMoney(unitPrice.RetailPrice.Value, taxFormat), unitPrice.RetailPriceLabel);
 
                     // Don't show saving if there is no actual discount and ShowRetailPriceSaving is FALSE
                     if (priceModel.RegularPrice == null && !priceModel.ShowRetailPriceSaving)
@@ -294,21 +306,21 @@ namespace Smartstore.Web.Models.Cart
                 // Shipping surcharge
                 if (product.AdditionalShippingCharge > 0)
                 {
-                    var charge = CurrencyService.ConvertFromPrimaryCurrency(product.AdditionalShippingCharge, currency);
+                    var charge = _services.CurrencyService.ConvertFromPrimaryCurrency(product.AdditionalShippingCharge, currency);
                     priceModel.ShippingSurcharge = charge.WithPostFormat(T("Common.AdditionalShippingSurcharge"));
                 }
             }
 
             Money ConvertMoney(Money money, string postFormat = null)
             {
-                return CurrencyService.ConvertFromPrimaryCurrency(money.Amount, currency).WithPostFormat(postFormat);
+                return _services.CurrencyService.ConvertFromPrimaryCurrency(money.Amount, currency).WithPostFormat(postFormat);
             }
         }
 
-        private static ComparePriceModel GetComparePriceModel(Money comparePrice, PriceLabel priceLabel)
+        private static ComparePriceModel CreateComparePriceModel(Money comparePrice, PriceLabel priceLabel)
         {
-            return new ComparePriceModel 
-            { 
+            return new()
+            {
                 Price = comparePrice,
                 Label = priceLabel.GetLocalized(x => x.Name).Value.NullEmpty() ?? priceLabel.GetLocalized(x => x.ShortName),
                 Description = priceLabel.GetLocalized(x => x.Description)

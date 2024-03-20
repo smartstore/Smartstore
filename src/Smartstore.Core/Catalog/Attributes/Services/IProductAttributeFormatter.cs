@@ -51,5 +51,13 @@ namespace Smartstore.Core.Catalog.Attributes
             bool includeGiftCardAttributes = true,
             bool includeHyperlinks = true,
             ProductBatchContext batchContext = null);
+
+        /// <summary>
+        /// Formats product specification attributes.
+        /// </summary>
+        /// <param name="attributes">Product specification attributes to format.</param>
+        /// <param name="options">Formatting options.</param>
+        /// <returns>Formatted product specification attributes. <c>null</c> if <paramref name="attributes"/> is null or empty.</returns>
+        string FormatSpecificationAttributes(IEnumerable<ProductSpecificationAttribute> attributes, ProductAttributeFormatOptions options);
     }
 }

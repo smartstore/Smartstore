@@ -143,13 +143,24 @@
                         <span asp-validation-for="MiniShoppingCartEnabled"></span>
                     </div>
                 </div>
-                <div class="adminRow" id="pnlShowProductImagesInMiniShoppingCart">
-                    <div class="adminTitle">
-                        <smart-label asp-for="ShowProductImagesInMiniShoppingCart" />
+                <div id="pnlShowProductImagesInMiniShoppingCart">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShowProductImagesInMiniShoppingCart" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ShowProductImagesInMiniShoppingCart"></setting-editor>
+                            <span asp-validation-for="ShowProductImagesInMiniShoppingCart"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="ShowProductImagesInMiniShoppingCart"></setting-editor>
-                        <span asp-validation-for="ShowProductImagesInMiniShoppingCart"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShowEssentialAttributesInMiniShoppingCart" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ShowEssentialAttributesInMiniShoppingCart"></setting-editor>
+                            <span asp-validation-for="ShowEssentialAttributesInMiniShoppingCart"></span>
+                        </div>
                     </div>
                 </div>
 

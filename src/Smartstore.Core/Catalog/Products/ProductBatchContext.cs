@@ -16,12 +16,12 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public class ProductBatchContext
     {
-        protected readonly List<int> _productIds = new();
-        private readonly List<int> _productIdsTierPrices = new();
-        private readonly List<int> _productIdsAppliedDiscounts = new();
-        private readonly List<int> _bundledProductIds = new();
-        private readonly List<int> _groupedProductIds = new();
-        private readonly List<int> _mainMediaFileIds = new();
+        protected readonly List<int> _productIds = [];
+        private readonly List<int> _productIdsTierPrices = [];
+        private readonly List<int> _productIdsAppliedDiscounts = [];
+        private readonly List<int> _bundledProductIds = [];
+        private readonly List<int> _groupedProductIds = [];
+        private readonly List<int> _mainMediaFileIds = [];
 
         protected ICommonServices _services;
         protected IProductService _productService;
@@ -42,6 +42,7 @@ namespace Smartstore.Core.Catalog.Products
         private LazyMultimap<ProductMediaFile> _productMediaFiles;
         private LazyMultimap<ProductTag> _productTags;
         private LazyMultimap<ProductSpecificationAttribute> _specificationAttributes;
+        private LazyMultimap<ProductSpecificationAttribute> _essentialSpecAttributes;
         private LazyMultimap<Download> _downloads;
         private LazyMultimap<RelatedProduct> _relatedProducts;
         private LazyMultimap<CrossSellProduct> _crossSellProducts;
@@ -108,62 +109,67 @@ namespace Smartstore.Core.Catalog.Products
 
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
-            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(keys => LoadAttributes(keys), _productIds);
+            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(LoadAttributes, _productIds);
         }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
-            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(keys => LoadAttributeCombinations(keys), _productIds);
+            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(LoadAttributeCombinations, _productIds);
         }
 
         public LazyMultimap<TierPrice> TierPrices
         {
-            get => _tierPrices ??= new LazyMultimap<TierPrice>(keys => LoadTierPrices(keys), _productIdsTierPrices);
+            get => _tierPrices ??= new LazyMultimap<TierPrice>(LoadTierPrices, _productIdsTierPrices);
         }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
-            get => _productCategories ??= new LazyMultimap<ProductCategory>(keys => LoadProductCategories(keys), _productIds);
+            get => _productCategories ??= new LazyMultimap<ProductCategory>(LoadProductCategories, _productIds);
         }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
-            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(keys => LoadProductManufacturers(keys), _productIds);
+            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(LoadProductManufacturers, _productIds);
         }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
-            get => _appliedDiscounts ??= new LazyMultimap<Discount>(keys => LoadAppliedDiscounts(keys), _productIdsAppliedDiscounts);
+            get => _appliedDiscounts ??= new LazyMultimap<Discount>(LoadAppliedDiscounts, _productIdsAppliedDiscounts);
         }
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
-            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(keys => LoadProductBundleItems(keys), _bundledProductIds);
+            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(LoadProductBundleItems, _bundledProductIds);
         }
 
         public LazyMultimap<Product> AssociatedProducts
         {
-            get => _associatedProducts ??= new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
+            get => _associatedProducts ??= new LazyMultimap<Product>(LoadAssociatedProducts, _groupedProductIds);
         }
 
         public LazyMultimap<ProductMediaFile> ProductMediaFiles
         {
-            get => _productMediaFiles ??= new LazyMultimap<ProductMediaFile>(keys => LoadProductMediaFiles(keys), _productIds);
+            get => _productMediaFiles ??= new LazyMultimap<ProductMediaFile>(LoadProductMediaFiles, _productIds);
         }
 
         public LazyMultimap<ProductTag> ProductTags
         {
-            get => _productTags ??= new LazyMultimap<ProductTag>(keys => LoadProductTags(keys), _productIds);
+            get => _productTags ??= new LazyMultimap<ProductTag>(LoadProductTags, _productIds);
         }
 
         public LazyMultimap<ProductSpecificationAttribute> SpecificationAttributes
         {
-            get => _specificationAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(keys => LoadSpecificationAttributes(keys), _productIds);
+            get => _specificationAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadSpecificationAttributes, _productIds);
+        }
+
+        public LazyMultimap<ProductSpecificationAttribute> EssentialAttributes
+        {
+            get => _essentialSpecAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadEssentialAttributes, _productIds);
         }
 
         public LazyMultimap<Download> Downloads
         {
-            get => _downloads ??= new LazyMultimap<Download>(keys => LoadDownloads(keys), _productIds);
+            get => _downloads ??= new LazyMultimap<Download>(LoadDownloads, _productIds);
         }
 
         public LazyMultimap<RelatedProduct> RelatedProducts
@@ -176,33 +182,52 @@ namespace Smartstore.Core.Catalog.Products
             get => _crossSellProducts ??= new LazyMultimap<CrossSellProduct>(LoadCrossSellProducts, _productIds);
         }
 
+        /// <summary>
+        /// Adds more product identifiers. Enables the subsequent loading of products.
+        /// </summary>
         public virtual void Collect(IEnumerable<int> productIds)
         {
             Attributes.Collect(productIds);
             AttributeCombinations.Collect(productIds);
             TierPrices.Collect(productIds);
             ProductCategories.Collect(productIds);
+            ProductManufacturers.Collect(productIds);
             AppliedDiscounts.Collect(productIds);
             ProductBundleItems.Collect(productIds);
             AssociatedProducts.Collect(productIds);
+            ProductMediaFiles.Collect(productIds);
+            SpecificationAttributes.Collect(productIds);
+            EssentialAttributes.Collect(productIds);
+            Downloads.Collect(productIds);
+            RelatedProducts.Collect(productIds);
+            CrossSellProducts.Collect(productIds);
         }
 
+        /// <summary>
+        /// Clears all loaded data. All internal objects will be reset.
+        /// </summary>
         public virtual void Clear()
         {
             _attributes?.Clear();
             _attributeCombinations?.Clear();
             _tierPrices?.Clear();
+            _productIdsTierPrices?.Clear();
             _productCategories?.Clear();
             _productManufacturers?.Clear();
             _appliedDiscounts?.Clear();
+            _productIdsAppliedDiscounts?.Clear();
             _productBundleItems?.Clear();
-            _associatedProducts?.Clear();
             _bundledProductIds?.Clear();
+            _associatedProducts?.Clear();
             _groupedProductIds?.Clear();
             _productMediaFiles?.Clear();
             _productTags?.Clear();
             _specificationAttributes?.Clear();
+            _essentialSpecAttributes?.Clear();
+            _productMediaFiles?.Clear();
             _downloads?.Clear();
+            _relatedProducts?.Clear();
+            _crossSellProducts?.Clear();
         }
 
         #region Protected factories
@@ -324,9 +349,9 @@ namespace Smartstore.Core.Catalog.Products
 
             if (_loadMainMediaOnly)
             {
-                files = _mainMediaFileIds.Any()
+                files = _mainMediaFileIds.Count > 0
                     ? await query.Where(x => _mainMediaFileIds.Contains(x.MediaFileId)).ToListAsync()
-                    : new List<ProductMediaFile>();
+                    : [];
             }
             else
             {
@@ -345,17 +370,38 @@ namespace Smartstore.Core.Catalog.Products
             return await ProductService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
         }
 
+
+        static readonly Func<SmartDbContext, int[], bool?, IAsyncEnumerable<ProductSpecificationAttribute>> CompiledSpecAttributesQuery
+            = EF.CompileAsyncQuery((SmartDbContext db, int[] ids, bool? essentialAttributes) =>
+                db.ProductSpecificationAttributes
+                    .AsNoTracking()
+                    .Include(x => x.SpecificationAttributeOption)
+                    .ThenInclude(x => x.SpecificationAttribute)
+                    .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
+                    .OrderBy(x => x.ProductId)
+                    .OrderBy(x => x.DisplayOrder)
+                    .AsQueryable());
+
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
         {
-            var attributes = await _db.ProductSpecificationAttributes
-                .AsNoTracking()
-                .Include(x => x.SpecificationAttributeOption)
-                .ThenInclude(x => x.SpecificationAttribute)
-                .ApplyProductsFilter(ids)
-                .ToListAsync();
-
+            var attributes = await CompiledSpecAttributesQuery(_db, ids, null).ToListAsync();
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
+
+        protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadEssentialAttributes(int[] ids)
+        {
+            if (SpecificationAttributes.FullyLoaded)
+            {
+                return SpecificationAttributes
+                    .SelectMany(x => x.Value)
+                    .Where(x => x.SpecificationAttributeOption.SpecificationAttribute.Essential)
+                    .ToMultimap(x => x.ProductId, x => x);
+            }
+
+            var attributes = await CompiledSpecAttributesQuery(_db, ids, true).ToListAsync();
+            return attributes.ToMultimap(x => x.ProductId, x => x);
+        }
+
 
         protected virtual async Task<Multimap<int, Download>> LoadDownloads(int[] ids)
         {

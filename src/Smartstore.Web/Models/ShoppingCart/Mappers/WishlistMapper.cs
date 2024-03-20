@@ -1,6 +1,6 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
-using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Media;
@@ -27,14 +27,14 @@ namespace Smartstore.Web.Models.Cart
     public class WishlistModelMapper : CartMapperBase<WishlistModel>
     {
         private readonly ITaxService _taxService;
+        private readonly IProductService _productService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
 
         public WishlistModelMapper(
             ICommonServices services,
             ITaxService taxService,
+            IProductService productService,
             IShoppingCartValidator shoppingCartValidator,
-            IProductAttributeFormatter productAttributeFormatter,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
@@ -42,8 +42,8 @@ namespace Smartstore.Web.Models.Cart
             : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
         {
             _taxService = taxService;
+            _productService = productService;
             _shoppingCartValidator = shoppingCartValidator;
-            _productAttributeFormatter = productAttributeFormatter;
         }
 
         protected override void Map(ShoppingCart from, WishlistModel to, dynamic parameters = null)
@@ -54,10 +54,12 @@ namespace Smartstore.Web.Models.Cart
             Guard.NotNull(from);
             Guard.NotNull(to);
 
-            if (!from.Items.Any())
+            if (!from.HasItems)
             {
                 return;
             }
+
+            var isOffcanvas = parameters?.IsOffcanvas == true;
 
             await base.MapAsync(from, to, null);
 
@@ -76,6 +78,16 @@ namespace Smartstore.Web.Models.Cart
                 to.Warnings.AddRange(warnings);
             }
 
+            var allProducts = from.Items
+                .Select(x => x.Item.Product)
+                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
+                .ToArray();
+
+            dynamic itemParameters = new GracefulDynamicObject();
+            itemParameters.TaxFormat = _taxService.GetTaxFormat();
+            itemParameters.BatchContext = _productService.CreateProductBatchContext(allProducts, null, from.Customer, false);
+            itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);
+
             foreach (var cartItem in from.Items)
             {
                 var model = new WishlistModel.WishlistItemModel
@@ -83,27 +95,11 @@ namespace Smartstore.Web.Models.Cart
                     DisableBuyButton = cartItem.Item.Product.DisableBuyButton,
                 };
 
-                dynamic itemParameters = new GracefulDynamicObject();
-                itemParameters.TaxFormat = _taxService.GetTaxFormat();
-
                 await cartItem.MapAsync(model, (object)itemParameters);
 
-                if (parameters?.IsOffcanvas == true)
+                if (isOffcanvas)
                 {
                     model.QuantityUnitName = null;
-
-                    var item = from.Items.Where(c => c.Item.Id == model.Id).FirstOrDefault();
-                    if (item != null)
-                    {
-                        model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                            item.Item.AttributeSelection,
-                            item.Item.Product,
-                            new ProductAttributeFormatOptions 
-                            {
-                                FormatTemplate = "<span>{0}:</span> <span>{1}</span>",
-                                ItemSeparator = Environment.NewLine, 
-                                HtmlEncode = false, IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false });
-                    }
                 }
 
                 to.AddItems(model);

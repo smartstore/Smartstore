@@ -56,8 +56,8 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Essential",
                 "Essential feature",
                 "Wesentliches Merkmal",
-                "Specifies whether the attribute is an essential feature. Essential features are also displayed in the checkout (e.g. on the order confirmation page).",
-                "Legt fest, ob es sich um eine wesentliches Merkmal handelt. Wesentliche Merkmale werden auch im Checkout angezeigt (z.B. auf der Bestellbestätigungsseite).");
+                "Specifies whether the attribute is an essential feature. Essential features are displayed in the checkout (e.g. on the order confirmation page).",
+                "Legt fest, ob es sich um eine wesentliches Merkmal handelt. Wesentliche Merkmale werden im Checkout angezeigt (z.B. auf der Bestellbestätigungsseite).");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchEssential",
                 "Essential feature",

@@ -46,6 +46,7 @@ namespace Smartstore.Web.Models.Cart
             public string BasePriceInfo { get; set; }
 
             public string AttributeInfo { get; set; }
+            public string EssentialSpecAttributesInfo { get; set; }
 
             public ImageModel Image { get; set; } = new();
 

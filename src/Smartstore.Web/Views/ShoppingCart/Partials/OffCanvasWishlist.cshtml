@@ -30,7 +30,7 @@
         <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
             <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
-                @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", $"<strong>{currentItem.ProductName.Value.Truncate(50, "...")}</strong>"))
+                @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", $"<strong>{currentItem.ProductName.Value.Truncate(50, "…")}</strong>"))
             </span>
         </div>
 
@@ -49,10 +49,11 @@
                         <div class="col col-data">
                             <a sm-language-attributes-for="item.ProductName" class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
                             <div sm-language-attributes-for="item.ShortDesc" class="short-desc text-muted">
-                                @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
+                                @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "…"))
                             </div>
 
-                            <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs small">
+                            <div sm-if="item.AttributeInfo.HasValue() || item.EssentialSpecAttributesInfo.HasValue()" class="cart-item-attrs small">
+                                @Html.Raw(item.EssentialSpecAttributesInfo)
                                 @Html.Raw(item.AttributeInfo)
                             </div>
 

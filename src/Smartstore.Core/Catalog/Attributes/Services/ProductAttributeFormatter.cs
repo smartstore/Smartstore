@@ -137,9 +137,55 @@ namespace Smartstore.Core.Catalog.Attributes
             return sb.ToString();
 
             string TryEncode(string input)
+                => options.HtmlEncode ? input.HtmlEncode() : input;
+        }
+
+        public virtual string FormatSpecificationAttributes(
+            IEnumerable<ProductSpecificationAttribute> attributes,
+            ProductAttributeFormatOptions options)
+        {
+            Guard.NotNull(options);
+
+            if (attributes.IsNullOrEmpty())
             {
-                return options.HtmlEncode ? input.HtmlEncode() : input;
+                return null;
             }
+
+            IEnumerable<string> formattedAttributes = null;
+
+            var nameAndOptions = attributes
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x => new
+                {
+                    Name = x?.SpecificationAttributeOption?.SpecificationAttribute?.GetLocalized(x => x.Name),
+                    Option = x.SpecificationAttributeOption.GetLocalized(x => x.Name),
+                    Order = x.SpecificationAttributeOption.DisplayOrder
+                });
+
+            if (options.OptionsSeparator == null)
+            {
+                // No grouping. The attribute name can be displayed several times.
+                formattedAttributes = nameAndOptions.Select(x => options.FormatTemplate.FormatInvariant(TryEncode(x.Name), TryEncode(x.Option)));
+            }
+            else
+            {
+                // Group by attribute name.
+                formattedAttributes = nameAndOptions
+                    .GroupBy(x => x.Name)
+                    .Select(grp => new
+                    {
+                        Name = TryEncode(grp.Key),
+                        Options = string.Join(options.OptionsSeparator, grp
+                            .OrderBy(x => x.Order)
+                            .Select(x => TryEncode(x.Option)))
+                    })
+                    .Select(x => options.FormatTemplate.FormatInvariant(x.Name, x.Options));
+            }
+
+            return string.Join(options.ItemSeparator, formattedAttributes).NullEmpty();
+
+            string TryEncode(string input)
+                => options.HtmlEncode ? input.HtmlEncode() : input;
         }
 
         private bool TryGenerateVariantTokens(

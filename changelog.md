@@ -10,6 +10,8 @@
 - **Simplified checkout process**
   - Quick-Checkout allows to skip addresses, shipping and payment method selection if these are known.
   - One-click checkout for sales at retail terminals.
+- **Essential specification attributes**
+  - Specification attributes marked as an *essential feature* are displayed in the checkout.
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance

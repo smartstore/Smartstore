@@ -1081,6 +1081,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     _writer.WriteElementString(nameof(SpecificationAttribute.Id), entitySa.Id.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.Name), (string)option.SpecificationAttribute.Name);
                     _writer.WriteElementString(nameof(SpecificationAttribute.Alias), (string)option.SpecificationAttribute.Alias);
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Essential), entitySa.Essential.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.DisplayOrder), entitySa.DisplayOrder.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.AllowFiltering), entitySa.AllowFiltering.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.ShowOnProductPage), entitySa.ShowOnProductPage.ToString());

@@ -7,9 +7,16 @@ namespace Smartstore.Core.Catalog.Attributes
         const string DefaultFormatTemplate = "{0}: {1}";
         const string DefaultPriceFormatTemplate = " ({0})";
         const string DefaultItemSeparator = "<br />";
+        const string DefaultOptionsSeparator = ", ";
 
         public static ProductAttributeFormatOptions Default { get; } = new();
-        public static ProductAttributeFormatOptions PlainText { get; } = new() { ItemSeparator = ", ", IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false };
+        public static ProductAttributeFormatOptions PlainText { get; } = new()
+        {
+            ItemSeparator = ", ", 
+            IncludePrices = false, 
+            IncludeHyperlinks = false, 
+            IncludeGiftCardAttributes = false
+        };
 
         /// <summary>
         /// Format template to be used for each attribute.
@@ -28,6 +35,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Separator between each formatted attribute. Default: "<c>&lt;br /&gt;</c>".
         /// </summary>
         public string? ItemSeparator { get; init; } = DefaultItemSeparator;
+
+        /// <summary>
+        /// Separator between grouped attribute options. Default: ", ".
+        /// <c>null</c> to not group at all.
+        /// </summary>
+        public string? OptionsSeparator { get; init; } = DefaultOptionsSeparator;
 
         /// <summary>
         /// A value indicating whether to HTML encode values. Default = true.

@@ -22,30 +22,31 @@
         }
     }
 
-    async Task SimpleProduct(ShoppingCartModel.ShoppingCartItemModel item)
-    {
-        var deliveryPresentation = Model.DeliveryTimesPresentation;
-        var showSku = Model.ShowSku && item.Sku.HasValue();
-        var showWeight = Model.DisplayWeight && item.Weight > 0;
-        var showDeliveryName = false;
-        var showDeliveryDate = false;
-        var price = item.Price;
-
-        if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
+        async Task SimpleProduct(ShoppingCartModel.ShoppingCartItemModel item)
         {
-            showDeliveryName =
-                item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
-                (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-                deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-                !item.DeliveryTimeDate.HasValue());
+            var deliveryPresentation = Model.DeliveryTimesPresentation;
+            var showSku = Model.ShowSku && item.Sku.HasValue();
+            var showWeight = Model.DisplayWeight && item.Weight > 0;
+            var showDeliveryName = false;
+            var showDeliveryDate = false;
+            var price = item.Price;
 
-            showDeliveryDate =
-                (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-                item.DeliveryTimeDate.HasValue();
-        }
+            if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
+            {
+                showDeliveryName =
+                    item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
+                    (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
+                    deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
+                    !item.DeliveryTimeDate.HasValue());
 
-        var showAttributes = showDeliveryName || showDeliveryDate || showSku || showWeight;
-        var showVariants = item.AttributeInfo.HasValue();
+                showDeliveryDate =
+                    (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
+                    item.DeliveryTimeDate.HasValue();
+            }
+
+            var showInfos = showDeliveryName || showDeliveryDate || showSku || showWeight;
+            var showVariants = item.AttributeInfo.HasValue();
+            var showEssentialAttributes = item.EssentialSpecAttributesInfo.HasValue();
 
         <div class="cart-row">
             <div class="row">
@@ -87,7 +88,7 @@
                     </div>
 
                     @* Attributes & Variants *@
-                    <div sm-if="showAttributes || showVariants" class="cart-item-attrs cart-item-group fs-sm">
+                    <div sm-if="showInfos || showVariants || showEssentialAttributes" class="cart-item-attrs cart-item-group fs-sm">
                         @if (showDeliveryName)
                         {
                             <span>@T("Products.DeliveryTime")</span>
@@ -115,18 +116,19 @@
                             <span>@((item.Weight * item.EnteredQuantity).ToString("N2")) @Model.MeasureUnitName</span>
                         }
 
-                        @* Variant *@
-                        @if (item.AttributeInfo.HasValue())
+                        @Html.Raw(item.EssentialSpecAttributesInfo)
+
+                        @if (showVariants)
                         {
                             @* Spacer *@
-                            if (showAttributes)
+                            if (showInfos || showEssentialAttributes)
                             {
                                 <span class="pb-1"></span>
                                 <span></span>
                             }
 
                             @Html.Raw(item.AttributeInfo)
-                        } 
+                        }
                     </div>
 
                     @* Recurring *@
@@ -273,7 +275,7 @@
                         @if (Model.DisplayShortDesc && item.ShortDesc.HasValue())
                         {
                             <div class="cart-item-desc" sm-language-attributes-for="item.ShortDesc">
-                                @Html.Raw(item.ShortDesc.Value.Truncate(210, "..."))
+                                @Html.Raw(item.ShortDesc.Value.Truncate(210, "…"))
                             </div>
                         }
                     </div>
@@ -283,7 +285,8 @@
                         <partial name="CartItem.Price" model="item.Price">
                     </div>
 
-                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group">
+                    <div sm-if="item.AttributeInfo.HasValue() || item.EssentialSpecAttributesInfo.HasValue()" class="cart-item-attrs cart-item-group">
+                        @Html.Raw(item.EssentialSpecAttributesInfo)
                         @Html.Raw(item.AttributeInfo)
                     </div>
 

@@ -148,9 +148,14 @@ namespace Smartstore.Core.Checkout.Cart
         public bool MiniShoppingCartEnabled { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to show product images in the mini-shopping cart block
+        /// Gets or sets a value indicating whether to show product images in the mini-shopping cart.
         /// </summary>
         public bool ShowProductImagesInMiniShoppingCart { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to show essential specification attributes in the mini-shopping cart.
+        /// </summary>
+        public bool ShowEssentialAttributesInMiniShoppingCart { get; set; }
 
         /// <summary>
         /// Specifies the presentation of delivery times in shopping cart.

@@ -26,6 +26,13 @@ namespace Smartstore.Web.Models.Cart
 
     public class MiniShoppingCartModelMapper : Mapper<ShoppingCart, MiniShoppingCartModel>
     {
+        static readonly ProductAttributeFormatOptions DefaultAttributeFormatOptions = new()
+        {
+            IncludePrices = false,
+            ItemSeparator = Environment.NewLine,
+            FormatTemplate = "<b>{0}:</b> <span>{1}</span>"
+        };
+
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IProductService _productService;
@@ -123,6 +130,13 @@ namespace Smartstore.Web.Models.Cart
                 var product = cartItem.Item.Product;
                 var productSeName = await product.GetActiveSlugAsync();
 
+                var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                    item.AttributeSelection,
+                    product,
+                    DefaultAttributeFormatOptions,
+                    customer,
+                    batchContext);
+
                 var cartItemModel = new MiniShoppingCartModel.ShoppingCartItemModel
                 {
                     Id = item.Id,
@@ -132,13 +146,15 @@ namespace Smartstore.Web.Models.Cart
                     ProductSeName = productSeName,
                     CreatedOnUtc = item.UpdatedOnUtc,
                     ProductUrl = await _productUrlHelper.GetProductUrlAsync(productSeName, cartItem),
-                    AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                        item.AttributeSelection,
-                        product,
-                        new ProductAttributeFormatOptions { FormatTemplate = "<b>{0}:</b> <span>{1}</span>", ItemSeparator = Environment.NewLine, IncludePrices = false, IncludeHyperlinks = false, IncludeGiftCardAttributes = false },
-                        null,
-                        batchContext: batchContext)
+                    AttributeInfo = attributesInfo
                 };
+
+                if (_shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart)
+                {
+                    cartItemModel.EssentialSpecAttributesInfo = _productAttributeFormatter.FormatSpecificationAttributes(
+                        await batchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
+                        DefaultAttributeFormatOptions);
+                }
 
                 await cartItem.MapQuantityInputAsync(cartItemModel, mapUnitName: false);
 

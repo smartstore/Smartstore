@@ -17,7 +17,7 @@ namespace Smartstore.Web.Models.Cart
         public bool IsEditable { get; set; }
         public int BundleThumbSize { get; set; }
         public bool DisplayShortDesc { get; set; }
-        public List<string> Warnings { get; set; } = new();
+        public List<string> Warnings { get; set; } = [];
     }
 
     public abstract class CartEntityModelBase : EntityModelBase, IQuantityInput
@@ -37,7 +37,7 @@ namespace Smartstore.Web.Models.Cart
         public int EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
-        public List<SelectListItem> AllowedQuantities { get; set; } = new();
+        public List<SelectListItem> AllowedQuantities { get; set; } = [];
         public int MinOrderAmount { get; set; }
         public int MaxOrderAmount { get; set; }
         public int QuantityStep { get; set; }
@@ -45,8 +45,9 @@ namespace Smartstore.Web.Models.Cart
         public QuantityControlType QuantityControlType { get; set; }
 
         public string AttributeInfo { get; set; }
+        public string EssentialSpecAttributesInfo { get; set; }
         public string RecurringInfo { get; set; }
-        public List<string> Warnings { get; set; } = new();
+        public List<string> Warnings { get; set; } = [];
         public LocalizedValue<string> ShortDesc { get; set; }
 
         public BundleItemModel BundleItem { get; set; }
@@ -102,6 +103,6 @@ namespace Smartstore.Web.Models.Cart
         public string BasePriceInfo { get; set; }
 
         public bool ShowRetailPriceSaving { get; set; }
-        public List<ProductBadgeModel> Badges { get; } = new();
+        public List<ProductBadgeModel> Badges { get; } = [];
     }
 }

@@ -56,6 +56,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowProductImagesInMiniShoppingCart")]
         public bool ShowProductImagesInMiniShoppingCart { get; set; }
 
+        [LocalizedDisplay("*ShowEssentialAttributesInMiniShoppingCart")]
+        public bool ShowEssentialAttributesInMiniShoppingCart { get; set; }
+
         [LocalizedDisplay("*ShowConfirmOrderLegalHint")]
         public bool ShowConfirmOrderLegalHint { get; set; }
 
