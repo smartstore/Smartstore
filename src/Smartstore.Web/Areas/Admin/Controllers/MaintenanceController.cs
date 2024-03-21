@@ -233,6 +233,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        [MaintenanceAction]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> OffloadEmbeddedImages(int take = 200)
         {
@@ -260,6 +261,7 @@ namespace Smartstore.Admin.Controllers
             return Content(message);
         }
 
+        [MaintenanceAction]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> ReInitMediaFileNames(string folderName = "")
         {
@@ -314,6 +316,7 @@ namespace Smartstore.Admin.Controllers
             return mediaFile.Id.ToString(ImageCache.IdFormatString).Grow(ext, ".");
         }
 
+        [MaintenanceAction]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<string> RebuildTreePaths()
         {
@@ -321,6 +324,7 @@ namespace Smartstore.Admin.Controllers
             return T("Admin.System.Maintenance.TreePaths.PathCount", numRebuilt);
         }
 
+        [MaintenanceAction]
         [Permission(Permissions.System.Maintenance.Execute)]
         public IActionResult CreateAttributeCombinationHashCodes()
         {
