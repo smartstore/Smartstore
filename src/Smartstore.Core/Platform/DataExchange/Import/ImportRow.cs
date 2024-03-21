@@ -205,6 +205,7 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         converted = value.Convert<TProp>(_segmenter.Culture);
 
+                        // TODO: (mg) (perf)!!! Don't do this please. This needs a decent caching strategy.
                         if (pi.TryGetAttribute<StringLengthAttribute>(false, out var attribute) && attribute.MaximumLength > 0)
                         {
                             converted = converted.ToString().Truncate(attribute.MaximumLength);
