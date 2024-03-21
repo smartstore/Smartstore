@@ -10,7 +10,7 @@
        sm-size="@Model.Size"
        class="confirmation-dialog"
        data-submit-button-id="@Model.ButtonId"
-       data-form-post-url="@Model.FormPostUrl">
+       data-action-url="@Model.ActionUrl">
     @if (Model.Title.HasValue())
     {
         <modal-header sm-show-close="false" sm-title="@Model.Title"></modal-header>

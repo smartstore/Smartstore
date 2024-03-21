@@ -6,7 +6,7 @@ namespace Smartstore.Web.Rendering
     public partial class ConfirmModel : ModelBase
     {
         public string ButtonId { get; set; }
-        public string FormPostUrl { get; set; }
+        public string ActionUrl { get; set; }
         public ConfirmActionType ConfirmType { get; set; }
         public int Id { get; set; }
         public string EntityType { get; set; }

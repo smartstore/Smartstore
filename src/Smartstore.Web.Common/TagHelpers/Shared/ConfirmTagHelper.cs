@@ -15,7 +15,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ButtonIdAttributeName = "button-id";
         const string ActionAttributeName = "action";
-        const string FormPostUrlName = "form-post-url";
+        const string ActionUrlName = "action-url";
         const string ControllerAttributeName = "controller";
         const string ConfirmTypeAttributeName = "type";
         const string BackdropAttributeName = "backdrop";
@@ -58,11 +58,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Controller { get; set; }
 
         /// <summary>
-        /// Specifies the form post url to execute after accepted confirmation. 
-        /// Use this method if you must transmit parameters to the action, use <see cref="Action"/> and <see cref="Controller"/> attributes otherwise.
+        /// Specifies the URL to the target action method. 
+        /// Use this property if you must transmit query string values to the action method,
+        /// use <see cref="Action"/> and <see cref="Controller"/> attributes otherwise.
         /// </summary>
-        [HtmlAttributeName(FormPostUrlName)]
-        public string FormPostUrl { get; set; }
+        [HtmlAttributeName(ActionUrlName)]
+        public string ActionUrl { get; set; }
 
         /// <summary>
         /// Specifies the <see cref="ConfirmActionType"/>. Default = Delete.
@@ -146,7 +147,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var model = new ConfirmModel
             {
                 ButtonId = ButtonId,
-                FormPostUrl = FormPostUrl ?? _urlHelper.Action(Action, Controller),
+                ActionUrl = ActionUrl ?? _urlHelper.Action(Action, Controller),
                 ConfirmType = ConfirmType,
 
                 // Labels
