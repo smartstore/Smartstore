@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Scheduling;
 

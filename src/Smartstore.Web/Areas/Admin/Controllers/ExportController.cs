@@ -1,6 +1,5 @@
 ﻿using System.Collections.Frozen;
 using System.Net.Mime;
-using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Export;
