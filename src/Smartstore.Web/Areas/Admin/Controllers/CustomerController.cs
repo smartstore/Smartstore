@@ -879,15 +879,7 @@ namespace Smartstore.Admin.Controllers
             {
                 _db.Customers.Remove(customer);
 
-                if (customer.Email.HasValue())
-                {
-                    var subscriptions = await _db.NewsletterSubscriptions.Where(x => x.Email == customer.Email).ToListAsync();
-                    _db.NewsletterSubscriptions.RemoveRange(subscriptions);
-                    await _db.SaveChangesAsync();
-                }
-
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomer, T("ActivityLog.DeleteCustomer", customer.Id));
-
                 NotifySuccess(T("Admin.Customers.Customers.Deleted"));
 
                 return RedirectToAction(nameof(List));
@@ -908,25 +900,12 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.Customers
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                foreach (var customer in toDelete)
-                {
-                    if (customer.Email.HasValue())
-                    {
-                        var subscriptions = await _db.NewsletterSubscriptions.Where(x => x.Email == customer.Email).ToListAsync();
-                        _db.NewsletterSubscriptions.RemoveRange(subscriptions);
-                        await _db.SaveChangesAsync();
-                    }
-                }
-
-                numDeleted = toDelete.Count;
+                var toDelete = await _db.Customers.GetManyAsync(ids, true);
 
                 _db.Customers.RemoveRange(toDelete);
                 await _db.SaveChangesAsync();
+
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -1001,7 +980,7 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        #region OnlineCustomers
+        #region Online customers
 
         public IActionResult OnlineCustomers()
         {

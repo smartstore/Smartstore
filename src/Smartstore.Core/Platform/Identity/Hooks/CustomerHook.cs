@@ -6,26 +6,22 @@ using EState = Smartstore.Data.EntityState;
 namespace Smartstore.Core.Identity
 {
     [Important]
-    internal class CustomerHook : AsyncDbSaveHook<Customer>
+    internal class CustomerHook(SmartDbContext db) : AsyncDbSaveHook<Customer>
     {
-        private static readonly string[] _candidateProps = new[]
-        {
+        private static readonly string[] _candidateProps =
+        [
             nameof(Customer.Title),
             nameof(Customer.Salutation),
             nameof(Customer.FirstName),
             nameof(Customer.LastName)
-        };
+        ];
 
-        private readonly SmartDbContext _db;
+        private readonly SmartDbContext _db = db;
         private string _hookErrorMessage;
 
         // Key: old email. Value: new email.
         private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
-
-        public CustomerHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly HashSet<string> _emailsToUnsubscribe = new(StringComparer.OrdinalIgnoreCase);
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -76,16 +72,23 @@ namespace Smartstore.Core.Identity
         }
 
         protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
+        {
+            if (entry.IsSoftDeleted == true && entity.Email.HasValue())
+            {
+                _emailsToUnsubscribe.Add(entity.Email);
+            }
+
+            return Task.FromResult(HookResult.Ok);
+        }
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Update newsletter subscription if email changed.
-            if (_modifiedEmails.Any())
+            if (_modifiedEmails.Count > 0)
             {
+                // Update newsletter subscription if email changed.
                 var oldEmails = _modifiedEmails.Keys.ToArray();
 
-                foreach (var oldEmailsChunk in oldEmails.Chunk(50))
+                foreach (var oldEmailsChunk in oldEmails.Chunk(100))
                 {
                     var subscriptions = await _db.NewsletterSubscriptions
                         .Where(x => oldEmailsChunk.Contains(x.Email))
@@ -99,12 +102,21 @@ namespace Smartstore.Core.Identity
 
                 _modifiedEmails.Clear();
             }
+
+            // Unsubscribe from newsletter if customer was soft-deleted.
+            foreach (var chunk in _emailsToUnsubscribe.Chunk(50))
+            {
+                await _db.NewsletterSubscriptions
+                    .Where(x => chunk.Contains(x.Email))
+                    .ExecuteDeleteAsync(cancelToken);
+            }
+
+            _emailsToUnsubscribe.Clear();
         }
 
         private bool ValidateCustomer(Customer customer)
         {
             // INFO: do not validate email and username here. UserValidator is responsible for this.
-
             if (customer.Deleted && customer.IsSystemAccount)
             {
                 _hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
