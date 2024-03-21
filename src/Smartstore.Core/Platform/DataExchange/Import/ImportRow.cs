@@ -1,12 +1,13 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.DataExchange.Import
 {
     public class ImportRow<T> where T : BaseEntity
     {
-        private const string EXPLICIT_NULL = "[NULL]";
-        private const string EXPLICIT_IGNORE = "[IGNORE]";
+        const string ExplicitNull = "[NULL]";
+        const string ExplicitIgnore = "[IGNORE]";
 
         private bool _initialized = false;
         private T _entity;
@@ -27,22 +28,17 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         public bool IsTransient => _entity.Id == 0;
-
         public bool IsNew => _isNew;
-
         public bool IsDirty => _isDirty;
 
         public int Position => _position;
 
         public T Entity => _entity;
+        public string EntityDisplayName => _entityDisplayName;
+        public bool NameChanged { get; set; }
 
         public ImportDataSegmenter Segmenter => _segmenter;
-
         public IDataRow DataRow => _row;
-
-        public string EntityDisplayName => _entityDisplayName;
-
-        public bool NameChanged { get; set; }
 
         public ImportRowInfo RowInfo
         {
@@ -130,9 +126,12 @@ namespace Smartstore.Core.DataExchange.Import
                 return false;
             }
 
-            if (_row.TryGetValue(mapping.MappedName, out var rawValue) && rawValue != null && rawValue != DBNull.Value && !rawValue.ToString().EqualsNoCase(EXPLICIT_IGNORE))
+            if (_row.TryGetValue(mapping.MappedName, out var rawValue) 
+                && rawValue != null 
+                && rawValue != DBNull.Value 
+                && !rawValue.ToString().EqualsNoCase(ExplicitIgnore))
             {
-                value = rawValue.ToString().EqualsNoCase(EXPLICIT_NULL)
+                value = rawValue.ToString().EqualsNoCase(ExplicitNull)
                     ? default
                     : rawValue.Convert<TProp>(_segmenter.Culture);
                 return true;
@@ -184,20 +183,20 @@ namespace Smartstore.Core.DataExchange.Import
 
                 if (mapping.IgnoreProperty)
                 {
-                    // explicitly ignore this property
+                    // Explicitly ignore this property.
                 }
                 else if (_row.TryGetValue(mapping.MappedName, out object value) &&
                     value != null &&
                     value != DBNull.Value &&
-                    !value.ToString().EqualsNoCase(EXPLICIT_IGNORE))
+                    !value.ToString().EqualsNoCase(ExplicitIgnore))
                 {
-                    // source contains field value. Set it.
-                    TProp converted;
+                    // Source contains field value. Set it.
+                    object converted;
                     if (converter != null)
                     {
                         converted = converter(value, _segmenter.Culture);
                     }
-                    else if (value.ToString().EqualsNoCase(EXPLICIT_NULL))
+                    else if (value.ToString().EqualsNoCase(ExplicitNull))
                     {
                         // Prop is "explicitly" set to null. Don't fallback to any default!
                         converted = default;
@@ -205,6 +204,11 @@ namespace Smartstore.Core.DataExchange.Import
                     else
                     {
                         converted = value.Convert<TProp>(_segmenter.Culture);
+
+                        if (pi.TryGetAttribute<StringLengthAttribute>(false, out var attribute) && attribute.MaximumLength > 0)
+                        {
+                            converted = converted.ToString().Truncate(attribute.MaximumLength);
+                        }
                     }
 
                     target.GetType().GetProperty(propName).SetValue(target, converted);
@@ -262,10 +266,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 catch (Exception ex)
                 {
-                    if (result != null)
-                    {
-                        result.AddWarning($"Failed to convert default value '{mapping.Default}'. Please specify a convertable default value. Column: {ex.Message}", RowInfo, mapping.SourceName);
-                    }
+                    result?.AddWarning($"Failed to convert default value '{mapping.Default}'. Please specify a convertable default value. Message: {ex.Message}", RowInfo, mapping.SourceName);
                 }
             }
 
