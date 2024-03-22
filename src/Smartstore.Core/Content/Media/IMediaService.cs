@@ -209,6 +209,13 @@ namespace Smartstore.Core.Content.Media
         Task ReprocessImageAsync(MediaFileInfo fileInfo);
 
         /// <summary>
+        /// Resolves metadata for any files that are missing metadata.
+        /// </summary>
+        /// <param name="folderPath">Optional folder path. If <c>null</c>, all files with empty names will be processed.</param>
+        /// <returns>Number of processed files.</returns>
+        Task<int> EnsureMetadataResolvedAsync(string folderPath = null);
+
+        /// <summary>
         /// Saves multiple files batched.
         /// </summary>
         /// <param name="sources">The source files to save. The source streams will be disposed after batch completion.</param>

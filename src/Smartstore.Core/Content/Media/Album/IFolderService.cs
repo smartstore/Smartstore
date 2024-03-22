@@ -1,4 +1,7 @@
-﻿using Smartstore.Collections;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+using Smartstore.Collections;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -18,14 +21,14 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets a folder node by storage id.
         /// </summary>
-        TreeNode<MediaFolderNode> GetNodeById(int id);
+        TreeNode<MediaFolderNode>? GetNodeById(int id);
 
         /// <summary>
         /// Gets a folder node by path, e.g. "catalog/subfolder1/subfolder2".
         /// The first token always refers to an album. This method operates very fast 
         /// because all possible pathes are cached.
         /// </summary>
-        TreeNode<MediaFolderNode> GetNodeByPath(string path);
+        TreeNode<MediaFolderNode>? GetNodeByPath(string path);
 
         /// <summary>
         /// Checks whether any given path does already exist and - if true -
@@ -35,7 +38,7 @@ namespace Smartstore.Core.Content.Media
         /// <param name="path">The path to check.</param>
         /// <param name="newName">If method return value is <c>true</c>: the new unique folder name, otherwise: <c>null</c>.</param>
         /// <returns><c>true</c> when passed path exists already.</returns>
-        bool CheckUniqueFolderName(string path, out string newName);
+        bool CheckUniqueFolderName(string path, [NotNullWhen(true)] out string newName);
 
         /// <summary>
         /// Clears the cache and reloads data from database.
