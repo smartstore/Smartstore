@@ -138,6 +138,7 @@
             acceptButton.on("click", e => {
                 e.preventDefault();
 
+                // TODO: (mg) Are you sure? Because: posting data via AJAX is not the same as posting a form natively. (?)
                 $({}).postData({
                     url: dialog.data("action-url"),
                     data: { id: acceptButton.data("commit-id") }
