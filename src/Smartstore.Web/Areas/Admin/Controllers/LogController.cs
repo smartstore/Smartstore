@@ -15,7 +15,6 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IDbLogService _dbLogService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ILocalizationService _localizationService;
         private readonly AdminAreaSettings _adminAreaSettings;
 
         private static readonly Dictionary<LogLevel, string> _logLevelHintMap = new()
@@ -32,13 +31,11 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             IDbLogService dbLogService,
             IDateTimeHelper dateTimeHelper,
-            ILocalizationService localizationService,
             AdminAreaSettings adminAreaSettings)
         {
             _db = db;
             _dbLogService = dbLogService;
             _dateTimeHelper = dateTimeHelper;
-            _localizationService = localizationService;
             _adminAreaSettings = adminAreaSettings;
         }
 
@@ -92,7 +89,7 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selection.GetEntityIds().ToList();
             var numDeleted = 0;
-            if (ids.Any())
+            if (ids.Count > 0)
             {
                 numDeleted = await _db.Logs
                     .Where(x => ids.Contains(x.Id))
@@ -102,12 +99,12 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [HttpPost, FormValueRequired("clearall")]
+        [HttpPost]
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogClear()
         {
             await _dbLogService.ClearLogsAsync();
-            NotifySuccess(_localizationService.GetResource("Admin.System.Log.Cleared"));
+            NotifySuccess(T("Admin.System.Log.Cleared"));
             return RedirectToAction(nameof(List));
         }
 
@@ -138,7 +135,7 @@ namespace Smartstore.Admin.Controllers
             _db.Logs.Remove(log);
             await _db.SaveChangesAsync();
 
-            NotifySuccess(_localizationService.GetResource("Admin.System.Log.Deleted"));
+            NotifySuccess(T("Admin.System.Log.Deleted"));
             return RedirectToAction(nameof(List));
         }
 

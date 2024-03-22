@@ -109,7 +109,7 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selection.GetEntityIds().ToList();
             var numDeleted = 0;
-            if (ids.Any())
+            if (ids.Count > 0)
             {
                 numDeleted = await _db.QueuedEmails
                     .Where(x => ids.Contains(x.Id))
@@ -123,8 +123,8 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+
         [Permission(Permissions.System.Message.Delete)]
-        [HttpPost, FormValueRequired("delete-all")]
         public async Task<IActionResult> DeleteAll()
         {
             var count = await _queuedEmailService.DeleteAllQueuedMailsAsync();
