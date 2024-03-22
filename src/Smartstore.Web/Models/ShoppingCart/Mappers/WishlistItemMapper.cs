@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -19,11 +20,18 @@ namespace Smartstore.Web.Models.Cart
         public WishlistItemModelMapper(
             ICommonServices services,
             IPriceCalculationService priceCalculationService,
+            IDeliveryTimeService deliveryTimeService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             CatalogHelper catalogHelper)
-            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings, catalogHelper)
+            : base(services, 
+                  priceCalculationService, 
+                  deliveryTimeService,
+                  productAttributeMaterializer, 
+                  shoppingCartSettings, 
+                  catalogSettings, 
+                  catalogHelper)
         {
         }
 

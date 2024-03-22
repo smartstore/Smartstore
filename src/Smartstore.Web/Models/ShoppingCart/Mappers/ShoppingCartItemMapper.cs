@@ -2,10 +2,8 @@
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -19,19 +17,22 @@ namespace Smartstore.Web.Models.Cart
 
     public class ShoppingCartItemMapper : CartItemMapperBase<ShoppingCartModel.ShoppingCartItemModel>
     {
-        private readonly IDeliveryTimeService _deliveryTimeService;
-
         public ShoppingCartItemMapper(
             ICommonServices services,
-            IDeliveryTimeService deliveryTimeService,
             IPriceCalculationService priceCalculationService,
+            IDeliveryTimeService deliveryTimeService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             CatalogHelper catalogHelper)
-            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings, catalogHelper)
+            : base(services, 
+                  priceCalculationService, 
+                  deliveryTimeService,
+                  productAttributeMaterializer, 
+                  shoppingCartSettings, 
+                  catalogSettings, 
+                  catalogHelper)
         {
-            _deliveryTimeService = deliveryTimeService;
         }
 
         protected override void Map(OrganizedShoppingCartItem from, ShoppingCartModel.ShoppingCartItemModel to, dynamic parameters = null)
@@ -47,34 +48,11 @@ namespace Smartstore.Web.Models.Cart
 
             await base.MapAsync(from, to, (object)parameters);
 
-            to.Weight = product.Weight;
-            to.IsShipEnabled = product.IsShippingEnabled;
+            to.IsShippingEnabled = product.IsShippingEnabled;
             to.IsDownload = product.IsDownload;
             to.HasUserAgreement = product.HasUserAgreement;
             to.IsEsd = product.IsEsd;
             to.DisableWishlistButton = product.DisableWishlistButton;
-
-            if (product.DisplayDeliveryTimeAccordingToStock(_catalogSettings))
-            {
-                var deliveryTime = await _deliveryTimeService.GetDeliveryTimeAsync(product.GetDeliveryTimeIdAccordingToStock(_catalogSettings));
-                if (deliveryTime != null)
-                {
-                    to.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
-                    to.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
-
-                    if (_shoppingCartSettings.DeliveryTimesInShoppingCart is DeliveryTimesPresentation.DateOnly
-                        or DeliveryTimesPresentation.LabelAndDate)
-                    {
-                        to.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
-                    }
-                }
-            }
-
-            if (from.Item.BundleItem == null)
-            {
-                var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(item.AttributeSelection);
-                selectedValues.Each(x => to.Weight += x.WeightAdjustment);
-            }
 
             if (from.ChildItems != null)
             {

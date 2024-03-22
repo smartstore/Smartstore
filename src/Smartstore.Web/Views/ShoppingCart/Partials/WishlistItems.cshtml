@@ -7,40 +7,31 @@
 @{    
     var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
 
+    var detailsViewData = new ViewDataDictionary(ViewData);
+    detailsViewData["Parent"] = Model;
+
     foreach (var item in Model.Items)
     {
+        await SimpleProduct(item);
+
         if (item.ProductType == ProductType.BundledProduct)
         {
-            await SimpleProduct(item);
-
             var bundleItems = item.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
             for (var i = 0; i < bundleItems.Length; i++)
             {
-                await BundleProducts(bundleItems[i], item, i);
+                await BundleProduct(bundleItems[i], i);
             }
-        }
-        else
-        {
-            await SimpleProduct(item);
         }
     }
 
     async Task SimpleProduct(WishlistModel.WishlistItemModel item)
     {
-        var showSku = Model.ShowSku && item.Sku.HasValue();
-        var price = item.Price;
-
-        var showInfos = showSku;
-        var showVariants = item.AttributeInfo.HasValue();
-        var showEssentialAttributes = item.EssentialSpecAttributesInfo.HasValue();
-
         <div class="cart-row">
             <div sm-if="Model.DisplayAddToCart && !Model.IsEditable" class="position-absolute">
                 <input type="checkbox" name="addtocart" class="form-check-input" value="@(item.Id)" />
             </div>
 
             <div class="row">
-
                 @* Image *@
                 <div class="cart-item-img col-3" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
                     <img sm-model="item.Image" class="img-fluid" />
@@ -48,59 +39,7 @@
 
                 @* Data *@
                 <div class="cart-item-data col">
-                    @* Title & Description *@
-                    <div class="cart-item-group">
-                        @* Title *@
-                        <div class="cart-item-title">
-                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                        </div>
-
-                        @* Description *@
-                        @if (Model.DisplayShortDesc && item.ShortDesc.HasValue())
-                        {
-                            <div class="cart-item-desc fs-sm" sm-language-attributes-for="item.ShortDesc">
-                                @Html.Raw(item.ShortDesc.Value.Truncate(250, "..."))
-                            </div>
-                        }
-                    </div>
-
-                    @* Price *@
-                    <div class="cart-item-price-group cart-item-group">
-                        <partial name="CartItem.Price" model="item.Price">
-
-                        @* Quantity *@
-                        <div sm-if="!Model.IsEditable" class="cart-item-qty pd-muted">
-                            <span>@T("Order.Product(s).Quantity"):</span> <span>@item.EnteredQuantity @(item.EnteredQuantity > 1 ? item.QuantityUnitNamePlural : item.QuantityUnitName)</span>
-                        </div>
-                    </div>
-
-                    @* Attributes & Variants *@
-                    <div sm-if="showInfos || showVariants || showEssentialAttributes" class="cart-item-attrs cart-item-group fs-sm">
-                        @if (showSku)
-                        {
-                            <span>@T("ShoppingCart.SKU"):</span>
-                            <span>@item.Sku</span>
-                        }
-
-                        @Html.Raw(item.EssentialSpecAttributesInfo)
-
-                        @if (showVariants)
-                        {
-                            @* Spacer *@
-                            if (showInfos || showEssentialAttributes)
-                            {
-                                <span class="pb-1"></span>
-                                <span></span>
-                            }
-
-                            @Html.Raw(item.AttributeInfo)
-                        }
-                    </div>
-
-                    @* Recurring *@
-                    <div sm-if="item.RecurringInfo.HasValue()" class="cart-item-recurring-info cart-item-group">
-                        @Html.Raw(item.RecurringInfo)
-                    </div>
+                    <partial name="CartItem.Details" model="item" view-data="detailsViewData">
 
                     @* Custom zone *@
                     <zone name="wishlistitem_data_after" model="item.Id"></zone>
@@ -161,7 +100,7 @@
         </div>
     }
 
-    async Task BundleProducts(WishlistModel.WishlistItemModel item, WishlistModel.WishlistItemModel parentItem, int index)
+    async Task BundleProduct(WishlistModel.WishlistItemModel item, int index)
     {
         <div class="cart-row cart-row-child">
             <div class="row">
@@ -210,7 +149,7 @@
                         </div>
 
                         @* Description *@
-                        @if (Model.DisplayShortDesc && item.ShortDesc.HasValue())
+                        @if (item.ShowShortDesc)
                         {
                             <div class="cart-item-desc" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(210, "…"))

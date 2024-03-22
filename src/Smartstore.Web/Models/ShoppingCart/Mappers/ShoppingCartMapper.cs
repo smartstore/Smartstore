@@ -82,7 +82,6 @@ namespace Smartstore.Web.Models.Cart
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ModuleManager _moduleManager;
         private readonly OrderSettings _orderSettings;
-        private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
@@ -110,7 +109,7 @@ namespace Smartstore.Web.Models.Cart
             ShippingSettings shippingSettings,
             RewardPointsSettings rewardPointsSettings,
             Localizer T)
-            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
+            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, measureSettings, T)
         {
             _db = db;
             _taxCalculator = taxCalculator;
@@ -128,7 +127,6 @@ namespace Smartstore.Web.Models.Cart
             _moduleManager = moduleManager;
             _shippingSettings = shippingSettings;
             _orderSettings = orderSettings;
-            _measureSettings = measureSettings;
             _rewardPointsSettings = rewardPointsSettings;
         }
 
@@ -163,20 +161,12 @@ namespace Smartstore.Web.Models.Cart
             #region Simple properties
 
             to.MediaDimensions = _mediaSettings.CartThumbPictureSize;
-            to.DeliveryTimesPresentation = _shoppingCartSettings.DeliveryTimesInShoppingCart;
             to.DisplayBasePrice = _shoppingCartSettings.ShowBasePrice;
-            to.DisplayWeight = _shoppingCartSettings.ShowWeight;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
             to.DisplayCommentBox = _shoppingCartSettings.ShowCommentBox;
             to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.IsEditable = isEditable;
-
-            var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-            if (measure != null)
-            {
-                to.MeasureUnitName = measure.GetLocalized(x => x.Name);
-            }
 
             to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
                 await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));

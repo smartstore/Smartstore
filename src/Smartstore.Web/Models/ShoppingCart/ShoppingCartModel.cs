@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering.Choices;
 
@@ -24,11 +23,8 @@ namespace Smartstore.Web.Models.Cart
         public RewardPointsBoxModel RewardPoints { get; set; } = new();
         public OrderReviewDataModel OrderReviewData { get; set; } = new();
         public int MediaDimensions { get; set; }
-        public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }
         public ButtonPaymentMethodModel ButtonPaymentMethods { get; set; } = new();
         public string CustomerComment { get; set; }
-        public string MeasureUnitName { get; set; }
-        public bool DisplayWeight { get; set; }
         public bool DisplayBasePrice { get; set; }
         public bool DisplayCommentBox { get; set; }
         public bool DisplayEsdRevocationWaiverBox { get; set; }
@@ -36,13 +32,7 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class ShoppingCartItemModel : CartEntityModelBase
         {
-            public decimal Weight { get; set; }
-
-            public bool IsShipEnabled { get; set; }
-            public LocalizedValue<string> DeliveryTimeName { get; set; }
-            public string DeliveryTimeHexValue { get; set; }
-            public string DeliveryTimeDate { get; set; }
-
+            public bool IsShippingEnabled { get; set; }
             public bool IsDownload { get; set; }
             public bool HasUserAgreement { get; set; }
             public bool IsEsd { get; set; }

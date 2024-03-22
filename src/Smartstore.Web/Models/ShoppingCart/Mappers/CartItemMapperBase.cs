@@ -1,10 +1,10 @@
-﻿using Org.BouncyCastle.Crypto.Parameters;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -33,6 +33,7 @@ namespace Smartstore.Web.Models.Cart
 
         protected readonly ICommonServices _services;
         protected readonly IPriceCalculationService _priceCalculationService;
+        protected readonly IDeliveryTimeService _deliveryTimeService;
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
@@ -41,6 +42,7 @@ namespace Smartstore.Web.Models.Cart
         protected CartItemMapperBase(
             ICommonServices services,
             IPriceCalculationService priceCalculationService,
+            IDeliveryTimeService deliveryTimeService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
@@ -48,6 +50,7 @@ namespace Smartstore.Web.Models.Cart
         {
             _services = services;
             _priceCalculationService = priceCalculationService;
+            _deliveryTimeService = deliveryTimeService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
@@ -72,7 +75,7 @@ namespace Smartstore.Web.Models.Cart
             var product = from.Item.Product;
             var customer = item.Customer;
             var store = _services.StoreContext.CurrentStore;
-            var shoppingCartType = item.ShoppingCartType;
+            var isBundleItem = item.BundleItem != null;
             var productSeName = await product.GetActiveSlugAsync();
             var batchContext = parameters?.BatchContext as ProductBatchContext;
             var showEssentialAttributes = parameters?.ShowEssentialAttributes ?? true;
@@ -82,14 +85,17 @@ namespace Smartstore.Web.Models.Cart
             // General model data.
             to.Id = item.Id;
             to.Sku = product.Sku;
+            to.ShowSku = _catalogSettings.ShowProductSku && product.Sku.HasValue();
             to.ProductId = product.Id;
             to.ProductName = product.GetLocalized(x => x.Name);
             to.ProductSeName = productSeName;
             to.ProductUrl = await ProductUrlHelper.GetProductUrlAsync(productSeName, from);
             to.ShortDesc = product.GetLocalized(x => x.ShortDescription);
+            to.ShowShortDesc = _shoppingCartSettings.ShowShortDesc && to.ShortDesc.HasValue();
             to.ProductType = product.ProductType;
             to.VisibleIndividually = product.Visibility != ProductVisibility.Hidden;
             to.CreatedOnUtc = item.UpdatedOnUtc;
+            to.Weight = product.Weight;
 
             to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                 item.AttributeSelection,
@@ -107,7 +113,7 @@ namespace Smartstore.Web.Models.Cart
 
             await from.MapQuantityInputAsync(to);
 
-            if (item.BundleItem != null)
+            if (isBundleItem)
             {
                 to.BundleItem = new BundleItemModel
                 {
@@ -131,28 +137,55 @@ namespace Smartstore.Web.Models.Cart
                     to.ShortDesc = bundleItemShortDescription;
                 }
             }
+            else
+            {
+                var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(item.AttributeSelection);
+                selectedValues.Each(x => to.Weight += x.WeightAdjustment);
+            }
+
+            to.ShowWeight = _shoppingCartSettings.ShowWeight && to.Weight > 0;
 
             if (product.IsRecurring)
             {
                 to.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
             }
 
-            // Map price
-            await MapPriceAsync(from, to, parameters);
-
-            if (item.BundleItem != null)
+            if (product.DisplayDeliveryTimeAccordingToStock(_catalogSettings))
             {
-                if (_shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
+                var deliveryTime = await _deliveryTimeService.GetDeliveryTimeAsync(product.GetDeliveryTimeIdAccordingToStock(_catalogSettings));
+                if (deliveryTime != null)
                 {
-                    await from.MapAsync(to.Image, MediaSettings.CartThumbBundleItemPictureSize, to.ProductName);
+                    to.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
+                    to.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
+
+                    if (_shoppingCartSettings.DeliveryTimesInShoppingCart is DeliveryTimesPresentation.DateOnly
+                        or DeliveryTimesPresentation.LabelAndDate)
+                    {
+                        to.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
+                    }
+
+                    var dtp = _shoppingCartSettings.DeliveryTimesInShoppingCart;
+
+                    if (!isBundleItem && item.IsShippingEnabled && dtp != DeliveryTimesPresentation.None)
+                    {
+                        to.ShowDeliveryName = to.DeliveryTimeName.HasValue() && to.DeliveryTimeHexValue.HasValue()
+                            && (dtp == DeliveryTimesPresentation.LabelOnly || dtp == DeliveryTimesPresentation.LabelAndDate || !to.DeliveryTimeDate.HasValue());
+
+                        to.ShowDeliveryDate = to.DeliveryTimeDate.HasValue()
+                            && (dtp == DeliveryTimesPresentation.DateOnly || dtp == DeliveryTimesPresentation.LabelAndDate);
+                    }
                 }
             }
-            else
+
+            await MapPriceAsync(from, to, parameters);
+
+            if (isBundleItem && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
             {
-                if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
-                {
-                    await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);
-                }
+                await from.MapAsync(to.Image, MediaSettings.CartThumbBundleItemPictureSize, to.ProductName);
+            }
+            else if (!isBundleItem && _shoppingCartSettings.ShowProductImagesOnShoppingCart)
+            {
+                await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);
             }
 
             var itemWarnings = new List<string>();
@@ -161,7 +194,7 @@ namespace Smartstore.Web.Models.Cart
                 to.Warnings.AddRange(itemWarnings);
             }
 
-            var cart = await ShoppingCartService.GetCartAsync(customer, shoppingCartType, store.Id);
+            var cart = await ShoppingCartService.GetCartAsync(customer, item.ShoppingCartType, store.Id);
 
             var attributeWarnings = new List<string>();
             if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attributeWarnings))

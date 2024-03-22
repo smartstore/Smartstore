@@ -1,14 +1,16 @@
-﻿@using Smartstore.Web.Models.Cart;
-@using Smartstore.Core.Catalog.Products;
-@using Smartstore.Core.Checkout.Cart;
-@using Smartstore.Core.Common;
+﻿@using Smartstore.Web.Models.Cart
+@using Smartstore.Core.Catalog.Products
+@using Smartstore.Core.Checkout.Cart
 
 @model ShoppingCartModel
 
 @{
     var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
 
-    @foreach (var item in Model.Items)
+    var detailsViewData = new ViewDataDictionary(ViewData);
+    detailsViewData["Parent"] = Model;
+
+    foreach (var item in Model.Items)
     {
         await SimpleProduct(item);
 
@@ -17,37 +19,13 @@
             var bundleItems = item.ChildItems.Where(x => x.BundleItem != null).OrderBy(x => x.BundleItem.DisplayOrder).ToArray();
             for (var i = 0; i < bundleItems.Length; i++)
             {
-                await BundleProduct(bundleItems[i], item, i);
+                await BundleProduct(bundleItems[i], i);
             }
         }
     }
 
-        async Task SimpleProduct(ShoppingCartModel.ShoppingCartItemModel item)
-        {
-            var deliveryPresentation = Model.DeliveryTimesPresentation;
-            var showSku = Model.ShowSku && item.Sku.HasValue();
-            var showWeight = Model.DisplayWeight && item.Weight > 0;
-            var showDeliveryName = false;
-            var showDeliveryDate = false;
-            var price = item.Price;
-
-            if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
-            {
-                showDeliveryName =
-                    item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
-                    (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-                    deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-                    !item.DeliveryTimeDate.HasValue());
-
-                showDeliveryDate =
-                    (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-                    item.DeliveryTimeDate.HasValue();
-            }
-
-            var showInfos = showDeliveryName || showDeliveryDate || showSku || showWeight;
-            var showVariants = item.AttributeInfo.HasValue();
-            var showEssentialAttributes = item.EssentialSpecAttributesInfo.HasValue();
-
+    async Task SimpleProduct(ShoppingCartModel.ShoppingCartItemModel item)
+    {
         <div class="cart-row">
             <div class="row">
                 @* Image *@
@@ -57,84 +35,7 @@
 
                 @* Data *@
                 <div class="cart-item-data col">
-
-                    @* Title & Description *@
-                    <div class="cart-item-group">
-                        @* Title *@
-                        <div class="cart-item-title">
-                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                        </div>
-
-                        @* Description *@
-                        @if (Model.DisplayShortDesc && item.ShortDesc.HasValue())
-                        {
-                            <div class="cart-item-desc fs-sm" sm-language-attributes-for="item.ShortDesc">
-                                @Html.Raw(item.ShortDesc.Value.Truncate(250, "..."))
-                            </div>
-                        }
-                    </div>
-
-                    @* Custom zone *@
-                    <zone name="cartitem_desc_after" model="item.Id"></zone>
-
-                    @* Price *@
-                    <div class="cart-item-price-group cart-item-group">
-                        <partial name="CartItem.Price" model="item.Price">
-
-                        @* Quantity *@
-                        <div sm-if="!Model.IsEditable" class="cart-item-qty pd-muted">
-                            <span>@T("Order.Product(s).Quantity"):</span> <span>@item.EnteredQuantity @(item.EnteredQuantity > 1 ? item.QuantityUnitNamePlural : item.QuantityUnitName)</span>
-                        </div>
-                    </div>
-
-                    @* Attributes & Variants *@
-                    <div sm-if="showInfos || showVariants || showEssentialAttributes" class="cart-item-attrs cart-item-group fs-sm">
-                        @if (showDeliveryName)
-                        {
-                            <span>@T("Products.DeliveryTime")</span>
-                            <span class="delivery-time pl-0" style="color:@item.DeliveryTimeHexValue" title="@item.DeliveryTimeName">
-                                <i class="fa fa-circle delivery-time-status"></i>
-                                <span sm-language-attributes-for="item.DeliveryTimeName">@item.DeliveryTimeName</span>
-                            </span>
-                        }
-
-                        @if (showDeliveryDate)
-                        {
-                            <span>@Html.Raw(!showDeliveryName ? T("Products.DeliveryDate").Value : "&nbsp;")</span>
-                            <span class="delivery-date">@Html.Raw(item.DeliveryTimeDate)</span>
-                        }
-
-                        @if (showSku)
-                        {
-                            <span>@T("ShoppingCart.SKU"):</span>
-                            <span>@item.Sku</span>
-                        }
-
-                        @if (showWeight)
-                        {
-                            <span>@T("ShoppingCart.Weight"):</span>
-                            <span>@((item.Weight * item.EnteredQuantity).ToString("N2")) @Model.MeasureUnitName</span>
-                        }
-
-                        @Html.Raw(item.EssentialSpecAttributesInfo)
-
-                        @if (showVariants)
-                        {
-                            @* Spacer *@
-                            if (showInfos || showEssentialAttributes)
-                            {
-                                <span class="pb-1"></span>
-                                <span></span>
-                            }
-
-                            @Html.Raw(item.AttributeInfo)
-                        }
-                    </div>
-
-                    @* Recurring *@
-                    <div sm-if="item.RecurringInfo.HasValue()" class="cart-item-recurring-info cart-item-group">
-                        @Html.Raw(item.RecurringInfo)
-                    </div>
+                    <partial name="CartItem.Details" model="item" view-data="detailsViewData">
 
                     @* User Agreement & ESD *@
                     <div sm-if="!Model.IsEditable && ((item.IsDownload && item.HasUserAgreement) || (Model.DisplayEsdRevocationWaiverBox && item.IsEsd))" class="alert alert-warning cart-item-group">
@@ -223,7 +124,7 @@
         </div>
     }
 
-    async Task BundleProduct(ShoppingCartModel.ShoppingCartItemModel item, ShoppingCartModel.ShoppingCartItemModel parentItem, int index)
+    async Task BundleProduct(ShoppingCartModel.ShoppingCartItemModel item, int index)
     {
         <div class="cart-row cart-row-child">
             <div class="row">
@@ -272,7 +173,7 @@
                         </div>
 
                         @* Description *@
-                        @if (Model.DisplayShortDesc && item.ShortDesc.HasValue())
+                        @if (item.ShowShortDesc)
                         {
                             <div class="cart-item-desc" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(210, "…"))

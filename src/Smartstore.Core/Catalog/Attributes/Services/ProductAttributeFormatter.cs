@@ -153,13 +153,15 @@ namespace Smartstore.Core.Catalog.Attributes
 
             IEnumerable<string> formattedAttributes = null;
 
+            // INFO: same order as in CatalogHelper.Product.
             var nameAndOptions = attributes
                 .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.DisplayOrder)
+                .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
                 .Select(x => new
                 {
                     Name = x?.SpecificationAttributeOption?.SpecificationAttribute?.GetLocalized(x => x.Name),
-                    Option = x.SpecificationAttributeOption.GetLocalized(x => x.Name),
-                    Order = x.SpecificationAttributeOption.DisplayOrder
+                    Option = x.SpecificationAttributeOption.GetLocalized(x => x.Name)
                 });
 
             if (options.OptionsSeparator == null)
@@ -175,9 +177,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     .Select(grp => new
                     {
                         Name = TryEncode(grp.Key),
-                        Options = string.Join(options.OptionsSeparator, grp
-                            .OrderBy(x => x.Order)
-                            .Select(x => TryEncode(x.Option)))
+                        Options = string.Join(options.OptionsSeparator, grp.Select(x => TryEncode(x.Option)))
                     })
                     .Select(x => options.FormatTemplate.FormatInvariant(x.Name, x.Options));
             }

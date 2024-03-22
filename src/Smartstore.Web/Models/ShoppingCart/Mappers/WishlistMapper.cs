@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -38,8 +39,9 @@ namespace Smartstore.Web.Models.Cart
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
+            MeasureSettings measureSettings,
             Localizer T)
-            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
+            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, measureSettings, T)
         {
             _taxService = taxService;
             _productService = productService;

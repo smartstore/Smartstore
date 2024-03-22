@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
@@ -10,20 +11,19 @@ namespace Smartstore.Web.Models.Cart
     public abstract class CartModelBase : ModelBase
     {
         public abstract IEnumerable<CartEntityModelBase> Items { get; }
+        public List<string> Warnings { get; set; } = [];
 
-        public bool ShowSku { get; set; }
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public bool IsEditable { get; set; }
         public int BundleThumbSize { get; set; }
-        public bool DisplayShortDesc { get; set; }
-        public List<string> Warnings { get; set; } = [];
+        public string MeasureUnitName { get; set; }
+        public ShoppingCartType ShoppingCartType { get; set; }
     }
 
     public abstract class CartEntityModelBase : EntityModelBase, IQuantityInput
     {
-        public string Sku { get; set; }
-        public ImageModel Image { get; set; } = new();
+        public List<string> Warnings { get; set; } = [];
 
         public int ProductId { get; set; }
         public LocalizedValue<string> ProductName { get; set; }
@@ -31,8 +31,14 @@ namespace Smartstore.Web.Models.Cart
         public string ProductUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
+        public DateTime CreatedOnUtc { get; set; }
+
+        public bool ShowSku { get; set; }
+        public string Sku { get; set; }
 
         public CartItemPriceModel Price { get; set; } = new();
+        public ImageModel Image { get; set; } = new();
+        public abstract IEnumerable<CartEntityModelBase> ChildItems { get; }
 
         public int EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
@@ -44,20 +50,25 @@ namespace Smartstore.Web.Models.Cart
         public int? MaxInStock { get; set; }
         public QuantityControlType QuantityControlType { get; set; }
 
+        public bool ShowShortDesc { get; set; }
+        public LocalizedValue<string> ShortDesc { get; set; }
+
         public string AttributeInfo { get; set; }
         public string EssentialSpecAttributesInfo { get; set; }
         public string RecurringInfo { get; set; }
-        public List<string> Warnings { get; set; } = [];
-        public LocalizedValue<string> ShortDesc { get; set; }
+
+        public bool ShowWeight { get; set; }
+        public decimal Weight { get; set; }
+
+        public bool ShowDeliveryName { get; set; }
+        public bool ShowDeliveryDate { get; set; }
+        public LocalizedValue<string> DeliveryTimeName { get; set; }
+        public string DeliveryTimeHexValue { get; set; }
+        public string DeliveryTimeDate { get; set; }
 
         public BundleItemModel BundleItem { get; set; }
         public bool IsBundleItem
-        {
-            get => BundleItem != null;
-        }
-
-        public abstract IEnumerable<CartEntityModelBase> ChildItems { get; }
-        public DateTime CreatedOnUtc { get; set; }
+            => BundleItem != null;
     }
 
     public partial class BundleItemModel : EntityModelBase

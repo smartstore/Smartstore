@@ -1,0 +1,84 @@
+﻿@using Smartstore.Web.Models.Cart
+@using Smartstore.Core.Checkout.Cart
+
+@model CartEntityModelBase
+
+@{
+    var parentModel = ViewData["Parent"] as CartModelBase;
+    var showInfos = Model.ShowDeliveryName || Model.ShowDeliveryDate || Model.ShowSku || Model.ShowWeight;
+    var showVariants = Model.AttributeInfo.HasValue();
+    var showEssentialAttributes = Model.EssentialSpecAttributesInfo.HasValue();
+}
+
+<div class="cart-item-group">
+    <div class="cart-item-title">
+        <a class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
+    </div>
+
+    @if (Model.ShowShortDesc)
+    {
+        <div class="cart-item-desc fs-sm" sm-language-attributes-for="Model.ShortDesc">
+            @Html.Raw(Model.ShortDesc.Value.Truncate(250, "…"))
+        </div>
+    }
+</div>
+
+@if (parentModel.ShoppingCartType == ShoppingCartType.ShoppingCart)
+{
+    <zone name="cartitem_desc_after" model="Model.Id"></zone>
+}
+
+<div class="cart-item-price-group cart-item-group">
+    <partial name="CartItem.Price" model="Model.Price">
+
+    <div sm-if="!parentModel.IsEditable" class="cart-item-qty pd-muted">
+        <span>@T("Order.Product(s).Quantity"):</span> <span>@Model.EnteredQuantity @(Model.EnteredQuantity > 1 ? Model.QuantityUnitNamePlural : Model.QuantityUnitName)</span>
+    </div>
+</div>
+
+<div sm-if="showInfos || showVariants || showEssentialAttributes" class="cart-item-attrs cart-item-group fs-sm">
+    @if (Model.ShowDeliveryName)
+    {
+        <span>@T("Products.DeliveryTime")</span>
+        <span class="delivery-time pl-0" style="color:@Model.DeliveryTimeHexValue" title="@Model.DeliveryTimeName">
+            <i class="fa fa-circle delivery-time-status"></i>
+            <span sm-language-attributes-for="Model.DeliveryTimeName">@Model.DeliveryTimeName</span>
+        </span>
+    }
+
+    @if (Model.ShowDeliveryDate)
+    {
+        <span>@Html.Raw(!Model.ShowDeliveryName ? T("Products.DeliveryDate").Value : "&nbsp;")</span>
+        <span class="delivery-date">@Html.Raw(Model.DeliveryTimeDate)</span>
+    }
+
+    @if (Model.ShowSku)
+    {
+        <span>@T("ShoppingCart.SKU"):</span>
+        <span>@Model.Sku</span>
+    }
+
+    @if (Model.ShowWeight)
+    {
+        <span>@T("ShoppingCart.Weight"):</span>
+        <span>@((Model.Weight * Model.EnteredQuantity).ToString("N2")) @parentModel.MeasureUnitName</span>
+    }
+
+    @Html.Raw(Model.EssentialSpecAttributesInfo)
+
+    @if (showVariants)
+    {
+        @* Spacer *@
+        if (showInfos || showEssentialAttributes)
+        {
+            <span class="pb-1"></span>
+            <span></span>
+        }
+
+        @Html.Raw(Model.AttributeInfo)
+    }
+</div>
+
+<div sm-if="Model.RecurringInfo.HasValue()" class="cart-item-recurring-info cart-item-group">
+    @Html.Raw(Model.RecurringInfo)
+</div>
