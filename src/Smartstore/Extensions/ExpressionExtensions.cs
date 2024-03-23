@@ -25,7 +25,7 @@ namespace Smartstore
 
         public static MemberInfo ExtractMemberInfo(this LambdaExpression memberAccessor)
         {
-            Guard.NotNull(memberAccessor, nameof(memberAccessor));
+            Guard.NotNull(memberAccessor);
 
             if (memberAccessor.Body is UnaryExpression unaryExp)
             {
