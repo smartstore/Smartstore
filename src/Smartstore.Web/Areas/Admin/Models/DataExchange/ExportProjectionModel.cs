@@ -17,6 +17,7 @@ namespace Smartstore.Admin.Models.Export
         public int? CurrencyId { get; set; }
 
         [LocalizedDisplay("*CustomerId")]
+        [AdditionalMetadata("invariant", true)]
         public int? CustomerId { get; set; }
 
         #endregion

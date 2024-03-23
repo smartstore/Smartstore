@@ -1,66 +1,35 @@
 ﻿@using Smartstore.Utilities
-
-@functions{
-    private DateTime? Value
-    {
-        get
-        {
-            DateTime? value = null;
-            if (ViewData.Model != null)
-            {
-                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture).ToLocalTime();
-            }
-            return value;
-        }
-    }
-
-    private bool PickTime
-    {
-        get
-        {
-            if (TryGetMetadata<bool>("pickTime", out var result))
-            {
-                return result;
-            }
-            else if (TryGetMetadata<List<string>>("pickTimeFieldIds", out var ids))
-            {
-                var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-                return ids.Contains(id);
-            }
-
-            return false;
-        }
-    }
-
-    private string CssClass
-    {
-        get
-        {
-            var cls = "input-group date datetimepicker-group flex-nowrap";
-
-            if (TryGetMetadata<string>("size", out var size))
-            {
-                cls += " input-group-" + size;
-            }
-
-            return cls;
-        }
-    }
-}
+@using System.Globalization
 
 @{
-    var id = Html.IdForModel();
-    var name = Html.NameForModel();
-    var format = PickTime ? "L LT" : "L";
-    var value = string.Empty;
-    if (Value.HasValue && Value.Value > DateTime.MinValue)
+    if (!TryGetMetadata<bool>("pickTime", out var picktime))
     {
-        value = PickTime ? Value.Value.ToString() : Value.Value.ToShortDateString();
+        if (TryGetMetadata<List<string>>("pickTimeFieldIds", out var fieldIds))
+        {
+            picktime = fieldIds.Contains(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty));
+        }
     }
+
+    DateTime? value = ViewData.Model != null
+        ? Convert.ToDateTime(ViewData.Model, CultureInfo.CurrentCulture).ToLocalTime()
+        : null;
+
+    var valueStr = value.HasValue && value.Value > DateTime.MinValue
+        ? picktime ? value.Value.ToString() : value.Value.ToShortDateString()
+        : string.Empty;
+
+    var cssClass = "input-group date datetimepicker-group flex-nowrap";
+    if (TryGetMetadata<string>("size", out var size))
+    {
+        cssClass += " input-group-" + size;
+    }
+
+    var id = Html.IdForModel();
+    var format = picktime ? "L LT" : "L";
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest" data-keep-open="false">
+<div class="@cssClass" id="@id-parent" data-date="@valueStr" data-target-input="nearest" data-keep-open="false">
     <input asp-for="@Model"
            attrs="attributes"
            class="datetimepicker-input edit-control"
@@ -69,7 +38,7 @@
            data-use-current="false"
            data-editor="date-time"
            type="text"
-           attr-value="(value.HasValue(), value)" />
+           attr-value="(valueStr.HasValue(), valueStr)" />
 
     <div class="input-group-append" data-target="#@(id)-parent" data-toggle="datetimepicker">
         <button type="button" class="btn btn-light">
