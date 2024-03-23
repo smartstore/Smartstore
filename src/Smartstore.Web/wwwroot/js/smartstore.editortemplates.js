@@ -158,8 +158,6 @@
                     form.trigger("submit");
                 }
                 else {
-                    // TODO: (mg) Are you sure? Because: posting data via AJAX is not the same as posting a form natively. (?)
-                    // RE: "postData" does not use AJAX. It submits a dynamically created form synchronously.
                     $({}).postData({
                         url,
                         data: { id: acceptButton.data("commit-id") }
