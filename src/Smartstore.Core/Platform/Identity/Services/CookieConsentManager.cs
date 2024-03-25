@@ -166,24 +166,25 @@ namespace Smartstore.Core.Identity
                     }
                 }
 
-                return null;
+                // There is no cookie consent cookie.
+                return new ConsentCookie
+                {
+                    AllowAnalytics = false,
+                    AllowThirdParty = false,
+                    AdPersonalizationConsent = false,
+                    AdUserDataConsent = false
+                };
             });
 
-            if (consentCookie != null)
-            {
-                // Initialise allowedTypes with the required value, as this is always permitted.
-                CookieType allowedTypes = CookieType.Required;
+            // Initialise allowedTypes with the required value, as this is always permitted.
+            CookieType allowedTypes = CookieType.Required;
 
-                if (consentCookie.AllowAnalytics) allowedTypes |= CookieType.Analytics;
-                if (consentCookie.AllowThirdParty) allowedTypes |= CookieType.ThirdParty;
-                if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
-                if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
+            if (consentCookie.AllowAnalytics) allowedTypes |= CookieType.Analytics;
+            if (consentCookie.AllowThirdParty) allowedTypes |= CookieType.ThirdParty;
+            if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
+            if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
 
-                return allowedTypes.HasFlag(cookieType);
-            }
-            
-            // If no cookie was set return false.
-            return false;
+            return allowedTypes.HasFlag(cookieType);
         }
 
         public virtual ConsentCookie GetCookieData()
