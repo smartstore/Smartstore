@@ -41,7 +41,6 @@
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
-- MegaSearch: improved applying of boost values. Fixed the problem that hits from an SKU search appeared too far back.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC
@@ -74,6 +73,7 @@
 - Fixed `NullReferenceException` calling search page without any search term.
 - Fixed `NullReferenceException` *typeFilter was null* when uploading a video.
 - Fixed `NullReferenceException` on product detail page if the main menu is not published.
+- MegaSearch: hits from an SKU search tend to appear too far back.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
