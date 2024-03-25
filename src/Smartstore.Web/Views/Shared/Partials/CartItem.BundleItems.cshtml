@@ -1,0 +1,89 @@
+﻿@using Smartstore.Web.Models.Cart
+
+@model IEnumerable<CartEntityModelBase>
+
+@{
+    var parentModel = ViewData["Parent"] as CartModelBase;
+    var thumbSize = Math.Min(parentModel.BundleThumbSize, 60).ToStringInvariant() + "px";
+
+    var bundleItems = Model
+        .Where(x => x.BundleItem != null)
+        .OrderBy(x => x.BundleItem.DisplayOrder)
+        .ToArray();
+}
+
+@for (var i = 0; i < bundleItems.Length; i++)
+{
+    var item = bundleItems[i];
+
+    <div class="cart-row cart-row-child">
+        <div class="row">
+            @* Spacer for image *@
+            <div class="cart-item-img col-3 d-none d-md-flex d-lg-none d-xl-flex text-start">
+                @if (i == 0 && item.BundleItem.Title.HasValue())
+                {
+                    <span class="fwm pt-1">@(item.BundleItem.Title):</span>
+                }
+                else
+                {
+                    <span>&nbsp;</span>
+                }
+            </div>
+            <div class="cart-item-data col">
+                @* Title & Description *@
+                <div class="cart-item-group">
+                    <div class="cart-item-title">
+                        @if (parentModel.ShowProductBundleImages)
+                        {
+                            <span class="cart-item-bundle-img mr-1" style="width: @thumbSize; height: @thumbSize;">
+                                @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
+                                {
+                                    <img sm-model="item.Image" class="img-fluid" />
+                                }
+                            </span>
+                        }
+
+                        <span sm-if="item.EnteredQuantity > 1 && item.BundleItem.PerItemShoppingCart" class="badge badge-secondary">
+                            @(item.EnteredQuantity)&nbsp;&#215;
+                        </span>
+
+                        @if (item.VisibleIndividually)
+                        {
+                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">
+                                @item.ProductName
+                            </a>
+                        }
+                        else
+                        {
+                            <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                        }
+                    </div>
+
+                    @if (item.ShowShortDesc)
+                    {
+                        <div class="cart-item-desc" sm-language-attributes-for="item.ShortDesc">
+                            @Html.Raw(item.ShortDesc.Value.Truncate(210, "…"))
+                        </div>
+                    }
+                </div>
+
+                @* Price *@
+                <div sm-if="item.BundleItem.PerItemShoppingCart" class="cart-item-price-group cart-item-group">
+                    <partial name="CartItem.Price" model="item.Price">
+                </div>
+
+                <div sm-if="item.AttributeInfo.HasValue() || item.EssentialSpecAttributesInfo.HasValue()" class="cart-item-attrs cart-item-group">
+                    @Html.Raw(item.EssentialSpecAttributesInfo)
+                    @Html.Raw(item.AttributeInfo)
+                </div>
+
+                <div sm-if="item.Warnings.Count > 0" class="alert alert-danger cart-item-group cart-item-group">
+                    @foreach (var warning in item.Warnings)
+                    {
+                        <p>@Html.Raw(warning)</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

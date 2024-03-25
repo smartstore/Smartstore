@@ -29,7 +29,7 @@
 }
 
 <div class="cart-item-price-group cart-item-group">
-    <partial name="CartItem.Price" model="Model.Price">
+    <partial name="CartItem.Price" model="Model.Price" />
 
     <div sm-if="!parentModel.IsEditable" class="cart-item-qty pd-muted">
         <span>@T("Order.Product(s).Quantity"):</span> <span>@Model.EnteredQuantity @(Model.EnteredQuantity > 1 ? Model.QuantityUnitNamePlural : Model.QuantityUnitName)</span>
