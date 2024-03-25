@@ -41,6 +41,7 @@
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
+- MegaSearch: improved applying of boost values. Fixed the problem that hits from an SKU search appeared too far back.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
 - GMC
