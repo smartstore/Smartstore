@@ -9,13 +9,21 @@
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" 
+    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })"
                 delete="@Url.Action("SpecificationAttributeOptionDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
     </sorting>
+    <search-panel preserve-state="false">
+        <partial name="_Grid.SpecificationAttributeOptions.Search" model="parentModel" />
+    </search-panel>
     <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
         <toolbar-group>
             <button type="button" class="add-specification-attribute-option btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>

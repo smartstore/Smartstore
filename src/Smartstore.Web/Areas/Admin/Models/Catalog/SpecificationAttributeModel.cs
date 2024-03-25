@@ -27,6 +27,12 @@ namespace Smartstore.Admin.Models.Catalog
     public class SpecificationAttributeModel : EntityModelBase, ILocalizedModel<SpecificationAttributeLocalizedModel>
     {
         [LocalizedDisplay("*Name")]
+        public string SearchName { get; set; }
+
+        [LocalizedDisplay("*Alias")]
+        public string SearchAlias { get; set; }
+
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
         [LocalizedDisplay("*Alias")]

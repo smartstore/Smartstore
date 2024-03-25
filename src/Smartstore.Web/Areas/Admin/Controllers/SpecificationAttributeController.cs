@@ -330,11 +330,22 @@ namespace Smartstore.Admin.Controllers
         #region Specification attribute options
 
         [Permission(Permissions.Catalog.Attribute.Read)]
-        public async Task<IActionResult> SpecificationAttributeOptionList(GridCommand command, int specificationAttributeId)
+        public async Task<IActionResult> SpecificationAttributeOptionList(GridCommand command, int specificationAttributeId, SpecificationAttributeModel model)
         {
             var mapper = MapperFactory.GetMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>();
-            var options = await _db.SpecificationAttributeOptions
-                .AsNoTracking()
+            var query = _db.SpecificationAttributeOptions.AsNoTracking();
+
+            if (model.SearchName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
+            }
+
+            if (model.SearchAlias.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);
+            }
+
+            var options = await query
                 .Where(x => x.SpecificationAttributeId == specificationAttributeId)
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Id)
