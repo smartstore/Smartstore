@@ -1238,7 +1238,8 @@ namespace Smartstore.Web.Controllers
                         SpecificationAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
                         SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
                         SpecificationAttributeOption = x.SpecificationAttributeOption.GetLocalized(x => x.Name),
-                        Essential = x.SpecificationAttributeOption.SpecificationAttribute.Essential
+                        Essential = x.SpecificationAttributeOption.SpecificationAttribute.Essential,
+                        DisplayOrder = x.SpecificationAttributeOption.DisplayOrder
                     })
                     .ToList();
             });

@@ -151,7 +151,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            IEnumerable<string> formattedAttributes = null;
+            var formattedAttributes = new List<string>();
 
             // INFO: same order as in CatalogHelper.Product.
             var nameAndOptions = attributes
@@ -160,26 +160,35 @@ namespace Smartstore.Core.Catalog.Attributes
                 .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
                 .Select(x => new
                 {
-                    Name = x?.SpecificationAttributeOption?.SpecificationAttribute?.GetLocalized(x => x.Name),
-                    Option = x.SpecificationAttributeOption.GetLocalized(x => x.Name)
-                });
+                    Name = x?.SpecificationAttributeOption?.SpecificationAttribute?.GetLocalized(x => x.Name).Value,
+                    Option = x.SpecificationAttributeOption.GetLocalized(x => x.Name).Value,
+                    Order = x.SpecificationAttributeOption.DisplayOrder
+                })
+                .GroupBy(x => x.Name);
 
-            if (options.OptionsSeparator == null)
+            foreach (var grp in nameAndOptions)
             {
-                // No grouping. The attribute name can be displayed several times.
-                formattedAttributes = nameAndOptions.Select(x => options.FormatTemplate.FormatInvariant(TryEncode(x.Name), TryEncode(x.Option)));
-            }
-            else
-            {
-                // Group by attribute name.
-                formattedAttributes = nameAndOptions
-                    .GroupBy(x => x.Name)
-                    .Select(grp => new
+                var attributeName = TryEncode(grp.Key);
+
+                if (options.OptionsSeparator == null)
+                {
+                    // No grouping. The attribute name can be displayed several times.
+                    foreach (var item in grp.OrderBy(x => x.Order).ThenBy(x => x.Option))
                     {
-                        Name = TryEncode(grp.Key),
-                        Options = string.Join(options.OptionsSeparator, grp.Select(x => TryEncode(x.Option)))
-                    })
-                    .Select(x => options.FormatTemplate.FormatInvariant(x.Name, x.Options));
+                        formattedAttributes.Add(options.FormatTemplate.FormatInvariant(attributeName, TryEncode(item.Option)));
+                    }
+                }
+                else
+                {
+                    // Group by attribute name.
+                    var optionNames = grp
+                        .OrderBy(x => x.Order)
+                        .ThenBy(x => x.Option)
+                        .Select(x => TryEncode(x.Option));
+                    var optionNamesStr = string.Join(options.OptionsSeparator, optionNames);
+
+                    formattedAttributes.Add(options.FormatTemplate.FormatInvariant(attributeName, optionNamesStr));
+                }
             }
 
             return string.Join(options.ItemSeparator, formattedAttributes).NullEmpty();

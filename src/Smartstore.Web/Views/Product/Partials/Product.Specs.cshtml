@@ -14,21 +14,21 @@
 <div class="pd-specs table-responsive">
     <table class="table pd-specs-table">
         <tbody>
-            @foreach (var group in grouped)
+            @foreach (var grp in grouped)
             {
-                var count = group.Count();
-                <tr attr-class='(group.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
-                    <td class="pd-spec-name" sm-language-attributes-for="group.Key">@group.Key</td>
+                var count = grp.Count();
+                <tr attr-class='(grp.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
+                    <td class="pd-spec-name" sm-language-attributes-for="grp.Key">@grp.Key</td>
                     <td class="pd-spec-value">
                         @if (count == 1)
                         {
-                            var option = group.First().SpecificationAttributeOption;
+                            var option = grp.First().SpecificationAttributeOption;
                             <span sm-language-attributes-for="option">@option</span>
                         }
                         else if (count > 1)
                         {
                             <ul class="mb-0 pl-3">
-                                @foreach (var item in group)
+                                @foreach (var item in grp.OrderBy(x => x.DisplayOrder).ThenBy(x => x.SpecificationAttributeOption))
                                 {
                                     <li class="pb-1"><span sm-language-attributes-for="item.SpecificationAttributeOption">@item.SpecificationAttributeOption</span></li>
                                 }
