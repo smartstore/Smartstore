@@ -1,5 +1,8 @@
-﻿@using Smartstore.Web.Models.Cart
+﻿@using Smartstore.Core.Catalog
 @using Smartstore.Core.Checkout.Cart
+@using Smartstore.Web.Models.Cart
+
+@inject CatalogSettings _catalogSettings
 
 @model CartEntityModelBase
 
@@ -11,6 +14,26 @@
 }
 
 <div class="cart-item-group">
+    <div sm-if="Model.Brand != null" class="cart-item-brand">
+        @if (Model.Brand.Image != null)
+        {
+            if (_catalogSettings.LinkManufacturerLogoInLists)
+            {
+                <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" title="@Model.Brand.Image.Title">
+                    <img sm-model="Model.Brand.Image" class="cart-item-brand-image" />
+                </a>
+            }
+            else
+            {
+                <img sm-model="Model.Brand.Image" class="cart-item-brand-image" />
+            }
+        }
+        else
+        {
+            <span sm-language-attributes-for="Model.Brand.Name" class="fs-sm">@Model.Brand.Name</span>
+        }
+    </div>
+
     <div class="cart-item-title">
         <a class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
     </div>

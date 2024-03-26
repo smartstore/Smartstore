@@ -314,6 +314,11 @@ namespace Smartstore.Core.Catalog
         /// </summary>
         public bool ShowManufacturerLogoInLists { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the manufacturer logo should be linked in product lists.
+        /// </summary>
+        public bool LinkManufacturerLogoInLists { get; set; } = true;
+
         public bool ShowShortDescriptionInGridStyleLists { get; set; } = true;
 
         public bool ShowProductOptionsInLists { get; set; } = true;

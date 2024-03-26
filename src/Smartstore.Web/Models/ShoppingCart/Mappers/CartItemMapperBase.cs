@@ -57,7 +57,6 @@ namespace Smartstore.Web.Models.Cart
             _catalogHelper = catalogHelper;
         }
 
-        public IShoppingCartService ShoppingCartService { get; set; }
         public IPriceLabelService PriceLabelService { get; set; }
         public IProductAttributeFormatter ProductAttributeFormatter { get; set; }
         public IShoppingCartValidator ShoppingCartValidator { get; set; }
@@ -71,14 +70,17 @@ namespace Smartstore.Web.Models.Cart
             Guard.NotNull(from);
             Guard.NotNull(to);
 
+            var batchContext = (ProductBatchContext)parameters.BatchContext;
+            var showEssentialAttributes = parameters?.ShowEssentialAttributes ?? true;
+            var cachedBrands = (Dictionary<int, BrandOverviewModel>)parameters.CachedBrands;
+
             var item = from.Item;
             var product = from.Item.Product;
             var customer = item.Customer;
             var store = _services.StoreContext.CurrentStore;
             var isBundleItem = item.BundleItem != null;
             var productSeName = await product.GetActiveSlugAsync();
-            var batchContext = parameters?.BatchContext as ProductBatchContext;
-            var showEssentialAttributes = parameters?.ShowEssentialAttributes ?? true;
+            var manufacturer = await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
 
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
@@ -96,6 +98,7 @@ namespace Smartstore.Web.Models.Cart
             to.VisibleIndividually = product.Visibility != ProductVisibility.Hidden;
             to.CreatedOnUtc = item.UpdatedOnUtc;
             to.Weight = product.Weight;
+            to.Brand = (await _catalogHelper.PrepareBrandOverviewModelAsync(manufacturer, cachedBrands, _catalogSettings.ShowManufacturerLogoInLists)).FirstOrDefault();
 
             to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                 item.AttributeSelection,
@@ -104,7 +107,7 @@ namespace Smartstore.Web.Models.Cart
                 customer,
                 batchContext);
 
-            if (batchContext != null && showEssentialAttributes)
+            if (showEssentialAttributes)
             {
                 to.EssentialSpecAttributesInfo = ProductAttributeFormatter.FormatSpecificationAttributes(
                     await batchContext.EssentialAttributes.GetOrLoadAsync(product.Id),
@@ -188,18 +191,20 @@ namespace Smartstore.Web.Models.Cart
                 await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);
             }
 
+            // Warnings.
             var itemWarnings = new List<string>();
             if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, null, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);
             }
 
-            var cart = await ShoppingCartService.GetCartAsync(customer, item.ShoppingCartType, store.Id);
-
-            var attributeWarnings = new List<string>();
-            if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attributeWarnings))
+            if (parameters?.Cart is ShoppingCart cart)
             {
-                to.Warnings.AddRange(attributeWarnings);
+                var attributeWarnings = new List<string>();
+                if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attributeWarnings))
+                {
+                    to.Warnings.AddRange(attributeWarnings);
+                }
             }
         }
 

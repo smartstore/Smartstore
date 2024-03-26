@@ -417,8 +417,17 @@
                         <smart-label asp-for="ShowManufacturerLogoInLists" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="ShowManufacturerLogoInLists"></setting-editor>
+                        <setting-editor asp-for="ShowManufacturerLogoInLists" data-toggler-for="#pnlManufacturerLogoInLists"></setting-editor>
                         <span asp-validation-for="ShowManufacturerLogoInLists"></span>
+                    </div>
+                </div>
+                <div id="pnlManufacturerLogoInLists" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LinkManufacturerLogoInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LinkManufacturerLogoInLists"></setting-editor>
+                        <span asp-validation-for="LinkManufacturerLogoInLists"></span>
                     </div>
                 </div>
                 <div class="adminRow">

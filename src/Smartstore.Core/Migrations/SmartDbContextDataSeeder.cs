@@ -285,6 +285,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowEssentialAttributesInMiniShoppingCart",
                 "Show essential features in mini-shopping cart",
                 "Wesentliche Merkmale im Mini-Warenkorb anzeigen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LinkManufacturerLogoInLists",
+                "Link brand logo",
+                "Marken-Logo verlinken");
         }
     }
 }

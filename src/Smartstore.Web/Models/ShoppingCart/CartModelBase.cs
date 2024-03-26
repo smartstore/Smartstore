@@ -32,6 +32,7 @@ namespace Smartstore.Web.Models.Cart
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
         public DateTime CreatedOnUtc { get; set; }
+        public BrandOverviewModel Brand { get; set; }
 
         public bool ShowSku { get; set; }
         public string Sku { get; set; }

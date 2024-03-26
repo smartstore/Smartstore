@@ -20,6 +20,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
 
@@ -418,6 +419,8 @@ namespace Smartstore.Web.Models.Cart
             itemParameters.TaxFormat = parameters?.IsOffcanvas == true ? _taxService.GetTaxFormat() : null;
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
+            itemParameters.Cart = from;
+            itemParameters.CachedBrands = new Dictionary<int, BrandOverviewModel>();
 
             foreach (var cartItem in from.Items)
             {

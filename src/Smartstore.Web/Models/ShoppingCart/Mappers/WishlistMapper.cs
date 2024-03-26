@@ -7,6 +7,7 @@ using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -88,9 +89,11 @@ namespace Smartstore.Web.Models.Cart
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, from.Customer, false);
 
             dynamic itemParameters = new GracefulDynamicObject();
+            itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);
             itemParameters.TaxFormat = _taxService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
-            itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);
+            itemParameters.Cart = from;
+            itemParameters.CachedBrands = new Dictionary<int, BrandOverviewModel>();
 
             foreach (var cartItem in from.Items)
             {

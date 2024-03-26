@@ -165,6 +165,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowManufacturerLogoInLists")]
         public bool ShowManufacturerLogoInLists { get; set; }
 
+        [LocalizedDisplay("*LinkManufacturerLogoInLists")]
+        public bool LinkManufacturerLogoInLists { get; set; }
+
         [LocalizedDisplay("*ShowProductOptionsInLists")]
         public bool ShowProductOptionsInLists { get; set; }
 

@@ -1,4 +1,7 @@
-﻿@using Smartstore.Web.Models.Catalog;
+﻿@using Smartstore.Core.Catalog
+@using Smartstore.Web.Models.Catalog
+
+@inject CatalogSettings _catalogSettings
 
 @model ProductSummaryItemModel
 
@@ -8,10 +11,16 @@
         var image = Model.Brand.Image;
         if (image?.File != null && Model.Parent.ViewMode == ProductSummaryViewMode.List)
         {
-            // TODO: (mc) (low) Whether to link or not > make setting > see issue #397.
-            <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" title="@image.Title">
+            if (_catalogSettings.LinkManufacturerLogoInLists)
+            {
+                <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" title="@image.Title">
+                    <img sm-model="image" class="art-brand-picture" />
+                </a>
+            }
+            else
+            {
                 <img sm-model="image" class="art-brand-picture" />
-            </a>
+            }
         }
         else
         {

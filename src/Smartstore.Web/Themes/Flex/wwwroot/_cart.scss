@@ -221,6 +221,19 @@
     text-align: center;
 }
 
+.cart-item-brand {
+    color: var(--secondary-color);
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.cart-item-brand-image {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    max-height: 24px;
+}
+
 .cart-item-title {
     display: flex;
     align-items: center;

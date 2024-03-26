@@ -1,7 +1,5 @@
-﻿@using Smartstore.Core.Common;
-@using Smartstore.Core.Catalog.Pricing;
-@using Smartstore.Web.Models.Catalog;
-@using Smartstore.Web.Models.Cart;
+﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Web.Models.Cart
 
 @model CartItemPriceModel
 
@@ -49,10 +47,7 @@
 @* Compare prices *@
 <div sm-if="Model.RegularPrice != null || Model.RetailPrice != null" class="pd-promoprice-group">
     @{
-        // Regular price
         await RenderPromoPriceLine(Model.RegularPrice);
-
-        // Retail price
         await RenderPromoPriceLine(Model.RetailPrice);
     }
 
@@ -64,6 +59,10 @@
             <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", Model.Saving.SavingPercent.ToString("N0"))</span>
         </span>
     </div>
+</div>
+
+<div sm-if="Model.ShippingSurcharge.HasValue" class="pd-legalinfo">
+    @Html.Raw(Model.ShippingSurcharge.Value)
 </div>
 
 <div class="pt-2 fs-sm" sm-suppress-if-empty>
