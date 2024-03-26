@@ -39,9 +39,11 @@ namespace Smartstore.Admin.Models.Export
         public ProductVisibility? Visibility { get; set; }
 
         [LocalizedDisplay("*IdMinimum")]
+        [AdditionalMetadata("invariant", true)]
         public int? IdMinimum { get; set; }
 
         [LocalizedDisplay("*IdMaximum")]
+        [AdditionalMetadata("invariant", true)]
         public int? IdMaximum { get; set; }
 
         [LocalizedDisplay("*PriceMinimum")]
