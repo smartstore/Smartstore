@@ -21,6 +21,7 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly OrderSettings _orderSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CheckoutController(
             SmartDbContext db,
@@ -30,7 +31,8 @@ namespace Smartstore.Web.Controllers
             IPaymentService paymentService,
             IShoppingCartService shoppingCartService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _storeContext = storeContext;
@@ -40,6 +42,7 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderSettings = orderSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         [DisallowRobot]
@@ -108,12 +111,15 @@ namespace Smartstore.Web.Controllers
         private async Task<CheckoutResult> AddAddress(CheckoutAddressModel model, CheckoutContext context, bool isShippingAddress)
         {
             var cart = context.Cart;
+            var customer = cart.Customer;
+            var ga = customer.GenericAttributes;
+
             if (!cart.HasItems)
             {
                 return new(RedirectToRoute("ShoppingCart"));
             }
 
-            if (!_orderSettings.AnonymousCheckoutAllowed && !cart.Customer.IsRegistered())
+            if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
             {
                 return new(ChallengeOrForbid());
             }
@@ -121,21 +127,36 @@ namespace Smartstore.Web.Controllers
             if (ModelState.IsValid)
             {
                 var address = await MapperFactory.MapAsync<AddressModel, Address>(model.NewAddress);
-                cart.Customer.Addresses.Add(address);
+                customer.Addresses.Add(address);
 
                 // Save to avoid duplicate addresses.
                 await _db.SaveChangesAsync();
 
                 if (isShippingAddress)
                 {
-                    cart.Customer.ShippingAddress = address;
+                    customer.ShippingAddress = address;
+                    if (_shoppingCartSettings.QuickCheckoutEnabled)
+                    {
+                        customer.GenericAttributes.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                    }
                 }
                 else
                 {
-                    cart.Customer.BillingAddress = address;
-                    cart.Customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired ? null : address;
+                    customer.BillingAddress = address;
+                    customer.ShippingAddress = model.ShippingAddressDiffers || !cart.IsShippingRequired ? null : address;
 
-                    _checkoutStateAccessor.CheckoutState.CustomProperties["SkipShippingAddress"] = !model.ShippingAddressDiffers;
+                    var state = _checkoutStateAccessor.CheckoutState;
+                    state.CustomProperties["SkipShippingAddress"] = !model.ShippingAddressDiffers;
+                    state.CustomProperties["ShippingAddressDiffers"] = model.ShippingAddressDiffers;
+
+                    if (_shoppingCartSettings.QuickCheckoutEnabled)
+                    {
+                        ga.DefaultBillingAddressId = customer.BillingAddress.Id;
+                        if (customer.ShippingAddress != null)
+                        {
+                            ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                        }
+                    }
                 }
 
                 await _db.SaveChangesAsync();

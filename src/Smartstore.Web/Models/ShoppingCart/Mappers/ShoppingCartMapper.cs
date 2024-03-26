@@ -487,6 +487,8 @@ namespace Smartstore.Web.Models.Cart
                 var widget = paymentMethod.Value.GetPaymentInfoWidget();
                 to.ButtonPaymentMethods.Items.Add(widget);
             }
+
+            batchContext.Clear();
         }
     }
 }

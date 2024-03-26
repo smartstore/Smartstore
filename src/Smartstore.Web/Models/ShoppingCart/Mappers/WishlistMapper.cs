@@ -85,9 +85,11 @@ namespace Smartstore.Web.Models.Cart
                 .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
                 .ToArray();
 
+            var batchContext = _productService.CreateProductBatchContext(allProducts, null, from.Customer, false);
+
             dynamic itemParameters = new GracefulDynamicObject();
             itemParameters.TaxFormat = _taxService.GetTaxFormat();
-            itemParameters.BatchContext = _productService.CreateProductBatchContext(allProducts, null, from.Customer, false);
+            itemParameters.BatchContext = batchContext;
             itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);
 
             foreach (var cartItem in from.Items)
@@ -106,6 +108,8 @@ namespace Smartstore.Web.Models.Cart
 
                 to.AddItems(model);
             }
+
+            batchContext.Clear();
         }
     }
 }

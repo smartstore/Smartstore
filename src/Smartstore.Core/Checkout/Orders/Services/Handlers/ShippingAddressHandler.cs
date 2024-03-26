@@ -61,9 +61,11 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             var state = _checkoutStateAccessor.CheckoutState;
             state.CustomProperties.TryGetValueAs("SkipShippingAddress", out bool skip);
+            state.CustomProperties.TryGetValueAs("ShippingAddressDiffers", out bool addressDiffers);
             state.CustomProperties.Remove("SkipShippingAddress");
+            state.CustomProperties.Remove("ShippingAddressDiffers");
 
-            if (!skip && _shoppingCartSettings.QuickCheckoutEnabled)
+            if (_shoppingCartSettings.QuickCheckoutEnabled && !addressDiffers)
             {
                 var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == ga.DefaultShippingAddressId);
                 if (defaultAddress != null)
