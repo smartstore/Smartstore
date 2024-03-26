@@ -88,6 +88,24 @@
         return $('<div/>').html(value).text();
     };
 
+    window.insertHtmlInSummernote = function (field, value) {
+        field.val(value);
+
+        if (field.hasClass("summernote-editor")) {
+            var preview = field.parent().find(".note-editor-preview");
+
+            if (preview.length > 0) {
+                // if editor is preview
+                preview.html(value);
+                preview.removeClass("empty");
+            }
+            else {
+                // if editor is expanded
+                field.summernote('code', value);
+            }
+        }
+    };
+
     window.displayNotification = function (message, type, sticky, delay) {
         if (window.EventBroker === undefined || window._ === undefined)
             return;
