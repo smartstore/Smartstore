@@ -39,7 +39,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
         ICurrencyService _currencyService;
         IRoundingHelper _roundingHelper;
-        MockCommonServices _services;
         ITaxService _taxService;
         IRequestCache _requestCache;
 
@@ -65,7 +64,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _language = new Language { Id = 1 };
 
             _requestCache = new NullRequestCache();
-            _services = new MockCommonServices(DbContext, LifetimeScope);
 
             var storeContextMock = new Mock<IStoreContext>();
             _storeContext = storeContextMock.Object;
@@ -157,7 +155,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 Quantity = 2,
             };
 
-            _productBatchContext = new ProductBatchContext(new List<Product> { _product }, _services, _store, _customer, false);
+            _productBatchContext = new ProductBatchContext(new List<Product> { _product }, DbContext, LifetimeScope, _store, _customer, false);
             _priceCalculationContext = new PriceCalculationContext(_product, new PriceCalculationOptions(_productBatchContext, _customer, _store, _language, _currency)
             {
                 IgnoreDiscounts = true

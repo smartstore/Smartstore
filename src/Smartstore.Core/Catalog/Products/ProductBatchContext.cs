@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using Autofac;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -23,13 +24,14 @@ namespace Smartstore.Core.Catalog.Products
         private readonly List<int> _groupedProductIds = [];
         private readonly List<int> _mainMediaFileIds = [];
 
-        protected ICommonServices _services;
-        protected IProductService _productService;
-        protected ICategoryService _categoryService;
-        protected IManufacturerService _manufacturerService;
+        protected readonly IComponentContext _componentContext;
         protected readonly SmartDbContext _db;
         protected readonly bool _includeHidden;
         protected readonly bool _loadMainMediaOnly;
+
+        protected IProductService _productService;
+        protected ICategoryService _categoryService;
+        protected IManufacturerService _manufacturerService;
 
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
@@ -49,20 +51,18 @@ namespace Smartstore.Core.Catalog.Products
 
         public ProductBatchContext(
             IEnumerable<Product> products,
-            ICommonServices services,
+            SmartDbContext db,
+            IComponentContext componentContext,
             Store store,
             Customer customer,
             bool includeHidden,
             bool loadMainMediaOnly = false)
         {
-            Guard.NotNull(services, nameof(services));
-            Guard.NotNull(store, nameof(store));
-            Guard.NotNull(customer, nameof(customer));
+            _componentContext = Guard.NotNull(componentContext);
+            Store = Guard.NotNull(store);
+            Customer = Guard.NotNull(customer);
+            _db = Guard.NotNull(db);
 
-            _services = services;
-            _db = services.DbContext;
-            Store = store;
-            Customer = customer;
             _includeHidden = includeHidden;
             _loadMainMediaOnly = loadMainMediaOnly;
 
@@ -83,21 +83,21 @@ namespace Smartstore.Core.Catalog.Products
 
         internal IProductService ProductService
         {
-            get => _productService ??= _services.Resolve<IProductService>();
+            get => _productService ??= _componentContext.Resolve<IProductService>();
             // For testing purposes
             set => _productService = value;
         }
 
         internal ICategoryService CategoryService
         {
-            get => _categoryService ??= _services.Resolve<ICategoryService>();
+            get => _categoryService ??= _componentContext.Resolve<ICategoryService>();
             // For testing purposes
             set => _categoryService = value;
         }
 
         internal IManufacturerService ManufacturerService
         {
-            get => _manufacturerService ??= _services.Resolve<IManufacturerService>();
+            get => _manufacturerService ??= _componentContext.Resolve<IManufacturerService>();
             // For testing purposes
             set => _manufacturerService = value;
         }

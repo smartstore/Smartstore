@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Autofac;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
@@ -26,7 +27,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IStoreContext _storeContext;
         private readonly IEventPublisher _eventPublisher;
         private readonly ICacheManager _cache;
-        private readonly ICommonServices _services;
+        private readonly IComponentContext _componentContext;
         private readonly Lazy<IProductTagService> _productTagService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IUrlService _urlService;
@@ -39,7 +40,7 @@ namespace Smartstore.Core.Catalog.Products
             IStoreContext storeContext,
             IEventPublisher eventPublisher,
             ICacheManager cache,
-            ICommonServices services,
+            IComponentContext componentContext,
             Lazy<IProductTagService> productTagService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IUrlService urlService,
@@ -51,7 +52,7 @@ namespace Smartstore.Core.Catalog.Products
             _storeContext = storeContext;
             _eventPublisher = eventPublisher;
             _cache = cache;
-            _services = services;
+            _componentContext = componentContext;
             _productTagService = productTagService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _urlService = urlService;
@@ -483,7 +484,8 @@ namespace Smartstore.Core.Catalog.Products
         {
             return new ProductBatchContext(
                 products,
-                _services,
+                _db,
+                _componentContext,
                 store ?? _storeContext.CurrentStore,
                 customer ?? _workContext.CurrentCustomer,
                 includeHidden,
