@@ -243,7 +243,7 @@ namespace Smartstore.Google.Analytics.Services
             {
                 if (!node.IsRoot && ++i != 5)
                 {
-                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{node.Value.Name}',";
+                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{FixIllegalJavaScriptChars(node.Value.Name)}',";
                 }
             }
 
@@ -260,6 +260,7 @@ namespace Smartstore.Google.Analytics.Services
         /// <returns>Script part to fire GA event view_item_list</returns>
         public async Task<string> GetListScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
         {
+            listName = FixIllegalJavaScriptChars(listName);
             return @$"
                 let eventData{listName} = {{
                     item_list_name: '{listName}',
@@ -391,12 +392,12 @@ namespace Smartstore.Google.Analytics.Services
 
                         var itemTokens = new Dictionary<string, Func<string>>
                         {
-                            ["ORDERID"] = () => order.GetOrderNumber(),
+                            ["ORDERID"] = order.GetOrderNumber,
                             ["PRODUCTSKU"] = () => FixIllegalJavaScriptChars(sku),
                             ["PRODUCTNAME"] = () => FixIllegalJavaScriptChars(item.Product.Name),
                             ["CATEGORYNAME"] = () => FixIllegalJavaScriptChars(categoryName),
                             ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
-                            ["QUANTITY"] = () => item.Quantity.ToString()
+                            ["QUANTITY"] = item.Quantity.ToString
                         };
 
                         ecDetailScript += GenerateScript(_settings.EcommerceDetailScript, itemTokens);
@@ -405,7 +406,7 @@ namespace Smartstore.Google.Analytics.Services
 
                 var orderTokens = new Dictionary<string, Func<string>>
                 {
-                    ["ORDERID"] = () => order.GetOrderNumber(),
+                    ["ORDERID"] = order.GetOrderNumber,
                     ["TOTAL"] = () => order.OrderTotal.ToStringInvariant("0.00"),
                     ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
                     ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
