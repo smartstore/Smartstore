@@ -249,7 +249,7 @@ namespace Smartstore.Web.Controllers
                 options.ChildProductsBatchContext = context.AssociatedProductBatchContext;
 
                 associatedProducts = context.GroupedProducts[product.Id];
-                if (associatedProducts.Any())
+                if (associatedProducts.Count > 0)
                 {
                     contextProduct = associatedProducts.OrderBy(x => x.DisplayOrder).First();
                     _services.DisplayControl.Announce(contextProduct);
@@ -269,7 +269,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Return if group has no associated products.
-            if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
+            if (product.ProductType == ProductType.GroupedProduct && associatedProducts.Count == 0)
             {
                 return contextProduct;
             }
@@ -313,10 +313,10 @@ namespace Smartstore.Web.Controllers
 
         protected void MapPriceBase(CalculatedPrice price, PriceModel model, bool mapBasePrice = true)
         {
-            model.CalculatedPrice = price;
             model.FinalPrice = price.FinalPrice;
             model.CallForPrice = price.PricingType == PricingType.CallForPrice;
             model.CustomerEntersPrice = price.PricingType == PricingType.CustomerEnteredPrice;
+            model.HasCalculation = !model.CustomerEntersPrice || model.CallForPrice;
             model.Saving = price.Saving;
             model.ValidUntilUtc = price.ValidUntilUtc;
             model.ShowRetailPriceSaving = _priceSettings.ShowRetailPriceSaving;

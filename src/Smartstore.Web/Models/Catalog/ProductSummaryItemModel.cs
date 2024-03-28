@@ -70,7 +70,7 @@ namespace Smartstore.Web.Models.Catalog
         public BrandOverviewModel Brand { get; set; }
         public ProductSummaryPriceModel Price { get; set; } = new();
         public ImageModel Image { get; set; } = new();
-        public List<Attribute> Attributes { get; set; } = new();
+        public List<Attribute> Attributes { get; set; } = [];
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are
         // important. According to it's importance, show attribute value in grid or list mode.
         // E.g. perfect for "Energy label" > "EEK A++", or special material (e.g. "Leather") etc.

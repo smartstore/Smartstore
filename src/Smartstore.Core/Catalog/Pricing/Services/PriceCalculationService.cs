@@ -288,7 +288,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         protected virtual void DetectComparePrices(CalculatorContext context, CalculatedPrice result, TaxRate taxRate)
         {
-            var product = result.Product;
+            var product = context.Product;
             var retailPrice = (decimal?)null;
             var hasComparePrice = product.ComparePrice > 0;
             var hasDiscount = context.DiscountAmount > 0 || context.AppliedTierPrice != null || (context.OfferPrice.HasValue && context.OfferPrice < product.Price);
@@ -368,14 +368,12 @@ namespace Smartstore.Core.Catalog.Pricing
             return regularPrice;
         }
 
-        protected virtual async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)
+        protected virtual async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product, int subtotalQuantity = 1)
         {
-            product ??= context.Product;
-
             var options = context.Options;
 
             // Determine tax rate for product.
-            var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
+            var taxRate = await _taxService.GetTaxRateAsync(context.Product, null, options.Customer);
 
             var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
                 .Concat(new[] { context.OfferEndDateUtc })
@@ -385,7 +383,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // Prepare result by converting price amounts.
             var result = new CalculatedPrice(context)
             {
-                Product = product,
+                Product = context.Product,
                 ValidUntilUtc = endDates.Min(),
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _, subtotalQuantity),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _, subtotalQuantity),
@@ -426,7 +424,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
                 && _priceSettings.ShowBasePriceInProductLists)
             {
-                product.MergedDataValues ??= new();
+                product.MergedDataValues ??= [];
 
                 if (ac.BasePriceAmount.HasValue)
                     product.MergedDataValues["BasePriceAmount"] = ac.BasePriceAmount.Value;
