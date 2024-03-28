@@ -33,6 +33,7 @@ namespace Smartstore.Web.Models.Cart
         public bool VisibleIndividually { get; set; }
         public DateTime CreatedOnUtc { get; set; }
         public BrandOverviewModel Brand { get; set; }
+        public DeliveryTimeModel DeliveryTime { get; set; }
 
         public bool ShowSku { get; set; }
         public string Sku { get; set; }
@@ -60,12 +61,6 @@ namespace Smartstore.Web.Models.Cart
 
         public bool ShowWeight { get; set; }
         public decimal Weight { get; set; }
-
-        public bool ShowDeliveryName { get; set; }
-        public bool ShowDeliveryDate { get; set; }
-        public LocalizedValue<string> DeliveryTimeName { get; set; }
-        public string DeliveryTimeHexValue { get; set; }
-        public string DeliveryTimeDate { get; set; }
 
         public BundleItemModel BundleItem { get; set; }
         public bool IsBundleItem

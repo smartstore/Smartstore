@@ -1,39 +1,31 @@
-﻿@using Smartstore.Core.Common;
-@using Smartstore.Web.Models.Catalog;
+﻿@using Smartstore.Web.Models.Catalog
 
 @model ProductSummaryItemModel
 
 @{
-    var presentation = Model.Parent.DeliveryTimesPresentation;
-    if (presentation == DeliveryTimesPresentation.None)
+    var delivery = Model.DeliveryTime;
+    if (delivery == null)
     {
         return;
     }
 }
 
 <div class="art-delivery-info">
-    @if (Model.IsShippingEnabled && !Model.HideDeliveryTime)
+    @if (Model.IsShippingEnabled && delivery.ShowDeliveryTime)
     {
-        var hasDate = Model.DeliveryTimeDate.HasValue();
-        var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailablity;
-
-        var showStatusLabel = statusLabel.HasValue() &&
-            (!hasDate || presentation == DeliveryTimesPresentation.LabelOnly || presentation == DeliveryTimesPresentation.LabelAndDate);
-
-        var showDeliveryDate = hasDate && (presentation == DeliveryTimesPresentation.DateOnly || presentation == DeliveryTimesPresentation.LabelAndDate);
-
-        if (showStatusLabel)
+        if (delivery.StatusLabel.HasValue())
         {
-            <span class="delivery-time" title="@T("Products.DeliveryTime") @statusLabel" attr-style='(Model.DisplayDeliveryTimeAccordingToStock, "color:" + Model.DeliveryTimeHexValue)'>
+            <span class="delivery-time" title="@T("Products.DeliveryTime") @delivery.StatusLabel" 
+                  attr-style='(delivery.DisplayDeliveryTimeAccordingToStock, "color:" + delivery.DeliveryTimeHexValue)'>
                 <i class="fa fa-circle delivery-time-status"></i>
-                <span dir="auto">@statusLabel</span>
+                <span dir="auto">@delivery.StatusLabel</span>
             </span>
         }
-        if (showDeliveryDate)
+        if (delivery.DeliveryTimeDate.HasValue())
         {
-            <span class="delivery-date-block" title="@T("Products.DeliveryDate") @Model.DeliveryTimeDate.RemoveHtml()">
-                <span sm-if="!showStatusLabel">@T("Products.DeliveryDate")</span>
-                <span class="delivery-date" dir="auto">@Html.Raw(Model.DeliveryTimeDate)</span>
+            <span class="delivery-date-block" title="@T("Products.DeliveryDate") @delivery.DeliveryTimeDate.RemoveHtml()">
+                <span sm-if="delivery.StatusLabel.IsEmpty()">@T("Products.DeliveryDate")</span>
+                <span class="delivery-date" dir="auto">@Html.Raw(delivery.DeliveryTimeDate)</span>
             </span>
         }
     }

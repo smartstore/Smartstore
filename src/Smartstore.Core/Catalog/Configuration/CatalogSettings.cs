@@ -396,7 +396,7 @@ namespace Smartstore.Core.Catalog
         public int HtmlTextCollapsedHeight { get; set; } = 260;
 
         /// <summary>
-        /// Gets or sets an identifier for a delivery time dislayed when stock is empty
+        /// Gets or sets the identifier of a delivery time displayed when the stock is empty.
         /// </summary>
         public int? DeliveryTimeIdForEmptyStock { get; set; }
 

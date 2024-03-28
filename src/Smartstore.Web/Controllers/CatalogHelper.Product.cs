@@ -1309,6 +1309,85 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        public async Task<DeliveryTimeModel> PrepareDeliveryTimeModel(
+            Product product,
+            ProductSummaryMappingSettings settings,
+            bool? isStockManaged = null)
+        {
+            isStockManaged ??= product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock;
+
+            var presentation = settings.DeliveryTimesPresentation;
+            var model = new DeliveryTimeModel
+            {
+                Id = product.GetDeliveryTimeIdAccordingToStock(_catalogSettings, isStockManaged) ?? 0,
+                ShowDeliveryTime = presentation != DeliveryTimesPresentation.None && product.ProductType != ProductType.GroupedProduct && product.IsShippingEnabled,
+            };
+
+            if (!model.ShowDeliveryTime)
+            {
+                return model;
+            }
+
+            // INFO: (core) Don't uncomment this part
+            //model.StockAvailablity = contextProduct.FormatStockMessage(_localizationService);
+            //model.DisplayDeliveryTimeAccordingToStock = contextProduct.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+
+            //var deliveryTime = _deliveryTimeService.GetDeliveryTime(contextProduct);
+            //if (deliveryTime != null)
+            //{
+            //	model.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
+            //	model.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
+            //}
+
+            model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings, isStockManaged);
+
+            var deliveryTime = await GetDeliveryTimeAsync(model.Id);
+            if (deliveryTime != null)
+            {
+                model.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
+                model.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
+
+                // Due to lack of space, the grid view does not show a date for the delivery time.
+                if (settings.ViewMode >= ProductSummaryViewMode.List 
+                    && (presentation == DeliveryTimesPresentation.DateOnly || presentation == DeliveryTimesPresentation.LabelAndDate))
+                {
+                    model.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
+                }
+            }
+
+            if (product.DisplayStockAvailability && isStockManaged.Value)
+            {
+                if (product.StockQuantity > 0)
+                {
+                    model.StockAvailability = product.DisplayStockQuantity
+                        ? T("Products.Availability.InStockWithQuantity", product.StockQuantity)
+                        : T("Products.Availability.InStock");
+                }
+                else
+                {
+                    model.StockAvailability = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
+                        ? T("Products.Availability.OutOfStock")
+                        : T("Products.Availability.Backordering");
+                }
+            }
+
+            var label = model.DisplayDeliveryTimeAccordingToStock ? model.DeliveryTimeName : model.StockAvailability;
+
+            if (label.HasValue() && (!model.DeliveryTimeDate.HasValue() 
+                || presentation == DeliveryTimesPresentation.LabelOnly 
+                || presentation == DeliveryTimesPresentation.LabelAndDate))
+            {
+                model.StatusLabel = label;
+            }
+
+            if (model.StatusLabel.IsEmpty() && model.DeliveryTimeDate.IsEmpty())
+            {
+                model.ShowDeliveryTime = false;
+            }
+
+            return model;
+        }
+
         private MediaFileInfo PrepareMediaFileInfo(MediaFileInfo file, MediaGalleryModel model)
         {
             file.Alt = file.File.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? model.DefaultAlt;

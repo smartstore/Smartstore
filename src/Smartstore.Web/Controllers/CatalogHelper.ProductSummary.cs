@@ -418,7 +418,7 @@ namespace Smartstore.Web.Controllers
                 var cachedAttributeNames = new Dictionary<int, LocalizedValue<string>>();
 
                 // Color squares
-                if (attributes.Any() && settings.MapColorAttributes)
+                if (attributes.Count > 0 && settings.MapColorAttributes)
                 {
                     var colorAttributes = attributes
                         .Where(x => x.IsListTypeAttribute())
@@ -451,7 +451,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 // Variant Attributes
-                if (attributes.Any() && settings.MapAttributes)
+                if (attributes.Count > 0 && settings.MapAttributes)
                 {
                     if (item.ColorAttributes != null && item.ColorAttributes.Any())
                     {
@@ -504,9 +504,6 @@ namespace Smartstore.Web.Controllers
                 item.SpecificationAttributes.AddRange(MapProductSpecificationModels(await ctx.BatchContext.SpecificationAttributes.GetOrLoadAsync(product.Id)));
             }
 
-            item.MinPriceProductId = contextProduct.Id;
-            item.Sku = contextProduct.Sku;
-
             // Measure Dimensions
             if (model.ShowDimensions && (contextProduct.Width != 0 || contextProduct.Height != 0 || contextProduct.Length != 0))
             {
@@ -518,68 +515,16 @@ namespace Smartstore.Web.Controllers
                 item.DimensionMeasureUnit = (await GetMeasureDimensionAsync(_measureSettings.BaseDimensionId))?.SystemKeyword;
             }
 
-            // Delivery Times.
-            item.HideDeliveryTime = model.DeliveryTimesPresentation == DeliveryTimesPresentation.None
-                || product.ProductType == ProductType.GroupedProduct 
-                || !product.IsShippingEnabled;
-
-            if (!item.HideDeliveryTime)
-            {
-                // We cannot include ManageInventoryMethod.ManageStockByAttributes because it's only functional with MergeWithCombination.
-                // INFO: (core) Don't uncomment this part
-                //item.StockAvailablity = contextProduct.FormatStockMessage(_localizationService);
-                //item.DisplayDeliveryTimeAccordingToStock = contextProduct.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
-
-                //var deliveryTime = _deliveryTimeService.GetDeliveryTime(contextProduct);
-                //if (deliveryTime != null)
-                //{
-                //	item.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
-                //	item.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
-                //}
-
-                var deliveryTimeId = product.ManageInventoryMethod == ManageInventoryMethod.ManageStock && product.StockQuantity <= 0
-                    ? _catalogSettings.DeliveryTimeIdForEmptyStock
-                    : product.DeliveryTimeId;
-
-                var deliveryTime = await GetDeliveryTimeAsync(deliveryTimeId ?? 0);
-                if (deliveryTime != null)
-                {
-                    item.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
-                    item.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
-
-                    // Due to lack of space, the grid view does not show a date for the delivery time.
-                    if (settings.ViewMode >= ProductSummaryViewMode.List &&
-                        (model.DeliveryTimesPresentation == DeliveryTimesPresentation.DateOnly || model.DeliveryTimesPresentation == DeliveryTimesPresentation.LabelAndDate))
-                    {
-                        item.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
-                    }
-                }
-
-                item.DisplayDeliveryTimeAccordingToStock = product.ManageInventoryMethod != ManageInventoryMethod.ManageStock
-                    || product.StockQuantity > 0 || (product.StockQuantity <= 0 && _catalogSettings.DeliveryTimeIdForEmptyStock.HasValue);
-
-                if (product.DisplayStockAvailability && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock)
-                {
-                    if (product.StockQuantity > 0)
-                    {
-                        item.StockAvailablity = product.DisplayStockQuantity
-                            ? T("Products.Availability.InStockWithQuantity", product.StockQuantity)
-                            : T("Products.Availability.InStock");
-                    }
-                    else
-                    {
-                        item.StockAvailablity = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
-                            ? T("Products.Availability.OutOfStock")
-                            : T("Products.Availability.Backordering");
-                    }
-                }
-            }
-
+            item.MinPriceProductId = contextProduct.Id;
+            item.Sku = contextProduct.Sku;
             item.LegalInfo = product.IsTaxExempt ? ctx.TaxExemptLegalInfo : ctx.LegalInfo;
             item.RatingSum = product.ApprovedRatingSum;
             item.TotalReviews = product.ApprovedTotalReviews;
             item.IsShippingEnabled = contextProduct.IsShippingEnabled;
-            
+
+            // INFO: we cannot include ManageInventoryMethod.ManageStockByAttributes here because it's only functional with MergeWithCombination.
+            item.DeliveryTime = await PrepareDeliveryTimeModel(product, settings, product.ManageInventoryMethod == ManageInventoryMethod.ManageStock);
+
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
                 var measureWeightName = (await GetMeasureWeightAsync(_measureSettings.BaseWeightId))?.GetLocalized(x => x.Name) ?? string.Empty;

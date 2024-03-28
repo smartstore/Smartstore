@@ -18,7 +18,7 @@ namespace Smartstore.Web.Models.Catalog
         public ProductBatchContext BundleItemBatchContext { get; set; }
         public Multimap<int, Product> GroupedProducts { get; set; }
         public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
-        public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
+        public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = [];
         public Dictionary<string, LocalizedString> Resources { get; set; }
         public string LegalInfo { get; set; }
         public string TaxExemptLegalInfo { get; set; }
@@ -38,7 +38,6 @@ namespace Smartstore.Web.Models.Catalog
 
         public ProductSummaryItemModel(ProductSummaryModel parent)
         {
-            //Parent = parent;
             _parent = new WeakReference<ProductSummaryModel>(parent);
         }
 
@@ -64,17 +63,10 @@ namespace Smartstore.Web.Models.Catalog
         public Money? TransportSurcharge { get; set; }
         public int RatingSum { get; set; }
         public int TotalReviews { get; set; }
-
-        public bool IsShippingEnabled { get; set; }
-        public bool HideDeliveryTime { get; set; }
-        public string DeliveryTimeDate { get; set; }
-        public LocalizedValue<string> DeliveryTimeName { get; set; }
-        public string DeliveryTimeHexValue { get; set; }
-        public bool DisplayDeliveryTimeAccordingToStock { get; set; }
-        public string StockAvailablity { get; set; }
-
         public int MinPriceProductId { get; set; } // Internal
 
+        public bool IsShippingEnabled { get; set; }
+        public DeliveryTimeModel DeliveryTime { get; set; }
         public BrandOverviewModel Brand { get; set; }
         public ProductSummaryPriceModel Price { get; set; } = new();
         public ImageModel Image { get; set; } = new();
@@ -82,9 +74,9 @@ namespace Smartstore.Web.Models.Catalog
         // TODO: (mc) Let the user specify in attribute manager which spec attributes are
         // important. According to it's importance, show attribute value in grid or list mode.
         // E.g. perfect for "Energy label" > "EEK A++", or special material (e.g. "Leather") etc.
-        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
+        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = [];
         public List<ColorAttributeValue> ColorAttributes { get; set; }
-        public List<ProductBadgeModel> Badges { get; set; } = new();
+        public List<ProductBadgeModel> Badges { get; set; } = [];
 
         public class ColorAttribute
         {

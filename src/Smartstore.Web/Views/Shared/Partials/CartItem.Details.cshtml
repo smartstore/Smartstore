@@ -8,7 +8,9 @@
 
 @{
     var parentModel = ViewData["Parent"] as CartModelBase;
-    var showInfos = Model.ShowDeliveryName || Model.ShowDeliveryDate || Model.ShowSku || Model.ShowWeight;
+    var delivery = Model.DeliveryTime;
+    var showDeliveryTime = !Model.IsBundleItem && (delivery?.ShowDeliveryTime ?? false);
+    var showInfos = showDeliveryTime || Model.ShowSku || Model.ShowWeight;
     var showVariants = Model.AttributeInfo.HasValue();
     var showEssentialAttributes = Model.EssentialSpecAttributesInfo.HasValue();
 }
@@ -60,19 +62,21 @@
 </div>
 
 <div sm-if="showInfos || showVariants || showEssentialAttributes" class="cart-item-attrs cart-item-group fs-sm">
-    @if (Model.ShowDeliveryName)
+    @if (showDeliveryTime)
     {
-        <span>@T("Products.DeliveryTime")</span>
-        <span class="delivery-time pl-0" style="color:@Model.DeliveryTimeHexValue" title="@Model.DeliveryTimeName">
-            <i class="fa fa-circle delivery-time-status"></i>
-            <span sm-language-attributes-for="Model.DeliveryTimeName">@Model.DeliveryTimeName</span>
-        </span>
-    }
-
-    @if (Model.ShowDeliveryDate)
-    {
-        <span>@Html.Raw(!Model.ShowDeliveryName ? T("Products.DeliveryDate").Value : "&nbsp;")</span>
-        <span class="delivery-date">@Html.Raw(Model.DeliveryTimeDate)</span>
+        if (delivery.StatusLabel.HasValue())
+        {
+            <span>@T("Products.DeliveryTime")</span>
+            <span class="delivery-time pl-0" attr-style='(delivery.DisplayDeliveryTimeAccordingToStock, "color:" + delivery.DeliveryTimeHexValue)'>
+                <i class="fa fa-circle delivery-time-status"></i>
+                <span sm-language-attributes-for="delivery.StatusLabel">@delivery.StatusLabel</span>
+            </span>
+        }
+        if (delivery.DeliveryTimeDate.HasValue())
+        {
+            <span>@Html.Raw(delivery.StatusLabel.IsEmpty() ? T("Products.DeliveryDate").Value : "&nbsp;")</span>
+            <span class="delivery-date">@Html.Raw(delivery.DeliveryTimeDate)</span>
+        }
     }
 
     @if (Model.ShowSku)

@@ -153,32 +153,12 @@ namespace Smartstore.Web.Models.Cart
                 to.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
             }
 
-            if (product.DisplayDeliveryTimeAccordingToStock(_catalogSettings))
+            var mappingSettings = _catalogHelper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.List, settings =>
             {
-                var deliveryTime = await _deliveryTimeService.GetDeliveryTimeAsync(product.GetDeliveryTimeIdAccordingToStock(_catalogSettings));
-                if (deliveryTime != null)
-                {
-                    to.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
-                    to.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
+                settings.DeliveryTimesPresentation = _shoppingCartSettings.DeliveryTimesInShoppingCart;
+            });
 
-                    if (_shoppingCartSettings.DeliveryTimesInShoppingCart is DeliveryTimesPresentation.DateOnly
-                        or DeliveryTimesPresentation.LabelAndDate)
-                    {
-                        to.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
-                    }
-
-                    var dtp = _shoppingCartSettings.DeliveryTimesInShoppingCart;
-
-                    if (!isBundleItem && item.IsShippingEnabled && dtp != DeliveryTimesPresentation.None)
-                    {
-                        to.ShowDeliveryName = to.DeliveryTimeName.HasValue() && to.DeliveryTimeHexValue.HasValue()
-                            && (dtp == DeliveryTimesPresentation.LabelOnly || dtp == DeliveryTimesPresentation.LabelAndDate || !to.DeliveryTimeDate.HasValue());
-
-                        to.ShowDeliveryDate = to.DeliveryTimeDate.HasValue()
-                            && (dtp == DeliveryTimesPresentation.DateOnly || dtp == DeliveryTimesPresentation.LabelAndDate);
-                    }
-                }
-            }
+            to.DeliveryTime = await _catalogHelper.PrepareDeliveryTimeModel(product, mappingSettings);
 
             await MapPriceAsync(from, to, parameters);
 

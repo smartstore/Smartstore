@@ -68,12 +68,9 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(product);
 
-            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
+            if (product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock && product.StockQuantity <= 0 && product.BackorderMode == BackorderMode.NoBackorders)
             {
-                if (product.StockQuantity <= 0 && product.BackorderMode == BackorderMode.NoBackorders)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -92,8 +89,7 @@ namespace Smartstore.Core.Catalog.Products
 
             var stockMessage = string.Empty;
 
-            if ((product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
-                && product.DisplayStockAvailability)
+            if (product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock && product.DisplayStockAvailability)
             {
                 if (product.StockQuantity > 0)
                 {
@@ -128,20 +124,21 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="catalogSettings">Catalog settings.</param>
+        /// <param name="isStockManaged">
+        /// A value indicating whether the stock of the product is managed.
+        /// Will be obtained via <see cref="Product.ManageInventoryMethod"/> if <c>null</c>.
+        /// </param>
         /// <returns>A value indicating whether to display the delivery time according to stock quantity.</returns>
-        public static bool DisplayDeliveryTimeAccordingToStock(this Product product, CatalogSettings catalogSettings)
+        public static bool DisplayDeliveryTimeAccordingToStock(this Product product, CatalogSettings catalogSettings, bool? isStockManaged = null)
         {
             Guard.NotNull(product);
             Guard.NotNull(catalogSettings);
 
-            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
-            {
-                if (catalogSettings.DeliveryTimeIdForEmptyStock.HasValue && product.StockQuantity <= 0)
-                {
-                    return true;
-                }
+            isStockManaged ??= product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock;
 
-                return product.StockQuantity > 0;
+            if (isStockManaged.Value)
+            {
+                return product.StockQuantity > 0 || (product.StockQuantity <= 0 && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue);
             }
 
             return true;
@@ -152,8 +149,12 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="catalogSettings">Catalog settings.</param>
+        /// <param name="isStockManaged">
+        /// A value indicating whether the stock of the product is managed.
+        /// Will be obtained via <see cref="Product.ManageInventoryMethod"/> if <c>null</c>.
+        /// </param>
         /// <returns>The delivery time identifier according to stock quantity. <c>null</c> if not specified.</returns>
-        public static int? GetDeliveryTimeIdAccordingToStock(this Product product, CatalogSettings catalogSettings)
+        public static int? GetDeliveryTimeIdAccordingToStock(this Product product, CatalogSettings catalogSettings, bool? isStockManaged = null)
         {
             Guard.NotNull(catalogSettings);
 
@@ -162,9 +163,9 @@ namespace Smartstore.Core.Catalog.Products
                 return null;
             }
 
-            if ((product.ManageInventoryMethod == ManageInventoryMethod.ManageStock || product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
-                && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue
-                && product.StockQuantity <= 0)
+            isStockManaged ??= product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock;
+
+            if (isStockManaged.Value && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue && product.StockQuantity <= 0)
             {
                 return catalogSettings.DeliveryTimeIdForEmptyStock.Value;
             }
