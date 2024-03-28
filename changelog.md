@@ -104,7 +104,8 @@
 - Fixed offcanvas problem whith mega sized page builder stories.
 - PayPal: Fixed payment discount problem (discount from a formerly choosen payment method was applied).
 - #1042 Fixed broken roxy file manager.
-- Closes #969 Promo badges are not rendered in frontend due to type mismatch.
+- #969 Promo badges are not rendered in frontend due to type mismatch.
+- Google Analytics: Fixed problem with single quotation mark in category name.
 
 
 ## Smartstore 5.1.0
