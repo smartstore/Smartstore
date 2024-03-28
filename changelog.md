@@ -12,6 +12,8 @@
   - One-click checkout for sales at retail terminals.
 - **Essential specification attributes**
   - Specification attributes marked as an *essential feature* are displayed in the checkout.
+- **Cart & wishlist enhancements**
+  - Show delivery time, stock info, weight, additional shipping surcharge and brand.   
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance
