@@ -232,47 +232,39 @@ namespace Smartstore.Core.Catalog.Products
 
         #region Protected factories
 
-        static readonly Func<SmartDbContext, int[], IAsyncEnumerable<ProductVariantAttribute>> CompiledAttributesQuery
-            = EF.CompileAsyncQuery((SmartDbContext db, int[] ids) =>
-                db.ProductVariantAttributes
+        protected virtual async Task<Multimap<int, ProductVariantAttribute>> LoadAttributes(int[] ids)
+        {
+            var query = _db.ProductVariantAttributes
                     .AsNoTracking()
                     .Include(x => x.ProductAttribute)
                     .Include(x => x.ProductVariantAttributeValues)
                     .Where(x => ids.Contains(x.ProductId))
                     .OrderBy(x => x.ProductId)
                     .ThenBy(x => x.DisplayOrder)
-                    .AsQueryable());
-        protected virtual async Task<Multimap<int, ProductVariantAttribute>> LoadAttributes(int[] ids)
-        {
-            var attributes = await CompiledAttributesQuery(_db, ids).ToListAsync();
+                    .AsQueryable();
+            var attributes = await query.ToListAsync();
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
 
-
-        static readonly Func<SmartDbContext, int[], IAsyncEnumerable<ProductVariantAttributeCombination>> CompiledAttributeCombinationsQuery
-            = EF.CompileAsyncQuery((SmartDbContext db, int[] ids) =>
-                db.ProductVariantAttributeCombinations
+        protected virtual async Task<Multimap<int, ProductVariantAttributeCombination>> LoadAttributeCombinations(int[] ids)
+        {
+            var query = _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
                     .Where(x => ids.Contains(x.ProductId))
                     .OrderBy(x => x.ProductId)
-                    .AsQueryable());
-        protected virtual async Task<Multimap<int, ProductVariantAttributeCombination>> LoadAttributeCombinations(int[] ids)
-        {
-            var attributeCombinations = await CompiledAttributeCombinationsQuery(_db, ids).ToListAsync();
+                    .AsQueryable();
+            var attributeCombinations = await query.ToListAsync();
             return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
         }
 
-
-        static readonly Func<SmartDbContext, int[], int, IAsyncEnumerable<TierPrice>> CompiledTierPricesQuery
-            = EF.CompileAsyncQuery((SmartDbContext db, int[] ids, int storeId) =>
-                db.TierPrices
-                    .AsNoTracking()
-                    .Include(x => x.CustomerRole)
-                    .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == storeId))
-                    .AsQueryable());
         protected virtual async Task<Multimap<int, TierPrice>> LoadTierPrices(int[] ids)
         {
-            var tierPrices = await CompiledTierPricesQuery(_db, ids, Store.Id).ToListAsync();
+            var query = _db.TierPrices
+                    .AsNoTracking()
+                    .Include(x => x.CustomerRole)
+                    .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == Store.Id))
+                    .AsQueryable();
+            var tierPrices = await query.ToListAsync();
 
             return tierPrices
                 // Sorting locally is most likely faster.
@@ -371,22 +363,44 @@ namespace Smartstore.Core.Catalog.Products
         }
 
 
-        static readonly Func<SmartDbContext, int[], bool?, IAsyncEnumerable<ProductSpecificationAttribute>> CompiledSpecAttributesQuery
-            = EF.CompileAsyncQuery((SmartDbContext db, int[] ids, bool? essentialAttributes) =>
-                db.ProductSpecificationAttributes
-                    .AsNoTracking()
-                    .Include(x => x.SpecificationAttributeOption)
-                    .ThenInclude(x => x.SpecificationAttribute)
-                    .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
-                    .OrderBy(x => x.ProductId)
-                    .OrderBy(x => x.DisplayOrder)
-                    .AsQueryable());
-
+        //static readonly Func<SmartDbContext, int[], bool?, IAsyncEnumerable<ProductSpecificationAttribute>> CompiledSpecAttributesQuery
+        //    = EF.CompileAsyncQuery((SmartDbContext db, int[] ids, bool? essentialAttributes) =>
+        //        db.ProductSpecificationAttributes
+        //            .AsNoTracking()
+        //            .Include(x => x.SpecificationAttributeOption)
+        //            .ThenInclude(x => x.SpecificationAttribute)
+        //            .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
+        //            .OrderBy(x => x.ProductId)
+        //            .OrderBy(x => x.DisplayOrder)
+        //            .AsQueryable());
+        private static IQueryable<ProductSpecificationAttribute> BuildSpecAttributesQuery(SmartDbContext db, int[] ids, bool? essentialAttributes)
+        {
+            return db.ProductSpecificationAttributes
+                .AsNoTracking()
+                .Include(x => x.SpecificationAttributeOption)
+                .ThenInclude(x => x.SpecificationAttribute)
+                .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
+                .OrderBy(x => x.ProductId)
+                .OrderBy(x => x.DisplayOrder);
+        }
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
         {
-            var attributes = await CompiledSpecAttributesQuery(_db, ids, null).ToListAsync();
+            var attributes = await BuildSpecAttributesQuery(_db, ids, null).ToListAsync();
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
+        //protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
+        //{
+        //    var query = _db.ProductSpecificationAttributes
+        //            .AsNoTracking()
+        //            .Include(x => x.SpecificationAttributeOption)
+        //            .ThenInclude(x => x.SpecificationAttribute)
+        //            .Where(x => ids.Contains(x.ProductId))
+        //            .OrderBy(x => x.ProductId)
+        //            .OrderBy(x => x.DisplayOrder)
+        //            .AsQueryable();
+        //    var attributes = await query.ToListAsync();
+        //    return attributes.ToMultimap(x => x.ProductId, x => x);
+        //}
 
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadEssentialAttributes(int[] ids)
         {
@@ -398,7 +412,7 @@ namespace Smartstore.Core.Catalog.Products
                     .ToMultimap(x => x.ProductId, x => x);
             }
 
-            var attributes = await CompiledSpecAttributesQuery(_db, ids, true).ToListAsync();
+            var attributes = await BuildSpecAttributesQuery(_db, ids, true).ToListAsync();
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
 

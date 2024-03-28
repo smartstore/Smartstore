@@ -136,7 +136,7 @@ namespace Smartstore.Core.Catalog.Products
 
             isStockManaged ??= product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock;
 
-            if (isStockManaged.Value)
+            if (isStockManaged == true)
             {
                 return product.StockQuantity > 0 || (product.StockQuantity <= 0 && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue);
             }
@@ -165,7 +165,7 @@ namespace Smartstore.Core.Catalog.Products
 
             isStockManaged ??= product.ManageInventoryMethod != ManageInventoryMethod.DontManageStock;
 
-            if (isStockManaged.Value && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue && product.StockQuantity <= 0)
+            if (isStockManaged == true && catalogSettings.DeliveryTimeIdForEmptyStock.HasValue && product.StockQuantity <= 0)
             {
                 return catalogSettings.DeliveryTimeIdForEmptyStock.Value;
             }
