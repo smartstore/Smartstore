@@ -17,7 +17,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         private readonly IMediaFileSystem _fileSystem;
         private readonly AsyncRunner _asyncRunner;
-        private readonly IDictionary<int, string> _pathCache = new Dictionary<int, string>();
+        private readonly Dictionary<int, string> _pathCache = [];
 
         public FileSystemMediaStorageProvider(IMediaFileSystem fileSystem, AsyncRunner asyncRunner)
         {
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         private Task OnCompletedInternal(MediaMoverContext context, bool succeeded, CancellationToken cancelToken)
         {
-            if (context.AffectedFiles.Any())
+            if (context.AffectedFiles.Count != 0)
             {
                 var hasReceived = context.Target == this;
 
