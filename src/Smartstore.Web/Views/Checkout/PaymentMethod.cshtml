@@ -31,6 +31,7 @@
                     {
                         var paymentMethod = Model.PaymentMethods[i];
                         var widgetInvoker = paymentMethod.InfoWidget;
+                        var infoRendered = false;
 
                         var defaultPluginDescKey = "Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName;
                         var defaultPluginDesc = LocalizationService.GetResource(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
@@ -73,6 +74,7 @@
 
                         async Task RenderPaymentWidget(bool isEmbedded)
                         {
+                            infoRendered = true;
                             <div class="opt-info payment-method-info"
                                  attr-class='(isEmbedded, "opt-info-embedded")'  
                                  attr-data-lazy-info='(paymentMethod.RequiresInteraction, "true")'
@@ -101,7 +103,7 @@
                                     </div>
                                 </div>
 
-                                if (paymentMethod.Selected && widgetInvoker != null)
+                                if (paymentMethod.Selected && widgetInvoker != null && !infoRendered)
                                 {
                                     await RenderPaymentWidget(true);
                                 }
