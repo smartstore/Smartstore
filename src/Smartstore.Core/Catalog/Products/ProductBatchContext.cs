@@ -362,17 +362,6 @@ namespace Smartstore.Core.Catalog.Products
             return await ProductService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
         }
 
-
-        //static readonly Func<SmartDbContext, int[], bool?, IAsyncEnumerable<ProductSpecificationAttribute>> CompiledSpecAttributesQuery
-        //    = EF.CompileAsyncQuery((SmartDbContext db, int[] ids, bool? essentialAttributes) =>
-        //        db.ProductSpecificationAttributes
-        //            .AsNoTracking()
-        //            .Include(x => x.SpecificationAttributeOption)
-        //            .ThenInclude(x => x.SpecificationAttribute)
-        //            .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
-        //            .OrderBy(x => x.ProductId)
-        //            .OrderBy(x => x.DisplayOrder)
-        //            .AsQueryable());
         private static IQueryable<ProductSpecificationAttribute> BuildSpecAttributesQuery(SmartDbContext db, int[] ids, bool? essentialAttributes)
         {
             return db.ProductSpecificationAttributes
@@ -388,19 +377,6 @@ namespace Smartstore.Core.Catalog.Products
             var attributes = await BuildSpecAttributesQuery(_db, ids, null).ToListAsync();
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
-        //protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
-        //{
-        //    var query = _db.ProductSpecificationAttributes
-        //            .AsNoTracking()
-        //            .Include(x => x.SpecificationAttributeOption)
-        //            .ThenInclude(x => x.SpecificationAttribute)
-        //            .Where(x => ids.Contains(x.ProductId))
-        //            .OrderBy(x => x.ProductId)
-        //            .OrderBy(x => x.DisplayOrder)
-        //            .AsQueryable();
-        //    var attributes = await query.ToListAsync();
-        //    return attributes.ToMultimap(x => x.ProductId, x => x);
-        //}
 
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadEssentialAttributes(int[] ids)
         {
