@@ -2,7 +2,9 @@
 
 @model ShoppingCartModel
 
-<div class="order-summary-content cart-content" data-empty-text="@T("ShoppingCart.CartIsEmpty")">
+<div class="order-summary-content cart-content" 
+     data-empty-text="@T("ShoppingCart.CartIsEmpty")"
+     data-update-item-url="@Url.Action("UpdateCartItem", "ShoppingCart")">
     <zone name="order_summary_content_before" />
 
     <partial name="_OrderReviewData" model="Model.OrderReviewData" />

@@ -152,10 +152,10 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabled: null);
 
             // Allow to fill checkout attributes with values from query string.
-            if (query.CheckoutAttributes.Any())
+            if (query.CheckoutAttributes.Count > 0)
             {
                 cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
                 await _db.SaveChangesAsync();
@@ -303,16 +303,12 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// Updates cart item quantity in shopping cart.
+        /// AJAX. Updates cart item of a shopping cart (e.g. the item quantity).
         /// </summary>
-        /// <param name="sciItemId">Identifier of <see cref="ShoppingCartItem"/>.</param>
-        /// <param name="newQuantity">The new quantity to set.</param>
-        /// <param name="isCartPage">A value indicating whether the customer is on the cart page or on any other page.</param>
-        /// <param name="isWishlist">A value indicating whether the <see cref="ShoppingCartType"/> is Wishlist or ShoppingCart.</param>        
         [HttpPost]
-        public async Task<IActionResult> UpdateCartItem(int sciItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
+        public async Task<IActionResult> UpdateCartItem(UpdateCartItemModel model)
         {
-            var permission = isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
+            var permission = model.IsWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
             if (!await Services.Permissions.AuthorizeAsync(permission))
             {
                 return Json(new
@@ -323,35 +319,34 @@ namespace Smartstore.Web.Controllers
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var warnings = new List<string>();
-            warnings.AddRange(await _shoppingCartService.UpdateCartItemAsync(customer, sciItemId, newQuantity, false));
-
+            var warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.SciItemId, model.NewQuantity, model.Enabled);
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
             var newItemPrice = string.Empty;
 
             var cart = await _shoppingCartService.GetCartAsync(
                 customer,
-                isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
-                Services.StoreContext.CurrentStore.Id);
+                model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
+                Services.StoreContext.CurrentStore.Id,
+                null);
 
-            if (isCartPage)
+            if (model.IsCartPage)
             {
-                if (isWishlist)
+                if (model.IsWishlist)
                 {
-                    var model = new WishlistModel();
-                    await cart.MapAsync(model);
+                    var wishlistModel = new WishlistModel();
+                    await cart.MapAsync(wishlistModel);
 
-                    cartHtml = await InvokePartialViewAsync("WishlistItems", model);
+                    cartHtml = await InvokePartialViewAsync("WishlistItems", wishlistModel);
                 }
                 else
                 {
-                    var model = await cart.MapAsync();
+                    var cartModel = await cart.MapAsync();
 
-                    cartHtml = await InvokePartialViewAsync("CartItems", model);
+                    cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
-                    var sci = model.Items.Where(x => x.Id == sciItemId).FirstOrDefault();
+                    var sci = cartModel.Items.FirstOrDefault(x => x.Id == model.SciItemId);
                     newItemPrice = sci.Price.UnitPrice.ToString();
                 }
             }

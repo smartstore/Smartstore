@@ -39,6 +39,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="AllowCartItemsToBeDisabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowCartItemsToBeDisabled"></setting-editor>
+                        <span asp-validation-for="AllowCartItemsToBeDisabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="MaximumShoppingCartItems" />
                     </div>
                     <div class="adminData">

@@ -38,6 +38,7 @@ namespace Smartstore.Web.Models.Cart
             Guard.NotNull(from);
             Guard.NotNull(to);
 
+            to.AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled;
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnShoppingCart;
             to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
             to.BundleThumbSize = _mediaSettings.CartThumbBundleItemPictureSize;

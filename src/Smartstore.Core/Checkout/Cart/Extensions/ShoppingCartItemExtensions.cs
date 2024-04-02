@@ -12,21 +12,30 @@
         /// <param name="cart">The cart collection the filter gets applied on.</param>
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
         /// <param name="storeId">Store identifier to filter by.</param>
+        /// <param name="enabled">A value indicating whether to load enabled or disabled items. <c>null</c> to load all items.</param>
         /// <returns><see cref="List{T}"/> of <see cref="ShoppingCartItem"/>.</returns>
-        public static IList<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
+        public static IList<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, 
+            ShoppingCartType cartType, 
+            int? storeId = null,
+            bool? enabled = true)
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart);
 
             // INFO: ICollection<ShoppingCartItem> indicates that this is a POST-query filter.
 
-            var filteredCartItems = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
+            var items = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
 
             if (storeId.GetValueOrDefault() > 0)
             {
-                filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId.Value);
+                items = items.Where(x => x.StoreId == storeId.Value);
             }
 
-            return filteredCartItems.OrderByDescending(x => x.Id).ToList();
+            if (enabled != null)
+            {
+                items = items.Where(x => x.Enabled == enabled.Value);
+            }
+
+            return items.OrderByDescending(x => x.Id).ToList();
         }
     }
 }

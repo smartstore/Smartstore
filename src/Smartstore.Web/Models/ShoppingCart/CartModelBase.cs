@@ -13,6 +13,7 @@ namespace Smartstore.Web.Models.Cart
         public abstract IEnumerable<CartEntityModelBase> Items { get; }
         public List<string> Warnings { get; set; } = [];
 
+        public bool AllowCartItemsToBeDisabled { get; set; }
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public bool IsEditable { get; set; }
@@ -25,6 +26,7 @@ namespace Smartstore.Web.Models.Cart
     {
         public List<string> Warnings { get; set; } = [];
 
+        public bool Enabled { get; set; } = true;
         public int ProductId { get; set; }
         public LocalizedValue<string> ProductName { get; set; }
         public string ProductSeName { get; set; }
@@ -69,6 +71,7 @@ namespace Smartstore.Web.Models.Cart
 
     public partial class BundleItemModel : EntityModelBase
     {
+        public int ParentItemId { get; set; }
         public bool PerItemPricing { get; set; }
         public bool PerItemShoppingCart { get; set; }
         public string Title { get; set; }

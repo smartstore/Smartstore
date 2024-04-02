@@ -13,11 +13,18 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
+    [Index(nameof(Enabled), Name = "IX_CartItemEnabled")]
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware, IEquatable<ShoppingCartItem>
     {
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
         private int? _hashCode;
+
+        /// <summary>
+        /// A value indicating whether the item is enabled.
+        /// Disabled items are excluded from order and remain in the shopping cart.
+        /// </summary>
+        public bool Enabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the store identifier

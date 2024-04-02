@@ -86,6 +86,7 @@ namespace Smartstore.Web.Models.Cart
 
             // General model data.
             to.Id = item.Id;
+            to.Enabled = item.Enabled;
             to.Sku = product.Sku;
             to.ShowSku = _catalogSettings.ShowProductSku && product.Sku.HasValue();
             to.ProductId = product.Id;
@@ -121,6 +122,7 @@ namespace Smartstore.Web.Models.Cart
                 to.BundleItem = new BundleItemModel
                 {
                     Id = item.BundleItem.Id,
+                    ParentItemId = item.ParentItemId ?? 0,
                     DisplayOrder = item.BundleItem.DisplayOrder,
                     HideThumbnail = item.BundleItem.HideThumbnail,
                     PerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing,

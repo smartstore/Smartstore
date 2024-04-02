@@ -32,6 +32,7 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class ShoppingCartItemModel : CartEntityModelBase
         {
+            public bool Enabled { get; set; }
             public bool IsShippingEnabled { get; set; }
             public bool IsDownload { get; set; }
             public bool HasUserAgreement { get; set; }
