@@ -29,7 +29,7 @@ namespace Smartstore.Data.Sqlite
             => DataProviderFeatures.Backup
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ReadSequential
@@ -141,7 +141,7 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             // TODO: Lock
             var sql = $"REINDEX;";

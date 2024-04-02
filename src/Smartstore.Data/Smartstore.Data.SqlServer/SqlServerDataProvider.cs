@@ -112,7 +112,7 @@ namespace Smartstore.Data.SqlServer
             => DataProviderFeatures.Backup
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.StreamBlob
@@ -265,7 +265,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Database.ExecuteSqlRaw(shrinkSql);
         }
 
-        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sql = ReIndexTablesSql(DatabaseName);
             return async

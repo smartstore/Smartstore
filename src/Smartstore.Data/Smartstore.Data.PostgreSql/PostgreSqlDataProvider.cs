@@ -37,7 +37,7 @@ namespace Smartstore.Data.PostgreSql
 
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.StreamBlob
@@ -169,7 +169,7 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sql = $"REINDEX DATABASE \"{DatabaseName}\"";
             return async

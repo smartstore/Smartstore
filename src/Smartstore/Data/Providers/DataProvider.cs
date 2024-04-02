@@ -17,14 +17,15 @@ namespace Smartstore.Data.Providers
         Backup = 1 << 0,
         Restore = 1 << 1,
         Shrink = 1 << 2,
-        ReIndex = 1 << 3,
+        OptimizeDatabase = 1 << 3,
         ComputeSize = 1 << 4,
         AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7,
         StoredProcedures = 1 << 8,
         ReadSequential = 1 << 9,
-        ReadTableInfo = 1 << 10
+        ReadTableInfo = 1 << 10,
+        OptimizeTable = 1 << 11,
     }
 
     public abstract partial class DataProvider : Disposable
@@ -74,9 +75,14 @@ namespace Smartstore.Data.Providers
             get => Features.HasFlag(DataProviderFeatures.Shrink);
         }
 
-        public bool CanReIndex
+        public bool CanOptimizeDatabase
         {
-            get => Features.HasFlag(DataProviderFeatures.ReIndex);
+            get => Features.HasFlag(DataProviderFeatures.OptimizeDatabase);
+        }
+
+        public bool CanOptimizeTable
+        {
+            get => Features.HasFlag(DataProviderFeatures.OptimizeTable);
         }
 
         public bool CanComputeSize
@@ -232,9 +238,16 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Reindexes all tables in the current database.
+        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing tables.
         /// </summary>
-        protected virtual Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected virtual Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// </summary
+        /// <param name="tableName">Name of table to optimize.</param>
+        protected virtual Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -579,16 +592,30 @@ namespace Smartstore.Data.Providers
             => ShrinkDatabaseCore(true, onlyWhenFast, cancelToken);
 
         /// <summary>
-        /// Reindexes all tables
+        /// Optimizes all table data and associated index data to reduce storage space and improve I/O efficiency.
         /// </summary>
-        public int ReIndexTables()
-            => ReIndexTablesCore(false).Await();
+        public int OptimizeDatabase()
+            => OptimizeDatabaseCore(false).Await();
 
         /// <summary>
-        /// Reindexes all tables
+        /// Optimizes all table data and associated index data to reduce storage space and improve I/O efficiency.
         /// </summary>
-        public Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
-            => ReIndexTablesCore(true, cancelToken);
+        public Task<int> OptimizeDatabaseAsync(CancellationToken cancelToken = default)
+            => OptimizeDatabaseCore(true, cancelToken);
+
+        /// <summary>
+        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// </summary
+        /// <param name="tableName">Name of table to optimize.</param>
+        public int OptimizeTable(string tableName)
+            => OptimizeTableCore(tableName, false).Await();
+
+        /// <summary>
+        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// </summary
+        /// <param name="tableName">Name of table to optimize.</param>
+        public Task<int> OptimizeTableAsync(string tableName, CancellationToken cancelToken = default)
+            => OptimizeTableCore(tableName, true, cancelToken);
 
         /// <summary>
         /// Reads info/statistics about every public table in the database.

@@ -38,7 +38,7 @@ namespace Smartstore.Data.MySql
 
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ExecuteSqlScript
@@ -165,11 +165,11 @@ LIMIT {take} OFFSET {skip}";
             }
             
             return async
-                ? ReIndexTablesAsync(cancelToken)
-                : Task.FromResult(ReIndexTables());
+                ? OptimizeDatabaseAsync(cancelToken)
+                : Task.FromResult(OptimizeDatabase());
         }
 
-        protected override async Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sqlTables = $"SHOW TABLES FROM `{DatabaseName}`";
             var tables = async 
