@@ -65,14 +65,15 @@ namespace Smartstore.Web.Components
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = orderTotalsEvent.Customer ?? Services.WorkContext.CurrentCustomer;
             var storeId = orderTotalsEvent.StoreId ?? Services.StoreContext.CurrentStore.Id;
-
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+
             var model = new OrderTotalsModel
             {
-                IsEditable = isEditable
+                IsEditable = isEditable,
+                NumberOfCartItems = cart.Items.Length
             };
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return View(model);
             }

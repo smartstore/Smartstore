@@ -388,7 +388,7 @@ namespace Smartstore.Core.Checkout.Cart
             var result = _requestCache.Get(cacheKey, async () =>
             {
                 await LoadCartItemCollection(customer);
-                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, enabled);
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, enabled).ToList();
 
                 // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part).
                 await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
@@ -629,8 +629,9 @@ namespace Smartstore.Core.Checkout.Cart
             // Bundle items that require merging of attribute combinations.
             var mergeRequiringItems = new List<ShoppingCartItem>();
             var childItemsMap = items.ToMultimap(x => x.ParentItemId ?? 0, x => x);
+            var orderedItems = items.Where(x => x.ParentItemId == null).ApplyDefaultSorting();
 
-            foreach (var parent in items.Where(x => x.ParentItemId == null).OrderBy(x => x.Id))
+            foreach (var parent in orderedItems)
             {
                 var parentItem = new OrganizedShoppingCartItem(parent);
 

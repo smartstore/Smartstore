@@ -56,11 +56,31 @@ namespace Smartstore.Core.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            const string cartSelectionLink = "<a href=\"{{0}}\" class=\"{1}\" rel=\"nofollow\">{0}</a>.";
+
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowCartItemsToBeDisabled",
                 "Allow cart items to be disabled",
                 "Deaktivierung von Warenkorbartikeln zulassen",
                 "Specifies whether shopping cart items can be deactivated. Deactivated items are not ordered and remain in the shopping cart after the order is received.",
                 "Legt fest, ob Warenkorbartikel deaktiviert werden können. Deaktivierte Artikel werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
+
+            builder.AddOrUpdate("ShoppingCart.NoProductsSelected", "No products selected.", "Keine Artikel ausgewählt.");
+
+            builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",
+                "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
+                "Keine Artikel ausgewählt. " + cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));
+
+            builder.AddOrUpdate("ShoppingCart.SelectAllProducts",
+                cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
+                cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));
+
+            builder.AddOrUpdate("ShoppingCart.DeselectAllProducts",
+                cartSelectionLink.FormatInvariant("Deselect all products", "deselect-cart-items"),
+                cartSelectionLink.FormatInvariant("Auswahl aller Artikel aufheben", "deselect-cart-items"));
+
+            builder.AddOrUpdate("ShoppingCart.Totals.SubTotalSelectedProducts",
+                "Subtotal <span class=\"text-nowrap\">({0} products)</span>",
+                "Zwischensumme <span class=\"text-nowrap\">({0} Artikel)</span>");
         }
     }
 }

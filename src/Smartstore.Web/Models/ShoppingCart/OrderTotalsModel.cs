@@ -5,6 +5,7 @@ namespace Smartstore.Web.Models.Cart
     public partial class OrderTotalsModel : ModelBase
     {
         public bool IsEditable { get; set; }
+        public int NumberOfCartItems { get; set; }
         public Money SubTotal { get; set; }
         public Money? SubTotalDiscount { get; set; }
         public bool AllowRemovingSubTotalDiscount { get; set; }

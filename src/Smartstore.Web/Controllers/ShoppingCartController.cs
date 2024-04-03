@@ -163,6 +163,8 @@ namespace Smartstore.Web.Controllers
 
             var model = await cart.MapAsync();
 
+            ViewBag.CartItemSelectionLink = GetCartItemSelectionLink(cart);
+
             return View(model);
         }
 
@@ -318,17 +320,27 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
+            var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
+            var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
-            var warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.SciItemId, model.NewQuantity, model.Enabled);
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
+            var itemSelectionHtml = string.Empty;
             var newItemPrice = string.Empty;
+            IList<string> warnings = null;
 
-            var cart = await _shoppingCartService.GetCartAsync(
-                customer,
-                model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
-                Services.StoreContext.CurrentStore.Id,
-                null);
+            if (model.EnableAll.HasValue)
+            {
+                customer.ShoppingCartItems
+                    .FilterByCartType(cartType, store.Id, null, false)
+                    .Each(x => x.Enabled = model.EnableAll.Value);
+            }
+            else
+            {
+                warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.SciItemId, model.NewQuantity, model.Enabled);
+            }
+
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
 
             if (model.IsCartPage)
             {
@@ -342,12 +354,16 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     var cartModel = await cart.MapAsync();
+                    var sci = cartModel.Items.FirstOrDefault(x => x.Id == model.SciItemId);
 
                     cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                    itemSelectionHtml = GetCartItemSelectionLink(cart);
 
-                    var sci = cartModel.Items.FirstOrDefault(x => x.Id == model.SciItemId);
-                    newItemPrice = sci.Price.UnitPrice.ToString();
+                    if (sci != null)
+                    {
+                        newItemPrice = sci.Price.UnitPrice.ToString();
+                    }
                 }
             }
 
@@ -355,14 +371,16 @@ namespace Smartstore.Web.Controllers
             var taxFormat = _taxService.GetTaxFormat();
             var currency = Services.WorkContext.WorkingCurrency;
             var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subTotal.SubtotalWithoutDiscount.Amount, currency);
-            
+
             return Json(new
             {
-                success = warnings.Count == 0,
+                success = warnings.IsNullOrEmpty(),
+                numberOfEnabledItems = cart.Items.Count(x => x.Item.Enabled),
                 SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat),
-                message = string.Join(". ", warnings.Take(3)),
+                message = warnings.IsNullOrEmpty() ? null : string.Join(". ", warnings.Take(3)),
                 cartHtml,
                 totalsHtml,
+                itemSelectionHtml,
                 displayCheckoutButtons = true,
                 newItemPrice
             });
@@ -388,6 +406,9 @@ namespace Smartstore.Web.Controllers
             var cartType = isWishlistItem ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
             var cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
             var cartItem = cart.Items.FirstOrDefault(x => x.Item.Id == cartItemId);
+            var itemSelectionHtml = string.Empty;
+            var totalsHtml = string.Empty;
+            string cartHtml;
 
             if (cartItem == null)
             {
@@ -404,9 +425,7 @@ namespace Smartstore.Web.Controllers
 
             // Get updated cart model.
             cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
-            var totalsHtml = string.Empty;
 
-            string cartHtml;
             if (cartType == ShoppingCartType.Wishlist)
             {
                 var model = new WishlistModel();
@@ -420,6 +439,7 @@ namespace Smartstore.Web.Controllers
 
                 cartHtml = await InvokePartialViewAsync("CartItems", model);
                 totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                itemSelectionHtml = GetCartItemSelectionLink(cart);
             }
 
             // Updated cart.
@@ -430,6 +450,7 @@ namespace Smartstore.Web.Controllers
                 message = T("ShoppingCart.DeleteCartItem.Success").Value,
                 cartHtml,
                 totalsHtml,
+                itemSelectionHtml,
                 cartItemCount = cart.Items.Length
             });
         }
@@ -1271,6 +1292,33 @@ namespace Smartstore.Web.Controllers
             }
 
             return (options, []);
+        }
+
+        private string GetCartItemSelectionLink(ShoppingCart cart)
+        {
+            if (_shoppingCartSettings.AllowCartItemsToBeDisabled && cart.HasItems)
+            {
+                var enableAll = true;
+                string resKey = null;
+
+                if (cart.Items.All(x => x.Item.Enabled))
+                {
+                    enableAll = false;
+                    resKey = "ShoppingCart.DeselectAllProducts";
+                }
+                else if (!cart.Items.Any(x => x.Item.Enabled))
+                {
+                    resKey = "ShoppingCart.NoProductsSelectedSelectAll";
+                }
+                else
+                {
+                    resKey = "ShoppingCart.SelectAllProducts";
+                }
+
+                return T(resKey, Url.Action(nameof(UpdateCartItem), "ShoppingCart", new { enableAll }));
+            }
+
+            return string.Empty;
         }
     }
 }

@@ -86,7 +86,6 @@ namespace Smartstore.Web.Models.Cart
 
             // General model data.
             to.Id = item.Id;
-            to.Enabled = item.Enabled;
             to.Sku = product.Sku;
             to.ShowSku = _catalogSettings.ShowProductSku && product.Sku.HasValue();
             to.ProductId = product.Id;

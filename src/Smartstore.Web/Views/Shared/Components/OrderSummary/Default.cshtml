@@ -2,6 +2,16 @@
 
 @model ShoppingCartModel
 
+@{
+    var hasItems = Model.Items.Any();
+    var paymentButtons = hasItems
+        ? (await Model.ButtonPaymentMethods.Items
+            .SelectAwait(x => x.InvokeAsync(ViewContext))
+            .AsyncToList())
+            .Where(x => x.HasContent())
+        : Enumerable.Empty<IHtmlContent>();
+}
+
 <div class="order-summary-content cart-content" 
      data-empty-text="@T("ShoppingCart.CartIsEmpty")"
      data-update-item-url="@Url.Action("UpdateCartItem", "ShoppingCart")">
@@ -14,7 +24,7 @@
         <partial name="_CommentBox" model="Model" />
     }
 
-    @if (Model.Items.Any())
+    @if (hasItems)
     {
         <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
             <ul>
@@ -54,7 +64,7 @@
 
                                 <zone name="order_summary_totals_after" />
                             </div>
-                            <div class="col-12 cart-footer-group" sm-suppress-if-empty>
+                            <div class="col-12 cart-actions cart-footer-group" sm-suppress-if-empty>
                                 @if (Model.IsEditable)
                                 {
                                     <zone name="order_summary_actions_before" />
@@ -87,20 +97,11 @@
                                                     <i class="fa fa-angle-right"></i>
                                                 </button>
                                             </div>
-
-                                            @{
-                                                var paymentButtons = (await Model.ButtonPaymentMethods.Items
-                                                .SelectAwait(x => x.InvokeAsync(ViewContext))
-                                                .AsyncToList())
-                                                .Where(x => x.HasContent());
-                                            }
-
                                             <div sm-if="paymentButtons.Any()" class="addon-buttons">
                                                 <div class="d-flex flex-column row-gap-2">
                                                     <div class="text-center">
                                                         <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
                                                     </div>
-
                                                     @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
                                                     @foreach (var button in paymentButtons)
                                                     {

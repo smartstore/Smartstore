@@ -16,10 +16,10 @@ $(function () {
     });
 
     // Enable/disable cart item.
-    orderSummary.on('change', '.cart-item-enabled-checkbox', function () {
-        var self = $(this);
-        var cartItemId = self.closest('.cart-row').data('key');
-        var url = orderSummary.data('update-item-url');
+    orderSummary.on('change', '.select-cart-item-checkbox', function () {
+        const self = $(this);
+        const cartItemId = self.closest('.cart-row').data('key');
+        const url = orderSummary.data('update-item-url');
 
         updateShoppingCartItems(url, {
             sciItemId: cartItemId,
@@ -28,13 +28,29 @@ $(function () {
             isWishlist: isWishlist
         });
         
-        //var parentKey = self.closest('.cart-row').data('parent-key');
+        //const parentKey = self.closest('.cart-row').data('parent-key');
         //$('.cart-row[data-parent-key=' + parentKey + ']')
         //    .find('.cart-item-img, .cart-item-data')
         //    .toggleClass('cart-item-disabled', !this.checked);
     });
 
-    // Quantity numberinput change.
+    // Enable/disable all cart items.
+    $('#SelectAllCartItems').on('click', '.select-cart-items, .deselect-cart-items', function (e) {
+        e.preventDefault();
+
+        const enableAll = $(this).hasClass('select-cart-items');
+        const url = orderSummary.data('update-item-url');
+
+        updateShoppingCartItems(url, {
+            enableAll,
+            isCartPage: true,
+            isWishlist: isWishlist
+        });
+        
+        return false;
+    });
+
+    // Quantity number input change.
     var debouncedUpdate = _.debounce(function (e) {
         e.preventDefault();
 
@@ -101,6 +117,10 @@ $(function () {
                     }
                     if (!_.isEmpty(response.estimateShippingHtml)) {
                         $('.cart-action-shipping').replaceWith(response.estimateShippingHtml);
+                    }
+
+                    if (!isWishlist) {
+                        $('#SelectAllCartItems').html(response.itemSelectionHtml);
                     }
                 }
 

@@ -30,6 +30,12 @@ namespace Smartstore.Web.Models.Cart
         public bool? Enabled { get; set; }
 
         /// <summary>
+        /// A value indicating whether to enable/disable all cart items.
+        /// </summary>
+        [JsonProperty("enableAll")]
+        public bool? EnableAll { get; set; }
+
+        /// <summary>
         /// The new cart item quantity.
         /// </summary>
         [JsonProperty("newQuantity")]
