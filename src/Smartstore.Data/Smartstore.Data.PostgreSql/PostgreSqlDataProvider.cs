@@ -38,6 +38,7 @@ namespace Smartstore.Data.PostgreSql
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
             | DataProviderFeatures.OptimizeDatabase
+            | DataProviderFeatures.OptimizeTable
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.StreamBlob

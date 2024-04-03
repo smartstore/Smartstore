@@ -47,7 +47,7 @@ namespace Smartstore.Data.SqlServer
         {
         }
 
-        private static string ReIndexTablesSql(string database)
+        private static string OptimizeDatabaseSql2(string database)
             => $@"DECLARE @TableName sysname 
                   DECLARE cur_reindex CURSOR FOR
                   SELECT table_name
@@ -57,11 +57,49 @@ namespace Smartstore.Data.SqlServer
                   FETCH NEXT FROM cur_reindex INTO @TableName
                   WHILE @@FETCH_STATUS = 0
                       BEGIN
-                          EXEC('ALTER INDEX ALL ON [' + @TableName + '] REBUILD')
+                          EXEC('ALTER INDEX ALL ON [' + @TableName + '] REORGANIZE')
                           FETCH NEXT FROM cur_reindex INTO @TableName
                       END
                   CLOSE cur_reindex
                   DEALLOCATE cur_reindex";
+
+        private static string OptimizeDatabaseSql(string database)
+            => $@"
+                DECLARE @TableName NVARCHAR(260), @SchemaName NVARCHAR(260), @IndexName NVARCHAR(260), @Sql NVARCHAR(MAX), @Fragmentation FLOAT;
+                DECLARE IndexCursor CURSOR FOR 
+                SELECT 
+                    QUOTENAME(SCHEMA_NAME(t.schema_id)) + '.' + QUOTENAME(t.name) AS TableName,
+                    i.name AS IndexName,
+                    s.avg_fragmentation_in_percent
+                FROM 
+                    sys.tables t
+                JOIN 
+                    sys.indexes i ON t.object_id = i.object_id
+                CROSS APPLY 
+                    sys.dm_db_index_physical_stats(DB_ID(N'{database}'), i.object_id, NULL, NULL, 'LIMITED') s
+                WHERE 
+                    i.type_desc <> 'HEAP' AND s.avg_fragmentation_in_percent > 5
+
+                OPEN IndexCursor;
+                FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
+
+                WHILE @@FETCH_STATUS = 0
+                BEGIN
+                    IF @Fragmentation > 30
+                    BEGIN
+                        SET @Sql = 'ALTER INDEX ' + QUOTENAME(@IndexName) + ' ON ' + @TableName + ' REBUILD;';
+                    END
+                    ELSE
+                    BEGIN
+                        SET @Sql = 'ALTER INDEX ' + QUOTENAME(@IndexName) + ' ON ' + @TableName + ' REORGANIZE;';
+                    END
+                    EXEC(@Sql);
+                    FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
+                END
+
+                CLOSE IndexCursor;
+                DEALLOCATE IndexCursor;
+                ";
 
         private static string RestoreDatabaseSql(string database)
             => $@"DECLARE @ErrorMessage NVARCHAR(4000)
@@ -113,6 +151,7 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
             | DataProviderFeatures.OptimizeDatabase
+            | DataProviderFeatures.OptimizeTable
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.StreamBlob
@@ -267,7 +306,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            var sql = ReIndexTablesSql(DatabaseName);
+            var sql = OptimizeDatabaseSql(DatabaseName);
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));

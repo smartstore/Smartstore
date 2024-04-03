@@ -503,6 +503,7 @@ namespace Smartstore.Admin.Controllers
             {
                 if (_db.DataProvider.CanShrink)
                 {
+                    await _db.DataProvider.OptimizeDatabaseAsync();
                     await _db.DataProvider.ShrinkDatabaseAsync(false);
                     NotifySuccess(T("Common.ShrinkDatabaseSuccessful"));
                 }

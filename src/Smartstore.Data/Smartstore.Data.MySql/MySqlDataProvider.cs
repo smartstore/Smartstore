@@ -39,6 +39,7 @@ namespace Smartstore.Data.MySql
         public override DataProviderFeatures Features
             => DataProviderFeatures.Shrink
             | DataProviderFeatures.OptimizeDatabase
+            | DataProviderFeatures.OptimizeTable
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ExecuteSqlScript
