@@ -64,8 +64,6 @@ namespace Smartstore.Core.Migrations
                 "Specifies whether shopping cart items can be deactivated. Deactivated items are not ordered and remain in the shopping cart after the order is received.",
                 "Legt fest, ob Warenkorbartikel deaktiviert werden können. Deaktivierte Artikel werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
 
-            builder.AddOrUpdate("ShoppingCart.NoProductsSelected", "No products selected.", "Keine Artikel ausgewählt.");
-
             builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",
                 "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
                 "Keine Artikel ausgewählt. " + cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));
@@ -81,6 +79,10 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("ShoppingCart.Totals.SubTotalSelectedProducts",
                 "Subtotal <span class=\"text-nowrap\">({0} products)</span>",
                 "Zwischensumme <span class=\"text-nowrap\">({0} Artikel)</span>");
+
+            builder.AddOrUpdate("ShoppingCart.SelectAtLeastOneProduct",
+                "Please select at least one product to proceed to checkout.",
+                "Bitte wählen Sie mindestens einen Artikel aus, um zur Kasse zu gehen.");
         }
     }
 }

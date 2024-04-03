@@ -136,7 +136,6 @@ namespace Smartstore.Web.Controllers
 
             return Json(new
             {
-                //CartSubTotal = subtotalFormatted,
                 CartItemsCount = cartItemsCount,
                 WishlistItemsCount = wishlistItemsCount,
                 CompareItemsCount = compareItemsCount
@@ -371,17 +370,17 @@ namespace Smartstore.Web.Controllers
             var taxFormat = _taxService.GetTaxFormat();
             var currency = Services.WorkContext.WorkingCurrency;
             var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subTotal.SubtotalWithoutDiscount.Amount, currency);
+            var checkoutAllowed = cart.HasItems && (cart.Items.Any(x => x.Item.Enabled) || !_shoppingCartSettings.AllowCartItemsToBeDisabled);
 
             return Json(new
             {
                 success = warnings.IsNullOrEmpty(),
-                numberOfEnabledItems = cart.Items.Count(x => x.Item.Enabled),
                 SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat),
                 message = warnings.IsNullOrEmpty() ? null : string.Join(". ", warnings.Take(3)),
                 cartHtml,
                 totalsHtml,
                 itemSelectionHtml,
-                displayCheckoutButtons = true,
+                checkoutAllowed,
                 newItemPrice
             });
         }
@@ -397,7 +396,7 @@ namespace Smartstore.Web.Controllers
         {
             if (!await Services.Permissions.AuthorizeAsync(isWishlistItem ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
             {
-                return Json(new { success = false, displayCheckoutButtons = true });
+                return Json(new { success = false });
             }
 
             // Get shopping cart item.
@@ -415,7 +414,6 @@ namespace Smartstore.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    displayCheckoutButtons = true,
                     message = T("ShoppingCart.DeleteCartItem.Failed").Value
                 });
             }
@@ -446,7 +444,6 @@ namespace Smartstore.Web.Controllers
             return Json(new
             {
                 success = true,
-                displayCheckoutButtons = true,
                 message = T("ShoppingCart.DeleteCartItem.Success").Value,
                 cartHtml,
                 totalsHtml,
@@ -754,8 +751,7 @@ namespace Smartstore.Web.Controllers
                 message,
                 cartHtml,
                 totalsHtml,
-                cartItemCount,
-                displayCheckoutButtons = true
+                cartItemCount
             });
         }
 
@@ -1040,8 +1036,7 @@ namespace Smartstore.Web.Controllers
                 success = true,
                 cartHtml,
                 totalsHtml,
-                discountHtml,
-                displayCheckoutButtons = true
+                discountHtml
             });
         }
 
@@ -1065,8 +1060,7 @@ namespace Smartstore.Web.Controllers
                 success = true,
                 cartHtml,
                 totalsHtml,
-                discountHtml,
-                displayCheckoutButtons = true
+                discountHtml
             });
         }
 
@@ -1135,8 +1129,7 @@ namespace Smartstore.Web.Controllers
             {
                 success = true,
                 totalsHtml,
-                giftCardHtml,
-                displayCheckoutButtons = true
+                giftCardHtml
             });
         }
 
@@ -1168,8 +1161,7 @@ namespace Smartstore.Web.Controllers
             {
                 success = true,
                 totalsHtml,
-                giftCardHtml,
-                displayCheckoutButtons = true
+                giftCardHtml
             });
         }
 
@@ -1194,8 +1186,7 @@ namespace Smartstore.Web.Controllers
             {
                 success = true,
                 totalsHtml,
-                rewardPointsHtml,
-                displayCheckoutButtons = true
+                rewardPointsHtml
             });
         }
 
@@ -1249,8 +1240,7 @@ namespace Smartstore.Web.Controllers
             {
                 success = true,
                 totalsHtml,
-                estimateShippingHtml,
-                displayCheckoutButtons = true
+                estimateShippingHtml
             });
         }
 

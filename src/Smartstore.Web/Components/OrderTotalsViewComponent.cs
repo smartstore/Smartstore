@@ -70,6 +70,7 @@ namespace Smartstore.Web.Components
             var model = new OrderTotalsModel
             {
                 IsEditable = isEditable,
+                AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled,
                 NumberOfCartItems = cart.Items.Length
             };
 

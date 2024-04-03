@@ -11,7 +11,7 @@
 
 @foreach (var item in Model.Items)
 {
-    var disabledClass = item.Enabled ? string.Empty : " cart-item-disabled";
+    var disabledClass = !item.Enabled && Model.AllowCartItemsToBeDisabled ? " cart-item-disabled" : string.Empty;
     <div class="cart-row" data-key="@item.Id" data-parent-key="@item.Id">
         <div class="row">
             <div sm-if="Model.AllowCartItemsToBeDisabled && Model.IsEditable" class="select-cart-item col-auto">
