@@ -114,19 +114,13 @@ namespace Smartstore.Web.Controllers
             if (cartEnabled)
             {
                 var shoppingCart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-
-                cartItemsCount = shoppingCart.Items
-                    .Where(x => x.Item.ParentItemId == null)
-                    .Sum(x => (int?)x.Item.Quantity) ?? 0;
+                cartItemsCount = shoppingCart.GetNumberOfItems();
             }
 
             if (wishlistEnabled)
             {
                 var customerWishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
-
-                wishlistItemsCount = customerWishlist.Items
-                    .Where(x => x.Item.ParentItemId == null)
-                    .Sum(x => (int?)x.Item.Quantity) ?? 0;
+                wishlistItemsCount = customerWishlist.GetNumberOfItems();
             }
 
             if (compareEnabled)
@@ -151,7 +145,9 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabled: null);
+            var cart = await _shoppingCartService.GetCartAsync(
+                storeId: Services.StoreContext.CurrentStore.Id,
+                enabled: _shoppingCartSettings.AllowCartItemsToBeDisabled ? null : true);
 
             // Allow to fill checkout attributes with values from query string.
             if (query.CheckoutAttributes.Count > 0)
@@ -309,6 +305,21 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCartItem(UpdateCartItemModel model)
         {
+            return await UpdateCartItemInternal(model, false);
+        }
+
+        /// <summary>
+        /// AJAX. Removes a cart item from either the shopping cart or the wishlist.
+        /// </summary>
+        [HttpPost]
+        [SaveChanges<SmartDbContext>(false)]
+        public async Task<IActionResult> DeleteCartItem(UpdateCartItemModel model /*int cartItemId, bool isWishlist = false*/)
+        {
+            return await UpdateCartItemInternal(model, true);
+        }
+
+        private async Task<IActionResult> UpdateCartItemInternal(UpdateCartItemModel model, bool delete)
+        {
             var permission = model.IsWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart;
             if (!await Services.Permissions.AuthorizeAsync(permission))
             {
@@ -319,16 +330,36 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
+            var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
+            var enabledItemsOnly = _shoppingCartSettings.AllowCartItemsToBeDisabled ? (bool?)null : true;
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
             var itemSelectionHtml = string.Empty;
             var newItemPrice = string.Empty;
-            IList<string> warnings = null;
+            var message = string.Empty;
+            var subtotal = Money.Zero;
+            var success = true;
 
-            if (model.EnableAll.HasValue)
+            if (delete)
+            {
+                var currentCart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, enabledItemsOnly);
+                var item = currentCart.Items.FirstOrDefault(x => x.Item.Id == model.CartItemId);
+
+                if (item == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = T("ShoppingCart.DeleteCartItem.Failed").Value
+                    });
+                }
+
+                await _shoppingCartService.DeleteCartItemAsync(item.Item, true, true);
+                message = T("ShoppingCart.DeleteCartItem.Success");
+            }
+            else if (model.EnableAll.HasValue)
             {
                 customer.ShoppingCartItems
                     .FilterByCartType(cartType, store.Id, null, false)
@@ -336,12 +367,15 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.SciItemId, model.NewQuantity, model.Enabled);
+                var warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.CartItemId, model.NewQuantity, model.Enabled);
+                message = string.Join(". ", warnings.Take(3));
+                success = warnings.Count == 0;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, enabledItemsOnly);
+            var checkoutAllowed = cart.HasItems && (cart.Items.Any(x => x.Item.Enabled) || !_shoppingCartSettings.AllowCartItemsToBeDisabled);
 
-            if (model.IsCartPage)
+            if (model.IsCartPage || delete)
             {
                 if (model.IsWishlist)
                 {
@@ -353,101 +387,38 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     var cartModel = await cart.MapAsync();
-                    var sci = cartModel.Items.FirstOrDefault(x => x.Id == model.SciItemId);
+                    var item = cartModel.Items.FirstOrDefault(x => x.Id == model.CartItemId);
 
                     cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     itemSelectionHtml = GetCartItemSelectionLink(cart);
 
-                    if (sci != null)
+                    if (item != null)
                     {
-                        newItemPrice = sci.Price.UnitPrice.ToString();
+                        newItemPrice = item.Price.UnitPrice.ToString();
                     }
                 }
             }
 
-            var subTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            var taxFormat = _taxService.GetTaxFormat();
-            var currency = Services.WorkContext.WorkingCurrency;
-            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subTotal.SubtotalWithoutDiscount.Amount, currency);
-            var checkoutAllowed = cart.HasItems && (cart.Items.Any(x => x.Item.Enabled) || !_shoppingCartSettings.AllowCartItemsToBeDisabled);
+            if (!delete)
+            {
+                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+                var currency = Services.WorkContext.WorkingCurrency;
+                var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, currency);
+             
+                subtotal = subtotalWithoutDiscount.WithPostFormat(_taxService.GetTaxFormat());
+            }
 
             return Json(new
             {
-                success = warnings.IsNullOrEmpty(),
-                SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat),
-                message = warnings.IsNullOrEmpty() ? null : string.Join(". ", warnings.Take(3)),
+                success,
+                SubTotal = subtotal,
+                message,
                 cartHtml,
                 totalsHtml,
                 itemSelectionHtml,
                 checkoutAllowed,
-                newItemPrice
-            });
-        }
-
-        /// <summary>
-        /// Removes cart item with identifier <paramref name="cartItemId"/> from either the shopping cart or the wishlist.
-        /// </summary>
-        /// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/> to remove.</param>
-        /// <param name="isWishlistItem">A value indicating whether to remove the cart item from wishlist or shopping cart.</param>        
-        [HttpPost]
-        [SaveChanges<SmartDbContext>(false)]
-        public async Task<IActionResult> DeleteCartItem(int cartItemId, bool isWishlistItem = false)
-        {
-            if (!await Services.Permissions.AuthorizeAsync(isWishlistItem ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
-            {
-                return Json(new { success = false });
-            }
-
-            // Get shopping cart item.
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cartType = isWishlistItem ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
-            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
-            var cartItem = cart.Items.FirstOrDefault(x => x.Item.Id == cartItemId);
-            var itemSelectionHtml = string.Empty;
-            var totalsHtml = string.Empty;
-            string cartHtml;
-
-            if (cartItem == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = T("ShoppingCart.DeleteCartItem.Failed").Value
-                });
-            }
-
-            // Remove the cart item.
-            await _shoppingCartService.DeleteCartItemAsync(cartItem.Item, true, true);
-
-            // Get updated cart model.
-            cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
-
-            if (cartType == ShoppingCartType.Wishlist)
-            {
-                var model = new WishlistModel();
-                await cart.MapAsync(model);
-
-                cartHtml = await InvokePartialViewAsync("WishlistItems", model);
-            }
-            else
-            {
-                var model = await cart.MapAsync();
-
-                cartHtml = await InvokePartialViewAsync("CartItems", model);
-                totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
-                itemSelectionHtml = GetCartItemSelectionLink(cart);
-            }
-
-            // Updated cart.
-            return Json(new
-            {
-                success = true,
-                message = T("ShoppingCart.DeleteCartItem.Success").Value,
-                cartHtml,
-                totalsHtml,
-                itemSelectionHtml,
+                newItemPrice,
                 cartItemCount = cart.Items.Length
             });
         }

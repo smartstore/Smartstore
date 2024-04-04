@@ -51,7 +51,7 @@
         {
             return items
                 .OrderByDescending(x => x.Enabled)
-                .ThenByDescending(x => x.Id);
+                .ThenBy(x => x.Id);
         }
     }
 }

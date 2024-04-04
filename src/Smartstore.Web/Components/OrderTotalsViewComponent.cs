@@ -71,7 +71,7 @@ namespace Smartstore.Web.Components
             {
                 IsEditable = isEditable,
                 AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled,
-                NumberOfCartItems = cart.Items.Length
+                NumberOfCartItems = cart.GetNumberOfItems()
             };
 
             if (!cart.HasItems)

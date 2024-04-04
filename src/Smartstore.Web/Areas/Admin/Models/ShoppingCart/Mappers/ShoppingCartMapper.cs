@@ -43,8 +43,8 @@ namespace Smartstore.Admin.Models.Cart
 
         public override async Task MapAsync(ShoppingCart from, List<ShoppingCartItemModel> to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
             var products = from.Items
                 .Select(x => x.Item.Product)
@@ -66,6 +66,7 @@ namespace Smartstore.Admin.Models.Cart
                 var model = new ShoppingCartItemModel
                 {
                     Id = sci.Id,
+                    Enabled = sci.Enabled,
                     Store = store?.Name ?? StringExtensions.NotAvailable,
                     ProductId = sci.ProductId,
                     Quantity = sci.Quantity,

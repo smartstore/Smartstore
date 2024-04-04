@@ -30,6 +30,12 @@ namespace Smartstore.Core.Checkout.Cart
             => Items.Length > 0;
 
         /// <summary>
+        /// Gets the number of cart items, taking into account the product quantity.
+        /// </summary>
+        public int GetNumberOfItems()
+            => Items.Where(x => x.Item.ParentItemId == null).Sum(x => (int?)x.Item.Quantity) ?? 0;
+
+        /// <summary>
         /// Shopping cart type.
         /// </summary>
         public ShoppingCartType CartType { get; init; } = ShoppingCartType.ShoppingCart;

@@ -8,8 +8,8 @@ namespace Smartstore.Web.Models.Cart
         /// <summary>
         /// Identifier of <see cref="ShoppingCartItem"/>.
         /// </summary>
-        [JsonProperty("sciItemId")]
-        public int SciItemId { get; set; }
+        [JsonProperty("cartItemId")]
+        public int CartItemId { get; set; }
 
         /// <summary>
         /// A value indicating whether the customer is on the cart page or on any other page.

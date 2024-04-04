@@ -35,7 +35,7 @@
                        title="@T("Common.Remove")"
                        href="#"
                        rel="nofollow"
-                       data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id, isWishlistItem = true })'
+                       data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id, isWishlist = true })'
                        data-name="@item.ProductName"
                        data-type="wishlist"
                        data-action="remove">
@@ -49,7 +49,7 @@
                             size = ControlSize.Small,
                             htmlAttributes = new
                             {
-                                data_href = Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
+                                data_href = Url.Action("UpdateCartItem", "ShoppingCart", new { cartItemId = item.Id, isCartPage = true }),
                                 data_sci_item = item.Id,
                                 id = $"itemquantity{item.Id}",
                                 name = $"itemquantity{item.Id}"

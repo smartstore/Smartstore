@@ -19,7 +19,7 @@ namespace Smartstore.Core.Checkout.Cart
             int storeId = 0,
             Customer customer = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (storeId > 0)
             {
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             return query
                 .Where(x => x.ShoppingCartTypeId == (int)type)
-                .OrderByDescending(x => x.Id);
+                .OrderBy(x => x.Id);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Cart
         public static Task<decimal> GetOpenCartTypeSubTotalAsync(this IQueryable<ShoppingCartItem> query, ShoppingCartType cartType = ShoppingCartType.ShoppingCart)
         {
             return query
-                .Where(x => x.ShoppingCartTypeId == (int)cartType && x.Product != null)
+                .Where(x => x.ShoppingCartTypeId == (int)cartType && x.Product != null && x.Enabled)
                 .SumAsync(x => (decimal?)(x.Product.Price * x.Quantity) ?? decimal.Zero);
         }
     }

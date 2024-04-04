@@ -22,10 +22,10 @@ $(function () {
         const url = orderSummary.data('update-item-url');
 
         updateShoppingCartItems(url, {
-            sciItemId: cartItemId,
+            cartItemId,
             enabled: this.checked,
             isCartPage: true,
-            isWishlist: isWishlist
+            isWishlist
         });
         
         //const parentKey = self.closest('.cart-row').data('parent-key');
@@ -44,7 +44,7 @@ $(function () {
         updateShoppingCartItems(url, {
             enableAll,
             isCartPage: true,
-            isWishlist: isWishlist
+            isWishlist
         });
         
         return false;
@@ -61,10 +61,10 @@ $(function () {
 
         var link = $(this);
         updateShoppingCartItems(link.data('href'), {
-            sciItemId: link.data("sci-id"),
+            cartItemId: link.data("sci-id"),
             newQuantity: link.val(),
             isCartPage: true,
-            isWishlist: isWishlist
+            isWishlist
         });
 
         return false;

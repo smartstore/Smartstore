@@ -6,7 +6,7 @@
     @T("OrderSummary.ConfirmOrderLegalHint")
 </div>
 
-<table class="cart-summary" data-items-number="@Model.NumberOfCartItems">
+<table class="cart-summary">
     <tr id="CartSummarySubtotal" class="cart-summary-subtotal"
         data-subtotal-converted="@RoundingHelper.Round(Model.SubTotal).ToStringInvariant()"
         data-subtotal="@(Model.CartSubtotal != null ? RoundingHelper.Round(Model.CartSubtotal.SubtotalWithoutDiscount).ToStringInvariant() : string.Empty)">
