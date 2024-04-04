@@ -47,25 +47,9 @@ namespace Smartstore.Data.SqlServer
         {
         }
 
-        private static string OptimizeDatabaseSql2(string database)
-            => $@"DECLARE @TableName sysname 
-                  DECLARE cur_reindex CURSOR FOR
-                  SELECT table_name
-                  FROM [{database}].information_schema.tables
-                  WHERE table_type = 'base table'
-                  OPEN cur_reindex
-                  FETCH NEXT FROM cur_reindex INTO @TableName
-                  WHILE @@FETCH_STATUS = 0
-                      BEGIN
-                          EXEC('ALTER INDEX ALL ON [' + @TableName + '] REORGANIZE')
-                          FETCH NEXT FROM cur_reindex INTO @TableName
-                      END
-                  CLOSE cur_reindex
-                  DEALLOCATE cur_reindex";
-
-        private static string OptimizeDatabaseSql(string database)
+        private static string OptimizeDatabaseSql(string database, string tableFilter)
             => $@"
-                DECLARE @TableName NVARCHAR(260), @SchemaName NVARCHAR(260), @IndexName NVARCHAR(260), @Sql NVARCHAR(MAX), @Fragmentation FLOAT;
+                DECLARE @TableName NVARCHAR(260), @IndexName NVARCHAR(260), @Sql NVARCHAR(MAX), @Fragmentation FLOAT;
                 DECLARE IndexCursor CURSOR FOR 
                 SELECT 
                     QUOTENAME(SCHEMA_NAME(t.schema_id)) + '.' + QUOTENAME(t.name) AS TableName,
@@ -79,6 +63,7 @@ namespace Smartstore.Data.SqlServer
                     sys.dm_db_index_physical_stats(DB_ID(N'{database}'), i.object_id, NULL, NULL, 'LIMITED') s
                 WHERE 
                     i.type_desc <> 'HEAP' AND s.avg_fragmentation_in_percent > 5
+                    {tableFilter}
 
                 OPEN IndexCursor;
                 FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
@@ -93,7 +78,7 @@ namespace Smartstore.Data.SqlServer
                     BEGIN
                         SET @Sql = 'ALTER INDEX ' + QUOTENAME(@IndexName) + ' ON ' + @TableName + ' REORGANIZE;';
                     END
-                    EXEC(@Sql);
+                    EXEC sp_executesql @Sql;
                     FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
                 END
 
@@ -272,31 +257,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 return 0;
             }
 
-            // Reorganize indexes
-            var tableNames = async ? await GetTableNamesAsync() : GetTableNames();
-            foreach (var tableName in tableNames)
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                var alterIndexSql = $"ALTER INDEX ALL ON [{tableName}] REORGANIZE";
-                if (async)
-                {
-                    await Database.ExecuteSqlRawAsync(alterIndexSql, cancelToken);
-                }
-                else
-                {
-                    Database.ExecuteSqlRaw(alterIndexSql);
-                }
-            }
-
-            if (cancelToken.IsCancellationRequested)
-            {
-                return 0;
-            }
-
             // Shrink database
             var shrinkSql = "DBCC SHRINKDATABASE(0)";
             return async
@@ -306,7 +266,22 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            var sql = OptimizeDatabaseSql(DatabaseName);
+            var sql = OptimizeDatabaseSql(DatabaseName, string.Empty);
+            return async
+                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+        {
+            if (!string.IsNullOrEmpty(tableName) && !IsObjectNameValid(tableName))
+            {
+                throw new ArgumentException("Invalid table name.", nameof(tableName));
+            }
+
+            var tableNameFilter = string.IsNullOrEmpty(tableName) ? string.Empty : $"AND t.name = '{tableName}'";
+
+            var sql = OptimizeDatabaseSql(DatabaseName, tableNameFilter);
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
@@ -409,6 +384,12 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             }
 
             return false;
+        }
+
+        private static bool IsObjectNameValid(string name)
+        {
+            // Prevent SQL injection attacks.
+            return string.IsNullOrEmpty(name) || name.All(char.IsLetterOrDigit);
         }
     }
 }
