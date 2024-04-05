@@ -228,26 +228,24 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Shrinks / compacts the database.
-        /// </summary>
-        /// <param name="onlyWhenFast">
-        /// If <c>true</c>, performs the shrink operation only if the underlying
-        /// data provider is capable of fast shrinking.
-        /// </param>
-        protected virtual Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
-
-        /// <summary>
         /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing tables.
+        /// After successful optimization, the database is shrunk to save space.
         /// </summary>
         protected virtual Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
         /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// After successful optimization, the database is shrunk to save space.
         /// </summary
         /// <param name="tableName">Name of table to optimize.</param>
         protected virtual Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Shrinks / compacts the database.
+        /// </summary>
+        protected virtual Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -572,26 +570,6 @@ namespace Smartstore.Data.Providers
             => GetDatabaseSizeCore(true);
 
         /// <summary>
-        /// Shrinks / compacts the database.
-        /// </summary>
-        /// <param name="onlyWhenFast">
-        /// If <c>true</c>, performs the shrink operation only if the underlying
-        /// data provider is capable of fast shrinking.
-        /// </param>
-        public int ShrinkDatabase(bool onlyWhenFast = true)
-            => ShrinkDatabaseCore(false, onlyWhenFast).Await();
-
-        /// <summary>
-        /// Shrinks / compacts the database.
-        /// </summary>
-        /// <param name="onlyWhenFast">
-        /// If <c>true</c>, performs the shrink operation only if the underlying
-        /// data provider is capable of fast shrinking.
-        /// </param>
-        public Task<int> ShrinkDatabaseAsync(bool onlyWhenFast = true, CancellationToken cancelToken = default)
-            => ShrinkDatabaseCore(true, onlyWhenFast, cancelToken);
-
-        /// <summary>
         /// Optimizes all table data and associated index data to reduce storage space and improve I/O efficiency.
         /// </summary>
         public int OptimizeDatabase()
@@ -616,6 +594,18 @@ namespace Smartstore.Data.Providers
         /// <param name="tableName">Name of table to optimize.</param>
         public Task<int> OptimizeTableAsync(string tableName, CancellationToken cancelToken = default)
             => OptimizeTableCore(tableName, true, cancelToken);
+
+        /// <summary>
+        /// Shrinks / compacts the database.
+        /// </summary>
+        public int ShrinkDatabase()
+            => ShrinkDatabaseCore(false).Await();
+
+        /// <summary>
+        /// Shrinks / compacts the database.
+        /// </summary>
+        public Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
+            => ShrinkDatabaseCore(true, cancelToken);
 
         /// <summary>
         /// Reads info/statistics about every public table in the database.

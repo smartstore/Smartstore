@@ -34,15 +34,10 @@ namespace Smartstore.Core.Logging
                 .ExecuteDeleteAsync(cancelToken);
 
             var dataProvider = _db.DataProvider;
-            if (numDeleted > 100 && dataProvider.CanShrink)
+            if (numDeleted > 100 && dataProvider.CanOptimizeTable)
             {
-                if (dataProvider.CanOptimizeTable)
-                {
-                    var logTableName = _db.Model.FindEntityType(typeof(Log)).GetTableName();
-                    await dataProvider.OptimizeTableAsync(logTableName, cancelToken);
-                }
-
-                await CommonHelper.TryAction(() => dataProvider.ShrinkDatabaseAsync(true, cancelToken));
+                var tableName = _db.Model.FindEntityType(typeof(Log)).GetTableName();
+                await CommonHelper.TryAction(() => dataProvider.OptimizeTableAsync(tableName, cancelToken));
             }
 
             return numDeleted;

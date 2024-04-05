@@ -289,6 +289,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LinkManufacturerLogoInLists",
                 "Link brand logo",
                 "Marken-Logo verlinken");
+
+            builder.AddOrUpdate("Common.OptimizeTableSuccessful",
+                "The database table '{0}' has been successfully optimized.",
+                "Die Datenbank-Tabelle '{0}' wurde erfolgreich optimiert.");
         }
     }
 }

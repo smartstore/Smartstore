@@ -157,22 +157,17 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            if (onlyWhenFast)
-            {
-                return Task.FromResult(0);
-            }
-
-            var sql = "VACUUM FULL";
+            var sql = $"REINDEX DATABASE \"{DatabaseName}\"";
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            var sql = $"REINDEX DATABASE \"{DatabaseName}\"";
+            var sql = "VACUUM FULL";
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));

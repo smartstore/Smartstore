@@ -250,20 +250,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override async Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
-        {
-            if (onlyWhenFast)
-            {
-                return 0;
-            }
-
-            // Shrink database
-            var shrinkSql = "DBCC SHRINKDATABASE(0)";
-            return async
-                ? await Database.ExecuteSqlRawAsync(shrinkSql, cancelToken)
-                : Database.ExecuteSqlRaw(shrinkSql);
-        }
-
         protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sql = OptimizeDatabaseSql(DatabaseName, string.Empty);
@@ -285,6 +271,14 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        {
+            var shrinkSql = "DBCC SHRINKDATABASE(0)";
+            return async
+                ? Database.ExecuteSqlRawAsync(shrinkSql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(shrinkSql));
         }
 
         protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
