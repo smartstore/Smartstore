@@ -192,15 +192,16 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 var combiner = HashCodeCombiner
                     .Start()
+                    .Add(Enabled)
+                    .Add(StoreId)
+                    .Add(ParentItemId)
+                    .Add(BundleItemId)
                     .Add(CustomerId)
                     .Add(ProductId)
                     .Add(RawAttributes)
-                    .Add(Quantity)
-                    .Add(ShoppingCartTypeId)
                     .Add(CustomerEnteredPrice)
-                    .Add(StoreId)
-                    .Add(ParentItemId)
-                    .Add(BundleItemId);
+                    .Add(Quantity)
+                    .Add(ShoppingCartTypeId);
 
                 _hashCode = combiner.CombinedHash;
             }

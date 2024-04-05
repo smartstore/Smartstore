@@ -4,8 +4,8 @@
 @model MiniShoppingCartModel
 
 @{
-    int descMaxLength = Model.ShowProductImages ? 100 : 140;
-    int attrMaxLength = Model.ShowProductImages ? 50 : 70;
+    var descMaxLength = Model.ShowProductImages ? 100 : 140;
+    var attrMaxLength = Model.ShowProductImages ? 50 : 70;
 
     var checkoutUrl = Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest
         ? Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") })
@@ -40,27 +40,23 @@
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
-                <div class="offcanvas-cart-item">
+                <div class="offcanvas-cart-item@(!item.Enabled && Model.AllowCartItemsToBeDisabled ? " offcanvas-cart-item-disabled" : string.Empty)">
                     <div class="row sm-gutters">
-
-                        <div sm-if="Model.ShowProductImages" class="col col-alpha">                            
+                        <div sm-if="Model.ShowProductImages" class="col col-image col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
                                 <img sm-model="item.Image" />
-                            </a>                            
+                            </a>
                         </div>
-
                         <div class="col col-data">
                             <a class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
 
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "…"))
                             </div>
-
                             <div sm-if="item.AttributeInfo.HasValue() || item.EssentialSpecAttributesInfo.HasValue()" class="cart-item-attrs small">
                                 @Html.Raw(item.EssentialSpecAttributesInfo)
                                 @Html.Raw(item.AttributeInfo)
                             </div>
-
                             <div sm-if="item.BundleItems.Any()" class="mb-bundle-pictures mt-3">
                                 @for (int j = 0, bundlelength = item.BundleItems.Count; j < bundlelength; j++)
                                 {
@@ -136,43 +132,53 @@
     <zone name="offcanvas_cart_items_after" />
 </div>
 
-<div sm-if="Model.TotalProducts > 0" class="offcanvas-cart-footer">
+<div sm-if="Model.TotalQuantity > 0" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
-        <div class="offcanvas-cart-footer-col mr-3">
-            <div>
-                <div class="sub-total-caption">
-                    @T("ShoppingCart.Totals.SubTotal"):
-                </div>
-                <div class="sub-total price">
-                    @Model.SubTotal
+        @if (Model.Items.Any(x => x.Enabled))
+        {
+            <div class="offcanvas-cart-footer-col mr-3">
+                <div>
+                    <div class="sub-total-caption">
+                        @T("ShoppingCart.Totals.SubTotal"):
+                    </div>
+                    <div class="sub-total price">
+                        @Model.SubTotal
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="offcanvas-cart-footer-col row gy-1 gx-2 flex-wrap">
-            @if (Model.DisplayCheckoutButton)
-            {
-                <div class="col">
-                    <a class="btn btn-success btn-flat btn-flat-light btn-block btn-action" asp-route="ShoppingCart">
-                        @T("ShoppingCart.Mini.ViewCart")
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl">
-                        <i class="fa fa-check"></i>
-                        <span>@T("Checkout.Button")</span>
-                    </a>
-                </div>
-            }
-            else
-            {
-                <div class="col">
-                    <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                        <i class="fa fa-check"></i>
-                        <span>@T("ShoppingCart.Mini.ViewCart")</span>
-                    </a>
-                </div>
-            }
-        </div>
+            <div class="offcanvas-cart-footer-col row gy-1 gx-2 flex-wrap">
+                @if (Model.DisplayCheckoutButton)
+                {
+                    <div class="col">
+                        <a class="btn btn-success btn-flat btn-flat-light btn-block btn-action" asp-route="ShoppingCart">
+                            @T("ShoppingCart.Mini.ViewCart")
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl">
+                            <i class="fa fa-check"></i>
+                            <span>@T("Checkout.Button")</span>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="col">
+                        <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
+                            <i class="fa fa-check"></i>
+                            <span>@T("ShoppingCart.Mini.ViewCart")</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
+                <i class="fa fa-check"></i>
+                <span>@T("ShoppingCart.Mini.ViewCart")</span>
+            </a>
+        }
     </div>
 
     <zone name="offcanvas_cart_footer_after" />

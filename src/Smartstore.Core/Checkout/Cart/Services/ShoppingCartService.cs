@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial class ShoppingCartService : IShoppingCartService
     {
-        // 0 = CustomerId, 1 = CartType, 2 = StoreId, 3 = Enabled.
+        // 0 = CustomerId, 1 = CartType, 2 = StoreId, 3 = Enabled items.
         const string CartItemsKey = "shoppingcartitems:{0}-{1}-{2}-{3}";
         const string CartItemsPatternKey = "shoppingcartitems:*";
 
@@ -350,7 +350,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var itemsToDelete = new List<ShoppingCartItem>(cart.Items.Select(x => x.Item));
 
-            // Delete child cart items.
+            // Add child items (like bundle items).
             foreach (var item in cart.Items)
             {
                 itemsToDelete.AddRange(item.ChildItems.Select(x => x.Item));
@@ -358,7 +358,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             _db.ShoppingCartItems.RemoveRange(itemsToDelete);
 
-            var num = await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 
@@ -372,23 +372,23 @@ namespace Smartstore.Core.Checkout.Cart
                 await RemoveInvalidCheckoutAttributesAsync(cart.Customer, cart.StoreId);
             }
 
-            return num;
+            return itemsToDelete.Count;
         }
 
         public virtual Task<ShoppingCart> GetCartAsync(
             Customer customer = null,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
             int storeId = 0,
-            bool? enabled = true)
+            bool? enabledItemsOnly = true)
         {
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, enabled);
+            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, enabledItemsOnly);
 
             var result = _requestCache.Get(cacheKey, async () =>
             {
                 await LoadCartItemCollection(customer);
-                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, enabled).ToList();
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, enabledItemsOnly).ToList();
 
                 // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part).
                 await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
@@ -403,6 +403,29 @@ namespace Smartstore.Core.Checkout.Cart
             });
 
             return result;
+        }
+
+        public virtual async Task<int> CountProductsInCartAsync(
+            Customer customer = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            int storeId = 0,
+            bool? enabledItems = true)
+        {
+            customer ??= _workContext.CurrentCustomer;
+
+            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, enabledItems);
+            var cart = _requestCache.Get<ShoppingCart>(cacheKey, null);
+            if (cart != null)
+            {
+                return cart.GetTotalQuantity();
+            }
+
+            await LoadCartItemCollection(customer);
+
+            return customer.ShoppingCartItems
+                .FilterByCartType(cartType, storeId, enabledItems)
+                .Where(x => x.ParentItemId == null)
+                .Sum(x => (int?)x.Quantity) ?? 0;
         }
 
         public virtual async Task<bool> MigrateCartAsync(Customer fromCustomer, Customer toCustomer)
@@ -629,9 +652,8 @@ namespace Smartstore.Core.Checkout.Cart
             // Bundle items that require merging of attribute combinations.
             var mergeRequiringItems = new List<ShoppingCartItem>();
             var childItemsMap = items.ToMultimap(x => x.ParentItemId ?? 0, x => x);
-            var orderedItems = items.Where(x => x.ParentItemId == null).ApplyDefaultSorting();
 
-            foreach (var parent in orderedItems)
+            foreach (var parent in items.Where(x => x.ParentItemId == null).OrderBy(x => x.Id))
             {
                 var parentItem = new OrganizedShoppingCartItem(parent);
 

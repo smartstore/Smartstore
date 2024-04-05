@@ -92,36 +92,47 @@ namespace Smartstore.Web.Models.Cart
 
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
+            var currency = _services.WorkContext.WorkingCurrency;
+            var taxFormat = _taxService.GetTaxFormat();
 
+            to.AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled;
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart;
             to.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
             to.CurrentCustomerIsGuest = customer.IsGuest();
             to.AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.ShowBasePrice = _shoppingCartSettings.ShowBasePrice;
-            to.TotalProducts = from.GetTotalQuantity();
+            to.TotalQuantity = from.GetTotalQuantity();
 
             if (!from.HasItems)
             {
                 return;
             }
 
-            var taxFormat = _taxService.GetTaxFormat();
-            var batchContext = _productService.CreateProductBatchContext(from.Items.Select(x => x.Item.Product).ToArray(), null, customer, false);
-
+            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, customer, false);
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
+            var subtotalAmount = 0m;
 
-            var currency = _services.WorkContext.WorkingCurrency;
-            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
-            to.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat);
+            if (from.Items.Any(x => !x.Item.Enabled))
+            {
+                // Exclude disabled cart items from subtotal calculation.
+                var enabledItemsSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(new(from, from.Items.Where(x => x.Item.Enabled)), null, batchContext);
+                subtotalAmount = enabledItemsSubtotal.SubtotalWithoutDiscount.Amount;
+            }
+            else
+            {
+                subtotalAmount = subtotal.SubtotalWithoutDiscount.Amount;
+            }
+
+            to.SubTotal = _currencyService.ConvertFromPrimaryCurrency(subtotalAmount, currency).WithPostFormat(taxFormat);
 
             // A customer should visit the shopping cart page before going to checkout if:
-            // 1. There is at least one checkout attribute that is reqired
-            // 2. Min order sub total is OK
-
+            // 1. There is at least one checkout attribute that is reqired.
+            // 2. Min order sub total is OK.
+            // 3. The cart contains at least one enabled item.
             var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
-            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
+            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Item.Enabled);
 
             // Products sort descending (recently added products).
             foreach (var cartItem in from.Items)
@@ -140,6 +151,7 @@ namespace Smartstore.Web.Models.Cart
                 var cartItemModel = new MiniShoppingCartModel.ShoppingCartItemModel
                 {
                     Id = item.Id,
+                    Enabled = item.Enabled,
                     ProductId = product.Id,
                     ProductName = product.GetLocalized(x => x.Name),
                     ShortDesc = product.GetLocalized(x => x.ShortDescription),

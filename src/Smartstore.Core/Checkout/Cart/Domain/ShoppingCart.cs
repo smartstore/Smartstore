@@ -18,6 +18,17 @@ namespace Smartstore.Core.Checkout.Cart
             StoreId = storeId;
         }
 
+        public ShoppingCart(ShoppingCart other, IEnumerable<OrganizedShoppingCartItem> items = null)
+        {
+            Guard.NotNull(other);
+
+            Customer = other.Customer;
+            Items = items?.ToArray() ?? other.Items;
+            StoreId = other.StoreId;
+            CartType = other.CartType;
+            Requirements = other.Requirements;
+        }
+
         /// <summary>
         /// Array of cart items.
         /// </summary>
@@ -28,12 +39,6 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool HasItems
             => Items.Length > 0;
-
-        /// <summary>
-        /// Gets the number of cart items, taking into account the product quantity.
-        /// </summary>
-        public int GetNumberOfItems()
-            => Items.Where(x => x.Item.ParentItemId == null).Sum(x => (int?)x.Item.Quantity) ?? 0;
 
         /// <summary>
         /// Shopping cart type.

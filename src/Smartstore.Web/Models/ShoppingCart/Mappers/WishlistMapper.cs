@@ -81,12 +81,7 @@ namespace Smartstore.Web.Models.Cart
                 to.Warnings.AddRange(warnings);
             }
 
-            var allProducts = from.Items
-                .Select(x => x.Item.Product)
-                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
-
-            var batchContext = _productService.CreateProductBatchContext(allProducts, null, from.Customer, false);
+            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, from.Customer, false);
 
             dynamic itemParameters = new GracefulDynamicObject();
             itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);

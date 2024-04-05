@@ -65,13 +65,35 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
-        /// <param name="enabled">A value indicating whether to load enabled or disabled items. <c>null</c> to load all items.</param>
+        /// <param name="enabledItemsOnly">
+        /// A value indicating whether to load enabled, disabled or all items.
+        /// <c>true</c> to only load enabled items (default). <c>null</c> to load all items (such as on the shopping cart page).
+        /// </param>
         /// <returns>Shopping cart.</returns>
         Task<ShoppingCart> GetCartAsync(
             Customer customer = null,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
             int storeId = 0, 
-            bool? enabled = true);
+            bool? enabledItemsOnly = true);
+
+        /// <summary>
+        /// Gets the total number of products in a shopping cart.
+        /// This method has a performance benefit over <see cref="GetCartAsync(Customer, ShoppingCartType, int, bool?)" />:
+        /// if the cart is cached, the number is determined from this, otherwise it is counted without the payload of loading and processing the entire cart.
+        /// </summary>
+        /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <param name="enabledItems">
+        /// A value indicating whether to load enabled, disabled or all items.
+        /// <c>true</c> to only load enabled items (default). <c>null</c> to load all items (such as on the shopping cart page).
+        /// </param>
+        /// <returns>Number of items in a shopping cart.</returns>
+        Task<int> CountProductsInCartAsync(
+            Customer customer = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            int storeId = 0,
+            bool? enabledItems = true);
 
         /// <summary>
         /// Migrates all cart items from one to another customer async.

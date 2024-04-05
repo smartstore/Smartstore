@@ -11,7 +11,7 @@
         data-subtotal-converted="@RoundingHelper.Round(Model.SubTotal).ToStringInvariant()"
         data-subtotal="@(Model.CartSubtotal != null ? RoundingHelper.Round(Model.CartSubtotal.SubtotalWithoutDiscount).ToStringInvariant() : string.Empty)">
         <td class="cart-summary-label">
-            @Html.Raw(Model.AllowCartItemsToBeDisabled ? T("ShoppingCart.Totals.SubTotalSelectedProducts", Model.NumberOfCartItems) : T("ShoppingCart.Totals.SubTotal")):
+            @Html.Raw(Model.AllowCartItemsToBeDisabled ? T("ShoppingCart.Totals.SubTotalSelectedProducts", Model.TotalQuantity) : T("ShoppingCart.Totals.SubTotal")):
         </td>
         <td class="cart-summary-value">@Model.SubTotal</td>
     </tr>

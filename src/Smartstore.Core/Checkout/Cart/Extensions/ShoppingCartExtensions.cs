@@ -12,7 +12,20 @@ namespace Smartstore.Core.Checkout.Cart
         {
             Guard.NotNull(cart);
 
-            return cart.Items.Sum(x => x.Item.Quantity);
+            return cart.Items.Where(x => x.Item.ParentItemId == null).Sum(x => (int?)x.Item.Quantity) ?? 0;
+        }
+
+        /// <summary>
+        /// Gets all products in cart, including those of bundle items.
+        /// </summary>
+        public static Product[] GetAllProducts(this ShoppingCart cart)
+        {
+            Guard.NotNull(cart);
+
+            return cart.Items
+                .Select(x => x.Item.Product)
+                .Union(cart.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
+                .ToArray();
         }
 
         /// <summary>

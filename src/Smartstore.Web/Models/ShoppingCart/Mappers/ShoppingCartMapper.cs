@@ -407,12 +407,7 @@ namespace Smartstore.Web.Models.Cart
 
             #region Cart items
 
-            var allProducts = from.Items
-                .Select(x => x.Item.Product)
-                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
-
-            var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
+            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, customer, false);
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new GracefulDynamicObject();

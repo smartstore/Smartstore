@@ -7,7 +7,7 @@
     {
         /// <summary>
         /// Returns a filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>
-        /// and sorts by <see cref="ShoppingCartItem.Enabled"/> descending, then by <see cref="BaseEntity.Id"/> descending.
+        /// and sorts by <see cref="BaseEntity.Id"/> ascending.
         /// </summary>
         /// <param name="cart">The cart collection the filter gets applied on.</param>
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
@@ -41,17 +41,7 @@
                     : items.Where(x => x.ParentItemId == null);
             }
 
-            return items.ApplyDefaultSorting();
-        }
-
-        /// <summary>
-        /// Sorts by <see cref="ShoppingCartItem.Enabled"/> descending, then by <see cref="BaseEntity.Id"/> descending.
-        /// </summary>
-        public static IOrderedEnumerable<ShoppingCartItem> ApplyDefaultSorting(this IEnumerable<ShoppingCartItem> items)
-        {
-            return items
-                .OrderByDescending(x => x.Enabled)
-                .ThenBy(x => x.Id);
+            return items.OrderBy(x => x.Id);
         }
     }
 }

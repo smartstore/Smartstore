@@ -568,17 +568,12 @@ namespace Smartstore.Core.Checkout.Orders
             var subtotalWithoutDiscountNet = 0m;
             var subtotalWithoutDiscountGross = 0m;
 
-            batchContext ??= _productService.CreateProductBatchContext(cart.Items.Select(x => x.Item.Product).ToArray(), null, customer, false);
+            batchContext ??= _productService.CreateProductBatchContext(cart.GetAllProducts(), null, customer, false);
 
             var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
 
-            foreach (var cartItem in cart.Items)
+            foreach (var cartItem in cart.Items.Where(x => x.Item.Product != null))
             {
-                if (cartItem.Item.Product == null)
-                {
-                    continue;
-                }
-
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 

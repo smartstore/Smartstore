@@ -6,7 +6,7 @@ namespace Smartstore.Web.Models.Cart
     {
         public bool IsEditable { get; set; }
         public bool AllowCartItemsToBeDisabled { get; set; }
-        public int NumberOfCartItems { get; set; }
+        public int TotalQuantity { get; set; }
 
         public Money SubTotal { get; set; }
         public Money? SubTotalDiscount { get; set; }

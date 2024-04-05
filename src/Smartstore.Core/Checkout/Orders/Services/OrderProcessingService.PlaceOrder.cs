@@ -139,11 +139,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (paymentRequest.ShoppingCartItemIds.Count > 0)
                 {
-                    cart = new ShoppingCart(cart.Customer, cart.StoreId, cart.Items.Where(x => paymentRequest.ShoppingCartItemIds.Contains(x.Item.Id)))
-                    {
-                        CartType = cart.CartType,
-                        Requirements = cart.Requirements
-                    };
+                    cart = new ShoppingCart(cart, cart.Items.Where(x => paymentRequest.ShoppingCartItemIds.Contains(x.Item.Id)));
                 }
 
                 if (!cart.HasItems)

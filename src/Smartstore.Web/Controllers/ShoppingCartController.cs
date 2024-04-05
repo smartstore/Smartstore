@@ -104,35 +104,15 @@ namespace Smartstore.Web.Controllers
         {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
-            var cartEnabled = cart && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled;
-            var wishlistEnabled = wishlist && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
+            var cartEnabled = cart && _shoppingCartSettings.MiniShoppingCartEnabled && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart, customer);
+            var wishlistEnabled = wishlist && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist, customer);
             var compareEnabled = compare && _catalogSettings.CompareProductsEnabled;
-            var cartItemsCount = 0;
-            var wishlistItemsCount = 0;
-            var compareItemsCount = 0;
-
-            if (cartEnabled)
-            {
-                var shoppingCart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                cartItemsCount = shoppingCart.GetNumberOfItems();
-            }
-
-            if (wishlistEnabled)
-            {
-                var customerWishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, store.Id);
-                wishlistItemsCount = customerWishlist.GetNumberOfItems();
-            }
-
-            if (compareEnabled)
-            {
-                compareItemsCount = await _productCompareService.CountComparedProductsAsync();
-            }
 
             return Json(new
             {
-                CartItemsCount = cartItemsCount,
-                WishlistItemsCount = wishlistItemsCount,
-                CompareItemsCount = compareItemsCount
+                CartItemsCount = cartEnabled ? await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id, null) : 0,
+                WishlistItemsCount = wishlistEnabled ? await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.Wishlist, store.Id) : 0,
+                CompareItemsCount = compareEnabled ? await _productCompareService.CountComparedProductsAsync() : 0
             });
         }
 
@@ -145,9 +125,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(
-                storeId: Services.StoreContext.CurrentStore.Id,
-                enabled: _shoppingCartSettings.AllowCartItemsToBeDisabled ? null : true);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabledItemsOnly: null);
 
             // Allow to fill checkout attributes with values from query string.
             if (query.CheckoutAttributes.Count > 0)
@@ -244,20 +222,13 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> OffCanvasShoppingCart()
         {
-            if (!_shoppingCartSettings.MiniShoppingCartEnabled)
+            if (!_shoppingCartSettings.MiniShoppingCartEnabled
+                || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
             {
                 return Content(string.Empty);
             }
 
-            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
-            {
-                return Content(string.Empty);
-            }
-
-            var customer = Services.WorkContext.CurrentCustomer;
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabledItemsOnly: null);
             var model = new MiniShoppingCartModel();
             await cart.MapAsync(model);
 
@@ -268,7 +239,6 @@ namespace Smartstore.Web.Controllers
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var storeId = Services.StoreContext.CurrentStore.Id;
-
             var wishlist = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.Wishlist, storeId);
 
             var model = new WishlistModel();
@@ -333,7 +303,6 @@ namespace Smartstore.Web.Controllers
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
-            var enabledItemsOnly = _shoppingCartSettings.AllowCartItemsToBeDisabled ? (bool?)null : true;
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
             var itemSelectionHtml = string.Empty;
@@ -344,7 +313,7 @@ namespace Smartstore.Web.Controllers
 
             if (delete)
             {
-                var currentCart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, enabledItemsOnly);
+                var currentCart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
                 var item = currentCart.Items.FirstOrDefault(x => x.Item.Id == model.CartItemId);
 
                 if (item == null)
@@ -372,7 +341,7 @@ namespace Smartstore.Web.Controllers
                 success = warnings.Count == 0;
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, enabledItemsOnly);
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
             var checkoutAllowed = cart.HasItems && (cart.Items.Any(x => x.Item.Enabled) || !_shoppingCartSettings.AllowCartItemsToBeDisabled);
 
             if (model.IsCartPage || delete)
@@ -402,10 +371,12 @@ namespace Smartstore.Web.Controllers
 
             if (!delete)
             {
-                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(
+                    cart.Items.Any(x => !x.Item.Enabled) ? new(cart, cart.Items.Where(x => x.Item.Enabled)) : cart);
+
                 var currency = Services.WorkContext.WorkingCurrency;
                 var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, currency);
-             
+
                 subtotal = subtotalWithoutDiscount.WithPostFormat(_taxService.GetTaxFormat());
             }
 
