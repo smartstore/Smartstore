@@ -15,12 +15,12 @@ namespace Smartstore.Web.Models.Cart
         public bool RequiresShipping { get; set; }
         public string SelectedShippingMethod { get; set; }
         public Money? PaymentMethodAdditionalFee { get; set; }
-        public string Tax { get; set; }
-        public List<TaxRate> TaxRates { get; set; } = new();
+        public Money Tax { get; set; }
+        public List<TaxRate> TaxRates { get; set; } = [];
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
         public bool DisplayWeight { get; set; }
-        public List<GiftCard> GiftCards { get; set; } = new();
+        public List<GiftCard> GiftCards { get; set; } = [];
         public Money OrderTotalDiscount { get; set; }
         public bool AllowRemovingOrderTotalDiscount { get; set; }
         public int RedeemedRewardPoints { get; set; }

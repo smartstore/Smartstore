@@ -144,10 +144,10 @@ namespace Smartstore.Web.Components
             }
             else
             {
-                (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
-                var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
+                (Money tax, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                model.Tax = _currencyService.ConvertFromPrimaryCurrency(tax.Amount, currency);
 
-                if (price == decimal.Zero && _taxSettings.HideZeroTax)
+                if (tax == decimal.Zero && _taxSettings.HideZeroTax)
                 {
                     displayTax = false;
                     displayTaxRates = false;
@@ -156,7 +156,6 @@ namespace Smartstore.Web.Components
                 {
                     displayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Count > 0;
                     displayTax = !displayTaxRates;
-                    model.Tax = cartTax.ToString(true);
 
                     foreach (var taxRate in taxRates)
                     {

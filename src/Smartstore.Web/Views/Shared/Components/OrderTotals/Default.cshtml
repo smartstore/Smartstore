@@ -77,7 +77,7 @@
     }
     <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Tax"):</td>
-        <td class="cart-summary-value">@Model.Tax</td>
+        <td class="cart-summary-value">@Model.Tax.ToString(true)</td>
     </tr>
     <tr sm-if="Model.OrderTotalDiscount != decimal.Zero" class="cart-summary-totaldiscount cart-summary-pos">
         <td class="cart-summary-label">
