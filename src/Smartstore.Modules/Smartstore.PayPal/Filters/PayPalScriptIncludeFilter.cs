@@ -50,7 +50,6 @@ namespace Smartstore.PayPal.Filters
             _client = client;
             _cookieConsentManager = cookieConsentManager;
             _pageAssetBuilder = pageAssetBuilder;
-            
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;

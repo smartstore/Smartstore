@@ -68,10 +68,7 @@
             <li id="navtool-help" class="nav-item dropdown d-none d-md-block">
                 <a class="nav-link dropdown-toggle navbar-tool" href="javascript:;" title='@T("Admin.Help")' data-toggle="dropdown">
                     <i class="icm icm-bubble-question navbar-icon"></i>
-                    @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
-                    {
-                        <span class="reddot" style="top: 25px; right: 7px"></span>
-                    }
+                    <span sm-if="checkUpdateResult != null && checkUpdateResult.UpdateAvailable" class="reddot" style="top: 25px; right: 7px"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)

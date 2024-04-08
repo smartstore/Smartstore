@@ -9,7 +9,6 @@
     var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
-
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
