@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
-    [Index(nameof(Enabled), Name = "IX_CartItemEnabled")]
+    [Index(nameof(Active), Name = "IX_CartItemActive")]
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware, IEquatable<ShoppingCartItem>
     {
         private ProductVariantAttributeSelection _attributeSelection;
@@ -21,10 +21,14 @@ namespace Smartstore.Core.Checkout.Cart
         private int? _hashCode;
 
         /// <summary>
-        /// A value indicating whether the item is enabled.
-        /// Disabled items are excluded from order and remain in the shopping cart.
+        /// A value indicating whether the cart item is active.
+        /// Deactivated items are not ordered and remain in the shopping cart after the order is placed.
         /// </summary>
-        public bool Enabled { get; set; } = true;
+        /// <remarks>
+        /// Deactivated items are always displayed in the shopping cart/mini shopping cart (so that they can be deleted at any time)
+        /// and also the counter for cart items always takes them into account.
+        /// </remarks>
+        public bool Active { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the store identifier
@@ -192,7 +196,7 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 var combiner = HashCodeCombiner
                     .Start()
-                    .Add(Enabled)
+                    .Add(Active)
                     .Add(StoreId)
                     .Add(ParentItemId)
                     .Add(BundleItemId)

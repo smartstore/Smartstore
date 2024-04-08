@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Cart
         public abstract IEnumerable<CartEntityModelBase> Items { get; }
         public List<string> Warnings { get; set; } = [];
 
-        public bool AllowCartItemsToBeDisabled { get; set; }
+        public bool AllowToDeactivateCartItems { get; set; }
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public bool IsEditable { get; set; }
@@ -26,7 +26,7 @@ namespace Smartstore.Web.Models.Cart
     {
         public List<string> Warnings { get; set; } = [];
 
-        public bool Enabled { get; set; } = true;
+        public bool Active { get; set; } = true;
         public int ProductId { get; set; }
         public LocalizedValue<string> ProductName { get; set; }
         public string ProductSeName { get; set; }

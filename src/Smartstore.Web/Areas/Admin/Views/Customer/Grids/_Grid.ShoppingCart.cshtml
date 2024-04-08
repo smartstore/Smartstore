@@ -12,7 +12,7 @@
                 @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
             </display-template>
         </column>
-        <column for="Enabled" halign="center" />
+        <column for="Active" halign="center" />
         <column for="Quantity" halign="center" />
         <column for="UnitPrice" halign="right" />
         <column for="Total" halign="right" />
@@ -27,7 +27,7 @@
 <script sm-target-zone="scripts" data-origin="current-shoppingcart-grid">
     function currentShoppingCartGrid_onRowClass(row) {
         return {
-            "text-muted": !row.Enabled
+            "text-muted": !row.Active
         };
     }
 </script>

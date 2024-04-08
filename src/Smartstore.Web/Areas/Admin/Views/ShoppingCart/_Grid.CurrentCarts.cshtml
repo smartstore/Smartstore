@@ -12,14 +12,14 @@
     var totalString = T("Admin.CurrentCarts.Total");
 
     var additionalOptions = string.Empty;
-    var enabledColumn =  string.Empty;
+    var activeColumn =  string.Empty;
     var storeColumn = string.Empty;
 
     if (parentModel.CartType == ShoppingCartType.ShoppingCart)
     {
-        var enabledString = T("Common.Enabled");
+        var activeString = T("Common.Active");
         additionalOptions = ", onRowClass: 'currentCartGrid_onRowClass'";
-        enabledColumn = $"{{ member: 'Enabled', name: '{enabledString}', visible: true, halign: 'center', type: 'boolean', title: '{enabledString}' }},";
+        activeColumn = $"{{ member: 'Active', name: '{activeString}', visible: true, halign: 'center', type: 'boolean', title: '{activeString}' }},";
     }
 
     if (stores.Count > 1)
@@ -65,7 +65,7 @@
                          :data-source="{ read: '@Url.Action("CurrentCartDetailsList")?customerId=' + item.row.CustomerId + '&cartType=@parentModel.CartType' }"
                          :columns="[
                             { member: 'ProductName', name: '@productString', visible: true, title: '@productString' },
-                            @enabledColumn
+                            @activeColumn
                             { member: 'Quantity', name: 'Quantity', visible: true, halign: 'center', type: 'int', title: '@quantityString' },
                             { member: 'UnitPrice', name: '@unitPriceString', visible: true, halign: 'right', title: '@unitPriceString' },
                             { member: 'Total', name: '@totalString', visible: true, halign: 'right', title: '@totalString' },
@@ -84,7 +84,7 @@
 <script sm-target-zone="scripts" data-origin="current-carts-grid">
     function currentCartGrid_onRowClass(row) {
         return {
-            "text-muted": !row.Enabled
+            "text-muted": !row.Active
         };
     }
 </script>

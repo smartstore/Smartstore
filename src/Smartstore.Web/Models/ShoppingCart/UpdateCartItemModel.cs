@@ -24,16 +24,16 @@ namespace Smartstore.Web.Models.Cart
         public bool IsWishlist { get; set; }
 
         /// <summary>
-        /// A value indicating whether the cart item is enabled.
+        /// A value indicating whether the cart item is active.
         /// </summary>
-        [JsonProperty("enabled")]
-        public bool? Enabled { get; set; }
+        [JsonProperty("active")]
+        public bool? Active { get; set; }
 
         /// <summary>
-        /// A value indicating whether to enable/disable all cart items.
+        /// A value indicating whether to activate all cart items.
         /// </summary>
-        [JsonProperty("enableAll")]
-        public bool? EnableAll { get; set; }
+        [JsonProperty("activateAll")]
+        public bool? ActivateAll { get; set; }
 
         /// <summary>
         /// The new cart item quantity.

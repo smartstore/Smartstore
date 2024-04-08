@@ -6,28 +6,28 @@ using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Migrations
 {
-    [MigrationVersion("2024-03-29 18:00:00", "Core: cart item enabled")]
-    internal class CartItemEnabled : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
+    [MigrationVersion("2024-03-29 18:00:00", "Core: cart item active")]
+    internal class CartItemActive : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string CartItemTableName = nameof(ShoppingCartItem);
-        const string EnabledColumn = nameof(ShoppingCartItem.Enabled);
-        const string EnabledIndex = "IX_CartItemEnabled";
+        const string ActiveColumn = nameof(ShoppingCartItem.Active);
+        const string ActiveIndex = "IX_CartItemActive";
 
         public DataSeederStage Stage => DataSeederStage.Early;
         public bool AbortOnFailure => false;
 
         public override void Up()
         {
-            if (!Schema.Table(CartItemTableName).Column(EnabledColumn).Exists())
+            if (!Schema.Table(CartItemTableName).Column(ActiveColumn).Exists())
             {
-                Create.Column(EnabledColumn).OnTable(CartItemTableName).AsBoolean().NotNullable().WithDefaultValue(true);
+                Create.Column(ActiveColumn).OnTable(CartItemTableName).AsBoolean().NotNullable().WithDefaultValue(true);
             }
 
-            if (!Schema.Table(CartItemTableName).Index(EnabledIndex).Exists())
+            if (!Schema.Table(CartItemTableName).Index(ActiveIndex).Exists())
             {
-                Create.Index(EnabledIndex)
+                Create.Index(ActiveIndex)
                     .OnTable(CartItemTableName)
-                    .OnColumn(EnabledColumn)
+                    .OnColumn(ActiveColumn)
                     .Ascending()
                     .WithOptions()
                     .NonClustered();
@@ -38,14 +38,14 @@ namespace Smartstore.Core.Migrations
         {
             var table = Schema.Table(CartItemTableName);
 
-            if (table.Index(EnabledIndex).Exists())
+            if (table.Index(ActiveIndex).Exists())
             {
-                Delete.Index(EnabledIndex).OnTable(CartItemTableName);
+                Delete.Index(ActiveIndex).OnTable(CartItemTableName);
             }
 
-            if (table.Column(EnabledColumn).Exists())
+            if (table.Column(ActiveColumn).Exists())
             {
-                Delete.Column(EnabledColumn).FromTable(CartItemTableName);
+                Delete.Column(ActiveColumn).FromTable(CartItemTableName);
             }
         }
 
@@ -58,11 +58,11 @@ namespace Smartstore.Core.Migrations
         {
             const string cartSelectionLink = "<a href=\"{{0}}\" class=\"{1}\" rel=\"nofollow\">{0}</a>.";
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowCartItemsToBeDisabled",
-                "Shopping cart items can be deactivated",
-                "Warenkorbartikel können deaktiviert werden",
-                "Specifies whether shopping cart items can be deactivated. Deactivated items are not ordered and remain in the shopping cart after the order is received.",
-                "Legt fest, ob Warenkorbartikel deaktiviert werden können. Deaktivierte Artikel werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowToDeactivateCartItems",
+                "Products in shopping cart can be deactivated",
+                "Produkte im Warenkorb können deaktiviert werden",
+                "Specifies whether products in the shopping cart can be deactivated. Deactivated products are not ordered and remain in the shopping cart after the order is placed.",
+                "Legt fest, ob Produkte im Warenkorb deaktiviert werden können. Deaktivierte Produkte werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
 
             builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",
                 "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),

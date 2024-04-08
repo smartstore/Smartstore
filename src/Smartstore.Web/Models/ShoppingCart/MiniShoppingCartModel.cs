@@ -14,7 +14,6 @@ namespace Smartstore.Web.Models.Cart
         public bool DisplayCheckoutButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
         public bool AnonymousCheckoutAllowed { get; set; }
-        public bool AllowCartItemsToBeDisabled { get; set; }
         public bool ShowProductImages { get; set; }
         public int ThumbSize { get; set; }
         public bool DisplayMoveToWishlistButton { get; set; }
@@ -22,7 +21,7 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class ShoppingCartItemModel : EntityModelBase, IQuantityInput
         {
-            public bool Enabled { get; set; }
+            public bool Active { get; set; }
             public int ProductId { get; set; }
 
             public LocalizedValue<string> ProductName { get; set; }

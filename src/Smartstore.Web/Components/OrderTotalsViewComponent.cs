@@ -70,7 +70,6 @@ namespace Smartstore.Web.Components
             var model = new OrderTotalsModel
             {
                 IsEditable = isEditable,
-                AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled,
                 TotalQuantity = cart.GetTotalQuantity()
             };
 
@@ -101,6 +100,12 @@ namespace Smartstore.Web.Components
                     && cartSubTotal.AppliedDiscount.RequiresCouponCode
                     && cartSubTotal.AppliedDiscount.CouponCode.HasValue()
                     && model.IsEditable;
+            }
+
+            model.SubtotalLabel = _shoppingCartSettings.AllowToDeactivateCartItems ? T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity) : null;
+            if (model.SubtotalLabel.IsEmpty())
+            {
+                model.SubtotalLabel = T("ShoppingCart.Totals.SubTotal");
             }
 
             // Shipping info

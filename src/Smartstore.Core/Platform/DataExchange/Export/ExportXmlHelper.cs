@@ -581,7 +581,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             }
 
             _writer.WriteElementString(nameof(ShoppingCartItem.Id), entity.Id.ToString());
-            _writer.WriteElementString(nameof(ShoppingCartItem.Enabled), entity.Enabled.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.Active), entity.Active.ToString());
             _writer.WriteElementString(nameof(ShoppingCartItem.StoreId), entity.StoreId.ToString());
             _writer.WriteElementString(nameof(ShoppingCartItem.ParentItemId), entity.ParentItemId?.ToString() ?? string.Empty);
             _writer.WriteElementString(nameof(ShoppingCartItem.BundleItemId), entity.BundleItemId?.ToString() ?? string.Empty);

@@ -27,9 +27,9 @@ namespace Smartstore.Core.Checkout.Cart
         public int MaximumWishlistItems { get; set; } = 1000;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the customer can enable/disable cart items.
+        /// Gets or sets a value indicating whether the customer can deactivate cart items.
         /// </summary>
-        public bool AllowCartItemsToBeDisabled { get; set; } = true;
+        public bool AllowToDeactivateCartItems { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to allow out of stock items to be added to the wishlist

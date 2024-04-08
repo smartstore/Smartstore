@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Cart
         public static Task<decimal> GetOpenCartTypeSubTotalAsync(this IQueryable<ShoppingCartItem> query, ShoppingCartType cartType = ShoppingCartType.ShoppingCart)
         {
             return query
-                .Where(x => x.ShoppingCartTypeId == (int)cartType && x.Product != null && x.Enabled)
+                .Where(x => x.ShoppingCartTypeId == (int)cartType && x.Product != null && x.Active)
                 .SumAsync(x => (decimal?)(x.Product.Price * x.Quantity) ?? decimal.Zero);
         }
     }

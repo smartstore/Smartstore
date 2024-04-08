@@ -125,7 +125,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabledItemsOnly: null);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
 
             // Allow to fill checkout attributes with values from query string.
             if (query.CheckoutAttributes.Count > 0)
@@ -228,7 +228,7 @@ namespace Smartstore.Web.Controllers
                 return Content(string.Empty);
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, enabledItemsOnly: null);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
             var model = new MiniShoppingCartModel();
             await cart.MapAsync(model);
 
@@ -328,21 +328,21 @@ namespace Smartstore.Web.Controllers
                 await _shoppingCartService.DeleteCartItemAsync(item.Item, true, true);
                 message = T("ShoppingCart.DeleteCartItem.Success");
             }
-            else if (model.EnableAll.HasValue)
+            else if (model.ActivateAll.HasValue)
             {
                 customer.ShoppingCartItems
                     .FilterByCartType(cartType, store.Id, null, false)
-                    .Each(x => x.Enabled = model.EnableAll.Value);
+                    .Each(x => x.Active = model.ActivateAll.Value);
             }
             else
             {
-                var warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.CartItemId, model.NewQuantity, model.Enabled);
+                var warnings = await _shoppingCartService.UpdateCartItemAsync(customer, model.CartItemId, model.NewQuantity, model.Active);
                 message = string.Join(". ", warnings.Take(3));
                 success = warnings.Count == 0;
             }
 
             var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
-            var checkoutAllowed = cart.HasItems && (cart.Items.Any(x => x.Item.Enabled) || !_shoppingCartSettings.AllowCartItemsToBeDisabled);
+            var checkoutAllowed = cart.Items.Any(x => x.Item.Active);
 
             if (model.IsCartPage || delete)
             {
@@ -372,7 +372,7 @@ namespace Smartstore.Web.Controllers
             if (!delete)
             {
                 var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(
-                    cart.Items.Any(x => !x.Item.Enabled) ? new(cart, cart.Items.Where(x => x.Item.Enabled)) : cart);
+                    cart.Items.Any(x => !x.Item.Active) ? new(cart, cart.Items.Where(x => x.Item.Active)) : cart);
 
                 var currency = Services.WorkContext.WorkingCurrency;
                 var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, currency);
@@ -1228,17 +1228,17 @@ namespace Smartstore.Web.Controllers
 
         private string GetCartItemSelectionLink(ShoppingCart cart)
         {
-            if (_shoppingCartSettings.AllowCartItemsToBeDisabled && cart.HasItems)
+            if (_shoppingCartSettings.AllowToDeactivateCartItems && cart.HasItems)
             {
-                var enableAll = true;
+                var activateAll = true;
                 string resKey = null;
 
-                if (cart.Items.All(x => x.Item.Enabled))
+                if (cart.Items.All(x => x.Item.Active))
                 {
-                    enableAll = false;
+                    activateAll = false;
                     resKey = "ShoppingCart.DeselectAllProducts";
                 }
-                else if (!cart.Items.Any(x => x.Item.Enabled))
+                else if (!cart.Items.Any(x => x.Item.Active))
                 {
                     resKey = "ShoppingCart.NoProductsSelectedSelectAll";
                 }
@@ -1247,7 +1247,7 @@ namespace Smartstore.Web.Controllers
                     resKey = "ShoppingCart.SelectAllProducts";
                 }
 
-                return T(resKey, Url.Action(nameof(UpdateCartItem), "ShoppingCart", new { enableAll }));
+                return T(resKey, Url.Action(nameof(UpdateCartItem), "ShoppingCart", new { activateAll }));
             }
 
             return string.Empty;

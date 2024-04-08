@@ -127,7 +127,7 @@
     }
 }
 
-.offcanvas-cart-item-disabled {
+.offcanvas-cart-item-deactivated {
     .col-image, .col-data {
         opacity: 0.5;
     }
@@ -279,7 +279,7 @@
     }
 }
 
-.cart-item-disabled {
+.cart-item-deactivated {
     .cart-item-img,
     .cart-item-data > :not(.cart-item-actions) {
         opacity: 0.5;

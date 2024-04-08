@@ -40,7 +40,7 @@
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
-                <div class="offcanvas-cart-item@(!item.Enabled && Model.AllowCartItemsToBeDisabled ? " offcanvas-cart-item-disabled" : string.Empty)">
+                <div class="offcanvas-cart-item@(!item.Active ? " offcanvas-cart-item-deactivated" : string.Empty)">
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-image col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
@@ -134,7 +134,7 @@
 
 <div sm-if="Model.TotalQuantity > 0" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
-        @if (Model.Items.Any(x => x.Enabled))
+        @if (Model.Items.Any(x => x.Active))
         {
             <div class="offcanvas-cart-footer-col mr-3">
                 <div>

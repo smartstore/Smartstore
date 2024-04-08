@@ -95,7 +95,6 @@ namespace Smartstore.Web.Models.Cart
             var currency = _services.WorkContext.WorkingCurrency;
             var taxFormat = _taxService.GetTaxFormat();
 
-            to.AllowCartItemsToBeDisabled = _shoppingCartSettings.AllowCartItemsToBeDisabled;
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart;
             to.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
             to.CurrentCustomerIsGuest = customer.IsGuest();
@@ -114,11 +113,11 @@ namespace Smartstore.Web.Models.Cart
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
             var subtotalAmount = 0m;
 
-            if (from.Items.Any(x => !x.Item.Enabled))
+            if (from.Items.Any(x => !x.Item.Active))
             {
-                // Exclude disabled cart items from subtotal calculation.
-                var enabledItemsSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(new(from, from.Items.Where(x => x.Item.Enabled)), null, batchContext);
-                subtotalAmount = enabledItemsSubtotal.SubtotalWithoutDiscount.Amount;
+                // Exclude deactivated cart items from subtotal calculation.
+                var activeItemsSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(new(from, from.Items.Where(x => x.Item.Active)), null, batchContext);
+                subtotalAmount = activeItemsSubtotal.SubtotalWithoutDiscount.Amount;
             }
             else
             {
@@ -129,10 +128,10 @@ namespace Smartstore.Web.Models.Cart
 
             // A customer should visit the shopping cart page before going to checkout if:
             // 1. There is at least one checkout attribute that is reqired.
-            // 2. Min order sub total is OK.
-            // 3. The cart contains at least one enabled item.
+            // 2. Min order subtotal is OK.
+            // 3. The cart contains at least one active item.
             var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
-            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Item.Enabled);
+            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Item.Active);
 
             // Products sort descending (recently added products).
             foreach (var cartItem in from.Items)
@@ -151,7 +150,7 @@ namespace Smartstore.Web.Models.Cart
                 var cartItemModel = new MiniShoppingCartModel.ShoppingCartItemModel
                 {
                     Id = item.Id,
-                    Enabled = item.Enabled,
+                    Active = item.Active,
                     ProductId = product.Id,
                     ProductName = product.GetLocalized(x => x.Name),
                     ShortDesc = product.GetLocalized(x => x.ShortDescription),

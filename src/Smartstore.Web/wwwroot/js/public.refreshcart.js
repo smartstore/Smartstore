@@ -15,7 +15,7 @@ $(function () {
         return false;
     });
 
-    // Enable/disable cart item.
+    // Activate/deactivate cart item.
     orderSummary.on('change', '.select-cart-item-checkbox', function () {
         const self = $(this);
         const cartItemId = self.closest('.cart-row').data('key');
@@ -23,26 +23,21 @@ $(function () {
 
         updateShoppingCartItems(url, {
             cartItemId,
-            enabled: this.checked,
+            active: this.checked,
             isCartPage: true,
             isWishlist
         });
-        
-        //const parentKey = self.closest('.cart-row').data('parent-key');
-        //$('.cart-row[data-parent-key=' + parentKey + ']')
-        //    .find('.cart-item-img, .cart-item-data')
-        //    .toggleClass('cart-item-disabled', !this.checked);
     });
 
-    // Enable/disable all cart items.
+    // Activate/deactivate all cart items.
     $('#SelectAllCartItems').on('click', '.select-cart-items, .deselect-cart-items', function (e) {
         e.preventDefault();
 
-        const enableAll = $(this).hasClass('select-cart-items');
+        const activateAll = $(this).hasClass('select-cart-items');
         const url = orderSummary.data('update-item-url');
 
         updateShoppingCartItems(url, {
-            enableAll,
+            activateAll,
             isCartPage: true,
             isWishlist
         });

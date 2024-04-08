@@ -20,8 +20,8 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*MaximumWishlistItems")]
         public int MaximumWishlistItems { get; set; }
 
-        [LocalizedDisplay("*AllowCartItemsToBeDisabled")]
-        public bool AllowCartItemsToBeDisabled { get; set; }
+        [LocalizedDisplay("*AllowToDeactivateCartItems")]
+        public bool AllowToDeactivateCartItems { get; set; }
 
         [LocalizedDisplay("*AllowOutOfStockItemsToBeAddedToWishlist")]
         public bool AllowOutOfStockItemsToBeAddedToWishlist { get; set; }

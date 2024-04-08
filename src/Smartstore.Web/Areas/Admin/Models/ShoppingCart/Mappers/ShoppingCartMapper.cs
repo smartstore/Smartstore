@@ -62,7 +62,7 @@ namespace Smartstore.Admin.Models.Cart
                 var model = new ShoppingCartItemModel
                 {
                     Id = sci.Id,
-                    Enabled = sci.Enabled,
+                    Active = sci.Active,
                     Store = store?.Name ?? StringExtensions.NotAvailable,
                     ProductId = sci.ProductId,
                     Quantity = sci.Quantity,

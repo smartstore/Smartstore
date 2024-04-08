@@ -40,6 +40,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IRoundingHelper _roundingHelper;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public AmazonPayController(
             SmartDbContext db,
@@ -54,7 +55,8 @@ namespace Smartstore.AmazonPay.Controllers
             IPaymentService paymentService,
             IRoundingHelper roundingHelper,
             AmazonPaySettings amazonPaySettings,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
@@ -69,6 +71,7 @@ namespace Smartstore.AmazonPay.Controllers
             _roundingHelper = roundingHelper;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         /// <summary>
@@ -181,6 +184,7 @@ namespace Smartstore.AmazonPay.Controllers
         {
             var result = new CheckoutReviewResult();
             var customer = cart.Customer;
+            var ga = customer.GenericAttributes;
 
             if (checkoutSessionId.IsEmpty())
             {
@@ -188,7 +192,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            result.IsShippingMethodMissing = cart.IsShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
+            result.IsShippingMethodMissing = cart.IsShippingRequired && ga.SelectedShippingOption == null;
 
             if (!cart.HasItems)
             {
@@ -255,6 +259,11 @@ namespace Smartstore.AmazonPay.Controllers
                     customer.Addresses.Add(billTo.Address);
                     customer.BillingAddress = billTo.Address;
                 }
+
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                {
+                    ga.DefaultBillingAddressId = customer.BillingAddress.Id;
+                }
             }
             else
             {
@@ -273,22 +282,27 @@ namespace Smartstore.AmazonPay.Controllers
                     customer.Addresses.Add(shipTo.Address);
                     customer.ShippingAddress = shipTo.Address;
                 }
+
+                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                {
+                    ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                }
             }
             else
             {
                 customer.ShippingAddress = null;
             }
 
-            customer.GenericAttributes.SelectedPaymentMethod = AmazonPayProvider.SystemName;
+            ga.SelectedPaymentMethod = AmazonPayProvider.SystemName;
 
             if (_settings.CanSaveEmailAndPhone(customer.Email))
             {
                 customer.Email = session.Buyer.Email;
             }
 
-            if (_settings.CanSaveEmailAndPhone(customer.GenericAttributes.Phone))
+            if (_settings.CanSaveEmailAndPhone(ga.Phone))
             {
-                customer.GenericAttributes.Phone = billTo.Address.PhoneNumber.NullEmpty() ?? session.Buyer.PhoneNumber;
+                ga.Phone = billTo.Address.PhoneNumber.NullEmpty() ?? session.Buyer.PhoneNumber;
             }
 
             await _db.SaveChangesAsync();

@@ -29,6 +29,7 @@ namespace Smartstore.Web.Models.Cart
         public bool DisplayCommentBox { get; set; }
         public bool DisplayEsdRevocationWaiverBox { get; set; }
         public bool DisplayMoveToWishlistButton { get; set; }
+        public string CheckoutNotAllowedWarning { get; set; }
 
         public partial class ShoppingCartItemModel : CartEntityModelBase
         {

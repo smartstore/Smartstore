@@ -48,7 +48,7 @@ namespace Smartstore.Web.Models.Cart
 
             await base.MapAsync(from, to, (object)parameters);
 
-            to.Enabled = item.Enabled;
+            to.Active = item.Active;
             to.IsShippingEnabled = product.IsShippingEnabled;
             to.IsDownload = product.IsDownload;
             to.IsEsd = product.IsEsd;
@@ -64,7 +64,7 @@ namespace Smartstore.Web.Models.Cart
                     await childItem.MapAsync(model, (object)parameters);
 
                     // Inherit state from parent because only the parent item can be enabled/disabled.
-                    model.Enabled = item.Enabled;
+                    model.Active = item.Active;
 
                     to.AddChildItems(model);
                 }

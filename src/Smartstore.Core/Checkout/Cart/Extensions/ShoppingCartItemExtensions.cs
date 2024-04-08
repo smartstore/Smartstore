@@ -12,12 +12,12 @@
         /// <param name="cart">The cart collection the filter gets applied on.</param>
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
         /// <param name="storeId">Store identifier to filter by.</param>
-        /// <param name="enabled">A value indicating whether to load enabled or disabled items. <c>null</c> to load all items.</param>
+        /// <param name="active">A value indicating whether to load active items. <c>null</c> to load all items.</param>
         /// <param name="hasParent">A value indicating whether to load items that has a parent item. <c>null</c> to load all items.</param>
         public static IOrderedEnumerable<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, 
             ShoppingCartType cartType, 
             int? storeId = null,
-            bool? enabled = true,
+            bool? active = true,
             bool? hasParent = null)
         {
             Guard.NotNull(cart);
@@ -29,9 +29,9 @@
                 items = items.Where(x => x.StoreId == storeId.Value);
             }
 
-            if (enabled != null)
+            if (active != null)
             {
-                items = items.Where(x => x.Enabled == enabled.Value);
+                items = items.Where(x => x.Active == active.Value);
             }
 
             if (hasParent != null)

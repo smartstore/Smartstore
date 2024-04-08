@@ -11,10 +11,10 @@
 
 @foreach (var item in Model.Items)
 {
-    <div class="cart-row@(!item.Enabled && Model.AllowCartItemsToBeDisabled ? " cart-item-disabled" : string.Empty)" data-key="@item.Id" data-parent-key="@item.Id">
+    <div class="cart-row@(!item.Active ? " cart-item-deactivated" : string.Empty)" data-key="@item.Id" data-parent-key="@item.Id">
         <div class="row">
-            <div sm-if="Model.AllowCartItemsToBeDisabled && Model.IsEditable" class="select-cart-item col-auto">
-                <input name="SelectCartItem@(item.Id)" type="checkbox" class="form-check-input select-cart-item-checkbox" attr-checked='(item.Enabled, "checked")' />
+            <div sm-if="Model.AllowToDeactivateCartItems && Model.IsEditable" class="select-cart-item col-auto">
+                <input name="SelectCartItem@(item.Id)" type="checkbox" class="form-check-input select-cart-item-checkbox" attr-checked='(item.Active, "checked")' />
             </div>
             @* Image *@
             <div sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()" class="cart-item-img col-3">

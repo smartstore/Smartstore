@@ -4,7 +4,7 @@
 
 @{
     var hasItems = Model.Items.Any();
-    var checkoutAllowed = hasItems && (Model.Items.Any(x => x.Enabled) || !Model.AllowCartItemsToBeDisabled);
+    var checkoutAllowed = Model.Items.Any(x => x.Active);
 
     var paymentButtons = hasItems
         ? (await Model.ButtonPaymentMethods.Items
@@ -51,7 +51,7 @@
                 @* Cart Summary *@
             <div class="col-lg-5 col-xl-4">
                 <div id="cart-select-products-warning" class="alert alert-warning@(checkoutAllowed ? " d-none" : string.Empty)">
-                    @T("ShoppingCart.SelectAtLeastOneProduct")
+                    @Html.Raw(Model.CheckoutNotAllowedWarning)
                 </div>
                 <div id="cart-summary-container" class="cart-footer@(checkoutAllowed ? string.Empty : " d-none")">
                     <div class="row">

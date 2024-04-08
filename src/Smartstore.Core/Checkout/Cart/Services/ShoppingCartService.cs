@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial class ShoppingCartService : IShoppingCartService
     {
-        // 0 = CustomerId, 1 = CartType, 2 = StoreId, 3 = Enabled items.
+        // 0 = CustomerId, 1 = CartType, 2 = StoreId, 3 = Active.
         const string CartItemsKey = "shoppingcartitems:{0}-{1}-{2}-{3}";
         const string CartItemsPatternKey = "shoppingcartitems:*";
 
@@ -379,16 +379,16 @@ namespace Smartstore.Core.Checkout.Cart
             Customer customer = null,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
             int storeId = 0,
-            bool? enabledItemsOnly = true)
+            bool? activeOnly = true)
         {
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, enabledItemsOnly);
+            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, activeOnly);
 
             var result = _requestCache.Get(cacheKey, async () =>
             {
                 await LoadCartItemCollection(customer);
-                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, enabledItemsOnly).ToList();
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, activeOnly).ToList();
 
                 // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part).
                 await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
@@ -409,11 +409,11 @@ namespace Smartstore.Core.Checkout.Cart
             Customer customer = null,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
             int storeId = 0,
-            bool? enabledItems = true)
+            bool? activeOnly = true)
         {
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, enabledItems);
+            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, activeOnly);
             var cart = _requestCache.Get<ShoppingCart>(cacheKey, null);
             if (cart != null)
             {
@@ -423,7 +423,7 @@ namespace Smartstore.Core.Checkout.Cart
             await LoadCartItemCollection(customer);
 
             return customer.ShoppingCartItems
-                .FilterByCartType(cartType, storeId, enabledItems)
+                .FilterByCartType(cartType, storeId, activeOnly)
                 .Where(x => x.ParentItemId == null)
                 .Sum(x => (int?)x.Quantity) ?? 0;
         }
@@ -487,7 +487,7 @@ namespace Smartstore.Core.Checkout.Cart
             Customer customer, 
             int cartItemId,
             int? quantity, 
-            bool? enabled,
+            bool? active,
             bool resetCheckoutData = false)
         {
             Guard.NotNull(customer);
@@ -524,7 +524,7 @@ namespace Smartstore.Core.Checkout.Cart
                 AutomaticallyAddRequiredProducts = false,
             };
 
-            cartItem.Enabled = enabled ?? cartItem.Enabled;
+            cartItem.Active = active ?? cartItem.Active;
             cartItem.Quantity = quantity ?? cartItem.Quantity;
             cartItem.UpdatedOnUtc = DateTime.UtcNow;
 
