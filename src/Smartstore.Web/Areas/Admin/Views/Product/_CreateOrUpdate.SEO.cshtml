@@ -51,7 +51,13 @@
                     <smart-label asp-for="MetaTitle" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="MetaTitle" />
+                    <ai-text-creation asp-for="MetaTitle"
+                                      entity-name="@Model.Name"
+                                      entity-type="Product"
+                                      display-optimization-options="false"
+                                      display-word-limit="false">
+                        <input asp-for="MetaTitle" />
+                    </ai-text-creation>
                     <span asp-validation-for="MetaTitle"></span>
                 </div>
             </div>
@@ -60,7 +66,13 @@
                     <smart-label asp-for="MetaDescription" />
                 </div>
                 <div class="adminData">
-                    <textarea asp-for="MetaDescription"></textarea>
+                    <ai-text-creation asp-for="MetaDescription"
+                                      entity-name="@Model.Name"
+                                      entity-type="Product"
+                                      display-optimization-options="false"
+                                      display-word-limit="false">
+                        <textarea asp-for="MetaDescription"></textarea>
+                    </ai-text-creation>
                     <span asp-validation-for="MetaDescription"></span>
                 </div>
             </div>
@@ -69,7 +81,13 @@
                     <smart-label asp-for="MetaKeywords" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="MetaKeywords" />
+                    <ai-text-creation asp-for="MetaKeywords"
+                                      entity-name="@Model.Name"
+                                      entity-type="Product"
+                                      display-optimization-options="false"
+                                      display-word-limit="false">
+                        <input asp-for="MetaKeywords" />
+                    </ai-text-creation>
                     <span asp-validation-for="MetaKeywords"></span>
                 </div>
             </div>

@@ -34,6 +34,7 @@ namespace Smartstore.Admin.Models.Stores
         [UIHint("Media")]
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("entityType", "Store")]
         public int LogoMediaFileId { get; set; }
 
         [LocalizedDisplay("*FavIconMediaFileId")]
@@ -41,6 +42,7 @@ namespace Smartstore.Admin.Models.Stores
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("typeFilter", ".ico")]
         [AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("entityType", "Store")]
         public int? FavIconMediaFileId { get; set; }
 
         [LocalizedDisplay("*PngIconMediaFileId")]
@@ -48,6 +50,7 @@ namespace Smartstore.Admin.Models.Stores
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("typeFilter", ".png")]
         [AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("entityType", "Store")]
         public int? PngIconMediaFileId { get; set; }
 
         [LocalizedDisplay("*AppleTouchIconMediaFileId")]
@@ -55,6 +58,7 @@ namespace Smartstore.Admin.Models.Stores
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("typeFilter", "image")]
         [AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("entityType", "Store")]
         public int? AppleTouchIconMediaFileId { get; set; }
 
         [LocalizedDisplay("*MsTileImageMediaFileId")]
@@ -62,6 +66,7 @@ namespace Smartstore.Admin.Models.Stores
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("typeFilter", "image")]
         [AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("entityType", "Store")]
         public int? MsTileImageMediaFileId { get; set; }
 
         [LocalizedDisplay("*MsTileColor")]
