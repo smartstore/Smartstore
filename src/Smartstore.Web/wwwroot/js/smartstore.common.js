@@ -88,6 +88,7 @@
         return $('<div/>').html(value).text();
     };
 
+    // TODO: Move to another location when current summernote developments are finished.
     window.insertHtmlInSummernote = function (field, value) {
         field.val(value);
 
