@@ -102,7 +102,7 @@ namespace Smartstore.Web.Components
                     && model.IsEditable;
             }
 
-            model.SubtotalLabel = _shoppingCartSettings.AllowToDeactivateCartItems ? T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity) : null;
+            model.SubtotalLabel = _shoppingCartSettings.AllowToDeactivateCartItems ? T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity) : (string)null;
             if (model.SubtotalLabel.IsEmpty())
             {
                 model.SubtotalLabel = T("ShoppingCart.Totals.SubTotal");
