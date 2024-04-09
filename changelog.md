@@ -63,6 +63,7 @@
 - Addresses: make first and last name optional if a company name has been specified.
 - #1012 Estimate shipping costs without rules if no shipping method was found with rules.
 - PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
+-  #1020 Prevent creation of unnecessary Stripe "payment intent" 
 
 ### Bugfixes
 
