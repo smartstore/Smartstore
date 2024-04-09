@@ -15,7 +15,6 @@ namespace Smartstore.StripeElements.Components
         private readonly StripeSettings _settings;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICurrencyService _currencyService;
         private readonly IRoundingHelper _roundingHelper;
         private readonly StripeHelper _stripeHelper;
@@ -24,7 +23,6 @@ namespace Smartstore.StripeElements.Components
             StripeSettings settings,
             IShoppingCartService shoppingCartService,
             IOrderCalculationService orderCalculationService,
-            ICheckoutStateAccessor checkoutStateAccessor,
             ICurrencyService currencyService,
             IRoundingHelper roundingHelper,
             StripeHelper stripeHelper)
@@ -32,7 +30,6 @@ namespace Smartstore.StripeElements.Components
             _settings = settings;
             _shoppingCartService = shoppingCartService;
             _orderCalculationService = orderCalculationService;
-            _checkoutStateAccessor = checkoutStateAccessor;
             _currencyService = currencyService;
             _roundingHelper = roundingHelper;
             _stripeHelper = stripeHelper;
@@ -58,46 +55,20 @@ namespace Smartstore.StripeElements.Components
                 IsPaymentSelectionPage = isPaymentSelectionPage
             };
 
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var currency = Services.WorkContext.WorkingCurrency;
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-
-            // Get subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
-
             if (isPaymentSelectionPage)
             {
-                var checkoutState = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
-                PaymentIntent paymentIntent;
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+                var currency = Services.WorkContext.WorkingCurrency;
+                var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-                if (checkoutState.PaymentIntent == null)
-                {
-                    var paymentIntentService = new PaymentIntentService();
-                    paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions
-                    {
-                        Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted),
-                        Currency = currency.CurrencyCode.ToLower(),
-                        CaptureMethod = _settings.CaptureMethod,
-                        AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                        {
-                            Enabled = true,
-                        },
-                        Metadata = new Dictionary<string, string>
-                        {
-                            ["CustomerId"] = customer.Id.ToString()
-                        }
-                    });
+                // Get subtotal
+                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
+                var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, currency);
 
-                    checkoutState.PaymentIntent = paymentIntent;
-                }
-                else
-                {
-                    paymentIntent = checkoutState.PaymentIntent;
-                }
-                
-                model.ClientSecret = paymentIntent.ClientSecret;
+                model.Amount = _roundingHelper.ToSmallestCurrencyUnit(subTotalConverted);
+                model.Currency = currency.CurrencyCode.ToLower();
+                model.CaptureMethod = _settings.CaptureMethod;
 
                 return View(model);
             }

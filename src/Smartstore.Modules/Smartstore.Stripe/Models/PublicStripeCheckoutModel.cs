@@ -16,9 +16,22 @@ namespace Smartstore.StripeElements.Models
         public string PaymentRequest { get; set; }
 
         /// <summary>
-        /// ClientSecret for payment selection page.
+        /// Three-letter ISO currency code, in lowercase. 
         /// </summary>
-        public string ClientSecret { get; set; }
+        public string Currency { get; set; }
+
+        /// <summary>
+        /// The amount intended to be collected from the customer.
+        /// A positive integer representing how much to charge in the smallest currency unit (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency). 
+        /// The minimum amount is $0.50 US or equivalent in charge currency. 
+        /// The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
+        /// </summary>
+        public int Amount { get; set; }
+
+        /// <summary>
+        /// Influences available payment methods.
+        /// </summary>
+        public string CaptureMethod { get; set; }
 
         /// <summary>
         /// Defines whether the component is rendered on payment selection page.

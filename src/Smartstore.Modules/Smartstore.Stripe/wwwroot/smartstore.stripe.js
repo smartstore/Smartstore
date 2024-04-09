@@ -31,24 +31,21 @@
     }
 
     return {
-        initPaymentElement: function (publicApiKey, secret, apiVersion) {
-            stripe = Stripe(publicApiKey, {
-                apiVersion: apiVersion,
-                betas: ['elements_enable_deferred_intent_beta_1'],
-            });
+        initPaymentElement: function (publicApiKey, apiVersion, amount, currency, captureMethod) {
+            stripe = Stripe(publicApiKey, { apiVersion: apiVersion });
 
-            const { clientSecret } = { clientSecret: secret };
-
-            const appearance = {
-                theme: 'stripe',
+            const options = {
+                mode: 'payment',
+                amount: amount,
+                currency: currency,
+                captureMethod: captureMethod,
+                appearance: { theme: 'stripe' },
+                paymentMethodCreation: "manual"
             };
 
-            elements = stripe.elements({ appearance, clientSecret });
+            elements = stripe.elements(options);
 
-            const paymentElementOptions = {
-                layout: "tabs",
-            };
-
+            const paymentElementOptions = { layout: "tabs" };
             const paymentElement = elements.create("payment", paymentElementOptions);
             paymentElement.mount(paymentElementSelector);
 
@@ -79,6 +76,14 @@
             $("form").on("submit", async e => {
                 if ($("input[name='paymentmethod']:checked").val() == moduleSystemName && !createdPaymentMethod) {
                     e.preventDefault();
+
+                    // Trigger form validation and wallet collection
+                    const { error: submitError } = await elements.submit();
+                    if (submitError) {
+                        displayNotification(submitError.message, 'error');
+                        return;
+                    }
+
                     (async () => {
                         const { error, paymentMethod } = await stripe.createPaymentMethod({ elements });
 
