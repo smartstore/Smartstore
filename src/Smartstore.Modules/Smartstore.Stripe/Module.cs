@@ -30,7 +30,6 @@ namespace Smartstore.StripeElements
         public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
             var store = Services.StoreContext.CurrentStore;
-
             var isActiveStripe = await _paymentService.IsPaymentProviderActiveAsync(StripeElementsProvider.SystemName, null, store.Id);
 
             if (isActiveStripe)

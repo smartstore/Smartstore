@@ -65,11 +65,7 @@
 
             // Listen for changes to the radio input elements.
             $(document, "input[name='paymentmethod']").on("change", function (e) {
-                if (e.target.value == moduleSystemName) {
-                    btnNext[0].disabled = true;
-                } else {
-                    btnNext[0].disabled = false;
-                }
+                btnNext[0].disabled = e.target.value == moduleSystemName;
             });
 
             // Handle button state on page load
@@ -84,9 +80,8 @@
                 if ($("input[name='paymentmethod']:checked").val() == moduleSystemName && !createdPaymentMethod) {
                     e.preventDefault();
                     (async () => {
-                        const { error, paymentMethod } = await stripe.createPaymentMethod({
-                            elements
-                        });
+                        const { error, paymentMethod } = await stripe.createPaymentMethod({ elements });
+
                         $.ajax({
                             type: 'POST',
                             data: {
