@@ -160,10 +160,15 @@ b, strong {
 }
 
 // Class to turn off overflow-x: hidden on #content-wrapper
-// INFO: We added overflow-x: hidden to #content-wrapper to prevent a bug with megasized stories, where on page reload the whole page would be shifted to the left.
-// This class is used to turn this off for specific pages where this is not needed & causes issues with sticky elements (e.g. .cart-footer).
+// INFO: We added overflow-x: hidden to #content-wrapper 
+// to prevent a bug with megasized stories, where on page 
+// reload the whole page would be shifted to the left.
+// This class is used to turn this off for specific pages 
+// where this is not needed & causes issues with sticky 
+// elements (e.g. .cart-footer).
 // -----------------------------------------------------
-.no-hidden-overflow {
+
+.content-overflow-initial {
     #content-wrapper {
         overflow-x: initial;
     }
