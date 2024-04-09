@@ -59,7 +59,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int? ParentCategoryId { get; set; }
 
         [UIHint("Media")]
-        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true), AdditionalMetadata("entityType", "Category")]
         [LocalizedDisplay("*Picture")]
         public int? PictureId { get; set; }
 

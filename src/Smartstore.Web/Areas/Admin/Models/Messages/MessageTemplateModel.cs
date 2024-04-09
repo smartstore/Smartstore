@@ -49,6 +49,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment1FileId { get; set; }
 
         [LocalizedDisplay("*Attachment2FileId")]
@@ -56,6 +57,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment2FileId { get; set; }
 
         [LocalizedDisplay("*Attachment3FileId")]
@@ -63,6 +65,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment3FileId { get; set; }
 
         [UIHint("Stores")]
@@ -107,6 +110,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment1FileId { get; set; }
 
         [LocalizedDisplay("*Attachment2FileId")]
@@ -114,6 +118,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment2FileId { get; set; }
 
         [LocalizedDisplay("*Attachment3FileId")]
@@ -121,6 +126,7 @@ namespace Smartstore.Admin.Models.Messages
         [AdditionalMetadata("album", "content")]
         [AdditionalMetadata("path", "message")]
         [AdditionalMetadata("typeFilter", "*")]
+        [AdditionalMetadata("entityType", "MessageTemplate")]
         public int? Attachment3FileId { get; set; }
     }
 

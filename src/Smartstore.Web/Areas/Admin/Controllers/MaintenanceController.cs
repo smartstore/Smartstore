@@ -497,14 +497,33 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> ShrinkDatabase()
+        public async Task<IActionResult> OptimizeDatabase()
         {
             try
             {
-                if (_db.DataProvider.CanShrink)
+                if (_db.DataProvider.CanOptimizeDatabase)
                 {
-                    await _db.DataProvider.ShrinkDatabaseAsync(false);
+                    await _db.DataProvider.OptimizeDatabaseAsync();
                     NotifySuccess(T("Common.ShrinkDatabaseSuccessful"));
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToReferrer();
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> OptimizeTable(string tableName)
+        {
+            try
+            {
+                if (_db.DataProvider.CanOptimizeTable)
+                {
+                    await _db.DataProvider.OptimizeTableAsync(tableName);
+                    NotifySuccess(T("Common.OptimizeTableSuccessful", tableName));
                 }
             }
             catch (Exception ex)

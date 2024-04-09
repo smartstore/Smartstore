@@ -87,7 +87,8 @@ namespace Smartstore.Web.Infrastructure
                 // Admin
                 adminJs + "admin.common.js",
                 adminJs + "admin.media.js",
-                adminJs + "admin.globalinit.js"));
+                adminJs + "admin.globalinit.js",
+                adminJs + "admin.ai.js"));
 
 
             /* Chart.js --> /bundle/js/chart.js

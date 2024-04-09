@@ -26,7 +26,7 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "catalog")]
+        [UIHint("Media"), AdditionalMetadata("album", "catalog"), AdditionalMetadata("entityType", "CheckoutAttributeValue")]
         [LocalizedDisplay("*MediaFile")]
         public int? MediaFileId { get; set; }
 

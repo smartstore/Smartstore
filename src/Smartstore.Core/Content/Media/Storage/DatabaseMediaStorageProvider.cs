@@ -260,8 +260,8 @@ namespace Smartstore.Core.Content.Media.Storage
 
         public Task ReceiveAsync(MediaMoverContext context, MediaFile mediaFile, Stream stream)
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(mediaFile, nameof(mediaFile));
+            Guard.NotNull(context);
+            Guard.NotNull(mediaFile);
 
             // Store data for later bulk commit
             if (stream != null && stream.Length > 0)
@@ -275,11 +275,11 @@ namespace Smartstore.Core.Content.Media.Storage
 
         Task IMediaSender.OnCompletedAsync(MediaMoverContext context, bool succeeded, CancellationToken cancelToken)
         {
-            if (succeeded && context.AffectedFiles.Any())
+            if (succeeded && context.AffectedFiles.Count > 0 && _db.DataProvider.CanOptimizeTable)
             {
-                // Shrink database after sending/removing at least one blob,
-                // but only in MS SQL Server (takes too long in other systems)
-                return _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken);
+                // Optimize MediaFile table after sending/removing at least one blob
+                var tableName = _db.Model.FindEntityType(typeof(MediaFile))?.GetTableName();
+                return _db.DataProvider.OptimizeTableAsync(tableName, cancelToken);
             }
 
             return Task.CompletedTask;

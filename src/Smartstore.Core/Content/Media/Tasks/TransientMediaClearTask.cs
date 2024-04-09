@@ -44,9 +44,10 @@ namespace Smartstore.Core.Content.Media.Tasks
                     .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
                     .ExecuteDeleteAsync(cancelToken);
 
-                if (numDeleted > 1000 && _db.DataProvider.CanShrink)
+                if (numDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
                 {
-                    await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
+                    var tableName = _db.Model.FindEntityType(typeof(MediaFile)).GetTableName();
+                    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
                 }
             }
         }

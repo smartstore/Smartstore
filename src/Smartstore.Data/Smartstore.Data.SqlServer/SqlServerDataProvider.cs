@@ -47,21 +47,44 @@ namespace Smartstore.Data.SqlServer
         {
         }
 
-        private static string ReIndexTablesSql(string database)
-            => $@"DECLARE @TableName sysname 
-                  DECLARE cur_reindex CURSOR FOR
-                  SELECT table_name
-                  FROM [{database}].information_schema.tables
-                  WHERE table_type = 'base table'
-                  OPEN cur_reindex
-                  FETCH NEXT FROM cur_reindex INTO @TableName
-                  WHILE @@FETCH_STATUS = 0
-                      BEGIN
-                          EXEC('ALTER INDEX ALL ON [' + @TableName + '] REBUILD')
-                          FETCH NEXT FROM cur_reindex INTO @TableName
-                      END
-                  CLOSE cur_reindex
-                  DEALLOCATE cur_reindex";
+        private static string OptimizeDatabaseSql(string database, string tableFilter)
+            => $@"
+                DECLARE @TableName NVARCHAR(260), @IndexName NVARCHAR(260), @Sql NVARCHAR(MAX), @Fragmentation FLOAT;
+                DECLARE IndexCursor CURSOR FOR 
+                SELECT 
+                    QUOTENAME(SCHEMA_NAME(t.schema_id)) + '.' + QUOTENAME(t.name) AS TableName,
+                    i.name AS IndexName,
+                    s.avg_fragmentation_in_percent
+                FROM 
+                    sys.tables t
+                JOIN 
+                    sys.indexes i ON t.object_id = i.object_id
+                CROSS APPLY 
+                    sys.dm_db_index_physical_stats(DB_ID(N'{database}'), i.object_id, NULL, NULL, 'LIMITED') s
+                WHERE 
+                    i.type_desc <> 'HEAP' AND s.avg_fragmentation_in_percent > 5
+                    {tableFilter}
+
+                OPEN IndexCursor;
+                FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
+
+                WHILE @@FETCH_STATUS = 0
+                BEGIN
+                    IF @Fragmentation > 30
+                    BEGIN
+                        SET @Sql = 'ALTER INDEX ' + QUOTENAME(@IndexName) + ' ON ' + @TableName + ' REBUILD;';
+                    END
+                    ELSE
+                    BEGIN
+                        SET @Sql = 'ALTER INDEX ' + QUOTENAME(@IndexName) + ' ON ' + @TableName + ' REORGANIZE;';
+                    END
+                    EXEC sp_executesql @Sql;
+                    FETCH NEXT FROM IndexCursor INTO @TableName, @IndexName, @Fragmentation;
+                END
+
+                CLOSE IndexCursor;
+                DEALLOCATE IndexCursor;
+                ";
 
         private static string RestoreDatabaseSql(string database)
             => $@"DECLARE @ErrorMessage NVARCHAR(4000)
@@ -112,7 +135,8 @@ namespace Smartstore.Data.SqlServer
             => DataProviderFeatures.Backup
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
+            | DataProviderFeatures.OptimizeTable
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.StreamBlob
@@ -226,51 +250,35 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override async Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            if (onlyWhenFast)
-            {
-                return 0;
-            }
-
-            // Reorganize indexes
-            var tableNames = async ? await GetTableNamesAsync() : GetTableNames();
-            foreach (var tableName in tableNames)
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                var alterIndexSql = $"ALTER INDEX ALL ON [{tableName}] REORGANIZE";
-                if (async)
-                {
-                    await Database.ExecuteSqlRawAsync(alterIndexSql, cancelToken);
-                }
-                else
-                {
-                    Database.ExecuteSqlRaw(alterIndexSql);
-                }
-            }
-
-            if (cancelToken.IsCancellationRequested)
-            {
-                return 0;
-            }
-
-            // Shrink database
-            var shrinkSql = "DBCC SHRINKDATABASE(0)";
-            return async
-                ? await Database.ExecuteSqlRawAsync(shrinkSql, cancelToken)
-                : Database.ExecuteSqlRaw(shrinkSql);
-        }
-
-        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
-        {
-            var sql = ReIndexTablesSql(DatabaseName);
+            var sql = OptimizeDatabaseSql(DatabaseName, string.Empty);
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+        {
+            if (!string.IsNullOrEmpty(tableName) && !IsObjectNameValid(tableName))
+            {
+                throw new ArgumentException("Invalid table name.", nameof(tableName));
+            }
+
+            var tableNameFilter = string.IsNullOrEmpty(tableName) ? string.Empty : $"AND t.name = '{tableName}'";
+
+            var sql = OptimizeDatabaseSql(DatabaseName, tableNameFilter);
+            return async
+                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+        }
+
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
+        {
+            var shrinkSql = "DBCC SHRINKDATABASE(0)";
+            return async
+                ? Database.ExecuteSqlRawAsync(shrinkSql, cancelToken)
+                : Task.FromResult(Database.ExecuteSqlRaw(shrinkSql));
         }
 
         protected override async Task<int?> GetTableIncrementCore(string tableName, bool async)
@@ -370,6 +378,12 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             }
 
             return false;
+        }
+
+        private static bool IsObjectNameValid(string name)
+        {
+            // Prevent SQL injection attacks.
+            return string.IsNullOrEmpty(name) || name.All(char.IsLetterOrDigit);
         }
     }
 }

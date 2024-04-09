@@ -276,7 +276,6 @@
             addEventListener('mouseup', onMouseUp);
         });
 
-
         // Popup toggle
         $(document).on('click', '.popup-toggle', function (e) {
             e.preventDefault();
@@ -298,6 +297,4 @@
             html.removeClass("loading").addClass("loaded");
         });
     });
-
-
 })(jQuery, this, document);

@@ -270,7 +270,9 @@
                         <smart-label asp-for="Intro" />
                     </div>
                     <div class="adminData wide">
-                        <textarea asp-for="Intro" rows="1"></textarea>
+                        <ai-text-creation asp-for="Intro" entity-name="@Model.Title" entity-type="Topic">
+                            <textarea asp-for="Intro" rows="1"></textarea>
+                        </ai-text-creation>
                         <span asp-validation-for="Intro"></span>
                     </div>
                 </div>
@@ -279,7 +281,13 @@
                         <smart-label asp-for="Body" />
                     </div>
                     <div class="adminData wide">
-                        <editor asp-for="Body" />
+                        <ai-rich-text-creation asp-for="Body"
+                                               entity-name="@Model.Title"
+                                               entity-type="Topic"
+                                               display-additional-content-options="true"
+                                               display-link-options="true">
+                            <editor asp-for="Body" />
+                        </ai-rich-text-creation>
                         <span asp-validation-for="Body"></span>
                     </div>
                 </div>
@@ -340,7 +348,13 @@
                         <smart-label asp-for="MetaTitle" />
                     </div>
                     <div class="adminData">
-                        <textarea asp-for="MetaTitle"></textarea>
+                        <ai-text-creation asp-for="MetaTitle"
+                                          entity-name="@Model.Title"
+                                          entity-type="Topic"
+                                          display-optimization-options="false"
+                                          display-word-limit="false">
+                            <input asp-for="MetaTitle" />
+                        </ai-text-creation>
                         <span asp-validation-for="MetaTitle"></span>
                     </div>
                 </div>
@@ -349,7 +363,13 @@
                         <smart-label asp-for="MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <textarea asp-for="MetaDescription"></textarea>
+                        <ai-text-creation asp-for="MetaDescription"
+                                          entity-name="@Model.Title"
+                                          entity-type="Topic"
+                                          display-optimization-options="false"
+                                          display-word-limit="false">
+                            <textarea asp-for="MetaDescription"></textarea>
+                        </ai-text-creation>
                         <span asp-validation-for="MetaDescription"></span>
                     </div>
                 </div>
@@ -358,7 +378,13 @@
                         <smart-label asp-for="MetaKeywords" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="MetaKeywords" />
+                        <ai-text-creation asp-for="MetaKeywords"
+                                          entity-name="@Model.Title"
+                                          entity-type="Topic"
+                                          display-optimization-options="false"
+                                          display-word-limit="false">
+                            <input asp-for="MetaKeywords" />
+                        </ai-text-creation>
                         <span asp-validation-for="MetaKeywords"></span>
                     </div>
                 </div>

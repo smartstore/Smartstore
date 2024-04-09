@@ -119,7 +119,7 @@
         }
         <div class="fu-controls">
             <file-uploader 
-                upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" })"
+                upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, entityType = EntityType, area = "Admin" })"
                 media-path="@MediaPath"
                 type-filter="@TypeFilter"
                 display-remove-button="!MultiFile && Model.HasValue"

@@ -29,7 +29,7 @@ namespace Smartstore.Data.Sqlite
             => DataProviderFeatures.Backup
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
-            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.OptimizeDatabase
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ReadSequential
@@ -127,24 +127,18 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteQueryRaw<long>(sql).FirstOrDefault());
         }
 
-        protected override Task<int> ShrinkDatabaseCore(bool async, bool onlyWhenFast, CancellationToken cancelToken = default)
+        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             // TODO: Lock
-            if (onlyWhenFast)
-            {
-                return Task.FromResult(0);
-            }
-
-            var sql = $"VACUUM;PRAGMA wal_checkpoint=TRUNCATE;PRAGMA optimize;PRAGMA wal_autocheckpoint;";
+            var sql = $"REINDEX;";
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
         }
 
-        protected override Task<int> ReIndexTablesCore(bool async, CancellationToken cancelToken = default)
+        protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            // TODO: Lock
-            var sql = $"REINDEX;";
+            var sql = $"VACUUM;PRAGMA wal_checkpoint=TRUNCATE;PRAGMA optimize;PRAGMA wal_autocheckpoint;";
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));

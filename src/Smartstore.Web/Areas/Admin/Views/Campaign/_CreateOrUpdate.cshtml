@@ -5,12 +5,9 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 
-@if (Model.Id > 0)
-{
-    <div class="alert alert-warning">
-        @T("Admin.Promotions.Campaigns.Warning")
-    </div>
-}
+<div sm-if="Model.Id > 0" class="alert alert-warning">
+    @T("Admin.Promotions.Campaigns.Warning")
+</div>
 
 <tabstrip id="campaign-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
@@ -29,7 +26,21 @@
                     <smart-label asp-for="Subject"/>
                 </div>
                 <div class="adminData">
-                    <input asp-for="Subject" />
+                    @if (!Model.Subject.HasValue())
+                    {
+                        <ai-suggestion asp-for="Subject" entity-type="Campaign" mandatory-entity-fields="Body,Name">
+                            <input asp-for="Subject" />
+                        </ai-suggestion>
+                    }
+                    else
+                    {
+                        <ai-text-creation asp-for="Subject"
+                                          entity-name="@Model.Name"
+                                          entity-type="Campaign"
+                                          word-count="50">
+                            <input asp-for="Subject" />
+                        </ai-text-creation>
+                    }
                     <span asp-validation-for="Subject"></span>
                 </div>
             </div>
@@ -64,7 +75,11 @@
                     <smart-label asp-for="Body"/>
                 </div>
                 <div class="adminData wide">
-                    <editor asp-for="Body" />
+                    <ai-rich-text-creation asp-for="Body"
+                                           entity-name="@Model.Subject"
+                                           entity-type="Campaign">
+                        <editor asp-for="Body" />
+                    </ai-rich-text-creation>
                     <span asp-validation-for="Body"></span>
                 </div>
             </div>

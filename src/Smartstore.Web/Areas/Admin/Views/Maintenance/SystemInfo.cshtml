@@ -295,7 +295,7 @@
                 <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
                 @if (Model.ShrinkDatabaseEnabled)
                 {
-                    <a href='@Url.Action("ShrinkDatabase")' class="fwm">@T("Common.Shrink")</a>
+                    <a href='@Url.Action("OptimizeDatabase")' class="fwm">@T("Common.Shrink")</a>
                 }
             </div>
         </div>

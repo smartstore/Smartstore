@@ -561,7 +561,7 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("*Picture")]
             [UIHint("Media")]
-            [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
+            [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true), AdditionalMetadata("entityType", "ProductVariantAttributeValue")]
             public int PictureId { get; set; }
 
             [LocalizedDisplay("*PriceAdjustment")]

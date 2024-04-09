@@ -33,9 +33,11 @@ namespace Smartstore.Core.Logging
                 .Where(x => x.CreatedOnUtc <= maxAgeUtc && x.LogLevelId < (int)maxLevel)
                 .ExecuteDeleteAsync(cancelToken);
 
-            if (numDeleted > 100 && _db.DataProvider.CanShrink)
+            var dataProvider = _db.DataProvider;
+            if (numDeleted > 100 && dataProvider.CanOptimizeTable)
             {
-                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
+                var tableName = _db.Model.FindEntityType(typeof(Log)).GetTableName();
+                await CommonHelper.TryAction(() => dataProvider.OptimizeTableAsync(tableName, cancelToken));
             }
 
             return numDeleted;

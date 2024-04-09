@@ -10,6 +10,7 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.OutputCache;
+using Smartstore.Core.Platform.AI;
 using Smartstore.Core.Widgets;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
@@ -140,6 +141,7 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
+                RegisterAsSpecificProvider<IAIProvider>(type, systemName, registration);
             }
         }
 
@@ -291,6 +293,10 @@ namespace Smartstore.Core.Bootstrapping
             else if (typeof(IOutputCacheProvider).IsAssignableFrom(implType))
             {
                 return "OutputCache";
+            }
+            else if (typeof(IAIProvider).IsAssignableFrom(implType))
+            {
+                return "AI";
             }
 
             return null;

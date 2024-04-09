@@ -211,7 +211,9 @@
                     <smart-label asp-for="ShortDescription" />
 			    </div>
 			    <div class="adminData">
-                    <textarea asp-for="ShortDescription"></textarea>
+                    <ai-text-creation asp-for="ShortDescription" entity-name="@Model.Name" entity-type="Product">
+                        <textarea asp-for="ShortDescription"></textarea>
+                    </ai-text-creation>
 				    <span asp-validation-for="ShortDescription"></span>
 			    </div>
 		    </div>
@@ -220,13 +222,14 @@
                     <smart-label asp-for="FullDescription" />
 			    </div>
                 <div class="adminData wide">
-                    <editor asp-for="FullDescription" />
+                    <ai-rich-text-creation asp-for="FullDescription" entity-name="@Model.Name" entity-type="Product">
+                        <editor asp-for="FullDescription" />
+                    </ai-rich-text-creation>
                     <span asp-validation-for="FullDescription"></span>
                 </div>
 		    </div>
 	    </div>
-	</text>
-    )
+	</text>)
 )
 
 <div class="adminContent">

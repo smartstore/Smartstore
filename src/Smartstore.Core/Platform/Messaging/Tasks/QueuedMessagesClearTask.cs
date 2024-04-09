@@ -39,9 +39,10 @@ namespace Smartstore.Core.Messaging.Tasks
             }
 
 
-            if (numTotalDeleted > 100 && _db.DataProvider.CanShrink)
+            if (numTotalDeleted > 100 && _db.DataProvider.CanOptimizeTable)
             {
-                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
+                var tableName = _db.Model.FindEntityType(typeof(QueuedEmail)).GetTableName();
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
             }
         }
     }

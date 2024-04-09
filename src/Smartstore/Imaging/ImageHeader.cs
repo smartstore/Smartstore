@@ -123,7 +123,7 @@ namespace Smartstore.Imaging
         /// <returns>The dimensions of the specified image.</returns>    
         public static (Size Size, IImageFormat Format) GetPixelSizeWithFormat(Stream input, string mime, bool leaveOpen = true)
         {
-            Guard.NotNull(input, nameof(input));
+            Guard.NotNull(input);
 
             var slowDetect = false;
 

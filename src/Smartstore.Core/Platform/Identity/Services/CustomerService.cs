@@ -214,9 +214,10 @@ namespace Smartstore.Core.Identity
                 numberOfDeletedCustomers += numDeleted;
             }
 
-            if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanShrink)
+            if (numberOfDeletedCustomers + numberOfDeletedAttributes > 10000 && !cancelToken.IsCancellationRequested && _db.DataProvider.CanOptimizeTable)
             {
-                await CommonHelper.TryAction(() => _db.DataProvider.ShrinkDatabaseAsync(true, cancelToken));
+                var tableName = _db.Model.FindEntityType(typeof(Customer)).GetTableName();
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
             }
 
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);

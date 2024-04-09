@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
+using Smartstore.Events;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -14,18 +16,21 @@ namespace Smartstore.Admin.Controllers
         private readonly IMediaTypeResolver _mediaTypeResolver;
         private readonly MediaSettings _mediaSettings;
         private readonly MediaExceptionFactory _exceptionFactory;
+        private readonly IEventPublisher _eventPublisher;
 
         public MediaController(SmartDbContext db,
             IMediaService mediaService,
             IMediaTypeResolver mediaTypeResolver,
             MediaSettings mediaSettings,
-            MediaExceptionFactory exceptionFactory)
+            MediaExceptionFactory exceptionFactory,
+            IEventPublisher eventPublisher)
         {
             _db = db;
             _mediaService = mediaService;
             _mediaTypeResolver = mediaTypeResolver;
             _mediaSettings = mediaSettings;
             _exceptionFactory = exceptionFactory;
+            _eventPublisher = eventPublisher;
         }
 
         [HttpPost]
@@ -37,7 +42,8 @@ namespace Smartstore.Admin.Controllers
             string[] typeFilter = null,
             bool isTransient = false,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError,
-            string directory = "")
+            string directory = "",
+            string entityType = "")
         {
             var numFiles = Request.Form.Files.Count;
             var result = new List<object>(numFiles);
@@ -84,6 +90,8 @@ namespace Smartstore.Admin.Controllers
                         uploadedFile.OpenReadStream(),
                         isTransient,
                         duplicateFileHandling);
+
+                    await _eventPublisher.PublishAsync(new MediaSavedEvent(mediaFile, entityType));
 
                     dynamic o = JObject.FromObject(mediaFile);
                     o.success = true;

@@ -2,6 +2,7 @@
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Memory;
 using Smartstore.Engine;
+using Smartstore.Utilities;
 using SharpConfiguration = SixLabors.ImageSharp.Configuration;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
@@ -54,7 +55,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public async Task<IImageFormat> DetectFormatAsync(Stream stream)
         {
-            var internalFormat = await Image.DetectFormatAsync(stream);
+            var internalFormat = await CommonHelper.TryAction(() => Image.DetectFormatAsync(stream));
             if (internalFormat != null)
             {
                 return ImageSharpUtility.CreateFormat(internalFormat);
@@ -65,7 +66,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public IImageInfo DetectInfo(Stream stream)
         {
-            var info = Image.Identify(stream);
+            var info = CommonHelper.TryAction(() => Image.Identify(stream));
             if (info?.Metadata?.DecodedImageFormat != null)
             {
                 return new SharpImageInfo(info);
@@ -76,7 +77,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public async Task<IImageInfo> DetectInfoAsync(Stream stream)
         {
-            var info = await Image.IdentifyAsync(stream);
+            var info = await CommonHelper.TryAction(() => Image.IdentifyAsync(stream));
             if (info?.Metadata?.DecodedImageFormat != null)
             {
                 return new SharpImageInfo(info);

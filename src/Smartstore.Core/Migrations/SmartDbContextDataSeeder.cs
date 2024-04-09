@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
@@ -98,6 +98,167 @@ namespace Smartstore.Core.Data.Migrations
             // Typo.
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowConfirmOrderLegalHint.Hint")
                 .Value("de", "Legt fest, ob rechtliche Hinweise in der Warenkorbübersicht auf der Bestellabschlussseite angezeigt werden. Dieser Text kann in den Sprachresourcen geändert werden.");
+
+            builder.AddOrUpdate("Admin.AI.CreateImageWith", "Create image with ", "Bild erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.CreateTextWith", "Create text with ", "Text erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.TranslateTextWith", "Translate with ", "Übersetzen mit ");
+            builder.AddOrUpdate("Admin.AI.MakeSuggestionWith", "Make suggestions with ", "Mach mir Vorschläge mit ");
+            
+            builder.AddOrUpdate("Admin.AI.CreateShortDescWith", "Create short description with ", "Kurzbeschreibung erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.CreateMetaTitleWith", "Create title tag with ", "Title-Tag erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.CreateMetaDescWith", "Create meta description with ", "Meta Description erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.CreateMetaKeywordsWith", "Create meta keywords with ", "Meta Keywords erzeugen mit ");
+            builder.AddOrUpdate("Admin.AI.CreateFullDescWith", "Create full description with ", "Langtext erzeugen mit ");
+
+            builder.AddOrUpdate("Admin.AI.TextCreation.CreateNew", "Create new", "Neu erstellen");
+            builder.AddOrUpdate("Admin.AI.TextCreation.Summarize", "Summarize", "Zusammenfassen");
+            builder.AddOrUpdate("Admin.AI.TextCreation.Improve", "Improve", "Schreibstil verbessern");
+            builder.AddOrUpdate("Admin.AI.TextCreation.Simplify", "Simplify", "Vereinfachen");
+            builder.AddOrUpdate("Admin.AI.TextCreation.Extend", "Extend", "Ausführlicher schreiben");
+
+            builder.AddOrUpdate("Admin.AI.TextCreation.DefaultPrompt", "Create text on the topic: '{0}'", "Erzeuge Text zum Thema: '{0}'.");
+            builder.AddOrUpdate("Admin.AI.ImageCreation.DefaultPrompt", "Create a picture on the topic: '{0}'", "Erzeuge ein Bild zum Thema: '{0}'.");
+            builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt", "Make suggestions on the topic: '{0}'", "Mache Vorschläge zum Thema '{0}'.");
+
+            builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeStyle", "Change style", "Sprachstil ändern");
+            builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Tone style", "Ton ändern");
+
+            builder.AddOrUpdate("Admin.AI.SpecifyTopic", "Please enter a topic", "Bitte geben Sie ein Thema an");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes", 
+                " Do not enclose the text in quotation marks.", 
+                " Schließe den Text nicht in Anführungszeichen ein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontNumberSuggestions", 
+                " Do not number the suggestions.", 
+                " Nummeriere die Vorschläge nicht.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign", 
+                " Separate each suggestion with the # sign.", 
+                " Trenne jeden Vorschlag mit dem #-Zeichen.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimit", 
+                " Limit your answer to {0} characters!", 
+                " Begrenze deine Antwort auf {0} Zeichen!");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.WordLimit",
+                " The text may contain a maximum of {0} words.",
+                " Der Text darf maximal {0} Wörter enthalten.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateListWithComma", 
+                " The list should be comma-separated so that it can be inserted directly as a meta tag.", 
+                " Die Liste soll kommagetrennt sein, so dass sie direkt als meta-tag eingefügt werden kann.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
+                " Do not use the name of the website as this will be added later. Reserve 5 words for this.", 
+                " Verwende dabei nicht den Namen der Webseite da dieser später hinzugefügt wird. Reserviere dafür 5 Worte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CreatePicture", 
+                " Create an image for the topic: '{0}'.", 
+                " Erstelle ein Bild zum Thema: '{0}'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AddCallToAction",
+                " Finally, insert a link with the text '{0}' that refers to '{1}'. The link is given the CSS classes 'btn btn-primary'",
+                " Füge abschließend einen Link mit dem Text '{0}' ein, der auf '{1}' verweist. Der Link erhält die CSS-Klassen 'btn btn-primary'");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AddLink",
+                " Insert a link that refers to '{0}'.",
+                " Füge einen Link ein, der auf '{0}' verweist.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AddNamedLink",
+                " Insert a link with the text '{0}' that refers to '{1}'.",
+                " Füge einen Link mit dem Text '{0}' ein, der auf '{1}' verweist.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AddToc",
+                " Insert a table of contents with the title '{0}'." +
+                " The title receives a {1} tag." +
+                " Link the individual points of the table of contents to the respective headings of the paragraphs.",
+                " Füge ein Inhaltsverzeichnis mit dem Titel '{0}' ein." +
+                " Der Titel erhält ein {1}-Tag." +
+                " Verlinke die einzelnen Punkte des Inhaltsverzeichnisses mit den jeweiligen Überschriften der Absätze.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeImages",
+                " After each paragraph, add another p-tag with the style specification 'width:450px', which contains an i-tag with the classes 'far fa-xl fa-file-image ai-preview-file'." +
+                " The title attribute of the i-tag should be the heading of the respective paragraph.",
+                " Füge nach jedem Absatz ein weiteres p-Tag zu mit der style-Angabe 'width:450px', das ein i-Tag mit den Klassen 'far fa-xl fa-file-image ai-preview-file' enthält." +
+                " Das title-Attribut des i-Tags soll die Überschrift des jeweiligen Absatzes sein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.NoIntroImage",
+                " The intro does not receive a picture.",
+                " Das Intro erhält kein Bild.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.NoConclusionImage",
+                " The conclusion does not receive a picture.",
+                " Das Fazit erhält kein Bild.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.UseKeywords",
+                " Use the following keywords: '{0}'.",
+                " Verwende folgende Keywords: '{0}'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.MakeKeywordsBold",
+                " Include the keywords in b-tags.",
+                " Schließe die Keywords in b-Tags ein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.KeywordsToAvoid",
+                " Do not use the following keywords under any circumstances: '{0}'.",
+                " Verwende unter keinen Umständen folgende Keywords: '{0}'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeConclusion",
+                " End the text with a conclusion.",
+                " Schließe den Text mit einem Fazit ab.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ParagraphHeadingTag",
+                " The headings of the individual sections are given {0} tags.",
+                " Die Überschriften der einzelnen Abschnitte erhalten {0}-Tags.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.WriteCompleteParagraphs",
+                " Write complete texts for each section.",
+                " Schreibe vollständige Texte für jeden Abschnitt.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ParagraphWordCount",
+                " Each section should contain a maximum of {0} words.",
+                " Jeder Abschnitt soll maximal {0} Wörter enthalten.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ParagraphCount",
+                " The text should be divided into {0} paragraphs, which are enclosed with p tags.",
+                " Der Text soll in {0} Abschnitte eingeteilt werden, die mit p-Tags umschlossen werden.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.MainHeadingTag",
+                " The main heading is given a {0} tag.",
+                " Die Hauptüberschrift erhält ein {0}-Tag.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeIntro",
+                " Start with an introduction.",
+                " Beginne mit einer Einleitung.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.LanguageStyle",
+                " The language style should be {0}.",
+                " Der Sprachstil soll {0} sein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.LanguageTone",
+                " The tone should be {0}.",
+                " Der Ton soll {0} sein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Language",
+                " Write in {0}.",
+                " Schreibe in {0}.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontCreateTitle",
+                " Do not create the title: '{0}'.",
+                " Erstelle nicht den Titel: '{0}'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.StartWithDivTag",
+                " Start with a div tag.",
+                " Starte mit einem div-Tag.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.JustHtml",
+                " Just return the HTML you have created so that it can be integrated directly into a website. " +
+                "Don't give explanations about what you have created or introductions like: 'Gladly, here is your HTML'. " +
+                "Do not include the generated HTML in any delimiters like: '```html'.",
+                " Gib nur das erstellte HTML-zurück, so dass es direkt in einer Webseite eingebunden werden kann. " +
+                "Mache keine Erklärungen dazu was du erstellt hast oder Einleitungen wie: 'Gerne, hier ist dein HTML'. " +
+                "Schließe das erzeugte HTML auch nicht in irgendwelche Begrenzer ein wie: '```html'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
+                " Create HTML text.",
+                " Erstelle HTML-Text.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.RolePrefix",
+                " Be a ",
+                " Sei ein ");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Translator",
+                "professional translator.",
+                "professioneller Übersetzer.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Copywriter",
+                "professional copywriter.",
+                "professioneller Texter.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Marketer",
+                "marketing expert.",
+                "Marketing-Experte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SEOExpert",
+                "SEO expert.",
+                "SEO-Experte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Blogger",
+                "professional blogger.",
+                "professioneller Blogger.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Journalist",
+                "professional journalist.",
+                "professioneller Journalist.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SalesPerson",
+                "assistant that creates product descriptions that convince a potential customer to make a purchase.",
+                "Assistent, der Produktbeschreibungen erstellt, die einen potentiellen Kunden von einem Kauf überzeugen.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
+                "expert for the product: '{0}'.",
+                "Experte für das Produkt: '{0}'.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.UseNativeNameInLanguageSelector",
                 "Display native language name in language selector",
@@ -289,6 +450,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LinkManufacturerLogoInLists",
                 "Link brand logo",
                 "Marken-Logo verlinken");
+
+            builder.AddOrUpdate("Common.OptimizeTableSuccessful",
+                "The database table '{0}' has been successfully optimized.",
+                "Die Datenbank-Tabelle '{0}' wurde erfolgreich optimiert.");
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Models.Catalog
         public string Color { get; set; } = string.Empty;
 
         [UIHint("Media")]
-        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true), AdditionalMetadata("entityType", "SpecificationAttributeOption")]
         [LocalizedDisplay("*Picture")]
         public int PictureId { get; set; }
 
