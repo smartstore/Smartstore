@@ -522,7 +522,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the wallet history.
         /// </summary>
-        [IgnoreDataMember]
         public ICollection<WalletHistory> WalletHistory
         {
             get => _walletHistory ?? LazyLoader.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());

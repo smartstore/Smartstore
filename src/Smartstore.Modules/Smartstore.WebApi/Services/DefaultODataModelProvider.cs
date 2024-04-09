@@ -85,6 +85,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<TaxCategory>("TaxCategories");
             builder.EntitySet<TierPrice>("TierPrices");
             builder.EntitySet<UrlRecord>("UrlRecords");
+            builder.EntitySet<WalletHistory>("WalletHistory");
 
             // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).

@@ -64,6 +64,13 @@ namespace Smartstore.Web.Api.Controllers
             return GetRelatedQuery(key, x => x.Orders);
         }
 
+        [HttpGet("Customers({key})/WalletHistory"), ApiQueryable]
+        [Permission("Wallet.read")]
+        public IQueryable<WalletHistory> GetWalletHistory(int key)
+        {
+            return GetRelatedQuery(key, x => x.WalletHistory);
+        }
+
         [HttpGet("Customers({key})/ReturnRequests"), ApiQueryable]
         [Permission(Permissions.Order.ReturnRequest.Read)]
         public IQueryable<ReturnRequest> GetReturnRequests(int key)

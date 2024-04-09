@@ -40,7 +40,8 @@
   - Fixed *boxed titles* spacing and line-height issues
 - Web API
   - Enabling CORS.
-  - #928 mask the secret key in backend API user list.  
+  - #928 mask the secret key in backend API user list.
+  - #1057 add endpoints for `WalletHistory` entity.
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
