@@ -25,7 +25,7 @@ namespace Smartstore.Data.Providers
         StoredProcedures = 1 << 8,
         ReadSequential = 1 << 9,
         ReadTableInfo = 1 << 10,
-        OptimizeTable = 1 << 11,
+        OptimizeTable = 1 << 11
     }
 
     public abstract partial class DataProvider : Disposable

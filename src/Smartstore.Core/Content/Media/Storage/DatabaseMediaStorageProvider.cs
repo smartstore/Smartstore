@@ -277,7 +277,7 @@ namespace Smartstore.Core.Content.Media.Storage
         {
             if (succeeded && context.AffectedFiles.Count > 0 && _db.DataProvider.CanOptimizeTable)
             {
-                // Optimite MediaFile table after sending/removing at least one blob
+                // Optimize MediaFile table after sending/removing at least one blob
                 var tableName = _db.Model.FindEntityType(typeof(MediaFile))?.GetTableName();
                 return _db.DataProvider.OptimizeTableAsync(tableName, cancelToken);
             }

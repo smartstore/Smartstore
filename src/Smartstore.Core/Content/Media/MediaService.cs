@@ -1191,7 +1191,7 @@ namespace Smartstore.Core.Content.Media
         {
             var mediaType = _typeResolver.Resolve(file.Extension, file.MimeType);
 
-            var resolveDimensions = mediaType == MediaType.Image && (file.Width.GetValueOrDefault() == 0 || file.Height.GetValueOrDefault() == 0);
+            var resolveDimensions = mediaType == MediaType.Image && (file.Width == null || file.Height == null);
             var resolveSize = file.Size <= 0;
 
             Stream stream = null;
