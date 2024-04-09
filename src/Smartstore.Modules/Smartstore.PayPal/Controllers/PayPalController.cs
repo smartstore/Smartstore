@@ -290,9 +290,6 @@ namespace Smartstore.PayPal.Controllers
                 case PayPalConstants.Giropay:
                     paymentSource.PaymentSourceGiroPay = apmPaymentSource;
                     break;
-                case PayPalConstants.Sofort:
-                    paymentSource.PaymentSourceSofort = apmPaymentSource;
-                    break;
                 case PayPalConstants.Bancontact:
                     paymentSource.PaymentSourceBancontact = apmPaymentSource;
                     break;

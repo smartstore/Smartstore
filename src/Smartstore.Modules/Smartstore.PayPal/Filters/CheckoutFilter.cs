@@ -19,7 +19,6 @@ namespace Smartstore.PayPal.Filters
         private static readonly string[] _apms =
         {
             PayPalConstants.Giropay,
-            PayPalConstants.Sofort,
             PayPalConstants.Bancontact,
             PayPalConstants.Blik,
             PayPalConstants.Eps,

@@ -84,7 +84,7 @@ namespace Smartstore.PayPal.Models
         }
 
         /// <summary>
-        /// Order is confimed by buyer and Sofort -> automatically submit confirm form.
+        /// Order is confimed by buyer and APM -> automatically submit confirm form.
         /// </summary>
         public bool SubmitForm
         {
