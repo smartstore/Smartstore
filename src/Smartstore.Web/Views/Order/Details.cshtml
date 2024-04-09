@@ -5,6 +5,7 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.OrderDetails"));
+    Assets.BodyAttributes.AppendCssClass("no-hidden-overflow");
 
     var bundleItemThumbSize = Math.Min(Model.BundleThumbSize, 60);
     var hasOrderDetails1 = Model.BillingAddress != null || (Model.IsShippable && Model.ShippingAddress != null);
