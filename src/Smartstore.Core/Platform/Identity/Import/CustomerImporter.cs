@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Tax;
+﻿using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
@@ -16,11 +17,12 @@ namespace Smartstore.Core.DataExchange.Import
     {
         const string CargoDataKey = "CustomerImporter.CargoData";
 
+        private readonly IMediaImporter _mediaImporter;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
         private readonly DateTimeSettings _dateTimeSettings;
-        private readonly IMediaImporter _mediaImporter;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CustomerImporter(
             ICommonServices services,
@@ -31,7 +33,8 @@ namespace Smartstore.Core.DataExchange.Import
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
-            DateTimeSettings dateTimeSettings)
+            DateTimeSettings dateTimeSettings,
+            ShoppingCartSettings shoppingCartSettings)
             : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
@@ -39,6 +42,7 @@ namespace Smartstore.Core.DataExchange.Import
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;
             _dateTimeSettings = dateTimeSettings;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         public static string[] SupportedKeyFields => new[]
@@ -459,6 +463,20 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var num = await scope.CommitAsync(context.CancelToken);
+
+            if (num > 0 && _shoppingCartSettings.QuickCheckoutEnabled)
+            {
+                // Set default billing and shipping address.
+                foreach (var row in batch)
+                {
+                    var customer = row.Entity;
+                    customer.GenericAttributes.DefaultBillingAddressId = customer.BillingAddress?.Id;
+                    customer.GenericAttributes.DefaultShippingAddressId = customer.ShippingAddress?.Id;
+                }
+
+                await scope.CommitAsync(context.CancelToken);
+            }
+
             return num;
         }
 

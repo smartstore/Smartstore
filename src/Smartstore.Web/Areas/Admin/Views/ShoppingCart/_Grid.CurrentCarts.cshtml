@@ -1,12 +1,32 @@
-﻿@model CurrentCartModel
+﻿@using Smartstore.Core.Checkout.Cart
+
+@model CurrentCartModel
 
 @{
     var parentModel = ViewData["Parent"] as CurrentCartListModel;
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+
     var productString = T("Admin.CurrentCarts.Product");
-    var storeString = T("Admin.Common.Store");
     var quantityString = T("Admin.CurrentCarts.Quantity");
     var unitPriceString = T("Admin.CurrentCarts.UnitPrice");
     var totalString = T("Admin.CurrentCarts.Total");
+
+    var additionalOptions = string.Empty;
+    var activeColumn =  string.Empty;
+    var storeColumn = string.Empty;
+
+    if (parentModel.CartType == ShoppingCartType.ShoppingCart)
+    {
+        var activeString = T("Common.Active");
+        additionalOptions = ", onRowClass: 'currentCartGrid_onRowClass'";
+        activeColumn = $"{{ member: 'Active', name: '{activeString}', visible: true, halign: 'center', type: 'boolean', title: '{activeString}' }},";
+    }
+
+    if (stores.Count > 1)
+    {
+        var storeString = T("Admin.Common.Store");
+        storeColumn = $"{{ member: 'Store', name: '{storeString}', visible: true, title: '{storeString}' }}";
+    }
 }
 
 <datagrid id="current-carts-grid"
@@ -41,14 +61,15 @@
         <div class="datagrid-root">
             <sm-datagrid :ref="'cart-items-grid' + item.row.CustomerId"
                          :id="'cart-items-grid' + item.row.CustomerId"
-                         :options="{ keyMemberName: 'Id', vborders: true, hover: false, striped: true, allowRowSelection: false }"
+                         :options="{ keyMemberName: 'Id', vborders: true, hover: false, striped: true@(additionalOptions) }"
                          :data-source="{ read: '@Url.Action("CurrentCartDetailsList")?customerId=' + item.row.CustomerId + '&cartType=@parentModel.CartType' }"
                          :columns="[
                             { member: 'ProductName', name: '@productString', visible: true, title: '@productString' },
-                            { member: 'Store', name: '@storeString', visible: true, title: '@storeString' },
+                            @activeColumn
                             { member: 'Quantity', name: 'Quantity', visible: true, halign: 'center', type: 'int', title: '@quantityString' },
                             { member: 'UnitPrice', name: '@unitPriceString', visible: true, halign: 'right', title: '@unitPriceString' },
-                            { member: 'Total', name: '@totalString', visible: true, halign: 'right', title: '@totalString' } ]"
+                            { member: 'Total', name: '@totalString', visible: true, halign: 'right', title: '@totalString' },
+                            @storeColumn ]"
                          :paging="{ enabled: false }"
                          :sorting="{ enabled: false }">
                 <template v-slot:display-productname="item">
@@ -59,3 +80,11 @@
         </div>
     </detail-view>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="current-carts-grid">
+    function currentCartGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Active
+        };
+    }
+</script>

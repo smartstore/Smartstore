@@ -48,10 +48,11 @@ namespace Smartstore.Web.Models.Cart
 
             await base.MapAsync(from, to, (object)parameters);
 
+            to.Active = item.Active;
             to.IsShippingEnabled = product.IsShippingEnabled;
             to.IsDownload = product.IsDownload;
-            to.HasUserAgreement = product.HasUserAgreement;
             to.IsEsd = product.IsEsd;
+            to.HasUserAgreement = product.HasUserAgreement;
             to.DisableWishlistButton = product.DisableWishlistButton;
 
             if (from.ChildItems != null)
@@ -61,6 +62,9 @@ namespace Smartstore.Web.Models.Cart
                     var model = new ShoppingCartModel.ShoppingCartItemModel();
 
                     await childItem.MapAsync(model, (object)parameters);
+
+                    // Inherit state from parent because only the parent item can be enabled/disabled.
+                    model.Active = item.Active;
 
                     to.AddChildItems(model);
                 }

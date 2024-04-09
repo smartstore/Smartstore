@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Cart
     public partial class MiniShoppingCartModel : ModelBase
     {
         public List<ShoppingCartItemModel> Items { get; set; } = [];
-        public int TotalProducts { get; set; }
+        public int TotalQuantity { get; set; }
         public Money SubTotal { get; set; }
         public bool DisplayCheckoutButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
@@ -21,6 +21,7 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class ShoppingCartItemModel : EntityModelBase, IQuantityInput
         {
+            public bool Active { get; set; }
             public int ProductId { get; set; }
 
             public LocalizedValue<string> ProductName { get; set; }

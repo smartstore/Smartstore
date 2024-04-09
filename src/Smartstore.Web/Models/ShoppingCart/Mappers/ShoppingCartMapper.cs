@@ -206,12 +206,9 @@ namespace Smartstore.Web.Models.Cart
             }
 
             // Cart warnings.
-            var warnings = new List<string>();
-            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(from, warnings, validateCheckoutAttributes);
-            if (!cartIsValid)
-            {
-                to.Warnings.AddRange(warnings);
-            }
+            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes);
+
+            to.CheckoutNotAllowedWarning = T(_shoppingCartSettings.AllowToDeactivateCartItems ? "ShoppingCart.SelectAtLeastOneProduct" : "ShoppingCart.CartIsEmpty");
 
             #endregion
 
@@ -407,12 +404,7 @@ namespace Smartstore.Web.Models.Cart
 
             #region Cart items
 
-            var allProducts = from.Items
-                .Select(x => x.Item.Product)
-                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
-
-            var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
+            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, customer, false);
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new GracefulDynamicObject();
@@ -482,8 +474,6 @@ namespace Smartstore.Web.Models.Cart
             {
                 paymentMethods = paymentMethods.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
             }
-
-            to.ButtonPaymentMethods = new ButtonPaymentMethodModel();
 
             foreach (var paymentMethod in paymentMethods)
             {

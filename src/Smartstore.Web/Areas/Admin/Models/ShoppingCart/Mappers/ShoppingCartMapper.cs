@@ -43,21 +43,17 @@ namespace Smartstore.Admin.Models.Cart
 
         public override async Task MapAsync(ShoppingCart from, List<ShoppingCartItemModel> to, dynamic parameters = null)
         {
-            Guard.NotNull(from, nameof(from));
-            Guard.NotNull(to, nameof(to));
+            Guard.NotNull(from);
+            Guard.NotNull(to);
 
-            var products = from.Items
-                .Select(x => x.Item.Product)
-                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
-
+            var allProducts = from.GetAllProducts();
             var stores = _services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
 
             foreach (var item in from.Items)
             {
                 var sci = item.Item;
                 var store = stores.Get(sci.StoreId);
-                var batchContext = _productService.CreateProductBatchContext(products, store, from.Customer, false);
+                var batchContext = _productService.CreateProductBatchContext(allProducts, store, from.Customer, false);
                 var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, from.Customer, null, batchContext);
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(item, calculationOptions);
 
@@ -66,6 +62,7 @@ namespace Smartstore.Admin.Models.Cart
                 var model = new ShoppingCartItemModel
                 {
                     Id = sci.Id,
+                    Active = sci.Active,
                     Store = store?.Name ?? StringExtensions.NotAvailable,
                     ProductId = sci.ProductId,
                     Quantity = sci.Quantity,

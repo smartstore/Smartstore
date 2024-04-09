@@ -65,8 +65,35 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
+        /// <param name="activeOnly">
+        /// A value indicating whether to load active items.
+        /// <c>true</c> to only load active items (default). <c>null</c> to load all items (such as on the shopping cart page).
+        /// </param>
         /// <returns>Shopping cart.</returns>
-        Task<ShoppingCart> GetCartAsync(Customer customer = null, ShoppingCartType cartType = ShoppingCartType.ShoppingCart, int storeId = 0);
+        Task<ShoppingCart> GetCartAsync(
+            Customer customer = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            int storeId = 0, 
+            bool? activeOnly = true);
+
+        /// <summary>
+        /// Gets the total number of products in a shopping cart.
+        /// This method has a performance benefit over <see cref="GetCartAsync(Customer, ShoppingCartType, int, bool?)" />:
+        /// if the cart is cached, the number is determined from this, otherwise it is counted without the payload of loading and processing the entire cart.
+        /// </summary>
+        /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <param name="activeOnly">
+        /// A value indicating whether to count active items.
+        /// <c>true</c> to only count active items (default). <c>null</c> to count all items (such as on the shopping cart page).
+        /// </param>
+        /// <returns>Number of items in a shopping cart.</returns>
+        Task<int> CountProductsInCartAsync(
+            Customer customer = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            int storeId = 0,
+            bool? activeOnly = true);
 
         /// <summary>
         /// Migrates all cart items from one to another customer async.
@@ -77,14 +104,20 @@ namespace Smartstore.Core.Checkout.Cart
         Task<bool> MigrateCartAsync(Customer fromCustomer, Customer toCustomer);
 
         /// <summary>
-        /// Updates the shopping cart item by item identifier of customer.
+        /// Updates the shopping cart item by item identifier of a customer.
         /// </summary>
         /// <param name="customer">Customer of cart items.</param>
-        /// <param name="cartItemId">Cart item to update.</param>
-        /// <param name="newQuantity">New quantitiy.</param>
+        /// <param name="cartItemId">Identifier of the cart item to update.</param>
+        /// <param name="quantity">New quantity. <c>null</c> to not update <see cref="ShoppingCartItem.Quantity"/>.</param>
+        /// <param name="active">A value indicating whether the cart item is active. <c>null</c> to not update <see cref="ShoppingCartItem.Active"/>.</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
         /// <returns>List of error messages.</returns>
-        Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
+        Task<IList<string>> UpdateCartItemAsync(
+            Customer customer,
+            int cartItemId, 
+            int? quantity,
+            bool? active,
+            bool resetCheckoutData = false);
 
         /// <summary>
         /// Saves data entered on the shopping cart page (checkout attributes and whether to use reward points).

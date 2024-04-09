@@ -11,11 +11,41 @@ $(function () {
         // What is "link.data"?
         var data = link.data('post-form') ? $(this).closest('form').serialize() : link.data;
         
-        updateShoppingCartItems(link, data);
+        updateShoppingCartItems(link.data('href'), data);
         return false;
     });
 
-    // Quantity numberinput change.
+    // Activate/deactivate cart item.
+    orderSummary.on('change', '.select-cart-item-checkbox', function () {
+        const self = $(this);
+        const cartItemId = self.closest('.cart-row').data('key');
+        const url = orderSummary.data('update-item-url');
+
+        updateShoppingCartItems(url, {
+            cartItemId,
+            active: this.checked,
+            isCartPage: true,
+            isWishlist
+        });
+    });
+
+    // Activate/deactivate all cart items.
+    $('#SelectAllCartItems').on('click', '.select-cart-items, .deselect-cart-items', function (e) {
+        e.preventDefault();
+
+        const activateAll = $(this).hasClass('select-cart-items');
+        const url = orderSummary.data('update-item-url');
+
+        updateShoppingCartItems(url, {
+            activateAll,
+            isCartPage: true,
+            isWishlist
+        });
+        
+        return false;
+    });
+
+    // Quantity number input change.
     var debouncedUpdate = _.debounce(function (e) {
         e.preventDefault();
 
@@ -25,13 +55,19 @@ $(function () {
         }
 
         var link = $(this);
-        updateShoppingCartItems(link, { sciItemId: link.data("sci-id"), newQuantity: link.val(), isCartPage: true, isWishlist: isWishlist });
+        updateShoppingCartItems(link.data('href'), {
+            cartItemId: link.data("sci-id"),
+            newQuantity: link.val(),
+            isCartPage: true,
+            isWishlist
+        });
+
         return false;
     }, 350, false);
 
     orderSummary.on('change', '.qty-input .form-control', debouncedUpdate);
 
-    function updateShoppingCartItems(link, data) {
+    function updateShoppingCartItems(url, data) {
         if (updatingCart)
             return;
 
@@ -40,7 +76,7 @@ $(function () {
 
         $.ajax({
             cache: false,
-            url: link.data("href"),
+            url,
             data: data,
             type: 'POST',
             success: function (response) {
@@ -56,9 +92,6 @@ $(function () {
                 var cartBody = $(".cart-body");
 
                 if (response.success) {
-                    $("#start-checkout-buttons").toggleClass("d-none", !response.displayCheckoutButtons);
-
-                    // Replace HTML.
                     if (!_.isEmpty(response.cartHtml)) {
                         cartBody.html(response.cartHtml);
                     }
@@ -77,6 +110,15 @@ $(function () {
                     if (!_.isEmpty(response.estimateShippingHtml)) {
                         $('.cart-action-shipping').replaceWith(response.estimateShippingHtml);
                     }
+
+                    $('#SelectAllCartItems').html(response.itemSelectionHtml);
+
+                    const displayCheckoutButtons = response.displayCheckoutButtons !== false;
+                    $('#start-checkout-buttons').toggleClass('d-none', !displayCheckoutButtons);
+
+                    const checkoutAllowed = response.checkoutAllowed !== false;
+                    $('#cart-summary-container').toggleClass('d-none', !checkoutAllowed);
+                    $('#cart-select-products-warning').toggleClass('d-none', checkoutAllowed);
                 }
 
                 displayNotification(response.message, response.success ? "success" : "error");

@@ -207,7 +207,11 @@ $(function () {
             cache: false,
             type: "POST",
             url: el.data("update-url"),
-            data: { "sciItemId": el.data("sci-id"), "newQuantity": el.val(), "isCartPage": true },
+            data: {
+                "cartItemId": el.data("sci-id"),
+                "newQuantity": el.val(),
+                "isCartPage": true
+            },
             success: function (data) {
                 if (data.success == true) {
                     var type = el.data("type");

@@ -121,6 +121,7 @@ namespace Smartstore.Web.Models.Cart
                 to.BundleItem = new BundleItemModel
                 {
                     Id = item.BundleItem.Id,
+                    ParentItemId = item.ParentItemId ?? 0,
                     DisplayOrder = item.BundleItem.DisplayOrder,
                     HideThumbnail = item.BundleItem.HideThumbnail,
                     PerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing,

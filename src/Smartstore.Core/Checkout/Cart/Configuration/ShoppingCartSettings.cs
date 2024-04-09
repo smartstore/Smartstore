@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 
@@ -26,6 +25,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets a value indicating maximum number of items in the wishlist
         /// </summary>
         public int MaximumWishlistItems { get; set; } = 1000;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the customer can deactivate cart items.
+        /// </summary>
+        public bool AllowToDeactivateCartItems { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to allow out of stock items to be added to the wishlist

@@ -563,11 +563,13 @@ namespace Smartstore.Web.Api
             addToCart.Parameter<AddToCartExtraData>("extraData")
                 .Optional();
 
-            set.EntityType
+            var updateItem = set.EntityType
                 .Action(nameof(ShoppingCartItemsController.UpdateItem))
-                .ReturnsFromEntitySet(set)
-                .Parameter<int>("quantity")
-                .Required();
+                .ReturnsFromEntitySet(set);
+            updateItem.Parameter<int?>("quantity")
+                .Optional();
+            updateItem.Parameter<bool?>("enabled")
+                .Optional();
 
             var deleteItem = set.EntityType
                 .Action(nameof(ShoppingCartItemsController.DeleteItem));

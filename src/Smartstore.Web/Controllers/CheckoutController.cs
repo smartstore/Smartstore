@@ -137,7 +137,7 @@ namespace Smartstore.Web.Controllers
                     customer.ShippingAddress = address;
                     if (_shoppingCartSettings.QuickCheckoutEnabled)
                     {
-                        customer.GenericAttributes.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                        ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
                     }
                 }
                 else

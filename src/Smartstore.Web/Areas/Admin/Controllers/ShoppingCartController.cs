@@ -134,7 +134,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, cartType);
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType, 0, null);
             var rows = await cart.MapAsync();
 
             return Json(new GridModel<ShoppingCartItemModel>

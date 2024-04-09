@@ -13,11 +13,22 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
+    [Index(nameof(Active), Name = "IX_CartItemActive")]
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware, IEquatable<ShoppingCartItem>
     {
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
         private int? _hashCode;
+
+        /// <summary>
+        /// A value indicating whether the cart item is active.
+        /// Deactivated items are not ordered and remain in the shopping cart after the order is placed.
+        /// </summary>
+        /// <remarks>
+        /// Deactivated items are always displayed in the shopping cart/mini shopping cart (so that they can be deleted at any time)
+        /// and also the counter for cart items always takes them into account.
+        /// </remarks>
+        public bool Active { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the store identifier
@@ -185,15 +196,16 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 var combiner = HashCodeCombiner
                     .Start()
+                    .Add(Active)
+                    .Add(StoreId)
+                    .Add(ParentItemId)
+                    .Add(BundleItemId)
                     .Add(CustomerId)
                     .Add(ProductId)
                     .Add(RawAttributes)
-                    .Add(Quantity)
-                    .Add(ShoppingCartTypeId)
                     .Add(CustomerEnteredPrice)
-                    .Add(StoreId)
-                    .Add(ParentItemId)
-                    .Add(BundleItemId);
+                    .Add(Quantity)
+                    .Add(ShoppingCartTypeId);
 
                 _hashCode = combiner.CombinedHash;
             }

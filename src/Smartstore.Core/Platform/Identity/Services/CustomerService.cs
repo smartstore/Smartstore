@@ -159,7 +159,7 @@ namespace Smartstore.Core.Identity
             {
                 query =
                     from c in query
-                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id)
+                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id && sci.Active)
                     select c;
             }
             if (registrationFrom.HasValue)

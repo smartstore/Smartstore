@@ -3,6 +3,9 @@
     [LocalizedDisplay("Admin.CurrentCarts.")]
     public class ShoppingCartItemModel : EntityModelBase
     {
+        [LocalizedDisplay("Common.Active")]
+        public bool Active { get; set; }
+
         [LocalizedDisplay("Admin.Common.Store")]
         public string Store { get; set; }
 

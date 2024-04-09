@@ -18,6 +18,17 @@ namespace Smartstore.Core.Checkout.Cart
             StoreId = storeId;
         }
 
+        public ShoppingCart(ShoppingCart other, IEnumerable<OrganizedShoppingCartItem> items = null)
+        {
+            Guard.NotNull(other);
+
+            Customer = other.Customer;
+            Items = items?.ToArray() ?? other.Items;
+            StoreId = other.StoreId;
+            CartType = other.CartType;
+            Requirements = other.Requirements;
+        }
+
         /// <summary>
         /// Array of cart items.
         /// </summary>

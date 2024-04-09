@@ -65,14 +65,15 @@ namespace Smartstore.Web.Components
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = orderTotalsEvent.Customer ?? Services.WorkContext.CurrentCustomer;
             var storeId = orderTotalsEvent.StoreId ?? Services.StoreContext.CurrentStore.Id;
-
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+
             var model = new OrderTotalsModel
             {
-                IsEditable = isEditable
+                IsEditable = isEditable,
+                TotalQuantity = cart.GetTotalQuantity()
             };
 
-            if (!cart.Items.Any())
+            if (!cart.HasItems)
             {
                 return View(model);
             }
@@ -86,19 +87,23 @@ namespace Smartstore.Web.Components
             }
 
             // Subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            model.CartSubtotal = cartSubTotal;
-            model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            model.CartSubtotal = subtotal;
+            model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
 
-            if (cartSubTotal.DiscountAmount > decimal.Zero)
+            if (subtotal.DiscountAmount > decimal.Zero)
             {
-                var subTotalDiscountAmountConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.DiscountAmount.Amount, currency);
+                model.SubTotalDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.DiscountAmount.Amount, currency) * -1;
+                model.AllowRemovingSubTotalDiscount = subtotal.AppliedDiscount != null
+                    && subtotal.AppliedDiscount.RequiresCouponCode
+                    && subtotal.AppliedDiscount.CouponCode.HasValue()
+                    && isEditable;
+            }
 
-                model.SubTotalDiscount = subTotalDiscountAmountConverted * -1;
-                model.AllowRemovingSubTotalDiscount = cartSubTotal.AppliedDiscount != null
-                    && cartSubTotal.AppliedDiscount.RequiresCouponCode
-                    && cartSubTotal.AppliedDiscount.CouponCode.HasValue()
-                    && model.IsEditable;
+            if (isEditable && (_shoppingCartSettings.AllowToDeactivateCartItems ||
+                await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, storeId, false) > 0))
+            {
+                model.SubtotalLabel = T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity);
             }
 
             // Shipping info
@@ -137,10 +142,10 @@ namespace Smartstore.Web.Components
             }
             else
             {
-                (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
-                var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
+                (Money tax, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                model.Tax = _currencyService.ConvertFromPrimaryCurrency(tax.Amount, currency);
 
-                if (price == decimal.Zero && _taxSettings.HideZeroTax)
+                if (tax == decimal.Zero && _taxSettings.HideZeroTax)
                 {
                     displayTax = false;
                     displayTaxRates = false;
@@ -149,7 +154,6 @@ namespace Smartstore.Web.Components
                 {
                     displayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Count > 0;
                     displayTax = !displayTaxRates;
-                    model.Tax = cartTax.ToString(true);
 
                     foreach (var taxRate in taxRates)
                     {
@@ -193,7 +197,7 @@ namespace Smartstore.Web.Components
                 model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
                     && cartTotal.AppliedDiscount.RequiresCouponCode
                     && cartTotal.AppliedDiscount.CouponCode.HasValue()
-                    && model.IsEditable;
+                    && isEditable;
             }
 
             // Gift cards

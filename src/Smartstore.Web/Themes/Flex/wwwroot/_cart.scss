@@ -127,6 +127,12 @@
     }
 }
 
+.offcanvas-cart-item-deactivated {
+    .col-image, .col-data {
+        opacity: 0.5;
+    }
+}
+
 .offcanvas-cart-footer {
     background-color: $offcanvas-cart-footer;
 }
@@ -270,6 +276,13 @@
 
     > span:nth-child(odd) {
         font-weight: $font-weight-medium;
+    }
+}
+
+.cart-item-deactivated {
+    .cart-item-img,
+    .cart-item-data > :not(.cart-item-actions) {
+        opacity: 0.5;
     }
 }
 
