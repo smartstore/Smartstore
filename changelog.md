@@ -2,6 +2,9 @@
 
 ## Smartstore 5.2.0
 
+### Breaking Changes
+- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024) 
+
 ### New Features
 
 - **Conditional product attributes**
