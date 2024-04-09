@@ -87,25 +87,23 @@ namespace Smartstore.Web.Components
             }
 
             // Subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
-            model.CartSubtotal = cartSubTotal;
-            model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            model.CartSubtotal = subtotal;
+            model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
 
-            if (cartSubTotal.DiscountAmount > decimal.Zero)
+            if (subtotal.DiscountAmount > decimal.Zero)
             {
-                var subTotalDiscountAmountConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.DiscountAmount.Amount, currency);
-
-                model.SubTotalDiscount = subTotalDiscountAmountConverted * -1;
-                model.AllowRemovingSubTotalDiscount = cartSubTotal.AppliedDiscount != null
-                    && cartSubTotal.AppliedDiscount.RequiresCouponCode
-                    && cartSubTotal.AppliedDiscount.CouponCode.HasValue()
-                    && model.IsEditable;
+                model.SubTotalDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.DiscountAmount.Amount, currency) * -1;
+                model.AllowRemovingSubTotalDiscount = subtotal.AppliedDiscount != null
+                    && subtotal.AppliedDiscount.RequiresCouponCode
+                    && subtotal.AppliedDiscount.CouponCode.HasValue()
+                    && isEditable;
             }
 
-            model.SubtotalLabel = _shoppingCartSettings.AllowToDeactivateCartItems ? T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity) : (string)null;
-            if (model.SubtotalLabel.IsEmpty())
+            if (isEditable && (_shoppingCartSettings.AllowToDeactivateCartItems ||
+                await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, storeId, false) > 0))
             {
-                model.SubtotalLabel = T("ShoppingCart.Totals.SubTotal");
+                model.SubtotalLabel = T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity);
             }
 
             // Shipping info
@@ -199,7 +197,7 @@ namespace Smartstore.Web.Components
                 model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
                     && cartTotal.AppliedDiscount.RequiresCouponCode
                     && cartTotal.AppliedDiscount.CouponCode.HasValue()
-                    && model.IsEditable;
+                    && isEditable;
             }
 
             // Gift cards
