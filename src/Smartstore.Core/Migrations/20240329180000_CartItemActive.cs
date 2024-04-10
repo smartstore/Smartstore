@@ -61,7 +61,7 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowToDeactivateCartItems",
                 "Products in shopping cart can be deactivated",
                 "Produkte im Warenkorb können deaktiviert werden",
-                "Specifies whether products in the shopping cart can be deactivated. Deactivated products are not ordered and remain in the shopping cart after the order is placed.",
+                "Specifies whether products in the shopping cart can be deactivated. Deactivated products will not be ordered and will remain in the shopping cart after the order has been placed.",
                 "Legt fest, ob Produkte im Warenkorb deaktiviert werden können. Deaktivierte Produkte werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
 
             builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",

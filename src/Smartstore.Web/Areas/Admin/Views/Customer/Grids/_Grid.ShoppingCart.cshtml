@@ -3,7 +3,7 @@
    
 @model ShoppingCartItemModel
 
-<datagrid id="currentshoppingcart-grid" allow-resize="true" max-height="600px" onrowclass="currentShoppingCartGrid_onRowClass">
+<datagrid id="currentshoppingcart-grid" version=2 allow-resize="true" max-height="600px" onrowclass="currentShoppingCartGrid_onRowClass">
     <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.ShoppingCart })"/>
     <paging position="Bottom" />
     <columns>

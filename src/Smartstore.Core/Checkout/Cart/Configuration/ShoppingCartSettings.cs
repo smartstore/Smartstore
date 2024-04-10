@@ -29,6 +29,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether the customer can deactivate cart items.
         /// </summary>
+        // TODO: (mg) Rename to "AllowActivatableCartItems"
         public bool AllowToDeactivateCartItems { get; set; } = true;
 
         /// <summary>

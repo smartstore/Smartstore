@@ -15,7 +15,7 @@
 @for (var i = 0; i < bundleItems.Length; i++)
 {
     var item = bundleItems[i];
-    <div class="cart-row cart-row-child@(!item.Active ? " cart-item-deactivated" : string.Empty)"
+    <div class="cart-row cart-row-child@(!item.Active ? " cart-item-inactive" : string.Empty)"
          data-key="@item.Id" 
          data-parent-key="@item.BundleItem.ParentItemId">
         <div class="row">
