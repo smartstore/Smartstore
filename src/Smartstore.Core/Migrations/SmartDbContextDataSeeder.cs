@@ -454,6 +454,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.OptimizeTableSuccessful",
                 "The database table '{0}' has been successfully optimized.",
                 "Die Datenbank-Tabelle '{0}' wurde erfolgreich optimiert.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowActivatableCartItems",
+                "Products in shopping cart can be deactivated",
+                "Produkte im Warenkorb können deaktiviert werden",
+                "Specifies whether products in the shopping cart can be deactivated. Deactivated products will not be ordered and will remain in the shopping cart after the order has been placed.",
+                "Legt fest, ob Produkte im Warenkorb deaktiviert werden können. Deaktivierte Produkte werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
         }
     }
 }

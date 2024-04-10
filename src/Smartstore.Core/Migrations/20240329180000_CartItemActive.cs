@@ -58,12 +58,6 @@ namespace Smartstore.Core.Migrations
         {
             const string cartSelectionLink = "<a href=\"{{0}}\" class=\"{1}\" rel=\"nofollow\">{0}</a>.";
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowToDeactivateCartItems",
-                "Products in shopping cart can be deactivated",
-                "Produkte im Warenkorb können deaktiviert werden",
-                "Specifies whether products in the shopping cart can be deactivated. Deactivated products will not be ordered and will remain in the shopping cart after the order has been placed.",
-                "Legt fest, ob Produkte im Warenkorb deaktiviert werden können. Deaktivierte Produkte werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
-
             builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",
                 "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
                 "Keine Artikel ausgewählt. " + cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));

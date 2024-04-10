@@ -208,7 +208,7 @@ namespace Smartstore.Web.Models.Cart
             // Cart warnings.
             await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes);
 
-            to.CheckoutNotAllowedWarning = T(_shoppingCartSettings.AllowToDeactivateCartItems ? "ShoppingCart.SelectAtLeastOneProduct" : "ShoppingCart.CartIsEmpty");
+            to.CheckoutNotAllowedWarning = T(_shoppingCartSettings.AllowActivatableCartItems ? "ShoppingCart.SelectAtLeastOneProduct" : "ShoppingCart.CartIsEmpty");
 
             #endregion
 

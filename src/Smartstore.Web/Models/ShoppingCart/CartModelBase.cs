@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Cart
         public abstract IEnumerable<CartEntityModelBase> Items { get; }
         public List<string> Warnings { get; set; } = [];
 
-        public bool AllowToDeactivateCartItems { get; set; }
+        public bool AllowActivatableCartItems { get; set; }
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public bool IsEditable { get; set; }

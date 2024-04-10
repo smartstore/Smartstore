@@ -280,6 +280,10 @@
     }
 }
 
+.select-cart-item-checkbox {
+    --form-check-checked-bg-rgb: var(--gray-rgb);
+}
+
 .cart-item-inactive {
     .cart-item-img,
     .cart-item-data > :not(.cart-item-actions) {

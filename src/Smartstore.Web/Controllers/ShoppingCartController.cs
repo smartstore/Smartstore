@@ -1227,7 +1227,7 @@ namespace Smartstore.Web.Controllers
 
         private string GetCartItemSelectionLink(ShoppingCart cart)
         {
-            if (_shoppingCartSettings.AllowToDeactivateCartItems && cart.HasItems)
+            if (_shoppingCartSettings.AllowActivatableCartItems && cart.HasItems)
             {
                 var activateAll = true;
                 string resKey = null;
