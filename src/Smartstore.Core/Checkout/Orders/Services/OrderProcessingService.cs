@@ -500,18 +500,18 @@ namespace Smartstore.Core.Checkout.Orders
             var isAboveMin = true;
             var isBelowMax = true;
 
-            if (cart.Items.Any() && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
+            if (cart.HasItems && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
             {
-                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
 
                 if (orderTotalMin > decimal.Zero)
                 {
-                    isAboveMin = cartSubTotal.SubtotalWithoutDiscount >= orderTotalMin;
+                    isAboveMin = subtotal.SubtotalWithoutDiscount >= orderTotalMin;
                 }
 
                 if (orderTotalMax > decimal.Zero)
                 {
-                    isBelowMax = cartSubTotal.SubtotalWithoutDiscount <= orderTotalMax;
+                    isBelowMax = subtotal.SubtotalWithoutDiscount <= orderTotalMax;
                 }
             }
 

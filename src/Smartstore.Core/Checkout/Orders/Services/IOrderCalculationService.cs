@@ -35,8 +35,16 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
+        /// <param name="activeOnly">
+        /// A value indicating whether to only include active cart items in calculation.
+        /// <c>false</c> to include all cart items (default). <c>true</c> to ignore deactivated items.
+        /// </param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(ShoppingCart cart, bool? includeTax = null, ProductBatchContext batchContext = null);
+        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(
+            ShoppingCart cart,
+            bool? includeTax = null,
+            ProductBatchContext batchContext = null,
+            bool activeOnly = false);
 
         /// <summary>
         /// Gets the shopping cart shipping total.

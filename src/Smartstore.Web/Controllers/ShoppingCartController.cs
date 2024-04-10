@@ -134,7 +134,8 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            var model = await cart.MapAsync();
+            var validateCheckoutAttributes = (TempData["ValidateCheckoutAttributes"] as bool?) ?? false;
+            var model = await cart.MapAsync(validateCheckoutAttributes: validateCheckoutAttributes);
 
             ViewBag.CartItemSelectionLink = GetCartItemSelectionLink(cart);
 
@@ -168,11 +169,9 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// Validates and saves cart data. When valid, customer is directed to the checkout process, otherwise the customer is 
-        /// redirected back to the shopping cart.
+        /// Validates and saves cart data. Customer is redirected to the checkout process if the cart is valid,
+        /// otherwise he is redirected back to the shopping cart.
         /// </summary>
-        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
-        /// <param name="useRewardPoints">A value indicating whether to use reward points.</param>
         [HttpPost, ActionName("Cart")]
         [FormValueRequired("startcheckout")]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
@@ -182,13 +181,11 @@ namespace Smartstore.Web.Controllers
             var warnings = new List<string>();
 
             // Save data entered on cart page.
-            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
-            if (!isCartValid)
+            if (!await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false))
             {
-                // Something is wrong with the checkout data. Redisplay shopping cart.
-                var model = await cart.MapAsync(validateCheckoutAttributes: true);
+                TempData["ValidateCheckoutAttributes"] = true;
 
-                return View(model);
+                return RedirectToRoute("ShoppingCart");
             }
 
             if (cart.Customer.IsGuest())
@@ -305,6 +302,7 @@ namespace Smartstore.Web.Controllers
             var cartType = model.IsWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
+            var warningsHtml = string.Empty;
             var itemSelectionHtml = string.Empty;
             var newItemPrice = string.Empty;
             var message = string.Empty;
@@ -352,6 +350,7 @@ namespace Smartstore.Web.Controllers
                     await cart.MapAsync(wishlistModel);
 
                     cartHtml = await InvokePartialViewAsync("WishlistItems", wishlistModel);
+                    warningsHtml = await InvokePartialViewAsync("CartWarnings", wishlistModel.Warnings);
                 }
                 else
                 {
@@ -361,6 +360,7 @@ namespace Smartstore.Web.Controllers
                     cartHtml = await InvokePartialViewAsync("CartItems", cartModel);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     itemSelectionHtml = GetCartItemSelectionLink(cart);
+                    warningsHtml = await InvokePartialViewAsync("CartWarnings", cartModel.Warnings);
 
                     if (item != null)
                     {
@@ -371,9 +371,7 @@ namespace Smartstore.Web.Controllers
 
             if (!delete)
             {
-                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(
-                    cart.Items.Any(x => !x.Item.Active) ? new(cart, cart.Items.Where(x => x.Item.Active)) : cart);
-
+                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
                 var currency = Services.WorkContext.WorkingCurrency;
                 var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, currency);
 
@@ -384,13 +382,14 @@ namespace Smartstore.Web.Controllers
             {
                 success,
                 SubTotal = subtotal,
+                checkoutAllowed,
+                newItemPrice,
+                cartItemCount = cart.Items.Length,
                 message,
                 cartHtml,
                 totalsHtml,
                 itemSelectionHtml,
-                checkoutAllowed,
-                newItemPrice,
-                cartItemCount = cart.Items.Length
+                warningsHtml
             });
         }
 

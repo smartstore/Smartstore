@@ -292,9 +292,18 @@ namespace Smartstore.Core.Checkout.Orders
             return shoppingCartTotal;
         }
 
-        public virtual async Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(ShoppingCart cart, bool? includeTax = null, ProductBatchContext batchContext = null)
+        public virtual async Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(
+            ShoppingCart cart,
+            bool? includeTax = null,
+            ProductBatchContext batchContext = null,
+            bool activeOnly = false)
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+
+            if (activeOnly && cart.Items.Any(x => !x.Item.Active))
+            {
+                cart = new(cart, cart.Items.Where(x => x.Item.Active));
+            }
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";
 

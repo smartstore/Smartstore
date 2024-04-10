@@ -112,6 +112,7 @@ $(function () {
                     }
 
                     $('#SelectAllCartItems').html(response.itemSelectionHtml);
+                    $('#cart-warnings').html(response.warningsHtml);
 
                     const displayCheckoutButtons = response.displayCheckoutButtons !== false;
                     $('#start-checkout-buttons').toggleClass('d-none', !displayCheckoutButtons);
