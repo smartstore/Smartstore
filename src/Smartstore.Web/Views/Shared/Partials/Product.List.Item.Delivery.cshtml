@@ -10,7 +10,7 @@
     }
 }
 
-<div class="art-delivery-info">
+<div sm-if="Model.Parent.DeliveryTimesPresentation != DeliveryTimesPresentation.None" class="art-delivery-info">
     @if (Model.IsShippingEnabled && delivery.ShowDeliveryTime)
     {
         if (delivery.StatusLabel.HasValue())
