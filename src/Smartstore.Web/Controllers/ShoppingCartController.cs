@@ -311,9 +311,7 @@ namespace Smartstore.Web.Controllers
 
             if (delete)
             {
-                var currentCart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
-                var item = currentCart.Items.FirstOrDefault(x => x.Item.Id == model.CartItemId);
-
+                var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == model.CartItemId);
                 if (item == null)
                 {
                     return Json(new
@@ -323,7 +321,7 @@ namespace Smartstore.Web.Controllers
                     });
                 }
 
-                await _shoppingCartService.DeleteCartItemAsync(item.Item, true, true);
+                await _shoppingCartService.DeleteCartItemAsync(item, true, true);
                 message = T("ShoppingCart.DeleteCartItem.Success");
             }
             else if (model.ActivateAll.HasValue)
