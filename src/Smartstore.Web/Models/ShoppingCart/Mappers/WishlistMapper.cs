@@ -63,6 +63,7 @@ namespace Smartstore.Web.Models.Cart
             }
 
             var isOffcanvas = parameters?.IsOffcanvas == true;
+            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, from.Customer, false);
 
             await base.MapAsync(from, to, null);
 
@@ -75,13 +76,7 @@ namespace Smartstore.Web.Models.Cart
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
 
             // Cart warnings.
-            var warnings = new List<string>();
-            if (!await _shoppingCartValidator.ValidateCartAsync(from, warnings))
-            {
-                to.Warnings.AddRange(warnings);
-            }
-
-            var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, from.Customer, false);
+            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings);
 
             dynamic itemParameters = new GracefulDynamicObject();
             itemParameters.ShowEssentialAttributes = !isOffcanvas || (isOffcanvas && _shoppingCartSettings.ShowEssentialAttributesInMiniShoppingCart);

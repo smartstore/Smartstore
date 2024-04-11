@@ -11,7 +11,6 @@
         public const string PayLater = "Payments.PayPalPayLater";
         public const string Sepa = "Payments.PayPalSepa";
         public const string Giropay = "Payments.PayPalGiropay";
-        public const string Sofort = "Payments.PayPalSofort";
         public const string Bancontact = "Payments.PayPalBancontact";
         public const string Blik = "Payments.PayPalBlik";
         public const string Eps = "Payments.PayPalEps";

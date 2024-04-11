@@ -28,9 +28,6 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGiroPay" AppendRootKey="false">
         <Value>Giropay</Value>
     </LocaleResource>
-    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalSofort" AppendRootKey="false">
-        <Value>Sofortüberweisung</Value>
-    </LocaleResource>
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBancontact" AppendRootKey="false">
         <Value>Bancontact</Value>
     </LocaleResource>
@@ -93,13 +90,6 @@
         <Value>
             <![CDATA[
                 After completing the order, the customer is redirected directly to GiroPay to complete the payment process.
-            ]]>
-        </Value>
-    </LocaleResource>
-    <LocaleResource Name="Plugins.Description.Payments.PayPalSofort" AppendRootKey="false">
-        <Value>
-            <![CDATA[
-                After completing the order, the customer is redirected directly to Sofortüberweisung to complete the payment process.
             ]]>
         </Value>
     </LocaleResource>
@@ -192,13 +182,6 @@
                 <Value>
                     <![CDATA[
                         You will be redirected to the Giropay website to complete the payment.
-                      ]]>
-                </Value>
-            </LocaleResource>
-            <LocaleResource Name="PayPalSofort" AppendRootKey="false">
-                <Value>
-                    <![CDATA[
-                        You will be redirected to the Sofortüberweisung website to complete the payment.
                       ]]>
                 </Value>
             </LocaleResource>

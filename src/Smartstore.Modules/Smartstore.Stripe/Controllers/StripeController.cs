@@ -229,26 +229,53 @@ namespace Smartstore.StripeElements.Controllers
                         var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, true);
                         var convertedTotal = cartTotal.ConvertedAmount.Total.Value;
 
-                        // Update Stripe Payment Intent.
-                        var intentUpdateOptions = new PaymentIntentUpdateOptions
-                        {
-                            Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
-                            Currency = state.PaymentIntent.Currency,
-                            PaymentMethod = state.PaymentMethod
-                        };
+                        var paymentIntentService = new PaymentIntentService();
+                        PaymentIntent paymentIntent = null;
 
                         var shippingOption = customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, store.Id);
-                        await AddShippingAddressAsync(intentUpdateOptions, customer, shippingOption.Name);
+                        var shipping = await GetShippingAddressAsync(customer, shippingOption.Name);
 
-                        var service = new PaymentIntentService();
-                        var paymentIntent = await service.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
+                        if (state.PaymentIntent == null)
+                        {
+                            paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions
+                            {
+                                Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
+                                Currency = Services.WorkContext.WorkingCurrency.CurrencyCode.ToLower(),
+                                CaptureMethod = _settings.CaptureMethod,
+                                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                                {
+                                    Enabled = true,
+                                },
+                                Metadata = new Dictionary<string, string>
+                                {
+                                    ["CustomerId"] = customer.Id.ToString()
+                                },
+                                PaymentMethod = state.PaymentMethod,
+                                Shipping = shipping
+                            });
+
+                            state.PaymentIntent = paymentIntent;
+                        }
+                        else
+                        {
+                            // Update Stripe Payment Intent.
+                            var intentUpdateOptions = new PaymentIntentUpdateOptions
+                            {
+                                Amount = _roundingHelper.ToSmallestCurrencyUnit(convertedTotal),
+                                Currency = state.PaymentIntent.Currency,
+                                PaymentMethod = state.PaymentMethod,
+                                Shipping = shipping
+                            };
+
+                            paymentIntent = await paymentIntentService.UpdateAsync(state.PaymentIntent.Id, intentUpdateOptions);
+                        }
 
                         var confirmOptions = new PaymentIntentConfirmOptions
                         {
                             ReturnUrl = store.GetAbsoluteUrl(Url.Action("RedirectionResult", "Stripe").TrimStart('/'))
                         };
 
-                        paymentIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);
+                        paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntent.Id, confirmOptions);
 
                         if (paymentIntent.NextAction?.RedirectToUrl?.Url?.HasValue() == true)
                         {
@@ -278,12 +305,12 @@ namespace Smartstore.StripeElements.Controllers
             return Json(new { success, redirectUrl, messages });
         }
 
-        private async Task AddShippingAddressAsync(PaymentIntentUpdateOptions intentUpdateOptions, Core.Identity.Customer customer, string carrier)
+        private async Task<ChargeShippingOptions> GetShippingAddressAsync(Core.Identity.Customer customer, string carrier)
         {
             var address = customer.ShippingAddress ?? customer.BillingAddress;
             var country = await _db.Countries.FindAsync(address.CountryId);
 
-            intentUpdateOptions.Shipping = new ChargeShippingOptions
+            return new ChargeShippingOptions
             {
                 Carrier = carrier,
                 Name = $"{address.FirstName} {address.LastName}",

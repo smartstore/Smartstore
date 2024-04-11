@@ -127,7 +127,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 {
                     ga.SelectedPaymentMethod = preferredMethod;
                     await ga.SaveChangesAsync();
-                    state.IsPaymentSelectionSkipped = true;
 
                     if (paymentMethod.RequiresInteraction && !paymentMethod.RequiresPaymentSelection)
                     {

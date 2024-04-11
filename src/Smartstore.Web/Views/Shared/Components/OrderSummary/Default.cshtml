@@ -28,13 +28,8 @@
 
     @if (hasItems)
     {
-        <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
-            <ul>
-                @foreach (var warning in Model.Warnings)
-                {
-                    <li>@Html.Raw(warning)</li>
-                }
-            </ul>
+        <div id="cart-warnings">
+            <partial name="CartWarnings" model="Model.Warnings" />
         </div>
 
         @* "File upload" attribute control type requries "multipart/form-data" *@

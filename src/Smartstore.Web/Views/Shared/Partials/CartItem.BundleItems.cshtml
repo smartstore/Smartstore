@@ -15,12 +15,12 @@
 @for (var i = 0; i < bundleItems.Length; i++)
 {
     var item = bundleItems[i];
-    <div class="cart-row cart-row-child@(!item.Active ? " cart-item-deactivated" : string.Empty)"
+    <div class="cart-row cart-row-child@(!item.Active ? " cart-item-inactive" : string.Empty)"
          data-key="@item.Id" 
          data-parent-key="@item.BundleItem.ParentItemId">
         <div class="row">
-            <div sm-if="parentModel.AllowToDeactivateCartItems && parentModel.IsEditable" class="select-cart-item col-auto invisible">
-                <input type="checkbox" class="form-check-input select-cart-item-checkbox" />
+            <div sm-if="parentModel.AllowActivatableCartItems && parentModel.IsEditable" class="select-cart-item col-auto d-flex invisible">
+                <input type="checkbox" class="form-check-input select-cart-item-checkbox align-self-md-center" />
             </div>
 
             @* Spacer for image *@

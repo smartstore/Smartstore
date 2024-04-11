@@ -20,12 +20,12 @@
     <script>
         $(function () {
             if (typeof Stripe !== 'undefined') {
-                Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret', '@StripeHelper.ApiVersion');
+                Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@StripeHelper.ApiVersion', @Model.Amount, '@Model.Currency', '@Model.CaptureMethod');
             }
             else {
                 var script = document.getElementById("stripe-js");
                 script.onload = function () {
-                    Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@Model.ClientSecret', '@StripeHelper.ApiVersion');
+                    Smartstore.Stripe.initPaymentElement('@Model.PublicApiKey', '@StripeHelper.ApiVersion', @Model.Amount, '@Model.Currency', '@Model.CaptureMethod');
                 };
             }
 

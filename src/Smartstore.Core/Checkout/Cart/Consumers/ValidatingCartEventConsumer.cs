@@ -27,9 +27,15 @@ namespace Smartstore.Core.Checkout.Cart
 
         public async Task HandleEventAsync(ValidatingCartEvent message)
         {
+            var cart = message.Cart;
+            if (!cart.HasItems || cart.CartType == ShoppingCartType.Wishlist)
+            {
+                return;
+            }
+
             // Order total validation.
-            var roleMappings = _workContext.CurrentImpersonator?.CustomerRoleMappings ?? message.Cart.Customer.CustomerRoleMappings;
-            var result = await _orderProcessingService.ValidateOrderTotalAsync(message.Cart, roleMappings.Select(x => x.CustomerRole).ToArray());
+            var roleMappings = _workContext.CurrentImpersonator?.CustomerRoleMappings ?? cart.Customer.CustomerRoleMappings;
+            var result = await _orderProcessingService.ValidateOrderTotalAsync(cart, roleMappings.Select(x => x.CustomerRole).ToArray());
 
             if (!result.IsAboveMinimum)
             {

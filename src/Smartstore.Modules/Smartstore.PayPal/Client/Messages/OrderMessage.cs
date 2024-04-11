@@ -176,9 +176,6 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("p24", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public PaymentSourceApm PaymentSourceP24;
-
-        [JsonProperty("sofort", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public PaymentSourceApm PaymentSourceSofort;
     }
 
     public class ShippingDetail

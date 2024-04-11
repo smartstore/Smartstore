@@ -2,6 +2,9 @@
 
 ## Smartstore 5.2.0
 
+### Breaking Changes
+- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024) 
+
 ### New Features
 
 - **Conditional product attributes**
@@ -13,7 +16,8 @@
 - **Essential specification attributes**
   - Specification attributes marked as an *essential feature* are displayed in the checkout.
 - **Cart & wishlist enhancements**
-  - Show delivery time, stock info, weight, additional shipping surcharge and brand.   
+  - Disable cart items via checkbox.
+  - Show delivery time, stock info, weight, additional shipping surcharge and brand.
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance
@@ -39,7 +43,8 @@
   - Fixed *boxed titles* spacing and line-height issues
 - Web API
   - Enabling CORS.
-  - #928 mask the secret key in backend API user list.  
+  - #928 mask the secret key in backend API user list.
+  - #1057 add endpoints for `WalletHistory` entity.
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
@@ -58,6 +63,7 @@
 - Addresses: make first and last name optional if a company name has been specified.
 - #1012 Estimate shipping costs without rules if no shipping method was found with rules.
 - PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
+-  #1020 Prevent creation of unnecessary Stripe "payment intent" 
 
 ### Bugfixes
 
