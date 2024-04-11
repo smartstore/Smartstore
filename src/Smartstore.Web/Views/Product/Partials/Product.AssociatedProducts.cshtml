@@ -1,0 +1,49 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model AssociatedProductsListModel
+
+@{
+}
+
+@if (Model.Products.Count == 0 && Model.Products.PageIndex == 0)
+{
+    <div class="pd-no-associated-products alert alert-warning">
+        @T("Products.NoAssociatedProducts")
+    </div>
+    return;
+}
+
+<div id="associated-products" class="accordion">
+    @foreach (var product in Model.Products)
+    {
+        var id = $"associated-product{product.Id}";
+        <div class="card pd-associated-product">
+            <div class="card-header nav-toggler">
+                <div class="pd-associated-product-title card-title collapsed row p-2" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
+                    <div class="col col-4 p-1">
+                        @product.Name
+                    </div>
+                    <div class="col col-auto p-0 ml-auto">
+                        <i class="fas fa-angle-up collapse-chevron m-0"></i>
+                    </div>
+                </div>
+            </div>
+            <div id="@id" class="collapse nav-collapse" data-parent="#associated-products">
+                <div class="card-body">
+                    TODO: card body
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Products.TotalPages > 1)
+{
+    <pm-pagination sm-list-items="Model.Products" />
+}
+
+<script sm-target-zone="scripts" data-origin="associated-products">
+    $(function () {
+
+    });
+</script>

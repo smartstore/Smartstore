@@ -85,7 +85,10 @@
 
                         @if (Model.DisplayAdminLink)
                         {
-                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" class="btn btn-secondary btn-flat btn-admin-edit" target="admin-product" rel="nofollow">
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" 
+                               class="btn btn-secondary btn-flat btn-admin-edit" 
+                               target="admin-product" 
+                               rel="nofollow">
                                 <i class="fa fa-cog"></i>
                                 <span>@T("Common.Catalog.EditProduct")</span>
                             </a>
@@ -95,7 +98,8 @@
                 </section>
 
                 <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
-                    @if (Model.AssociatedProducts.Count == 0)
+                    <partial name="Product.AssociatedProducts" model="Model.AssociatedProductsList" />
+                    @*@if (Model.AssociatedProducts.Count == 0)
                     {
                         <div class="pd-no-associated-products alert alert-warning">
                             @T("Products.NoAssociatedProducts")
@@ -109,7 +113,7 @@
                             dataDictProduct.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
                             <partial name="Product.AssociatedProduct" model="product" view-data="dataDictProduct" />
                         }
-                    }
+                    }*@
                 </section>
             </form>
         </div>

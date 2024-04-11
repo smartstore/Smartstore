@@ -134,7 +134,8 @@ namespace Smartstore.Web.Models.Catalog
 
 
         // A list of associated products. For example, "Grouped" products could have several child "simple" products
-        public List<ProductDetailsModel> AssociatedProducts { get; set; } = new();
+        //public List<ProductDetailsModel> AssociatedProducts { get; set; } = new();
+        public AssociatedProductsListModel AssociatedProductsList { get; set; } = new();
         public bool IsAssociatedProduct { get; set; }
 
         public List<ProductDetailsModel> BundledItems { get; set; } = new();

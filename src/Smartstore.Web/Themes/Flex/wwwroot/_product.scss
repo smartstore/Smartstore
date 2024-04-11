@@ -601,3 +601,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         outline: 1px solid rgba(#000, 0.15);
     }
 }
+
+// Associated products
+// =====================================================
+.pd-associated-product-title {
+    .collapse-chevron {
+        transition: transform 0.35s;
+    }
+
+    &.collapsed .collapse-chevron {
+        transform: rotate(-180deg);
+    }
+}

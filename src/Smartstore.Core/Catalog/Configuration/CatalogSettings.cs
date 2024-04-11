@@ -298,6 +298,11 @@ namespace Smartstore.Core.Catalog
         public int DefaultProductListPageSize { get; set; } = 24;
 
         /// <summary>
+        /// Gets or sets the number of associated products per page on a grouped product page.
+        /// </summary>
+        public int AssociatedProductsListPageSize { get; set; } = 12;
+
+        /// <summary>
         /// Gets or sets a value indicating whether customers can select page size in product listings
         /// </summary>
         public bool AllowCustomersToSelectPageSize { get; set; } = true;

@@ -115,28 +115,51 @@ namespace Smartstore.Web.Controllers
                 if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
                 {
                     // Associated products.
+                    //var searchQuery = new CatalogSearchQuery()
+                    //    .VisibleOnly(batchContext.Customer)
+                    //    .HasStoreId(batchContext.Store.Id)
+                    //    .HasParentGroupedProduct(product.Id);
+
+                    //modelContext.AssociatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
+
+                    //// Push Ids of associated products to batch context to save roundtrips
+                    //batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
+
+                    //foreach (var associatedProduct in modelContext.AssociatedProducts)
+                    //{
+                    //    var childModelContext = new ProductDetailsModelContext(modelContext)
+                    //    {
+                    //        Product = associatedProduct,
+                    //        IsAssociatedProduct = true,
+                    //        ProductBundleItem = null
+                    //    };
+
+                    //    var assciatedProductModel = await MapProductDetailsPageModelAsync(childModelContext);
+                    //    model.AssociatedProducts.Add(assciatedProductModel);
+                    //}
+
                     var searchQuery = new CatalogSearchQuery()
+                        .Slice(0, _catalogSettings.AssociatedProductsListPageSize)
                         .VisibleOnly(batchContext.Customer)
                         .HasStoreId(batchContext.Store.Id)
                         .HasParentGroupedProduct(product.Id);
+                    var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
 
-                    modelContext.AssociatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
+                    modelContext.AssociatedProducts = await searchResult.GetHitsAsync();
 
-                    // Push Ids of associated products to batch context to save roundtrips
+                    // Push Ids of associated products to batch context to avoid roundtrips.
                     batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
 
-                    foreach (var associatedProduct in modelContext.AssociatedProducts)
-                    {
-                        var childModelContext = new ProductDetailsModelContext(modelContext)
+                    var associatedProducts = await modelContext.AssociatedProducts
+                        .SelectAwait(async x => await MapProductDetailsPageModelAsync(new(modelContext)
                         {
-                            Product = associatedProduct,
+                            Product = x,
                             IsAssociatedProduct = true,
                             ProductBundleItem = null
-                        };
+                        }))
+                        .AsyncToList();
 
-                        var assciatedProductModel = await MapProductDetailsPageModelAsync(childModelContext);
-                        model.AssociatedProducts.Add(assciatedProductModel);
-                    }
+                    model.AssociatedProductsList.Products = associatedProducts.ToPagedList(0, _catalogSettings.AssociatedProductsListPageSize, searchResult.TotalHitsCount);
                 }
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {
