@@ -75,6 +75,10 @@ namespace Smartstore.Web.Api.Controllers
             return GetRelatedEntity(key, x => x.ShippingAddress);
         }
 
+        /// <summary>
+        /// Gets WalletHistory entities assigned to an Order.
+        /// </summary>
+        /// <remarks>Only applicable if a wallet plugin is installed.</remarks>
         [HttpGet("Orders({key})/WalletHistory"), ApiQueryable]
         [Permission("Wallet.read")]
         public IQueryable<WalletHistory> GetWalletHistory(int key)
