@@ -20,11 +20,16 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public StoreController(SmartDbContext db, ICatalogSearchService catalogSearchService)
+        public StoreController(
+            SmartDbContext db, 
+            ICatalogSearchService catalogSearchService,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _catalogSearchService = catalogSearchService;
+            _shoppingCartSettings = shoppingCartSettings;
         }
 
         /// <summary>
@@ -212,10 +217,10 @@ namespace Smartstore.Admin.Controllers
 
             var registeredCustomersQuery = _db.Customers
                 .AsNoTracking()
-                .ApplyRolesFilter(new[] { registeredRole.Id });
+                .ApplyRolesFilter([registeredRole.Id]);
 
             var sumAllOrders = await ordersQuery.SumAsync(x => (decimal?)x.OrderTotal) ?? 0;
-            var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart);
+            var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart, _shoppingCartSettings.AllowActivatableCartItems ? true : null);
             var sumWishlists = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
             var totalMediaSize = await _db.MediaFiles.SumAsync(x => (long)x.Size);
 

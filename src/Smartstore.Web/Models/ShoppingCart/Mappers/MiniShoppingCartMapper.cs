@@ -1,4 +1,5 @@
-﻿using Smartstore.ComponentModel;
+﻿using Microsoft.VisualBasic;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
@@ -102,6 +103,7 @@ namespace Smartstore.Web.Models.Cart
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.ShowBasePrice = _shoppingCartSettings.ShowBasePrice;
             to.TotalQuantity = from.GetTotalQuantity();
+            to.DisplayShoppingCartButton = from.HasItems || customer.ShoppingCartItems.FilterByCartType(ShoppingCartType.ShoppingCart, store.Id, false, false).Any();
 
             if (!from.HasItems)
             {
@@ -111,18 +113,19 @@ namespace Smartstore.Web.Models.Cart
             var batchContext = _productService.CreateProductBatchContext(from.GetAllProducts(), null, customer, false);
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
-            var subtotalAmount = 0m;
+            var subtotalAmount = subtotal.SubtotalWithoutDiscount.Amount;
+            //var subtotalAmount = 0m;
 
-            if (from.Items.Any(x => !x.Item.Active))
-            {
-                // Exclude deactivated cart items from subtotal calculation.
-                var activeItemsSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(new(from, from.Items.Where(x => x.Item.Active)), null, batchContext);
-                subtotalAmount = activeItemsSubtotal.SubtotalWithoutDiscount.Amount;
-            }
-            else
-            {
-                subtotalAmount = subtotal.SubtotalWithoutDiscount.Amount;
-            }
+            //if (from.Items.Any(x => !x.Active))
+            //{
+            //    // Exclude inactive cart items from subtotal calculation.
+            //    var activeItemsSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(new(from, from.Items.Where(x => x.Active)), null, batchContext);
+            //    subtotalAmount = activeItemsSubtotal.SubtotalWithoutDiscount.Amount;
+            //}
+            //else
+            //{
+            //    subtotalAmount = subtotal.SubtotalWithoutDiscount.Amount;
+            //}
 
             to.SubTotal = _currencyService.ConvertFromPrimaryCurrency(subtotalAmount, currency).WithPostFormat(taxFormat);
 
@@ -131,13 +134,13 @@ namespace Smartstore.Web.Models.Cart
             // 2. Min order subtotal is OK.
             // 3. The cart contains at least one active item.
             var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
-            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Item.Active);
+            to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired) && from.Items.Any(x => x.Active);
 
             // Products sort descending (recently added products).
             foreach (var cartItem in from.Items)
             {
                 var item = cartItem.Item;
-                var product = cartItem.Item.Product;
+                var product = item.Product;
                 var productSeName = await product.GetActiveSlugAsync();
 
                 var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
@@ -150,7 +153,7 @@ namespace Smartstore.Web.Models.Cart
                 var cartItemModel = new MiniShoppingCartModel.ShoppingCartItemModel
                 {
                     Id = item.Id,
-                    Active = item.Active,
+                    Active = cartItem.Active,
                     ProductId = product.Id,
                     ProductName = product.GetLocalized(x => x.Name),
                     ShortDesc = product.GetLocalized(x => x.ShortDescription),
