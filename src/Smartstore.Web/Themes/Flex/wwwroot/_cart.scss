@@ -273,6 +273,14 @@
     }
 }
 
+.select-cart-item {
+    display: flex;
+
+    @include media-breakpoint-up(md) {
+        align-items: center;
+    }
+}
+
 .select-cart-item-checkbox {
     --form-check-checked-bg-rgb: var(--gray-rgb);
 }
