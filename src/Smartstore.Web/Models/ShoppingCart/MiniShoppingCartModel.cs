@@ -12,6 +12,7 @@ namespace Smartstore.Web.Models.Cart
         public int TotalQuantity { get; set; }
         public Money SubTotal { get; set; }
         public bool DisplayCheckoutButton { get; set; }
+        public bool DisplayShoppingCartButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
         public bool AnonymousCheckoutAllowed { get; set; }
         public bool ShowProductImages { get; set; }

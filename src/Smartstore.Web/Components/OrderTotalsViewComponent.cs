@@ -100,8 +100,7 @@ namespace Smartstore.Web.Components
                     && isEditable;
             }
 
-            if (isEditable && (_shoppingCartSettings.AllowActivatableCartItems ||
-                await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, storeId, false) > 0))
+            if (isEditable && _shoppingCartSettings.AllowActivatableCartItems)
             {
                 model.SubtotalLabel = T("ShoppingCart.Totals.SubTotalSelectedProducts", model.TotalQuantity);
             }

@@ -22,12 +22,8 @@ namespace Smartstore.Core.Checkout.Cart
 
         /// <summary>
         /// A value indicating whether the cart item is active.
-        /// Deactivated items are not ordered and remain in the shopping cart after the order is placed.
+        /// Inactive items are not ordered and remain in the shopping cart after the order is placed.
         /// </summary>
-        /// <remarks>
-        /// Deactivated items are always displayed in the shopping cart/mini shopping cart (so that they can be deleted at any time)
-        /// and also the counter for cart items always takes them into account.
-        /// </remarks>
         public bool Active { get; set; } = true;
 
         /// <summary>

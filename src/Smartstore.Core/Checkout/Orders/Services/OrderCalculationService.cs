@@ -300,9 +300,9 @@ namespace Smartstore.Core.Checkout.Orders
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-            if (activeOnly && cart.Items.Any(x => !x.Item.Active))
+            if (activeOnly && cart.Items.Any(x => !x.Active))
             {
-                cart = new(cart, cart.Items.Where(x => x.Item.Active));
+                cart = new(cart, cart.Items.Where(x => x.Active));
             }
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";

@@ -127,13 +127,6 @@
     }
 }
 
-.offcanvas-cart-item-inactive {
-    // TODO: (mg) Use CSS var --cart-item-opacity on .cart-row level to reduce CSS cascade complexity. Applies also to .cart-item-inactive.
-    .col-image, .col-data {
-        opacity: 0.5;
-    }
-}
-
 .offcanvas-cart-footer {
     background-color: $offcanvas-cart-footer;
 }
@@ -282,13 +275,6 @@
 
 .select-cart-item-checkbox {
     --form-check-checked-bg-rgb: var(--gray-rgb);
-}
-
-.cart-item-inactive {
-    .cart-item-img,
-    .cart-item-data > :not(.cart-item-actions) {
-        opacity: 0.5;
-    }
 }
 
 .cart-item-actions {
