@@ -99,11 +99,15 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowConfirmOrderLegalHint.Hint")
                 .Value("de", "Legt fest, ob rechtliche Hinweise in der Warenkorbübersicht auf der Bestellabschlussseite angezeigt werden. Dieser Text kann in den Sprachresourcen geändert werden.");
 
+            // TODO: (mh) Move all AI relevant resources to a dedicated method. Too many res.
+
+            // TODO: (mh) Translation grammar. In other languages the token will be placed at the start. TBD with MC.
             builder.AddOrUpdate("Admin.AI.CreateImageWith", "Create image with ", "Bild erzeugen mit ");
             builder.AddOrUpdate("Admin.AI.CreateTextWith", "Create text with ", "Text erzeugen mit ");
             builder.AddOrUpdate("Admin.AI.TranslateTextWith", "Translate with ", "Übersetzen mit ");
             builder.AddOrUpdate("Admin.AI.MakeSuggestionWith", "Make suggestions with ", "Mach mir Vorschläge mit ");
-            
+
+            // TODO: (mh) Translation grammar. In other languages the token will be placed at the start. TBD with MC.
             builder.AddOrUpdate("Admin.AI.CreateShortDescWith", "Create short description with ", "Kurzbeschreibung erzeugen mit ");
             builder.AddOrUpdate("Admin.AI.CreateMetaTitleWith", "Create title tag with ", "Title-Tag erzeugen mit ");
             builder.AddOrUpdate("Admin.AI.CreateMetaDescWith", "Create meta description with ", "Meta Description erzeugen mit ");
@@ -121,10 +125,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt", "Make suggestions on the topic: '{0}'", "Mache Vorschläge zum Thema '{0}'.");
 
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeStyle", "Change style", "Sprachstil ändern");
-            builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Tone style", "Ton ändern");
+            builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Change tone", "Ton ändern");
 
             builder.AddOrUpdate("Admin.AI.SpecifyTopic", "Please enter a topic", "Bitte geben Sie ein Thema an");
 
+            // TODO: (mh) Why leading spaces? Better: Add all parts/sentences to a list and join by space to generate string result.
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes", 
                 " Do not enclose the text in quotation marks.", 
                 " Schließe den Text nicht in Anführungszeichen ein.");
@@ -142,7 +147,7 @@ namespace Smartstore.Core.Data.Migrations
                 " Der Text darf maximal {0} Wörter enthalten.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateListWithComma", 
                 " The list should be comma-separated so that it can be inserted directly as a meta tag.", 
-                " Die Liste soll kommagetrennt sein, so dass sie direkt als meta-tag eingefügt werden kann.");
+                " Die Liste soll kommagetrennt sein, so dass sie direkt als META-tag eingefügt werden kann.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
                 " Do not use the name of the website as this will be added later. Reserve 5 words for this.", 
                 " Verwende dabei nicht den Namen der Webseite da dieser später hinzugefügt wird. Reserviere dafür 5 Worte.");
@@ -231,10 +236,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
                 " Create HTML text.",
                 " Erstelle HTML-Text.");
+            // TODO: (mh) dito
             builder.AddOrUpdate("Smartstore.AI.Prompts.RolePrefix",
                 " Be a ",
                 " Sei ein ");
 
+            // TODO: (mh) dito
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Translator",
                 "professional translator.",
                 "professioneller Übersetzer.");
