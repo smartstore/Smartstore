@@ -100,7 +100,7 @@ namespace Smartstore.Utilities
 
         public static ExpandoObject ToExpando(object value)
         {
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(value);
 
             var anonymousDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(value);
             IDictionary<string, object?> expando = new ExpandoObject();
