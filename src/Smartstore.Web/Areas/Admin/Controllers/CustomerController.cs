@@ -236,8 +236,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
                 var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync();
-                var preferredShippingMethodId = customer.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
-                var preferredPaymentMethod = customer.GenericAttributes.PreferredPaymentMethod;
+                var preferredShippingMethodId = customer?.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
+                var preferredPaymentMethod = customer?.GenericAttributes.PreferredPaymentMethod ?? string.Empty;
 
                 ViewBag.ShippingMethods = shippingMethods
                     .Select(x => new SelectListItem
@@ -397,7 +397,7 @@ namespace Smartstore.Admin.Controllers
             model.Username = customer.Username;
         }
 
-        #endregion
+        #endregion Utilities
 
         #region Customers
 
@@ -978,7 +978,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
-        #endregion
+        #endregion Customers
 
         #region Online customers
 
@@ -1027,7 +1027,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        #endregion
+        #endregion Online customers
 
         #region Reward points history
 
@@ -1074,7 +1074,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { success });
         }
 
-        #endregion
+        #endregion Reward points history
 
         #region Addresses
 
@@ -1257,7 +1257,7 @@ namespace Smartstore.Admin.Controllers
             return PartialView("_Addresses", model);
         }
 
-        #endregion
+        #endregion Addresses
 
         #region Reports
 
@@ -1344,7 +1344,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        #endregion
+        #endregion Reports
 
         #region Current shopping cart\wishlist
 
@@ -1372,7 +1372,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        #endregion
+        #endregion Current shopping cart\wishlist
 
         #region GDPR
 
@@ -1395,6 +1395,6 @@ namespace Smartstore.Admin.Controllers
             return File(json.GetBytes(), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
         }
 
-        #endregion
+        #endregion GDPR
     }
 }
