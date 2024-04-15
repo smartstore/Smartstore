@@ -410,7 +410,7 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Updates a tracking number for a PayPal order.
         /// </summary>
-        public virtual async Task<PayPalResponse> CancelTrackingNumberAsync(Shipment shipment, string oldTrackingNumber, CancellationToken cancelToken = default)
+        public virtual async Task<PayPalResponse> CancelTrackingNumberAsync(Shipment shipment, CancellationToken cancelToken = default)
         {
             Guard.NotNull(shipment);
             
