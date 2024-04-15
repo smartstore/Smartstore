@@ -46,6 +46,7 @@
   - Enabling CORS.
   - #928 mask the secret key in backend API user list.
   - #1057 add endpoints for `WalletHistory` entity.
+  - #929 add endpoints for PageBuilder stories, story blocks and import/export.
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
