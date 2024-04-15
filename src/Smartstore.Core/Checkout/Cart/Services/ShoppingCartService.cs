@@ -383,9 +383,15 @@ namespace Smartstore.Core.Checkout.Cart
         {
             customer ??= _workContext.CurrentCustomer;
 
+            if (!_shoppingCartSettings.AllowActivatableCartItems)
+            {
+                // Always load all items, regardless of whether they are active or inactive.
+                activeOnly = null;
+            }
+
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, activeOnly);
 
-            var result = _requestCache.Get(cacheKey, async () =>
+            var result = _requestCache.GetAsync(cacheKey, async () =>
             {
                 await LoadCartItemCollection(customer);
                 var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId, activeOnly).ToList();
@@ -413,6 +419,11 @@ namespace Smartstore.Core.Checkout.Cart
         {
             customer ??= _workContext.CurrentCustomer;
 
+            if (!_shoppingCartSettings.AllowActivatableCartItems)
+            {
+                activeOnly = null;
+            }
+
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId, activeOnly);
             var cart = _requestCache.Get<ShoppingCart>(cacheKey, null);
             if (cart != null)
@@ -423,8 +434,7 @@ namespace Smartstore.Core.Checkout.Cart
             await LoadCartItemCollection(customer);
 
             return customer.ShoppingCartItems
-                .FilterByCartType(cartType, storeId, activeOnly)
-                .Where(x => x.ParentItemId == null)
+                .FilterByCartType(cartType, storeId, activeOnly, false)
                 .Sum(x => (int?)x.Quantity) ?? 0;
         }
 
@@ -655,11 +665,11 @@ namespace Smartstore.Core.Checkout.Cart
 
             foreach (var parent in items.Where(x => x.ParentItemId == null).OrderBy(x => x.Id))
             {
-                var parentItem = new OrganizedShoppingCartItem(parent);
+                var parentItem = CreateOrganizedCartItem(parent);
 
                 if (childItemsMap.TryGetValues(parent.Id, out var children))
                 {
-                    parentItem.ChildItems.AddRange(children.Select(x => new OrganizedShoppingCartItem(x)));
+                    parentItem.ChildItems.AddRange(children.Select(CreateOrganizedCartItem));
 
                     if (parent.Product?.BundlePerItemPricing ?? false)
                     {
@@ -765,7 +775,7 @@ namespace Smartstore.Core.Checkout.Cart
                     BundleItemId = ctx.BundleItem?.Id
                 };
 
-                newItems.Add(new OrganizedShoppingCartItem(item));
+                newItems.Add(CreateOrganizedCartItem(item));
             }
 
             items.AddRange(newItems);
@@ -793,5 +803,8 @@ namespace Smartstore.Core.Checkout.Cart
                     .ThenInclude(y => y.ProductVariantAttributes);
             });
         }
+
+        private OrganizedShoppingCartItem CreateOrganizedCartItem(ShoppingCartItem item)
+            => new(item, !_shoppingCartSettings.AllowActivatableCartItems || item.Active);
     }
 }

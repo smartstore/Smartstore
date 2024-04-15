@@ -6,6 +6,7 @@
 @{
     var descMaxLength = Model.ShowProductImages ? 100 : 140;
     var attrMaxLength = Model.ShowProductImages ? 50 : 70;
+    var hasItems = Model.Items.Count > 0;
 
     var checkoutUrl = Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest
         ? Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") })
@@ -13,7 +14,7 @@
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="!Model.Items.Any()" class="no-items">
+    <div sm-if="!hasItems" class="no-items">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
@@ -25,7 +26,7 @@
         </p>
     </div>
 
-    @if (Model.Items.Any())
+    @if (hasItems)
     {
         // Items added in the last 2 seconds are considered to be current.
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
@@ -132,9 +133,9 @@
     <zone name="offcanvas_cart_items_after" />
 </div>
 
-<div sm-if="Model.TotalQuantity > 0" class="offcanvas-cart-footer">
+<div sm-if="hasItems || Model.DisplayShoppingCartButton" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
-        @if (Model.Items.Any(x => x.Active))
+        @if (hasItems)
         {
             <div class="offcanvas-cart-footer-col mr-3">
                 <div>
@@ -172,7 +173,7 @@
                 }
             </div>
         }
-        else
+        else if (Model.DisplayShoppingCartButton)
         {
             <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
                 <i class="fa fa-check"></i>

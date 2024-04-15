@@ -17,7 +17,11 @@ namespace Smartstore.WebApi.Client
         public long ContentLength { get; set; }
 
         public bool IsFileResponse
-            => ContentType.HasValue() && (ContentType.StartsWith("image/") || ContentType.StartsWith("video/") || ContentType == MediaTypeNames.Application.Pdf);
+            => ContentType.HasValue() && 
+            (ContentType.StartsWith("image/") || 
+            ContentType.StartsWith("video/") || 
+            ContentType == MediaTypeNames.Application.Pdf ||
+            ContentType == MediaTypeNames.Application.Zip);
 
         /// <seealso cref="http://weblog.west-wind.com/posts/2012/Aug/30/Using-JSONNET-for-dynamic-JSON-parsing" />
         /// <seealso cref="http://james.newtonking.com/json/help/index.html?topic=html/QueryJsonDynamic.htm" />

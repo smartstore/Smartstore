@@ -31,6 +31,7 @@
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 - Page Builder
 	- Added **AudioPlayer** block
+- #858 Implemented Paypal package tracking 
 
 ### Improvements
 
@@ -45,6 +46,7 @@
   - Enabling CORS.
   - #928 mask the secret key in backend API user list.
   - #1057 add endpoints for `WalletHistory` entity.
+  - #929 add endpoints for PageBuilder stories, story blocks and import/export.
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.

@@ -19,15 +19,33 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
             _db = db;
         }
 
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.IsPropertyModified(nameof(Shipment.TrackingNumber)))
+            {
+                var prop = entry.Entry.Property(nameof(Shipment.TrackingNumber));
+                await _eventPublisher.PublishTrackingNumberChangedAsync(entry.Entity as Shipment, (string)prop.OriginalValue);
+            }
+
+            return HookResult.Ok;
+        }
+
         protected override async Task<HookResult> OnInsertedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await _eventPublisher.PublishOrderUpdatedAsync(entity.Order);
+
+            if (entity.TrackingNumber.HasValue())
+            {
+                await _eventPublisher.PublishTrackingNumberAddedAsync(entity);
+            }
+
             return HookResult.Ok;
         }
 
         protected override async Task<HookResult> OnUpdatedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await _eventPublisher.PublishOrderUpdatedAsync(entity.Order);
+
             return HookResult.Ok;
         }
 

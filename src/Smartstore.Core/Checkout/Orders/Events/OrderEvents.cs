@@ -4,7 +4,7 @@
     {
         public OrderPaidEvent(Order order)
         {
-            Order = Guard.NotNull(order, nameof(order));
+            Order = Guard.NotNull(order);
         }
 
         public Order Order { get; init; }
@@ -14,7 +14,7 @@
     {
         public OrderPlacedEvent(Order order)
         {
-            Order = Guard.NotNull(order, nameof(order));
+            Order = Guard.NotNull(order);
         }
 
         public Order Order { get; init; }
@@ -24,7 +24,7 @@
     {
         public OrderUpdatedEvent(Order order)
         {
-            Order = Guard.NotNull(order, nameof(order));
+            Order = Guard.NotNull(order);
         }
 
         public Order Order { get; init; }

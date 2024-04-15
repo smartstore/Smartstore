@@ -138,8 +138,13 @@ namespace Smartstore.WebApi.Client
             {
                 var id = $"my-file-{++count}";
                 var fileName = Path.GetFileName(file.LocalPath);
-                var fileSize = new FileInfo(file.LocalPath).Length;
+                var fi = new FileInfo(file.LocalPath);
                 new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string contentType);
+
+                if (contentType.IsEmpty() && fi.Extension.EqualsNoCase(".story"))
+                {
+                    contentType = MediaTypeNames.Application.Zip;
+                }
 
                 var content = new StreamContent(new FileStream(file.LocalPath, FileMode.Open));
                 content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -169,7 +174,7 @@ namespace Smartstore.WebApi.Client
 
                 result.Add(content);
 
-                response.RequestContent.AppendLine($"{content.Headers.ToString()}<Binary data for {fileName} here (length {fileSize} bytes)…>");
+                response.RequestContent.AppendLine($"{content.Headers.ToString()}<Binary data for {fileName} here (length {fi.Length} bytes)…>");
             }
 
             return result;
@@ -189,7 +194,7 @@ namespace Smartstore.WebApi.Client
             if (dialogResult == DialogResult.OK)
             {
                 var fileName = responseMessage.Content?.Headers?.ContentDisposition?.FileName?.NullEmpty() ?? "web-api-response";
-                var path = Path.Combine(request.FileDialog.SelectedPath, fileName);
+                var path = Path.Combine(request.FileDialog.SelectedPath, fileName.Replace("\"", string.Empty));
 
                 using var source = await responseMessage.Content.ReadAsStreamAsync(cancelToken);
                 using var target = IOFile.Open(path, FileMode.Create);
@@ -197,7 +202,7 @@ namespace Smartstore.WebApi.Client
                     await source.CopyToAsync(target, cancelToken);
                 }
 
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {path}") { CreateNoWindow = true });
+                Process.Start(new ProcessStartInfo("cmd", $"/c start \"\" \"{path}\"") { CreateNoWindow = true });
             }
         }
 

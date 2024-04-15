@@ -13,7 +13,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies whether to use sandbox mode.
         /// </summary>
-        public bool UseSandbox { get; set; } = false;
+        public bool UseSandbox { get; set; }
 
         /// <summary>
         /// PayPal account
@@ -48,7 +48,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies whether to display the pay later widget on product detail pages.
         /// </summary>
-        public bool DisplayProductDetailPayLaterWidget { get; set; } = false;
+        public bool DisplayProductDetailPayLaterWidget { get; set; }
 
         /// <summary>
         /// Specifies whether the payment will be captured immediately or just authorized.
@@ -85,5 +85,10 @@ namespace Smartstore.PayPal.Settings
         /// Specifies the limit to which the Pay Upon Invoice should be offered.
         /// </summary>
         public decimal PayUponInvoiceLimit { get; set; } = 2500;
+
+        /// <summary>
+        /// Specifies whether to transmit tracking numbers to PayPal.
+        /// </summary>
+        public bool TransmitTrackingNumbers { get; set; }
     }
 }

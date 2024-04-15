@@ -236,8 +236,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
                 var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync();
-                var preferredShippingMethodId = customer.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
-                var preferredPaymentMethod = customer.GenericAttributes.PreferredPaymentMethod;
+                var preferredShippingMethodId = customer?.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
+                var preferredPaymentMethod = customer?.GenericAttributes.PreferredPaymentMethod;
 
                 ViewBag.ShippingMethods = shippingMethods
                     .Select(x => new SelectListItem

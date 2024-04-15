@@ -58,7 +58,7 @@ namespace Smartstore.WebApi.Client
 
                 CboMethod_changeCommitted(null, null);
 
-                openFileDialog1.Filter = "Supported files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.csv, *.xlsx, *.txt, *.tab, *.zip) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.csv; *.xlsx; *.txt; *.tab; *.zip";
+                openFileDialog1.Filter = "Supported files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.csv, *.xlsx, *.txt, *.tab, *.zip, *.story) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.csv; *.xlsx; *.txt; *.tab; *.zip; *.story";
                 openFileDialog1.DefaultExt = ".jpg";
                 openFileDialog1.FileName = "";
                 openFileDialog1.Title = "Please select files to upload";
@@ -164,7 +164,7 @@ namespace Smartstore.WebApi.Client
                 var sb = new StringBuilder();
                 sb.Append(response.Headers);
 
-                if (response.Succeeded)
+                if (response.Succeeded && !response.IsFileResponse)
                 {
                     var customers = response.ParseCustomers();
                     if (customers != null)

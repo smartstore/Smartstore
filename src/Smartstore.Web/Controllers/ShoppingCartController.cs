@@ -110,7 +110,7 @@ namespace Smartstore.Web.Controllers
 
             return Json(new
             {
-                CartItemsCount = cartEnabled ? await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id, null) : 0,
+                CartItemsCount = cartEnabled ? await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id) : 0,
                 WishlistItemsCount = wishlistEnabled ? await _shoppingCartService.CountProductsInCartAsync(customer, ShoppingCartType.Wishlist, store.Id) : 0,
                 CompareItemsCount = compareEnabled ? await _productCompareService.CountComparedProductsAsync() : 0
             });
@@ -222,10 +222,10 @@ namespace Smartstore.Web.Controllers
             if (!_shoppingCartSettings.MiniShoppingCartEnabled
                 || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
             {
-                return Content(string.Empty);
+                return new EmptyResult();
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var model = new MiniShoppingCartModel();
             await cart.MapAsync(model);
 
@@ -280,7 +280,7 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         [HttpPost]
         [SaveChanges<SmartDbContext>(false)]
-        public async Task<IActionResult> DeleteCartItem(UpdateCartItemModel model /*int cartItemId, bool isWishlist = false*/)
+        public async Task<IActionResult> DeleteCartItem(UpdateCartItemModel model)
         {
             return await UpdateCartItemInternal(model, true);
         }
@@ -311,9 +311,7 @@ namespace Smartstore.Web.Controllers
 
             if (delete)
             {
-                var currentCart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
-                var item = currentCart.Items.FirstOrDefault(x => x.Item.Id == model.CartItemId);
-
+                var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == model.CartItemId);
                 if (item == null)
                 {
                     return Json(new
@@ -323,7 +321,7 @@ namespace Smartstore.Web.Controllers
                     });
                 }
 
-                await _shoppingCartService.DeleteCartItemAsync(item.Item, true, true);
+                await _shoppingCartService.DeleteCartItemAsync(item, true, true);
                 message = T("ShoppingCart.DeleteCartItem.Success");
             }
             else if (model.ActivateAll.HasValue)
@@ -340,7 +338,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var cart = await _shoppingCartService.GetCartAsync(customer, cartType, store.Id, null);
-            var checkoutAllowed = cart.Items.Any(x => x.Item.Active);
 
             if (model.IsCartPage || delete)
             {
@@ -371,8 +368,8 @@ namespace Smartstore.Web.Controllers
 
             if (!delete)
             {
-                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
                 var currency = Services.WorkContext.WorkingCurrency;
+                var cartSubtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, activeOnly: true);
                 var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(cartSubtotal.SubtotalWithoutDiscount.Amount, currency);
 
                 subtotal = subtotalWithoutDiscount.WithPostFormat(_taxService.GetTaxFormat());
@@ -382,8 +379,8 @@ namespace Smartstore.Web.Controllers
             {
                 success,
                 SubTotal = subtotal,
-                checkoutAllowed,
                 newItemPrice,
+                checkoutAllowed = cart.Items.Any(x => x.Active),
                 cartItemCount = cart.Items.Length,
                 message,
                 cartHtml,
@@ -1232,12 +1229,12 @@ namespace Smartstore.Web.Controllers
                 var activateAll = true;
                 string resKey = null;
 
-                if (cart.Items.All(x => x.Item.Active))
+                if (cart.Items.All(x => x.Active))
                 {
                     activateAll = false;
                     resKey = "ShoppingCart.DeselectAllProducts";
                 }
-                else if (!cart.Items.Any(x => x.Item.Active))
+                else if (!cart.Items.Any(x => x.Active))
                 {
                     resKey = "ShoppingCart.NoProductsSelectedSelectAll";
                 }

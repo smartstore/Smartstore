@@ -2,9 +2,10 @@
 
 @using Smartstore.Utilities
 
-@{ 
-    var model = ConvertUtility.ToExpando(Model);
-    var isTheme = model.isTheme == true;
+@{
+    var model = ConvertUtility.ToExpando(Model) as IDictionary<string, object>;
+    model.TryGetValueAs<bool>("isTheme", out var isTheme);
+
     string dialogTitle = isTheme ? T("Admin.Packaging.UploadTheme") : T("Admin.Packaging.UploadPlugin");
     string dialogInfo = isTheme ? T("Admin.Packaging.Dialog.ThemeInfo") : T("Admin.Packaging.Dialog.PluginInfo");
 }
