@@ -13,28 +13,50 @@
     return;
 }
 
-<div id="associated-products" class="accordion">
-    @foreach (var product in Model.Products)
-    {
-        var id = $"associated-product{product.Id}";
-        <div class="card pd-associated-product">
-            <div class="card-header nav-toggler">
-                <div class="pd-associated-product-title card-title collapsed row p-2" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
-                    <div class="col col-4 p-1">
-                        @product.Name
+<div>
+    @*TODO: sort by clicking column names*@
+    <div id="associated-products" class="accordion">
+        @foreach (var product in Model.Products)
+        {
+            var id = $"associated-product{product.Id}";
+            var productViewData = new ViewDataDictionary(ViewData);
+            productViewData.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
+
+            <div class="card pd-associated-product">
+                <div class="card-header nav-toggler">
+                    <div class="pd-associated-product-title card-title collapsed row p-2" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
+                        <div class="col col-4">
+                            @Html.Raw(product.Name)
+                        </div>
+                        <div class="col col-2">
+                            @product.Sku
+                        </div>
+                        <div class="col col-1 justify-content-end">
+                            @Html.Raw(product.Price.FinalPrice)
+                        </div>
+                        @*<div class="col col-auto">
+                            @Html.EditorFor(x => product, "QtyInput", new { size = ControlSize.Small })
+                        </div>*@
+                        <div class="col col-1 justify-content-center">
+                            <a class="btn btn-primary btn-sm btn-icon" title='@T("ShoppingCart.AddToCart")'
+                               href="javascript:;"
+                               rel="nofollow">
+                                <i class="fa fa-cart-arrow-down"></i>
+                            </a>
+                        </div>
+                        <div class="col col-auto p-0 ml-auto">
+                            <i class="fas fa-angle-up collapse-chevron m-0"></i>
+                        </div>
                     </div>
-                    <div class="col col-auto p-0 ml-auto">
-                        <i class="fas fa-angle-up collapse-chevron m-0"></i>
+                </div>
+                <div id="@id" class="collapse nav-collapse" data-parent="#associated-products">
+                    <div class="card-body">
+                        <partial name="Product.AssociatedProduct" model="product" view-data="productViewData" />
                     </div>
                 </div>
             </div>
-            <div id="@id" class="collapse nav-collapse" data-parent="#associated-products">
-                <div class="card-body">
-                    TODO: card body
-                </div>
-            </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @if (Model.Products.TotalPages > 1)

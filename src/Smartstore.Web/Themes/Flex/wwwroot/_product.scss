@@ -605,6 +605,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // Associated products
 // =====================================================
 .pd-associated-product-title {
+    > .col:not(:last-child) {
+        display: flex;
+        padding: 0.3rem;
+        align-items: center;
+    }
+
     .collapse-chevron {
         transition: transform 0.35s;
     }
