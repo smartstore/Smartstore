@@ -710,7 +710,7 @@ namespace Smartstore.Admin.Controllers
 
                                 if (response.Exception != null)
                                 {
-                                    NotifyError("Checking the VAT number with the web service for VAT validation threw this exception: " + response.Exception.Message);
+                                    NotifyError("Checking the VAT number with the VAT validation web service threw this exception: " + response.Exception.Message);
                                 }
                             }
                         }
