@@ -62,6 +62,9 @@ namespace Smartstore.PayPal.Models
 
         [LocalizedDisplay("*PayUponInvoiceLimit")]
         public decimal PayUponInvoiceLimit { get; set; }
+
+        [LocalizedDisplay("*TransmitTrackingNumbers")]
+        public bool TransmitTrackingNumbers { get; set; }
     }
 
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]

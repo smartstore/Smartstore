@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -88,11 +89,9 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Gets an order. (For testing purposes only)
         /// </summary>
-        public async Task<PayPalResponse> GetOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
+        public async Task<PayPalResponse> GetOrderAsync(string payPalOrderId, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(request);
-
-            var ordersGetRequest = new OrdersGetRequest(request.PayPalOrderId);
+            var ordersGetRequest = new OrdersGetRequest(payPalOrderId);
             var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 
@@ -218,8 +217,7 @@ namespace Smartstore.PayPal.Client
 
             var patches = new List<Patch<object>>
             {
-                new Patch<object>
-                {
+                new() {
                     Op = "replace",
                     Path = "/purchase_units/@reference_id=='default'",
                     Value = purchaseUnits[0]
@@ -369,6 +367,70 @@ namespace Smartstore.PayPal.Client
         /// </summary>  
         public Task<PayPalResponse> CreateWebhookAsync(CreateWebhookRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
+
+        /// <summary>
+        /// Adds a tracking number to a PayPal order.
+        /// </summary>
+        public virtual async Task<PayPalResponse> AddTrackingNumberAsync(Shipment shipment, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(shipment);
+
+            var trackingMessage = new TrackingMessage
+            {
+                Carrier = "OTHER",
+                CarrierNameOther = shipment.Order.ShippingMethod,
+                TrackingNumber = shipment.TrackingNumber,
+                CaptureId = shipment.Order.CaptureTransactionId
+            };
+
+            var shipmentItems = new List<Messages.ShipmentItem>();
+            foreach (var item in shipment.ShipmentItems)
+            {
+                var orderItem = shipment.Order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+
+                shipmentItems.Add(new Messages.ShipmentItem
+                {
+                    Sku = orderItem.Sku,
+                    Quantity = item.Quantity.ToString(),
+                    Name = orderItem.Product.Name
+                });
+            }
+
+            trackingMessage.Items = [.. shipmentItems];
+
+            var trackingRequest = new OrderAddTrackingRequest(shipment.Order.AuthorizationTransactionCode.ToString())
+                .WithRequestId(Guid.NewGuid().ToString())
+                .WithBody(trackingMessage);
+
+            var response = await ExecuteRequestAsync(trackingRequest, shipment.Order.StoreId, cancelToken);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Updates a tracking number for a PayPal order.
+        /// </summary>
+        public virtual async Task<PayPalResponse> CancelTrackingNumberAsync(Shipment shipment, string oldTrackingNumber, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(shipment);
+            
+            var patches = new List<Patch<string>>
+            {
+                new() {
+                    Op = "replace",
+                    Path = "/status",
+                    Value = "CANCELLED"
+                }
+            };
+
+            var trackingId = shipment.GenericAttributes.Get<string>("PayPalTrackingId");
+            var updateTrackingRequest = new OrderUpdateTrackingRequest(shipment.Order.AuthorizationTransactionCode.ToString(), trackingId)
+                .WithBody(patches);
+
+            var response = await ExecuteRequestAsync(updateTrackingRequest, shipment.Order.StoreId, cancelToken);
+
+            return response;
+        }
 
         #endregion
 

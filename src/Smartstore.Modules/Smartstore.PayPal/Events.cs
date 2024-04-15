@@ -1,22 +1,35 @@
-﻿using Smartstore.Core;
+﻿using Newtonsoft.Json.Linq;
+using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Shipping.Events;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Events;
+using Smartstore.PayPal.Client;
 using Smartstore.Utilities;
 
 namespace Smartstore.PayPal
 {
     public class Events : IConsumer
     {
+        private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly PayPalHttpClient _client;
 
-        public Events(ICommonServices services, ICheckoutStateAccessor checkoutStateAccessor)
+        public Events(
+            SmartDbContext db,
+            ICommonServices services, 
+            ICheckoutStateAccessor checkoutStateAccessor,
+            PayPalHttpClient client)
         {
+            _db = db;
             _services = services;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _client = client;
         }
 
         public void HandleEvent(CustomerSignedInEvent eventMessage)
@@ -63,6 +76,66 @@ namespace Smartstore.PayPal
             }
 
             return;
+        }
+
+        public async Task HandleEvent(TrackingNumberAddedEvent eventMessage,
+            PayPalSettings settings)
+        {
+            if (!settings.TransmitTrackingNumbers)
+            {
+                return;
+            }
+
+            var order = eventMessage.Shipment.Order;
+
+            // Only do this if PayPal is the selected payment method of this order.
+            if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
+            {
+                await AddTrackingNumberAsync(eventMessage.Shipment);
+            }
+
+            return;
+        }
+
+        public async Task HandleEvent(TrackingNumberChangedEvent eventMessage,
+            PayPalHttpClient client,
+            PayPalSettings settings)
+        {
+            if (!settings.TransmitTrackingNumbers)
+            {
+                return;
+            }
+
+            var order = eventMessage.Shipment.Order;
+
+            // Only do this if PayPal is the selected payment method of this order.
+            if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
+            {
+                // We can't change the tracking number in PayPal. We have to cancel the old tracking number and add a new one.
+                var response = await client.CancelTrackingNumberAsync(eventMessage.Shipment, eventMessage.OldTrackingNumber);
+
+                await AddTrackingNumberAsync(eventMessage.Shipment);
+            }
+
+            return;
+        }
+
+        private async Task AddTrackingNumberAsync(Shipment shipment)
+        {
+            // Make API call to PayPal to add the tracking number.
+            var response = await _client.AddTrackingNumberAsync(shipment);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            var trackingId = (string)jResponse.purchase_units[0].shipping.trackers[0].id;
+
+            // Store tracking id as generic attribute in shipment.
+            shipment.GenericAttributes.Set("PayPalTrackingId", trackingId);
+
+            // Add order note.
+            shipment.Order.AddOrderNote($"Tracking number {shipment.TrackingNumber} has been transmitted to PayPal. Tracking ID: {trackingId}");
+
+            await _db.SaveChangesAsync();
         }
     }
 }

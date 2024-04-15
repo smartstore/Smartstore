@@ -359,7 +359,6 @@
             <LocaleResource Name="FundingsCart.Hint">
                 <Value>Legt fest, welche Zahlungsoptionen auf der Warenkorbseite angezeigt werden sollen.</Value>
             </LocaleResource>
-
             <LocaleResource Name="PayUponInvoiceLimit">
                 <Value>Obergrenze für Zahlungen auf Rechnung</Value>
             </LocaleResource>
@@ -367,6 +366,14 @@
                 <Value>
                     Legt die Obergrenze fest, bis zu der Zahlungen auf Rechnung angeboten werden.
                     Derzeit liegt diese Grenze bei 2.500 €, kann aber in Einzelfällen davon abweichen.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="TransmitTrackingNumbers">
+                <Value>Tracking-Nummern übermitteln</Value>
+            </LocaleResource>
+            <LocaleResource Name="TransmitTrackingNumbers.Hint">
+                <Value>
+                    Legt fest, ob Tracking-Nummern an PayPal gesendet werden sollen, sobald sie in der Sendung eingegeben oder aktualisiert wurden.
                 </Value>
             </LocaleResource>
             
