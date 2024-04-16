@@ -95,7 +95,7 @@ namespace Smartstore.Web.Models.Catalog
 
         public ProductDetailsPriceModel Price { get; set; } = new();
         public AddToCartModel AddToCart { get; set; } = new();
-        public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
+        public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = [];
         public string AttributeInfo { get; set; }
 
         public bool DisplayAdminLink { get; set; }
@@ -128,23 +128,20 @@ namespace Smartstore.Web.Models.Catalog
 
         public ProductVariantAttributeCombination SelectedCombination { get; set; }
 
-        public List<BrandOverviewModel> Brands { get; set; } = new();
+        public List<BrandOverviewModel> Brands { get; set; } = [];
         public int ReviewCount { get; set; }
         public ProductReviewOverviewModel ReviewOverview { get; set; } = new();
 
-
-        // A list of associated products. For example, "Grouped" products could have several child "simple" products
-        public List<ProductDetailsModel> AssociatedProducts { get; set; } = new();
-        public AssociatedProductsListModel AssociatedProductsList { get; set; } = new();
+        public GroupedProductModel GroupedProduct { get; set; }
         public bool IsAssociatedProduct { get; set; }
 
-        public List<ProductDetailsModel> BundledItems { get; set; } = new();
+        public List<ProductDetailsModel> BundledItems { get; set; } = [];
         public ProductBundleItemModel BundleItem { get; set; } = new();
         public bool IsBundlePart { get; set; }
 
-        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
+        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = [];
 
-        public List<ProductTagModel> ProductTags { get; set; } = new();
+        public List<ProductTagModel> ProductTags { get; set; } = [];
 
         public ProductReviewsModel ProductReviews { get; set; } = new();
 
@@ -157,7 +154,7 @@ namespace Smartstore.Web.Models.Catalog
         public string HotlineTelephoneNumber { get; set; }
         public string ProductShareCode { get; set; }
 
-        public Dictionary<string, ActionItemModel> ActionItems { get; set; } = new();
+        public Dictionary<string, ActionItemModel> ActionItems { get; set; } = [];
 
         #region Nested Classes
 
@@ -200,7 +197,7 @@ namespace Smartstore.Web.Models.Catalog
 
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; } = new();
+            public List<SelectListItem> AllowedQuantities { get; set; } = [];
             public bool AvailableForPreOrder { get; set; }
         }
 

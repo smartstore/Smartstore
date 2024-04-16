@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -16,6 +17,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
+using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -114,35 +116,12 @@ namespace Smartstore.Web.Controllers
 
                 if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
                 {
-                    // Associated products.
-
-                    // BEGIN: Old associated products
-                    var searchQuery = new CatalogSearchQuery()
-                        .VisibleOnly(batchContext.Customer)
-                        .HasStoreId(batchContext.Store.Id)
-                        .HasParentGroupedProduct(product.Id);
-
-                    modelContext.AssociatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
-
-                    // Push Ids of associated products to batch context to save roundtrips
-                    batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
-
-                    foreach (var associatedProduct in modelContext.AssociatedProducts)
-                    {
-                        var childModelContext = new ProductDetailsModelContext(modelContext)
-                        {
-                            Product = associatedProduct,
-                            IsAssociatedProduct = true,
-                            ProductBundleItem = null
-                        };
-
-                        var assciatedProductModel = await MapProductDetailsPageModelAsync(childModelContext);
-                        model.AssociatedProducts.Add(assciatedProductModel);
-                    }
-                    // END: Old associated products
+                    var config = (product.ProductTypeConfiguration.HasValue()
+                        ? CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(product.ProductTypeConfiguration))
+                        : null) ?? new();
 
                     var associatedProductsQuery = new CatalogSearchQuery()
-                        .Slice(0, 20)
+                        .Slice(0, config.PageSize)
                         .VisibleOnly(batchContext.Customer)
                         .HasStoreId(batchContext.Store.Id)
                         .HasParentGroupedProduct(product.Id);
@@ -162,7 +141,11 @@ namespace Smartstore.Web.Controllers
                         }))
                         .AsyncToList();
 
-                    model.AssociatedProductsList.Products = associatedProducts.ToPagedList(0, 20, searchResult.TotalHitsCount);
+                    model.GroupedProduct = new()
+                    {
+                        Configuration = config,
+                        Products = associatedProducts.ToPagedList(0, config.PageSize, searchResult.TotalHitsCount)
+                    };
                 }
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {

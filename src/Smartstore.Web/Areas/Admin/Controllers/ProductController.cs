@@ -1825,6 +1825,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AssociatedProductsHeaderFields = new List<SelectListItem>
             {
                 new() { Value = "image", Text = T("Common.Image"), Selected = headerFields.Contains("image") },
+                new() { Value = "sku", Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains("sku") },
                 new() { Value = "price", Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains("price") }
             };
 

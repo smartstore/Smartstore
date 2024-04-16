@@ -610,8 +610,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
     > .col:not(:last-child) {
         display: flex;
-        padding: 0.3rem;
+        padding: 0.3rem 0.5rem;
         align-items: center;
+        @include text-truncate();
     }
 
     .collapse-chevron {

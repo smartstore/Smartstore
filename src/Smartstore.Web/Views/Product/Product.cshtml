@@ -98,26 +98,16 @@
                 </section>
 
                 <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
-                    <partial name="Product.AssociatedProducts" model="Model.AssociatedProductsList" />
-                    @*BEGIN: Old associated products*@
-                    @if (Model.AssociatedProducts.Count == 0)
+                    @if (Model.GroupedProduct.Products.Count > 0)
+                    {
+                        <partial name="Product.AssociatedProducts" model="Model.GroupedProduct" />
+                    }
+                    else
                     {
                         <div class="pd-no-associated-products alert alert-warning">
                             @T("Products.NoAssociatedProducts")
                         </div>
                     }
-                    else
-                    {
-                        foreach (var product in Model.AssociatedProducts)
-                        {
-                            var dataDictProduct = new ViewDataDictionary(ViewData);
-                            dataDictProduct.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
-
-                            <hr />
-                            <partial name="Product.AssociatedProduct" model="product" view-data="dataDictProduct" />
-                        }
-                    }
-                    @*END: Old associated products*@
                 </section>
             </form>
         </div>
