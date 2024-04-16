@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -498,11 +499,17 @@ namespace Smartstore.Web.Controllers
 
                                 if (selectedAttribute.Value.HasValue() && Guid.TryParse(selectedAttribute.Value, out var guid))
                                 {
-                                    attributeModel.UploadedFileName = await _db.Downloads
+                                    var mediaFile = await _db.Downloads
                                         .AsNoTracking()
                                         .Where(x => x.DownloadGuid == guid)
-                                        .Select(x => x.MediaFile.Name)
+                                        .Select(x => x.MediaFile)
                                         .FirstOrDefaultAsync();
+
+                                    attributeModel.UploadedFileName = mediaFile.Name;
+
+                                    var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
+
+                                    attributeModel.CustomProperties["UploadedFileInfo"] = JsonConvert.SerializeObject(mediaFileInfo); 
                                 }
                                 break;
                             case AttributeControlType.TextBox:

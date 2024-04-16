@@ -6,34 +6,34 @@
 @inject IWebHelper WebHelper
 
 @{
-    // TODO: (mh) (core) Customers uploaded product variant file is lost after selecting any other variant option (in product details).
     var storeUrl = WebHelper.GetStoreLocation();
     var controlId = Model.BuildControlId();
     var clientId = "upload" + CommonHelper.GenerateRandomInteger();
     var containerId = clientId + "container";
     var allowedFileExtensions = string.Join("|", Model.AllowedFileExtensions.Select(x => x.Trim()).ToList());
+    Model.CustomProperties.TryGetValue("UploadedFileInfo", out var file);
 }
 
 <div id="@containerId">
     <div class="fu-container">
         <div class="dropzone-container">
             <div class="fu-thumb fu-filename rounded" data-current-filename="@Model.UploadedFileName"></div>
-            <input id="@controlId" name="@(controlId)-file" type="hidden" class="hidden" data-fileupload="true" value="@Model.UploadedFileGuid" />
+            <input id="@controlId" name="@(controlId)-file" type="hidden" class="hidden skip-pd-ajax-update" data-fileupload="true" value="@Model.UploadedFileGuid" />
             <div class="fu-controls">
-            <file-uploader
-                file-uploader-name="@clientId"
-                upload-url="@Model.GetFileUploadUrl(Url)"
-                display-browse-media-button="false"
-                type-filter="@allowedFileExtensions"
-                display-remove-button="@Model.UploadedFileGuid.HasValue()"
-                display-remove-button-after-upload="true"
-                upload-text="@T("Common.FileUploader.Upload")"
-                onuploadcompleted="@("onFileUploaded" + clientId)"
-                onfileremoved="@("onFileRemoved" + clientId)"
-                multi-file="false"
-                has-template-preview="true"
-                download-enabled="true" />
-        </div>
+                <file-uploader
+                    file-uploader-name="@clientId"
+                    upload-url="@Model.GetFileUploadUrl(Url)"
+                    display-browse-media-button="false"
+                    type-filter="@allowedFileExtensions"
+                    display-remove-button="@Model.UploadedFileGuid.HasValue()"
+                    display-remove-button-after-upload="true"
+                    upload-text="@T("Common.FileUploader.Upload")"
+                    onuploadcompleted="@("onFileUploaded" + clientId)"
+                    onfileremoved="@("onFileRemoved" + clientId)"
+                    multi-file="false"
+                    has-template-preview="true"
+                    download-enabled="true" />
+            </div>
         </div>
 
         <div class="fu-progress">
@@ -66,5 +66,15 @@
 
             $('#' + containerId + ' .fu-message').html(fileLink);
         }
+    }
+
+    @if(file != null)
+    {
+        <text>
+            $(function () {
+                var fuContainer = $("#@containerId").find(".fu-container");
+                displaySingleFilePreview(JSON.parse('@Html.Raw(file)'), fuContainer, { downloadEnabled: true });
+            });
+        </text>
     }
 </script>
