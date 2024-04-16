@@ -112,7 +112,6 @@ namespace Smartstore.PayPal
             if (order.PaymentMethodSystemName.HasValue() && order.PaymentMethodSystemName.StartsWith("Payments.PayPal"))
             {
                 // We can't change the tracking number in PayPal. We have to cancel the old tracking number and add a new one.
-                // TODO: (mh) Are you sure that this will also succeed if there's no tracking number yet?
                 await client.CancelTrackingNumberAsync(eventMessage.Shipment);
 
                 await AddTrackingNumberAsync(eventMessage.Shipment);

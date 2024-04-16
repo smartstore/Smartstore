@@ -19,12 +19,6 @@
             ContentType = "application/json";
         }
 
-        //public OrderUpdateTrackingRequest WithBody(UpdateTrackingMessage tracking)
-        //{
-        //    Body = tracking;
-        //    return this;
-        //}
-
         public OrderUpdateTrackingRequest WithBody(List<Patch<string>> patchRequest)
         {
             Body = patchRequest;
