@@ -24,6 +24,8 @@ namespace Smartstore.Core.Platform.AI
 
         #region Feature flags
 
+        // TODO: (mh) This belongs to IAIProvider. All methods starting with "Supports*" must be removed from interface. TBD with MC.
+        // TODO: (mh) Method naming convention: CanDoSomething, e.g. CanCreateText, CanCreateImage, CanTranslate etc.
         public virtual AIProviderFeatures Features { get; } = AIProviderFeatures.None;
 
         /// <inheritdoc/>

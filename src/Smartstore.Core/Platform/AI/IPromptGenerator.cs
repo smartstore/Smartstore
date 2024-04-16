@@ -25,7 +25,7 @@ namespace Smartstore.Core.AI
         /// <returns>The prompt</returns>
         Task<string> GetPromptAsync(ITextGenerationPrompt model)
         {
-            // TODO: (mh) Rename --> GetTextPromptAsync
+            // TODO: (mh) Rename --> GenerateTextPromptAsync
             // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.TextCreation.DefaultPrompt",
@@ -42,7 +42,7 @@ namespace Smartstore.Core.AI
         /// <returns>The prompt</returns>
         Task<string> GetPromptAsync(IImageGenerationPrompt model)
         {
-            // TODO: (mh) Rename --> GetImagePromptAsync
+            // TODO: (mh) Rename --> GenerateImagePromptAsync
             // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.ImageCreation.DefaultPrompt",
@@ -59,7 +59,7 @@ namespace Smartstore.Core.AI
         /// <returns>The prompt</returns>
         Task<string> GetPromptAsync(ISuggestionPrompt model)
         {
-            // TODO: (mh) Rename --> GetSuggestionPromptAsync
+            // TODO: (mh) Rename --> GenerateSuggestionPromptAsync
             // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.Suggestions.DefaultPrompt",

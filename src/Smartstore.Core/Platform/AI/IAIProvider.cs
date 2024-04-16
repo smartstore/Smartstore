@@ -5,6 +5,8 @@ namespace Smartstore.Core.Platform.AI
 {
     public partial interface IAIProvider : IProvider
     {
+        // TODO: (mh) 
+        
         /// <summary>
         /// Defines whether the provider can create text.
         /// </summary>

@@ -19,36 +19,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayOptimizationOptionsAttributeName = "display-optimization-options";
         const string WordCountAttributeName = "word-count";
 
-        /// <summary>
-        /// Used to specify whether the word count should be displayed in the text creation dialog.
-        /// </summary>
-        [HtmlAttributeName(DisplayWordLimitAttributeName)]
-        public bool DisplayWordLimit { get; set; } = true;
-
-        /// <summary>
-        /// Used to specify whether the style option should be displayed in the text creation dialog.
-        /// </summary>
-        [HtmlAttributeName(DisplayStyleAttributeName)]
-        public bool DisplayStyle { get; set; } = true;
-
-        /// <summary>
-        /// Used to specify whether the tone option should be displayed in the text creation dialog.
-        /// </summary>
-        [HtmlAttributeName(DisplayToneAttributeName)]
-        public bool DisplayTone { get; set; } = true;
-
-        /// <summary>
-        /// Used to specify whether the optimization options should be displayed in the text creation dialog.
-        /// </summary>
-        [HtmlAttributeName(DisplayOptimizationOptionsAttributeName)]
-        public bool DisplayOptimizationOptions { get; set; } = true;
-
-        /// <summary>
-        /// Used to specify the maximum word count for the text about to be created.
-        /// </summary>
-        [HtmlAttributeName(WordCountAttributeName)]
-        public int WordCount { get; set; } = 50;
-
         private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
 
         public TextCreationTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator)
@@ -56,6 +26,36 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             _aiToolHtmlGenerator = aiToolHtmlGenerator;
         }
+
+        /// <summary>
+        /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.
+        /// </summary>
+        [HtmlAttributeName(DisplayWordLimitAttributeName)]
+        public bool DisplayWordLimit { get; set; } = true;
+
+        /// <summary>
+        /// Used to specify whether the style option should be displayed in the text creation dialog. Default = true.
+        /// </summary>
+        [HtmlAttributeName(DisplayStyleAttributeName)]
+        public bool DisplayStyle { get; set; } = true;
+
+        /// <summary>
+        /// Used to specify whether the tone option should be displayed in the text creation dialog. Default = true.
+        /// </summary>
+        [HtmlAttributeName(DisplayToneAttributeName)]
+        public bool DisplayTone { get; set; } = true;
+
+        /// <summary>
+        /// Used to specify whether the optimization options should be displayed in the text creation dialog. Default = true.
+        /// </summary>
+        [HtmlAttributeName(DisplayOptimizationOptionsAttributeName)]
+        public bool DisplayOptimizationOptions { get; set; } = true;
+
+        /// <summary>
+        /// Used to specify the maximum word count for the text about to be created. Default = 50.
+        /// </summary>
+        [HtmlAttributeName(WordCountAttributeName)]
+        public int WordCount { get; set; } = 50;
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -70,7 +70,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             // Check if target field has content & pass parameter accordingly.
             // INFO: Has content has to be checked to determine whether the optimization options should be enabled.
             var hasContent = await HasValueAsync(output);
-            var attributes = GetTaghelperAttributes();
+            var attributes = GetTagHelperAttributes();
             var tool = _aiToolHtmlGenerator.GenerateTextCreationTool(attributes, hasContent, EntityName);
             if (tool == null)
             {
@@ -80,7 +80,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.WrapContentWith(tool);
         }
 
-        private async Task<bool> HasValueAsync(TagHelperOutput output)
+        private static async Task<bool> HasValueAsync(TagHelperOutput output)
         {
             var hasContent = false;
             var content = (await output.GetChildContentAsync()).GetContent();
@@ -112,7 +112,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             return hasContent;
         }
 
-        private AttributeDictionary GetTaghelperAttributes()
+        private AttributeDictionary GetTagHelperAttributes()
         {
             var attributes = new AttributeDictionary
             {

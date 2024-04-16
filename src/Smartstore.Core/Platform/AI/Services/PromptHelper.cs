@@ -8,6 +8,7 @@ namespace Smartstore.AI.Services
 {
     public partial class PromptHelper
     {
+        // TODO: (mh) Don't concat strings in all the methods here. Use the "Apply" method pattern: void methods that add new prompt parts to a passed list. TBD with MC.
         private readonly SmartDbContext _db;
         private readonly ILinkResolver _linkResolver;
 
@@ -398,9 +399,11 @@ namespace Smartstore.AI.Services
         {
             if (enhanceResourceId)
             {
+                // TODO: (mh) Make const for "Smartstore.AI.Prompts."
                 resourceId = "Smartstore.AI.Prompts." + resourceId;
             }
 
+            // TODO: (mh) Be careful. Removing NewLine could collapse text!
             return T(resourceId, args).ToString().Replace(Environment.NewLine, string.Empty);
         }
 
