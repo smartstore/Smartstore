@@ -605,6 +605,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // Associated products
 // =====================================================
 .pd-associated-product-title {
+    background-color: rgba(#000, 0.03);
+    padding: 0.625rem;
+
     > .col:not(:last-child) {
         display: flex;
         padding: 0.3rem;

@@ -142,7 +142,7 @@ namespace Smartstore.Web.Controllers
                     // END: Old associated products
 
                     var associatedProductsQuery = new CatalogSearchQuery()
-                        .Slice(0, _catalogSettings.AssociatedProductsListPageSize)
+                        .Slice(0, 20)
                         .VisibleOnly(batchContext.Customer)
                         .HasStoreId(batchContext.Store.Id)
                         .HasParentGroupedProduct(product.Id);
@@ -162,7 +162,7 @@ namespace Smartstore.Web.Controllers
                         }))
                         .AsyncToList();
 
-                    model.AssociatedProductsList.Products = associatedProducts.ToPagedList(0, _catalogSettings.AssociatedProductsListPageSize, searchResult.TotalHitsCount);
+                    model.AssociatedProductsList.Products = associatedProducts.ToPagedList(0, 20, searchResult.TotalHitsCount);
                 }
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {

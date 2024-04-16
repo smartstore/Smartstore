@@ -14,7 +14,6 @@
 }
 
 <div>
-    @*TODO: sort by clicking column names*@
     <div id="associated-products" class="accordion">
         @foreach (var product in Model.Products)
         {
@@ -23,8 +22,8 @@
             productViewData.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
 
             <div class="card pd-associated-product">
-                <div class="card-header nav-toggler">
-                    <div class="pd-associated-product-title card-title collapsed row p-2" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
+                <div class="card-header">
+                    <div class="card-title pd-associated-product-title collapsed row" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
                         <div class="col col-4">
                             @Html.Raw(product.Name)
                         </div>
@@ -49,7 +48,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="@id" class="collapse nav-collapse" data-parent="#associated-products">
+                <div id="@id" class="collapse" data-parent="#associated-products">
                     <div class="card-body">
                         <partial name="Product.AssociatedProduct" model="product" view-data="productViewData" />
                     </div>
