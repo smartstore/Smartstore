@@ -270,6 +270,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowLinkedAttributeValueImage")]
         public bool ShowLinkedAttributeValueImage { get; set; }
 
+        [LocalizedDisplay("*ShowProductTags")]
+        public bool ShowProductTags { get; set; }
+
         #endregion
 
         public PriceSettingsModel PriceSettings { get; set; } = new();

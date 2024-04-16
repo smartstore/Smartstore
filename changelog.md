@@ -31,7 +31,8 @@
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 - Page Builder
 	- Added **AudioPlayer** block
-- #858 Implemented Paypal package tracking 
+- #858 Implemented Paypal package tracking
+- #997 Added setting to disable display of product tags on the product detail page  
 
 ### Improvements
 
