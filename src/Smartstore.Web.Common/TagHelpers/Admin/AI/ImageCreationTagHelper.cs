@@ -5,16 +5,26 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    // TODO: (mh) Rename --> AIImageTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for image creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class ImageCreationTagHelper : AITagHelperBase
     {
+        // TODO: (mh) Rename --> ai-image
         const string EditorTagName = "ai-image-creation";
 
         const string FormatAttributeName = "format";
         const string MediaFolderAttributeName = "media-folder";
+
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
+
+        public ImageCreationTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator)
+            : base(htmlGenerator)
+        {
+            _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        }
 
         /// <summary>
         /// Used to be passed to AI provider to define the format of the picture about to be created.
@@ -28,20 +38,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(MediaFolderAttributeName)]
         public string MediaFolder { get; set; }
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
-
-        public ImageCreationTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator)
-            : base(htmlGenerator)
-        {
-            _aiToolHtmlGenerator = aiToolHtmlGenerator;
-        }
-
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
-            var attributes = GetTaghelperAttributes();
+            var attributes = GenerateDataAttributes();
             var tool = _aiToolHtmlGenerator.GenerateImageCreationTool(attributes);
             if (tool == null)
             {
@@ -51,7 +53,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.WrapContentWith(tool);
         }
 
-        private AttributeDictionary GetTaghelperAttributes()
+        private AttributeDictionary GenerateDataAttributes()
         {
             var attributes = new AttributeDictionary
             {

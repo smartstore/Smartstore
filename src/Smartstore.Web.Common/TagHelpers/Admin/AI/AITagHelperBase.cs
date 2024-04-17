@@ -37,8 +37,9 @@ namespace Smartstore.Web.TagHelpers.Admin
             _htmlGenerator = htmlGenerator;
         }
 
-        internal string GetHtmlId()
+        protected virtual string GetHtmlId()
         {
+            // TODO: (mh) Use HtmlHelper.IdFor<>(). TBD with MC.
             var tagBuilder = _htmlGenerator.GenerateLabel(
                 ViewContext,
                 For.ModelExplorer,

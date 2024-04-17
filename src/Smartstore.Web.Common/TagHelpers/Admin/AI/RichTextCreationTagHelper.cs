@@ -4,12 +4,14 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    // TODO: (mh) Rename --> AIRichTextTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for Html text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class RichTextCreationTagHelper : AITagHelperBase
     {
+        // TODO: (mh) Rename --> ai-rich-text
         const string EditorTagName = "ai-rich-text-creation";
 
         const string DisplayAdditionalContentOptionsAttributeName = "display-additional-content-options";

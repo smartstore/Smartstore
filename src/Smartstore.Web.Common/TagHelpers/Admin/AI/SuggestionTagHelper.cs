@@ -4,12 +4,14 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    // TODO: (mh) Rename --> AISuggestionTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text suggestions.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class SuggestionTagHelper : AITagHelperBase
     {
+        // TODO: (mh) Rename --> ai-suggestion
         const string EditorTagName = "ai-suggestion";
 
         const string MandatoryEntityFieldsAttributeName = "mandatory-entity-fields";

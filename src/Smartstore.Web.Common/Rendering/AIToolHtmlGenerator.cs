@@ -8,8 +8,9 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Rendering
 {
+    // TODO: (mh) Make interface for this class
     /// <summary>
-    /// Helper class to be used in AI taghelpers to generate the HTML for the AI dialog openers.
+    /// Helper class to be used in AI TagHelpers to generate the HTML for the AI dialog openers.
     /// </summary>
     public class AIToolHtmlGenerator
     {
@@ -32,8 +33,9 @@ namespace Smartstore.Web.Rendering
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        // TODO: (mh) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
         /// <summary>
-        /// Creates the icon button to open the translation dialog.
+        /// Creates the button to open the translation dialog.
         /// </summary>
         /// <param name="localizedContent">The HTML content of the localized editor.</param>
         /// <returns>The icon button inclusive dropdown to choose the target property to be translated.</returns>
@@ -52,7 +54,8 @@ namespace Smartstore.Web.Rendering
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu";
 
-            var properties = ExtractLabelsAndIdsAsync(localizedContent).Result;
+            // TODO: (mh) Dangerous! TBD with MC.
+            var properties = ExtractLabelsAndIdsAsync(localizedContent).GetAwaiter().GetResult();
 
             foreach (var provider in providers)
             {
@@ -134,7 +137,7 @@ namespace Smartstore.Web.Rendering
                 btn.Attributes["aria-expanded"] = "false";
                 btn.InnerHtml.AppendHtml(friendlyName);
 
-                AddTaghelperProperties(btn, provider, attributes, AIModalDialogType.Text);
+                AddTagHelperProperties(btn, provider, attributes, AIModalDialogType.Text);
 
                 btnGroupDiv.InnerHtml.AppendHtml(btn);
 
@@ -271,7 +274,7 @@ namespace Smartstore.Web.Rendering
         {
             var additionalClasses = GetDialogIdentifierClass(dialogType);
 
-            // If there is only one provider, render a simple button else render a dropdown.
+            // If there is only one provider, render a simple button, render a dropdown otherwise.
             if (providers.Count == 1)
             {
                 var provider = providers.First();
@@ -279,7 +282,7 @@ namespace Smartstore.Web.Rendering
                 var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
                 var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
 
-                AddTaghelperProperties(openerDiv, provider, attributes, dialogType);
+                AddTagHelperProperties(openerDiv, provider, attributes, dialogType);
 
                 return openerDiv;
             }
@@ -295,7 +298,7 @@ namespace Smartstore.Web.Rendering
                     var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
                     var dropdownLi = CreateDropdownItem(dropdownLiTitle, isProviderCnt: true, additionalClasses: additionalClasses);
 
-                    AddTaghelperProperties(dropdownLi, provider, attributes, dialogType);
+                    AddTagHelperProperties(dropdownLi, provider, attributes, dialogType);
 
                     dropdownUl.InnerHtml.AppendHtml(dropdownLi);
                 }
@@ -309,7 +312,7 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Adds the necessary data attributes to the given control.
         /// </summary>
-        private void AddTaghelperProperties(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIModalDialogType dialogType)
+        private void AddTagHelperProperties(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIModalDialogType dialogType)
         {
             var route = provider.Value.GetModalDialogRoute(dialogType);
             ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
@@ -368,10 +371,12 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener.</returns>
         private static TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
         {
+            // TODO: (mh) Icon does not look good. Must be perfect. TBD with MC.
             var inputGroupColDiv = new TagBuilder("div");
+            // TODO: (mh) Bad CSS class naming (*-cnt). TBD with MC.
             inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right cnt-ai-dialog-opener " + (isDropdown ? "dropdown" : "ai-provider-cnt");
 
-            var iconA = CreateOpenerIcon(isDropdown, additionalClasses, title);
+            var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
 
             inputGroupColDiv.InnerHtml.AppendHtml(iconA);
 
@@ -385,7 +390,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
         /// <param name="title">The title of the opener.</param>
         /// <returns>The dialog opener icon.</returns>
-        private static TagBuilder CreateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
+        private static TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
             var iconA = new TagBuilder("a");
             iconA.Attributes["href"] = "javascript:void(0)";
@@ -464,6 +469,7 @@ namespace Smartstore.Web.Rendering
         /// </returns>
         private static async Task<List<(string, string, bool)>> ExtractLabelsAndIdsAsync(string htmlContent)
         {
+            // TODO: (mh) VERY BAD decision to implement a scraper. TBD with MC.
             var context = BrowsingContext.New(Configuration.Default);
             var document = await context.OpenAsync(req => req.Content(htmlContent));
             var elements = document.QuerySelectorAll("input[id], textarea[id]").OfType<IHtmlElement>();

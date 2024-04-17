@@ -5,12 +5,14 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    // TODO: (mh) Rename --> AITextTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class TextCreationTagHelper : AITagHelperBase
     {
+        // TODO: (mh) Rename --> ai-text
         const string EditorTagName = "ai-text-creation";
 
         const string DisplayWordLimitAttributeName = "display-word-limit";
