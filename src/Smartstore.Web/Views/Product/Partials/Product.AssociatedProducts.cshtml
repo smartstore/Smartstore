@@ -3,68 +3,89 @@
 @model GroupedProductModel
 
 @{
-    var collapsable = Model.Configuration.Collapsable;
     var headerFields = Model.Configuration.HeaderFields;
     var showSku = headerFields?.Any(x => x.EqualsNoCase("sku")) ?? false;
     var showPrice = headerFields?.Any(x => x.EqualsNoCase("price")) ?? false;
+    var showThumb = headerFields?.Any(x => x.EqualsNoCase("image")) ?? false
+        && Model.Products.Any(x => x.MediaGalleryModel.Files.Count > 0 || x.MediaGalleryModel.ThumbFallbackUrl.HasValue());
+
+    ViewDataDictionary CreateViewData(ProductDetailsModel model)
+    {
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
+        return vd;
+    }
 }
 
-<div id="associated-products" attr-class='(collapsable, "accordion")'>
-    @foreach (var product in Model.Products)
+<div id="associated-products">
+    @if (Model.Configuration.Collapsable)
     {
-        var id = $"associated-product{product.Id}";
-        var productViewData = new ViewDataDictionary(ViewData);
-        productViewData.TemplateInfo.HtmlFieldPrefix = $"product_{product.Id}";
+        <div class="accordion">
+            @foreach (var product in Model.Products)
+            {
+                var id = $"associated-product{product.Id}";
+                var gallery = product.MediaGalleryModel;
+                var img = gallery?.Files?.FirstOrDefault();
 
-        if (collapsable)
-        {
-            <div class="card pd-associated-product">
-                <div class="card-header">
-                    <div class="card-title pd-associated-product-title collapsed row" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
-                        <div class="col col-4" title="@product.Name">
-                            @Html.Raw(product.Name)
+                <div class="card pd-associated-product">
+                    <div class="card-header">
+                        <div class="card-title pd-associated-product-header collapsed row" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id" aria-expanded="false">
+                            <div sm-if="showThumb" class="col col-auto">
+                                @if (img != null)
+                                {
+                                    <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
+                                }
+                                else if (gallery.ThumbFallbackUrl.HasValue())
+                                {
+                                    <img class="pd-dyn-thumb" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
+                                }
+                            </div>
+                            <div class="col @(showSku || showPrice ? "col-4" : "col-8")" title="@product.Name">
+                                @Html.Raw(product.Name)
+                            </div>
+                            <div sm-if="showSku" class="col col-2" title="@product.Sku">
+                                @product.Sku
+                            </div>
+                            <div sm-if="showPrice" class="col col-1 justify-content-end">
+                                @Html.Raw(product.Price.FinalPrice)
+                            </div>
+                            @*<div class="col col-auto">
+                                    @Html.EditorFor(x => product, "QtyInput", new { size = ControlSize.Small })
+                                </div>*@
+                            <div class="col col-auto p-0 ml-auto">
+                                <a class="btn btn-primary btn-sm btn-icon" title='@T("ShoppingCart.AddToCart")'
+                                   href="javascript:;"
+                                   rel="nofollow">
+                                    <i class="fa fa-cart-arrow-down"></i>
+                                </a>
+                                <i class="fas fa-angle-up collapse-chevron m-0 ml-2"></i>
+                            </div>
                         </div>
-                        <div sm-if="showSku" class="col col-2" title="@product.Sku">
-                            @product.Sku
-                        </div>
-                        <div sm-if="showPrice" class="col col-1 justify-content-end">
-                            @Html.Raw(product.Price.FinalPrice)
-                        </div>
-                        @*<div class="col col-auto">
-                                @Html.EditorFor(x => product, "QtyInput", new { size = ControlSize.Small })
-                            </div>*@
-                        <div class="col col-auto p-0 ml-auto">
-                            <a class="btn btn-primary btn-sm btn-icon" title='@T("ShoppingCart.AddToCart")'
-                               href="javascript:;"
-                               rel="nofollow">
-                                <i class="fa fa-cart-arrow-down"></i>
-                            </a>
-                            <i class="fas fa-angle-up collapse-chevron m-0 ml-2"></i>
+                    </div>
+                    <div id="@id" class="collapse" data-parent="#associated-products">
+                        <div class="card-body">
+                            <partial name="Product.AssociatedProduct" model="product" view-data="CreateViewData(product)" />
                         </div>
                     </div>
                 </div>
-                <div id="@id" class="collapse" data-parent="#associated-products">
-                    <div class="card-body">
-                        <partial name="Product.AssociatedProduct" model="product" view-data="productViewData" />
-                    </div>
-                </div>
-            </div>
-        }
-        else
+            }
+        </div>
+    }
+    else
+    {
+        @foreach (var product in Model.Products)
         {
             <hr />
-            <partial name="Product.AssociatedProduct" model="product" view-data="productViewData" />
+            <partial name="Product.AssociatedProduct" model="product" view-data="CreateViewData(product)" />
         }
     }
+
+    @if (Model.Products.TotalPages > 1)
+    {
+        <pagination sm-list-items="Model.Products" 
+                    sm-alignment="Left" 
+                    sm-url="@Url.Action("AssociatedProducts", "Product")"
+                    sm-target="#associated-products"
+                    class="mt-3" />
+    }
 </div>
-
-@if (Model.Products.TotalPages > 1)
-{
-    <pm-pagination sm-list-items="Model.Products" />
-}
-
-<script sm-target-zone="scripts" data-origin="associated-products">
-    $(function () {
-
-    });
-</script>

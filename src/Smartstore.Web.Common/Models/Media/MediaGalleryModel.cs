@@ -7,9 +7,10 @@ namespace Smartstore.Web.Models.Media
     {
         public IList<MediaFileInfo> Files { get; set; } = new List<MediaFileInfo>();
         public int GalleryStartIndex { get; set; }
-        public int ThumbSize { get; set; } = 72;
-        public int ImageSize { get; set; } = 680;
+        public int ThumbSize { get; set; } = MediaSettings.ThumbnailSizeXs;
+        public int ImageSize { get; set; } = MediaSettings.ThumbnailSizeXl;
         public string FallbackUrl { get; set; }
+        public string ThumbFallbackUrl { get; set; }
 
         public string ModelName { get; set; }
         public string DefaultAlt { get; set; }

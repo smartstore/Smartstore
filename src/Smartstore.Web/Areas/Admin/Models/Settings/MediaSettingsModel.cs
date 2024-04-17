@@ -47,6 +47,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*AssociatedProductPictureSize")]
         public int AssociatedProductPictureSize { get; set; }
 
+        [LocalizedDisplay("*AssociatedProductHeaderThumbSize")]
+        public int AssociatedProductHeaderThumbSize { get; set; }
+
         [LocalizedDisplay("*BundledProductPictureSize")]
         public int BundledProductPictureSize { get; set; }
 
@@ -157,6 +160,7 @@ namespace Smartstore.Admin.Models
             RuleFor(x => x.ProductThumbPictureSizeOnProductDetailsPage).GreaterThanOrEqualTo(0);
             RuleFor(x => x.MessageProductThumbPictureSize).GreaterThanOrEqualTo(0);
             RuleFor(x => x.AssociatedProductPictureSize).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.AssociatedProductHeaderThumbSize).GreaterThanOrEqualTo(0);
             RuleFor(x => x.BundledProductPictureSize).GreaterThanOrEqualTo(0);
             RuleFor(x => x.CategoryThumbPictureSize).GreaterThanOrEqualTo(0);
             RuleFor(x => x.ManufacturerThumbPictureSize).GreaterThanOrEqualTo(0);

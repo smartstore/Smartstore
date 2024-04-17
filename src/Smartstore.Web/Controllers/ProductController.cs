@@ -323,6 +323,26 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
+        /// AJAX. Gets associated products of a grouped product when a paginator link has been clicked.
+        /// </summary>
+        public async Task<IActionResult> AssociatedProducts(int id, int page)
+        {
+            var content = string.Empty;
+            var product = await _db.Products
+                .AsNoTracking()
+                .SelectSummary()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product != null)
+            {
+                var model = await _helper.CreateGroupedProductModelAsync(product, page);
+                content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
+            }
+
+            return new JsonResult(content);
+        }
+
+        /// <summary>
         /// This action is used to update the display of product detail view.
         /// It will be called via AJAX upon user interaction (e.g. changing of quantity || attribute selection).
         /// All relevasnt product partials will be rendered with updated models and returned as JSON data.

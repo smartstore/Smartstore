@@ -31,19 +31,7 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(product);
 
-            var customer = _services.WorkContext.CurrentCustomer;
-            var store = _services.StoreContext.CurrentStore;
-            var modelContext = new ProductDetailsModelContext
-            {
-                Product = product,
-                VariantQuery = query,
-                Customer = customer,
-                Store = store,
-                Currency = _services.WorkContext.WorkingCurrency,
-                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false),
-                DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
-            };
-
+            var modelContext = await CreateModelContext(product, query);
             var model = await MapProductDetailsPageModelAsync(modelContext);
 
             // Specifications
@@ -116,36 +104,7 @@ namespace Smartstore.Web.Controllers
 
                 if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
                 {
-                    var config = (product.ProductTypeConfiguration.HasValue()
-                        ? CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(product.ProductTypeConfiguration))
-                        : null) ?? new();
-
-                    var associatedProductsQuery = new CatalogSearchQuery()
-                        .Slice(0, config.PageSize)
-                        .VisibleOnly(batchContext.Customer)
-                        .HasStoreId(batchContext.Store.Id)
-                        .HasParentGroupedProduct(product.Id);
-                    var searchResult = await _catalogSearchService.SearchAsync(associatedProductsQuery);
-
-                    modelContext.AssociatedProducts = await searchResult.GetHitsAsync();
-
-                    // Push Ids of associated products to batch context to avoid roundtrips.
-                    batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
-
-                    var associatedProducts = await modelContext.AssociatedProducts
-                        .SelectAwait(async x => await MapProductDetailsPageModelAsync(new(modelContext)
-                        {
-                            Product = x,
-                            IsAssociatedProduct = true,
-                            ProductBundleItem = null
-                        }))
-                        .AsyncToList();
-
-                    model.GroupedProduct = new()
-                    {
-                        Configuration = config,
-                        Products = associatedProducts.ToPagedList(0, config.PageSize, searchResult.TotalHitsCount)
-                    };
+                    model.GroupedProduct = await CreateGroupedProductModelInternal(modelContext, 1);
                 }
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {
@@ -400,6 +359,51 @@ namespace Smartstore.Web.Controllers
             }
 
             _services.DisplayControl.Announce(product);
+        }
+
+        public async Task<GroupedProductModel> CreateGroupedProductModelAsync(Product product, int pageIndex)
+        {
+            var modelContext = await CreateModelContext(product, new());
+            return await CreateGroupedProductModelInternal(modelContext, pageIndex);
+        }
+
+        private async Task<GroupedProductModel> CreateGroupedProductModelInternal(ProductDetailsModelContext modelContext, int pageIndex)
+        {
+            Guard.IsTrue(modelContext?.Product?.ProductType == ProductType.GroupedProduct);
+
+            var product = modelContext.Product;
+            var batchContext = modelContext.BatchContext;
+
+            var config = (product.ProductTypeConfiguration.HasValue()
+                ? CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(product.ProductTypeConfiguration))
+                : null) ?? new();
+
+            var associatedProductsQuery = new CatalogSearchQuery()
+                .Slice((pageIndex - 1) * config.PageSize, config.PageSize)
+                .VisibleOnly(batchContext.Customer)
+                .HasStoreId(batchContext.Store.Id)
+                .HasParentGroupedProduct(product.Id);
+            var searchResult = await _catalogSearchService.SearchAsync(associatedProductsQuery);
+
+            modelContext.AssociatedProducts = await searchResult.GetHitsAsync();
+
+            // Push Ids of associated products to batch context to avoid roundtrips.
+            batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
+
+            var associatedProducts = await modelContext.AssociatedProducts
+                .SelectAwait(async x => await MapProductDetailsPageModelAsync(new(modelContext)
+                {
+                    Product = x,
+                    IsAssociatedProduct = true,
+                    ProductBundleItem = null
+                }))
+                .AsyncToList();
+
+            return new()
+            {
+                Configuration = config,
+                Products = associatedProducts.ToPagedList(0, config.PageSize, searchResult.TotalHitsCount)
+            };
         }
 
         #region PrepareProductDetailModelAsync helper methods
@@ -1125,7 +1129,8 @@ namespace Smartstore.Web.Controllers
 
             if (isAssociatedProduct)
             {
-                model.ThumbSize = _mediaSettings.AssociatedProductPictureSize;
+                model.ImageSize = _mediaSettings.AssociatedProductPictureSize;
+                model.ThumbSize = _mediaSettings.AssociatedProductHeaderThumbSize;
             }
             else if (bundleItem != null)
             {
@@ -1193,17 +1198,17 @@ namespace Smartstore.Web.Controllers
 
             if (defaultFile == null && !_catalogSettings.HideProductDefaultPictures)
             {
-                var fallbackImageSize = _mediaSettings.ProductDetailsPictureSize;
                 if (isAssociatedProduct)
                 {
-                    fallbackImageSize = _mediaSettings.AssociatedProductPictureSize;
+                    model.FallbackUrl = _mediaService.GetFallbackUrl(_mediaSettings.AssociatedProductPictureSize);
+                    model.ThumbFallbackUrl = _mediaService.GetFallbackUrl(_mediaSettings.AssociatedProductHeaderThumbSize);
                 }
-                else if (bundleItem != null)
+                else
                 {
-                    fallbackImageSize = _mediaSettings.BundledProductPictureSize;
+                    model.FallbackUrl = _mediaService.GetFallbackUrl(
+                        bundleItem != null ? _mediaSettings.BundledProductPictureSize : _mediaSettings.ProductDetailsPictureSize);
+                    model.ThumbFallbackUrl = model.FallbackUrl;
                 }
-
-                model.FallbackUrl = _mediaService.GetFallbackUrl(fallbackImageSize);
             }
 
             return model;
@@ -1406,6 +1411,23 @@ namespace Smartstore.Web.Controllers
 
             // Return for chaining
             return file;
+        }
+
+        private async Task<ProductDetailsModelContext> CreateModelContext(Product product, ProductVariantQuery query)
+        {
+            var customer = _services.WorkContext.CurrentCustomer;
+            var store = _services.StoreContext.CurrentStore;
+
+            return new()
+            {
+                Product = product,
+                VariantQuery = query,
+                Customer = customer,
+                Store = store,
+                Currency = _services.WorkContext.WorkingCurrency,
+                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false),
+                DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
+            };
         }
     }
 }

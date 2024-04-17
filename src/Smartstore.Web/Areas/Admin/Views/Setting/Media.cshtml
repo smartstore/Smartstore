@@ -117,6 +117,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="AssociatedProductHeaderThumbSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AssociatedProductHeaderThumbSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="AssociatedProductHeaderThumbSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="BundledProductPictureSize" />
                     </div>
                     <div class="adminData">

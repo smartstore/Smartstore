@@ -6,8 +6,8 @@ using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Migrations
 {
-    [MigrationVersion("2024-04-16 09:30:00", "Core: Grouped product configuration")]
-    internal class GroupedProductConfiguration : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
+    [MigrationVersion("2024-04-16 09:30:00", "Core: revamp grouped product")]
+    internal class RevampGroupedProduct : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string ProductTableName = nameof(Product);
         const string ConfigurationColumn = nameof(Product.ProductTypeConfiguration);
@@ -49,8 +49,12 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
                 "Felder für die Kopfzeile",
-                "Specifies additional fields for the header of an associated product. The product name and SKU are always displayed.",
-                "Legt zusätzliche Felder für die Kopfzeile eines verknüpften Produktes fest. Produktname und -nummer (SKU) werden immer angezeigt.");
+                "Specifies additional fields for the header of an associated product. The product name is always displayed.",
+                "Legt zusätzliche Felder für die Kopfzeile eines verknüpften Produktes fest. Produktname wird immer angezeigt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Media.AssociatedProductHeaderThumbSize",
+                "Associated (grouped) product in the header",
+                "Verknüpftes (Gruppen)-Produkt in der Kopfleiste");
         }
     }
 }
