@@ -371,6 +371,8 @@ namespace Smartstore.Web.Controllers
         {
             Guard.IsTrue(modelContext?.Product?.ProductType == ProductType.GroupedProduct);
 
+            pageIndex = Math.Max(0, pageIndex - 1);
+
             var product = modelContext.Product;
             var batchContext = modelContext.BatchContext;
 
@@ -379,15 +381,16 @@ namespace Smartstore.Web.Controllers
                 : null) ?? new();
 
             var associatedProductsQuery = new CatalogSearchQuery()
-                .Slice((pageIndex - 1) * config.PageSize, config.PageSize)
+                .Slice(pageIndex * config.PageSize, config.PageSize)
                 .VisibleOnly(batchContext.Customer)
                 .HasStoreId(batchContext.Store.Id)
                 .HasParentGroupedProduct(product.Id);
             var searchResult = await _catalogSearchService.SearchAsync(associatedProductsQuery);
 
             modelContext.AssociatedProducts = await searchResult.GetHitsAsync();
+            modelContext.GroupedProductConfiguration = config;
 
-            // Push Ids of associated products to batch context to avoid roundtrips.
+            // Push IDs of associated products to batch context to avoid roundtrips.
             batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
 
             var associatedProducts = await modelContext.AssociatedProducts
@@ -401,8 +404,9 @@ namespace Smartstore.Web.Controllers
 
             return new()
             {
+                Id = product.Id,
                 Configuration = config,
-                Products = associatedProducts.ToPagedList(0, config.PageSize, searchResult.TotalHitsCount)
+                Products = associatedProducts.ToPagedList(pageIndex, config.PageSize, searchResult.TotalHitsCount)
             };
         }
 
@@ -977,36 +981,38 @@ namespace Smartstore.Web.Controllers
         {
             using var chronometer = _services.Chronometer.Step("PrepareProductCartModel");
 
+            var toCart = model.AddToCart;
             var product = modelContext.Product;
-            var currency = modelContext.Currency;
             var displayPrices = modelContext.DisplayPrices;
+            var collapsableAssociatedProducts = modelContext.IsAssociatedProduct && modelContext.GroupedProductConfiguration?.Collapsable == true;
 
-            model.AddToCart.ProductId = product.Id;
-            model.AddToCart.HideQuantityControl = product.HideQuantityControl;
-            model.AddToCart.AvailableForPreOrder = product.AvailableForPreOrder;
+            toCart.ProductId = product.Id;
+            toCart.AvailableForPreOrder = product.AvailableForPreOrder;
+            toCart.HideQuantityControl = product.HideQuantityControl || collapsableAssociatedProducts;
+            toCart.HideAddToCartButton = collapsableAssociatedProducts;
 
-            await product.MapQuantityInputAsync(model.AddToCart, selectedQuantity);
-            model.AddToCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
-            model.AddToCart.QuantityUnitNamePlural = model.QuantityUnitNamePlural; // TODO: (mc) remove 'QuantityUnitName' from parent model later
+            await product.MapQuantityInputAsync(toCart, selectedQuantity);
+            toCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
+            toCart.QuantityUnitNamePlural = model.QuantityUnitNamePlural; // TODO: (mc) remove 'QuantityUnitName' from parent model later
 
             // 'add to cart', 'add to wishlist' buttons.
-            model.AddToCart.DisableBuyButton = !displayPrices || product.DisableBuyButton ||
+            toCart.DisableBuyButton = !displayPrices || product.DisableBuyButton ||
                 !_services.Permissions.Authorize(Permissions.Cart.AccessShoppingCart);
 
-            model.AddToCart.DisableWishlistButton = !displayPrices || product.DisableWishlistButton
+            toCart.DisableWishlistButton = !displayPrices || product.DisableWishlistButton
                 || product.ProductType == ProductType.GroupedProduct
                 || !_services.Permissions.Authorize(Permissions.Cart.AccessWishlist);
 
-            model.AddToCart.CustomerEntersPrice = model.Price.CustomerEntersPrice;
-            if (model.AddToCart.CustomerEntersPrice)
+            toCart.CustomerEntersPrice = model.Price.CustomerEntersPrice;
+            if (toCart.CustomerEntersPrice)
             {
-                var minimumCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, currency);
-                var maximumCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MaximumCustomerEnteredPrice, currency);
+                var minCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, modelContext.Currency);
+                var maxCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MaximumCustomerEnteredPrice, modelContext.Currency);
 
-                model.AddToCart.CustomerEnteredPrice = minimumCustomerEnteredPrice.Amount;
-                model.AddToCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
-                    _currencyService.ConvertToWorkingCurrency(minimumCustomerEnteredPrice),
-                    _currencyService.ConvertToWorkingCurrency(maximumCustomerEnteredPrice));
+                toCart.CustomerEnteredPrice = minCustomerEnteredPrice.Amount;
+                toCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
+                    _currencyService.ConvertToWorkingCurrency(minCustomerEnteredPrice),
+                    _currencyService.ConvertToWorkingCurrency(maxCustomerEnteredPrice));
             }
         }
 

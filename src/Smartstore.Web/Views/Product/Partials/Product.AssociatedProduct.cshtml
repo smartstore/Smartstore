@@ -3,15 +3,15 @@
 @model ProductDetailsModel
 
 @{
-    string updateUrl = Url.Action("UpdateProductDetails", "Product", new
+    var gallery = Model.MediaGalleryModel;
+    var img = gallery.Files?.FirstOrDefault();
+
+    var updateUrl = Url.Action("UpdateProductDetails", "Product", new
     {
         productId = Model.Id,
         bundleItemId = Model.BundleItem.Id,
         itemType = "associateditem"
     });
-
-    var gallery = Model.MediaGalleryModel;
-    var img = gallery.Files?.FirstOrDefault();
 }
 
 <article class="pd-variant row update-container" data-url="@updateUrl" itemscope itemtype="http://schema.org/Product">
@@ -28,16 +28,16 @@
         </div>
     </div>
     <div class="col-8 col-sm-6 col-lg-4">
-        <!-- Title/Brand/ReviewSummary -->
+        @* Title/Brand/ReviewSummary *@
         <partial name="Product.Info" model="Model" />
 
-        <!-- Product attributes (SKU, EAN, Weight etc.) -->
+        @* Product attributes (SKU, EAN, Weight etc.) *@
         <div class="pd-attrs-container" data-partial="Attrs">
             <partial name="Product.Attrs" model="Model" />
         </div>
     </div>
     <div class="col col-lg-5 d-flex flex-column">
-        <!-- Offer box -->
+        @* Offer box *@
         <partial name="Product.Offer" model="Model" />
     </div>
 </article>

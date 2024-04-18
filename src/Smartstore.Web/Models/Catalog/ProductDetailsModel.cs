@@ -21,6 +21,7 @@ namespace Smartstore.Web.Models.Catalog
         {
             Product = other.Product;
             AssociatedProducts = other.AssociatedProducts;
+            GroupedProductConfiguration = other.GroupedProductConfiguration;
             BatchContext = other.BatchContext;
             VariantQuery = other.VariantQuery;
             Customer = other.Customer;
@@ -31,6 +32,7 @@ namespace Smartstore.Web.Models.Catalog
 
         public Product Product { get; set; }
         public IList<Product> AssociatedProducts { get; set; }
+        public GroupedProductConfiguration GroupedProductConfiguration { get; set; }
         public ProductBatchContext BatchContext { get; set; }
         public ProductVariantQuery VariantQuery { get; set; }
         public Customer Customer { get; set; }
@@ -51,7 +53,6 @@ namespace Smartstore.Web.Models.Catalog
     public partial class ProductDetailsModel : EntityModelBase
     {
         public MediaGalleryModel MediaGalleryModel { get; set; } = new();
-
         public MetaPropertiesModel MetaProperties { get; set; } = new();
 
         public LocalizedValue<string> Name { get; set; }
@@ -67,6 +68,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool VisibleIndividually { get; set; }
 
         public int PictureSize { get; set; }
+        public int ThumbDimensions { get; set; }
 
         public ProductCondition Condition { get; set; }
         public bool ShowCondition { get; set; }
@@ -108,7 +110,6 @@ namespace Smartstore.Web.Models.Catalog
         public string Length { get; set; }
         public string Width { get; set; }
         public string Height { get; set; }
-        public int ThumbDimensions { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
         public bool DisplayProductReviews { get; set; }
@@ -140,11 +141,9 @@ namespace Smartstore.Web.Models.Catalog
         public bool IsBundlePart { get; set; }
 
         public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = [];
-
         public List<ProductTagModel> ProductTags { get; set; } = [];
 
         public ProductReviewsModel ProductReviews { get; set; } = new();
-
         public ProductSummaryModel AlsoPurchased { get; set; }
         public ProductSummaryModel RelatedProducts { get; set; }
 
@@ -196,6 +195,7 @@ namespace Smartstore.Web.Models.Catalog
             public QuantityControlType QuantityControlType { get; set; }
 
             public bool DisableBuyButton { get; set; }
+            public bool HideAddToCartButton { get; set; }
             public bool DisableWishlistButton { get; set; }
             public List<SelectListItem> AllowedQuantities { get; set; } = [];
             public bool AvailableForPreOrder { get; set; }

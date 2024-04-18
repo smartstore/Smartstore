@@ -339,7 +339,7 @@ namespace Smartstore.Web.Controllers
                 content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
             }
 
-            return new JsonResult(content);
+            return new JsonResult(new { content });
         }
 
         /// <summary>

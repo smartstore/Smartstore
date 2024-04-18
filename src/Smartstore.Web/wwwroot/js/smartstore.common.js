@@ -775,18 +775,15 @@
                     }
 
                     ddlStates.trigger('change');
-                },
-                error: function (xhr) {
-                    displayNotification(xhr != null && !_.isEmpty(xhr.responseText) ? xhr.responseText : 'Failed to retrieve state regions.', 'error');
                 }
             });
         });
 
         // Paginator link to load content using AJAX.
         $(document).on('click', '.page-link', function (e) {
-            var link = $(this);
-            var url = link.attr('href');
-            var contentTarget = link.closest('.pagination-container').data('target');
+            const link = $(this);
+            const url = link.attr('href');
+            const contentTarget = link.closest('.pagination-container').data('target');
 
             if (!_.isEmpty(url) && !_.isEmpty(contentTarget)) {
                 e.preventDefault();
@@ -796,10 +793,7 @@
                     type: "GET",
                     url: url,
                     success: function (response) {
-                        $(contentTarget).html(response);
-                    },
-                    error: function (xhr) {
-                        displayNotification(xhr != null && !_.isEmpty(xhr.responseText) ? xhr.responseText : 'Failed to retrieve paginator content.', 'error');
+                        $(contentTarget).html(response.content);
                     }
                 });
 
