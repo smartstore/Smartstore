@@ -23,8 +23,8 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.4" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
-		<PackageReference Include="NUnit" Version="4.0.1" />
-		<PackageReference Include="NUnit.Analyzers" Version="3.10.0">
+		<PackageReference Include="NUnit" Version="4.1.0" />
+		<PackageReference Include="NUnit.Analyzers" Version="4.1.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
