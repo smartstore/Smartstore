@@ -609,21 +609,9 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     .card:last-child .collapsing {
         border-top: 1px solid rgba(0, 0, 0, 0.125) !important;
     }
-
-/*    .card-header {
-        position: relative;
-    }
-
-    .pd-associated-product-controls {
-        position: absolute;
-        right: 5px;
-        z-index: 1;
-        top: 12px;
-    }*/
 }
 
 .pd-associated-product-title {
-    /*background-color: rgba(#000, 0.03);*/
     padding: 0.625rem;
 
     > .col:not(:last-child) {
@@ -653,4 +641,14 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     margin-inline-start: auto;
     max-width: 170px;
     padding: 0;
+}
+
+@include media-breakpoint-down(md) {
+    .pd-associated-product-md-less {
+        display: none !important;
+    }
+
+    .pd-associated-product-name {
+        width: 30%;
+    }
 }

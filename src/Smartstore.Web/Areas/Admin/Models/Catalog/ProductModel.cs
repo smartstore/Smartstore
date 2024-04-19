@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -9,7 +8,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Web;
 
 // TODO: (mg) way too many classes for one file. Move all attribute models to a subfolder "Attributes"
 // after Conditional Attributes are completed. No need to make all these "nested".

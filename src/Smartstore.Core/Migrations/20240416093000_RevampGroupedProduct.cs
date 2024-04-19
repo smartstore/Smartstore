@@ -55,6 +55,13 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.AssociatedProductHeaderThumbSize",
                 "Associated (grouped) product in the header",
                 "Verknüpftes (Gruppen)-Produkt in der Kopfleiste");
+
+            builder.AddOrUpdate("Products.DimensionsValue.Short",
+                "{0} × {1} × {2}",
+                "{0} × {1} × {2}");
+            builder.AddOrUpdate("Products.DimensionsValue.Full",
+                "{0} × {1} × {2} {3} (W×H×L)",
+                "{0} × {1} × {2} {3} (B×H×L)");
         }
     }
 }

@@ -103,13 +103,19 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayAdminLink { get; set; }
         public bool ShowLegalInfo { get; set; }
         public string LegalInfo { get; set; }
+
         public bool ShowWeight { get; set; }
         public bool ShowDimensions { get; set; }
-        public decimal WeightValue { get; set; }
+        public string DimensionSystemKeyword { get; set; }
         public string Weight { get; set; }
         public string Length { get; set; }
         public string Width { get; set; }
         public string Height { get; set; }
+        public decimal WeightValue { get; set; }
+        public decimal LengthValue { get; set; }
+        public decimal WidthValue { get; set; }
+        public decimal HeightValue { get; set; }
+
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
         public bool DisplayProductReviews { get; set; }

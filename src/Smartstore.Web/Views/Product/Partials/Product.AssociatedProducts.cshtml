@@ -3,17 +3,14 @@
 @model GroupedProductModel
 
 @{
-    var headerFields = Model.Configuration.HeaderFields;
-    var showSku = headerFields?.Any(x => x.EqualsNoCase("sku")) ?? false;
-    var showPrice = headerFields?.Any(x => x.EqualsNoCase("price")) ?? false;
-    var showThumb = headerFields?.Any(x => x.EqualsNoCase("image")) ?? false;
-
-    ViewDataDictionary CreateViewData(ProductDetailsModel model)
-    {
-        var vd = new ViewDataDictionary(ViewData);
-        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
-        return vd;
-    }
+    var nameClass = GetNameCssClass();
+    var showThumb = Model.ShowHeaderField("image");
+    var showSku = Model.ShowHeaderField("sku");
+    var showPrice = Model.ShowHeaderField("price");
+    var showWeight = Model.ShowHeaderField("weight");
+    var showDimensions = Model.ShowHeaderField("dimensions");
+    string dimensionsShort = T("Products.DimensionsValue.Short");
+    string dimensionsFull = T("Products.DimensionsValue.Full");
 }
 
 <div id="associated-products">
@@ -28,14 +25,6 @@
 
                 <div class="card">
                     <div class="card-header">
-                        @*<div class="pd-associated-product-controls d-flex mr-4">
-                                @Html.EditorFor(x => product.AddToCart, "QtyInput", new { size = ControlSize.Small })
-
-                                <a class="btn btn-primary btn-sm btn-icon ml-1" href="javascript:;" rel="nofollow" title="@T("ShoppingCart.AddToCart")">
-                                    <i class="fa fa-cart-arrow-down"></i>
-                                </a>
-                            </div>*@
-                        @*<div class="card-title pd-associated-product-title collapsed row" aria-expanded="false" role="button" data-toggle="collapse" data-target="#@id" aria-controls="@id">*@
                         <div class="card-title pd-associated-product-title row collapsed" aria-expanded="false" role="button" data-target="#@id" aria-controls="@id">
                             <div sm-if="showThumb" class="col col-auto">
                                 @if (img != null)
@@ -47,13 +36,19 @@
                                     <img class="pd-dyn-thumb" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
                                 }
                             </div>
-                            <div class="col @(showSku || showPrice ? "col-4" : "col-8")" title="@product.Name">
+                            <div class="col @nameClass pd-associated-product-name" title="@product.Name">
                                 <span class="text-truncate">@Html.Raw(product.Name)</span>
                             </div>
-                            <div sm-if="showSku" class="col col-2" title="@product.Sku">
+                            <div sm-if="showSku" class="col col-2 pd-associated-product-md-less" title="@product.Sku">
                                 <span class="text-truncate">@product.Sku</span>
                             </div>
-                            <div sm-if="showPrice" class="col col-1 justify-content-end">
+                            <div sm-if="showDimensions" class="col col-2 pd-associated-product-md-less justify-content-center" title="@GetFormattedDimensions(product, true)">
+                                <span class="text-truncate">@GetFormattedDimensions(product, false)</span>
+                            </div>
+                            <div sm-if="showWeight" class="col col-1 pd-associated-product-md-less justify-content-end" title="@product.Weight">
+                                <span class="text-truncate">@product.Weight</span>
+                            </div>
+                            <div sm-if="showPrice" class="col col-1 pd-associated-product-md-less justify-content-end" title="@product.Price.FinalPrice">
                                 <span class="text-truncate">@Html.Raw(product.Price.FinalPrice)</span>
                             </div>
                             <div class="col pd-associated-products-actions">
@@ -107,3 +102,43 @@
         });
     });
 </script>
+
+@{
+    ViewDataDictionary CreateViewData(ProductDetailsModel model)
+    {
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
+        return vd;
+    }
+
+    string GetNameCssClass()
+    {
+        var len = Model.Configuration.HeaderFields?.Length ?? 0;
+        if (len < 2)
+            return "col-8";
+        if (len < 4)
+            return "col-6";
+        if (len < 6)
+            return "col-3";
+        return "col-2";
+    }
+
+    string GetFormattedDimensions(ProductDetailsModel model, bool full)
+    {
+        var w = model.WidthValue;
+        var h = model.HeightValue;
+        var l = model.LengthValue;
+
+        if (w == 0 && h == 0 && l == 0)
+            return string.Empty;
+
+        var wStr = w.ToString("G29");
+        var hStr = h.ToString("G29");
+        var lStr = l.ToString("G29");
+
+        if (full)
+            return dimensionsFull.FormatInvariant(wStr, hStr, lStr, model.DimensionSystemKeyword);
+
+        return dimensionsShort.FormatInvariant(wStr, hStr, lStr);
+    }
+}

@@ -921,6 +921,10 @@ namespace Smartstore.Web.Controllers
             model.Height = (product.Height > 0) ? $"{product.Height:N2} {dimensionSystemKeyword}" : string.Empty;
             model.Length = (product.Length > 0) ? $"{product.Length:N2} {dimensionSystemKeyword}" : string.Empty;
             model.Width = (product.Width > 0) ? $"{product.Width:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.HeightValue = product.Height;
+            model.LengthValue = product.Length;
+            model.WidthValue = product.Width;
+            model.DimensionSystemKeyword = dimensionSystemKeyword;
 
             if (productBundleItem != null)
             {
@@ -977,14 +981,26 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, ProductDetailsModelContext ctx, int selectedQuantity)
         {
             using var chronometer = _services.Chronometer.Step("PrepareProductCartModel");
 
             var toCart = model.AddToCart;
-            var product = modelContext.Product;
-            var displayPrices = modelContext.DisplayPrices;
-            var collapsableAssociatedProducts = modelContext.IsAssociatedProduct && modelContext.GroupedProductConfiguration?.Collapsable == true;
+            var product = ctx.Product;
+
+            if (ctx.IsAssociatedProduct && ctx.GroupedProductConfiguration == null && product.ParentGroupedProductId != 0)
+            {
+                var rawConfig = await _db.Products
+                    .Where(x => x.Id == product.ParentGroupedProductId)
+                    .Select(x => x.ProductTypeConfiguration)
+                    .FirstOrDefaultAsync();
+
+                ctx.GroupedProductConfiguration = (rawConfig.HasValue()
+                    ? CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(rawConfig))
+                    : null) ?? new();
+            }
+
+            var collapsableAssociatedProducts = ctx.IsAssociatedProduct && ctx.GroupedProductConfiguration?.Collapsable == true;
 
             toCart.ProductId = product.Id;
             toCart.AvailableForPreOrder = product.AvailableForPreOrder;
@@ -996,18 +1012,18 @@ namespace Smartstore.Web.Controllers
             toCart.QuantityUnitNamePlural = model.QuantityUnitNamePlural; // TODO: (mc) remove 'QuantityUnitName' from parent model later
 
             // 'add to cart', 'add to wishlist' buttons.
-            toCart.DisableBuyButton = !displayPrices || product.DisableBuyButton ||
+            toCart.DisableBuyButton = !ctx.DisplayPrices || product.DisableBuyButton ||
                 !_services.Permissions.Authorize(Permissions.Cart.AccessShoppingCart);
 
-            toCart.DisableWishlistButton = !displayPrices || product.DisableWishlistButton
+            toCart.DisableWishlistButton = !ctx.DisplayPrices || product.DisableWishlistButton
                 || product.ProductType == ProductType.GroupedProduct
                 || !_services.Permissions.Authorize(Permissions.Cart.AccessWishlist);
 
             toCart.CustomerEntersPrice = model.Price.CustomerEntersPrice;
             if (toCart.CustomerEntersPrice)
             {
-                var minCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, modelContext.Currency);
-                var maxCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MaximumCustomerEnteredPrice, modelContext.Currency);
+                var minCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, ctx.Currency);
+                var maxCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MaximumCustomerEnteredPrice, ctx.Currency);
 
                 toCart.CustomerEnteredPrice = minCustomerEnteredPrice.Amount;
                 toCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
