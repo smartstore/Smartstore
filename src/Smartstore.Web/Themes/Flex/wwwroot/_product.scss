@@ -640,15 +640,23 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     justify-content: flex-end;
     margin-inline-start: auto;
     max-width: 170px;
+    width: 100%;
+    min-width: 100px;
     padding: 0;
 }
 
-@include media-breakpoint-down(md) {
-    .pd-associated-product-md-less {
-        display: none !important;
-    }
+.pd-associated-product-img {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    align-self: center;
+}
 
-    .pd-associated-product-name {
-        width: 30%;
-    }
+.pd-associated-product-attr {
+    @extend .text-truncate;
+    width: 100%;
+}
+.pd-associated-product-price {
+    font-weight: $font-weight-medium;
+    color: $pd-price-color;
 }

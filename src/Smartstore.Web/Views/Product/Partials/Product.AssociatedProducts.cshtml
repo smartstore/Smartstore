@@ -3,7 +3,6 @@
 @model GroupedProductModel
 
 @{
-    var nameClass = GetNameCssClass();
     var showThumb = Model.ShowHeaderField("image");
     var showSku = Model.ShowHeaderField("sku");
     var showPrice = Model.ShowHeaderField("price");
@@ -25,40 +24,54 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title pd-associated-product-title row collapsed" aria-expanded="false" role="button" data-target="#@id" aria-controls="@id">
-                            <div sm-if="showThumb" class="col col-auto">
-                                @if (img != null)
-                                {
-                                    <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
-                                }
-                                else if (gallery.ThumbFallbackUrl.HasValue())
-                                {
-                                    <img class="pd-dyn-thumb" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
-                                }
-                            </div>
-                            <div class="col @nameClass pd-associated-product-name" title="@product.Name">
-                                <span class="text-truncate">@Html.Raw(product.Name)</span>
-                            </div>
-                            <div sm-if="showSku" class="col col-2 pd-associated-product-md-less" title="@product.Sku">
-                                <span class="text-truncate">@product.Sku</span>
-                            </div>
-                            <div sm-if="showDimensions" class="col col-2 pd-associated-product-md-less justify-content-center" title="@GetFormattedDimensions(product, true)">
-                                <span class="text-truncate">@GetFormattedDimensions(product, false)</span>
-                            </div>
-                            <div sm-if="showWeight" class="col col-1 pd-associated-product-md-less justify-content-end" title="@product.Weight">
-                                <span class="text-truncate">@product.Weight</span>
-                            </div>
-                            <div sm-if="showPrice" class="col col-1 pd-associated-product-md-less justify-content-end" title="@product.Price.FinalPrice">
-                                <span class="text-truncate">@Html.Raw(product.Price.FinalPrice)</span>
-                            </div>
-                            <div class="col pd-associated-products-actions">
-                                <div class="pd-qty-input-container pd-interaction">
-                                    @Html.EditorFor(x => product.AddToCart, "QtyInput", new { size = ControlSize.Small })
+                        <div class="card-title pd-associated-product-title row no-gutters collapsed" aria-expanded="false" role="button" data-target="#@id" aria-controls="@id">
+                            <div class="col-auto d-flex">
+                                <div sm-if="showThumb" class="pd-associated-product-img">
+                                    @if (img != null)
+                                    {
+                                        <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
+                                    }
+                                    else if (gallery.ThumbFallbackUrl.HasValue())
+                                    {
+                                        <img class="pd-dyn-thumb" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
+                                    }
                                 </div>
-                                <a class="pd-interaction btn btn-primary btn-sm btn-icon ml-1" href="javascript:;" rel="nofollow" title="@T("ShoppingCart.AddToCart")">
-                                    <i class="fa fa-cart-arrow-down"></i>
-                                </a>
-                                <i class="fas fa-angle-up collapse-chevron align-content-end m-0 ml-2"></i>
+                            </div>
+                            <div class="col">
+                                <div class="row xs-gutters">
+                                    <div class="col-12 col-md-3 d-flex align-items-center">
+                                        <div class="pd-associated-product-name text-truncate" title="@product.Name">
+                                            @Html.Raw(product.Name)
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-4 d-none d-md-flex flex-column flex-lg-row align-items-start justify-content-center align-items-lg-center fs-sm">
+                                        <div sm-if="showSku" class="pd-associated-product-attr" title="@product.Sku">
+                                            @product.Sku
+                                        </div>
+                                        <div sm-if="showDimensions" class="pd-associated-product-attr" title="@GetFormattedDimensions(product, true)">
+                                            @GetFormattedDimensions(product, false)
+                                        </div>
+                                        <div sm-if="showWeight" class="pd-associated-product-attr" title="@product.Weight">
+                                            @product.Weight
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-2 d-flex mt-2 mt-md-0 align-items-center justify-content-start justify-content-md-end">
+                                        <span sm-if="showPrice" class="pd-associated-product-price">
+                                            @Html.Raw(product.Price.FinalPrice)
+                                        </span>
+                                    </div>
+                                    <div class="col-6 col-md-3 d-flex mt-2 mt-md-0 align-items-center">
+                                        <div class="pd-associated-products-actions">
+                                            <div class="pd-qty-input-container pd-interaction">
+                                                @Html.EditorFor(x => product.AddToCart, "QtyInput", new { size = ControlSize.Small })
+                                            </div>
+                                            <a class="pd-interaction btn btn-primary btn-sm btn-icon ml-1" href="javascript:;" rel="nofollow" title="@T("ShoppingCart.AddToCart")">
+                                                <i class="fa fa-cart-arrow-down"></i>
+                                            </a>
+                                        </div>
+                                        <i class="fas fa-angle-up collapse-chevron m-0 ml-2"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -109,18 +122,6 @@
         var vd = new ViewDataDictionary(ViewData);
         vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
         return vd;
-    }
-
-    string GetNameCssClass()
-    {
-        var len = Model.Configuration.HeaderFields?.Length ?? 0;
-        if (len < 2)
-            return "col-8";
-        if (len < 4)
-            return "col-6";
-        if (len < 6)
-            return "col-3";
-        return "col-2";
     }
 
     string GetFormattedDimensions(ProductDetailsModel model, bool full)
