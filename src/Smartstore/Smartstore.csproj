@@ -30,7 +30,7 @@
         <PackageReference Include="Autofac" Version="8.0.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Barcoder" Version="1.1.1" />
-        <PackageReference Include="CronExpressionDescriptor" Version="2.32.0" />
+        <PackageReference Include="CronExpressionDescriptor" Version="2.33.0" />
         <PackageReference Include="HtmlSanitizer" Version="8.0.744" />
         <PackageReference Include="Humanizer" Version="2.14.1" />
         <PackageReference Include="MailKit" Version="4.3.0" />
