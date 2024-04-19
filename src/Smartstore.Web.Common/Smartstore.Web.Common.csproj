@@ -16,10 +16,10 @@
 		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.23.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.5" />
-		<PackageReference Include="NUglify" Version="1.21.2" />
+		<PackageReference Include="NUglify" Version="1.21.4" />
 		<PackageReference Include="SharpScss" Version="2.0.0" />
 		<PackageReference Include="Smartstore.Licensing" Version="5.0.4" />
 	</ItemGroup>
