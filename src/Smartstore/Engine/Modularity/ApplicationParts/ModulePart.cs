@@ -31,7 +31,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
             {
                 // Skip loading process for dynamic assemblies. This prevents DependencyContextLoader from reading the
                 // .deps.json file from either manifest resources or the assembly location, which will fail.
-                return Enumerable.Empty<string>();
+                return [];
             }
 
             // Try to find the smaller ref file in the "ref" subfolder and use its path (if it exists).
