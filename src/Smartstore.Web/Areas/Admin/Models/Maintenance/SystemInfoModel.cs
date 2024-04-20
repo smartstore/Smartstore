@@ -48,7 +48,7 @@ namespace Smartstore.Admin.Models.Maintenance
         [LocalizedDisplay("*DataProviderFriendlyName")]
         public string DataProviderFriendlyName { get; set; }
 
-        public bool ShrinkDatabaseEnabled { get; set; }
+        public bool OptimizeDatabaseEnabled { get; set; }
 
         [Obsolete("Too fragile in .NET Core")]
         public Dictionary<string, long> MemoryCacheStats { get; set; } = new Dictionary<string, long>();

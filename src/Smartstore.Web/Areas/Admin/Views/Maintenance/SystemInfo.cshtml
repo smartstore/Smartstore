@@ -293,7 +293,7 @@
         <div class="adminData">
             <div class="form-control-plaintext">
                 <span class="sysmetric">@Model.DatabaseSizeString.NaIfEmpty()</span>
-                @if (Model.ShrinkDatabaseEnabled)
+                @if (Model.OptimizeDatabaseEnabled)
                 {
                     <a href='@Url.Action("OptimizeDatabase")' class="fwm">@T("Common.Shrink")</a>
                 }
