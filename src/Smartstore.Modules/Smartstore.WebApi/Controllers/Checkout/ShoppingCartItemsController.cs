@@ -15,6 +15,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ShoppingCartItem entity and managing shopping carts.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     [ProducesResponseType(Status403Forbidden)]
     [ProducesResponseType(Status404NotFound)]
     [ProducesResponseType(Status422UnprocessableEntity)]

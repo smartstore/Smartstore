@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on DiscountUsageHistory entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class DiscountUsageHistoryController : WebApiController<DiscountUsageHistory>
     {
         [HttpGet("DiscountUsageHistory"), ApiQueryable]

@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductBundleItem entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductBundleItemsController : WebApiController<ProductBundleItem>
     {
         [HttpGet("ProductBundleItems"), ApiQueryable]

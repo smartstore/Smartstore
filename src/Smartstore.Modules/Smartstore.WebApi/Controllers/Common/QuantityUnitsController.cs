@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on QuantityUnit entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class QuantityUnitsController : WebApiController<QuantityUnit>
     {
         [HttpGet("QuantityUnits"), ApiQueryable]

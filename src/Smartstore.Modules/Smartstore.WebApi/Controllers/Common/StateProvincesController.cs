@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on StateProvince entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class StateProvincesController : WebApiController<StateProvince>
     {
         [HttpGet("StateProvinces"), ApiQueryable]

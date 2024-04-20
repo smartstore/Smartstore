@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on TaxCategory entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class TaxCategoriesController : WebApiController<TaxCategory>
     {
         [HttpGet("TaxCategories"), ApiQueryable]

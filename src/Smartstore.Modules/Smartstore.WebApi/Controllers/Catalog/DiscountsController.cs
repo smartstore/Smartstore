@@ -8,6 +8,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Discount entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class DiscountsController : WebApiController<Discount>
     {
         [HttpGet("Discounts"), ApiQueryable]

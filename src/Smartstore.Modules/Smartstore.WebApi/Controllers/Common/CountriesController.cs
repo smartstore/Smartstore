@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on Country entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class CountriesController : WebApiController<Country>
     {
         [HttpGet("Countries"), ApiQueryable]

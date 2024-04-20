@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on LocalizedProperty entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Localization)]
     public class LocalizedPropertiesController : WebApiController<LocalizedProperty>
     {
         [HttpGet("LocalizedProperties"), ApiQueryable]

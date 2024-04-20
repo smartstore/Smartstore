@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on PriceLabel entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class PriceLabelsController : WebApiController<PriceLabel>
     {
         [HttpGet("PriceLabels"), ApiQueryable]

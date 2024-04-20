@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on CustomerRoleMapping entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Identity)]
     public class CustomerRoleMappingsController : WebApiController<CustomerRoleMapping>
     {
         [HttpGet("CustomerRoleMappings"), ApiQueryable]

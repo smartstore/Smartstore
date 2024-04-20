@@ -17,6 +17,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which enriches MediaFile.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Content)]
     [ProducesResponseType(Status422UnprocessableEntity)]
     public class MediaFilesController : WebApiController<MediaFile>
     {

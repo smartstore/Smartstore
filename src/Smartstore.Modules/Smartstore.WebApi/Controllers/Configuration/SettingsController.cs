@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Setting entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Configuration)]
     public class SettingsController : WebApiController<Setting>
     {
         [HttpGet("Settings"), ApiQueryable]

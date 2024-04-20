@@ -18,6 +18,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Order entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class OrdersController : WebApiController<Order>
     {
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;

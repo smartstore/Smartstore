@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on OrderNote entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class OrderNotesController : WebApiController<OrderNote>
     {
         private readonly Lazy<IMessageFactory> _messageFactory;

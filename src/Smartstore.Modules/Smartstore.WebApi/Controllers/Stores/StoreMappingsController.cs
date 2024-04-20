@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on StoreMapping entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Stores)]
     public class StoreMappingsController : WebApiController<StoreMapping>
     {
         [HttpGet("StoreMappings"), ApiQueryable]

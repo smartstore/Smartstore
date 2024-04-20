@@ -26,6 +26,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Product entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductsController : WebApiController<Product>
     {
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
