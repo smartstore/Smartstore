@@ -21,6 +21,9 @@ namespace Smartstore.Web.Api
         public const string Seo = "seo";
         public const string Stores = "stores";
 
+        // TODO: (mg) Move following groups into generic group "Platform": Configuration, DataExchange, Localization, Messaging, Seo, Stores
+        // TODO: (mg) Move CatalogAttributes to Catalog
+
         public static readonly string[] All =
         [
             Catalog,
