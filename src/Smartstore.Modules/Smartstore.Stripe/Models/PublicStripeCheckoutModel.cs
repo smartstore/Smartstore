@@ -37,6 +37,11 @@ namespace Smartstore.StripeElements.Models
         /// Defines whether the component is rendered on payment selection page.
         /// </summary>
         public bool IsPaymentSelectionPage { get; set; }
+
+        /// <summary>
+        /// Defines whether the component is rendered on cart page.
+        /// </summary>
+        public bool IsCartPage { get; set; }
     }
 
     /// <summary>
