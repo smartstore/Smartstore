@@ -2,16 +2,6 @@
 
 @model GroupedProductModel
 
-@{
-    var showThumb = Model.ShowHeaderField("image");
-    var showSku = Model.ShowHeaderField("sku");
-    var showPrice = Model.ShowHeaderField("price");
-    var showWeight = Model.ShowHeaderField("weight");
-    var showDimensions = Model.ShowHeaderField("dimensions");
-    string dimensionsShort = T("Products.DimensionsValue.Short");
-    string dimensionsFull = T("Products.DimensionsValue.Full");
-}
-
 <div id="associated-products">
     @if (Model.Configuration.Collapsable)
     {
@@ -19,65 +9,21 @@
             @foreach (var product in Model.Products)
             {
                 var id = $"associated-product{product.Id}";
-                var gallery = product.MediaGalleryModel;
-                var img = gallery?.Files?.FirstOrDefault();
+                var viewData = CreateViewData(product);
+                var updateUrl = Url.Action("UpdateProductDetails", "Product", new
+                {
+                    productId = product.Id,
+                    bundleItemId = product.BundleItem.Id,
+                    itemType = "associateditem"
+                });
 
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title pd-associated-product-title row no-gutters collapsed" aria-expanded="false" role="button" data-target="#@id" aria-controls="@id">
-                            <div class="col-auto d-flex">
-                                <div sm-if="showThumb" class="pd-associated-product-img">
-                                    @if (img != null)
-                                    {
-                                        <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
-                                    }
-                                    else if (gallery.ThumbFallbackUrl.HasValue())
-                                    {
-                                        <img class="pd-dyn-thumb" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
-                                    }
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="row xs-gutters">
-                                    <div class="col-12 col-md-3 d-flex align-items-center">
-                                        <div class="pd-associated-product-name text-truncate" title="@product.Name">
-                                            @Html.Raw(product.Name)
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-4 d-none d-md-flex flex-column flex-lg-row align-items-start justify-content-center align-items-lg-center fs-sm">
-                                        <div sm-if="showSku" class="pd-associated-product-attr" title="@product.Sku">
-                                            @product.Sku
-                                        </div>
-                                        <div sm-if="showDimensions" class="pd-associated-product-attr" title="@GetFormattedDimensions(product, true)">
-                                            @GetFormattedDimensions(product, false)
-                                        </div>
-                                        <div sm-if="showWeight" class="pd-associated-product-attr" title="@product.Weight">
-                                            @product.Weight
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-2 d-flex mt-2 mt-md-0 align-items-center justify-content-start justify-content-md-end">
-                                        <span sm-if="showPrice" class="pd-associated-product-price">
-                                            @Html.Raw(product.Price.FinalPrice)
-                                        </span>
-                                    </div>
-                                    <div class="col-6 col-md-3 d-flex mt-2 mt-md-0 align-items-center">
-                                        <div class="pd-associated-products-actions">
-                                            <div class="pd-qty-input-container pd-interaction">
-                                                @Html.EditorFor(x => product.AddToCart, "QtyInput", new { size = ControlSize.Small })
-                                            </div>
-                                            <a class="pd-interaction btn btn-primary btn-sm btn-icon ml-1" href="javascript:;" rel="nofollow" title="@T("ShoppingCart.AddToCart")">
-                                                <i class="fa fa-cart-arrow-down"></i>
-                                            </a>
-                                        </div>
-                                        <i class="fas fa-angle-up collapse-chevron m-0 ml-2"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card update-container" data-url="@updateUrl">
+                    <div class="card-header" data-partial="AssociatedHeader">
+                        <partial name="Product.AssociatedProduct.Header" model="product" view-data="viewData" />
                     </div>
                     <div id="@id" class="collapse" data-parent="#associated-products">
                         <div class="card-body">
-                            <partial name="Product.AssociatedProduct" model="product" view-data="CreateViewData(product)" />
+                            <partial name="Product.AssociatedProduct" model="product" view-data="viewData" />
                         </div>
                     </div>
                 </div>
@@ -121,25 +67,7 @@
     {
         var vd = new ViewDataDictionary(ViewData);
         vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
+        vd["GroupedProductConfiguration"] = Model.Configuration;
         return vd;
-    }
-
-    string GetFormattedDimensions(ProductDetailsModel model, bool full)
-    {
-        var w = model.WidthValue;
-        var h = model.HeightValue;
-        var l = model.LengthValue;
-
-        if (w == 0 && h == 0 && l == 0)
-            return string.Empty;
-
-        var wStr = w.ToString("G29");
-        var hStr = h.ToString("G29");
-        var lStr = l.ToString("G29");
-
-        if (full)
-            return dimensionsFull.FormatInvariant(wStr, hStr, lStr, model.DimensionSystemKeyword);
-
-        return dimensionsShort.FormatInvariant(wStr, hStr, lStr);
     }
 }

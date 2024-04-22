@@ -12,6 +12,7 @@
 
         var meta = $.metadata ? $.metadata.get(element) : {};
         var opts = this.options = $.extend(true, {}, options, meta || {});
+        var updating = false;
 
         this.init = function () {
             var opts = this.options;
@@ -25,7 +26,7 @@
             });
 
             $(el).on('keydown', '.qty-input .form-control, .choice-textbox', function (e) {
-                if (e.keyCode == 13) {
+                if (e.key === 'Enter') {
                     e.preventDefault();
                     return false;
                 }
@@ -33,20 +34,25 @@
 
             // Update product data and gallery
             $(el).on('change', ':input:not(.skip-pd-ajax-update)', function (e) {
+                if (updating) {
+                    return;
+                }
+
                 var inputCtrl = $(this);
-                var ctx = inputCtrl.closest('.update-container');
                 var isNumberInput = inputCtrl.parent(".numberinput-group").length > 0;
                 var isFileUpload = inputCtrl.data("fileupload");
                 var isDateTime = inputCtrl.hasClass("date-part");
+                var ctx = inputCtrl.closest('.update-container');
 
                 if (ctx.length === 0) {
-                    // It's an associated or bundled item.
+                    // It's an associated product or a bundle item.
                     ctx = el;
                 }
 
                 ctx.ajax({
                     data: ctx.find(':input').serialize(),
                     success: function (response) {
+                        updating = true;
                         self.updateDetailData(response, ctx, isNumberInput, isFileUpload, isDateTime);
 
                         if (ctx.hasClass('pd-bundle-item')) {
@@ -58,6 +64,7 @@
                                 }
                             });
                         }
+                        updating = false;
                     }
                 });
             });
@@ -68,7 +75,7 @@
         this.updateDetailData = function (data, ctx, isNumberInput, isFileUpload, isDateTime) {
             var gallery = $('#pd-gallery').data(galPluginName);
 
-            // Image gallery needs special treatment
+            // Image gallery needs special treatment.
             if (!isFileUpload) {
                 if (data.GalleryHtml) {
                     var cnt = $('#pd-gallery-container');
@@ -84,7 +91,7 @@
             }
 
             ctx.find('[data-partial]').each(function (i, el) {
-                // Iterate all elems with [data-partial] attribute...
+                // Iterate all elements with [data-partial] attribute.
                 var $el = $(el);
                 var partial = $el.data('partial');
 
@@ -110,7 +117,7 @@
                 $(ctx).find('.pd-dyn-thumb').attr('src', data.DynamicThumblUrl);
             }
 
-            // trigger event for plugins devs to subscribe
+            // Trigger event for plugins devs to subscribe.
             $('#main-update-container').trigger("updated");
         };
 

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Smartstore.Core.Catalog.Products
 {

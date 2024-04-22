@@ -1007,12 +1007,10 @@ namespace Smartstore.Web.Controllers
                     : null) ?? new();
             }
 
-            var collapsableAssociatedProducts = ctx.IsAssociatedProduct && ctx.GroupedProductConfiguration?.Collapsable == true;
-
             toCart.ProductId = product.Id;
             toCart.AvailableForPreOrder = product.AvailableForPreOrder;
-            toCart.HideQuantityControl = product.HideQuantityControl || collapsableAssociatedProducts;
-            toCart.HideAddToCartButton = collapsableAssociatedProducts;
+            toCart.HideQuantityControl = product.HideQuantityControl;
+            toCart.CollapsableAssociatedProduct = ctx.IsAssociatedProduct && ctx.GroupedProductConfiguration?.Collapsable == true;
 
             await product.MapQuantityInputAsync(toCart, selectedQuantity);
             toCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later

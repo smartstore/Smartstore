@@ -394,37 +394,28 @@ namespace Smartstore.Web.Controllers
 
             if (bundleItem != null)
             {
-                // Update bundle item thumbnail.
                 if (!bundleItem.HideThumbnail)
                 {
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-
-                    if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
-                    {
-                        var file = await _db.ProductMediaFiles
-                            .AsNoTracking()
-                            .Include(x => x.MediaFile)
-                            .ApplyProductFilter(bundleItem.ProductId)
-                            .FirstOrDefaultAsync();
-
-                        dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.BundledProductPictureSize, null, false);
-                    }
+                    // Update bundle item thumbnail.
+                    var file = await GetSelectedAttributeImage();
+                    dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.BundledProductPictureSize, null, false) : null;
                 }
             }
             else if (isAssociated)
             {
                 // Update associated product thumbnail.
-                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-
-                if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
+                var file = await GetSelectedAttributeImage();
+                if (file != null)
                 {
-                    var file = await _db.ProductMediaFiles
-                        .AsNoTracking()
-                        .Include(x => x.MediaFile)
-                        .ApplyProductFilter(productId)
-                        .FirstOrDefaultAsync();
+                    dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false);
 
-                    dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.AssociatedProductPictureSize, null, false);
+                    model.MediaGalleryModel = _helper.PrepareProductDetailsMediaGalleryModel(
+                        new List<MediaFileInfo> { _mediaService.ConvertMediaFile(file) },
+                        product.GetLocalized(x => x.Name),
+                        null,
+                        true,
+                        bundleItem,
+                        model.SelectedCombination);
                 }
             }
             else if (product.ProductType != ProductType.BundledProduct)
@@ -446,8 +437,8 @@ namespace Smartstore.Web.Controllers
                     // All pictures rendered... only index is required.
                     galleryStartIndex = 0;
 
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-                    if (assignedMediaIds.Any())
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? [];
+                    if (assignedMediaIds.Length > 0)
                     {
                         var file = files.FirstOrDefault(p => p.MediaFileId == assignedMediaIds[0]);
                         galleryStartIndex = file == null ? 0 : files.IndexOf(file);
@@ -487,30 +478,49 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var dataDictAddToCart = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
-                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
-
                 partials = new
                 {
                     Attrs = await InvokePartialViewAsync("Product.Attrs", model),
                     Price = await InvokePartialViewAsync("Product.Offer.Price", model),
                     Stock = await InvokePartialViewAsync("Product.StockInfo", model),
                     Variants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes),
-                    OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", dataDictAddToCart),
+                    OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", CreateViewDataFor("OfferActions")),
                     TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null,
+                    AssociatedHeader = isAssociated ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
                 };
             }
 
-            object data = new
+            return new JsonResult(new
             {
                 Partials = partials,
                 DynamicThumblUrl = dynamicThumbUrl,
                 GalleryStartIndex = galleryStartIndex,
                 GalleryHtml = galleryHtml
-            };
+            });
 
-            return new JsonResult(data);
+            ValueTask<MediaFile> GetSelectedAttributeImage()
+            {
+                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds();
+
+                return !assignedMediaIds.IsNullOrEmpty()
+                    ? _db.MediaFiles.FindByIdAsync(assignedMediaIds[0], false)
+                    : new ValueTask<MediaFile>();
+            }
+
+            ViewDataDictionary CreateViewDataFor(string partial)
+            {
+                var vd = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
+                if (partial == "OfferActions")
+                {
+                    vd.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
+                }
+                if (isAssociated && partial == "AssociatedHeader")
+                {
+                    vd["GroupedProductConfiguration"] = modelContext.GroupedProductConfiguration;
+                }
+                return vd;
+            }
         }
 
         #endregion
