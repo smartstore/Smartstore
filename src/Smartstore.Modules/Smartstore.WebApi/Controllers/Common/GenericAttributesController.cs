@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on GenericAttribute entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class GenericAttributesController : WebApiController<GenericAttribute>
     {
         [HttpGet("GenericAttributes"), ApiQueryable]

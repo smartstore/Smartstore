@@ -50,7 +50,6 @@ namespace Smartstore
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
 
             using var stream = async ? await file.OpenWriteAsync() : file.OpenWrite();
-            await stream.WriteAsync(contents.AsMemory(0, contents.Length));
 
             if (async)
             {

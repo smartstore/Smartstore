@@ -41,12 +41,16 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 if (metadata is IRazorSourceChecksumMetadata checksum)
                 {
                     return new RazorSourceChecksumAttribute(
-                        checksum.ChecksumAlgorithm,
+                        checksum.ChecksumAlgorithm.ToUpper(),
                         checksum.Checksum,
                         // We have to prefix the checksum identifier - actually the unrooted path to the view file, starting with "/Views/..." -
                         // with the module's root path, e.g. "/Modules/Smartstore.Blog". Otherwise checksum validation will fail
                         // and the compiled view's source file will never be watched for changes.
                         _pathPrefix + checksum.Identifier);
+                }
+                else if (metadata is RazorCompiledItemMetadataAttribute attr)
+                {
+                    return new RazorCompiledItemMetadataAttribute(attr.Key, _pathPrefix + attr.Value);
                 }
 
                 return metadata;

@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on TierPrice entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class TierPricesController : WebApiController<TierPrice>
     {
         [HttpGet("TierPrices"), ApiQueryable]

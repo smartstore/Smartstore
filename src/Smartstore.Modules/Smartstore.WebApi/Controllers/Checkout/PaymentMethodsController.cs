@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on PaymentMethod entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class PaymentMethodsController : WebApiController<PaymentMethod>
     {
         private readonly Lazy<IPaymentService> _paymentService;

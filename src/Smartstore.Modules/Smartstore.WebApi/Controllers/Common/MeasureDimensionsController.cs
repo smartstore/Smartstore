@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on MeasureDimension entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class MeasureDimensionsController : WebApiController<MeasureDimension>
     {
         [HttpGet("MeasureDimensions"), ApiQueryable]

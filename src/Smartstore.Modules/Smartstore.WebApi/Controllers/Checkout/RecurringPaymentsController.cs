@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on RecurringPayment entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class RecurringPaymentsController : WebApiController<RecurringPayment>
     {
         private readonly Lazy<IOrderProcessingService> _orderProcessingService;

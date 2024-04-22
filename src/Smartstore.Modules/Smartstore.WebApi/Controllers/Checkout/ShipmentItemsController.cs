@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ShipmentItem entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class ShipmentItemsController : WebApiController<ShipmentItem>
     {
         [HttpGet("ShipmentItems"), ApiQueryable]

@@ -68,6 +68,11 @@ namespace Smartstore.Core.Catalog
         public bool ShowLinkedAttributeValueImage { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to display product tags on the product detail page.
+        /// </summary>
+        public bool ShowProductTags { get; set; } = true;
+
+        /// <summary>
 		/// Gets or sets a value indicating how many menu items will be displayed
 		/// </summary>
         public int? MaxItemsToDisplayInCatalogMenu { get; set; }

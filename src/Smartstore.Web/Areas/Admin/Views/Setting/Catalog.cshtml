@@ -639,6 +639,15 @@
                         <span asp-validation-for="ShowLinkedAttributeValueImage"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductTags" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductTags"></setting-editor>
+                        <span asp-validation-for="ShowProductTags"></span>
+                    </div>
+                </div>
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.Catalog.UserSettings")">

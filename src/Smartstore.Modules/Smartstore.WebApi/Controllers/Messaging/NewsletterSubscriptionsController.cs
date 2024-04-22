@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on NewsLetterSubscription entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Messaging)]
     public class NewsletterSubscriptionsController : WebApiController<NewsletterSubscription>
     {
         private readonly Lazy<IMessageFactory> _messageFactory;

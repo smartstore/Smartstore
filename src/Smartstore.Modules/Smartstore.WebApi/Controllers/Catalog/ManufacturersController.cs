@@ -9,6 +9,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Manufacturer entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ManufacturersController : WebApiController<Manufacturer>
     {
         private readonly Lazy<IDiscountService> _discountService;

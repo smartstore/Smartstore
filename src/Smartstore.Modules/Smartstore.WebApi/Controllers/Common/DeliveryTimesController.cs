@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on DeliveryTime entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class DeliveryTimesController : WebApiController<DeliveryTime>
     {
         private readonly Lazy<IDeliveryTimeService> _deliveryTimeService;

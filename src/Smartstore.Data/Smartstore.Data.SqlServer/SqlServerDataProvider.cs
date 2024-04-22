@@ -250,15 +250,22 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sql = OptimizeDatabaseSql(DatabaseName, string.Empty);
-            return async
-                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+
+            return await ShrinkDatabaseCore(async, cancelToken);
         }
 
-        protected override Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+        protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
         {
             if (!string.IsNullOrEmpty(tableName) && !IsObjectNameValid(tableName))
             {
@@ -266,11 +273,18 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             }
 
             var tableNameFilter = string.IsNullOrEmpty(tableName) ? string.Empty : $"AND t.name = '{tableName}'";
-
             var sql = OptimizeDatabaseSql(DatabaseName, tableNameFilter);
-            return async
-                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+
+            return await ShrinkDatabaseCore(async, cancelToken);
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)

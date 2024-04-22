@@ -147,7 +147,9 @@ namespace Smartstore.Web.Models.Catalog
         public bool IsBundlePart { get; set; }
 
         public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = [];
+
         public List<ProductTagModel> ProductTags { get; set; } = [];
+        public bool ShowProductTags { get; set; }
 
         public ProductReviewsModel ProductReviews { get; set; } = new();
         public ProductSummaryModel AlsoPurchased { get; set; }

@@ -14,7 +14,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
     {
         public ModuleRazorAssemblyPart(Assembly assembly)
         {
-            Assembly = Guard.NotNull(assembly, nameof(assembly));
+            Assembly = Guard.NotNull(assembly);
         }
 
         public Assembly Assembly { get; }

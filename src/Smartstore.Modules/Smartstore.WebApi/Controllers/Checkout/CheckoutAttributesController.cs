@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on CheckoutAttribute entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class CheckoutAttributesController : WebApiController<CheckoutAttribute>
     {
         [HttpGet("CheckoutAttributes"), ApiQueryable]

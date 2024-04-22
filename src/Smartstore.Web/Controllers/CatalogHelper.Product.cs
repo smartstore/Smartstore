@@ -97,7 +97,8 @@ namespace Smartstore.Web.Controllers
                     IsAssociatedProduct = isAssociatedProduct,
                     CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
-                    AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled
+                    AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
+                    ShowProductTags = _catalogSettings.ShowProductTags
                 };
 
                 #region Bundles / Grouped products
@@ -515,11 +516,17 @@ namespace Smartstore.Web.Controllers
 
                                 if (selectedAttribute.Value.HasValue() && Guid.TryParse(selectedAttribute.Value, out var guid))
                                 {
-                                    attributeModel.UploadedFileName = await _db.Downloads
+                                    var mediaFile = await _db.Downloads
                                         .AsNoTracking()
                                         .Where(x => x.DownloadGuid == guid)
-                                        .Select(x => x.MediaFile.Name)
+                                        .Select(x => x.MediaFile)
                                         .FirstOrDefaultAsync();
+
+                                    attributeModel.UploadedFileName = mediaFile.Name;
+
+                                    var mediaFileInfo = _mediaService.ConvertMediaFile(mediaFile);
+
+                                    attributeModel.CustomProperties["UploadedFileInfo"] = JsonConvert.SerializeObject(mediaFileInfo); 
                                 }
                                 break;
                             case AttributeControlType.TextBox:

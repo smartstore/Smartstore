@@ -8,26 +8,27 @@
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
 		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
 		<RuntimeIdentifiers>win-x64; win-x86; linux-x64; osx-x64</RuntimeIdentifiers>
+        <ProvideApplicationPartFactoryAttributeTypeName>Smartstore.Engine.Modularity.ApplicationParts.HostRazorAssemblyPartFactory, Smartstore</ProvideApplicationPartFactoryAttributeTypeName>
 		<!--<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-		<PackageReference Include="Azure.Core" Version="1.36.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="Azure.Core" Version="1.39.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
-		<PackageReference Include="Microsoft.ClearScript.V8" Version="7.4.4" />
-		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.4.4" />
-		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.4.4" />
-		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.4.4" />
-		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.4.4" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.4" />
+		<PackageReference Include="Microsoft.ClearScript.V8" Version="7.4.5" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.4.5" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.4.5" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.4.5" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.4.5" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
-        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.7" />
+        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.8" />
 	</ItemGroup>
 
 	<ItemGroup> 

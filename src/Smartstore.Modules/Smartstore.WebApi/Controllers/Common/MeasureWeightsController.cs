@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on MeasureWeight entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class MeasureWeightsController : WebApiController<MeasureWeight>
     {
         [HttpGet("MeasureWeights"), ApiQueryable]

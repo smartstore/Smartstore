@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on GiftCardUsageHistory entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class GiftCardUsageHistoryController : WebApiController<GiftCardUsageHistory>
     {
         [HttpGet("GiftCardUsageHistory"), ApiQueryable]

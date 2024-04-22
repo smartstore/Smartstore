@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml.XPath;
 using Autofac;
+using Humanizer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
@@ -59,12 +60,15 @@ namespace Smartstore.Web.Api
 
             services.AddSwaggerGen(o =>
             {
-                // INFO: "name" equals ApiExplorer.GroupName. Must be globally unique, URI-friendly and should be in lower case.
-                o.SwaggerDoc("webapi1", new OpenApiInfo
+                foreach (var name in WebApiGroupNames.All)
                 {
-                    Version = "1",
-                    Title = "Smartstore Web API"
-                });
+                    var humanized = GetHumanizedDocName(name);
+                    o.SwaggerDoc(name + '1', new()
+                    {
+                        Version = $"{humanized} 1",
+                        Title = "Smartstore Web API - " + humanized
+                    });
+                }
 
                 // INFO: required workaround to avoid conflict errors for identical action names such as "Get" when opening swagger UI.
                 // Alternative: set-up a path template for each (!) OData action method.
@@ -158,7 +162,11 @@ namespace Smartstore.Web.Api
 
                     app.UseSwaggerUI(o =>
                     {
-                        o.SwaggerEndpoint($"webapi1/swagger.json", "Web API");
+                        foreach (var name in WebApiGroupNames.All)
+                        {
+                            o.SwaggerEndpoint($"{name}1/swagger.json", GetHumanizedDocName(name));
+                        }
+
                         o.RoutePrefix = routePrefix;
 
                         // Only show schemas dropdown for developers.
@@ -280,7 +288,7 @@ namespace Smartstore.Web.Api
             }
         }
 
-        private static Stream GetXmlCommentsStream(IApplicationContext appContext, string fileName)
+        private static FileStream GetXmlCommentsStream(IApplicationContext appContext, string fileName)
         {
             var path = Path.Combine(appContext.RuntimeInfo.BaseDirectory, fileName);
             if (File.Exists(path))
@@ -294,5 +302,8 @@ namespace Smartstore.Web.Api
 
             return null;
         }
+
+        private static string GetHumanizedDocName(string name)
+            => name.Replace('-', ' ').Titleize();
     }
 }

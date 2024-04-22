@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductCategory entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductCategoriesController : WebApiController<ProductCategory>
     {
         [HttpGet("ProductCategories"), ApiQueryable]

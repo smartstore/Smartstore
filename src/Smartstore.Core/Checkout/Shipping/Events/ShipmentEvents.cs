@@ -1,24 +1,13 @@
 ﻿namespace Smartstore.Core.Checkout.Shipping.Events
 {
-    public class TrackingNumberAddedEvent
+    public class TrackingNumberAddedEvent(Shipment shipment)
     {
-        public TrackingNumberAddedEvent(Shipment shipment)
-        {
-            Shipment = shipment;
-        }
-
-        public Shipment Shipment { get; init; }
+        public Shipment Shipment { get; init; } = shipment;
     }
 
-    public class TrackingNumberChangedEvent
+    public class TrackingNumberChangedEvent(Shipment shipment, string oldTrackingNumber)
     {
-        public TrackingNumberChangedEvent(Shipment shipment, string oldTrackingNumber)
-        {
-            Shipment = shipment;
-            OldTrackingNumber = oldTrackingNumber;
-        }
-
-        public string OldTrackingNumber { get; init; }
-        public Shipment Shipment { get; init; }
+        public string OldTrackingNumber { get; init; } = oldTrackingNumber;
+        public Shipment Shipment { get; init; } = shipment;
     }
 }

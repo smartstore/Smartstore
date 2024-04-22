@@ -70,11 +70,6 @@ namespace Smartstore.Data.Providers
             get => Features.HasFlag(DataProviderFeatures.Restore);
         }
 
-        public bool CanShrink
-        {
-            get => Features.HasFlag(DataProviderFeatures.Shrink);
-        }
-
         public bool CanOptimizeDatabase
         {
             get => Features.HasFlag(DataProviderFeatures.OptimizeDatabase);
@@ -83,6 +78,11 @@ namespace Smartstore.Data.Providers
         public bool CanOptimizeTable
         {
             get => Features.HasFlag(DataProviderFeatures.OptimizeTable);
+        }
+
+        public bool CanShrink
+        {
+            get => Features.HasFlag(DataProviderFeatures.Shrink);
         }
 
         public bool CanComputeSize

@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on Address entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class AddressesController : WebApiController<Address>
     {
         [HttpGet("Addresses"), ApiQueryable]

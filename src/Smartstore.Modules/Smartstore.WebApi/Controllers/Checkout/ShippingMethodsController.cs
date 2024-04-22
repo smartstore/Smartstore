@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ShippingMethod entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class ShippingMethodsController : WebApiController<ShippingMethod>
     {
         [HttpGet("ShippingMethods"), ApiQueryable]

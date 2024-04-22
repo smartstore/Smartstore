@@ -5,6 +5,8 @@ namespace Smartstore.Core.Platform.AI
 {
     public partial interface IAIProvider : IProvider
     {
+        // TODO: (mh) 
+        
         /// <summary>
         /// Defines whether the provider can create text.
         /// </summary>
@@ -35,6 +37,7 @@ namespace Smartstore.Core.Platform.AI
         /// </summary>
         bool SupportsAssistence { get; }
 
+        // TODO: (mh) Rename --> GetDialogRoute
         /// <summary>
         /// Gets a route for the given modal dialog type.
         /// </summary>

@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on SyncMapping entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.DataExchange)]
     public class SyncMappingsController : WebApiController<SyncMapping>
     {
         [HttpGet("SyncMappings"), ApiQueryable]

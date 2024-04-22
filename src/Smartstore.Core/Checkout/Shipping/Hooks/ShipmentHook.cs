@@ -21,10 +21,9 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entry.IsPropertyModified(nameof(Shipment.TrackingNumber)))
+            if (entry.Entry.TryGetModifiedProperty(nameof(Shipment.TrackingNumber), out var originalValue))
             {
-                var prop = entry.Entry.Property(nameof(Shipment.TrackingNumber));
-                await _eventPublisher.PublishTrackingNumberChangedAsync(entry.Entity as Shipment, (string)prop.OriginalValue);
+                await _eventPublisher.PublishTrackingNumberChangedAsync(entry.Entity as Shipment, (string)originalValue);
             }
 
             return HookResult.Ok;

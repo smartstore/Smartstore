@@ -705,7 +705,13 @@ namespace Smartstore.Admin.Controllers
                         {
                             if (!model.VatNumber.Equals(prevVatNumber, StringComparison.InvariantCultureIgnoreCase))
                             {
-                                customer.VatNumberStatusId = (int)(await _taxService.GetVatNumberStatusAsync(model.VatNumber)).Status;
+                                var response = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
+                                customer.VatNumberStatusId = (int)response.Status;
+
+                                if (response.Exception != null)
+                                {
+                                    NotifyError("Checking the VAT number with the VAT validation web service threw this exception: " + response.Exception.Message);
+                                }
                             }
                         }
                         else

@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Download entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Content)]
     public class DownloadsController : WebApiController<Download>
     {
         [HttpGet("Downloads"), ApiQueryable]

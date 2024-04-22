@@ -413,7 +413,14 @@ namespace Smartstore.PayPal.Client
         public virtual async Task<PayPalResponse> CancelTrackingNumberAsync(Shipment shipment, CancellationToken cancelToken = default)
         {
             Guard.NotNull(shipment);
-            
+            var trackingId = shipment.GenericAttributes.Get<string>("PayPalTrackingId");
+
+            // If no tracking id is stored it means the previous number wasn't transmitted to PayPal yet thus we can't cancel the tracking number.
+            if (!trackingId.HasValue())
+            {
+                return null;
+            }
+
             var patches = new List<Patch<string>>
             {
                 new() {
@@ -423,7 +430,6 @@ namespace Smartstore.PayPal.Client
                 }
             };
 
-            var trackingId = shipment.GenericAttributes.Get<string>("PayPalTrackingId");
             var updateTrackingRequest = new OrderUpdateTrackingRequest(shipment.Order.AuthorizationTransactionCode.ToString(), trackingId)
                 .WithBody(patches);
 

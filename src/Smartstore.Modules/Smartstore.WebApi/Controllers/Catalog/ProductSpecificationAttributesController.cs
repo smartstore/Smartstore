@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductSpecificationAttribute entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.CatalogAttributes)]
     public class ProductSpecificationAttributesController : WebApiController<ProductSpecificationAttribute>
     {
         [HttpGet("ProductSpecificationAttributes"), ApiQueryable]

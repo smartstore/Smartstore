@@ -17,8 +17,6 @@
     dzOpts.dictCancelUploadConfirmation = Res[resRoot + 'DictCancelUploadConfirmation'];
     dzOpts.dictRemoveFile = Res[resRoot + 'DictRemoveFile'];
     dzOpts.dictMaxFilesExceeded = Res[resRoot + 'DictMaxFilesExceeded'];
-
-    var displaySingleFilePreview;
 })();
 
 (function ($) {
@@ -932,7 +930,7 @@
     }
 
     // Sets the preview image of a single file upload control after upload or selection (by MM plugin).
-    displaySingleFilePreview = function (file, fuContainer, options) {
+    window.displaySingleFilePreview = function (file, fuContainer, options) {
         var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
 
         fuContainer.find('.fu-thumb').removeClass("empty").html(preview.thumbHtml);

@@ -9,6 +9,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Category entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class CategoriesController : WebApiController<Category>
     {
         private readonly Lazy<ICategoryService> _categoryService;

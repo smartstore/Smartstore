@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductTag entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductTagsController : WebApiController<ProductTag>
     {
         [HttpGet("ProductTags"), ApiQueryable]

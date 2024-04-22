@@ -119,9 +119,12 @@
             <zone name="productdetail_tabs_after" />
 
             <!-- Tags -->
-            <partial name="Product.Tags" model="Model.ProductTags" />
-            <zone name="productdetail_tags_after" />
-
+            @if (Model.ShowProductTags)
+            {
+                <partial name="Product.Tags" model="Model.ProductTags" />
+                <zone name="productdetail_tags_after" />
+            }
+            
             <!-- Related products -->
             <partial name="Product.RelatedProducts" model="Model.RelatedProducts" />
             <zone name="productdetail_related_products_after" />

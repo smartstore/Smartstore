@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on GiftCard entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class GiftCardsController : WebApiController<GiftCard>
     {
         [HttpGet("GiftCards"), ApiQueryable]

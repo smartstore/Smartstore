@@ -63,10 +63,10 @@ namespace Smartstore.Core.Content.Menus
             return Task.CompletedTask;
         }
 
-        protected virtual Task DoApplyPermissionsAsync(TreeNode<MenuItem> root)
+        protected virtual async Task DoApplyPermissionsAsync(TreeNode<MenuItem> root)
         {
             // Hide based on permissions
-            root.Traverse(async x =>
+            await root.TraverseAwait(async x =>
             {
                 if (!await MenuItemAccessPermittedAsync(x.Value))
                 {
@@ -86,8 +86,6 @@ namespace Smartstore.Core.Content.Menus
                     }
                 }
             });
-
-            return Task.CompletedTask;
         }
 
         protected abstract string GetCacheKey();

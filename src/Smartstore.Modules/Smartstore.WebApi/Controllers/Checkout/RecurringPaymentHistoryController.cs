@@ -5,6 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on RecurringPaymentHistory entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Checkout)]
     public class RecurringPaymentHistoryController : WebApiController<RecurringPaymentHistory>
     {
         [HttpGet("RecurringPaymentHistory"), ApiQueryable]

@@ -6,6 +6,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductMediaFile entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductMediaFilesController : WebApiController<ProductMediaFile>
     {
         [HttpGet("ProductMediaFiles"), ApiQueryable]

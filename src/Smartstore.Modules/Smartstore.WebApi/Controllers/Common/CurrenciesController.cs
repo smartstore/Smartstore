@@ -3,6 +3,7 @@
     /// <summary>
     /// The endpoint for operations on Currency entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Common)]
     public class CurrenciesController : WebApiController<Currency>
     {
         [HttpGet("Currencies"), ApiQueryable]

@@ -9,6 +9,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Customer entity.
     /// </summary>
+    [WebApiGroup(WebApiGroupNames.Identity)]
     public class CustomersController : WebApiController<Customer>
     {
         private readonly Lazy<UserManager<Customer>> _userManager;
