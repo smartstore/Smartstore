@@ -5,7 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on Language entity.
     /// </summary>
-    [WebApiGroup(WebApiGroupNames.Localization)]
+    [WebApiGroup(WebApiGroupNames.Platform)]
     public class LanguagesController : WebApiController<Language>
     {
         [HttpGet("Languages"), ApiQueryable]

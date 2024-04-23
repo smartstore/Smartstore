@@ -47,12 +47,12 @@ else
         $(function () {
             var paymentRequest = @Html.Raw(Model.PaymentRequest);
             if (typeof Stripe !== 'undefined') {
-                Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, '@StripeHelper.ApiVersion');
+                Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, @Model.IsCartPage.ToString().ToLower(), '@StripeHelper.ApiVersion');
             } 
             else {
                 var script = document.getElementById("stripe-js");
                 script.onload = function () {
-                    Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, '@StripeHelper.ApiVersion');
+                    Smartstore.Stripe.initWalletButtonElement('@Model.PublicApiKey', paymentRequest, @Model.IsCartPage.ToString().ToLower(), '@StripeHelper.ApiVersion');
                 };
             }
         });

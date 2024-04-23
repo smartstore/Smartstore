@@ -14,7 +14,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ImportProfile entity.
     /// </summary>
-    [WebApiGroup(WebApiGroupNames.DataExchange)]
+    [WebApiGroup(WebApiGroupNames.Platform)]
     public class ImportProfilesController : WebApiController<ImportProfile>
     {
         private readonly Lazy<IWorkContext> _workContext;

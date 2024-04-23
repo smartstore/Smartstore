@@ -52,7 +52,8 @@ namespace Smartstore.StripeElements.Components
             var model = new PublicStripeElementsModel
             {
                 PublicApiKey = _settings.PublicApiKey,
-                IsPaymentSelectionPage = isPaymentSelectionPage
+                IsPaymentSelectionPage = isPaymentSelectionPage,
+                IsCartPage = routeIdent == "ShoppingCart.Cart"
             };
 
             if (isPaymentSelectionPage)

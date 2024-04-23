@@ -103,17 +103,14 @@
                 }
             });
         },
-        initWalletButtonElement: function (publicApiKey, requestData, apiVersion) {
+        initWalletButtonElement: function (publicApiKey, requestData, isCartPage, apiVersion) {
             stripe = Stripe(publicApiKey, {
                 apiVersion: apiVersion,
             });
 
             const paymentRequest = stripe.paymentRequest(requestData);
-
             const elements = stripe.elements();
-            const prButton = elements.create('paymentRequestButton', {
-                paymentRequest,
-            });
+            const prButton = elements.create('paymentRequestButton', { paymentRequest });
 
             (async () => {
                 // Check the availability of the Payment Request API first.
@@ -178,6 +175,32 @@
                     }
                 })
             });
+
+            if (isCartPage) {
+                $(document).on('shoppingCartRefresh', function (e) {
+                    if (e.success) {
+                        var total = $('#CartSummaryTotal').data('total');
+                        if (total == 0.0) {
+                            total = $('#CartSummarySubtotal').data('subtotal');
+                        }
+
+                        // Convert total to smallest currency unit.
+                        total = total * 100;
+
+                        // Update payment request.
+                        paymentRequest.update({ total: { label: "Updated total", amount: total } });
+                    }
+                });
+            }
+            else {
+                EventBroker.subscribe("ajaxcart.updated", function (msg, data) {
+                    // Convert total to smallest currency unit.
+                    var total = data.SubTotalValue * 100;
+
+                    // Update payment request.
+                    paymentRequest.update({ total: { label: "Updated total", amount: total } });
+                });
+            }
         }
     };
 })();

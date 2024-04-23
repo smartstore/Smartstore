@@ -157,12 +157,38 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteScalarRaw<long>(sql));
         }
 
-        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             var sql = $"REINDEX DATABASE \"{DatabaseName}\"";
-            return async
-                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+
+            return await ShrinkDatabaseCore(async, cancelToken);
+        }
+
+        protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+        {
+            var sql = $"REINDEX TABLE \"{tableName}\"";
+            var sqlVacuum = $"VACUUM FULL \"{tableName}\"";
+
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+                // Free physical space
+                return await Database.ExecuteSqlRawAsync(sqlVacuum, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+                // Free physical space
+                return Database.ExecuteSqlRaw(sqlVacuum);
+            }
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)

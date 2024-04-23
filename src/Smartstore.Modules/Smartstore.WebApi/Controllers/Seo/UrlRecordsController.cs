@@ -5,7 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on UrlRecord entity.
     /// </summary>
-    [WebApiGroup(WebApiGroupNames.Seo)]
+    [WebApiGroup(WebApiGroupNames.Platform)]
     public class UrlRecordsController : WebApiController<UrlRecord>
     {
         [HttpGet("UrlRecords"), ApiQueryable]

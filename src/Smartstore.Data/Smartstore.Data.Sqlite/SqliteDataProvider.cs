@@ -30,6 +30,7 @@ namespace Smartstore.Data.Sqlite
             | DataProviderFeatures.Restore
             | DataProviderFeatures.Shrink
             | DataProviderFeatures.OptimizeDatabase
+            | DataProviderFeatures.OptimizeTable
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.AccessIncrement
             | DataProviderFeatures.ReadSequential
@@ -127,13 +128,36 @@ LIMIT {take} OFFSET {skip}";
                 : Task.FromResult(Database.ExecuteQueryRaw<long>(sql).FirstOrDefault());
         }
 
-        protected override Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
+        protected override async Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
             // TODO: Lock
             var sql = $"REINDEX;";
-            return async
-                ? Database.ExecuteSqlRawAsync(sql, cancelToken)
-                : Task.FromResult(Database.ExecuteSqlRaw(sql));
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+
+            return await ShrinkDatabaseCore(async, cancelToken);
+        }
+
+        protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
+        {
+            // TODO: Lock
+            var sql = $"REINDEX \"{tableName}\";";
+            if (async)
+            {
+                await Database.ExecuteSqlRawAsync(sql, cancelToken);
+            }
+            else
+            {
+                Database.ExecuteSqlRaw(sql);
+            }
+
+            return await ShrinkDatabaseCore(async, cancelToken);
         }
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)

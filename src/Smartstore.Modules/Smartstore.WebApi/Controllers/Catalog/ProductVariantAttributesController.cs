@@ -5,7 +5,7 @@ namespace Smartstore.Web.Api.Controllers
     /// <summary>
     /// The endpoint for operations on ProductVariantAttribute entity.
     /// </summary>
-    [WebApiGroup(WebApiGroupNames.CatalogAttributes)]
+    [WebApiGroup(WebApiGroupNames.Catalog)]
     public class ProductVariantAttributesController : WebApiController<ProductVariantAttribute>
     {
         [HttpGet("ProductVariantAttributes"), ApiQueryable]

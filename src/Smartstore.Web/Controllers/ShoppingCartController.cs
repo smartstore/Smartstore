@@ -379,6 +379,7 @@ namespace Smartstore.Web.Controllers
             {
                 success,
                 SubTotal = subtotal,
+                SubTotalValue = subtotal.Amount,
                 newItemPrice,
                 checkoutAllowed = cart.Items.Any(x => x.Active),
                 cartItemCount = cart.Items.Length,

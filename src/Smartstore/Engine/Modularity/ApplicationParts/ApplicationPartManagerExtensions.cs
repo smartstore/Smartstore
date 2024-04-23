@@ -7,8 +7,8 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
     {
         public static void PopulateModules(this ApplicationPartManager partManager, IApplicationContext appContext)
         {
-            Guard.NotNull(partManager, nameof(partManager));
-            Guard.NotNull(appContext, nameof(appContext));
+            Guard.NotNull(partManager);
+            Guard.NotNull(appContext);
 
             foreach (var descriptor in appContext.ModuleCatalog.GetInstalledModules())
             {
