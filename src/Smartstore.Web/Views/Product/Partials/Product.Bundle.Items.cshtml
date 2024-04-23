@@ -5,18 +5,11 @@
 <div class="pd-bundle-items">
     @foreach (var item in Model)
     {
-        string updateUrl = Url.Action("UpdateProductDetails", "Product", new
-        {
-            productId = item.Id,
-            bundleItemId = item.BundleItem.Id,
-            itemType = "bundleitem"
-        });
-
         var gallery = item.MediaGalleryModel;
         var img = gallery.Files?.FirstOrDefault();
         var isBundleItemPricing = item.BundlePerItemPricing;
 
-        <div class="pd-bundle-item card-body update-container" data-url="@updateUrl">
+        <div class="pd-bundle-item card-body update-container" data-url="@item.UpdateUrl">
             <div class="pd-bundle-item-top row no-gutters">
                 <div sm-if="img != null && !item.BundleItem.HideThumbnail" 
                         class="pd-bundle-item-image col" 

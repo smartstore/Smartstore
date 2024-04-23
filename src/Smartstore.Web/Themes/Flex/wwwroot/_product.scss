@@ -630,7 +630,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         transition: transform 0.35s;
     }
 
-    &.collapsed .collapse-chevron {
+    .expanded {
         transform: rotate(-180deg);
     }
 }

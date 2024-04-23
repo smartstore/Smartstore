@@ -335,7 +335,9 @@ namespace Smartstore.Web.Controllers
 
             if (product != null)
             {
-                var model = await _helper.CreateGroupedProductModelAsync(product, page);
+                var modelContext = await _helper.CreateModelContext(product, new());
+                var model = await _helper.CreateGroupedProductModelAsync(modelContext, page);
+
                 content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
             }
 
@@ -357,11 +359,8 @@ namespace Smartstore.Web.Controllers
             string galleryHtml = null;
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
-            var currency = Services.WorkContext.WorkingCurrency;
-            var displayPrices = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             var product = await _db.Products.FindByIdAsync(productId);
-            var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
             var bundleItem = await _db.ProductBundleItem
                 .Include(x => x.Product)
                 .Include(x => x.BundleProduct)
@@ -369,28 +368,17 @@ namespace Smartstore.Web.Controllers
                 .FindByIdAsync(bundleItemId, false);
 
             // Quantity required for tier prices.
-            string quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
+            var quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
             if (quantityKey.HasValue())
             {
                 _ = int.TryParse(form[quantityKey], out quantity);
             }
 
-            var modelContext = new ProductDetailsModelContext
-            {
-                Product = product,
-                BatchContext = batchContext,
-                VariantQuery = query,
-                IsAssociatedProduct = isAssociated,
-                ProductBundleItem = bundleItem,
-                Customer = batchContext.Customer,
-                Store = batchContext.Store,
-                Currency = currency,
-                DisplayPrices = displayPrices
-            };
+            var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated);
 
             // Get merged model data.
             var model = new ProductDetailsModel();
-            await _helper.PrepareProductDetailModelAsync(model, modelContext, quantity, callCustomMapper: true);
+            await _helper.PrepareProductDetailModelAsync(model, ctx, quantity, callCustomMapper: true);
 
             if (bundleItem != null)
             {
@@ -478,6 +466,8 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
+                var renderAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsable == true;
+
                 partials = new
                 {
                     Attrs = await InvokePartialViewAsync("Product.Attrs", model),
@@ -487,7 +477,7 @@ namespace Smartstore.Web.Controllers
                     OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", CreateViewDataFor("OfferActions")),
                     TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
                     BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null,
-                    AssociatedHeader = isAssociated ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
+                    AssociatedHeader = renderAssociatedHeader ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
                 };
             }
 
@@ -517,7 +507,7 @@ namespace Smartstore.Web.Controllers
                 }
                 if (isAssociated && partial == "AssociatedHeader")
                 {
-                    vd["GroupedProductConfiguration"] = modelContext.GroupedProductConfiguration;
+                    vd["GroupedProductConfiguration"] = ctx.GroupedProductConfiguration;
                 }
                 return vd;
             }

@@ -17,6 +17,11 @@ namespace Smartstore.Web.Models.Catalog
         {
         }
 
+        /// <summary>
+        /// Applies the property references of another <see cref="ProductDetailsModelContext"/> instance.
+        /// Only to be used for child items like associated products or bundle items,
+        /// otherwise use <see cref="CatalogHelper.CreateModelContext"/>.
+        /// </summary>
         public ProductDetailsModelContext(ProductDetailsModelContext other)
         {
             Product = other.Product;
@@ -64,6 +69,7 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> MetaTitle { get; set; }
         public string SeName { get; set; }
         public string CanonicalUrl { get; set; }
+        public string UpdateUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
 

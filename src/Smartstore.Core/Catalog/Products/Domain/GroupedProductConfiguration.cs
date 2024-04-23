@@ -31,6 +31,9 @@ namespace Smartstore.Core.Catalog.Products
         public virtual string AsJson()
             => IsTouched() ? JsonConvert.SerializeObject(this) : null;
 
+        public bool HasHeader(string name)
+            => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
+
         private bool IsTouched()
             => PageSize != DefaultPageSize || Collapsable || (Collapsable && !HeaderFields.IsNullOrEmpty());
     }
