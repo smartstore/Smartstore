@@ -8,21 +8,21 @@ namespace Smartstore.Web.Api
     /// <remarks>Names must be globally unique, URI-friendly and should be in lower case.</remarks>
     public static class WebApiGroupNames
     {
-        public const string Catalog = "catalog";
-        public const string Checkout = "checkout";
-        public const string Common = "common";
-        public const string Content = "content";
-        public const string Identity = "identity";
         public const string Platform = "platform";
-
+        public const string Common = "common";
+        public const string Identity = "identity";
+        public const string Catalog = "catalog";
+        public const string Content = "content";
+        public const string Checkout = "checkout";
+        
         public static readonly string[] All =
         [
-            Catalog,
-            Checkout,
+            Platform,
             Common,
-            Content,
             Identity,
-            Platform
+            Catalog,
+            Content,
+            Checkout
         ];
     }
 
