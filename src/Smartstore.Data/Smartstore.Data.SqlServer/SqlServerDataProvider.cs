@@ -397,7 +397,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         private static bool IsObjectNameValid(string name)
         {
             // Prevent SQL injection attacks.
-            return string.IsNullOrEmpty(name) || name.All(char.IsLetterOrDigit);
+            return string.IsNullOrEmpty(name) || name.All(c => char.IsLetterOrDigit(c) || c == '_');
         }
     }
 }

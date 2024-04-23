@@ -413,7 +413,7 @@ namespace Smartstore.Admin.Controllers
             // DB table infos
             if (dataProvider.CanReadTableInfo)
             {
-                model.DbTableInfos = await CommonHelper.TryAction(() => dataProvider.ReadTableInfosAsync(), new List<DbTableInfo>());
+                model.DbTableInfos = await CommonHelper.TryAction(() => dataProvider.ReadTableInfosAsync(), []);
             }
 
             // Used RAM
@@ -422,8 +422,10 @@ namespace Smartstore.Admin.Controllers
             // DB settings
             if (DataSettings.Instance.IsValid())
             {
+                var allowExec = Services.Permissions.Authorize(Permissions.System.Maintenance.Execute);
                 model.DataProviderFriendlyName = dataProvider.ProviderFriendlyName;
-                model.OptimizeDatabaseEnabled = dataProvider.CanOptimizeDatabase && Services.Permissions.Authorize(Permissions.System.Maintenance.Read);
+                model.OptimizeDatabaseEnabled = dataProvider.CanOptimizeDatabase && allowExec;
+                model.OptimizeTableEnabled = dataProvider.CanOptimizeTable && allowExec;
             }
 
             // Loaded assemblies

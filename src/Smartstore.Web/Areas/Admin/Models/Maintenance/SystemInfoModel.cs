@@ -49,6 +49,7 @@ namespace Smartstore.Admin.Models.Maintenance
         public string DataProviderFriendlyName { get; set; }
 
         public bool OptimizeDatabaseEnabled { get; set; }
+        public bool OptimizeTableEnabled { get; set; }
 
         [Obsolete("Too fragile in .NET Core")]
         public Dictionary<string, long> MemoryCacheStats { get; set; } = [];
