@@ -9,35 +9,20 @@ namespace Smartstore.Web.Api
     public static class WebApiGroupNames
     {
         public const string Catalog = "catalog";
-        public const string CatalogAttributes = "catalog-attributes";
         public const string Checkout = "checkout";
         public const string Common = "common";
-        public const string Configuration = "configuration";
         public const string Content = "content";
-        public const string DataExchange = "data-exchange";
         public const string Identity = "identity";
-        public const string Localization = "localization";
-        public const string Messaging = "messaging";
-        public const string Seo = "seo";
-        public const string Stores = "stores";
-
-        // TODO: (mg) Move following groups into generic group "Platform": Configuration, DataExchange, Localization, Messaging, Seo, Stores
-        // TODO: (mg) Move CatalogAttributes to Catalog
+        public const string Platform = "platform";
 
         public static readonly string[] All =
         [
             Catalog,
-            CatalogAttributes,
             Checkout,
             Common,
-            Configuration,
             Content,
-            DataExchange,
             Identity,
-            Localization,
-            Messaging,
-            Seo,
-            Stores
+            Platform
         ];
     }
 
