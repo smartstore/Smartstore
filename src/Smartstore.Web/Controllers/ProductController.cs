@@ -345,9 +345,8 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// This action is used to update the display of product detail view.
-        /// It will be called via AJAX upon user interaction (e.g. changing of quantity || attribute selection).
-        /// All relevasnt product partials will be rendered with updated models and returned as JSON data.
+        /// AJAX. This method updates parts of the product detail page on user interactions
+        /// such as quantity changes or attribute selection.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
@@ -375,6 +374,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated);
+            var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsable == true;
 
             // Get merged model data.
             var model = new ProductDetailsModel();
@@ -393,12 +393,17 @@ namespace Smartstore.Web.Controllers
             {
                 // Update associated product thumbnail.
                 var file = await GetSelectedAttributeImage();
-                if (file != null)
+                dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false) : null;
+
+                if (hasAssociatedHeader && ctx.GroupedProductConfiguration.HasHeader("image"))
                 {
-                    dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false);
+                    // Render associated product thumbnail in collabsable header.
+                    var files = file != null
+                        ? [_mediaService.ConvertMediaFile(file)]
+                        : (await LoadFiles()).Select(x => _mediaService.ConvertMediaFile(x.MediaFile)).ToList();
 
                     model.MediaGalleryModel = _helper.PrepareProductDetailsMediaGalleryModel(
-                        new List<MediaFileInfo> { _mediaService.ConvertMediaFile(file) },
+                        files,
                         product.GetLocalized(x => x.Name),
                         null,
                         true,
@@ -409,24 +414,14 @@ namespace Smartstore.Web.Controllers
             else if (product.ProductType != ProductType.BundledProduct)
             {
                 // Update image gallery.
-                var files = await _db.ProductMediaFiles
-                    .AsNoTracking()
-                    .Include(x => x.MediaFile)
-                    .ApplyProductFilter(productId)
-                    .ToListAsync();
-
-                if (product.HasPreviewPicture && files.Count > 1)
-                {
-                    files.RemoveAt(0);
-                }
-
+                var files = await LoadFiles();
                 if (files.Count <= _catalogSettings.DisplayAllImagesNumber)
                 {
                     // All pictures rendered... only index is required.
                     galleryStartIndex = 0;
 
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? [];
-                    if (assignedMediaIds.Length > 0)
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds();
+                    if (!assignedMediaIds.IsNullOrEmpty())
                     {
                         var file = files.FirstOrDefault(p => p.MediaFileId == assignedMediaIds[0]);
                         galleryStartIndex = file == null ? 0 : files.IndexOf(file);
@@ -466,8 +461,6 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var renderAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsable == true;
-
                 partials = new
                 {
                     Attrs = await InvokePartialViewAsync("Product.Attrs", model),
@@ -477,7 +470,7 @@ namespace Smartstore.Web.Controllers
                     OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", CreateViewDataFor("OfferActions")),
                     TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
                     BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null,
-                    AssociatedHeader = renderAssociatedHeader ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
+                    AssociatedHeader = hasAssociatedHeader ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
                 };
             }
 
@@ -488,6 +481,24 @@ namespace Smartstore.Web.Controllers
                 GalleryStartIndex = galleryStartIndex,
                 GalleryHtml = galleryHtml
             });
+
+            #region Helpers
+
+            async Task<List<ProductMediaFile>> LoadFiles()
+            {
+                var files = await _db.ProductMediaFiles
+                    .AsNoTracking()
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(product.Id)
+                    .ToListAsync();
+
+                if (product.HasPreviewPicture && files.Count > 1)
+                {
+                    files.RemoveAt(0);
+                }
+
+                return files;
+            }
 
             ValueTask<MediaFile> GetSelectedAttributeImage()
             {
@@ -511,6 +522,8 @@ namespace Smartstore.Web.Controllers
                 }
                 return vd;
             }
+
+            #endregion
         }
 
         #endregion

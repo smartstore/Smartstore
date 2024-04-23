@@ -42,18 +42,28 @@
     }
 </div>
 
-<script sm-target-zone="scripts" data-origin="associated-products">
+<script sm-if="Model.Configuration.Collapsable" sm-target-zone="scripts" data-origin="associated-products">
     $(function () {
         const associatedProducts = $('#associated-products');
 
         associatedProducts.on('click', '.pd-associated-product-title', function (e) {
+            // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
             if (!$(e.target).closest('.pd-interaction').length) {
                 $($(this).data('target')).collapse('toggle');
             }
         }).on('shown.bs.collapse hide.bs.collapse', function (e) {
+            // Toggle 'expanded' class so that the correct collapse chevron is displayed.
             associatedProducts.find('.collapse-chevron').removeClass('expanded');
             if (e.type === 'shown') {
                 associatedProducts.find('.collapse.show').closest('.card').find('.collapse-chevron').addClass('expanded');
+            }
+        });
+
+        $('#main-update-container').on('updated', function () {
+            // Fix collapse chevron after AJAX header update (too much code to do this server-side).
+            var chevron = associatedProducts.find('.collapse.show').closest('.card').find('.collapse-chevron');
+            if (chevron.length) {
+                chevron.addClass('expanded');
             }
         });
     });

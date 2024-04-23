@@ -793,7 +793,10 @@
                     type: "GET",
                     url: url,
                     success: function (response) {
-                        $(contentTarget).html(response.content);
+                        const target = $(contentTarget);
+                        target.html(response.content);
+                        target.trigger('updated');
+                        applyCommonPlugins(target);
                     }
                 });
 
