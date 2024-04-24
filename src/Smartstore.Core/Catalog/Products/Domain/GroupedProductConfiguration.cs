@@ -3,6 +3,15 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Core.Catalog.Products
 {
+    public static class AssociatedProductHeader
+    {
+        public const string Image = "image";
+        public const string Sku = "sku";
+        public const string Dimensions = "dimensions";
+        public const string Weight = "weight";
+        public const string Price = "price";
+    }
+
     /// <summary>
     /// Represents the configuration of a grouped product and its associated products.
     /// </summary>
@@ -31,6 +40,10 @@ namespace Smartstore.Core.Catalog.Products
         public virtual string AsJson()
             => IsTouched() ? JsonConvert.SerializeObject(this) : null;
 
+        /// <summary>
+        /// Gets a value indicating whether a header column is displayed.
+        /// </summary>
+        /// <param name="name"><see cref="AssociatedProductHeader"/>.</param>
         public bool HasHeader(string name)
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 

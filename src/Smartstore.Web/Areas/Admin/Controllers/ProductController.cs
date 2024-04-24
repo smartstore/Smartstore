@@ -1824,11 +1824,11 @@ namespace Smartstore.Admin.Controllers
             var headerFields = model.GroupedProductConfiguration.HeaderFields ?? [];
             ViewBag.AssociatedProductsHeaderFields = new List<SelectListItem>
             {
-                new() { Value = "image", Text = T("Common.Image"), Selected = headerFields.Contains("image") },
-                new() { Value = "sku", Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains("sku") },
-                new() { Value = "price", Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains("price") },
-                new() { Value = "weight", Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains("weight") },
-                new() { Value = "dimensions", Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains("dimensions") }
+                new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
+                new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
+                new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
+                new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
+                new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
             };
 
             if (setPredefinedValues)

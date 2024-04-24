@@ -395,7 +395,7 @@ namespace Smartstore.Web.Controllers
                 var file = await GetSelectedAttributeImage();
                 dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false) : null;
 
-                if (hasAssociatedHeader && ctx.GroupedProductConfiguration.HasHeader("image"))
+                if (hasAssociatedHeader && ctx.GroupedProductConfiguration.HasHeader(AssociatedProductHeader.Image))
                 {
                     // Render associated product thumbnail in collabsable header.
                     var files = file != null

@@ -395,12 +395,12 @@ namespace Smartstore.Core.Installation
 
             _data.AddDownloads(products);
 
-            // Fix MainPictureId
-            await ProductPictureHelper.FixProductMainPictureIds(Context);
-
             await PopulateUrlRecordsFor(products);
 
             _data.AssignGroupedProducts(products);
+
+            // Fix MainPictureId
+            await ProductPictureHelper.FixProductMainPictureIds(Context);
         }
 
         private async Task PopulateTopics()
