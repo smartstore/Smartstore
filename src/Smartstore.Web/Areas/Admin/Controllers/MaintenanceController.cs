@@ -518,14 +518,33 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> OptimizeTable(string tableName)
+        public async Task<IActionResult> OptimizeTable(string tableName, long? size = null)
         {
             try
             {
                 if (_db.DataProvider.CanOptimizeTable)
                 {
                     await _db.DataProvider.OptimizeTableAsync(tableName);
-                    NotifySuccess(T("Common.OptimizeTableSuccessful", tableName));
+                    
+                    var tableInfos = await CommonHelper.TryAction(() => _db.DataProvider.ReadTableInfosAsync(), []);
+                    var currentSize = tableInfos.FirstOrDefault(x => x.TableName == tableName)?.TotalSpace;
+
+                    if (size.HasValue && currentSize.HasValue && size > currentSize)
+                    {
+                        var diffBytes = currentSize.Value - size.Value;
+                        var diffPercent = Math.Round(diffBytes / (double)currentSize, 2);
+
+                        NotifySuccess(T("Common.OptimizeTableSuccess", 
+                            tableName, 
+                            Prettifier.HumanizeBytes(size.Value), 
+                            Prettifier.HumanizeBytes(currentSize.Value),
+                            Prettifier.HumanizeBytes(diffBytes),
+                            "<b>" + diffPercent.ToString("P2") + "</b>"));
+                    }
+                    else
+                    {
+                        NotifyInfo(T("Common.OptimizeTableInfo", tableName));
+                    }
                 }
             }
             catch (Exception ex)

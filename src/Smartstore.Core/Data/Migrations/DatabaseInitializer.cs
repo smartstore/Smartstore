@@ -124,7 +124,7 @@ namespace Smartstore.Core.Data.Migrations
             if (!ModularState.Instance.HasChanged)
             {
                 // (perf) Ignore modules, they did not change since last migration.
-                return new Type[] { typeof(SmartDbContext) };
+                return [typeof(SmartDbContext)];
             }
             else
             {
