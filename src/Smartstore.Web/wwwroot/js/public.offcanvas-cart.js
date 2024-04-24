@@ -55,7 +55,7 @@ var AjaxCart = (function ($, window, document, undefined) {
             // from ...ProductModel.AddToCart to .ProductModel.
             // Therefore input names are not in the form anymore as the ShoppingCartController 
             // expects them. Hacking here ist much easier than refactoring the controller method.
-            // But change this in future of couse.
+            // But change this in future of course.
             var arr = str.split(".");
             if (arr.length == 3 && arr[1] == "AddToCart") {
                 str = arr[0] + "." + arr[2];
@@ -76,13 +76,15 @@ var AjaxCart = (function ($, window, document, undefined) {
     return {
 
         executeRequest: function (cmd) {
-            if (busy)
+            if (busy) {
                 return false;
-
+            }
             if (!$.isPlainObject(cmd)) {
                 cmd = createCommand(cmd);
             }
-            if (!cmd || !verifyCommand(cmd)) return false;
+            if (!cmd || !verifyCommand(cmd)) {
+                return false;
+            }
 
             busy = true;
 

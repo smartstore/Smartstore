@@ -45,6 +45,7 @@
 <script sm-if="Model.Configuration.Collapsable" sm-target-zone="scripts" data-origin="associated-products">
     $(function () {
         const associatedProducts = $('#associated-products');
+        var elError = null;
 
         associatedProducts.on('click', '.pd-associated-product-title', function (e) {
             // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
@@ -56,6 +57,11 @@
             associatedProducts.find('.collapse-chevron').removeClass('expanded');
             if (e.type === 'shown') {
                 associatedProducts.find('.collapse.show').closest('.card').find('.collapse-chevron').addClass('expanded');
+
+                if (elError !== null) {
+                    scrollToCard(elError);
+                    elError = null;
+                }
             }
         });
 
@@ -66,6 +72,21 @@
                 chevron.addClass('expanded');
             }
         });
+
+        EventBroker.subscribe('ajaxcart.error', function (msg, data) {
+            // Expand item to let the user select attributes.
+            var el = $('#associated-product' + data.response.productId);
+            if (el.hasClass('show')) {
+                scrollToCard(el);
+            }
+            else {
+                elError = el.collapse('show');
+            }
+        });
+
+        function scrollToCard(el) {
+            $('body, html').animate({ scrollTop: el.closest('.card').offset().top }, 'slow');
+        }
     });
 </script>
 

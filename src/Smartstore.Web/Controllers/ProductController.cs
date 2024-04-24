@@ -482,7 +482,7 @@ namespace Smartstore.Web.Controllers
                 GalleryHtml = galleryHtml
             });
 
-            #region Helpers
+            #region Utilities
 
             async Task<List<ProductMediaFile>> LoadFiles()
             {
@@ -512,14 +512,13 @@ namespace Smartstore.Web.Controllers
             ViewDataDictionary CreateViewDataFor(string partial)
             {
                 var vd = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
-                if (partial == "OfferActions")
-                {
-                    vd.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
-                }
+                vd.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
+
                 if (isAssociated && partial == "AssociatedHeader")
                 {
                     vd["GroupedProductConfiguration"] = ctx.GroupedProductConfiguration;
                 }
+
                 return vd;
             }
 

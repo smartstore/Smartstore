@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Catalog.Products
+@using Smartstore.Core.Checkout.Cart
 @using Smartstore.Web.Models.Catalog
 
 @model ProductDetailsModel
@@ -10,7 +11,11 @@
     var img = gallery?.Files?.FirstOrDefault();
 }
 
-<div class="card-title pd-associated-product-title row no-gutters" aria-expanded="false" role="button" data-target="#@id" aria-controls="@id">
+<div class="card-title pd-associated-product-title row no-gutters"
+     aria-expanded="false" 
+     role="button" 
+     data-target="#@id" 
+     aria-controls="@id">
     <div class="col-auto d-flex">
         <div sm-if="@config.HasHeader("image")" class="pd-associated-product-img">
             @if (img != null)
@@ -51,7 +56,16 @@
                     <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                         @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Small })
                     </div>
-                    <a class="pd-interaction btn btn-primary btn-sm btn-icon ml-1" href="javascript:;" rel="nofollow" title="@T("ShoppingCart.AddToCart")">
+                    <a class="pd-interaction btn btn-primary btn-sm btn-icon btn-add-to-cart ajax-cart-link ml-1"
+                       href="javascript:;"
+                       rel="nofollow"
+                       data-href="@Url.Action("AddProduct", "ShoppingCart", new { productId = Model.AddToCart.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })"
+                       data-form-selector="#pd-form"
+                       data-type="cart"
+                       data-action="add"
+                       data-toggle="offcanvas" 
+                       data-target="#offcanvas-cart"
+                       title="@T(Model.AddToCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")">
                         <i class="fa fa-cart-arrow-down"></i>
                     </a>
                 </div>
