@@ -30,6 +30,8 @@ namespace Smartstore.Data.Providers
 
     public abstract partial class DataProvider : Disposable
     {
+        const int OptimizeTimeout = 300;
+        
         [GeneratedRegex("^(?<DbName>.+)-(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline, "de-DE")]
         private static partial Regex DbNameRegex();
 
@@ -228,14 +230,16 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing tables.
+        /// Reorganizes the physical storage of table data and associated index data, 
+        /// to reduce storage space and improve I/O efficiency when accessing tables.
         /// After successful optimization, the database is shrunk to save space.
         /// </summary>
         protected virtual Task<int> OptimizeDatabaseCore(bool async, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// Reorganizes the physical storage of table data and associated index data, 
+        /// to reduce storage space and improve I/O efficiency when accessing the specified table.
         /// After successful optimization, the database is shrunk to save space.
         /// </summary
         /// <param name="tableName">Name of table to optimize.</param>
@@ -573,39 +577,106 @@ namespace Smartstore.Data.Providers
         /// Optimizes all table data and associated index data to reduce storage space and improve I/O efficiency.
         /// </summary>
         public int OptimizeDatabase()
-            => OptimizeDatabaseCore(false).Await();
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return OptimizeDatabaseCore(false).Await();
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
         /// Optimizes all table data and associated index data to reduce storage space and improve I/O efficiency.
         /// </summary>
         public Task<int> OptimizeDatabaseAsync(CancellationToken cancelToken = default)
-            => OptimizeDatabaseCore(true, cancelToken);
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return OptimizeDatabaseCore(true, cancelToken);
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
-        /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
+        /// Reorganizes the physical storage of table data and associated index data, 
+        /// to reduce storage space and improve I/O efficiency when accessing the specified table.
         /// </summary
         /// <param name="tableName">Name of table to optimize.</param>
         public int OptimizeTable(string tableName)
-            => OptimizeTableCore(tableName, false).Await();
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return OptimizeTableCore(tableName, false).Await();
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
         /// Reorganizes the physical storage of table data and associated index data, to reduce storage space and improve I/O efficiency when accessing the specified table.
         /// </summary
         /// <param name="tableName">Name of table to optimize.</param>
         public Task<int> OptimizeTableAsync(string tableName, CancellationToken cancelToken = default)
-            => OptimizeTableCore(tableName, true, cancelToken);
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return OptimizeTableCore(tableName, false, cancelToken);
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
         /// Shrinks / compacts the database.
         /// </summary>
         public int ShrinkDatabase()
-            => ShrinkDatabaseCore(false).Await();
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return ShrinkDatabaseCore(false).Await();
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
         /// Shrinks / compacts the database.
         /// </summary>
         public Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
-            => ShrinkDatabaseCore(true, cancelToken);
+        {
+            var timeout = Database.GetCommandTimeout();
+            try
+            {
+                Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
+                return ShrinkDatabaseCore(false, cancelToken);
+            }
+            finally
+            {
+                Database.SetCommandTimeout(timeout);
+            }
+        }
 
         /// <summary>
         /// Reads info/statistics about every public table in the database.
