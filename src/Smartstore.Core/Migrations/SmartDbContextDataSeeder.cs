@@ -458,9 +458,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Link brand logo",
                 "Marken-Logo verlinken");
 
-            builder.AddOrUpdate("Common.OptimizeTableSuccessful",
-                "The database table '{0}' has been successfully optimized.",
-                "Die Datenbank-Tabelle '{0}' wurde erfolgreich optimiert.");
+            builder.AddOrUpdate("Common.OptimizeTableInfo",
+                "The table '{0}' is already in an optimal state.",
+                "Die Tabelle '{0}' ist bereits in einem optimalen Zustand.");
+
+            builder.AddOrUpdate("Common.OptimizeTableSuccess",
+                "The table '{0}' has been successfully optimized: {1} &rarr; {2}. Difference: {3} ({4}).",
+                "Die Tabelle '{0}' wurde erfolgreich optimiert: {1} &rarr; {2}. Unterschied: {3} ({4}).");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowActivatableCartItems",
                 "Products in shopping cart can be deactivated",

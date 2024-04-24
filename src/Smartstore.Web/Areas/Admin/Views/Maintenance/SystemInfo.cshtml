@@ -338,7 +338,7 @@
                                     <td class="text-right" nowrap>@Prettifier.HumanizeBytes(info.TotalSpace - info.UsedSpace)</td>
                                     @if (Model.OptimizeTableEnabled)
                                     {
-                                        <td nowrap><a asp-action="OptimizeTable" asp-route-tableName="@info.TableName" class="pl-2">@T("Common.Shrink")</a></td>
+                                        <td nowrap><a asp-action="OptimizeTable" asp-route-tableName="@info.TableName" asp-route-size="@info.TotalSpace" class="pl-2">@T("Common.Shrink")</a></td>
                                     }
                                 </tr>
                             }
