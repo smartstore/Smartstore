@@ -328,7 +328,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var info in Model.DbTableInfos.Where(x => x.UsedSpace > 0))
+                            @foreach (var info in Model.DbTableInfos)
                             {
                                 <tr>
                                     <td style="word-break: break-all">@info.TableName</td>

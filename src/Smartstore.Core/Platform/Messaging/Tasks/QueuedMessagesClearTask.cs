@@ -1,7 +1,5 @@
 ﻿using Smartstore.Core.Common.Configuration;
-using Smartstore.Core.Data;
 using Smartstore.Scheduling;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Messaging.Tasks
 {
@@ -10,40 +8,19 @@ namespace Smartstore.Core.Messaging.Tasks
     /// </summary>
     public partial class QueuedMessagesClearTask : ITask
     {
-        private readonly SmartDbContext _db;
+        private readonly IQueuedEmailService _qeService;
         private readonly CommonSettings _commonSettings;
 
-        public QueuedMessagesClearTask(SmartDbContext db, CommonSettings commonSettings)
+        public QueuedMessagesClearTask(IQueuedEmailService qeService, CommonSettings commonSettings)
         {
-            _db = db;
+            _qeService = qeService;
             _commonSettings = commonSettings;
         }
 
-        public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
+        public Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
-
-            var numTotalDeleted = 0;
-            while (true)
-            {
-                var numDeleted = await _db.QueuedEmails
-                    .Where(x => x.CreatedOnUtc < olderThan && (x.SentOnUtc.HasValue || x.SentTries >= 3))
-                    .Take(500)
-                    .ExecuteDeleteAsync(cancellationToken: cancelToken);
-
-                numTotalDeleted += numDeleted;
-                if (numDeleted < 500)
-                {
-                    break;
-                }
-            }
-
-
-            if (numTotalDeleted > 100 && _db.DataProvider.CanOptimizeTable)
-            {
-                var tableName = _db.Model.FindEntityType(typeof(QueuedEmail)).GetTableName();
-                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
-            }
+            return _qeService.DeleteAllQueuedMailsAsync(olderThan, cancelToken);
         }
     }
 }

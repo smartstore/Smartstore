@@ -98,7 +98,7 @@ namespace Smartstore.Core.Messaging
         /// </summary>
         public ICollection<QueuedEmailAttachment> Attachments
         {
-            get => _attachments ?? LazyLoader.Load(this, ref _attachments) ?? (_attachments ??= new HashSet<QueuedEmailAttachment>());
+            get => _attachments ?? LazyLoader.Load(this, ref _attachments) ?? (_attachments ??= []);
             protected set => _attachments = value;
         }
     }
