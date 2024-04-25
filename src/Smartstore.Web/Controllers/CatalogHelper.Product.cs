@@ -31,7 +31,8 @@ namespace Smartstore.Web.Controllers
             Product product, 
             ProductVariantQuery query,
             ProductBundleItem bundleItem = null,
-            bool isAssociatedProduct = false)
+            bool isAssociatedProduct = false,
+            int? parentProductId = null)
         {
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
@@ -55,12 +56,21 @@ namespace Smartstore.Web.Controllers
             }
             else if (isAssociatedProduct)
             {
-                var rawConfig = product.ParentGroupedProductId != 0
-                    ? await _db.Products
-                        .Where(x => x.Id == product.ParentGroupedProductId)
-                        .Select(x => x.ProductTypeConfiguration)
-                        .FirstOrDefaultAsync()
-                    : null;
+                var rawConfig = ctx.ParentProduct?.ProductTypeConfiguration;
+                if (rawConfig.IsEmpty())
+                {
+                    // INFO: associated products that are no longer assigned are still displayed if the search index is not up-to-date.
+                    // 'product.ParentGroupedProductId' would then be 0 and 'ctx.GroupedProductConfiguration' incorrect.
+                    // That's why we obtain 'parentProductId' via URL.
+                    parentProductId ??= product.ParentGroupedProductId;
+                    if (parentProductId != 0)
+                    {
+                        rawConfig = await _db.Products
+                            .Where(x => x.Id == parentProductId)
+                            .Select(x => x.ProductTypeConfiguration)
+                            .FirstOrDefaultAsync();
+                    }
+                }
 
                 ctx.GroupedProductConfiguration = Deserialize(rawConfig);
             }
@@ -79,11 +89,11 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(product);
 
-            var modelContext = await CreateModelContext(product, query);
-            var model = await MapProductDetailsPageModelAsync(modelContext);
+            var ctx = await CreateModelContext(product, query);
+            var model = await MapProductDetailsPageModelAsync(ctx);
 
             // Specifications
-            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
+            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(ctx);
 
             // Reviews
             await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
@@ -98,7 +108,7 @@ namespace Smartstore.Web.Controllers
             await PrepareAlsoPurchasedProductsModelAsync(model, product);
 
             // Custom mapping
-            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = modelContext, Quantity = 1 });
+            await MapperFactory.MapWithRegisteredMapperAsync(product, model, new { Context = ctx, Quantity = 1 });
 
             return model;
         }
@@ -150,9 +160,10 @@ namespace Smartstore.Web.Controllers
                     ShowProductTags = _catalogSettings.ShowProductTags,
                     UpdateUrl = _urlHelper.Action(nameof(ProductController.UpdateProductDetails), "Product", new
                     {
+                        itemType,
                         productId = product.Id,
-                        bundleItemId = ctx.ProductBundleItem?.Id ?? 0,
-                        itemType
+                        parentProductId = ctx.ParentProduct?.Id ?? null,
+                        bundleItemId = ctx.ProductBundleItem?.Id ?? 0
                     })
                 };
 
@@ -176,6 +187,7 @@ namespace Smartstore.Web.Controllers
                         {
                             Product = bundleItem.Product,
                             IsAssociatedProduct = false,
+                            ParentProduct = product,
                             ProductBundleItem = bundleItem
                         });
 
@@ -442,6 +454,7 @@ namespace Smartstore.Web.Controllers
                 {
                     Product = x,
                     IsAssociatedProduct = true,
+                    ParentProduct = product,
                     ProductBundleItem = null
                 }))
                 .AsyncToList();

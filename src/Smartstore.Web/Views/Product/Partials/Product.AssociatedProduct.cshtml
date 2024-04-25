@@ -3,6 +3,7 @@
 @model ProductDetailsModel
 
 @{
+    // INFO: in case of a collapsible accordion, the parent card item is the update container.
     var skipUpdateUrl = (ViewData["SkipUpdateUrl"] as bool?) ?? false;
     var gallery = Model.MediaGalleryModel;
     var img = gallery.Files?.FirstOrDefault();

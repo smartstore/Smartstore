@@ -335,8 +335,8 @@ namespace Smartstore.Web.Controllers
 
             if (product != null)
             {
-                var modelContext = await _helper.CreateModelContext(product, new());
-                var model = await _helper.CreateGroupedProductModelAsync(modelContext, page);
+                var ctx = await _helper.CreateModelContext(product, new());
+                var model = await _helper.CreateGroupedProductModelAsync(ctx, page);
 
                 content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
             }
@@ -349,7 +349,12 @@ namespace Smartstore.Web.Controllers
         /// such as quantity changes or attribute selection.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
+        public async Task<IActionResult> UpdateProductDetails(
+            string itemType,
+            int productId, 
+            int? parentProductId,
+            int bundleItemId, 
+            ProductVariantQuery query)
         {
             // TODO: (core) UpdateProductDetails action needs some decent refactoring.
             var form = HttpContext.Request.Form;
@@ -373,7 +378,7 @@ namespace Smartstore.Web.Controllers
                 _ = int.TryParse(form[quantityKey], out quantity);
             }
 
-            var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated);
+            var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated, parentProductId);
             var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsable == true;
 
             // Get merged model data.

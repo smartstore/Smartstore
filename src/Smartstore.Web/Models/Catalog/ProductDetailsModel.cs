@@ -25,29 +25,31 @@ namespace Smartstore.Web.Models.Catalog
         public ProductDetailsModelContext(ProductDetailsModelContext other)
         {
             Product = other.Product;
-            AssociatedProducts = other.AssociatedProducts;
-            GroupedProductConfiguration = other.GroupedProductConfiguration;
             BatchContext = other.BatchContext;
             VariantQuery = other.VariantQuery;
             Customer = other.Customer;
             Store = other.Store;
             Currency = other.Currency;
             DisplayPrices = other.DisplayPrices;
+
+            AssociatedProducts = other.AssociatedProducts;
+            GroupedProductConfiguration = other.GroupedProductConfiguration;
         }
 
         public Product Product { get; set; }
-        public IList<Product> AssociatedProducts { get; set; }
-        public GroupedProductConfiguration GroupedProductConfiguration { get; set; }
         public ProductBatchContext BatchContext { get; set; }
         public ProductVariantQuery VariantQuery { get; set; }
         public Customer Customer { get; set; }
         public Store Store { get; set; }
         public Currency Currency { get; set; }
+        public bool DisplayPrices { get; set; }
 
         public bool IsAssociatedProduct { get; set; }
-        public ProductBundleItem ProductBundleItem { get; set; }
+        public IList<Product> AssociatedProducts { get; set; }
+        public GroupedProductConfiguration GroupedProductConfiguration { get; set; }
 
-        public bool DisplayPrices { get; set; }
+        public Product ParentProduct { get; set; }
+        public ProductBundleItem ProductBundleItem { get; set; }
 
         /// <summary>
         /// The selected attributes based on <see cref="VariantQuery"/>. <c>null</c> if none have been selected (then the preselected attributes are used).
