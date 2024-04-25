@@ -69,6 +69,24 @@ namespace Smartstore.Engine
         public bool UseSequentialDbDataReader { get; set; }
 
         /// <summary>
+        /// Sets the MS SQL Server compatibility level that EF Core will use when interacting
+        /// with the database. This allows configuring EF Core to work with older (or newer)
+        /// versions of SQL Server. Defaults to 160 (SQL Server 2022).
+        /// Allowed levels are (without the version in brackets):
+        /// <list type="table">
+        ///     <item>null (auto)</item>
+        ///     <item>160 (2022)</item>
+        ///     <item>150 (2019)</item>
+        ///     <item>140 (2017)</item>
+        ///     <item>130 (2016)</item>
+        ///     <item>120 (2014)</item>
+        ///     <item>110 (2012)</item>
+        ///     <item>100 (2008)</item>
+        /// </list>
+        /// </summary>
+        public int? SqlServerCompatLevel { get; set; }
+
+        /// <summary>
         /// Storage path for media files and assets like thumbs, uploads, email attachments etc.
         /// Must be either an app local relative path or a fully qualified physical path to a shared location. E.g.:
         ///     - "Media" or "/Media" points to the subfolder named "Media" in your application root

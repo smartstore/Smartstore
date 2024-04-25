@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data.Providers;
 using Smartstore.Data.SqlServer.Translators;
+using Smartstore.Engine;
 
 namespace Smartstore.Data.SqlServer
 {
@@ -90,10 +91,16 @@ namespace Smartstore.Data.SqlServer
                 .UseSqlServer(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
+
+                    var compatLevel = EngineContext.Current?.Application?.AppConfiguration?.SqlServerCompatLevel;
+                    if (compatLevel >= 100)
+                    {
+                        sql.UseCompatibilityLevel(compatLevel.Value);
+                    }
                 })
                 .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
             
-            return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
+            return (TContext)Activator.CreateInstance(typeof(TContext), [optionsBuilder.Options]);
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
@@ -103,6 +110,12 @@ namespace Smartstore.Data.SqlServer
 
             return builder.UseSqlServer(connectionString, sql =>
             {
+                var compatLevel = EngineContext.Current?.Application?.AppConfiguration?.SqlServerCompatLevel;
+                if (compatLevel >= 100)
+                {
+                    sql.UseCompatibilityLevel(compatLevel.Value);
+                }
+
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
                 if (extension != null)

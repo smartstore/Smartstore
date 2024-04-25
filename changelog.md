@@ -25,6 +25,7 @@
   - Faster app startup
   - Increased overall performance
   - ~10 % less memory usage after app start
+- New app setting for MS SQL Server compatibility level
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - Affiliates
   - #896 Added a cart rule for affiliates.
