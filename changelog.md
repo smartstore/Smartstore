@@ -18,6 +18,9 @@
 - **Cart & wishlist enhancements**
   - Disable cart items via checkbox.
   - Show delivery time, stock info, weight, additional shipping surcharge and brand.
+- **Grouped product enhancements**
+  - Optional presentation of associated products as collapsible/expandable panels.
+  - Added paging for associated products.
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance
