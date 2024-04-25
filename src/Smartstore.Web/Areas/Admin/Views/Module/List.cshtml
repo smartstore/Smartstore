@@ -252,10 +252,11 @@
 		}
 
 		// Create tooltip for ExecuteTasks button which informs
-		// about modules to be installed and uninstalled
-		btnExecuteTasks.tooltip({
-			html: true,
-			placement: 'bottom',
+        // about modules to be installed and uninstalled
+        btnExecuteTasks.tooltip({
+            html: true,
+            placement: 'right',
+            boundary: 'viewport',
 			title: function () {
 				let text = '';
 
@@ -272,7 +273,7 @@
 					_.each(dropdownInstall.val(), function (val, i) {
 						text += '<div class="al">{0}</div>'.format(getModuleFriendlyName(dropdownInstall, val));
 					});
-				}
+                }
 
 				return text;
 			}
