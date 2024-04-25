@@ -884,7 +884,7 @@ namespace Smartstore.Core.Installation
 
             var groupedProductConfig = new GroupedProductConfiguration
             {
-                Collapsable = true,
+                Collapsible = true,
                 HeaderFields = [AssociatedProductHeader.Image, AssociatedProductHeader.Sku, AssociatedProductHeader.Price ]
             };
 

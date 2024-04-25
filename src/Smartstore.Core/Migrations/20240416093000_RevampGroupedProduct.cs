@@ -42,7 +42,7 @@ namespace Smartstore.Core.Migrations
                 "Page size of associated products",
                 "Listengröße der verknüpften Produkte");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsable",
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                 "Expand/collapse associated products",
                 "Verknüpfte Produkte auf-/zuklappen");
 

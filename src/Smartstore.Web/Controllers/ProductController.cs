@@ -379,7 +379,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated, parentProductId);
-            var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsable == true;
+            var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsible == true;
 
             // Get merged model data.
             var model = new ProductDetailsModel();

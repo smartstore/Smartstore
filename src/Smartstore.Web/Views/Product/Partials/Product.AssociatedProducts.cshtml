@@ -3,7 +3,7 @@
 @model GroupedProductModel
 
 <div id="associated-products">
-    @if (Model.Configuration.Collapsable)
+    @if (Model.Configuration.Collapsible)
     {
         <div class="accordion pd-associated-products">
             @foreach (var product in Model.Products)
@@ -42,7 +42,7 @@
     }
 </div>
 
-<script sm-if="Model.Configuration.Collapsable" sm-target-zone="scripts" data-origin="associated-products">
+<script sm-if="Model.Configuration.Collapsible" sm-target-zone="scripts" data-origin="associated-products">
     $(function () {
         const associatedProducts = $('#associated-products');
         var elError = null;

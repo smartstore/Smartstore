@@ -26,10 +26,10 @@ namespace Smartstore.Core.Catalog.Products
         public int PageSize { get; set; } = DefaultPageSize;
 
         /// <summary>
-        /// A value indicating whether the associated products are collapsable.
+        /// A value indicating whether the associated products are collapsible.
         /// </summary>
-        [JsonProperty("collapsable", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
-        public bool Collapsable { get; set; }
+        [JsonProperty("collapsible", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
+        public bool Collapsible { get; set; }
 
         /// <summary>
         /// Gets or sets name of fields to display in the collapse header.
@@ -48,6 +48,6 @@ namespace Smartstore.Core.Catalog.Products
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
         private bool IsTouched()
-            => PageSize != DefaultPageSize || Collapsable || (Collapsable && !HeaderFields.IsNullOrEmpty());
+            => PageSize != DefaultPageSize || Collapsible || (Collapsible && !HeaderFields.IsNullOrEmpty());
     }
 }

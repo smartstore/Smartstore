@@ -209,7 +209,7 @@ namespace Smartstore.Web.Models.Catalog
             public int? MaxInStock { get; set; }
             public bool HideQuantityControl { get; set; }
             public QuantityControlType QuantityControlType { get; set; }
-            public bool CollapsableAssociatedProduct { get; set; }
+            public bool CollapsibleAssociatedProduct { get; set; }
 
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }

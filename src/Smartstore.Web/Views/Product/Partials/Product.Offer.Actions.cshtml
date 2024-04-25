@@ -29,11 +29,11 @@
         }
         else
         {
-            <div sm-if="!toCart.HideQuantityControl && !toCart.CollapsableAssociatedProduct" class="col-auto pd-offer-action-qty">
+            <div sm-if="!toCart.HideQuantityControl && !toCart.CollapsibleAssociatedProduct" class="col-auto pd-offer-action-qty">
                 @Html.EditorFor(model => model.AddToCart, "QtyInput", new { large = true })
             </div>
         
-            <div sm-if="!toCart.CollapsableAssociatedProduct" class="col">
+            <div sm-if="!toCart.CollapsibleAssociatedProduct" class="col">
                 <a class="btn btn-primary btn-lg btn-block btn-add-to-cart ajax-cart-link"
                    href="#"
                    rel="nofollow"
