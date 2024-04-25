@@ -11,7 +11,7 @@
                 var id = $"associated-product{product.Id}";
                 var viewData = CreateViewData(product, true);
 
-                <div class="card update-container" data-url="@product.UpdateUrl">
+                <div class="card update-container collapsed" data-url="@product.UpdateUrl">
                     <div class="card-header" data-partial="AssociatedHeader">
                         <partial name="Product.AssociatedProduct.Header" model="product" view-data="viewData" />
                     </div>
@@ -53,23 +53,15 @@
                 $($(this).data('target')).collapse('toggle');
             }
         }).on('shown.bs.collapse hide.bs.collapse', function (e) {
-            // Toggle 'expanded' class so that the correct collapse chevron is displayed.
-            associatedProducts.find('.collapse-chevron').removeClass('expanded');
+            // Toggle 'collapsed' class to display correct chevron.
+            associatedProducts.find('.card').addClass('collapsed');
             if (e.type === 'shown') {
-                associatedProducts.find('.collapse.show').closest('.card').find('.collapse-chevron').addClass('expanded');
+                $(e.target).closest('.card').removeClass('collapsed');
 
                 if (elError !== null) {
                     scrollToCard(elError);
                     elError = null;
                 }
-            }
-        });
-
-        $('#main-update-container').on('updated', function () {
-            // Fix collapse chevron after AJAX header update (too much code to do this server-side).
-            var chevron = associatedProducts.find('.collapse.show').closest('.card').find('.collapse-chevron');
-            if (chevron.length) {
-                chevron.addClass('expanded');
             }
         });
 

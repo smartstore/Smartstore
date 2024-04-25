@@ -609,6 +609,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     .card:last-child .collapsing {
         border-top: 1px solid rgba(0, 0, 0, 0.125) !important;
     }
+
+    .card.collapsed .collapse-chevron {
+        transform: rotate(-180deg);
+    }
 }
 
 .pd-associated-product-title {
@@ -627,11 +631,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
     .collapse-chevron {
         height: max-content;
-        transition: transform 0.35s;
-    }
-
-    .expanded {
-        transform: rotate(-180deg);
     }
 }
 
