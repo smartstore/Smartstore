@@ -32,10 +32,38 @@ namespace Smartstore.Core.Messaging
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual Task<int> DeleteAllQueuedMailsAsync()
+        public virtual async Task<int> DeleteAllQueuedMailsAsync(DateTime? olderThan = null, CancellationToken cancelToken = default)
         {
-            // Do not delete e-mails which are about to be sent.
-            return _db.QueuedEmails.Where(x => x.SentOnUtc.HasValue || x.SentTries >= 3).ExecuteDeleteAsync();
+            var aYearAgo = DateTime.UtcNow.AddYears(-1);
+            var numTotalDeleted = 0;
+
+            // Always delete entries that are older than a year.
+            var query = _db.QueuedEmails
+                .Where(x => x.SentOnUtc.HasValue || x.SentTries >= 3 || x.CreatedOnUtc < aYearAgo);
+
+            if (olderThan.HasValue && olderThan < DateTime.UtcNow)
+            {
+                query = query.Where(x => x.CreatedOnUtc < olderThan);
+            }
+
+            while (true)
+            {
+                var numDeleted = await query.Take(1000).ExecuteDeleteAsync(cancelToken);
+
+                numTotalDeleted += numDeleted;
+                if (numDeleted < 1000)
+                {
+                    break;
+                }
+            }
+
+            if (numTotalDeleted > 1000 && _db.DataProvider.CanOptimizeTable)
+            {
+                var tableName = _db.Model.FindEntityType(typeof(QueuedEmail)).GetTableName();
+                await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+            }
+
+            return numTotalDeleted;
         }
 
         public virtual async Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken = default)
