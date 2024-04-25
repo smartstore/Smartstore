@@ -1,0 +1,94 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model GroupedProductModel
+
+<div id="associated-products">
+    @if (Model.Configuration.Collapsible)
+    {
+        <div class="accordion pd-associated-products">
+            @foreach (var product in Model.Products)
+            {
+                var id = $"associated-product{product.Id}";
+                var viewData = CreateViewData(product, true);
+
+                <div class="card update-container collapsed" data-url="@product.UpdateUrl">
+                    <div class="card-header" data-partial="AssociatedHeader">
+                        <partial name="Product.AssociatedProduct.Header" model="product" view-data="viewData" />
+                    </div>
+                    <div id="@id" class="collapse" data-parent="#associated-products">
+                        <div class="card-body">
+                            <partial name="Product.AssociatedProduct" model="product" view-data="viewData" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @foreach (var product in Model.Products)
+        {
+            <hr />
+            <partial name="Product.AssociatedProduct" model="product" view-data="CreateViewData(product)" />
+        }
+    }
+
+    @if (Model.Products.TotalPages > 1)
+    {
+        <pagination sm-list-items="Model.Products" class="mt-2"
+                    sm-alignment="Left"
+                    sm-url="@Url.Action("AssociatedProducts", "Product", new { id = Model.Id })"
+                    sm-target="#associated-products" />
+    }
+</div>
+
+<script sm-if="Model.Configuration.Collapsible" sm-target-zone="scripts" data-origin="associated-products">
+    $(function () {
+        const associatedProducts = $('#associated-products');
+        var elError = null;
+
+        associatedProducts.on('click', '.pd-associated-product-title', function (e) {
+            // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
+            if (!$(e.target).closest('.pd-interaction').length) {
+                $($(this).data('target')).collapse('toggle');
+            }
+        }).on('shown.bs.collapse hide.bs.collapse', function (e) {
+            // Toggle 'collapsed' class to display correct chevron.
+            associatedProducts.find('.card').addClass('collapsed');
+            if (e.type === 'shown') {
+                $(e.target).closest('.card').removeClass('collapsed');
+
+                if (elError !== null) {
+                    scrollToCard(elError);
+                    elError = null;
+                }
+            }
+        });
+
+        EventBroker.subscribe('ajaxcart.error', function (msg, data) {
+            // Expand item to let the user select attributes.
+            var el = $('#associated-product' + data.response.productId);
+            if (el.hasClass('show')) {
+                scrollToCard(el);
+            }
+            else {
+                elError = el.collapse('show');
+            }
+        });
+
+        function scrollToCard(el) {
+            $('body, html').animate({ scrollTop: el.closest('.card').offset().top }, 'slow');
+        }
+    });
+</script>
+
+@{
+    ViewDataDictionary CreateViewData(ProductDetailsModel model, bool skipUpdateUrl = false)
+    {
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
+        vd["GroupedProductConfiguration"] = Model.Configuration;
+        vd["SkipUpdateUrl"] = skipUpdateUrl;
+        return vd;
+    }
+}

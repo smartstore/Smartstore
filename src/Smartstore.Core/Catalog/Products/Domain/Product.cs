@@ -171,6 +171,13 @@ namespace Smartstore.Core.Catalog.Products
         public int ParentGroupedProductId { get; set; }
 
         /// <summary>
+        /// Gets or sets a JSON-formatted configuration depending on the <see cref="ProductType"/> (optional).
+        /// <see cref="GroupedProductConfiguration"/> for <see cref="ProductType.GroupedProduct"/>.
+        /// </summary>
+        [MaxLength]
+        public string ProductTypeConfiguration { get; set; }
+
+        /// <summary>
         /// Gets or sets the visibility level of the product.
         /// </summary>
         public ProductVisibility Visibility { get; set; }

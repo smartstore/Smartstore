@@ -43,6 +43,7 @@
     function toggleProductType() {
         var selectedProductTypeId = $("#@Html.IdFor(model => model.ProductTypeId)").val();
         if (selectedProductTypeId == '@((int)ProductType.SimpleProduct)') {
+            $('#grouped-product-config').hide();
             $('#group-required-other-products').show();
             $('#group-giftcard').show();
             $('#group-downloads').show();
@@ -53,6 +54,7 @@
             $('a[href="#tab-inventory"]').parent().removeClass("hide"); // specified in _CreateOrUpdate.cshtml
         }
         else if (selectedProductTypeId == '@((int)ProductType.GroupedProduct)') {
+            $('#grouped-product-config').show();
             $('#group-required-other-products').hide();
             $('#group-giftcard').hide();
             $('#group-downloads').hide();
@@ -63,6 +65,7 @@
             $('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
         }
         else if (selectedProductTypeId == '@((int)ProductType.BundledProduct)') {
+            $('#grouped-product-config').hide();
         	//$('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
         }
 	}
@@ -114,15 +117,6 @@
 
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="ProductTypeId" />
-        </div>
-        <div class="adminData">
-            <select asp-for="ProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))"></select>
-            <span asp-validation-for="ProductTypeId"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
             <smart-label asp-for="Published" />
         </div>
         <div class="adminData">
@@ -137,6 +131,45 @@
         <div class="adminData">
             <select asp-for="Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))"></select>
             <span asp-validation-for="Visibility"></span>
+        </div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ProductTypeId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="ProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))"></select>
+            <span asp-validation-for="ProductTypeId"></span>
+        </div>
+    </div>
+    <div id="grouped-product-config">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="GroupedProductConfiguration.PageSize" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="GroupedProductConfiguration.PageSize" />
+                <span asp-validation-for="GroupedProductConfiguration.PageSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="GroupedProductConfiguration.Collapsible" />
+            </div>
+            <div class="adminData">
+                <input asp-for="GroupedProductConfiguration.Collapsible" data-toggler-for="#grouped-product-config-collapsible" />
+                <span asp-validation-for="GroupedProductConfiguration.Collapsible"></span>
+            </div>
+        </div>
+        <div id="grouped-product-config-collapsible" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="GroupedProductConfiguration.HeaderFields" />
+            </div>
+            <div class="adminData">
+                <select asp-for="GroupedProductConfiguration.HeaderFields" asp-items="ViewBag.AssociatedProductsHeaderFields" multiple="multiple" data-tags="true"></select>
+                <span asp-validation-for="GroupedProductConfiguration.HeaderFields"></span>
+            </div>
         </div>
     </div>
     <div sm-if="Model.Id > 0 && Model.AssociatedToProductId > 0" class="adminRow">

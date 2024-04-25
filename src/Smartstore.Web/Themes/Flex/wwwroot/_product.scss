@@ -601,3 +601,61 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         outline: 1px solid rgba(#000, 0.15);
     }
 }
+
+// Associated products
+// =====================================================
+.pd-associated-products.accordion {
+    .card:last-child .collapse,
+    .card:last-child .collapsing {
+        border-top: 1px solid rgba(0, 0, 0, 0.125) !important;
+    }
+
+    .card.collapsed .collapse-chevron {
+        transform: rotate(-180deg);
+    }
+}
+
+.pd-associated-product-title {
+    padding: 0.625rem;
+
+    > .col:not(:last-child) {
+        display: flex;
+        padding: 0.3rem 0.5rem;
+        align-items: center;
+    }
+
+    .pd-qty-input-container {
+        width: inherit;
+        cursor: default;
+    }
+
+    .collapse-chevron {
+        height: max-content;
+    }
+}
+
+.pd-associated-products-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-inline-start: auto;
+    max-width: 170px;
+    width: 100%;
+    min-width: 100px;
+    padding: 0;
+}
+
+.pd-associated-product-img {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    align-self: center;
+}
+
+.pd-associated-product-attr {
+    @extend .text-truncate;
+    width: 100%;
+}
+.pd-associated-product-price {
+    font-weight: $font-weight-medium;
+    color: $pd-price-color;
+}

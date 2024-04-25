@@ -396,7 +396,7 @@ namespace Smartstore.Web.Controllers
         /// This method is used in product lists on catalog pages (category/manufacturer etc...).
         /// </summary>
         /// <param name="productId">Identifier of the <see cref="Product"/> to add.</param>
-        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/> </param>
+        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> value.</param>
         /// <param name="forceRedirection">A value indicating whether to force a redirection to the shopping cart.</param>
         [HttpPost]
         [DisallowRobot]
@@ -411,6 +411,7 @@ namespace Smartstore.Web.Controllers
                 return Json(new
                 {
                     success = false,
+                    productId,
                     message = T("Products.NotFound", productId)
                 });
             }
@@ -452,6 +453,7 @@ namespace Smartstore.Web.Controllers
                 // Redirect to the shopping cart page.
                 return Json(new
                 {
+                    productId,
                     redirect = Url.RouteUrl("ShoppingCart"),
                 });
             }
@@ -459,6 +461,7 @@ namespace Smartstore.Web.Controllers
             return Json(new
             {
                 success = true,
+                productId,
                 message = T("Products.ProductHasBeenAddedToTheCart", Url.RouteUrl("ShoppingCart")).Value
             });
 
@@ -466,6 +469,7 @@ namespace Smartstore.Web.Controllers
             {
                 return Json(new
                 {
+                    productId,
                     redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
                 });
             }
@@ -475,7 +479,7 @@ namespace Smartstore.Web.Controllers
         /// Adds a product to the cart from the product details page.
         /// </summary>
         /// <param name="productId">Identifier of the <see cref="Product"/> to add.</param>
-        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/>.</param>
+        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> value.</param>
         /// <param name="query">The <see cref="ProductVariantQuery"/> of selected attributes.</param>
         [HttpPost]
         [DisallowRobot]
@@ -484,31 +488,31 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
         public async Task<IActionResult> AddProduct(int productId, int shoppingCartTypeId, ProductVariantQuery query)
         {
-            // Adds a product to cart. This method is used on product details page.
-            var form = HttpContext.Request.Form;
             var product = await _db.Products
                 .Include(x => x.ProductVariantAttributes)
                 .FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new
-                {
-                    redirect = Url.RouteUrl("Homepage"),
+                { 
+                    productId, 
+                    redirect = Url.RouteUrl("Homepage")
                 });
             }
 
-            var customerEnteredPriceConverted = new Money();
+            var form = HttpContext.Request.Form;
+            var enteredPriceConverted = new Money();
+
             if (product.CustomerEntersPrice)
             {
                 foreach (var formKey in form.Keys)
                 {
                     if (formKey.EqualsNoCase($"addtocart_{productId}.CustomerEnteredPrice"))
                     {
-                        if (ConvertUtility.TryConvert<decimal>(form[formKey].First(), out var customerEnteredPrice))
+                        if (ConvertUtility.TryConvert<decimal>(form[formKey].First(), out var enteredPrice))
                         {
-                            customerEnteredPriceConverted = _currencyService.ConvertToPrimaryCurrency(new Money(customerEnteredPrice, Services.WorkContext.WorkingCurrency));
+                            enteredPriceConverted = _currencyService.ConvertToPrimaryCurrency(new(enteredPrice, Services.WorkContext.WorkingCurrency));
                         }
-
                         break;
                     }
                 }
@@ -532,7 +536,7 @@ namespace Smartstore.Web.Controllers
                 Product = product,
                 VariantQuery = query,
                 CartType = (ShoppingCartType)shoppingCartTypeId,
-                CustomerEnteredPrice = customerEnteredPriceConverted,
+                CustomerEnteredPrice = enteredPriceConverted,
                 Quantity = quantity,
                 AutomaticallyAddRequiredProducts = product.RequireOtherProducts && product.AutomaticallyAddRequiredProducts,
                 AutomaticallyAddBundleProducts = true
@@ -544,6 +548,7 @@ namespace Smartstore.Web.Controllers
                 return Json(new
                 {
                     success = false,
+                    productId,
                     message = addToCartContext.Warnings.ToArray()
                 });
             }
@@ -573,10 +578,10 @@ namespace Smartstore.Web.Controllers
 
             if (redirect)
             {
-                return Json(new { redirect = Url.RouteUrl(routeUrl) });
+                return Json(new { productId, redirect = Url.RouteUrl(routeUrl) });
             }
 
-            return Json(new { success = true });
+            return Json(new { success = true, productId });
         }
 
         /// <summary>

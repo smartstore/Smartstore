@@ -17,30 +17,39 @@ namespace Smartstore.Web.Models.Catalog
         {
         }
 
+        /// <summary>
+        /// Applies the property references of another <see cref="ProductDetailsModelContext"/> instance.
+        /// Only to be used for child items like associated products or bundle items,
+        /// otherwise use <see cref="CatalogHelper.CreateModelContext"/>.
+        /// </summary>
         public ProductDetailsModelContext(ProductDetailsModelContext other)
         {
             Product = other.Product;
-            AssociatedProducts = other.AssociatedProducts;
             BatchContext = other.BatchContext;
             VariantQuery = other.VariantQuery;
             Customer = other.Customer;
             Store = other.Store;
             Currency = other.Currency;
             DisplayPrices = other.DisplayPrices;
+
+            AssociatedProducts = other.AssociatedProducts;
+            GroupedProductConfiguration = other.GroupedProductConfiguration;
         }
 
         public Product Product { get; set; }
-        public IList<Product> AssociatedProducts { get; set; }
         public ProductBatchContext BatchContext { get; set; }
         public ProductVariantQuery VariantQuery { get; set; }
         public Customer Customer { get; set; }
         public Store Store { get; set; }
         public Currency Currency { get; set; }
+        public bool DisplayPrices { get; set; }
 
         public bool IsAssociatedProduct { get; set; }
-        public ProductBundleItem ProductBundleItem { get; set; }
+        public IList<Product> AssociatedProducts { get; set; }
+        public GroupedProductConfiguration GroupedProductConfiguration { get; set; }
 
-        public bool DisplayPrices { get; set; }
+        public Product ParentProduct { get; set; }
+        public ProductBundleItem ProductBundleItem { get; set; }
 
         /// <summary>
         /// The selected attributes based on <see cref="VariantQuery"/>. <c>null</c> if none have been selected (then the preselected attributes are used).
@@ -51,7 +60,6 @@ namespace Smartstore.Web.Models.Catalog
     public partial class ProductDetailsModel : EntityModelBase
     {
         public MediaGalleryModel MediaGalleryModel { get; set; } = new();
-
         public MetaPropertiesModel MetaProperties { get; set; } = new();
 
         public LocalizedValue<string> Name { get; set; }
@@ -63,10 +71,12 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> MetaTitle { get; set; }
         public string SeName { get; set; }
         public string CanonicalUrl { get; set; }
+        public string UpdateUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
 
         public int PictureSize { get; set; }
+        public int ThumbDimensions { get; set; }
 
         public ProductCondition Condition { get; set; }
         public bool ShowCondition { get; set; }
@@ -101,14 +111,19 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayAdminLink { get; set; }
         public bool ShowLegalInfo { get; set; }
         public string LegalInfo { get; set; }
+
         public bool ShowWeight { get; set; }
         public bool ShowDimensions { get; set; }
-        public decimal WeightValue { get; set; }
+        public string DimensionSystemKeyword { get; set; }
         public string Weight { get; set; }
         public string Length { get; set; }
         public string Width { get; set; }
         public string Height { get; set; }
-        public int ThumbDimensions { get; set; }
+        public decimal WeightValue { get; set; }
+        public decimal LengthValue { get; set; }
+        public decimal WidthValue { get; set; }
+        public decimal HeightValue { get; set; }
+
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public LocalizedValue<string> QuantityUnitNamePlural { get; set; }
         public bool DisplayProductReviews { get; set; }
@@ -132,9 +147,7 @@ namespace Smartstore.Web.Models.Catalog
         public int ReviewCount { get; set; }
         public ProductReviewOverviewModel ReviewOverview { get; set; } = new();
 
-
-        // A list of associated products. For example, "Grouped" products could have several child "simple" products
-        public List<ProductDetailsModel> AssociatedProducts { get; set; } = [];
+        public GroupedProductModel GroupedProduct { get; set; }
         public bool IsAssociatedProduct { get; set; }
 
         public List<ProductDetailsModel> BundledItems { get; set; } = [];
@@ -147,7 +160,6 @@ namespace Smartstore.Web.Models.Catalog
         public bool ShowProductTags { get; set; }
 
         public ProductReviewsModel ProductReviews { get; set; } = new();
-
         public ProductSummaryModel AlsoPurchased { get; set; }
         public ProductSummaryModel RelatedProducts { get; set; }
 
@@ -197,10 +209,11 @@ namespace Smartstore.Web.Models.Catalog
             public int? MaxInStock { get; set; }
             public bool HideQuantityControl { get; set; }
             public QuantityControlType QuantityControlType { get; set; }
+            public bool CollapsibleAssociatedProduct { get; set; }
 
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; } = new();
+            public List<SelectListItem> AllowedQuantities { get; set; } = [];
             public bool AvailableForPreOrder { get; set; }
         }
 

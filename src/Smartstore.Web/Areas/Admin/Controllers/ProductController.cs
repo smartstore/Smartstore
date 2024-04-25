@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -27,6 +28,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
+using Smartstore.Utilities;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -1602,7 +1604,6 @@ namespace Smartstore.Admin.Controllers
                     .Distinct()
                     .CountAsync();
 
-
                 var maxDisplayOrder = (await _db.ProductSpecificationAttributes
                     .Where(x => x.ProductId == product.Id)
                     .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
@@ -1657,6 +1658,15 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
                 model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
+
+                if (product.ProductType == ProductType.GroupedProduct && product.ProductTypeConfiguration.HasValue())
+                {
+                    var config = CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(product.ProductTypeConfiguration));
+                    if (config != null)
+                    {
+                        MiniMapper.Map(config, model.GroupedProductConfiguration);
+                    }
+                }
 
                 ViewBag.SelectedProductTags = model.ProductTagNames
                     .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
@@ -1810,6 +1820,16 @@ namespace Smartstore.Admin.Controllers
             ViewBag.CartQuantityInfo = T("Admin.Catalog.Products.CartQuantity.Info",
                 _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
                 Url.Action("ShoppingCart", "Setting"));
+
+            var headerFields = model.GroupedProductConfiguration.HeaderFields ?? [];
+            ViewBag.AssociatedProductsHeaderFields = new List<SelectListItem>
+            {
+                new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
+                new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
+                new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
+                new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
+                new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
+            };
 
             if (setPredefinedValues)
             {
@@ -2077,6 +2097,12 @@ namespace Smartstore.Admin.Controllers
             p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc.HasValue
                 ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableEndDateTimeUtc.Value)
                 : null;
+
+            if (p.ProductType == ProductType.GroupedProduct)
+            {
+                var config = MiniMapper.Map<GroupedProductConfigurationModel, GroupedProductConfiguration>(model.GroupedProductConfiguration);
+                p.ProductTypeConfiguration = config?.AsJson();
+            }
         }
 
         private async Task UpdateProductDownloadsAsync(Product product, ProductModel model)

@@ -12,13 +12,6 @@
     {
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
     }
-
-    string updateUrl = Url.Action("UpdateProductDetails", "Product", new
-    {
-        productId = Model.Id,
-        bundleItemId = Model.BundleItem.Id,
-        itemType = (string)null // TODO: (mc) WTF!?
-    });
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />
@@ -28,7 +21,7 @@
     
     <article class="pd page-body">
 
-        <div id="main-update-container" class="update-container" data-url="@updateUrl" data-id="@Model.Id">
+        <div id="main-update-container" class="update-container" data-url="@Model.UpdateUrl" data-id="@Model.Id">
             <form asp-route="Product" asp-route-SeName="@Model.SeName" method="post" id="pd-form">
                 <!-- Top Content: Picture, Description, Attrs, Variants, Bundle Items, Price etc. -->
                 <section class="row pd-section pd-section-top">
@@ -85,7 +78,10 @@
 
                         @if (Model.DisplayAdminLink)
                         {
-                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" class="btn btn-secondary btn-flat btn-admin-edit" target="admin-product" rel="nofollow">
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" 
+                               class="btn btn-secondary btn-flat btn-admin-edit" 
+                               target="admin-product" 
+                               rel="nofollow">
                                 <i class="fa fa-cog"></i>
                                 <span>@T("Common.Catalog.EditProduct")</span>
                             </a>
@@ -95,20 +91,15 @@
                 </section>
 
                 <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
-                    @if (Model.AssociatedProducts.Count == 0)
+                    @if (Model.GroupedProduct?.Products?.Count > 0)
+                    {
+                        <partial name="Product.AssociatedProducts" model="Model.GroupedProduct" />
+                    }
+                    else
                     {
                         <div class="pd-no-associated-products alert alert-warning">
                             @T("Products.NoAssociatedProducts")
                         </div>
-                    }
-                    else
-                    {
-                        foreach (var product in Model.AssociatedProducts)
-                        {
-                            var dataDictProduct = new ViewDataDictionary(ViewData);
-                            dataDictProduct.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
-                            <partial name="Product.AssociatedProduct" model="product" view-data="dataDictProduct" />
-                        }
                     }
                 </section>
             </form>

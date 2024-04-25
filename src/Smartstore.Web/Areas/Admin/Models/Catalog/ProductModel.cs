@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -9,7 +8,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Web;
 
 // TODO: (mg) way too many classes for one file. Move all attribute models to a subfolder "Attributes"
 // after Conditional Attributes are completed. No need to make all these "nested".
@@ -254,7 +252,7 @@ namespace Smartstore.Admin.Models.Catalog
         public string BaseDimensionIn { get; set; }
         public string BaseWeightIn { get; set; }
 
-        public List<ProductLocalizedModel> Locales { get; set; } = new();
+        public List<ProductLocalizedModel> Locales { get; set; } = [];
 
         [UIHint("CustomerRoles")]
         [AdditionalMetadata("multiple", true)]
@@ -274,7 +272,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*HasPreviewPicture")]
         public bool HasPreviewPicture { get; set; }
         public ProductPictureModel AddPictureModel { get; set; } = new();
-        public List<ProductMediaFile> ProductMediaFiles { get; set; } = new();
+        public List<ProductMediaFile> ProductMediaFiles { get; set; } = [];
 
         [UIHint("Discounts")]
         [AdditionalMetadata("multiple", true)]
@@ -283,6 +281,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int[] SelectedDiscountIds { get; set; }
 
         public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; } = new();
+        public GroupedProductConfigurationModel GroupedProductConfiguration { get; set; } = new();
 
         //BasePrice
         [LocalizedDisplay("*BasePriceEnabled")]
@@ -661,10 +660,8 @@ namespace Smartstore.Admin.Models.Catalog
 
     public partial class ProductModelValidator : SmartValidator<ProductModel>
     {
-        public ProductModelValidator(SmartDbContext db, IHttpContextAccessor httpContextAccessor, Localizer T)
+        public ProductModelValidator(SmartDbContext db, Localizer T)
         {
-            var viewData = httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IViewDataAccessor>().ViewData;
-
             ApplyEntityRules<Product>(db);
             //ApplyNonNullableValueTypeRules();
 
@@ -704,6 +701,11 @@ namespace Smartstore.Admin.Models.Catalog
                     .NotEmpty()
                     .When(x => x.NewVersionDownloadId != null && x.NewVersionDownloadId != 0)
                     .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
+            });
+
+            When(x => x.ProductTypeId == (int)ProductType.GroupedProduct, () =>
+            {
+                RuleFor(x => x.GroupedProductConfiguration.PageSize).GreaterThan(0);
             });
         }
     }

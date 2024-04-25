@@ -775,11 +775,33 @@
                     }
 
                     ddlStates.trigger('change');
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert('Failed to retrieve states.');
                 }
             });
+        });
+
+        // Paginator link to load content using AJAX.
+        $(document).on('click', '.page-link', function (e) {
+            const link = $(this);
+            const url = link.attr('href');
+            const contentTarget = link.closest('.pagination-container').data('target');
+
+            if (!_.isEmpty(url) && !_.isEmpty(contentTarget)) {
+                e.preventDefault();
+
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: url,
+                    success: function (response) {
+                        const target = $(contentTarget);
+                        target.html(response.content);
+                        target.trigger('updated');
+                        applyCommonPlugins(target);
+                    }
+                });
+
+                return false;
+            }
         });
 
         // Waypoint / scroll top

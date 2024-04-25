@@ -323,12 +323,38 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// This action is used to update the display of product detail view.
-        /// It will be called via AJAX upon user interaction (e.g. changing of quantity || attribute selection).
-        /// All relevasnt product partials will be rendered with updated models and returned as JSON data.
+        /// AJAX. Gets associated products of a grouped product when a paginator link has been clicked.
+        /// </summary>
+        public async Task<IActionResult> AssociatedProducts(int id, int page)
+        {
+            var content = string.Empty;
+            var product = await _db.Products
+                .AsNoTracking()
+                .SelectSummary()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product != null)
+            {
+                var ctx = await _helper.CreateModelContext(product, new());
+                var model = await _helper.CreateGroupedProductModelAsync(ctx, page);
+
+                content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
+            }
+
+            return new JsonResult(new { content });
+        }
+
+        /// <summary>
+        /// AJAX. This method updates parts of the product detail page on user interactions
+        /// such as quantity changes or attribute selection.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
+        public async Task<IActionResult> UpdateProductDetails(
+            string itemType,
+            int productId, 
+            int? parentProductId,
+            int bundleItemId, 
+            ProductVariantQuery query)
         {
             // TODO: (core) UpdateProductDetails action needs some decent refactoring.
             var form = HttpContext.Request.Form;
@@ -337,11 +363,8 @@ namespace Smartstore.Web.Controllers
             string galleryHtml = null;
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
-            var currency = Services.WorkContext.WorkingCurrency;
-            var displayPrices = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             var product = await _db.Products.FindByIdAsync(productId);
-            var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
             var bundleItem = await _db.ProductBundleItem
                 .Include(x => x.Product)
                 .Include(x => x.BundleProduct)
@@ -349,85 +372,61 @@ namespace Smartstore.Web.Controllers
                 .FindByIdAsync(bundleItemId, false);
 
             // Quantity required for tier prices.
-            string quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
+            var quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
             if (quantityKey.HasValue())
             {
                 _ = int.TryParse(form[quantityKey], out quantity);
             }
 
-            var modelContext = new ProductDetailsModelContext
-            {
-                Product = product,
-                BatchContext = batchContext,
-                VariantQuery = query,
-                IsAssociatedProduct = isAssociated,
-                ProductBundleItem = bundleItem,
-                Customer = batchContext.Customer,
-                Store = batchContext.Store,
-                Currency = currency,
-                DisplayPrices = displayPrices
-            };
+            var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated, parentProductId);
+            var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsible == true;
 
             // Get merged model data.
             var model = new ProductDetailsModel();
-            await _helper.PrepareProductDetailModelAsync(model, modelContext, quantity, callCustomMapper: true);
+            await _helper.PrepareProductDetailModelAsync(model, ctx, quantity, callCustomMapper: true);
 
             if (bundleItem != null)
             {
-                // Update bundle item thumbnail.
                 if (!bundleItem.HideThumbnail)
                 {
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-
-                    if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
-                    {
-                        var file = await _db.ProductMediaFiles
-                            .AsNoTracking()
-                            .Include(x => x.MediaFile)
-                            .ApplyProductFilter(bundleItem.ProductId)
-                            .FirstOrDefaultAsync();
-
-                        dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.BundledProductPictureSize, null, false);
-                    }
+                    // Update bundle item thumbnail.
+                    var file = await GetSelectedAttributeImage();
+                    dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.BundledProductPictureSize, null, false) : null;
                 }
             }
             else if (isAssociated)
             {
                 // Update associated product thumbnail.
-                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
+                var file = await GetSelectedAttributeImage();
+                dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false) : null;
 
-                if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
+                if (hasAssociatedHeader && ctx.GroupedProductConfiguration.HasHeader(AssociatedProductHeader.Image))
                 {
-                    var file = await _db.ProductMediaFiles
-                        .AsNoTracking()
-                        .Include(x => x.MediaFile)
-                        .ApplyProductFilter(productId)
-                        .FirstOrDefaultAsync();
+                    // Render associated product thumbnail in collabsable header.
+                    var files = file != null
+                        ? [_mediaService.ConvertMediaFile(file)]
+                        : (await LoadFiles()).Select(x => _mediaService.ConvertMediaFile(x.MediaFile)).ToList();
 
-                    dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.AssociatedProductPictureSize, null, false);
+                    model.MediaGalleryModel = _helper.PrepareProductDetailsMediaGalleryModel(
+                        files,
+                        product.GetLocalized(x => x.Name),
+                        null,
+                        true,
+                        bundleItem,
+                        model.SelectedCombination);
                 }
             }
             else if (product.ProductType != ProductType.BundledProduct)
             {
                 // Update image gallery.
-                var files = await _db.ProductMediaFiles
-                    .AsNoTracking()
-                    .Include(x => x.MediaFile)
-                    .ApplyProductFilter(productId)
-                    .ToListAsync();
-
-                if (product.HasPreviewPicture && files.Count > 1)
-                {
-                    files.RemoveAt(0);
-                }
-
+                var files = await LoadFiles();
                 if (files.Count <= _catalogSettings.DisplayAllImagesNumber)
                 {
                     // All pictures rendered... only index is required.
                     galleryStartIndex = 0;
 
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-                    if (assignedMediaIds.Any())
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds();
+                    if (!assignedMediaIds.IsNullOrEmpty())
                     {
                         var file = files.FirstOrDefault(p => p.MediaFileId == assignedMediaIds[0]);
                         galleryStartIndex = file == null ? 0 : files.IndexOf(file);
@@ -467,30 +466,68 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var dataDictAddToCart = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
-                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
-
                 partials = new
                 {
                     Attrs = await InvokePartialViewAsync("Product.Attrs", model),
                     Price = await InvokePartialViewAsync("Product.Offer.Price", model),
                     Stock = await InvokePartialViewAsync("Product.StockInfo", model),
                     Variants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes),
-                    OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", dataDictAddToCart),
+                    OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", CreateViewDataFor("OfferActions")),
                     TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.Price.TierPrices),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null,
+                    AssociatedHeader = hasAssociatedHeader ? await InvokePartialViewAsync("Product.AssociatedProduct.Header", CreateViewDataFor("AssociatedHeader")) : null
                 };
             }
 
-            object data = new
+            return new JsonResult(new
             {
                 Partials = partials,
                 DynamicThumblUrl = dynamicThumbUrl,
                 GalleryStartIndex = galleryStartIndex,
                 GalleryHtml = galleryHtml
-            };
+            });
 
-            return new JsonResult(data);
+            #region Utilities
+
+            async Task<List<ProductMediaFile>> LoadFiles()
+            {
+                var files = await _db.ProductMediaFiles
+                    .AsNoTracking()
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(product.Id)
+                    .ToListAsync();
+
+                if (product.HasPreviewPicture && files.Count > 1)
+                {
+                    files.RemoveAt(0);
+                }
+
+                return files;
+            }
+
+            ValueTask<MediaFile> GetSelectedAttributeImage()
+            {
+                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds();
+
+                return !assignedMediaIds.IsNullOrEmpty()
+                    ? _db.MediaFiles.FindByIdAsync(assignedMediaIds[0], false)
+                    : new ValueTask<MediaFile>();
+            }
+
+            ViewDataDictionary CreateViewDataFor(string partial)
+            {
+                var vd = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
+                vd.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
+
+                if (isAssociated && partial == "AssociatedHeader")
+                {
+                    vd["GroupedProductConfiguration"] = ctx.GroupedProductConfiguration;
+                }
+
+                return vd;
+            }
+
+            #endregion
         }
 
         #endregion

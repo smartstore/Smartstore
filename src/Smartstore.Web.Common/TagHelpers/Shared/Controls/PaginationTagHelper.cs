@@ -44,8 +44,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string MaxPagesToDisplayAttributeName = "sm-max-pages";
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
-        const string QueryParamNameAttributeName = "sm-query-param";
         const string ContentClassNameAttribute = "sm-content-class";
+        const string QueryParamNameAttributeName = "sm-query-param";
+        const string TargetNameAttribute = "sm-target";
+        const string UrlNameAttribute = "sm-url";
 
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
@@ -98,6 +100,20 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(QueryParamNameAttributeName)]
         public string QueryParamName { get; set; } = "page";
 
+        /// <summary>
+        /// Gets or sets URL for pager items.
+        /// If <c>null</c>, URL will be obtained from HTTP request.
+        /// </summary>
+        [HtmlAttributeName(UrlNameAttribute)]
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Gets or sets a HTML selector to apply asynchronously loaded content using AJAX.
+        /// If empty, the content will be loaded synchronously.
+        /// </summary>
+        [HtmlAttributeName(TargetNameAttribute)]
+        public string Target { get; set; }
+
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             if (!ShowPaginator || ListItems == null || ListItems.TotalCount == 0 || ListItems.TotalPages <= 1)
@@ -115,6 +131,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             output.Attributes.Add("aria-label", "Page navigation");
             output.AppendCssClass("pagination-container");
+
+            if (Target.HasValue())
+            {
+                output.Attributes.Add("data-target", Target);
+            }
 
             var itemsUl = new TagBuilder("ul");
             itemsUl.AppendCssClass("pagination mb-0");
@@ -173,7 +194,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (!ShowPaginator || ListItems.TotalPages <= 1)
             {
-                return new List<PagerItem>();
+                return [];
             }
 
             var currentPage = ListItems.PageNumber;
@@ -542,7 +563,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var request = ViewContext.HttpContext.Request;
 
             // Resolve current path without query
-            var path = request.PathBase + request.Path;
+            var path = Url.HasValue() ? new(Url) : (request.PathBase + request.Path);
             
             // Merge page index param with current query
             var queryPart = request.Query.Merge($"?{QueryParamName}={pageNumber}");
