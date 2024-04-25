@@ -1,12 +1,13 @@
 ﻿using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Data.Hooks;
 using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Identity
 {
     [Important]
-    internal class CustomerHook(SmartDbContext db) : AsyncDbSaveHook<Customer>
+    internal class CustomerHook : AsyncDbSaveHook<Customer>
     {
         private static readonly string[] _candidateProps =
         [
@@ -16,16 +17,28 @@ namespace Smartstore.Core.Identity
             nameof(Customer.LastName)
         ];
 
-        private readonly SmartDbContext _db = db;
+        private readonly SmartDbContext _db;
+        private readonly Lazy<IMessageFactory> _messageFactory;
+        private readonly CustomerSettings _customerSettings;
         private string _hookErrorMessage;
 
         // Key: old email. Value: new email.
         private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _emailsToUnsubscribe = new(StringComparer.OrdinalIgnoreCase);
 
+        public CustomerHook(
+            SmartDbContext db,
+            Lazy<IMessageFactory> messageFactory,
+            CustomerSettings customerSettings)
+        {
+            _db = db;
+            _messageFactory = messageFactory;
+            _customerSettings = customerSettings;
+        }
+
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             if (entry.Entity is Customer customer)
             {
@@ -35,16 +48,22 @@ namespace Smartstore.Core.Identity
                     {
                         UpdateFullName(customer);
 
-                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var originalValue)
-                            && originalValue != null
+                        if (_customerSettings.UserRegistrationType == UserRegistrationType.AdminApproval
+                            && entry.Entry.TryGetModifiedProperty(nameof(customer.Active), out var prevValue)
+                            && !(bool)prevValue
+                            && customer.Active)
+                        {
+                            await _messageFactory.Value.SendCustomerWelcomeMessageAsync(customer, customer.GenericAttributes.LanguageId ?? 0);
+                        }
+
+                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var prevEmail)
+                            && prevEmail != null
                             && customer.Email != null)
                         {
-                            var oldEmail = originalValue.ToString();
                             var newEmail = customer.Email.EmptyNull().Trim().Truncate(255);
-
                             if (newEmail.IsEmail())
                             {
-                                _modifiedEmails[oldEmail] = newEmail;
+                                _modifiedEmails[prevEmail.ToString()] = newEmail;
                             }
                         }
                     }
@@ -55,7 +74,7 @@ namespace Smartstore.Core.Identity
                 }
             }
 
-            return Task.FromResult(HookResult.Ok);
+            return HookResult.Ok;
         }
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
