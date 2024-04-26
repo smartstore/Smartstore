@@ -9,7 +9,7 @@ namespace Smartstore.Web.Api.Swagger
         public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
             var mi = context.MemberInfo;
-            if (mi != null && mi.TryGetAttribute<MaxLengthAttribute>(false, out var ml) && ml.Length < 0)
+            if (mi != null && mi.TryGetAttribute<MaxLengthAttribute>(false, out var attr) && attr.Length < 0)
             {
                 // Schema validation : "MaxLength" must be >= 0.
                 schema.MaxLength = int.MaxValue;

@@ -61,13 +61,9 @@ namespace Smartstore.Web.Api.Swagger
 
             string GetFullNameSansTypeParameters()
             {
-                var fullName = type.FullName;
-                if (string.IsNullOrEmpty(fullName))
-                {
-                    fullName = type.Name;
-                }
-
+                var fullName = type.FullName.NullEmpty() ?? type.Name;
                 var chopIndex = fullName.IndexOf("[[");
+
                 return (chopIndex == -1) ? fullName : fullName[..chopIndex];
             }
         }
