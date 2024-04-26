@@ -636,7 +636,7 @@ namespace Smartstore.Data.Providers
             try
             {
                 Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
-                return OptimizeTableCore(tableName, false, cancelToken);
+                return OptimizeTableCore(tableName, true, cancelToken);
             }
             finally
             {
@@ -670,7 +670,7 @@ namespace Smartstore.Data.Providers
             try
             {
                 Database.SetCommandTimeout(OptimizeTimeout); // 5 min.
-                return ShrinkDatabaseCore(false, cancelToken);
+                return ShrinkDatabaseCore(true, cancelToken);
             }
             finally
             {

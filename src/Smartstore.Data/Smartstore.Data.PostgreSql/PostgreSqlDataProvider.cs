@@ -175,7 +175,7 @@ LIMIT {take} OFFSET {skip}";
         protected override async Task<int> OptimizeTableCore(string tableName, bool async, CancellationToken cancelToken = default)
         {
             var sql = $"REINDEX TABLE \"{tableName}\"";
-            var sqlVacuum = $"VACUUM FULL \"{tableName}\"";
+            var sqlVacuum = $"VACUUM \"{tableName}\""; // "VACUUM FULL" is VERY slow
 
             if (async)
             {
@@ -193,7 +193,7 @@ LIMIT {take} OFFSET {skip}";
 
         protected override Task<int> ShrinkDatabaseCore(bool async, CancellationToken cancelToken = default)
         {
-            var sql = "VACUUM FULL";
+            var sql = "VACUUM"; // "VACUUM FULL" is VERY slow
             return async
                 ? Database.ExecuteSqlRawAsync(sql, cancelToken)
                 : Task.FromResult(Database.ExecuteSqlRaw(sql));
