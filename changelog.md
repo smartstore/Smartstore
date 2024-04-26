@@ -26,6 +26,8 @@
   - Increased overall performance
   - ~10 % less memory usage after app start
 - New app setting for MS SQL Server compatibility level
+- Enhanced database optimization and vacuum operations
+- Vacuum single database table
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - Affiliates
   - #896 Added a cart rule for affiliates.
