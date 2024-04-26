@@ -114,7 +114,7 @@ namespace Smartstore.Web.Api
                 // Filters.
                 o.DocumentFilter<SwaggerDocumentFilter>();
                 o.OperationFilter<SwaggerOperationFilter>();
-                //o.SchemaFilter<SwaggerSchemaFilter>();
+                o.SchemaFilter<SwaggerSchemaFilter>();
 
                 //o.MapType<decimal>(() => new OpenApiSchema
                 //{

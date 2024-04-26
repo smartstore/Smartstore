@@ -109,6 +109,7 @@
   - Fixed HTML links are not displayed in posts.
 - Fixed a filter reset of the product grid does not work correctly.
 - Fixed validation issues when saving guest customers.
+- #1066 Web API: fixed failed schema validation for `MaxLength` attribute.
 - #1072 Missing customer welcome message after approval of the registration by admin.
 - #897 Discount code input seems to be confirmed (border color and check icon)
 - #964 Removed meta information from publication according to catalog settings.
