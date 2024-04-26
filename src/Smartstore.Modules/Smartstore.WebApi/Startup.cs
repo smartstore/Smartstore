@@ -2,7 +2,6 @@
 using System.IO;
 using System.Xml.XPath;
 using Autofac;
-using Humanizer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
@@ -62,11 +61,12 @@ namespace Smartstore.Web.Api
             {
                 foreach (var name in WebApiGroupNames.All)
                 {
-                    var humanized = GetHumanizedDocName(name);
+                    var humanized = OpenApiUtility.GetDocumentName(name);
                     o.SwaggerDoc(name + '1', new()
                     {
                         Version = $"{humanized} 1",
-                        Title = "Smartstore Web API - " + humanized
+                        Title = "Smartstore Web API - " + humanized,
+                        Description = $"A reference of all endpoints of the Smartstore Web API section **{humanized}**."
                     });
                 }
 
@@ -77,8 +77,7 @@ namespace Smartstore.Web.Api
                 //o.IgnoreObsoleteActions();
                 //o.IgnoreObsoleteProperties();
 
-                // Avoids "Conflicting schemaIds" (multiple types with the same name but different namespaces).
-                o.CustomSchemaIds(type => type.GetFriendlyId(true));
+                o.CustomSchemaIds(type => OpenApiUtility.GetSchemaId(type, true));
 
                 o.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
                 {
@@ -104,9 +103,7 @@ namespace Smartstore.Web.Api
                     }
                 });
 
-                // INFO: provide unique OperationId. By default ApiDescription.RelativePath is used but that is not unique.
-                // Prevents multiple descriptions from opening at the same time when clicking a method.
-                o.CustomOperationIds(x => x.HttpMethod.ToLower().Grow(x.RelativePath, "/"));
+                o.CustomOperationIds(OpenApiUtility.GetOperationId);
 
                 // Ordering within a group does not work. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/401
                 //o.OrderActionsBy(x => ...);
@@ -164,7 +161,7 @@ namespace Smartstore.Web.Api
                     {
                         foreach (var name in WebApiGroupNames.All)
                         {
-                            o.SwaggerEndpoint($"{name}1/swagger.json", GetHumanizedDocName(name));
+                            o.SwaggerEndpoint($"{name}1/swagger.json", OpenApiUtility.GetDocumentName(name));
                         }
 
                         o.RoutePrefix = routePrefix;
@@ -302,8 +299,5 @@ namespace Smartstore.Web.Api
 
             return null;
         }
-
-        private static string GetHumanizedDocName(string name)
-            => name.Replace('-', ' ').Titleize();
     }
 }
