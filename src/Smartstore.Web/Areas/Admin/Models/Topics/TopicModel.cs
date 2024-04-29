@@ -27,6 +27,7 @@ namespace Smartstore.Admin.Models.Topics
         }
 
         [UIHint("Stores")]
+        [AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public int[] SelectedStoreIds { get; set; }
 
