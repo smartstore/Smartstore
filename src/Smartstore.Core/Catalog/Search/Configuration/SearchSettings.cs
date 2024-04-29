@@ -6,6 +6,8 @@ namespace Smartstore.Core.Catalog.Search
 {
     public class SearchSettings : ISettings
     {
+        private static readonly string[] _instantSearchFields = ["sku", "gtin", "mpn", "manufacturer", "attrname", "variantname"];
+
         /// <summary>
         /// Gets or sets the search mode
         /// </summary>
@@ -14,7 +16,7 @@ namespace Smartstore.Core.Catalog.Search
         /// <summary>
         /// Gets or sets name of fields to be searched. The name field is always searched.
         /// </summary>
-        public List<string> SearchFields { get; set; } = new List<string> { "sku", "shortdescription", "tagname", "manufacturer", "category" };
+        public List<string> SearchFields { get; set; } = ["sku", "shortdescription", "tagname", "manufacturer", "category"];
 
         /// <summary>
         /// Gets or sets a value indicating whether instant-search is enabled
@@ -85,5 +87,41 @@ namespace Smartstore.Core.Catalog.Search
         public int NewArrivalsDisplayOrder { get; set; } = 6;
 
         #endregion
+
+        /// <summary>
+        /// Gets a list of search fields based on <see cref="SearchFields"/>.
+        /// </summary>
+        /// <param name="forInstantSearch">
+        /// A value indicating whether to return fields for instant search.
+        /// Returns the fields for search page if <c>false</c>.
+        /// </param>
+        public List<string> GetSearchFields(bool forInstantSearch)
+        {
+            List<string> fields;
+
+            if (forInstantSearch)
+            {
+                fields = ["name", "shortdescription", "tagname"];
+
+                foreach (var fieldName in _instantSearchFields)
+                {
+                    if (SearchFields?.Contains(fieldName) ?? false)
+                    {
+                        fields.Add(fieldName);
+                    }
+                }
+            }
+            else
+            {
+                fields = ["name"];
+
+                if (SearchFields != null)
+                {
+                    fields.AddRange(SearchFields);
+                }
+            }
+
+            return fields;
+        }
     }
 }

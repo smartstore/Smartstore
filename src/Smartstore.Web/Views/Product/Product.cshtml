@@ -93,6 +93,7 @@
                 <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
                     @if (Model.GroupedProduct?.Products?.Count > 0)
                     {
+                        <partial name="Product.AssociatedProducts.Search" model="Model.GroupedProduct" />
                         <partial name="Product.AssociatedProducts" model="Model.GroupedProduct" />
                     }
                     else

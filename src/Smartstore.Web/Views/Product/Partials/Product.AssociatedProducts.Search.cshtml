@@ -1,0 +1,22 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model GroupedProductModel
+
+<div sm-if="Model.Products.TotalCount >= Model.Configuration.SearchMinAssociatedCount" class="instasearch-form has-icon col-4 mb-2">
+    <input type="text"
+           class="instasearch-term form-control"
+           name="associatedProductsSearchTerm"
+           placeholder="@T("Common.SearchProducts")"
+           data-url="@Url.Action("AssociatedProducts", "Product", new { id = Model.Id })"
+           data-target="#associated-products"
+           data-origin="Product/AssociatedProducts" />
+
+    <div class="instasearch-addon d-flex align-items-center justify-content-center">
+        <button type="button" class="instasearch-clear input-clear">
+            <i class="fa fa-xmark"></i>
+        </button>
+    </div>
+    <span class="input-group-icon instasearch-icon">
+        <i class="fa fa-magnifying-glass"></i>
+    </span>
+</div>

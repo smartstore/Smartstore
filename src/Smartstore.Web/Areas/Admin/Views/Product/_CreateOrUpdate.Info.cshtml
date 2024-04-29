@@ -155,6 +155,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" />
+                <span asp-validation-for="GroupedProductConfiguration.SearchMinAssociatedCount"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="GroupedProductConfiguration.Collapsible" />
             </div>
             <div class="adminData">

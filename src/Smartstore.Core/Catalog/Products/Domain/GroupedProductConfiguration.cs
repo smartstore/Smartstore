@@ -18,12 +18,19 @@ namespace Smartstore.Core.Catalog.Products
     public partial class GroupedProductConfiguration
     {
         const int DefaultPageSize = 20;
+        const int DefaultSearchMinAssociatedCount = 10;
 
         /// <summary>
-        /// The number of associated products per page. The default is 20.
+        /// The number of associated products per page. The default is <see cref="DefaultPageSize"/>.
         /// </summary>
         [JsonProperty("pageSize", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(DefaultPageSize)]
         public int PageSize { get; set; } = DefaultPageSize;
+
+        /// <summary>
+        /// Minimum number of associated products from which the search box is displayed. The default is <see cref="DefaultSearchMinAssociatedCount"/>.
+        /// </summary>
+        [JsonProperty("searchMinAssociatedCount", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(DefaultSearchMinAssociatedCount)]
+        public int SearchMinAssociatedCount { get; set; } = DefaultSearchMinAssociatedCount;
 
         /// <summary>
         /// A value indicating whether the associated products are collapsible.
@@ -48,6 +55,6 @@ namespace Smartstore.Core.Catalog.Products
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
         private bool IsTouched()
-            => PageSize != DefaultPageSize || Collapsible || (Collapsible && !HeaderFields.IsNullOrEmpty());
+            => PageSize != DefaultPageSize || SearchMinAssociatedCount != DefaultSearchMinAssociatedCount || Collapsible || (Collapsible && !HeaderFields.IsNullOrEmpty());
     }
 }

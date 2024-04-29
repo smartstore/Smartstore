@@ -29,8 +29,6 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
     public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
     {
-        protected static readonly string[] _instantSearchFields = ["manufacturer", "sku", "gtin", "mpn", "attrname", "variantname"];
-
         protected readonly ICommonServices _services;
         protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
         protected readonly CatalogSettings _catalogSettings;
@@ -66,27 +64,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var controller = ctx.Request.RouteValues.GetControllerName();
             var action = ctx.Request.RouteValues.GetActionName();
             var origin = "{0}{1}/{2}".FormatInvariant(area.HasValue() ? area + "/" : string.Empty, controller, action);
-            var fields = new List<string> { "name" };
-            var term = GetValueFor<string>("q");
             var isInstantSearch = action.EqualsNoCase("InstantSearch");
-
-            if (isInstantSearch)
-            {
-                fields.Add("shortdescription");
-                fields.Add("tagname");
-
-                foreach (var fieldName in _instantSearchFields)
-                {
-                    if (_searchSettings?.SearchFields?.Contains(fieldName) ?? false)
-                    {
-                        fields.Add(fieldName);
-                    }
-                }
-            }
-            else if (_searchSettings.SearchFields != null)
-            {
-                fields.AddRange(_searchSettings.SearchFields);
-            }
+            var fields = _searchSettings.GetSearchFields(isInstantSearch);
+            var term = GetValueFor<string>("q");
 
             var query = new CatalogSearchQuery(fields.ToArray(), term, _searchSettings.SearchMode)
                 .OriginatesFrom(origin)

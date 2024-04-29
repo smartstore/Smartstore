@@ -427,7 +427,7 @@ namespace Smartstore.Web.Controllers
             _services.DisplayControl.Announce(product);
         }
 
-        public async Task<GroupedProductModel> CreateGroupedProductModelAsync(ProductDetailsModelContext ctx, int pageIndex)
+        public async Task<GroupedProductModel> CreateGroupedProductModelAsync(ProductDetailsModelContext ctx, int pageIndex, string term = null)
         {
             Guard.IsTrue(ctx?.Product?.ProductType == ProductType.GroupedProduct);
 
@@ -436,13 +436,17 @@ namespace Smartstore.Web.Controllers
             var product = ctx.Product;
             var batchContext = ctx.BatchContext;
             var pageSize = ctx.GroupedProductConfiguration.PageSize;
+            var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength 
+                ? _searchSettings.GetSearchFields(true).ToArray()
+                : null;
 
-            var associatedProductsQuery = new CatalogSearchQuery()
+            var query = new CatalogSearchQuery(searchFields, searchFields != null ? term : null)
+                .BuildFacetMap(false)
                 .Slice(pageIndex * pageSize, pageSize)
                 .VisibleOnly(batchContext.Customer)
                 .HasStoreId(batchContext.Store.Id)
                 .HasParentGroupedProduct(product.Id);
-            var searchResult = await _catalogSearchService.SearchAsync(associatedProductsQuery);
+            var searchResult = await _catalogSearchService.SearchAsync(query);
 
             ctx.AssociatedProducts = await searchResult.GetHitsAsync();
 

@@ -6,6 +6,9 @@
         [LocalizedDisplay("*PageSize")]
         public int PageSize { get; set; } = 20;
 
+        [LocalizedDisplay("*SearchMinAssociatedCount")]
+        public int SearchMinAssociatedCount { get; set; } = 10;
+
         [LocalizedDisplay("*Collapsible")]
         public bool Collapsible { get; set; }
 

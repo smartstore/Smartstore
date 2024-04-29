@@ -472,7 +472,15 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether products in the shopping cart can be deactivated. Deactivated products will not be ordered and will remain in the shopping cart after the order has been placed.",
                 "Legt fest, ob Produkte im Warenkorb deaktiviert werden können. Deaktivierte Produkte werden nicht mitbestellt und verbleiben nach Auftragseingang im Warenkorb.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductTags", "Show tags", "Tags anzeigen");   
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductTags", "Show tags", "Tags anzeigen");
+
+            builder.AddOrUpdate("Common.SearchProducts", "Search products", "Produkte durchsuchen");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.SearchMinAssociatedCount",
+                "Minimum product count for search",
+                "Minimale Produktanzahl für Suche",
+                "Specifies the minimum number of associated products from which the search field is displayed.",
+                "Legt die Mindestanzahl verknüpfter Produkte fest, ab denen das Suchfeld angezeigt wird.");
         }
     }
 }

@@ -325,7 +325,10 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// AJAX. Gets associated products of a grouped product when a paginator link has been clicked.
         /// </summary>
-        public async Task<IActionResult> AssociatedProducts(int id, int page)
+        /// <param name="id">Identifier of the grouped produt.</param>
+        /// <param name="page">One based page index.</param>
+        /// <param name="q">Optional search term.</param>
+        public async Task<IActionResult> AssociatedProducts(int id, int page, string q)
         {
             var content = string.Empty;
             var product = await _db.Products
@@ -336,7 +339,7 @@ namespace Smartstore.Web.Controllers
             if (product != null)
             {
                 var ctx = await _helper.CreateModelContext(product, new());
-                var model = await _helper.CreateGroupedProductModelAsync(ctx, page);
+                var model = await _helper.CreateGroupedProductModelAsync(ctx, page, q);
 
                 content = await InvokePartialViewAsync("Product.AssociatedProducts", model);
             }
