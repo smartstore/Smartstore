@@ -371,7 +371,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener.</returns>
         private static TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            // TODO: (mh) Icon does not look good. Must be perfect. TBD with MC.
+            // TODO: (mh) Icon does not look good. Must be perfect. TBD with MC. Circled with spacing.
             var inputGroupColDiv = new TagBuilder("div");
             // TODO: (mh) Bad CSS class naming (*-cnt). TBD with MC.
             inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right cnt-ai-dialog-opener " + (isDropdown ? "dropdown" : "ai-provider-cnt");

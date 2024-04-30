@@ -20,6 +20,7 @@ namespace Smartstore.AI.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        // TODO: (mh) Rename --> GenerateSimpleTextPrompt etc.
         /// <summary>
         /// Enhances prompt with general instructions for simple text creation. 
         /// Wordlimit, Tone and Style are the only properties that are considered.
@@ -403,7 +404,7 @@ namespace Smartstore.AI.Services
                 resourceId = "Smartstore.AI.Prompts." + resourceId;
             }
 
-            // TODO: (mh) Be careful. Removing NewLine could collapse text!
+            // TODO: (mh) Be careful. Removing NewLine could collapse text! Don't do this.
             return T(resourceId, args).ToString().Replace(Environment.NewLine, string.Empty);
         }
 

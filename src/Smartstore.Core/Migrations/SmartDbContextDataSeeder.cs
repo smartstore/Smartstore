@@ -130,6 +130,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.SpecifyTopic", "Please enter a topic", "Bitte geben Sie ein Thema an");
 
             // TODO: (mh) Why leading spaces? Better: Add all parts/sentences to a list and join by space to generate string result.
+            // TODO: (mh) Make class PromptResources. Make virtual method per Res (optionally with params).
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes", 
                 " Do not enclose the text in quotation marks.", 
                 " Schließe den Text nicht in Anführungszeichen ein.");
