@@ -31,7 +31,10 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             using (await AsyncLock.KeyedAsync(lockKey))
             {
                 var cart = context.ShoppingCart;
-                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+
+                // Do not cache because otherwise subsequent calls of 'GetShoppingCartSubtotalAsync' may get
+                // an incorrect result where this rule is not taken into account.
+                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, cache: false);
 
                 // Currency values must be rounded here because otherwise unexpected results may occur.
                 var roundedSubtotal = _roundingHelper.Round(subtotal.SubtotalWithoutDiscount.Amount);

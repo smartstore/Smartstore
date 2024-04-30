@@ -30,7 +30,10 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             using (await AsyncLock.KeyedAsync(lockKey))
             {
                 var cart = context.ShoppingCart;
-                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+
+                // Do not cache because otherwise subsequent calls of 'GetShoppingCartTotalAsync' may get
+                // an incorrect result where this rule is not taken into account.
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, cache: false);
 
                 // Currency values must be rounded here because otherwise unexpected results may occur.
                 var roundedTotal = _roundingHelper.Round(cartTotal.Total?.Amount ?? decimal.Zero);

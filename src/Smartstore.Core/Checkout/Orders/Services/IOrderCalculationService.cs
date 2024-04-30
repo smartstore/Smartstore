@@ -21,12 +21,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
+        /// <param name="cache">A value indicating whether to cache the result.</param>
         /// <returns>Shopping cart total.</returns>
         Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
             ShoppingCart cart,
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
-            bool includeCreditBalance = true);
+            bool includeCreditBalance = true,
+            bool cache = true);
 
         /// <summary>
         /// Gets the shopping cart subtotal.
@@ -39,12 +41,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// A value indicating whether to only include active cart items in calculation.
         /// <c>false</c> to include all cart items (default). <c>true</c> to ignore deactivated items.
         /// </param>
+        /// <param name="cache">A value indicating whether to cache the result.</param>
         /// <returns>Shopping cart subtotal.</returns>
         Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(
             ShoppingCart cart,
             bool? includeTax = null,
             ProductBatchContext batchContext = null,
-            bool activeOnly = false);
+            bool activeOnly = false,
+            bool cache = true);
 
         /// <summary>
         /// Gets the shopping cart shipping total.
