@@ -9,7 +9,13 @@
 *@
 
 <div id="associated-products">
-    @if (Model.Configuration.Collapsible)
+    @if (Model.Products.Count == 0)
+    {
+        <div class="alert alert-info">
+            @T("Common.NoProductsFound")
+        </div>
+    }
+    else if (Model.Configuration.Collapsible)
     {
         <div class="accordion pd-associated-products">
             @foreach (var product in Model.Products)

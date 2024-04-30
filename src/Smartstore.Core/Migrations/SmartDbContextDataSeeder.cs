@@ -476,6 +476,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowProductTags", "Show tags", "Tags anzeigen");
 
             builder.AddOrUpdate("Common.SearchProducts", "Search products", "Produkte durchsuchen");
+            builder.AddOrUpdate("Common.NoProductsFound", "No products were found.", "Es wurden keine Produkte gefunden.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.SearchMinAssociatedCount",
                 "Minimum product count for search",

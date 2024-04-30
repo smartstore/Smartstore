@@ -325,7 +325,7 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// AJAX. Gets associated products of a grouped product when a paginator link has been clicked.
         /// </summary>
-        /// <param name="id">Identifier of the grouped produt.</param>
+        /// <param name="id">Identifier of the grouped product.</param>
         /// <param name="page">One based page index.</param>
         /// <param name="q">Optional search term.</param>
         public async Task<IActionResult> AssociatedProducts(int id, int page, string q)
