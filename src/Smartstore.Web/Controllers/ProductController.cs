@@ -363,8 +363,8 @@ namespace Smartstore.Web.Controllers
             var form = HttpContext.Request.Form;
             var quantity = 1;
             var galleryStartIndex = -1;
-            string galleryHtml = null;
-            string dynamicThumbUrl = null;
+            var galleryHtml = (string)null;
+            var dynamicThumbUrl = (string)null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
 
             var product = await _db.Products.FindByIdAsync(productId);

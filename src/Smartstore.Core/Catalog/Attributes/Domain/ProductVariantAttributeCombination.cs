@@ -218,11 +218,11 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             if (string.IsNullOrEmpty(AssignedMediaFileIds))
             {
-                return Array.Empty<int>();
+                return [];
             }
 
             var query =
-                from id in AssignedMediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                from id in AssignedMediaFileIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                 let idx = id.ToInt()
                 where idx > 0
                 select idx;

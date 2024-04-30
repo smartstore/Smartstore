@@ -8,6 +8,17 @@
     TODO: (mc) Revamp accordion design: gray headers, titles above accordion etc.
 *@
 
+@{
+    ViewDataDictionary CreateViewData(ProductDetailsModel model, bool skipUpdateUrl = false)
+    {
+        var vd = new ViewDataDictionary(ViewData);
+        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
+        vd["GroupedProductConfiguration"] = Model.Configuration;
+        vd["SkipUpdateUrl"] = skipUpdateUrl;
+        return vd;
+    }
+}
+
 <div id="associated-products">
     @if (Model.Products.Count == 0)
     {
@@ -55,6 +66,7 @@
 </div>
 
 <script sm-if="Model.Configuration.Collapsible" sm-target-zone="scripts" data-origin="associated-products">
+    // TODO: (mg) Move this init script to public.product.js somehow.
     $(function () {
         const associatedProducts = $('#associated-products');
         var elError = null;
@@ -93,14 +105,3 @@
         }
     });
 </script>
-
-@{
-    ViewDataDictionary CreateViewData(ProductDetailsModel model, bool skipUpdateUrl = false)
-    {
-        var vd = new ViewDataDictionary(ViewData);
-        vd.TemplateInfo.HtmlFieldPrefix = $"product_{model.Id}";
-        vd["GroupedProductConfiguration"] = Model.Configuration;
-        vd["SkipUpdateUrl"] = skipUpdateUrl;
-        return vd;
-    }
-}
