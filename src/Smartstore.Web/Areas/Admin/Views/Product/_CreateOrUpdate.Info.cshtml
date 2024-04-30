@@ -1,6 +1,8 @@
 ﻿@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Checkout.GiftCards
 
+@inject ILanguageService languageService
+
 @model ProductModel
 
 <script sm-target-zone="Scripts" data-origin="product-info">
@@ -133,7 +135,11 @@
             <span asp-validation-for="Visibility"></span>
         </div>
     </div>
-
+    <div class="adminRow">
+        <div class="adminSeparator">
+            <hr />
+        </div>
+    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="ProductTypeId" />
@@ -144,6 +150,9 @@
         </div>
     </div>
     <div id="grouped-product-config">
+        @*
+            TODO: (mg) Bad usability (repetitive): Make global settings for page size, expand/collapse and header fields. Make them overridable on product level. TBD with MC.
+        *@
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="GroupedProductConfiguration.PageSize" />
@@ -201,6 +210,11 @@
         </div>
     </div>
 </div>
+
+@if (!languageService.IsMultiLanguageEnvironment())
+{
+    <hr />
+}
 
 @(Html.LocalizedEditor<ProductModel, ProductLocalizedModel>("product-info-localized",
 	@<text>

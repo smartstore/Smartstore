@@ -92,4 +92,6 @@
     .card:last-child .card-header { 
         border-bottom-width: 0;
     }
+
+    // TODO: (mc) (mh) Probably bad decision to remove .card:first-of-type. Investigate and fix (?)
 }

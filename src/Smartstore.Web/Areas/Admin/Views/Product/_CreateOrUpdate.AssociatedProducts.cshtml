@@ -14,11 +14,12 @@
 }
 
 <div class="d-flex flex-column h-100">
-    <div class="alert alert-info">
+    <div class="alert alert-info alert-dismissible">
         <ul>
             <li>@T("Admin.Catalog.Products.AssociatedProducts.Note1")</li>
             <li>@T("Admin.Catalog.Products.AssociatedProducts.Note2")</li>
         </ul>
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 
     <partial name="Grids/_Grid.AssociatedProducts" model="null" view-data="gridViewData" />

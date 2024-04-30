@@ -54,6 +54,7 @@ namespace Smartstore.Core.Catalog.Products
         public bool HasHeader(string name)
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
+        // TODO: (mg) Revert & rename --> IsDefault()
         private bool IsTouched()
             => PageSize != DefaultPageSize || SearchMinAssociatedCount != DefaultSearchMinAssociatedCount || Collapsible || (Collapsible && !HeaderFields.IsNullOrEmpty());
     }

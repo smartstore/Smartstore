@@ -39,16 +39,19 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.PageSize",
-                "Page size of associated products",
+                "Page size of associated products list",
                 "Listengröße der verknüpften Produkte");
 
+            // TODO: (mg) (mc) Needs better terminology than Expand/collapse (?)
+            // TODO: (mg) Needs hint that describes this settings
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                 "Expand/collapse associated products",
                 "Verknüpfte Produkte auf-/zuklappen");
 
+            // TODO: (mg) (mc) Needs better terminology than Kopfzeile (?)
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
-                "Felder für die Kopfzeile",
+                "Felder in der Kopfzeile",
                 "Specifies additional fields for the header of an associated product. The product name is always displayed.",
                 "Legt zusätzliche Felder für die Kopfzeile eines verknüpften Produktes fest. Produktname wird immer angezeigt.");
 

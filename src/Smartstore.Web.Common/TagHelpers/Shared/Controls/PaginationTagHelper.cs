@@ -111,6 +111,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// Gets or sets a HTML selector to apply asynchronously loaded content using AJAX.
         /// If empty, the content will be loaded synchronously.
         /// </summary>
+        // TODO: (mg) Risk of confusion with a[target]. Find a better name.
         [HtmlAttributeName(TargetNameAttribute)]
         public string Target { get; set; }
 

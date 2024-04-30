@@ -170,6 +170,8 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int ParentGroupedProductId { get; set; }
 
+        // TODO: (mg) Make an unmapped readonly property for the JSON representation. Should deserialize on first access and remember the object on instance level. Invalidate obj on string change.
+        // TODO: (mc) (mg) Investigate new EF 8 custom property type feature.
         /// <summary>
         /// Gets or sets a JSON-formatted configuration depending on the <see cref="ProductType"/> (optional).
         /// <see cref="GroupedProductConfiguration"/> for <see cref="ProductType.GroupedProduct"/>.
