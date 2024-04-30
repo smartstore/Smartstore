@@ -21,12 +21,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
+        /// <param name="cache">A value indicating whether to cache the result.</param>
         /// <returns>Shopping cart total.</returns>
         Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
             ShoppingCart cart,
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
-            bool includeCreditBalance = true);
+            bool includeCreditBalance = true,
+            bool cache = true);
 
         /// <summary>
         /// Gets the shopping cart subtotal.
@@ -35,8 +37,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
+        /// <param name="cache">A value indicating whether to cache the result.</param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(ShoppingCart cart, bool? includeTax = null, ProductBatchContext batchContext = null);
+        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(
+            ShoppingCart cart, 
+            bool? includeTax = null, 
+            ProductBatchContext batchContext = null, 
+            bool cache = true);
 
         /// <summary>
         /// Gets the shopping cart shipping total.

@@ -96,14 +96,15 @@ namespace Smartstore.Core.Checkout.Orders
             ShoppingCart cart,
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
-            bool includeCreditBalance = true)
+            bool includeCreditBalance = true,
+            bool cache = true)
         {
             Guard.NotNull(cart);
 
             var cacheKey = $"ordercalculation:carttotal:{cart.GetHashCode()}-{includeRewardPoints}-{includePaymentFee}-{includeCreditBalance}";
 
             // INFO: CartTotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
-            if (_requestCache.Contains(cacheKey))
+            if (cache && _requestCache.Contains(cacheKey))
             {
                 return _requestCache.Get<ShoppingCartTotal>(cacheKey, null);
             }
@@ -287,19 +288,26 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             };
 
-            _requestCache.Put(cacheKey, shoppingCartTotal);
+            if (cache)
+            {
+                _requestCache.Put(cacheKey, shoppingCartTotal);
+            }
 
             return shoppingCartTotal;
         }
 
-        public virtual async Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(ShoppingCart cart, bool? includeTax = null, ProductBatchContext batchContext = null)
+        public virtual async Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(
+            ShoppingCart cart, 
+            bool? includeTax = null, 
+            ProductBatchContext batchContext = null,
+            bool cache = true)
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";
 
             // INFO: CartSubtotalRule uses AsyncLock on this method! IRequestCache.Get would deadlock cart page.
-            if (_requestCache.Contains(cacheKey))
+            if (cache && _requestCache.Contains(cacheKey))
             {
                 return _requestCache.Get<ShoppingCartSubtotal>(cacheKey, null);
             }
@@ -315,7 +323,10 @@ namespace Smartstore.Core.Checkout.Orders
                 LineItems = subtotal.LineItems
             };
 
-            _requestCache.Put(cacheKey, shoppingCartSubtotal);
+            if (cache)
+            {
+                _requestCache.Put(cacheKey, shoppingCartSubtotal);
+            }
 
             return shoppingCartSubtotal;
         }
