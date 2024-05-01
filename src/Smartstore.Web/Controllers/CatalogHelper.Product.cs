@@ -454,7 +454,7 @@ namespace Smartstore.Web.Controllers
             batchContext.Collect(ctx.AssociatedProducts.Select(x => x.Id).ToArray());
 
             var associatedProducts = await ctx.AssociatedProducts
-                .SelectAwait(async x => await MapProductDetailsPageModelAsync(new(ctx)
+                .SelectAwait(x => MapProductDetailsPageModelAsync(new(ctx)
                 {
                     Product = x,
                     IsAssociatedProduct = true,
