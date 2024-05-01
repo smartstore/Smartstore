@@ -28,18 +28,18 @@
     }
     else if (Model.Configuration.Collapsible)
     {
-        <div class="accordion pd-associated-products">
+        <div class="pd-assoc-list accordion">
             @foreach (var product in Model.Products)
             {
                 var id = $"associated-product{product.Id}";
                 var viewData = CreateViewData(product, true);
 
-                <div class="card update-container collapsed" data-url="@product.UpdateUrl">
-                    <div class="card-header" data-partial="AssociatedHeader">
+                <div class="pd-assoc update-container collapsed" data-url="@product.UpdateUrl">
+                    <div class="pd-assoc-header" data-partial="AssociatedHeader">
                         <partial name="Product.AssociatedProduct.Header" model="product" view-data="viewData" />
                     </div>
                     <div id="@id" class="collapse" data-parent="#associated-products">
-                        <div class="card-body">
+                        <div class="pd-assoc-body py-3">
                             <partial name="Product.AssociatedProduct" model="product" view-data="viewData" />
                         </div>
                     </div>
@@ -71,16 +71,16 @@
         const associatedProducts = $('#associated-products');
         var elError = null;
 
-        associatedProducts.on('click', '.pd-associated-product-title', function (e) {
+        associatedProducts.on('click', '.pd-assoc-title', function (e) {
             // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
             if (!$(e.target).closest('.pd-interaction').length) {
                 $($(this).data('target')).collapse('toggle');
             }
         }).on('shown.bs.collapse hide.bs.collapse', function (e) {
             // Toggle 'collapsed' class to display correct chevron.
-            associatedProducts.find('.card').addClass('collapsed');
+            associatedProducts.find('.pd-assoc').addClass('collapsed');
             if (e.type === 'shown') {
-                $(e.target).closest('.card').removeClass('collapsed');
+                $(e.target).closest('.pd-assoc').removeClass('collapsed');
 
                 if (elError !== null) {
                     scrollToCard(elError);

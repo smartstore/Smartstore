@@ -11,13 +11,13 @@
     var img = gallery?.Files?.FirstOrDefault();
 }
 
-<div class="card-title pd-associated-product-title row no-gutters"
+<div class="pd-assoc-title card-title row no-gutters"
      aria-expanded="false" 
      role="button" 
      data-target="#@id" 
      aria-controls="@id">
     <div class="col-auto d-flex">
-        <div sm-if="@config.HasHeader(AssociatedProductHeader.Image)" class="pd-associated-product-img">
+        <div sm-if="@config.HasHeader(AssociatedProductHeader.Image)" class="pd-assoc-img">
             @if (img != null)
             {
                 <img src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
@@ -36,23 +36,23 @@
                 </div>
             </div>
             <div class="col-6 col-md-4 d-none d-md-flex flex-column flex-lg-row align-items-start justify-content-center align-items-lg-center fs-sm">
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Sku)" class="pd-associated-product-attr" title="@Model.Sku">
+                <div sm-if="@config.HasHeader(AssociatedProductHeader.Sku)" class="pd-assoc-attr" title="@Model.Sku">
                     @Model.Sku
                 </div>
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Dimensions)" class="pd-associated-product-attr" title="@GetFormattedDimensions(true)">
+                <div sm-if="@config.HasHeader(AssociatedProductHeader.Dimensions)" class="pd-assoc-attr" title="@GetFormattedDimensions(true)">
                     @GetFormattedDimensions(false)
                 </div>
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Weight)" class="pd-associated-product-attr" title="@Model.Weight">
+                <div sm-if="@config.HasHeader(AssociatedProductHeader.Weight)" class="pd-assoc-attr" title="@Model.Weight">
                     @Model.Weight
                 </div>
             </div>
             <div class="col-6 col-md-2 d-flex mt-2 mt-md-0 align-items-center justify-content-start justify-content-md-end">
-                <span sm-if="@config.HasHeader(AssociatedProductHeader.Price)" class="pd-associated-product-price">
+                <span sm-if="@config.HasHeader(AssociatedProductHeader.Price)" class="pd-assoc-price">
                     @Html.Raw(Model.Price.FinalPrice)
                 </span>
             </div>
             <div class="col-6 col-md-3 d-flex mt-2 mt-md-0 align-items-center">
-                <div class="pd-associated-products-actions">
+                <div class="pd-assoc-actions">
                     <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                         @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Small })
                     </div>
