@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -28,7 +27,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
-using Smartstore.Utilities;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -1658,14 +1656,12 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
                 model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
-
-                if (product.ProductType == ProductType.GroupedProduct && product.ProductTypeConfiguration.HasValue())
+                
+                // Instance always required because of validation.
+                model.GroupedProductConfiguration ??= new();
+                if (product.ProductType == ProductType.GroupedProduct && product.GroupedProductConfiguration != null)
                 {
-                    var config = CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(product.ProductTypeConfiguration));
-                    if (config != null)
-                    {
-                        MiniMapper.Map(config, model.GroupedProductConfiguration);
-                    }
+                    MiniMapper.Map(product.GroupedProductConfiguration, model.GroupedProductConfiguration);
                 }
 
                 ViewBag.SelectedProductTags = model.ProductTagNames
@@ -1821,7 +1817,7 @@ namespace Smartstore.Admin.Controllers
                 _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
                 Url.Action("ShoppingCart", "Setting"));
 
-            var headerFields = model.GroupedProductConfiguration.HeaderFields ?? [];
+            var headerFields = model.GroupedProductConfiguration?.HeaderFields ?? [];
             ViewBag.AssociatedProductsHeaderFields = new List<SelectListItem>
             {
                 new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },

@@ -483,6 +483,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Minimale Produktanzahl für Suche",
                 "Specifies the minimum number of associated products from which the search field is displayed.",
                 "Legt die Mindestanzahl verknüpfter Produkte fest, ab denen das Suchfeld angezeigt wird.");
+
+            // TODO: (mg) (mc) Needs better terminology than Expand/collapse (?)
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
+                "Expand/collapse associated products",
+                "Verknüpfte Produkte erweitern/reduzieren",
+                "Specifies whether details of the associated product are shown/hidden by clicking on the header. They are hidden by default if activated.",
+                "Legt fest, ob Details zum verknüpften Produkt durch Klick auf die Kopfzeile angezeigt/ausgeblendet werden. Sie sind standardmäßig ausgeblendet, sofern aktiviert.");
         }
     }
 }

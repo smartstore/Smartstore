@@ -46,7 +46,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string ContentClassNameAttribute = "sm-content-class";
         const string QueryParamNameAttributeName = "sm-query-param";
-        const string TargetNameAttribute = "sm-target";
+        const string ContentTargetNameAttribute = "sm-target";
         const string UrlNameAttribute = "sm-url";
 
         [HtmlAttributeName(ListItemsAttributeName)]
@@ -111,9 +111,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// Gets or sets a HTML selector to apply asynchronously loaded content using AJAX.
         /// If empty, the content will be loaded synchronously.
         /// </summary>
-        // TODO: (mg) Risk of confusion with a[target]. Find a better name.
-        [HtmlAttributeName(TargetNameAttribute)]
-        public string Target { get; set; }
+        [HtmlAttributeName(ContentTargetNameAttribute)]
+        public string ContentTarget { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -133,9 +132,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.Attributes.Add("aria-label", "Page navigation");
             output.AppendCssClass("pagination-container");
 
-            if (Target.HasValue())
+            if (ContentTarget.HasValue())
             {
-                output.Attributes.Add("data-target", Target);
+                output.Attributes.Add("data-target", ContentTarget);
             }
 
             var itemsUl = new TagBuilder("ul");

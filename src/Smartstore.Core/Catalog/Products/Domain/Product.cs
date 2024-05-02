@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -18,6 +19,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -101,6 +103,9 @@ namespace Smartstore.Core.Catalog.Products
     [DebuggerDisplay("{Id} - {Name}")]
     public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
+        private string _productTypeConfiguration;
+        private GroupedProductConfiguration _groupedProductConfiguration;
+
         #region Static
 
         private static readonly FrozenSet<string> _visibilityAffectingProductProps = new string[]
@@ -124,11 +129,9 @@ namespace Smartstore.Core.Catalog.Products
 
         #endregion
 
-        /// <inheritdoc/>
         [NotMapped, IgnoreDataMember]
         public bool MergedDataIgnore { get; set; }
 
-        /// <inheritdoc/>
         [NotMapped, IgnoreDataMember]
         public Dictionary<string, object> MergedDataValues { get; set; }
 
@@ -170,14 +173,35 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int ParentGroupedProductId { get; set; }
 
-        // TODO: (mg) Make an unmapped readonly property for the JSON representation. Should deserialize on first access and remember the object on instance level. Invalidate obj on string change.
         // TODO: (mc) (mg) Investigate new EF 8 custom property type feature.
         /// <summary>
         /// Gets or sets a JSON-formatted configuration depending on the <see cref="ProductType"/> (optional).
         /// <see cref="GroupedProductConfiguration"/> for <see cref="ProductType.GroupedProduct"/>.
         /// </summary>
         [MaxLength]
-        public string ProductTypeConfiguration { get; set; }
+        public string ProductTypeConfiguration
+        {
+            get => _productTypeConfiguration;
+            set
+            {
+                _productTypeConfiguration = value;
+                _groupedProductConfiguration = null;
+            }
+        }
+
+        [NotMapped, IgnoreDataMember]
+        public GroupedProductConfiguration GroupedProductConfiguration
+        {
+            get
+            {
+                if (_groupedProductConfiguration == null && ProductTypeConfiguration.HasValue())
+                {
+                    _groupedProductConfiguration = CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(ProductTypeConfiguration));
+                }
+
+                return _groupedProductConfiguration;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the visibility level of the product.
@@ -1043,13 +1067,11 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productBundleItems = value;
         }
 
-        /// <inheritdoc/>
         public string GetDisplayName()
         {
             return Name;
         }
 
-        /// <inheritdoc/>
         public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
     }
 }

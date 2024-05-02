@@ -45,7 +45,7 @@ namespace Smartstore.Core.Catalog.Products
         public string[] HeaderFields { get; set; }
 
         public virtual string AsJson()
-            => IsTouched() ? JsonConvert.SerializeObject(this) : null;
+            => IsDefault() ? null : JsonConvert.SerializeObject(this);
 
         /// <summary>
         /// Gets a value indicating whether a header column is displayed.
@@ -54,8 +54,7 @@ namespace Smartstore.Core.Catalog.Products
         public bool HasHeader(string name)
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
-        // TODO: (mg) Revert & rename --> IsDefault()
-        private bool IsTouched()
-            => PageSize != DefaultPageSize || SearchMinAssociatedCount != DefaultSearchMinAssociatedCount || Collapsible || (Collapsible && !HeaderFields.IsNullOrEmpty());
+        private bool IsDefault()
+            => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
     }
 }

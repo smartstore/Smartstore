@@ -52,12 +52,12 @@ namespace Smartstore.Web.Controllers
 
             if (product.ProductType == ProductType.GroupedProduct)
             {
-                ctx.GroupedProductConfiguration = Deserialize(product.ProductTypeConfiguration);
+                ctx.GroupedProductConfiguration = product.GroupedProductConfiguration ?? new();
             }
             else if (isAssociatedProduct)
             {
-                var rawConfig = ctx.ParentProduct?.ProductTypeConfiguration;
-                if (rawConfig.IsEmpty())
+                ctx.GroupedProductConfiguration = ctx.ParentProduct?.GroupedProductConfiguration;
+                if (ctx.GroupedProductConfiguration == null)
                 {
                     // INFO: associated products that are no longer assigned are still displayed if the search index is not up-to-date.
                     // 'product.ParentGroupedProductId' would then be 0 and 'ctx.GroupedProductConfiguration' incorrect.
@@ -65,24 +65,18 @@ namespace Smartstore.Web.Controllers
                     parentProductId ??= product.ParentGroupedProductId;
                     if (parentProductId != 0)
                     {
-                        rawConfig = await _db.Products
-                            .Where(x => x.Id == parentProductId)
-                            .Select(x => x.ProductTypeConfiguration)
-                            .FirstOrDefaultAsync();
+                        ctx.GroupedProductConfiguration = (await _db.Products
+                            .AsNoTracking()
+                            .SelectSummary()
+                            .FirstOrDefaultAsync(x => x.Id == parentProductId))
+                            ?.GroupedProductConfiguration;
                     }
                 }
 
-                ctx.GroupedProductConfiguration = Deserialize(rawConfig);
+                ctx.GroupedProductConfiguration ??= new();
             }
 
             return ctx;
-
-            GroupedProductConfiguration Deserialize(string json)
-            {
-                return (json.HasValue()
-                    ? CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(json))
-                    : null) ?? new();
-            }
         }
 
         public async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(Product product, ProductVariantQuery query)

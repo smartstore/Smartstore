@@ -42,12 +42,6 @@ namespace Smartstore.Core.Migrations
                 "Page size of associated products list",
                 "Listengröße der verknüpften Produkte");
 
-            // TODO: (mg) (mc) Needs better terminology than Expand/collapse (?)
-            // TODO: (mg) Needs hint that describes this settings
-            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
-                "Expand/collapse associated products",
-                "Verknüpfte Produkte auf-/zuklappen");
-
             // TODO: (mg) (mc) Needs better terminology than Kopfzeile (?)
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
