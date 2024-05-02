@@ -50,7 +50,7 @@ namespace Smartstore.Core.Checkout.Orders
                 paymentRequest.PaymentMethodSystemName = ctx.InitialOrder.PaymentMethodSystemName;
             }
 
-            var (warnings, _) = await ValidateOrderPlacementAsync(paymentRequest, ctx.InitialOrder, ctx.Customer);
+            var (warnings, _) = await ValidateOrderPlacementInternal(paymentRequest, ctx.InitialOrder, ctx.Customer, ctx.BatchContext);
             if (warnings.Count > 0)
             {
                 ctx.Result.Errors.AddRange(warnings);
