@@ -16,6 +16,7 @@
 
         this.init = function () {
             var opts = this.options;
+            const associatedProducts = $('#associated-products');
 
             this.createGallery(opts.galleryStartIndex);
 
@@ -69,7 +70,51 @@
                 });
             });
 
+            self.initAssociatedProducts(associatedProducts);
+
             return this;
+        };
+
+        this.initAssociatedProducts = function (associatedProducts) {
+            if (!associatedProducts.length || !associatedProducts.find('.pd-assoc-list').length) {
+                // No associated products nor collapsible. Nothing to init.
+                return;
+            }
+
+            var elError = null;
+
+            associatedProducts.on('click', '.pd-assoc-title', function (e) {
+                // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
+                if (!$(e.target).closest('.pd-interaction').length) {
+                    $($(this).data('target')).collapse('toggle');
+                }
+            }).on('shown.bs.collapse hide.bs.collapse', function (e) {
+                // Toggle 'collapsed' class to display correct chevron.
+                associatedProducts.find('.pd-assoc').addClass('collapsed');
+                if (e.type === 'shown') {
+                    $(e.target).closest('.pd-assoc').removeClass('collapsed');
+
+                    if (elError !== null) {
+                        scrollToCard(elError);
+                        elError = null;
+                    }
+                }
+            });
+
+            EventBroker.subscribe('ajaxcart.error', function (msg, data) {
+                // Expand item to let the user select attributes.
+                var el = $('#associated-product' + data.response.productId);
+                if (el.hasClass('show')) {
+                    scrollToCard(el);
+                }
+                else {
+                    elError = el.collapse('show');
+                }
+            });
+
+            function scrollToCard(el) {
+                $('body, html').animate({ scrollTop: el.closest('.pd-assoc').offset().top }, 'slow');
+            }
         };
 
         this.updateDetailData = function (data, ctx, isNumberInput, isFileUpload, isDateTime) {
