@@ -103,9 +103,6 @@ namespace Smartstore.Core.Catalog.Products
     [DebuggerDisplay("{Id} - {Name}")]
     public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
-        private string _productTypeConfiguration;
-        private GroupedProductConfiguration _groupedProductConfiguration;
-
         #region Static
 
         private static readonly FrozenSet<string> _visibilityAffectingProductProps = new string[]
@@ -173,6 +170,8 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int ParentGroupedProductId { get; set; }
 
+        private string _productTypeConfiguration;
+        private GroupedProductConfiguration _groupedProductConfiguration;
         // TODO: (mc) (mg) Investigate new EF 8 custom property type feature.
         /// <summary>
         /// Gets or sets a JSON-formatted configuration depending on the <see cref="ProductType"/> (optional).

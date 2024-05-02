@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿#nullable enable
+
+using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace Smartstore.Core.Catalog.Products
@@ -42,9 +44,10 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets name of fields to display in the collapse header.
         /// </summary>
         [JsonProperty("headerFields", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string[] HeaderFields { get; set; }
+        public string[]? HeaderFields { get; set; }
 
-        public virtual string AsJson()
+        // INFO: (mg) Use As* prefix if an object IS already something else (without explicit conversion), otherwise use To* prefix.
+        public virtual string? ToJson()
             => IsDefault() ? null : JsonConvert.SerializeObject(this);
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace Smartstore.Core.Catalog.Products
         public bool HasHeader(string name)
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
+        // TODO: (mg) What about HeaderFields?
         private bool IsDefault()
             => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
     }

@@ -2097,7 +2097,7 @@ namespace Smartstore.Admin.Controllers
             if (p.ProductType == ProductType.GroupedProduct)
             {
                 var config = MiniMapper.Map<GroupedProductConfigurationModel, GroupedProductConfiguration>(model.GroupedProductConfiguration);
-                p.ProductTypeConfiguration = config?.AsJson();
+                p.ProductTypeConfiguration = config?.ToJson();
             }
         }
 

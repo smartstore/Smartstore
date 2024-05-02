@@ -909,7 +909,7 @@ namespace Smartstore.Core.Installation
                 IsShippingEnabled = true,
                 ShowOnHomePage = true,
                 TaxCategoryId = taxCategoryIdElectronics,
-                ProductTypeConfiguration = groupedProductConfig.AsJson()
+                ProductTypeConfiguration = groupedProductConfig.ToJson()
             };
 
             groupedSofasAndChairs.ProductCategories.Add(new ProductCategory { Category = categories["Furniture"], DisplayOrder = 0 });
