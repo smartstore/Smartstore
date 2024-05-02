@@ -97,6 +97,7 @@ namespace Smartstore.Core.Checkout.Orders
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
             bool includeCreditBalance = true,
+            ProductBatchContext batchContext = null,
             bool cache = true)
         {
             Guard.NotNull(cart);
@@ -116,7 +117,7 @@ namespace Smartstore.Core.Checkout.Orders
             var (cartTaxTotal, _) = await GetCartTaxTotalAsync(cart, includePaymentFee);
             var cartTax = Round(includeTax ? 0m : cartTaxTotal);
 
-            var subtotal = await GetCartSubtotalAsync(cart, false);
+            var subtotal = await GetCartSubtotalAsync(cart, false, batchContext);
             var subtotalWithDiscount = Round(includeTax ? subtotal.SubtotalWithDiscountGross : subtotal.SubtotalWithDiscountNet);
             var subtotalWithoutDiscount = Round(includeTax ? subtotal.SubtotalWithoutDiscountGross : subtotal.SubtotalWithoutDiscountNet);
             var subtotalDiscount = Round(includeTax ? subtotal.DiscountAmountGross : subtotal.DiscountAmountNet);

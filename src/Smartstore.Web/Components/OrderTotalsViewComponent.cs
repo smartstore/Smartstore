@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
@@ -24,6 +25,7 @@ namespace Smartstore.Web.Components
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IProductService _productService;
         private readonly IShippingService _shippingService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MeasureSettings _measureSettings;
@@ -38,6 +40,7 @@ namespace Smartstore.Web.Components
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IOrderCalculationService orderCalculationService,
+            IProductService productService,
             IShippingService shippingService,
             ShoppingCartSettings shoppingCartSettings,
             MeasureSettings measureSettings,
@@ -51,6 +54,7 @@ namespace Smartstore.Web.Components
             _shoppingCartService = shoppingCartService;
             _localizationService = localizationService;
             _orderCalculationService = orderCalculationService;
+            _productService = productService;
             _shippingService = shippingService;
             _shoppingCartSettings = shoppingCartSettings;
             _measureSettings = measureSettings;
@@ -78,6 +82,8 @@ namespace Smartstore.Web.Components
                 return View(model);
             }
 
+            var batchContext = _productService.CreateProductBatchContext(cart.GetAllProducts(), null, customer, false);
+
             model.Weight = await _shippingService.GetCartTotalWeightAsync(cart);
 
             var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
@@ -87,7 +93,7 @@ namespace Smartstore.Web.Components
             }
 
             // Subtotal
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, batchContext: batchContext);
             model.CartSubtotal = subtotal;
             model.SubTotal = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
 
@@ -175,7 +181,7 @@ namespace Smartstore.Web.Components
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             // Cart total
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
             model.CartTotal = cartTotal;
 
             if (cartTotal.ConvertedAmount.Total.HasValue)

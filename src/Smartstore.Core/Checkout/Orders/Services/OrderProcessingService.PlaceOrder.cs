@@ -28,83 +28,87 @@ namespace Smartstore.Core.Checkout.Orders
                 paymentRequest.OrderGuid = Guid.NewGuid();
             }
 
-            var result = new OrderPlacementResult();
-            var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
-
-            var customer = await _db.Customers
-                .IncludeCustomerRoles()
-                .FindByIdAsync(paymentRequest.CustomerId);
-
-            var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
-            if (warnings.Count > 0)
+            var ctx = new PlaceOrderContext
             {
-                result.Errors.AddRange(warnings);
-                return result;
-            }
-
-            var context = new PlaceOrderContext
-            {
-                Result = result,
-                InitialOrder = initialOrder,
-                Customer = customer,
-                Cart = cart,
+                InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId),
+                Customer = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .FindByIdAsync(paymentRequest.CustomerId),
                 ExtraData = extraData,
                 PaymentRequest = paymentRequest
             };
 
             if (!paymentRequest.IsRecurringPayment)
             {
-                context.CartRequiresShipping = cart.IsShippingRequired;
+                ctx.Cart = await _shoppingCartService.GetCartAsync(ctx.Customer, ShoppingCartType.ShoppingCart, paymentRequest.StoreId);
+                ctx.BatchContext = _productService.CreateProductBatchContext(ctx.Cart.GetAllProducts(), null, ctx.Customer, false);
+                ctx.CartRequiresShipping = ctx.Cart.IsShippingRequired;
             }
             else
             {
-                context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
-                paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
+                ctx.CartRequiresShipping = ctx.InitialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
+                paymentRequest.PaymentMethodSystemName = ctx.InitialOrder.PaymentMethodSystemName;
+            }
+
+            var (warnings, _) = await ValidateOrderPlacementAsync(paymentRequest, ctx.InitialOrder, ctx.Customer);
+            if (warnings.Count > 0)
+            {
+                ctx.Result.Errors.AddRange(warnings);
+                return ctx.Result;
             }
 
             // Collect data for new order.
             // Also applies data (like order and tax total) to paymentRequest for payment processing below.
-            await ApplyCustomerData(context);
-            await ApplyPricingData(context);
+            await ApplyCustomerData(ctx);
+            await ApplyPricingData(ctx);
 
-            await ProcessPayment(context);
+            await ProcessPayment(ctx);
 
-            _db.Orders.Add(context.Order);
+            _db.Orders.Add(ctx.Order);
 
             // Save, we need the primary key.
             // Payment has been made. Order MUST be saved immediately!
             await _db.SaveChangesAsync();
 
-            context.Result.PlacedOrder = context.Order;
+            ctx.Result.PlacedOrder = ctx.Order;
 
             // Also applies data (like discounts) required for saving associated data.
-            await AddOrderItems(context);
-            await AddAssociatedData(context);
+            await AddOrderItems(ctx);
+            await AddAssociatedData(ctx);
 
             // Save order items.
             await _db.SaveChangesAsync();
 
             // Email messages, order notes etc.
-            await FinalizeOrderPlacement(context);
+            await FinalizeOrderPlacement(ctx);
 
             // Saves changes to database.
-            await CheckOrderStatusAsync(context.Order);
+            await CheckOrderStatusAsync(ctx.Order);
 
             // Events.
-            await _eventPublisher.PublishOrderPlacedAsync(context.Order);
+            await _eventPublisher.PublishOrderPlacedAsync(ctx.Order);
 
-            if (context.Order.PaymentStatus == PaymentStatus.Paid)
+            if (ctx.Order.PaymentStatus == PaymentStatus.Paid)
             {
-                await _eventPublisher.PublishOrderPaidAsync(context.Order);
+                await _eventPublisher.PublishOrderPaidAsync(ctx.Order);
             }
 
-            return result;
+            return ctx.Result;
         }
 
-        public virtual async Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(
+        public virtual Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(
             ProcessPaymentRequest paymentRequest,
             Order initialOrder = null,
             Customer customer = null)
+        {
+            return ValidateOrderPlacementInternal(paymentRequest, initialOrder, customer, null);
+        }
+
+        private async Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementInternal(
+            ProcessPaymentRequest paymentRequest,
+            Order initialOrder,
+            Customer customer,
+            ProductBatchContext batchContext)
         {
             Guard.NotNull(paymentRequest);
 
@@ -205,7 +209,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return (warnings, cart);
                 }
 
-                Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                Money? cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
                 if (!cartTotal.HasValue)
                 {
                     warnings.Add(T("Order.CannotCalculateOrderTotal"));
@@ -451,8 +455,8 @@ namespace Smartstore.Core.Checkout.Orders
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
                 // Sub total.
-                var subTotalInclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, true);
-                var subTotalExclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, false);
+                var subTotalInclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, true, batchContext: ctx.BatchContext);
+                var subTotalExclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, false, batchContext: ctx.BatchContext);
 
                 order.OrderSubtotalInclTax = subTotalInclTax.SubtotalWithoutDiscount.Amount;
                 order.OrderSubtotalExclTax = subTotalExclTax.SubtotalWithoutDiscount.Amount;
@@ -485,7 +489,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.TaxRates = FormatTaxRates(taxRates);
 
                 // Order total.
-                ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart);
+                ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart, batchContext: ctx.BatchContext);
                 order.OrderTotal = ctx.CartTotal.Total.Value.Amount;
                 order.OrderTotalRounding = ctx.CartTotal.ToNearestRounding.Amount;
                 order.RefundedAmount = decimal.Zero;
@@ -666,9 +670,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
-                var cartProducts = ctx.Cart.Items.Select(x => x.Item.Product).ToArray();
-                var batchContext = _productService.CreateProductBatchContext(cartProducts, null, ctx.Customer, false);
-                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, batchContext);
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, ctx.BatchContext);
 
                 foreach (var cartItem in ctx.Cart.Items)
                 {
@@ -728,18 +730,16 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         var bundleItemDataList = new List<ProductBundleItemOrderData>();
                         var childItems = cartItem.ChildItems.Where(x => x.Item.ProductId != 0 && x.Item.BundleItemId != 0).ToArray();
-                        var childBatchContext = _productService.CreateProductBatchContext(childItems.Select(x => x.Item.Product).ToArray(), null, ctx.Customer, false);
-                        var childCalculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, childBatchContext);
 
                         foreach (var childItem in childItems)
                         {
-                            var childCalculationContext = await _priceCalculationService.CreateCalculationContextAsync(childItem, childCalculationOptions);
+                            var childCalculationContext = await _priceCalculationService.CreateCalculationContextAsync(childItem, calculationOptions);
                             var (_, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(childCalculationContext);
 
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
                                 childItem.Item.AttributeSelection,
                                 childItem.Item.Product,
-                                new ProductAttributeFormatOptions { IncludePrices = false },
+                                new() { IncludePrices = false },
                                 ctx.Customer);
 
                             var bundleItemData = childItem.Item.BundleItem.ToOrderData(childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
@@ -1015,13 +1015,14 @@ namespace Smartstore.Core.Checkout.Orders
         class PlaceOrderContext
         {
             public DateTime Now { get; } = DateTime.UtcNow;
-            public OrderPlacementResult Result { get; init; }
+            public OrderPlacementResult Result { get; } = new();
             public Order Order { get; } = new();
             public Order InitialOrder { get; init; }
             public Customer Customer { get; init; }
             public Dictionary<string, string> ExtraData { get; init; }
             public ProcessPaymentRequest PaymentRequest { get; init; }
-            public ShoppingCart Cart { get; init; }
+            public ShoppingCart Cart { get; set; }
+            public ProductBatchContext BatchContext { get; set; }
             public bool CartRequiresShipping { get; set; }
             public ShoppingCartTotal CartTotal { get; set; }
             public bool IsRecurringCart { get; set; }
