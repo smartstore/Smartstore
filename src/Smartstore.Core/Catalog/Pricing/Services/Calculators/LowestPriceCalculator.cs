@@ -1,15 +1,19 @@
-﻿namespace Smartstore.Core.Catalog.Pricing.Calculators
+﻿using Smartstore.Core.Catalog.Products;
+
+namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the lowest possible price a product can achieve. 
     /// The lowest tier price, the lowest attribute combination price and discounts are taken into account during calculation.
     /// </summary>
-    [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
+    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.Bundle, CalculatorOrdering.Default + 10)]
     public class LowestPriceCalculator : IPriceCalculator
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            if (!context.Options.DetermineLowestPrice)
+            var product = context.Product;
+
+            if (!context.Options.DetermineLowestPrice || (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
             {
                 // Proceed with pipeline and omit this calculator, it is made for lowest price calculation only.
                 await next(context);
@@ -21,7 +25,6 @@
             await next(context);
 
             // Get lowest possible price.
-            var product = context.Product;
             var lowestPrice = context.FinalPrice;
             var forceApply = false;
 
