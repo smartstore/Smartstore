@@ -45,13 +45,13 @@ namespace Smartstore.Core.Migrations
             // TODO: (mg) (mc) Needs better terminology than Kopfzeile (?)
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
-                "Felder in der Kopfzeile",
+                "Felder in der Titelzeile",
                 "Specifies additional fields for the header of an associated product. The product name is always displayed.",
-                "Legt zusätzliche Felder für die Kopfzeile eines verknüpften Produktes fest. Produktname wird immer angezeigt.");
+                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Produktname wird immer angezeigt.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.AssociatedProductHeaderThumbSize",
                 "Associated (grouped) product in the header",
-                "Verknüpftes (Gruppen)-Produkt in der Kopfleiste");
+                "Verknüpftes (Gruppen)-Produkt in der Titelzeile");
 
             builder.AddOrUpdate("Products.DimensionsValue.Short",
                 "{0} × {1} × {2}",

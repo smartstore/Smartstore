@@ -46,7 +46,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string ContentClassNameAttribute = "sm-content-class";
         const string QueryParamNameAttributeName = "sm-query-param";
-        const string ContentTargetNameAttribute = "sm-target";
+        const string ContentTargetNameAttribute = "sm-content-target";
         const string UrlNameAttribute = "sm-url";
 
         [HtmlAttributeName(ListItemsAttributeName)]
