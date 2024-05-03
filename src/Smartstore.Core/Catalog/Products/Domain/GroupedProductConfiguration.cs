@@ -48,7 +48,6 @@ namespace Smartstore.Core.Catalog.Products
         [JsonProperty("headerFields", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[]? HeaderFields { get; set; }
 
-        // INFO: (mg) Use As* prefix if an object IS already something else (without explicit conversion), otherwise use To* prefix.
         public virtual string? ToJson()
             => IsDefault() ? null : JsonConvert.SerializeObject(this);
 
@@ -60,6 +59,7 @@ namespace Smartstore.Core.Catalog.Products
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
         // TODO: (mg) What about HeaderFields?
+        // RE: ignore/discard them if 'Collapsible == false'. They would have no effect in this case (same result as with the default values).
         private bool IsDefault()
             => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
     }
