@@ -1,7 +1,9 @@
 ﻿#nullable enable
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -60,5 +62,27 @@ namespace Smartstore.Core.Catalog.Products
         // TODO: (mg) What about HeaderFields?
         private bool IsDefault()
             => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
+    }
+
+#nullable disable
+
+    public class GroupedProductConfigurationConverter : ValueConverter<GroupedProductConfiguration, string>
+    {
+        public GroupedProductConfigurationConverter()
+            : base(
+                  v => Serialize(v),
+                  v => Deserialize(v))
+        {
+        }
+
+        private static string Serialize(GroupedProductConfiguration obj)
+        {
+            return obj.ToJson();
+        }
+
+        private static GroupedProductConfiguration Deserialize(string json)
+        {
+            return CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(json));
+        }
     }
 }
