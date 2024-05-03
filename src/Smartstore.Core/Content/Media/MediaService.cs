@@ -239,6 +239,11 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(ids);
 
+            if (ids.Length == 0)
+            {
+                return [];
+            }
+
             var query = _db.MediaFiles.Where(x => ids.Contains(x.Id));
             var result = await _searcher.ApplyLoadFlags(query, flags).ToListAsync();
 
