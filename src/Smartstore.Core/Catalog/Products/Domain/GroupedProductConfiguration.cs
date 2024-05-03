@@ -58,8 +58,6 @@ namespace Smartstore.Core.Catalog.Products
         public bool HasHeader(string name)
             => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
 
-        // TODO: (mg) What about HeaderFields?
-        // RE: ignore/discard them if 'Collapsible == false'. They would have no effect in this case (same result as with the default values).
         private bool IsDefault()
             => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
     }

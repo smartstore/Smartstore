@@ -320,7 +320,7 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">The text to format</param>
         /// <returns>The formatted (html) string</returns>
-        public static string FormatPlainText(string? text, string lineFormat = "<div>{0}</div>", string pairFormat = "<span>{0}:</span><span>{1}</span>")
+        public static string FormatPlainText(string? text, string lineFormat = "{0}", string pairFormat = "<span>{0}:</span><span>{1}</span>")
         {
             if (string.IsNullOrEmpty(text))
             {

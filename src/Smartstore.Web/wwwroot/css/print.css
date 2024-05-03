@@ -940,9 +940,15 @@ th, td {
     page-break-inside: avoid;
 }
 
-.order-summary td .attributes {
-    margin-left: 30px;
+.order-summary td .attributes > span:nth-child(odd) {
+    font-weight: 600;
 }
+
+.order-summary td .attributes > span:nth-child(even):after {
+    content: '\a';
+    white-space: pre;
+}
+
 
 .order-summary tr.child-row > td {
     padding-top: 0;
