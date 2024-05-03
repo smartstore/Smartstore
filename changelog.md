@@ -127,7 +127,8 @@
 - #1042 Fixed broken roxy file manager.
 - #969 Promo badges are not rendered in frontend due to type mismatch.
 - Google Analytics: Fixed problem with single quotation mark in category name.
-- #983 Uploaded product variant file is lost after selecting any other variant option (in product details) 
+- #983 Uploaded product variant file is lost after selecting any other variant option (in product details).
+- Fixed missing line breaks for product attributes in the print/PDF view of orders.
 
 
 ## Smartstore 5.1.0
