@@ -320,7 +320,7 @@ namespace Smartstore.Utilities.Html
         /// </summary>
         /// <param name="text">The text to format</param>
         /// <returns>The formatted (html) string</returns>
-        public static string FormatPlainText(string? text, string lineFormat = "{0}", string pairFormat = "<span>{0}:</span><span>{1}</span>")
+        public static string FormatPlainText(string? text, string lineFormat = "<div>{0}</div>", string pairFormat = "<span>{0}:</span><span>{1}</span>")
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -337,7 +337,7 @@ namespace Smartstore.Utilities.Html
 
             lines.Each(x =>
             {
-                var tokens = x.Split(new char[] { ':' }, 2);
+                var tokens = x.Split([':'], 2);
                 var pair = tokens.Length > 1 
                     ? string.Format(pairFormat, tokens[0], tokens[1])
                     : string.Format(pairFormat, "&nbsp;", tokens[0]);
@@ -360,7 +360,7 @@ namespace Smartstore.Utilities.Html
                 return string.Empty;
             }
 
-            if (text.IndexOfAny(new[] { '<', '\r', '\n' }) == -1)
+            if (text.IndexOfAny(['<', '\r', '\n']) == -1)
             {
                 // Nothing to replace, return as is.
                 return text;
