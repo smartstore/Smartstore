@@ -83,21 +83,21 @@
 
             var elError = null;
 
-            associatedProducts.on('click', '.pd-assoc-title', function (e) {
+            associatedProducts.on('click', '.pd-assoc-header', function (e) {
                 // Collapse/expand body if the header was clicked (excluding controls with 'pd-interaction').
                 if (!$(e.target).closest('.pd-interaction').length) {
                     $($(this).data('target')).collapse('toggle');
                 }
-            }).on('shown.bs.collapse hide.bs.collapse', function (e) {
-                // Toggle 'collapsed' class to display correct chevron.
-                associatedProducts.find('.pd-assoc').addClass('collapsed');
+            }).on('show.bs.collapse shown.bs.collapse hide.bs.collapse', function (e) {
                 if (e.type === 'shown') {
-                    $(e.target).closest('.pd-assoc').removeClass('collapsed');
-
                     if (elError !== null) {
                         scrollToCard(elError);
                         elError = null;
                     }
+                }
+                else {
+                    // Toggle 'collapsed' class to display correct chevron.
+                    $(e.target).prev().toggleClass('collapsed', e.type === 'hide');
                 }
             });
 

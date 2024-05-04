@@ -34,8 +34,8 @@
                 var id = $"associated-product{product.Id}";
                 var viewData = CreateViewData(product, true);
 
-                <div class="pd-assoc update-container collapsed" data-url="@product.UpdateUrl">
-                    <div class="pd-assoc-header" data-partial="AssociatedHeader">
+                <div class="pd-assoc update-container" data-url="@product.UpdateUrl">
+                    <div class="pd-assoc-header collapsed" data-target="#@id" aria-expanded="false" data-partial="AssociatedHeader">
                         <partial name="Product.AssociatedProduct.Header" model="product" view-data="viewData" />
                     </div>
                     <div id="@id" class="collapse" data-parent="#associated-products">

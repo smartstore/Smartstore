@@ -611,12 +611,6 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     row-gap: 0.375rem;
 }
 
-.pd-assoc-list.accordion {
-    .collapsed .collapse-chevron {
-        transform: rotate(-180deg);
-    }
-}
-
 .pd-assoc-header {
     background-color: rgba($black, 0.05);
     border-radius: var(--border-radius-md);
@@ -624,6 +618,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
     &:hover {
         background-color: rgba($black, 0.1);
+    }
+
+    &.collapsed .collapse-chevron {
+        transform: rotate(-180deg);
     }
 }
 
@@ -640,6 +638,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         width: inherit;
         cursor: default;
     }
+
+/*    .numberinput:not(:hover, :active, :focus), 
+    .btn-secondary:not(:hover, :active, :focus) {
+        border-color: transparent;
+        box-shadow: none;
+    }*/
 
     .collapse-chevron {
         height: max-content;
