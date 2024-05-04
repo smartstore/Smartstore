@@ -44,7 +44,7 @@ namespace Smartstore.Web.Controllers
                 Customer = customer,
                 Store = store,
                 Currency = _services.WorkContext.WorkingCurrency,
-                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false),
+                BatchContext = _productService.CreateProductBatchContext([product], store, customer, false),
                 DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice),
                 IsAssociatedProduct = isAssociatedProduct,
                 ProductBundleItem = bundleItem

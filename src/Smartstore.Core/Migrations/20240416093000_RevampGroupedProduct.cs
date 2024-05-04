@@ -10,7 +10,7 @@ namespace Smartstore.Core.Migrations
     internal class RevampGroupedProduct : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         const string ProductTableName = nameof(Product);
-        const string ConfigurationColumn = nameof(Product.ProductTypeConfiguration);
+        const string ConfigurationColumn = "ProductTypeConfiguration";
 
         public DataSeederStage Stage => DataSeederStage.Early;
         public bool AbortOnFailure => false;
@@ -42,7 +42,6 @@ namespace Smartstore.Core.Migrations
                 "Page size of associated products list",
                 "Listengröße der verknüpften Produkte");
 
-            // TODO: (mg) (mc) Needs better terminology than Kopfzeile (?)
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
                 "Felder in der Titelzeile",

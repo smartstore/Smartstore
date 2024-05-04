@@ -19,7 +19,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -54,6 +53,9 @@ namespace Smartstore.Core.Catalog.Products
                 .WithMany()
                 .HasForeignKey(c => c.ComparePriceLabelId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Property(c => c.GroupedProductConfiguration)
+                .HasConversion(new GroupedProductConfigurationConverter());
 
             builder
                 .HasMany(c => c.ProductTags)
@@ -170,37 +172,11 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int ParentGroupedProductId { get; set; }
 
-        private string _productTypeConfiguration;
-        private GroupedProductConfiguration _groupedProductConfiguration;
-        // TODO: (mc) (mg) Investigate new EF 8 custom property type feature.
         /// <summary>
-        /// Gets or sets a JSON-formatted configuration depending on the <see cref="ProductType"/> (optional).
-        /// <see cref="GroupedProductConfiguration"/> for <see cref="ProductType.GroupedProduct"/>.
+        /// Gets or sets the configuration for a grouped product (optional).
         /// </summary>
-        [MaxLength]
-        public string ProductTypeConfiguration
-        {
-            get => _productTypeConfiguration;
-            set
-            {
-                _productTypeConfiguration = value;
-                _groupedProductConfiguration = null;
-            }
-        }
-
-        [NotMapped, IgnoreDataMember]
-        public GroupedProductConfiguration GroupedProductConfiguration
-        {
-            get
-            {
-                if (_groupedProductConfiguration == null && ProductTypeConfiguration.HasValue())
-                {
-                    _groupedProductConfiguration = CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(ProductTypeConfiguration));
-                }
-
-                return _groupedProductConfiguration;
-            }
-        }
+        [MaxLength, Column("ProductTypeConfiguration")]
+        public GroupedProductConfiguration GroupedProductConfiguration { get; set; }
 
         /// <summary>
         /// Gets or sets the visibility level of the product.
