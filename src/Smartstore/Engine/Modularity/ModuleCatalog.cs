@@ -7,6 +7,7 @@ namespace Smartstore.Engine.Modularity
     {
         private readonly FrozenDictionary<string, IModuleDescriptor> _nameMap;
         private readonly FrozenDictionary<Assembly, IModuleDescriptor> _assemblyMap;
+        private readonly FrozenDictionary<string, IModuleDescriptor> _themeMap;
 
         public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
         {
@@ -14,6 +15,7 @@ namespace Smartstore.Engine.Modularity
 
             var nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
             var assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
+            var themeMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var module in modules)
             {
@@ -23,10 +25,20 @@ namespace Smartstore.Engine.Modularity
                 {
                     assemblyMap[module.Module.Assembly] = module;
                 }
+
+                if (module.Theme.HasValue())
+                {
+                    themeMap[module.Theme] = module;
+                }
             }
 
             _nameMap = nameMap.ToFrozenDictionary();
             _assemblyMap = assemblyMap.ToFrozenDictionary();
+
+            if (themeMap.Count > 0)
+            {
+                _themeMap = themeMap.ToFrozenDictionary();
+            }
 
             IncompatibleModules = modules
                 .Where(x => x.Incompatible)
@@ -66,7 +78,22 @@ namespace Smartstore.Engine.Modularity
             if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
             {
                 if (!installedOnly || descriptor.IsInstalled())
+                {
                     return descriptor;
+                } 
+            }
+
+            return null;
+        }
+
+        public IModuleDescriptor GetModuleByTheme(string themeName, bool installedOnly = true)
+        {
+            if (_themeMap != null && themeName.HasValue() && _themeMap.TryGetValue(themeName, out var descriptor))
+            {
+                if (!installedOnly || descriptor.IsInstalled())
+                {
+                    return descriptor;
+                }
             }
 
             return null;
