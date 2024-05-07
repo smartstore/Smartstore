@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
+using Smartstore.Core.Theming;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Razor
@@ -26,10 +27,35 @@ namespace Smartstore.Web.Razor
 
                 if (module != null)
                 {
+                    var ext = RazorViewEngine.ViewExtension;
+
+                    // Resolve current theme
+                    if (context.Values.TryGetValue(ThemeViewLocationExpander.ParamKey, out var themeName))
+                    {
+                        // Try to get the companion module of current theme
+                        var themeModule = _moduleCatalog.GetModuleByTheme(themeName);
+                        if (themeModule != null && themeModule.DependsOn.Contains(module.SystemName))
+                        {
+                            // Current theme's companion module depends on current module
+                            var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
+                            var theme = themeRegistry.GetThemeDescriptor(themeName);
+
+                            var combinedViewLocations = new[]
+                            {
+                                $"{theme.Path}Views/{{1}}/{{0}}" + ext,
+                                $"{theme.Path}Views/Shared/{{0}}" + ext,
+                                $"{module.Path}Views/{{1}}/{{0}}" + ext,
+                                $"{module.Path}Views/Shared/{{0}}" + ext,
+                            };
+
+                            return combinedViewLocations.Union(viewLocations);
+                        }
+                    }
+                    
                     var moduleViewLocations = new[]
                     {
-                        $"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
-                        $"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension,
+                        $"{module.Path}Views/{{1}}/{{0}}" + ext,
+                        $"{module.Path}Views/Shared/{{0}}" + ext,
                     };
 
                     return moduleViewLocations.Union(viewLocations);

@@ -6,7 +6,7 @@ namespace Smartstore.Web.Razor
 {
     internal class ThemeViewLocationExpander : IViewLocationExpander
     {
-        const string ParamKey = "theme";
+        internal const string ParamKey = "theme";
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
