@@ -9,7 +9,7 @@ namespace Smartstore.Core.Search
     {
         string FieldName { get; }
         SearchFilterOccurence Occurence { get; }
-        float Boost { get; }
+        float? Boost { get; }
     }
 
     public interface ICombinedSearchFilter : ISearchFilter
@@ -77,10 +77,10 @@ namespace Smartstore.Core.Search
             }
             else if (filter is IAttributeSearchFilter attrFilter && ConvertUtility.TryConvert<T>(attrFilter.Term, out var convertedValue))
             {
-                return new T[] { convertedValue! };
+                return [convertedValue!];
             }
 
-            return Array.Empty<T>();
+            return [];
         }
 
         public static T[] GetTermsArray<T>(this ICombinedSearchFilter filter)
