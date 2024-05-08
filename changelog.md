@@ -129,6 +129,8 @@
 - Google Analytics: Fixed problem with single quotation mark in category name.
 - #983 Uploaded product variant file is lost after selecting any other variant option (in product details).
 - Fixed missing line breaks for product attributes in the print/PDF view of orders.
+- SEO: Marked product list filter option links as nofollow.
+- SEO: fixed redirection error for TrailingSlashRule setting redirect.
 
 
 ## Smartstore 5.1.0
