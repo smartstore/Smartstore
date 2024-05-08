@@ -18,7 +18,7 @@ namespace Smartstore.Core.Search
         /// </param>
         /// <param name="query">Search query.</param>
         /// <returns>New sorting. <c>null</c> to let the caller handle sorting.</returns>
-        SearchSort GetSorting(SearchSort sort, ISearchQuery query);
+        IList<SearchSort> GetSorting(SearchSort sort, ISearchQuery query);
 
         /// <summary>
         /// Gets the boost factor. The higher the boost factor, the more relevant the search term will be

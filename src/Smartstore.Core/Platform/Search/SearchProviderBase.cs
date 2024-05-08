@@ -4,7 +4,7 @@ namespace Smartstore.Core.Search
 {
     public abstract partial class SearchProviderBase : ISearchProvider
     {
-        public virtual SearchSort GetSorting(SearchSort sort, ISearchQuery query)
+        public virtual IList<SearchSort> GetSorting(SearchSort sort, ISearchQuery query)
             => null;
 
         public virtual float? GetBoost(ISearchFilter filter)
