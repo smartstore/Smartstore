@@ -17,6 +17,7 @@ namespace Smartstore.Core.Identity
 
         class CookieConsentFilter : IActionFilter, IResultFilter
         {
+            // System names of topics that should not display the consent banner (because it would overlay important legal text)
             readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
 
             private readonly PrivacySettings _privacySettings;
@@ -168,24 +169,16 @@ namespace Smartstore.Core.Identity
                     return;
                 }
 
-                // Check for topics which are excluded from showing the CookieManager.
-                var controllerName = context.RouteData.Values.GetControllerName();
-                var actionName = context.RouteData.Values.GetActionName();
-
-                if (controllerName.Equals("Topic") && actionName.Equals("TopicDetails"))
+                // Check for topics which are excluded from displaying the CookieManager.
+                var routeIdent = context.RouteData.Values.GenerateRouteIdentifier();
+                if (routeIdent == "Topic.TopicDetails")
                 {
                     if (context.Result is ViewResult vr && vr.Model != null)
                     {
                         var modelType = vr.Model.GetType();
-                        var systemNameProperty = modelType.GetProperty("SystemName");
-
-                        if (systemNameProperty != null)
+                        if (modelType.GetProperty("SystemName")?.GetValue(vr.Model) is string systemNameValue && UnprocessableTopics.Contains(systemNameValue))
                         {
-                            var systemNameValue = systemNameProperty.GetValue(vr.Model);
-                            if (systemNameValue != null && UnprocessableTopics.Contains(systemNameValue.ToString()))
-                            {
-                                return;
-                            }
+                            return;
                         }
                     }
                 }
