@@ -17,11 +17,13 @@ namespace Smartstore.Core.Identity
 
         class CookieConsentFilter : IActionFilter, IResultFilter
         {
+            readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
+
             private readonly PrivacySettings _privacySettings;
             private readonly ICookieConsentManager _cookieConsentManager;
             private readonly IUserAgent _userAgent;
             private readonly IWidgetProvider _widgetProvider;
-
+            
             private bool _isProcessableRequest;
 
             public CookieConsentFilter(
@@ -164,6 +166,28 @@ namespace Smartstore.Core.Identity
                 if (!context.Result.IsHtmlViewResult())
                 {
                     return;
+                }
+
+                // Check for topics which are excluded from showing the CookieManager.
+                var controllerName = context.RouteData.Values.GetControllerName();
+                var actionName = context.RouteData.Values.GetActionName();
+
+                if (controllerName.Equals("Topic") && actionName.Equals("TopicDetails"))
+                {
+                    if (context.Result is ViewResult vr && vr.Model != null)
+                    {
+                        var modelType = vr.Model.GetType();
+                        var systemNameProperty = modelType.GetProperty("SystemName");
+
+                        if (systemNameProperty != null)
+                        {
+                            var systemNameValue = systemNameProperty.GetValue(vr.Model);
+                            if (systemNameValue != null && UnprocessableTopics.Contains(systemNameValue.ToString()))
+                            {
+                                return;
+                            }
+                        }
+                    }
                 }
 
                 _widgetProvider.RegisterWidget("end", new ComponentWidget("CookieManager", null));
