@@ -29,6 +29,7 @@
 - Enhanced database optimization and vacuum operations
 - Vacuum single database table
 - #909 Allow to control the product availability based on the existence of an attribute combination.
+- MegaSearch: setting to place the search hits of unavailable products further back in the search list.
 - Affiliates
   - #896 Added a cart rule for affiliates.
   - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
