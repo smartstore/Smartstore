@@ -20,7 +20,7 @@
             {
                 var sortName = (Model is ProductSummaryModel && sort.Key == (int)ProductSortingEnum.Relevance) ? Model.RelevanceSortOrderName : null;
                 var isSelected = sort.Key == Model.CurrentSortOrder;
-                <a href="@Display.ModifyQueryString(null, $"?o={sort.Key}", removeParamName: "i")" class="dropdown-item" attr-class='(isSelected, "fwm")'>
+                <a href="@Display.ModifyQueryString(null, $"?o={sort.Key}", removeParamName: "i")" class="dropdown-item" attr-class='(isSelected, "fwm")' rel="nofollow">
                     @(sortName ?? sort.Value)
                 </a>
             }
