@@ -29,7 +29,7 @@ namespace Smartstore.Core.Seo
                 return;
             }
 
-            if (!policy.Path.HasValue)
+            if (!policy.Path.Value.HasValue())
             {
                 // Don't apply rule to homepage.
                 return;
@@ -66,7 +66,8 @@ namespace Smartstore.Core.Seo
                 {
                     var newPath = shouldAppendTrailingSlash
                         ? policy.Path.Value + '/'
-                        : policy.Path.Value[..^1];
+                        : policy.Path.Value;
+
                     policy.Path.Modify(newPath);
                 }
             }

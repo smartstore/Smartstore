@@ -581,7 +581,7 @@ namespace Smartstore.Core.Installation
                         IncludeInSitemap = false,
                         IsPasswordProtected = false,
                         Title = "Imprint",
-                        Body = "<p>Put your imprint information here. YOu can edit this in the admin site.</p>"
+                        Body = "<p>Put your imprint information here. You can edit this in the admin site.</p>"
                     },
                 new Topic
                     {
@@ -1407,9 +1407,9 @@ namespace Smartstore.Core.Installation
             => SlugUtility.Slugify(name, _slugifyOptions);
 
         protected static Currency CreateCurrency(
-            string locale, 
-            decimal rate = 1M, 
-            bool published = false, 
+            string locale,
+            decimal rate = 1M,
+            bool published = false,
             int order = 1,
             string formatting = null)
         {

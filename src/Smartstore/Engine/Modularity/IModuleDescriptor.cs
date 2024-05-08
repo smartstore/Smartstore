@@ -59,7 +59,7 @@
         string SourcePhysicalPath { get; }
 
         /// <summary>
-        /// Theme name (if the module is a theme companion). On build a symbolic link will be created in /Themes/[Theme] to /Modules/[Module].
+        /// Theme name (if the module is a theme companion). On build, a symbolic link will be created in /Themes/[Theme] to /Modules/[Module].
         /// </summary>
         string Theme { get; }
 
@@ -75,6 +75,6 @@
         /// Checks whether the module is installed and loaded.
         /// </summary>
         public static bool IsInstalled(this IModuleDescriptor descriptor)
-            => Guard.NotNull(descriptor, nameof(descriptor)).Module?.Assembly != null;
+            => Guard.NotNull(descriptor).Module?.Assembly != null;
     }
 }

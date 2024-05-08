@@ -487,7 +487,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                  "Collapsible associated products",
                  "Aufklappbare verknüpfte Produkte",
-                 "Specifies whether details of the associated product are expanded/collapsed by clicking on a header (accordion).",
+                 "Specifies whether details of the associated product are expanded/collapsed by clicking on a header (Accordion).",
                  "Legt fest, ob Details zum verknüpften Produkt durch Klick auf eine Titelzeile auf- oder zugeklappt werden (Akkordeon).");
         }
     }
