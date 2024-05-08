@@ -131,6 +131,7 @@
 - Fixed missing line breaks for product attributes in the print/PDF view of orders.
 - SEO: Marked product list filter option links as nofollow.
 - SEO: fixed redirection error for TrailingSlashRule setting redirect.
+- Added function to supress the display of the cookie manager for topics which must always be fully visible without being interupted by the display of the cookie manager.
 
 
 ## Smartstore 5.1.0
