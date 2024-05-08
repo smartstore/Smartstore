@@ -13,7 +13,7 @@
             protected internal set;
         }
 
-        public float Boost
+        public float? Boost
         {
             get;
             protected internal set;

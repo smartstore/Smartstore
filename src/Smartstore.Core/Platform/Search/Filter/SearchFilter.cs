@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Core.Search
+﻿using Parlot.Fluent;
+using static Smartstore.Core.Content.Media.Icons.IconDescription;
+
+namespace Smartstore.Core.Search
 {
     public class SearchFilter : SearchFilterBase, IAttributeSearchFilter
     {
@@ -107,11 +110,18 @@
         }
 
         /// <summary>
-        /// Applies a specific boost to a clause.
+        /// Applies a specific boost factor.
         /// </summary>
-        /// <param name="weight">A value greater than zero, by which the score will be multiplied. 
-        /// If greater than 1, it will improve the weight of a clause</param>
-        public SearchFilter Weighted(float weight)
+        /// <param name="weight">
+        /// The boost factor. The higher the boost factor, the more relevant the search term will be
+        /// and the more in front the search hit will be ranked/scored.
+        /// <c>null</c> to apply the standard boost factor.
+        /// </param>
+        /// <remarks>
+        /// The default boost factor depends on the search engine.
+        /// The default MegaSearch/Lucene search time boost factor is 1.0.
+        /// </remarks>
+        public SearchFilter Weighted(float? weight)
         {
             Boost = weight;
             return this;

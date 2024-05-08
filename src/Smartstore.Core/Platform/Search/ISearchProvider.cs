@@ -18,15 +18,15 @@ namespace Smartstore.Core.Search
         /// </param>
         /// <param name="query">Search query.</param>
         /// <returns>New sorting. <c>null</c> to let the caller handle sorting.</returns>
-        SearchSort GetSorting(SearchSort sort, ISearchQuery query);
+        IList<SearchSort> GetSorting(SearchSort sort, ISearchQuery query);
 
         /// <summary>
-        /// Gets the boost factor for a search filter.
-        /// The value will be multiplied into the score of all hits on the related index field.
+        /// Gets the boost factor. The higher the boost factor, the more relevant the search term will be
+        /// and the more in front the search hit will be ranked/scored.
         /// </summary>
         /// <param name="filter">Search filter.</param>
-        /// <returns>Boost value. <see cref="ISearchFilter.Boost"/> by default. 0 to make no boost.</returns>
-        float GetBoost(ISearchFilter filter);
+        /// <returns>Boost factor. <see cref="ISearchFilter.Boost"/> by default.</returns>
+        float? GetBoost(ISearchFilter filter);
 
         /// <summary>
         /// Gets the localized field name for a search filter.

@@ -100,7 +100,7 @@ namespace Smartstore.Core.Search.Indexing
             return this;
         }
 
-        public IndexField Boost(float factor)
+        public IndexField Boost(float? factor)
         {
             Boosted = factor;
             return this;
@@ -142,7 +142,7 @@ namespace Smartstore.Core.Search.Indexing
             private set;
         }
 
-        public float Boosted
+        public float? Boosted
         {
             get;
             private set;
