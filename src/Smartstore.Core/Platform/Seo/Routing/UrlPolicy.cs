@@ -4,17 +4,12 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Seo.Routing
 {
-    public class UrlSegment
+    public class UrlSegment(string original)
     {
-        public UrlSegment(string original)
-        {
-            Original = original;
-        }
-
         /// <summary>
         /// The original value.
         /// </summary>
-        public string Original { get; internal set; }
+        public string Original { get; internal set; } = original;
 
         private string Modified { get; set; }
 
@@ -33,9 +28,7 @@ namespace Smartstore.Core.Seo.Routing
         /// True if either original or modified string is not empty
         /// </summary>
         public bool HasValue
-            => Modified == string.Empty
-                ? false
-                : Modified != null || Original != null;
+            => Modified != string.Empty && (Modified != null || Original != null);
 
         public string Value
             => Modified == string.Empty ? null : (Modified ?? Original);

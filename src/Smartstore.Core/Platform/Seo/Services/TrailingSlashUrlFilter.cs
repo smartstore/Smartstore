@@ -29,7 +29,7 @@ namespace Smartstore.Core.Seo
                 return;
             }
 
-            if (!policy.Path.Value.HasValue())
+            if (!policy.Path.HasValue)
             {
                 // Don't apply rule to homepage.
                 return;
@@ -65,8 +65,8 @@ namespace Smartstore.Core.Seo
                 else if (rule == TrailingSlashRule.Redirect)
                 {
                     var newPath = shouldAppendTrailingSlash
-                        ? policy.Path.Value + '/'
-                        : policy.Path.Value;
+                        ? policy.Path.Value.EnsureEndsWith('/')
+                        : policy.Path.Value.TrimEnd('/');
 
                     policy.Path.Modify(newPath);
                 }
