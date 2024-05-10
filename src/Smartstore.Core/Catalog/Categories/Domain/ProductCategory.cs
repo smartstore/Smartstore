@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 
 namespace Smartstore.Core.Catalog.Categories
 {
@@ -73,7 +74,11 @@ namespace Smartstore.Core.Catalog.Categories
 
         /// <summary>
         /// Indicates whether the mapping is created by the user or by the system.
+        /// <c>False</c> by default (recommended).
         /// </summary>
+        /// <remarks>
+        /// System mappings are automatically added and deleted (!) by <see cref="ProductRuleEvaluatorTask"/>.
+        /// </remarks>
         public bool IsSystemMapping { get; set; }
     }
 }
