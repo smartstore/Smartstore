@@ -408,7 +408,8 @@ namespace Smartstore.Web.Models.Cart
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new GracefulDynamicObject();
-            itemParameters.TaxFormat = parameters?.IsOffcanvas == true ? _taxService.GetTaxFormat() : null;
+            //itemParameters.TaxFormat = parameters?.IsOffcanvas == true ? _taxService.GetTaxFormat() : null;
+            itemParameters.TaxFormat = _taxService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
             itemParameters.Cart = from;
