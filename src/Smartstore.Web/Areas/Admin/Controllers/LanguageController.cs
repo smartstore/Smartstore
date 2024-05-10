@@ -144,6 +144,8 @@ namespace Smartstore.Admin.Controllers
             AddLocales(model.Locales);
             await PrepareLanguageModel(model, null, false);
 
+            model.DisplayOrder = ((await _db.Languages.MaxAsync(x => (int?)x.DisplayOrder)) ?? 0) + 1;
+
             return View(model);
         }
 
@@ -607,10 +609,6 @@ namespace Smartstore.Admin.Controllers
 
                     if (language == null)
                     {
-                        var maxDisplayOrder = await db.Languages
-                            .Where(x => x.Published)
-                            .MaxAsync(x => (int?)x.DisplayOrder, cancelToken);
-
                         language = new Language
                         {
                             LanguageCulture = source.Language.Culture,
@@ -619,7 +617,7 @@ namespace Smartstore.Admin.Controllers
                             FlagImageFileName = GetFlagFileName(source.Language.Culture, appContext),
                             Rtl = source.Language.Rtl,
                             Published = false,
-                            DisplayOrder = maxDisplayOrder.HasValue ? maxDisplayOrder.Value + 1 : 0
+                            DisplayOrder = ((await db.Languages.MaxAsync(x => (int?)x.DisplayOrder, cancelToken)) ?? 0) + 1
                         };
 
                         db.Languages.Add(language);
