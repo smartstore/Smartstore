@@ -1020,9 +1020,9 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Use fixed rate (if possible).
             var shippingAddress = cart.Customer?.ShippingAddress ?? null;
-            var shippingRateMethods = _shippingService.LoadEnabledShippingProviders(cart.StoreId).ToArray();
+            var shippingRateMethods = _shippingService.LoadEnabledShippingProviders(cart.StoreId)?.ToArray();
 
-            if (shippingRateMethods.Length == 0)
+            if (shippingRateMethods.IsNullOrEmpty())
             {
                 throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
             }
