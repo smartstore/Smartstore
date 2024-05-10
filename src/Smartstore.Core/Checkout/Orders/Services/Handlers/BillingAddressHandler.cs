@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
@@ -30,26 +31,36 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 && context.Model is int addressId 
                 && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.SelectBillingAddress))
             {
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address == null)
+                if (!await SetBillingAddress(customer, addressId))
                 {
                     return new(false);
                 }
 
-                var shippingAddressDiffers = context.GetFormValue("ShippingAddressDiffers")?.ToBool(true) ?? true;
-                var state = _checkoutStateAccessor.CheckoutState;
-                state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers;
-                state.CustomProperties["ShippingAddressDiffers"] = shippingAddressDiffers;
-
-                customer.BillingAddress = address;
-                customer.ShippingAddress = shippingAddressDiffers || !context.Cart.IsShippingRequired ? null : address;
+                await _db.LoadReferenceAsync(customer, x => x.BillingAddress, false, q => q.Include(x => x.Country));
+                var address = customer.BillingAddress;
 
                 if (_shoppingCartSettings.QuickCheckoutEnabled)
                 {
-                    ga.DefaultBillingAddressId = customer.BillingAddress.Id;
-                    if (customer.ShippingAddress != null)
+                    ga.DefaultBillingAddressId = address.Id;
+                }
+
+                // Shipping address.
+                var shippingAddressDiffers = context.GetFormValue("ShippingAddressDiffers")?.ToBool(true) ?? true;
+                var state = _checkoutStateAccessor.CheckoutState;
+                state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers && address.Country.AllowsShipping;
+                state.CustomProperties["ShippingAddressDiffers"] = shippingAddressDiffers;
+
+                if (shippingAddressDiffers || !context.Cart.IsShippingRequired)
+                {
+                    customer.ShippingAddress = null;
+                }
+                else if (address.Country.AllowsShipping)
+                {
+                    customer.ShippingAddress = address;
+
+                    if (_shoppingCartSettings.QuickCheckoutEnabled)
                     {
-                        ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                        ga.DefaultShippingAddressId = address.Id;
                     }
                 }
 
@@ -58,19 +69,9 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(true);
             }
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled)
+            if (_shoppingCartSettings.QuickCheckoutEnabled && await SetBillingAddress(customer, ga.DefaultBillingAddressId ?? 0))
             {
-                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == ga.DefaultBillingAddressId);
-                if (defaultAddress != null)
-                {
-                    if (customer.BillingAddressId != defaultAddress.Id)
-                    {
-                        customer.BillingAddress = defaultAddress;
-                        await _db.SaveChangesAsync();
-                    }
-
-                    return new(true);
-                }
+                return new(true);
             }
 
             if (customer.BillingAddressId == null)
@@ -78,9 +79,41 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(false);
             }
 
-            await _db.LoadReferenceAsync(customer, x => x.BillingAddress);
+            await _db.LoadReferenceAsync(customer, x => x.BillingAddress, false, q => q.Include(x => x.Country));
 
             return new(customer.BillingAddress != null);
+        }
+
+        private async Task<bool> SetBillingAddress(Customer customer, int addressId)
+        {
+            var address = addressId != 0 ? customer.Addresses.FirstOrDefault(x => x.Id == addressId) : null;
+            if (address == null)
+            {
+                return false;
+            }
+
+            await _db.LoadReferenceAsync(address, x => x.Country);
+
+            if (address.Country.AllowsBilling)
+            {
+                if (customer.BillingAddressId != address.Id)
+                {
+                    customer.BillingAddress = address;
+                    await _db.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            else
+            {
+                if (customer.BillingAddressId == address.Id)
+                {
+                    customer.BillingAddress = null;
+                    await _db.SaveChangesAsync();
+                }
+
+                return false;
+            }
         }
     }
 }

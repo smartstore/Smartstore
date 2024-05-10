@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
@@ -30,20 +31,21 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 && context.Model is int addressId 
                 && context.IsCurrentRoute(HttpMethods.Post, CheckoutActionNames.SelectShippingAddress))
             {
-                var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-                if (address == null)
+                if (!await SetShippingAddress(customer, addressId))
                 {
                     return new(false);
                 }
 
-                customer.ShippingAddress = address;
+                await _db.LoadReferenceAsync(customer, x => x.ShippingAddress, false, q => q.Include(x => x.Country));
+                var address = customer.ShippingAddress;
 
-                if (_shoppingCartSettings.QuickCheckoutEnabled)
+                if (_shoppingCartSettings.QuickCheckoutEnabled
+                    && address.Country.AllowsShipping
+                    && ga.DefaultShippingAddressId != address.Id)
                 {
-                    ga.DefaultShippingAddressId = customer.ShippingAddress.Id;
+                    ga.DefaultShippingAddressId = address.Id;
+                    await _db.SaveChangesAsync();
                 }
-
-                await _db.SaveChangesAsync();
 
                 return new(true);
             }
@@ -65,19 +67,11 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             state.CustomProperties.Remove("SkipShippingAddress");
             state.CustomProperties.Remove("ShippingAddressDiffers");
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled && !addressDiffers)
+            if (_shoppingCartSettings.QuickCheckoutEnabled 
+                && !addressDiffers 
+                && await SetShippingAddress(customer, ga.DefaultShippingAddressId ?? 0))
             {
-                var defaultAddress = customer.Addresses.FirstOrDefault(x => x.Id == ga.DefaultShippingAddressId);
-                if (defaultAddress != null)
-                {
-                    if (customer.ShippingAddressId != defaultAddress.Id)
-                    {
-                        customer.ShippingAddress = defaultAddress;
-                        await _db.SaveChangesAsync();
-                    }
-
-                    return new(true);
-                }
+                return new(true);
             }
 
             if (customer.ShippingAddressId == null)
@@ -85,9 +79,41 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(false, null, skip);
             }
 
-            await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
+            await _db.LoadReferenceAsync(customer, x => x.ShippingAddress, false, q => q.Include(x => x.Country));
 
             return new(customer.ShippingAddress != null, null, skip);
+        }
+
+        private async Task<bool> SetShippingAddress(Customer customer, int addressId)
+        {
+            var address = addressId != 0 ? customer.Addresses.FirstOrDefault(x => x.Id == addressId) : null;
+            if (address == null)
+            {
+                return false;
+            }
+
+            await _db.LoadReferenceAsync(address, x => x.Country);
+
+            if (address.Country.AllowsShipping)
+            {
+                if (customer.ShippingAddressId != address.Id)
+                {
+                    customer.ShippingAddress = address;
+                    await _db.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            else
+            {
+                if (customer.ShippingAddressId == address.Id)
+                {
+                    customer.ShippingAddress = null;
+                    await _db.SaveChangesAsync();
+                }
+
+                return false;
+            }
         }
     }
 }
