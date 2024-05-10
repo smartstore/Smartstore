@@ -1009,38 +1009,33 @@ namespace Smartstore.Core.Checkout.Orders
         protected virtual async Task<(decimal? Amount, Discount AppliedDiscount)> GetAdjustedShippingTotalAsync(ShoppingCart cart)
         {
             var shippingOption = cart.Customer?.GenericAttributes?.SelectedShippingOption;
-
             if (shippingOption != null)
             {
-                // Use last shipping option (get from cache).
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(cart.StoreId);
 
                 return await AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
             }
-            else
+
+            await _db.LoadReferenceAsync(cart.Customer, x => x.ShippingAddress);
+
+            // Use fixed rate (if possible).
+            var shippingAddress = cart.Customer?.ShippingAddress ?? null;
+            var shippingRateMethods = _shippingService.LoadEnabledShippingProviders(cart.StoreId).ToArray();
+
+            if (shippingRateMethods.Length == 0)
             {
-                await _db.LoadReferenceAsync(cart.Customer, x => x.ShippingAddress);
+                throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
+            }
 
-                // Use fixed rate (if possible).
-                var shippingAddress = cart.Customer?.ShippingAddress ?? null;
-                var shippingRateComputationMethods = _shippingService.LoadEnabledShippingProviders(cart.StoreId);
+            if (shippingRateMethods.Length == 1)
+            {
+                var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart, shippingAddress, cart.StoreId);
+                var fixedRate = await shippingRateMethods[0].Value.GetFixedRateAsync(getShippingOptionRequest);
 
-                if (!shippingRateComputationMethods.Any())
+                if (fixedRate.HasValue)
                 {
-                    throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
-                }
-
-                if (shippingRateComputationMethods.Count() == 1)
-                {
-                    var shippingRateComputationMethod = shippingRateComputationMethods.First();
-                    var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart, shippingAddress, cart.StoreId);
-                    var fixedRate = await shippingRateComputationMethod.Value.GetFixedRateAsync(getShippingOptionRequest);
-
-                    if (fixedRate.HasValue)
-                    {
-                        // Ignore returned currency. The caller specifies it to avoid mixed currencies during calculation.
-                        return await AdjustShippingRateAsync(cart, fixedRate.Value, null, null);
-                    }
+                    // Ignore returned currency. The caller specifies it to avoid mixed currencies during calculation.
+                    return await AdjustShippingRateAsync(cart, fixedRate.Value, null, null);
                 }
             }
 
