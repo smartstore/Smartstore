@@ -15,24 +15,25 @@ namespace Smartstore.Web.Razor
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
                 var theme = themeRegistry.GetThemeDescriptor(themeName);
                 var themeViewLocations = new List<string>(4);
-
+                
                 while (theme != null)
                 {
                     // INFO: we won't rely on ModularFileProvider's ability to find files in the 
                     // theme hierarchy chain, because of possible view path mismatches. Any mismatch
                     // starts the razor compiler, and we don't want that.
 
+                    var ext = RazorViewEngine.ViewExtension;
                     var module = theme.CompanionModule;
                     if (module == null)
                     {
-                        themeViewLocations.Add($"{theme.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                        themeViewLocations.Add($"{theme.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{theme.Path}Views/{{1}}/{{0}}" + ext);
+                        themeViewLocations.Add($"{theme.Path}Views/Shared/{{0}}" + ext);
                     }
                     else
                     {
                         // Locate in linked module directory, not in theme directory. 
-                        themeViewLocations.Add($"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                        themeViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                        themeViewLocations.Add($"{module.Path}Views/{{1}}/{{0}}" + ext);
+                        themeViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + ext);
                     }
 
                     theme = theme.BaseTheme;

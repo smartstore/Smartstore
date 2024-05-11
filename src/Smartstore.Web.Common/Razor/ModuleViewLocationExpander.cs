@@ -23,40 +23,30 @@ namespace Smartstore.Web.Razor
         {
             if (context.Values.TryGetValue(ParamKey, out var moduleName))
             {
-                var module = _moduleCatalog.GetModuleByName(moduleName);
+                var module = _moduleCatalog.GetModuleByName(moduleName); // FAQ
 
                 if (module != null)
                 {
                     var ext = RazorViewEngine.ViewExtension;
+                    var moduleViewLocations = new List<string>(4);
 
-                    // Resolve current theme
-                    if (context.Values.TryGetValue(ThemeViewLocationExpander.ParamKey, out var themeName))
+                    // Check if there are dependencies for this module in the current theme module
+                    if (context.Values.TryGetValue(ThemeViewLocationExpander.ParamKey, out var themeName)) // HP
                     {
-                        // Try to get the companion module of current theme
                         var themeModule = _moduleCatalog.GetModuleByTheme(themeName);
-                        if (themeModule != null && themeModule.DependsOn.Contains(module.SystemName))
+                        if (themeModule != null && themeModule.DependsOn.Contains(module.SystemName)) 
                         {
                             // Current theme's companion module depends on current module
                             var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
                             var theme = themeRegistry.GetThemeDescriptor(themeName);
 
-                            var combinedViewLocations = new[]
-                            {
-                                $"{theme.Path}Views/{{1}}/{{0}}" + ext,
-                                $"{theme.Path}Views/Shared/{{0}}" + ext,
-                                $"{module.Path}Views/{{1}}/{{0}}" + ext,
-                                $"{module.Path}Views/Shared/{{0}}" + ext,
-                            };
-
-                            return combinedViewLocations.Union(viewLocations);
+                            moduleViewLocations.Add($"{theme.Path}Views/{{1}}/{{0}}" + ext);
+                            moduleViewLocations.Add($"{theme.Path}Views/Shared/{{0}}" + ext);
                         }
                     }
-                    
-                    var moduleViewLocations = new[]
-                    {
-                        $"{module.Path}Views/{{1}}/{{0}}" + ext,
-                        $"{module.Path}Views/Shared/{{0}}" + ext,
-                    };
+
+                    moduleViewLocations.Add($"{module.Path}Views/{{1}}/{{0}}" + ext);
+                    moduleViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + ext);
 
                     return moduleViewLocations.Union(viewLocations);
                 }
