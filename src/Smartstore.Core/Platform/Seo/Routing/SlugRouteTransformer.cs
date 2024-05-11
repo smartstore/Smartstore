@@ -137,7 +137,7 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
-            var slug = policy.Path.ToString();
+            var slug = policy.Path.ToString().TrimEnd('/');
             if (slug.IsEmpty())
             {
                 return null;

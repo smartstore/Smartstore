@@ -28,7 +28,9 @@ namespace Smartstore.Core.Seo.Routing
         /// True if either original or modified string is not empty
         /// </summary>
         public bool HasValue
-            => Modified != string.Empty && (Modified != null || Original != null);
+            => Modified == string.Empty
+                ? false
+                : Modified != null || Original != null;
 
         public string Value
             => Modified == string.Empty ? null : (Modified ?? Original);
@@ -66,7 +68,7 @@ namespace Smartstore.Core.Seo.Routing
             Host = new UrlSegment(request.Host.Value);
             PathBase = new UrlSegment(request.PathBase.Value);
             Culture = new UrlSegment(cultureCode);
-            Path = new UrlSegment(path.Trim('/'));
+            Path = new UrlSegment(path.TrimStart('/'));
             QueryString = new UrlSegment(request.QueryString.Value);
             Method = request.Method;
             IsLocalizedUrl = cultureCode != null;
