@@ -6,6 +6,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -118,6 +119,31 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Cms.Topic.Delete)]
+        public async Task<IActionResult> TopicDelete(GridSelection selection)
+        {
+            var success = false;
+            var count = 0;
+            var entities = await _db.Topics.GetManyAsync(selection.GetEntityIds(), true);
+
+            if (entities.Count > 0)
+            {
+                try
+                {
+                    _db.Topics.RemoveRange(entities);
+                    count = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = count });
         }
 
         [Permission(Permissions.Cms.Topic.Create)]
@@ -305,7 +331,7 @@ namespace Smartstore.Admin.Controllers
             var topic = await _db.Topics.FindByIdAsync(id);
             if (topic == null)
             {
-                return RedirectToAction(nameof(List));
+                return NotFound();
             }
 
             if (topic.IsSystemTopic)

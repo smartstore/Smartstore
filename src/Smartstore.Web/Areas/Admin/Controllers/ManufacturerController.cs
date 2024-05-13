@@ -157,6 +157,25 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [HttpPost]
+        [Permission(Permissions.Catalog.Manufacturer.Delete)]
+        public async Task<IActionResult> ManufacturerDelete(GridSelection selection)
+        {
+            var entities = await _db.Manufacturers.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
+            {
+                _db.Manufacturers.RemoveRange(entities);
+                await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteManufacturer, 
+                    T("ActivityLog.DeleteManufacturer"), 
+                    string.Join(", ", entities.Select(x => x.Name)));
+            }
+
+            return Json(new { Success = true, entities.Count });
+        }
+
         [Permission(Permissions.Catalog.Manufacturer.Create)]
         public async Task<IActionResult> Create()
         {

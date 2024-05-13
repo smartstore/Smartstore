@@ -929,7 +929,7 @@ Vue.component("sm-datagrid", {
                         success(result) {
                             if (result.Success || result.success) {
                                 self.selectedRows = {};
-                                displayNotification(self.T.deleteSuccess.format(result.Count || numRows), "success");
+                                displayNotification(self.T.deleteSuccess.format(result.Count !== undefined ? result.Count : numRows), "success");
                                 self.$emit("deleted-rows", rowKeys);
                                 self.read();
                             }

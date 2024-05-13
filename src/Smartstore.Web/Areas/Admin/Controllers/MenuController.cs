@@ -216,17 +216,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> MenuEntityDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
+            var count = 0;
+            var entities = await _db.Menus.GetManyAsync(selection.GetEntityIds(), true);
 
-            if (ids.Any())
+            if (entities.Count > 0)
             {
                 try
                 {
-                    var menus = await _db.Menus.GetManyAsync(ids, true);
-                    _db.Menus.RemoveRange(menus);
-
-                    numDeleted = await _db.SaveChangesAsync();
+                    _db.Menus.RemoveRange(entities);
+                    count = await _db.SaveChangesAsync();
                     success = true;
                 }
                 catch (Exception ex)
@@ -235,7 +233,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success, Count = count });
         }
 
         [Permission(Permissions.Cms.Menu.Create)]

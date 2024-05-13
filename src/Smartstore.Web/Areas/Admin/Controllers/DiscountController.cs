@@ -118,6 +118,25 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [HttpPost]
+        [Permission(Permissions.Promotion.Discount.Delete)]
+        public async Task<IActionResult> DiscountDelete(GridSelection selection)
+        {
+            var entities = await _db.Discounts.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
+            {
+                _db.Discounts.RemoveRange(entities);
+                await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteDiscount, 
+                    T("ActivityLog.DeleteDiscount"), 
+                    string.Join(", ", entities.Select(x => x.Name)));
+            }
+
+            return Json(new { Success = true, entities.Count });
+        }
+
         [Permission(Permissions.Promotion.Discount.Create)]
         public IActionResult Create()
         {

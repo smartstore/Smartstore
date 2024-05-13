@@ -6,8 +6,12 @@
     var parentModel = ViewData["Parent"] as TopicListModel;
 }
 
-<datagrid id="productattributes-grid" allow-resize="true" allow-column-reordering="true" allow-edit="true">
-    <datasource read="@Url.Action("TopicList")" />
+<datagrid id="productattributes-grid" 
+          allow-resize="true" 
+          allow-row-selection="true"
+          allow-column-reordering="true" 
+          allow-edit="true">
+    <datasource read="@Url.Action("TopicList")" delete="@Url.Action("TopicDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
         <sort by="SystemName" />
@@ -21,7 +25,7 @@
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")...</span>
+                <span>@T("Admin.Common.AddNew")…</span>
             </a>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
@@ -29,6 +33,15 @@
             </button>
             <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
                 <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
     </toolbar>

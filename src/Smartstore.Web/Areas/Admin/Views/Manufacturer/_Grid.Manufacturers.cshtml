@@ -3,16 +3,15 @@
 @{
     var parentModel = ViewData["Parent"] as ManufacturerListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
-    var hasToolbarZoneWidgets = await Display.ZoneHasWidgetsAsync("datagrid_toolbar_omega");
 }
 
 <datagrid id="manufacturers-grid" class="h-100"
           allow-resize="true"
-          allow-row-selection="hasToolbarZoneWidgets"
+          allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true"
           onrowclass="manufacturersGrid_onRowClass">
-    <datasource read="@Url.Action("ManufacturerList")" />
+    <datasource read="@Url.Action("ManufacturerList")" delete="@Url.Action("ManufacturerDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
@@ -29,7 +28,15 @@
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
         </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
     </toolbar>
     <search-panel>
         <partial name="_Grid.Manufacturers.Search" model="parentModel" />

@@ -8,7 +8,7 @@
 
 <datagrid id="menus-grid"
           allow-resize="true"
-          allow-row-selection="false"
+          allow-row-selection="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("MenuEntityList", "Menu")" delete="@Url.Action("MenuEntityDelete", "Menu")" />
     <sorting enabled="true">
@@ -24,8 +24,17 @@
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")...</span>
+                <span>@T("Admin.Common.AddNew")…</span>
             </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
         </toolbar-group>
     </toolbar>
     <search-panel>

@@ -6,9 +6,10 @@
 
 <datagrid id="discounts-grid"
           allow-resize="true"
+          allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("DiscountList")" />
+    <datasource read="@Url.Action("DiscountList")" delete="@Url.Action("DiscountDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="Name" />
@@ -22,10 +23,18 @@
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")</span>
+                <span>@T("Admin.Common.AddNew")…</span>
             </a>
         </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
     </toolbar>
     <search-panel>
         <partial name="_Grid.Discounts.Search" model="parentModel" />
