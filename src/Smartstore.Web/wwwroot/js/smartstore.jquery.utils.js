@@ -292,7 +292,7 @@
             });
         },
 
-        // Element must be decorated with visibilty:hidden
+        // Element must be decorated with visibility:hidden
         masonryGrid: function (itemSelector, callback) {
 
             return this.each(function () {
