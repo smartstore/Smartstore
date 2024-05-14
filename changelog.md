@@ -136,6 +136,7 @@
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
+- PayPal: Fixed VAT exempt & currency conversion problems
 
 
 ## Smartstore 5.1.0
