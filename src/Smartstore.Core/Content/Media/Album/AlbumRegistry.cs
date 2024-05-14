@@ -47,7 +47,7 @@ namespace Smartstore.Core.Content.Media
             {
                 o.ExpiresIn(TimeSpan.FromHours(24));
                 return LoadAllAlbums().ToDictionary(x => x.Name);
-            });
+            }, independent: true, allowRecursion: true);
 
             return albums;
         }

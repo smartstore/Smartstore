@@ -16,12 +16,10 @@ namespace Smartstore.Core.Content.Media
         private readonly Dictionary<BaseEntity, HashSet<MediaTrack>> _actionsTemp = new();
 
         private readonly Lazy<IMediaTracker> _mediaTracker;
-        private readonly SmartDbContext _db;
 
-        public MediaTrackerHook(Lazy<IMediaTracker> mediaTracker, SmartDbContext db)
+        public MediaTrackerHook(Lazy<IMediaTracker> mediaTracker)
         {
             _mediaTracker = mediaTracker;
-            _db = db;
         }
 
         internal static bool Silent { get; set; }
