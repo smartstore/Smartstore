@@ -90,11 +90,8 @@
 
     window.base64Encode = function (value) {
         if (value) {
-            try {
-                var bytes = new TextEncoder().encode(value);
-                value = btoa(Array.from(bytes, (byte) => String.fromCodePoint(byte)).join(""));
-            }
-            catch (e) { }
+            var bytes = new TextEncoder().encode(value);
+            return btoa(Array.from(bytes, (byte) => String.fromCodePoint(byte)).join(""));
         }
 
         return value;
@@ -104,11 +101,8 @@
     // https://stackoverflow.com/a/30106551/23705546
     window.base64Decode = function (value) {
         if (value) {
-            try {
-                const bytes = Uint8Array.from(atob(value), (m) => m.codePointAt(0));
-                value = new TextDecoder().decode(bytes);
-            }
-            catch (e) { }
+            const bytes = Uint8Array.from(atob(value), (m) => m.codePointAt(0));
+            return new TextDecoder().decode(bytes);
         }
 
         return value;

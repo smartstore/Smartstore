@@ -462,6 +462,7 @@
                     $el.data('entity-id') &&
                     assignableFileIds !== "" &&
                     assignableFiles.length > 0) {
+
                     $.ajax({
                         async: true,
                         cache: false,
@@ -505,7 +506,7 @@
                                     dzResetProgressBar(elPreview.find(".progress-bar"));
                                 }
                                 else {
-                                    console.log("Error while adding preview element.", value.Name.toLowerCase());
+                                    console.log(`Error while adding preview element '${value.Name.toLowerCase()}'.`);
                                 }
                             });
 
@@ -774,8 +775,9 @@
                         }
                     }
 
-                    if (fileIds !== "")
+                    if (fileIds !== "") {
                         assignFilesToEntity(filesToAssign, fileIds, false);
+                    }
                 }
             });
         });
