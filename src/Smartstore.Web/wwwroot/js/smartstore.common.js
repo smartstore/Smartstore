@@ -88,6 +88,32 @@
         return $('<div/>').html(value).text();
     };
 
+    window.base64Encode = function (value) {
+        if (value) {
+            try {
+                var bytes = new TextEncoder().encode(value);
+                value = btoa(Array.from(bytes, (byte) => String.fromCodePoint(byte)).join(""));
+            }
+            catch (e) { }
+        }
+
+        return value;
+    };
+
+    // https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
+    // https://stackoverflow.com/a/30106551/23705546
+    window.base64Decode = function (value) {
+        if (value) {
+            try {
+                const bytes = Uint8Array.from(atob(value), (m) => m.codePointAt(0));
+                value = new TextDecoder().decode(bytes);
+            }
+            catch (e) { }
+        }
+
+        return value;
+    };
+
     // TODO: Move to another location when current summernote developments are finished.
     window.insertHtmlInSummernote = function (field, value) {
         field.val(value);

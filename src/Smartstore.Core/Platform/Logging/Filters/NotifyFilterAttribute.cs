@@ -58,7 +58,6 @@ namespace Smartstore.Core.Logging
                     .ToArray();
 
                 bag[NotificationsAccessKey] = TrimSet(existingHolder);
-
             }
 
             private static void HandleAjaxRequest(NotifyEntry entry, HttpResponse response)
@@ -67,7 +66,7 @@ namespace Smartstore.Core.Logging
                     return;
 
                 response.Headers["X-Message-Type"] = entry.Type.ToString().ToLower();
-                response.Headers["X-Message"] = Convert.ToBase64String(entry.Message.ToString().GetBytes());
+                response.Headers["X-Message"] = Convert.ToBase64String(entry.Message.GetBytes());
             }
 
             private static NotifyEntriesHolder TrimSet(NotifyEntriesHolder holder)

@@ -1043,26 +1043,8 @@
         }
     }
 
-    function decodeMessage(str) {
-        if (str) {
-            try {
-                str = atob(str);
-            }
-            catch (e) { }
-
-            try {
-                return decodeURIComponent(escape(str));
-            }
-            catch (e) {
-                return str;
-            }
-        }
-
-        return str;
-    }
-
     var showNotification = _.throttle(function (msg, type) {
-        displayNotification(decodeMessage(msg), type);
+        displayNotification(base64Decode(msg), type);
     }, 750, { leading: true, trailing: true });
 
 })(jQuery);

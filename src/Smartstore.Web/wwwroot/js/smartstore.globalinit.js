@@ -4,24 +4,6 @@ jQuery(function () {
         win = $(window),
         body = $(document.body);
 
-    function decode(str) {
-        if (str) {
-            try {
-                str = atob(str);
-            }
-            catch (e) { }
-
-            try {
-                return decodeURIComponent(encodeURIComponent(str));
-            }
-            catch (e) {
-                return str;
-            }
-        }
-
-        return str;
-    }
-
     // Adjust initPNotify global defaults
     if (typeof PNotify !== 'undefined') {
         var stack = {
@@ -139,19 +121,19 @@ jQuery(function () {
         .ajaxSuccess(function (e, xhr) {
             var msg = xhr.getResponseHeader('X-Message');
             if (msg) {
-                displayNotification(decode(msg), xhr.getResponseHeader('X-Message-Type'));
+                displayNotification(base64Decode(msg), xhr.getResponseHeader('X-Message-Type'));
             }
         })
         .ajaxError(function (e, xhr) {
             var msg = xhr.getResponseHeader('X-Message');
             if (msg) {
-                displayNotification(decode(msg), xhr.getResponseHeader('X-Message-Type'));
+                displayNotification(base64Decode(msg), xhr.getResponseHeader('X-Message-Type'));
             }
             else {
                 try {
                     var data = JSON.parse(xhr.responseText);
                     if (data.message) {
-                        displayNotification(decode(data.message), "error");
+                        displayNotification(base64Decode(data.message), "error");
                     }
                 }
                 catch (ex) {
