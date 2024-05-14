@@ -12,7 +12,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public DefaultTypeConverter(Type type)
         {
-            Guard.NotNull(type, nameof(type));
+            Guard.NotNull(type);
 
             _type = type;
             _typeIsConvertible = typeof(IConvertible).IsAssignableFrom(type);
@@ -71,8 +71,13 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public virtual object ConvertFrom(CultureInfo culture, object value)
         {
+            if (value != null && value.GetType() == _type)
+            {
+                return value;
+            }
+
             // Use Convert.ChangeType if both types are IConvertible
-            if (!_typeIsEnum && _typeIsConvertible && value is IConvertible)
+            if (!_typeIsEnum && _typeIsConvertible && value is (IConvertible and not string))
             {
                 return Convert.ChangeType(value, _type, culture);
             }
@@ -93,8 +98,13 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public virtual object ConvertTo(CultureInfo culture, string format, object value, Type to)
         {
+            if (value != null && value.GetType() == to)
+            {
+                return value;
+            }
+
             // Use Convert.ChangeType if both types are IConvertible
-            if (!_typeIsEnum && _typeIsConvertible && value != null && typeof(IConvertible).IsAssignableFrom(to))
+            if (!_typeIsEnum && _typeIsConvertible && value != null && value is not string && typeof(IConvertible).IsAssignableFrom(to))
             {
                 return Convert.ChangeType(value, to, culture);
             }
