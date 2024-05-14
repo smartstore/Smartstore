@@ -454,6 +454,8 @@ namespace Smartstore.PayPal.Client
             var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
             var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _currencyService.PrimaryCurrency, batchContext);
 
+            var isVatExempt = await _taxService.IsVatExemptAsync(customer);
+
             foreach (var item in model.Items)
             {
                 var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
@@ -467,7 +469,7 @@ namespace Smartstore.PayPal.Client
                 var productName = item.ProductName?.Value?.Truncate(126);
                 var productDescription = item.ShortDesc?.Value?.Truncate(126);
 
-                purchaseUnitItems.Add(new PurchaseUnitItem
+                var purchaseUnitItem = new PurchaseUnitItem
                 {
                     UnitAmount = new MoneyMessage
                     {
@@ -478,14 +480,20 @@ namespace Smartstore.PayPal.Client
                     Description = productDescription,
                     Category = item.IsEsd ? ItemCategoryType.DigitalGoods : ItemCategoryType.PhysicalGoods,
                     Quantity = item.EnteredQuantity.ToString(),
-                    Sku = item.Sku,
-                    Tax = new MoneyMessage
+                    Sku = item.Sku
+                };
+
+                if (!isVatExempt)
+                {
+                    purchaseUnitItem.Tax = new MoneyMessage
                     {
                         Value = convertedUnitPriceTax.Amount.ToStringInvariant("F"),
                         CurrencyCode = currency.CurrencyCode
-                    },
-                    TaxRate = taxRate.Rate.ToStringInvariant("F")
-                });
+                    };
+                    purchaseUnitItem.TaxRate = taxRate.Rate.ToStringInvariant("F");
+                }
+
+                purchaseUnitItems.Add(purchaseUnitItem);
             }
 
             return purchaseUnitItems;
@@ -500,10 +508,11 @@ namespace Smartstore.PayPal.Client
             var currency = _workContext.WorkingCurrency;
 
             var purchaseUnitItems = await GetPurchaseUnitItemsAsync(cart, customer, currency);
+            var isVatExempt = await _taxService.IsVatExemptAsync(customer);
 
             // Get subtotal
             var cartSubTotalExclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
-            var cartSubTotalinklTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
+            var cartSubTotalInklTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, true);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotalExclTax.SubtotalWithoutDiscount.Amount, currency);
 
             // Get tax
@@ -520,7 +529,7 @@ namespace Smartstore.PayPal.Client
             purchaseUnitItems.Each(x => itemTotal += x.UnitAmount.Value.Convert<decimal>() * x.Quantity.ToInt());
 
             decimal itemTotalTax = 0;
-            purchaseUnitItems.Each(x => itemTotalTax += x.Tax.Value.Convert<decimal>() * x.Quantity.ToInt());
+            purchaseUnitItems.Each(x => itemTotalTax += x.Tax != null ? x.Tax.Value.Convert<decimal>() * x.Quantity.ToInt() : 0);
 
             var purchaseUnit = new PurchaseUnit
             {
@@ -560,7 +569,16 @@ namespace Smartstore.PayPal.Client
                 orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
             }
 
-            decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + cartSubTotalinklTax.DiscountAmount.Amount);
+            var subTotalDiscountAmount = new Money();
+            if (cartSubTotalInklTax.DiscountAmount > decimal.Zero)
+            {
+                subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(
+                    isVatExempt ? cartSubTotalExclTax.DiscountAmount.Amount : cartSubTotalInklTax.DiscountAmount.Amount, 
+                    currency);
+            }
+
+            decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + subTotalDiscountAmount.Amount);
+            
             purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
             {
                 Value = discountAmount.ToStringInvariant("F"),
@@ -568,14 +586,14 @@ namespace Smartstore.PayPal.Client
             };
 
             // Get shipping cost
-            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, true);
-            decimal shippingTotalAmount = 0;
+            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, !isVatExempt);
+            var shippingTotalAmount = new Money();
             if (shippingTotal.ShippingTotal != null)
             {
-                shippingTotalAmount = _roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount);
+                shippingTotalAmount = _currencyService.ConvertFromPrimaryCurrency(_roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount), currency);
                 purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
                 {
-                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("F"),
+                    Value = shippingTotalAmount.Amount.ToStringInvariant("F"),
                     CurrencyCode = currency.CurrencyCode
                 };
             }
@@ -587,7 +605,7 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) This is very hackish. PayPal was contacted and requested for a correct solution.
             // Lets check for rounding issues.
-            var calculatedAmount = itemTotal + itemTotalTax + shippingTotalAmount - discountAmount;
+            var calculatedAmount = itemTotal + itemTotalTax + shippingTotalAmount.Amount - discountAmount;
             var amountMismatch = calculatedAmount != purchaseUnit.Amount.Value.Convert<decimal>();
             if (amountMismatch)
             {
