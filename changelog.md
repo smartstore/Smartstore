@@ -134,6 +134,7 @@
 - SEO: Marked product list filter option links as nofollow.
 - SEO: fixed redirection error for TrailingSlashRule setting redirect.
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
+- #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 
 
 ## Smartstore 5.1.0
