@@ -112,7 +112,7 @@ namespace Smartstore.ComponentModel.TypeConverters
         {
             if (value == null)
             {
-                return _activator(Enumerable.Empty<T>());
+                return _activator([]);
             }
 
             var items = value as IEnumerable;

@@ -18,7 +18,7 @@ namespace Smartstore.Net.Mail
 
         public MailAddress(string address)
         {
-            Guard.NotEmpty(address, nameof(address));
+            Guard.NotEmpty(address);
 
             // INFO: "TryParse" removes a single quote character, while "Parse" generates a ParseException.
             if (!MailboxAddress.TryParse(address, out _inner) || _inner == null)
@@ -82,7 +82,8 @@ namespace Smartstore.Net.Mail
 
     internal class MailAddressConverter : DefaultTypeConverter
     {
-        public MailAddressConverter() : base(typeof(object))
+        public MailAddressConverter()
+            : base(typeof(object))
         {
         }
 

@@ -98,11 +98,6 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public virtual object ConvertTo(CultureInfo culture, string format, object value, Type to)
         {
-            if (value != null && value.GetType() == to)
-            {
-                return value;
-            }
-
             // Use Convert.ChangeType if both types are IConvertible
             if (!_typeIsEnum && _typeIsConvertible && value != null && value is not string && typeof(IConvertible).IsAssignableFrom(to))
             {
