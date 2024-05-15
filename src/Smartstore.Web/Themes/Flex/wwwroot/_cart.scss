@@ -457,7 +457,10 @@
     .cart-footer {
         @include border-top-radius(0);
         border: 1px solid var(--cart-border-color);
-        border-top-width: 0;
+
+        &:not(.cart-footer-panel) {
+            border-top-width: 0;
+        }
     }
 }
 
