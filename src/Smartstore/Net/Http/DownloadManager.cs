@@ -65,7 +65,7 @@ namespace Smartstore.Net.Http
                     if (contentType.HasValue() && !contentType.EqualsNoCase(item.MimeType))
                     {
                         // Update mime type and local path.
-                        var extension = MimeTypes.MapMimeTypeToExtension(contentType).NullEmpty() ?? "jpg";
+                        var extension = MimeTypes.MapMimeTypeToExtension(contentType).NullEmpty() ?? Path.GetExtension(item.Url);
 
                         item.MimeType = contentType;
                         item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
