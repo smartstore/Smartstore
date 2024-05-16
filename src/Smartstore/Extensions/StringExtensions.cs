@@ -65,5 +65,15 @@ namespace Smartstore
         {
             return string.IsNullOrWhiteSpace(value) ? NotAvailable : value;
         }
+
+        /// <summary>
+        /// Returns <paramref name="value"/> if it is not null or empty, otherwise returns <paramref name="defaultValue"/>
+        /// </summary>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string OrDefault(this string? value, string defaultValue)
+        {
+            return string.IsNullOrEmpty(value) ? defaultValue : value;
+        }
     }
 }
