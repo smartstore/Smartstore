@@ -1,18 +1,19 @@
-﻿@using Smartstore.Web.Models.Checkout;
+﻿@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutPaymentMethodModel
-
-@inject ILocalizationService LocalizationService
 
 @{
     Layout = "_Checkout";
     Assets.AppendTitleParts(T("PageTitle.Checkout.PaymentMethod"));
-    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart content-overflow-initial");
     Assets.AddMetaRobots();
+
+    ViewBag.NextStepClass = "payment-method-next-step-button";
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.PaymentMethod) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.PaymentMethod })
 </widget>
 
 <div class="page payment-method-page">
@@ -21,120 +22,22 @@
     </div>
     <div class="page-body checkout-data">
         <form asp-action="PaymentMethod" asp-controller="Checkout" method="post">
-
             <zone name="checkout_payment_method_top" />
 
-            @if (Model.PaymentMethods.Any())
-            {
-                <ul class="list-group opt-list payment-methods" attr-class='(Model.DisplayPaymentMethodIcons, "opt-list-icons")'>
-                    @for (int i = 0; i < Model.PaymentMethods.Count; i++)
-                    {
-                        var paymentMethod = Model.PaymentMethods[i];
-                        var widgetInvoker = paymentMethod.InfoWidget;
-                        var infoRendered = false;
+            <div class="order-summary-content">
+                <zone name="order_summary_content_before" />
 
-                        var defaultPluginDescKey = "Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName;
-                        var defaultPluginDesc = LocalizationService.GetResource(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
-                        var description = paymentMethod.FullDescription?.Value ?? defaultPluginDesc;
-
-                        async Task RenderPaymentMethod()
-                        {
-                            <div class="opt-data">
-                                <div class="opt-control option-name radio" attr-class='(!Model.DisplayPaymentMethodIcons, "form-check")'>
-
-                                    <input id="paymentmethod_@(i)" type="radio" name="paymentmethod"
-                                           attr-checked='(paymentMethod.Selected, "checked")'
-                                           data-has-info='@(widgetInvoker != null ? "true" : "false")'
-                                           data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
-                                           class="opt-radio form-check-input payment-selection"
-                                           value="@(paymentMethod.PaymentMethodSystemName)" />
-
-                                    <label class="form-check-label" for="paymentmethod_@(i)">
-                                        <span class="opt-name">
-                                            @paymentMethod.Name
-                                        </span>
-                                    </label>
-                                </div>
-
-                                <small sm-if="paymentMethod.Fee != decimal.Zero" class="badge badge-danger ml-2 opt-fee payment-fee">@paymentMethod.Fee</small>
-                            </div>
-
-                            @if (description.HasValue())
-                            {
-                                <div class="opt-info-item payment-method-description text-muted" sm-language-attributes-for="paymentMethod.FullDescription">
-                                    @Html.Raw(description)
-                                </div>
-                            }
-
-                            @if (!paymentMethod.RequiresInteraction)
-                            {
-                                await RenderPaymentWidget(false);
-                            }
-                        }
-
-                        async Task RenderPaymentWidget(bool isEmbedded)
-                        {
-                            infoRendered = true;
-                            <div class="opt-info payment-method-info"
-                                 attr-class='(isEmbedded, "opt-info-embedded")'  
-                                 attr-data-lazy-info='(paymentMethod.RequiresInteraction, "true")'
-                                 data-system-name="@paymentMethod.PaymentMethodSystemName">
-
-                                <div sm-if="paymentMethod.Selected && !ViewData.ModelState.IsValid" id="payment-info-validation-summary">
-                                    @Html.ValidationSummary(false)
-                                </div>
-
-                                @if (!(description.HasValue() && !paymentMethod.RequiresInteraction) && paymentMethod.InfoWidget != null)
-                                {
-                                    @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
-                                }
-                            </div>
-                        }
-
-                        <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
-                            @if(Model.DisplayPaymentMethodIcons)
-                            {
-                                <div class="row no-gutters">
-                                    <div sm-if="paymentMethod.BrandUrl.HasValue()" class="col-auto payment-brand">
-                                        <img class="img-fluid" src="@Url.Content(paymentMethod.BrandUrl)" />
-                                    </div>
-                                    <div class="col">
-                                        @{ await RenderPaymentMethod(); }
-                                    </div>
-                                </div>
-
-                                if (paymentMethod.Selected && widgetInvoker != null && !infoRendered)
-                                {
-                                    await RenderPaymentWidget(true);
-                                }
-                            }
-                            else
-                            {
-                                await RenderPaymentMethod();
-                            }
-                        </li>
-                    }
-                </ul>
-
-                <div class="buttons">
-                    <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg">
-                        <i class="fa fa-angle-left"></i>
-                        <span>@T("Common.Back")</span>
-                    </a>
-                    <input type="submit" name="nextstep" id="nextstep" class="d-none" />
-                    <button type="button" class="btn btn-warning btn-lg payment-method-next-step-button">
-                        <span>@T("Checkout.NextButton")</span>
-                        <i class="fa fa-angle-right"></i>
-                    </button>
-                    <zone name="checkout_payment_method_buttons" />
+                <div class="row cart-container">
+                    <div class="col-lg-7 col-xl-8">
+                        <partial name="PaymentMethodList" />
+                    </div>
+                    <div class="col-lg-5 col-xl-4">
+                        <partial name="OrderTotalsPanel" />
+                    </div>
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-danger">
-                    @T("Checkout.NoPaymentMethods")
-                </div>
-            }
+
+                <zone name="order_summary_content_after" />
+            </div>
 
             <zone name="checkout_payment_method_bottom" />
         </form>
@@ -175,7 +78,7 @@
                     var label = $(this);
                     label.removeClass('clicked');
                 });
-            </text>    
+            </text>
         }
 
         $('.checkout-data .opt-radio').on('change', function (e) {

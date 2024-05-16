@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Checkout;
+﻿@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutCompletedModel
 
@@ -10,39 +11,39 @@
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.Completed) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.Completed })
 </widget>
 
 <div class="page checkout-completed-page">
-	<div class="heading mt-3">
-		<h1 class="heading-title font-weight-light">@Html.Raw(T("Checkout.OrderHasBeenReceived"))</h1>
-	</div>
+    <div class="heading mt-3">
+        <h1 class="heading-title font-weight-light">@Html.Raw(T("Checkout.OrderHasBeenReceived"))</h1>
+    </div>
 
-	<h3 class="text-muted font-weight-light">
+    <h3 class="text-muted font-weight-light">
         @Html.Raw(T("Checkout.ThankYou"))
-	</h3>
-    
+    </h3>
+
     <div class="page-body checkout-data pt-4">
         <div class="order-completed">
             <zone name="checkout_completed_top" />
-            
+
             <div class="body fs-h5">
                 <p>
-					<span>@T("Checkout.OrderNumber"):</span>
-					<a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" rel="nofollow"><strong>@Model.OrderNumber</strong></a>
+                    <span>@T("Checkout.OrderNumber"):</span>
+                    <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" rel="nofollow"><strong>@Model.OrderNumber</strong></a>
                 </p>
             </div>
             <p class="pt-3 mb-5">
-				<a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" class="btn btn-warning" rel="nofollow">
-					@*<i class="far fa-rectangle-list"></i>*@
-					<span>@T("Checkout.PlacedOrderDetails")</span>
-				</a>
+                <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" class="btn btn-warning" rel="nofollow">
+                    @*<i class="far fa-rectangle-list"></i>*@
+                    <span>@T("Checkout.PlacedOrderDetails")</span>
+                </a>
                 <a asp-route="Homepage" class="btn btn-secondary order-completed-continue-button">
                     @*<i class="fa fa-home"></i>*@
                     <span>@T("Checkout.Continue")</span>
                 </a>
             </p>
-            
+
             <zone name="checkout_completed_bottom" />
         </div>
     </div>

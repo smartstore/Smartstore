@@ -1,0 +1,29 @@
+﻿<div class="cart-footer cart-footer-panel">
+    <div class="row">
+        <div class="col-12 cart-footer-group">
+            <zone name="order_summary_totals_before" />
+
+            <div id="order-totals">
+                @await Component.InvokeAsync("OrderTotals")
+            </div>
+
+            <zone name="order_summary_totals_after" />
+        </div>
+
+        <zone name="order_summary_actions" remove-if-empty="true" replace-content="true">
+            <div class="col-12 mt-3 cart-footer-actions">
+                <zone name="order_summary_buttons_before" />
+
+                <div class="cart-buttons">
+                    <input type="submit" id="nextstep" name="nextstep" class="d-none" />
+                    <button type="button" class="btn btn-warning btn-lg btn-block @ViewBag.NextStepClass" onclick="return false;">
+                        <span>@T("Checkout.NextButton")</span>
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
+
+                <zone name="order_summary_buttons_after" />
+            </div>
+        </zone>
+    </div>
+</div>

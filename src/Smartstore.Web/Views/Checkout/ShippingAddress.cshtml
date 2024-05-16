@@ -1,5 +1,6 @@
-﻿@using Smartstore.Web.Models.Checkout;
-﻿@using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutAddressModel
 
@@ -8,10 +9,16 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.ShippingAddress"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
+
+    var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+    dataDictAddress["breakpoint"] = "sm";
+    // Merge ModelState (required for validation).
+    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.ShippingAddress) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.ShippingAddress })
 </widget>
 
 <div class="page shipping-address-page">
@@ -66,7 +73,7 @@
                         </div>
                     }
 
-                    <partial name="_AddNewAddress" />
+                    <partial name="AddNewAddress" />
                 </div>
             </fieldset>
 
@@ -76,14 +83,6 @@
                 <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterShippingAddress")</span></legend>
                 <div class="enter-address">
                     <div class="enter-address-body">
-                        @{
-                            var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
-                            dataDictAddress["breakpoint"] = "sm";
-                            // Merge ModelState (required for validation).
-                            dataDictAddress.ModelState.Merge(ViewData.ModelState);
-                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
-                        }
-
                         <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
                     </div>
 

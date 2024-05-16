@@ -1,6 +1,7 @@
-﻿@using Smartstore.Web.Models.Checkout
+﻿@using Smartstore.Core.Checkout.Cart
+@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
 @using Smartstore.Web.Models.Cart
-@using Smartstore.Core.Checkout.Cart
 
 @model CheckoutConfirmModel
 
@@ -23,7 +24,7 @@
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.Confirm) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.Confirm })
 </widget>
 
 <div class="page checkout-confirm-page">

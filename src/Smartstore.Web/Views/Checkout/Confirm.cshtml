@@ -1,5 +1,6 @@
-﻿@using Smartstore.Web.Models.Checkout;
-@using Smartstore.Core.Checkout.Cart;
+﻿@using Smartstore.Core.Checkout.Cart
+@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutConfirmModel
 
@@ -18,7 +19,7 @@
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.Confirm) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.Confirm })
 </widget>
 
 <div class="page checkout-confirm-page">
@@ -112,7 +113,7 @@
                 <span>@T("Common.Back")</span>
             </a>
         </div>
-                
+
         <zone name="checkout_confirm_bottom" />
     </div>
 </div>
@@ -129,7 +130,7 @@
                 });
             </text>
         }
-        
+
         var buyButton = $(".btn-buy");
 
         function setBuyButtonState(disable) {
