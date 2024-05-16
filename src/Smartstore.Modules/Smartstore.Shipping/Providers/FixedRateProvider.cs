@@ -94,8 +94,8 @@ namespace Smartstore.Shipping
         /// Gets a shipment tracker
         /// </summary>
         public IShipmentTracker ShipmentTracker =>
-                //uncomment the line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
-                //return new GeneralShipmentTracker(EngineContext.Current.Resolve<ITypeFinder>());
-                null;
+            //uncomment the line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
+            //return new GeneralShipmentTracker(EngineContext.Current.Resolve<ITypeFinder>());
+            null;
     }
 }
