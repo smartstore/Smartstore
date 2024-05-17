@@ -60,8 +60,10 @@ namespace Smartstore.Core.Logging
 
         public virtual ActivityLog LogActivity(string activity, string comment, Customer customer, params object[] commentParams)
         {
-            if (customer == null)
+            if (customer == null || customer.IsSystemAccount)
+            {
                 return null;
+            }
 
             var activityType = GetActivityTypeByKeyword(activity);
             if (activityType == null || !activityType.Enabled)
