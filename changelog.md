@@ -75,6 +75,7 @@
 - PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
+- ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
 
 ### Bugfixes
 
