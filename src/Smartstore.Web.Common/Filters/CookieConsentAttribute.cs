@@ -17,13 +17,13 @@ namespace Smartstore.Core.Identity
 
         class CookieConsentFilter : IActionFilter, IResultFilter
         {
-            readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
+            readonly static string[] UnprocessableTopics = new string[] { "ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer" };
 
             private readonly PrivacySettings _privacySettings;
             private readonly ICookieConsentManager _cookieConsentManager;
             private readonly IUserAgent _userAgent;
             private readonly IWidgetProvider _widgetProvider;
-            
+
             private bool _isProcessableRequest;
 
             public CookieConsentFilter(
