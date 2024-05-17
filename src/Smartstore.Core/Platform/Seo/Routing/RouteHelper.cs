@@ -123,7 +123,7 @@ namespace Smartstore.Core.Seo.Routing
 
         #endregion
 
-        private readonly HashSet<string> _disallowRobotPaths = new();
+        private readonly HashSet<string> _disallowRobotPaths = [];
         private readonly HashSet<string> _reservedPaths = new(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _reservedPartialPaths = new(StringComparer.OrdinalIgnoreCase)
         {

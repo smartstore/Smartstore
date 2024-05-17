@@ -54,12 +54,7 @@ namespace Smartstore.Core.Seo
             "/customer/",
             "/order/",
             "/install$",
-            "/install/",
-            "/blog/tag/", 
-            "/blog/month/", 
-            "/producttags/",
-            "/search/",
-            "/search?*"
+            "/install/"
         };
 
         public static ISet<string> DefaultCharConversions { get; } = new HashSet<string>
