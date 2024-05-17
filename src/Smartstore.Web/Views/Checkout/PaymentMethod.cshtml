@@ -1,5 +1,4 @@
-﻿@using Smartstore.Core.Checkout.Orders
-@using Smartstore.Web.Models.Checkout
+﻿@using Smartstore.Web.Models.Checkout
 
 @model CheckoutPaymentMethodModel
 
@@ -8,12 +7,10 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.PaymentMethod"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart content-overflow-initial");
     Assets.AddMetaRobots();
-
-    ViewBag.NextStepClass = "payment-method-next-step-button";
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.PaymentMethod })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = Model.ActionName })
 </widget>
 
 <div class="page payment-method-page">
@@ -25,18 +22,14 @@
             <zone name="checkout_payment_method_top" />
 
             <div class="order-summary-content">
-                <zone name="order_summary_content_before" />
-
                 <div class="row cart-container">
                     <div class="col-lg-7 col-xl-8">
                         <partial name="PaymentMethodList" />
                     </div>
                     <div class="col-lg-5 col-xl-4">
-                        <partial name="OrderTotalsPanel" />
+                        <partial name="CheckoutOrderTotals" />
                     </div>
                 </div>
-
-                <zone name="order_summary_content_after" />
             </div>
 
             <zone name="checkout_payment_method_bottom" />

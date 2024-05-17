@@ -1,5 +1,4 @@
-﻿@using Smartstore.Core.Checkout.Orders
-@using Smartstore.Web.Models.Checkout
+﻿@using Smartstore.Web.Models.Checkout
 
 @model CheckoutShippingMethodModel
 
@@ -8,12 +7,10 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.ShippingMethod"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart content-overflow-initial");
     Assets.AddMetaRobots();
-
-    ViewBag.NextStepClass = "shipping-method-next-step-button";
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.ShippingMethod })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = Model.ActionName })
 </widget>
 
 <div class="page shipping-method-page">
@@ -25,18 +22,14 @@
             <zone name="checkout_shipping_method_top" />
 
             <div class="order-summary-content">
-                <zone name="order_summary_content_before" />
-
                 <div class="row cart-container">
                     <div class="col-lg-7 col-xl-8">
                         <partial name="ShippingMethodList" />
                     </div>
                     <div class="col-lg-5 col-xl-4">
-                        <partial name="OrderTotalsPanel" />
+                        <partial name="CheckoutOrderTotals" />
                     </div>
                 </div>
-
-                <zone name="order_summary_content_after" />
             </div>
 
             <zone name="checkout_shipping_method_bottom" />

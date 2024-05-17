@@ -2,6 +2,8 @@
 
 @model CheckoutShippingMethodModel
 
+<zone name="checkout_shipping_method_content_before" />
+
 @if (Model.Warnings.Count > 0)
 {
     <div class="alert alert-danger">
@@ -58,3 +60,5 @@ else
         }
     </ul>
 }
+
+<zone name="checkout_shipping_method_content_after" />

@@ -4,6 +4,8 @@
 
 @inject ILocalizationService LocalizationService
 
+<zone name="checkout_payment_method_content_before" />
+
 @if (Model.PaymentMethods.Count > 0)
 {
     <ul class="list-group opt-list payment-methods" attr-class='(Model.DisplayPaymentMethodIcons, "opt-list-icons")'>
@@ -102,3 +104,5 @@ else
         @T("Checkout.NoPaymentMethods")
     </div>
 }
+
+<zone name="checkout_payment_method_content_after" />

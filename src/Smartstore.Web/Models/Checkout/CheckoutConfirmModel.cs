@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Checkout.Cart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Models.Checkout
 {
@@ -11,5 +12,6 @@ namespace Smartstore.Web.Models.Checkout
         public string ThirdPartyEmailHandOverLabel { get; set; }
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
         public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }
+        public ShoppingCartModel ShoppingCart { get; set; }
     }
 }

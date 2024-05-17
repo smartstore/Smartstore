@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
-@using Smartstore.Core.Checkout.Orders
 @using Smartstore.Web.Models.Checkout
 
 @model CheckoutAddressModel
@@ -18,7 +17,7 @@
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = CheckoutActionNames.BillingAddress })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = Model.ActionName })
 </widget>
 
 <div class="page billing-address-page">

@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Checkout
+﻿@using Smartstore.Core.Checkout.Cart
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutConfirmModel
 
@@ -7,6 +8,13 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.Confirm"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart content-overflow-initial");
     Assets.AddMetaRobots();
+
+    var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
+    var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("ConditionsOfUse", true));
+    var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
+    var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("PrivacyInfo", true));
+    var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
+    var consentZoneHasWidgets = await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
 }
 
 <widget target-zone="order_progress">
@@ -19,21 +27,93 @@
     </div>
     <div class="page-body checkout-data">
         <form asp-action="Confirm" id="confirm-order-form" method="post">
+
             <zone name="checkout_confirm_top" />
 
-            <div class="order-summary-content">
-                <div class="row cart-container">
-                    <div class="col-lg-7 col-xl-8">
-                        <partial name="ConfirmDetails" />
+            <p class="page-intro lead">
+                @Html.Raw(T("Checkout.ConfirmHint"))
+            </p>
+
+            <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
+
+            <div sm-if="Model.TermsOfServiceEnabled
+                || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
+                || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
+                || consentZoneHasWidgets"
+                 id="terms-of-service-consent-box" class="card mb-3">
+                <div class="card-body">
+
+                    @if (Model.TermsOfServiceEnabled)
+                    {
+                        <div class="form-check">
+                            <input id="termsofservice" type="checkbox" name="termsofservice" class="form-check-input" />
+                            <label class="mb-0 form-check-label" for="termsofservice">@Html.Raw(terms)</label>
+                        </div>
+
+                        <modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+                            <modal-body></modal-body>
+                            <modal-footer>
+                                <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+                            </modal-footer>
+                        </modal>
+                    }
+
+                    <div sm-if="Model.NewsletterSubscription != CheckoutNewsletterSubscription.None" class="form-check">
+                        <input attr-checked='(Model.NewsletterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
+                               type="checkbox" id="SubscribeToNewsletter" name="SubscribeToNewsletter" class="form-check-input" />
+                        <label class="form-check-label" for="SubscribeToNewsletter">
+                            <span>@T("Checkout.SubscribeToNewsletter")</span>
+                        </label>
                     </div>
-                    <div class="col-lg-5 col-xl-4">
-                        <partial name="CheckoutOrderTotals" />
+
+                    <div sm-if="Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None" class="form-check">
+                        <input attr-checked='(Model.ThirdPartyEmailHandOver == CheckoutThirdPartyEmailHandOver.Activated, "checked")'
+                               type="checkbox" id="AcceptThirdPartyEmailHandOver" name="AcceptThirdPartyEmailHandOver" class="form-check-input" />
+                        <label class="form-check-label" for="AcceptThirdPartyEmailHandOver">
+                            <span>@Model.ThirdPartyEmailHandOverLabel</span>
+                        </label>
                     </div>
+
+                    <zone name="checkout_submit_data_consent" />
                 </div>
             </div>
 
-            <zone name="checkout_confirm_bottom" />
+            <div id="confirm-warnings" class="confirm-order">
+
+                <div sm-if="Model.Warnings.Any()" class="alert alert-danger mb-3">
+                    <ul>
+                        @foreach (var warning in Model.Warnings)
+                        {
+                            <li>@Html.Raw(warning)</li>
+                        }
+                    </ul>
+                </div>
+
+            </div>
         </form>
+
+        <zone name="checkout_confirm_before_summary" />
+
+        <div class="order-summary-body mb-4">
+            @* Render the buy button into order_summary_actions zone in OrderSummary component *@
+            <div sm-target-zone="order_summary_actions" class="col-12 mt-3 cart-footer-actions">
+                <button class="btn btn-danger btn-lg btn-block btn-buy" onclick="return false;">
+                    <span>@T("Checkout.ConfirmButton")</span>
+                    <i class="fa fa-angle-right ml-3"></i>
+                </button>
+            </div>
+            @await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = true })
+        </div>
+
+        @* Back Button *@
+        <div class="cart-buttons col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 mb-2">
+            <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg btn-block">
+                <i class="fa fa-angle-left mr-3"></i>
+                <span>@T("Common.Back")</span>
+            </a>
+        </div>
+
+        <zone name="checkout_confirm_bottom" />
     </div>
 </div>
 

@@ -1,0 +1,142 @@
+﻿@using Smartstore.Core.Checkout.Cart
+@using Smartstore.Web.Models.Checkout
+
+@model CheckoutConfirmModel
+
+@{
+    var cart = Model.ShoppingCart;
+    var hasDownloadUserAgreement = cart.Items.Any(x => x.IsDownload && x.HasUserAgreement);
+
+    var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
+    var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
+    var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("PrivacyInfo", true));
+
+    var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("ConditionsOfUse", true));
+    var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
+
+    var showConsentBox = Model.TermsOfServiceEnabled
+        || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
+        || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
+        || await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
+}
+
+<input type="hidden" id="customercommenthidden" name="customercommenthidden" />
+
+<p class="page-intro lead">
+    @Html.Raw(T("Checkout.ConfirmHint"))
+</p>
+
+<div sm-if="showConsentBox" id="terms-of-service-consent-box" class="card mb-3">
+    <div class="card-body">
+        @if (Model.TermsOfServiceEnabled)
+        {
+            <div class="form-check">
+                <input id="termsofservice" type="checkbox" name="termsofservice" class="form-check-input" />
+                <label class="mb-0 form-check-label" for="termsofservice">@Html.Raw(terms)</label>
+            </div>
+
+            <modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+                <modal-body></modal-body>
+                <modal-footer>
+                    <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+                </modal-footer>
+            </modal>
+        }
+
+        <div sm-if="Model.NewsletterSubscription != CheckoutNewsletterSubscription.None" class="form-check">
+            <input attr-checked='(Model.NewsletterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
+                   type="checkbox" id="SubscribeToNewsletter" name="SubscribeToNewsletter" class="form-check-input" />
+            <label class="form-check-label" for="SubscribeToNewsletter">
+                <span>@T("Checkout.SubscribeToNewsletter")</span>
+            </label>
+        </div>
+
+        <div sm-if="Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None" class="form-check">
+            <input attr-checked='(Model.ThirdPartyEmailHandOver == CheckoutThirdPartyEmailHandOver.Activated, "checked")'
+                   type="checkbox" id="AcceptThirdPartyEmailHandOver" name="AcceptThirdPartyEmailHandOver" class="form-check-input" />
+            <label class="form-check-label" for="AcceptThirdPartyEmailHandOver">
+                <span>@Model.ThirdPartyEmailHandOverLabel</span>
+            </label>
+        </div>
+
+        <zone name="checkout_submit_data_consent" />
+    </div>
+</div>
+
+<div id="confirm-warnings" class="confirm-order">
+    <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger mb-3">
+        <ul>
+            @foreach (var warning in Model.Warnings)
+            {
+                <li>@Html.Raw(warning)</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<zone name="checkout_confirm_before_summary" />
+<zone name="order_summary_content_before" />
+
+<partial name="OrderReviewData" model="cart.OrderReviewData" />
+
+@if (cart.DisplayCommentBox)
+{
+    <partial name="_CommentBox" model="cart" />
+}
+
+@if (cart.Items.Any())
+{
+    <div id="cart-warnings">
+        <partial name="CartWarnings" model="cart.Warnings" />
+    </div>
+    <div id="cart-items" class="cart">
+        <div class="cart-body">
+            <partial name="CartItems" model="cart" />
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning fade show">
+        @T("ShoppingCart.CartIsEmpty")
+    </div>
+}
+
+<zone name="order_summary_content_after" />
+
+@if (hasDownloadUserAgreement)
+{
+    <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
+        <modal-body></modal-body>
+        <modal-footer>
+            <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+        </modal-footer>
+    </modal>
+}
+
+<script sm-target-zone="scripts" data-origin="order-summary">
+    $(function () {
+        $('#frm-shopping-cart').on('keydown', function (e) {
+            return e.key !== 'Enter' || e.target.tagName.toLowerCase() == 'textarea';
+        });
+
+        @if (hasDownloadUserAgreement)
+        {
+            <text>
+            $('a.download-user-agreement').on('click', function () {
+                const url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id');
+                const dialog = $('#user-agreement-modal');
+
+                dialog.find('.modal-body').empty();
+
+                $.get(url, function (html) {
+                    dialog.find('.modal-body').html(html);
+                });
+
+                dialog.modal();
+                return false;
+            });
+            </text>
+        }
+    });
+</script>
