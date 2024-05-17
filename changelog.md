@@ -75,6 +75,7 @@
 - PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
+- ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
 
 ### Bugfixes
 
@@ -136,6 +137,7 @@
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
+- PayPal: Fixed VAT exempt & currency conversion problems
 
 
 ## Smartstore 5.1.0

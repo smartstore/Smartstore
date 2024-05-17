@@ -90,7 +90,7 @@
 
     window.base64Encode = function (value) {
         if (value) {
-            var bytes = new TextEncoder().encode(value);
+            const bytes = new TextEncoder().encode(value);
             return btoa(Array.from(bytes, (byte) => String.fromCodePoint(byte)).join(""));
         }
 

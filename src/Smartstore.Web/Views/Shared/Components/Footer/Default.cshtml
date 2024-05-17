@@ -37,7 +37,7 @@
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-info" aria-controls="footer-info" aria-expanded="false">
-                            @T("Footer.Info")
+                            @Html.Raw(T("Footer.Info"))
                         </h4>
                         <div class="collapse nav-collapse" id="footer-info">
                             <menu name="FooterInformation" template="LinkList"></menu>
@@ -48,8 +48,8 @@
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-service" aria-controls="footer-service" aria-expanded="false">
-                            <span class="d-none d-md-block">@T("Footer.Service")</span>
-                            <span class="d-md-none">@T("Footer.Service.Mobile")</span>
+                            <span class="d-none d-md-block">@Html.Raw(T("Footer.Service"))</span>
+                            <span class="d-md-none">@Html.Raw(T("Footer.Service.Mobile"))</span>
                         </h4>
                         <div class="collapse nav-collapse" id="footer-service">
                             <menu name="FooterService" template="LinkList"></menu>
@@ -60,8 +60,8 @@
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links company nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-company" aria-controls="footer-company" aria-expanded="false">
-                            <span class="d-none d-md-block">@T("Footer.Company")</span>
-                            <span class="d-md-none">@T("Footer.Company.Mobile")</span>
+                            <span class="d-none d-md-block">@Html.Raw(T("Footer.Company"))</span>
+                            <span class="d-md-none">@Html.Raw(T("Footer.Company.Mobile"))</span>
                         </h4>
                         <div class="collapse nav-collapse" id="footer-company">
                             <menu name="FooterCompany" template="LinkList"></menu>
@@ -75,7 +75,7 @@
                     <div class="row gx-md-4 gy-md-3">
                         <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
                             <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
-                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@T("Newsletter.Title")</h4>
+                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@Html.Raw(T("Newsletter.Title"))</h4>
                                 <div class="collapse nav-collapse" id="footer-newsletter">
                                     <div id="newsletter-subscribe-block">
                                         <div class="input-group has-icon shadow-xs rounded-pill mb-2">
@@ -122,7 +122,7 @@
 
                         <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
                             <div class="theme-selector nav-collapsible">
-                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-themes" aria-controls="footer-newsletter" aria-expanded="false">@T("Footer.Themes")</h4>
+                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-themes" aria-controls="footer-newsletter" aria-expanded="false">@Html.Raw(T("Footer.Themes"))</h4>
                                 <div id="footer-themes" class="content collapse nav-collapse">
                                     <div class="mb-3 mb-md-0">
                                         @{
