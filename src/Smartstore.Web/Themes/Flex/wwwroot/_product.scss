@@ -660,6 +660,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     padding: 0;
 }
 
+.pd-assoc-name {
+    font-weight: $font-weight-medium;
+}
+
 .pd-assoc-img {
     width: 50px;
     min-width: 50px;
