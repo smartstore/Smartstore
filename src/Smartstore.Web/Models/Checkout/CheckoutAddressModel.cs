@@ -15,6 +15,8 @@ namespace Smartstore.Web.Models.Checkout
             !ExistingAddresses.IsNullOrEmpty();
 
         public List<AddressModel> ExistingAddresses { get; set; } = [];
+
+        [LocalizedDisplay("Address")]
         public AddressModel NewAddress { get; set; } = new();
     }
 
