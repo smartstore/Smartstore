@@ -83,7 +83,7 @@ namespace Smartstore.Web.Controllers
             var context = await CreateCheckoutContext();
             var result = await AddAddress(model, context, false);
 
-            if (result != null && result.ActionResult != null)
+            if (result?.ActionResult != null)
             {
                 return result.ActionResult;
             }
@@ -99,7 +99,8 @@ namespace Smartstore.Web.Controllers
         {
             var context = await CreateCheckoutContext();
             var result = await AddAddress(model, context, true);
-            if (result != null && result.ActionResult != null)
+
+            if (result?.ActionResult != null)
             {
                 return result.ActionResult;
             }
