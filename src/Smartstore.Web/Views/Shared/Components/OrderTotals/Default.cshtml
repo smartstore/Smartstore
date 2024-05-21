@@ -38,7 +38,16 @@
     </tr>
     <tr class="cart-summary-shipping">
         <td class="cart-summary-label">
-            <span class="text-nowrap">@T("ShoppingCart.Totals.Shipping"):</span>
+            <span class="text-nowrap">
+                @if (Model.ShippingInfoUrl.HasValue())
+                {
+                    <a href="@Model.ShippingInfoUrl" target="_blank">@T("ShoppingCart.Totals.Shipping")</a>
+                }
+                else
+                {
+                    @T("ShoppingCart.Totals.Shipping")
+                }:
+            </span>
             <span sm-if="Model.RequiresShipping && Model.SelectedShippingMethod.HasValue()" class="font-weight-medium">
                 @Model.SelectedShippingMethod
             </span>

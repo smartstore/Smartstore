@@ -86,12 +86,27 @@
 
 @if (cart.Items.Any())
 {
-    <div id="cart-warnings">
-        <partial name="CartWarnings" model="cart.Warnings" />
-    </div>
-    <div id="cart-items" class="cart">
-        <div class="cart-body">
-            <partial name="CartItems" model="cart" />
+    <div>
+        <div sm-if="Model.IsConfirm" class="row align-items-end mb-2">
+            <div class="col">
+                <span class="h5">
+                    @Html.Raw(T("ShoppingCart.Products"))
+                </span>
+            </div>
+            <div class="col col-auto">
+                <a href="@Url.RouteUrl("ShoppingCart")" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("ShoppingCart.BackToCart")</span>
+                </a>
+            </div>
+        </div>
+        <div id="cart-warnings">
+            <partial name="CartWarnings" model="cart.Warnings" />
+        </div>
+        <div id="cart-items" class="cart">
+            <div class="cart-body">
+                <partial name="CartItems" model="cart" />
+            </div>
         </div>
     </div>
 }

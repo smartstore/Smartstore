@@ -11,9 +11,6 @@ namespace Smartstore.Web.Models.Cart
         public string SubtotalLabel { get; set; }
         public Money? SubTotalDiscount { get; set; }
         public bool AllowRemovingSubTotalDiscount { get; set; }
-        public string Shipping { get; set; }
-        public bool RequiresShipping { get; set; }
-        public string SelectedShippingMethod { get; set; }
         public Money? PaymentMethodAdditionalFee { get; set; }
         public Money Tax { get; set; }
         public List<TaxRate> TaxRates { get; set; } = [];
@@ -31,6 +28,11 @@ namespace Smartstore.Web.Models.Cart
         public decimal Weight { get; set; }
         public string WeightMeasureUnitName { get; set; }
         public bool ShowConfirmOrderLegalHint { get; set; }
+
+        public bool RequiresShipping { get; set; }
+        public string Shipping { get; set; }
+        public string SelectedShippingMethod { get; set; }
+        public string ShippingInfoUrl { get; set; }
 
         public ShoppingCartSubtotal CartSubtotal { get; set; }
         public ShoppingCartTotal CartTotal { get; set; }

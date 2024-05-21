@@ -35,7 +35,7 @@ namespace Smartstore.Web.Models.Checkout
                     case CheckoutActionNames.Confirm:
                         return "btn-buy";
                     default:
-                        throw new Exception($"Checkout action '{ActionName}' has no next step button.");
+                        return string.Empty;
                 }
             }
         }

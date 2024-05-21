@@ -417,6 +417,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout-Prozess",
                 "Specifies the type of checkout with the steps to be processed.",
                 "Legt die Art des Checkout mit den zu durchlaufenden Schritten fest.");
+
+            builder.AddOrUpdate("ShoppingCart.Products", "Products", "Artikel");
+            builder.AddOrUpdate("ShoppingCart.BackToCart", "Back to shopping cart", "Zurück zum Warenkorb");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

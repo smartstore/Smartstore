@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -15,6 +16,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// Cart shipping total in the primary currency.
         /// </summary>
         public Money? ShippingTotal { get; init; }
+
+        /// <summary>
+        /// The applied shipping option.
+        /// </summary>
+        public ShippingOption Option { get; init; }
 
         /// <summary>
         /// Applied discount.

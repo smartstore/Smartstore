@@ -7,6 +7,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Cart;
 
@@ -27,6 +28,7 @@ namespace Smartstore.Web.Components
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IProductService _productService;
         private readonly IShippingService _shippingService;
+        private readonly IUrlHelper _urlHelper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MeasureSettings _measureSettings;
         private readonly TaxSettings _taxSettings;
@@ -41,6 +43,7 @@ namespace Smartstore.Web.Components
             ILocalizationService localizationService,
             IOrderCalculationService orderCalculationService,
             IProductService productService,
+            IUrlHelper urlHelper,
             IShippingService shippingService,
             ShoppingCartSettings shoppingCartSettings,
             MeasureSettings measureSettings,
@@ -55,6 +58,7 @@ namespace Smartstore.Web.Components
             _localizationService = localizationService;
             _orderCalculationService = orderCalculationService;
             _productService = productService;
+            _urlHelper = urlHelper;
             _shippingService = shippingService;
             _shoppingCartSettings = shoppingCartSettings;
             _measureSettings = measureSettings;
@@ -112,19 +116,16 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
+            model.ShippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
             model.RequiresShipping = cart.IsShippingRequired;
             if (model.RequiresShipping)
             {
-                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
-                if (shippingTotal.ShippingTotal.HasValue)
+                var shipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                if (shipping.ShippingTotal != null)
                 {
-                    var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shippingTotal.ShippingTotal.Value.Amount, currency);
+                    var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shipping.ShippingTotal.Value.Amount, currency);
                     model.Shipping = shippingTotalConverted.ToString();
-
-                    // Selected shipping method
-                    var shippingOption = customer.GenericAttributes.SelectedShippingOption;
-                    if (shippingOption != null)
-                        model.SelectedShippingMethod = shippingOption.Name;
+                    model.SelectedShippingMethod = shipping.Option?.Name;
                 }
             }
 
