@@ -29,8 +29,7 @@ namespace Smartstore.Web.Components
                 IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
                 IsAuthenticated = isRegistered,
                 DisplayAdminLink = Services.Permissions.Authorize(Permissions.System.AccessBackend),
-                HasContactUsPage = (await Url.TopicAsync("ContactUs")).ToString().HasValue(),
-                DisplayLoginLink = _customerSettings.UserRegistrationType != UserRegistrationType.Disabled
+                HasContactUsPage = (await Url.TopicAsync("ContactUs")).ToString().HasValue()
             };
 
             return View(model);

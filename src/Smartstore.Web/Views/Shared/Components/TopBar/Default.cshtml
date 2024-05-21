@@ -41,7 +41,7 @@
         <zone name="header_menu_special_after"></zone>
     </nav>
 
-    <nav sm-if="Model.DisplayLoginLink" id="menubar-my-account" class="menubar-group">
+    <nav id="menubar-my-account" class="menubar-group">
         <div class="dropdown">
             <a class="menubar-link" attr-data-toggle='(Model.IsAuthenticated, "dropdown")' aria-haspopup="true" aria-expanded="false" href="@accountUrl" rel="nofollow">
                 <i class="@(Model.IsAuthenticated ? "fas" : "fal") fa-user-circle menubar-icon"></i>
