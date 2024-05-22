@@ -485,9 +485,11 @@ namespace Smartstore.PayPal.Controllers
                     break;
 
                 case "declined":
-                    order.CaptureTransactionResult = status;
-                    order.PaymentStatus = PaymentStatus.Voided;
-                    await _orderProcessingService.VoidOfflineAsync(order);
+                    if (order.CanVoidOffline())
+                    {
+                        order.CaptureTransactionResult = status;
+                        await _orderProcessingService.VoidOfflineAsync(order);
+                    }
                     break;
 
                 case "refunded":
