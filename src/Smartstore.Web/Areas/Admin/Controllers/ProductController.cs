@@ -1656,7 +1656,7 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
                 model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
-                
+
                 // Instance always required because of validation.
                 model.GroupedProductConfiguration ??= new();
                 if (product.ProductType == ProductType.GroupedProduct && product.GroupedProductConfiguration != null)
@@ -1817,15 +1817,29 @@ namespace Smartstore.Admin.Controllers
                 _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
                 Url.Action("ShoppingCart", "Setting"));
 
-            var headerFields = model.GroupedProductConfiguration?.HeaderFields ?? [];
-            ViewBag.AssociatedProductsHeaderFields = new List<SelectListItem>
-            {
-                new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
-                new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
-                new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
-                new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
-                new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
-            };
+            var defaultAssociatedHeaders = _catalogSettings.CollapsibleAssociatedProductsHeaders
+                .Select(x =>
+                {
+                    switch (x)
+                    {
+                        case AssociatedProductHeader.Image:
+                            return T("Common.Image");
+                        case AssociatedProductHeader.Sku:
+                            return T("Admin.Catalog.Products.Fields.Sku");
+                        case AssociatedProductHeader.Price:
+                            return T("Admin.Catalog.Products.Fields.Price");
+                        case AssociatedProductHeader.Weight:
+                            return T("Admin.Catalog.Products.Fields.Weight");
+                        case AssociatedProductHeader.Dimensions:
+                            return T("Admin.Configuration.Measures.Dimensions");
+                        default:
+                            return null;
+                    };
+                })
+                .Where(x => x != null);
+
+            ViewBag.DefaultAssociatedProductsHeaderFields = string.Join(", ", defaultAssociatedHeaders);
+            ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(model.GroupedProductConfiguration?.HeaderFields ?? [], T);
 
             if (setPredefinedValues)
             {
@@ -1846,6 +1860,18 @@ namespace Smartstore.Admin.Controllers
                 model.Published = true;
                 model.HasPreviewPicture = false;
             }
+        }
+
+        internal static List<SelectListItem> CreateAssociatedProductsHeaderFieldsList(string[] headerFields, Localizer T)
+        {
+            return
+            [
+                new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
+                new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
+                new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
+                new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
+                new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
+            ];
         }
 
         private async Task PrepareProductFileModelAsync(ProductModel model)

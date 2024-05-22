@@ -1,8 +1,9 @@
 ﻿@using Smartstore.Utilities
 
 @{
-    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var invariant = GetMetadata<bool>("invariant");
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    attributes.Merge("placeholder", GetMetadata<string>("placeholder") ?? T("Common.Empty").Value);
 }
 
 <input type="number"
@@ -10,7 +11,6 @@
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
        sm-postfix="@(GetMetadata<string>("postfix"))"
-       placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<int?>("min"))"
        max="@(GetMetadata<int?>("max"))"
        step="@(GetMetadata<int?>("step") ?? 1)"

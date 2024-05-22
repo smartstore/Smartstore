@@ -419,5 +419,31 @@ namespace Smartstore.Core.Catalog
         /// Gets or sets how many columns per row should be displayed at most in grid style lists on largest screen resolution.
         /// </summary>
         public GridColumnSpan GridStyleListColumnSpan { get; set; } = GridColumnSpan.Max4Cols;
+
+        #region Grouped product configuration
+
+        /// <summary>
+        /// Gets or sets the number of associated products per page.
+        /// The default value is 20.
+        /// </summary>
+        public int AssociatedProductsPageSize { get; set; } = 20;
+
+        /// <summary>
+        /// Gets or sets the minimum number of associated products from which a search box is displayed.
+        /// The default value is 10.
+        /// </summary>
+        public int SearchMinAssociatedProductsCount { get; set; } = 10;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether associated products are collapsible.
+        /// </summary>
+        public bool CollapsibleAssociatedProducts { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets name of fields to display in a collapse header of associated products.
+        /// </summary>
+        public string[] CollapsibleAssociatedProductsHeaders { get; set; } = [AssociatedProductHeader.Image, AssociatedProductHeader.Sku, AssociatedProductHeader.Price];
+
+        #endregion
     }
 }

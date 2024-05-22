@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using Smartstore.Utilities;
@@ -21,26 +20,23 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public partial class GroupedProductConfiguration
     {
-        const int DefaultPageSize = 20;
-        const int DefaultSearchMinAssociatedCount = 10;
+        /// <summary>
+        /// The number of associated products per page.
+        /// </summary>
+        [JsonProperty("pageSize", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int? PageSize { get; set; }
 
         /// <summary>
-        /// The number of associated products per page. The default is <see cref="DefaultPageSize"/>.
+        /// Minimum number of associated products from which the search box is displayed.
         /// </summary>
-        [JsonProperty("pageSize", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(DefaultPageSize)]
-        public int PageSize { get; set; } = DefaultPageSize;
-
-        /// <summary>
-        /// Minimum number of associated products from which the search box is displayed. The default is <see cref="DefaultSearchMinAssociatedCount"/>.
-        /// </summary>
-        [JsonProperty("searchMinAssociatedCount", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(DefaultSearchMinAssociatedCount)]
-        public int SearchMinAssociatedCount { get; set; } = DefaultSearchMinAssociatedCount;
+        [JsonProperty("searchMinAssociatedCount", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int? SearchMinAssociatedCount { get; set; }
 
         /// <summary>
         /// A value indicating whether the associated products are collapsible.
         /// </summary>
-        [JsonProperty("collapsible", DefaultValueHandling = DefaultValueHandling.Ignore), DefaultValue(false)]
-        public bool Collapsible { get; set; }
+        [JsonProperty("collapsible", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool? Collapsible { get; set; }
 
         /// <summary>
         /// Gets or sets name of fields to display in the collapse header.
@@ -49,17 +45,22 @@ namespace Smartstore.Core.Catalog.Products
         public string[]? HeaderFields { get; set; }
 
         public virtual string? ToJson()
-            => IsDefault() ? null : JsonConvert.SerializeObject(this);
+        {
+            if (IsDefault())
+            {
+                return null;
+            }
 
-        /// <summary>
-        /// Gets a value indicating whether a header column is displayed.
-        /// </summary>
-        /// <param name="name"><see cref="AssociatedProductHeader"/>.</param>
-        public bool HasHeader(string name)
-            => HeaderFields?.Any(x => x.EqualsNoCase(name)) ?? false;
+            if (HeaderFields.IsNullOrEmpty())
+            {
+                HeaderFields = null;
+            }
+
+            return JsonConvert.SerializeObject(this);
+        }
 
         private bool IsDefault()
-            => PageSize == DefaultPageSize && SearchMinAssociatedCount == DefaultSearchMinAssociatedCount && !Collapsible;
+            => PageSize == null && SearchMinAssociatedCount == null && Collapsible == null && HeaderFields.IsNullOrEmpty();
     }
 
 #nullable disable

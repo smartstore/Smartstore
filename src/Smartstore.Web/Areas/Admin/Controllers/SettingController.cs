@@ -400,7 +400,7 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
             await MapperFactory.MapAsync(priceSettings, model.PriceSettings);
 
-            await PrepareCatalogConfigurationModelAsync(model);
+            await PrepareCatalogConfigurationModelAsync(model, catalogSettings);
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -1551,7 +1551,7 @@ namespace Smartstore.Admin.Controllers
             #endregion
         }
 
-        private async Task PrepareCatalogConfigurationModelAsync(CatalogSettingsModel model)
+        private async Task PrepareCatalogConfigurationModelAsync(CatalogSettingsModel model, CatalogSettings catalogSettings)
         {
             ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
             {
@@ -1584,6 +1584,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
             ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
+            ViewBag.AssociatedProductsHeaderFields = ProductController.CreateAssociatedProductsHeaderFieldsList(catalogSettings.CollapsibleAssociatedProductsHeaders, T);
 
             static List<SelectListItem> AddBadgeStyles(string selectedValue)
             {

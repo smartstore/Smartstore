@@ -4,13 +4,13 @@
     public class GroupedProductConfigurationModel
     {
         [LocalizedDisplay("*PageSize")]
-        public int PageSize { get; set; } = 20;
+        public int? PageSize { get; set; }
 
         [LocalizedDisplay("*SearchMinAssociatedCount")]
-        public int SearchMinAssociatedCount { get; set; } = 10;
+        public int? SearchMinAssociatedCount { get; set; }
 
         [LocalizedDisplay("*Collapsible")]
-        public bool Collapsible { get; set; }
+        public bool? Collapsible { get; set; }
 
         [LocalizedDisplay("*HeaderFields")]
         public string[] HeaderFields { get; set; }

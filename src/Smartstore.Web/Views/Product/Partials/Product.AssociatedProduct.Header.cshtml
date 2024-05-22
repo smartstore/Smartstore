@@ -1,8 +1,11 @@
-﻿@using Smartstore.Core.Catalog.Products
+﻿@using Smartstore.Core.Catalog
+@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Checkout.Cart
 @using Smartstore.Web.Models.Catalog
 
 @model ProductDetailsModel
+
+@inject CatalogSettings CatalogSettings
 
 @{
     var config = ViewData["GroupedProductConfiguration"] as GroupedProductConfiguration;
@@ -42,15 +45,20 @@
 
         return T("Products.DimensionsValue.Short").Value.FormatInvariant(wStr, hStr, lStr);
     }
+
+    bool HasHeader(string name)
+    {
+        return (config.HeaderFields ?? CatalogSettings.CollapsibleAssociatedProductsHeaders)?.Any(x => x.EqualsNoCase(name)) ?? false;
+    }
 }
 
 <div class="pd-assoc-title card-title row no-gutters"
-     aria-expanded="false" 
-     role="button" 
-     data-target="#@id" 
+     aria-expanded="false"
+     role="button"
+     data-target="#@id"
      aria-controls="@id">
     <div class="col-auto d-flex">
-        <div sm-if="@config.HasHeader(AssociatedProductHeader.Image)" class="pd-assoc-img">
+        <div sm-if="@HasHeader(AssociatedProductHeader.Image)" class="pd-assoc-img">
             @if (img != null)
             {
                 <img class="@imgClass" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
@@ -69,18 +77,18 @@
                 </div>
             </div>
             <div class="col-6 col-md-4 d-none d-md-flex flex-column flex-lg-row align-items-start justify-content-center align-items-lg-center fs-sm">
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Sku)" class="pd-assoc-attr" title="@Model.Sku">
+                <div sm-if="@HasHeader(AssociatedProductHeader.Sku)" class="pd-assoc-attr" title="@Model.Sku">
                     @Model.Sku
                 </div>
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Dimensions)" class="pd-assoc-attr" title="@GetFormattedDimensions(true)">
+                <div sm-if="@HasHeader(AssociatedProductHeader.Dimensions)" class="pd-assoc-attr" title="@GetFormattedDimensions(true)">
                     @GetFormattedDimensions(false)
                 </div>
-                <div sm-if="@config.HasHeader(AssociatedProductHeader.Weight)" class="pd-assoc-attr" title="@Model.Weight">
+                <div sm-if="@HasHeader(AssociatedProductHeader.Weight)" class="pd-assoc-attr" title="@Model.Weight">
                     @Model.Weight
                 </div>
             </div>
             <div class="col-6 col-md-1 d-flex mt-2 mt-md-0 align-items-center justify-content-start justify-content-md-end">
-                <span sm-if="@config.HasHeader(AssociatedProductHeader.Price)" class="pd-assoc-price">
+                <span sm-if="@HasHeader(AssociatedProductHeader.Price)" class="pd-assoc-price">
                     @Html.Raw(Model.Price.FinalPrice)
                 </span>
             </div>
@@ -96,7 +104,7 @@
                        data-form-selector="#pd-form"
                        data-type="cart"
                        data-action="add"
-                       data-toggle="offcanvas" 
+                       data-toggle="offcanvas"
                        data-target="#offcanvas-cart"
                        title="@T(Model.AddToCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")">
                         <i class="fa fa-cart-arrow-down"></i>
