@@ -54,7 +54,8 @@ namespace Smartstore.Core.Seo
             "/customer/",
             "/order/",
             "/install$",
-            "/install/"
+            "/install/",
+            "*returnUrl=*"
         };
 
         public static ISet<string> DefaultCharConversions { get; } = new HashSet<string>
