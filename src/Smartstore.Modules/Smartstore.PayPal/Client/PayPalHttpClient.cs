@@ -600,7 +600,8 @@ namespace Smartstore.PayPal.Client
 
             if (cartTotal.Total != null && cartTotal.Total.Value != cartSubTotalExclTax.SubtotalWithDiscount)
             {
-                purchaseUnit.Amount.Value = cartTotal.Total.Value.Amount.ToStringInvariant("F");
+                var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total.Value.Amount, currency);
+                purchaseUnit.Amount.Value = cartTotalConverted.Amount.ToStringInvariant("F");
             }
 
             // TODO: (mh) (core) This is very hackish. PayPal was contacted and requested for a correct solution.
