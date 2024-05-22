@@ -1839,7 +1839,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x != null);
 
             ViewBag.DefaultAssociatedProductsHeaderFields = string.Join(", ", defaultAssociatedHeaders);
-            ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(model.GroupedProductConfiguration?.HeaderFields ?? [], T);
+            ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(model.GroupedProductConfiguration?.HeaderFields ?? [], T, true);
 
             if (setPredefinedValues)
             {
@@ -1862,16 +1862,29 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        internal static List<SelectListItem> CreateAssociatedProductsHeaderFieldsList(string[] headerFields, Localizer T)
+        internal static List<SelectListItem> CreateAssociatedProductsHeaderFieldsList(string[] headerFields, Localizer T, bool includeName = false)
         {
-            return
-            [
+            var fields = new List<SelectListItem>
+            {
                 new() { Value = AssociatedProductHeader.Image, Text = T("Common.Image"), Selected = headerFields.Contains(AssociatedProductHeader.Image) },
                 new() { Value = AssociatedProductHeader.Sku, Text = T("Admin.Catalog.Products.Fields.Sku"), Selected = headerFields.Contains(AssociatedProductHeader.Sku) },
                 new() { Value = AssociatedProductHeader.Price, Text = T("Admin.Catalog.Products.Fields.Price"), Selected = headerFields.Contains(AssociatedProductHeader.Price) },
                 new() { Value = AssociatedProductHeader.Weight, Text = T("Admin.Catalog.Products.Fields.Weight"), Selected = headerFields.Contains(AssociatedProductHeader.Weight) },
                 new() { Value = AssociatedProductHeader.Dimensions, Text = T("Admin.Configuration.Measures.Dimensions"), Selected = headerFields.Contains(AssociatedProductHeader.Dimensions) }
-            ];
+            };
+
+            if (includeName)
+            {
+                // INFO: workaround to be able to display only the product name as a header for a certain grouped product.
+                fields.Insert(0, new()
+                {
+                    Value = AssociatedProductHeader.Name,
+                    Text = T("Admin.Catalog.ProductReviews.List.ProductName"), 
+                    Selected = headerFields.Contains(AssociatedProductHeader.Name)
+                });
+            }
+
+            return fields;
         }
 
         private async Task PrepareProductFileModelAsync(ProductModel model)

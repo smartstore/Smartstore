@@ -8,6 +8,7 @@ namespace Smartstore.Core.Catalog.Products
 {
     public static class AssociatedProductHeader
     {
+        public const string Name = "name";
         public const string Image = "image";
         public const string Sku = "sku";
         public const string Dimensions = "dimensions";
