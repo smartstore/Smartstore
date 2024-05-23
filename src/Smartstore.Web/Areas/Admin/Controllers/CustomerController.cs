@@ -219,6 +219,15 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
+            // INFO: (mw) Please follow the dev conventions!!! Don't reinvent the wheel!
+            // TODO: (mw) Add LastUserAgent, LastUserDeviceType and Location (like in OnlineCustomerModel) properties to CustomerModel class and map here accordingly
+            // INFO: (mw) Don't use ViewBag for this kind of stuff. Use a dedicated model class instead.
+            // TODO: (mw) Display LastUserAgent, LastUserDeviceType and Location in the General tab beneath LastIpAddress. Make a new group for this (including CreatedDate and LastActivityDate).
+            // TODO: (mw) Show only the Grid in Attributes tab (like it is the case in Order view).
+            // TODO: (mw) Get rid of "LocationGeoLocation". What is it for? It's not used anywhere.
+            // TODO: (mw) Get rid of _Attributes.cshtml.
+            // TODO: (mw) Always update changelog.md when you add/change something substantial.
+
             // Location info.
 
             string locationName = string.Empty;
