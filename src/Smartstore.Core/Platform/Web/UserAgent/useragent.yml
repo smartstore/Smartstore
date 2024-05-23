@@ -260,6 +260,7 @@ bots:
   # Common bots
   - match: Googlebot
   - match: Applebot
+  - match: DuckDuckBot
     name: $1
 
   - match: googleweblight
@@ -292,6 +293,8 @@ bots:
   - match: Swiftbot
   - match: CCBot
   - match: GoogleOther
+  - match: Google-Extended
+  - match: Google-InspectionTool
     name: $1
 
   - match: AdsBot-Google-Mobile
@@ -304,6 +307,7 @@ bots:
     name: Google FeedFetcher
 
   - match: facebookexternalhit
+  - match: FacebookBot
     name: Facebook
 
   - match: AdScanner
@@ -331,6 +335,21 @@ bots:
 
   - match: Chrome-Lighthouse
     name: Chrome Lighthouse
+
+  - match: uptime-kuma
+  - match: GPTBot
+  - match: ChatGPT-User
+  - match: PhxBot
+  - match: ImagesiftBot
+  - match: GeedoBot
+  - match: Audisto Crawler
+  - match: PerplexityBot/
+  - match: Monsidobot
+  - match: GroupMeBot
+  - match: MetaInspector
+  - match: Iframely
+  - match: Synapse
+    name: $1
 
   - match: Nessus
   - match: Pingdom
@@ -383,6 +402,12 @@ bots:
   - match: LinkedInBot
     name: $1
 
+  - match: anthropic-ai
+    name: Anthropic AI
+
+  - match: /[cC]laude[bB]ot/
+    name: Claude Bot
+
   - match: infoseek
     name: InfoSeek Robot 1.0
 
@@ -392,11 +417,17 @@ bots:
   - match: google-read-aloud
     name: Google ReadAloud
 
+  - match: google-Safety
+    name: Google Safety
+
   - match: ia_archiver
     name: Alexa Crawler
 
   - match: MJ12bot
     name: Majestic
+
+  - match: OmigiliBot
+    name: Webz.io (Omigili Bot)
 
   - match: CheckMarkNetwork
   - match: Uptimebot
