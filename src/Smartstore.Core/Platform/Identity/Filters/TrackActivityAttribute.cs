@@ -13,7 +13,7 @@ namespace Smartstore.Core.Identity
         public TrackActivityAttribute()
             : base(typeof(TrackActivityFilter))
         {
-            Arguments = new object[] { this };
+            Arguments = [this];
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Identity
 
         private void DoTrack(ActionExecutingContext context)
         {
-            if (!context.HttpContext.Request.IsNonAjaxGet())
+            if (!context.HttpContext.Request.IsGet())
             {
                 return;
             }
