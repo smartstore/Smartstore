@@ -1,0 +1,56 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model CustomerModel
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Customers.OnlineCustomers.Fields.Location")</div>
+        </div>
+    </div>
+    <div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <label for="location-last-ip-adress">@T("Admin.Customers.OnlineCustomers.Fields.IPAddress")</label>
+            </div>
+            <div class="adminData">
+                <input id="location-last-ip-adress" class="form-control-plaintext" type="text" readonly value="@ViewBag.LocationLastIpAddress" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <label for="location-name">@T("Admin.Rules.FilterDescriptor.IPCountry")</label>
+            </div>
+            <div class="adminData">
+                <input id="location-name" class="form-control-plaintext" type="text" readonly value="@ViewBag.LocationName" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <label for="location-user-agent">@T("Admin.Rules.FilterDescriptor.LastUserAgent")</label>
+            </div>
+            <div class="adminData">
+                <input id="location-user-agent" class="form-control-plaintext" type="text" readonly value="@ViewBag.LocationUserAgent" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <label for="location-geo-location">Geo location</label>
+            </div>
+            <div class="adminData">
+                <input id="location-geo-location" class="form-control-plaintext" type="text" readonly value="@ViewBag.LocationGeoLocation" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <label for="location-user-device-type">@T("Admin.Rules.FilterDescriptor.LastDeviceFamily")</label>
+            </div>
+            <div class="adminData">
+                <input id="location-user-device-type" class="form-control-plaintext" type="text" readonly value="@ViewBag.LocationUserDeviceType" />
+            </div>
+        </div>
+    </div>
+
+    <h5 class="my-3 text-muted">@T("Admin.Common.GenericAttributes")</h5>
+    <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Customer", AttributeEntityId = Model.Id }' />
+</div>

@@ -219,6 +219,27 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
+            // Location info.
+
+            string locationName = string.Empty;
+            if (model.LastIpAddress.HasValue())
+            {
+                var location = _geoCountryLookup.Value.LookupCountry(model.LastIpAddress);
+                locationName = location?.Name;
+            }
+
+            string geoLocation = string.Empty;
+            if (customer?.GenericAttributes.TryGetEntity("GeoLocation", 0, out var geoLocationAttribute) ?? false)
+            {
+                geoLocation = geoLocationAttribute.ToString();
+            }
+
+            ViewBag.LocationLastIpAddress = model.LastIpAddress.NaIfEmpty();
+            ViewBag.LocationUserAgent = customer.LastUserAgent.NaIfEmpty();
+            ViewBag.LocationUserDeviceType = customer.LastUserDeviceType.NaIfEmpty();
+            ViewBag.LocationName = locationName.NaIfEmpty();
+            ViewBag.LocationGeoLocation = geoLocation.NaIfEmpty();
+
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled && model.CountryId > 0)
             {

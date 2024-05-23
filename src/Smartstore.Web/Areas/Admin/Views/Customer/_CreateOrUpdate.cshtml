@@ -117,6 +117,9 @@
                 </button>
             </p>
         </tab>
+        <tab sm-if="Model.Id != 0" sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist">
+            <partial name="_Attributes" model="Model" />
+        </tab>
     }
 </tabstrip>
 
