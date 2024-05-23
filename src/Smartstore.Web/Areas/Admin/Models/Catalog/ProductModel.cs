@@ -705,7 +705,13 @@ namespace Smartstore.Admin.Models.Catalog
 
             When(x => x.ProductTypeId == (int)ProductType.GroupedProduct, () =>
             {
-                RuleFor(x => x.GroupedProductConfiguration.PageSize).GreaterThan(0);
+                RuleFor(x => x.GroupedProductConfiguration.PageSize)
+                    .GreaterThan(0)
+                    .When(x => x.GroupedProductConfiguration.PageSize != null);
+
+                RuleFor(x => x.GroupedProductConfiguration.SearchMinAssociatedCount)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.GroupedProductConfiguration.SearchMinAssociatedCount != null);
             });
         }
     }

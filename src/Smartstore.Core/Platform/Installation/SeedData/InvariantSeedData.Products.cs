@@ -885,7 +885,7 @@ namespace Smartstore.Core.Installation
             var groupedProductConfig = new GroupedProductConfiguration
             {
                 Collapsible = true,
-                HeaderFields = [AssociatedProductHeader.Image, AssociatedProductHeader.Sku, AssociatedProductHeader.Price ]
+                HeaderFields = [AssociatedProductHeader.Image, AssociatedProductHeader.Sku, AssociatedProductHeader.Price]
             };
 
             var groupedSofasAndChairs = new Product

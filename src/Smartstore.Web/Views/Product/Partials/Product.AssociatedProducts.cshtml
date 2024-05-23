@@ -1,12 +1,9 @@
-﻿@using Smartstore.Web.Models.Catalog
+﻿@using Smartstore.Core.Catalog
+@using Smartstore.Web.Models.Catalog
 
 @model GroupedProductModel
 
-@*
-    TODO: (mg) (low prio) List needs title: Ausführungen (DE) / Variations (EN) (configurable on product level as part of ProductTypeConfiguration). TBD with MC.
-    TODO: (mg) PageSize should also apply to (ungrouped) default template
-    TODO: (mc) Revamp accordion design: gray headers, titles above accordion etc.
-*@
+@inject CatalogSettings CatalogSettings
 
 @{
     ViewDataDictionary CreateViewData(ProductDetailsModel model, bool skipUpdateUrl = false)
@@ -26,7 +23,7 @@
             @T("Common.NoProductsFound")
         </div>
     }
-    else if (Model.Configuration.Collapsible)
+    else if (Model.Configuration.Collapsible ?? CatalogSettings.CollapsibleAssociatedProducts)
     {
         <div class="pd-assoc-list accordion">
             @foreach (var product in Model.Products)

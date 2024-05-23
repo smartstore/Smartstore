@@ -1,7 +1,9 @@
-﻿@using Smartstore.Core.Catalog.Products
+﻿@using Smartstore.Core.Catalog
+@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Checkout.GiftCards
 
 @inject ILanguageService languageService
+@inject CatalogSettings CatalogSettings
 
 @model ProductModel
 
@@ -150,16 +152,12 @@
         </div>
     </div>
     <div id="grouped-product-config">
-        @*
-            TODO: (mg) Bad usability (repetitive): Make global settings for page size, expand/collapse and header fields. Make them overridable on product level. TBD with MC.
-        TODO: (mg) Info: the default value of the global expand/collapse setting should be TRUE.
-        *@
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="GroupedProductConfiguration.PageSize" />
             </div>
             <div class="adminData">
-                <editor asp-for="GroupedProductConfiguration.PageSize" />
+                <editor asp-for="GroupedProductConfiguration.PageSize" placeholder="@CatalogSettings.AssociatedProductsPageSize" />
                 <span asp-validation-for="GroupedProductConfiguration.PageSize"></span>
             </div>
         </div>
@@ -168,7 +166,7 @@
                 <smart-label asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" />
             </div>
             <div class="adminData">
-                <editor asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" />
+                <editor asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" placeholder="@CatalogSettings.SearchMinAssociatedProductsCount" />
                 <span asp-validation-for="GroupedProductConfiguration.SearchMinAssociatedCount"></span>
             </div>
         </div>
@@ -177,16 +175,20 @@
                 <smart-label asp-for="GroupedProductConfiguration.Collapsible" />
             </div>
             <div class="adminData">
-                <input asp-for="GroupedProductConfiguration.Collapsible" data-toggler-for="#grouped-product-config-collapsible" />
+                <editor asp-for="GroupedProductConfiguration.Collapsible" placeholder="@T(CatalogSettings.CollapsibleAssociatedProducts ? "Common.Yes" : "Common.No")" />
                 <span asp-validation-for="GroupedProductConfiguration.Collapsible"></span>
             </div>
         </div>
-        <div id="grouped-product-config-collapsible" class="adminRow">
+        <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="GroupedProductConfiguration.HeaderFields" />
             </div>
             <div class="adminData">
-                <select asp-for="GroupedProductConfiguration.HeaderFields" asp-items="ViewBag.AssociatedProductsHeaderFields" multiple="multiple" data-tags="true"></select>
+                <select asp-for="GroupedProductConfiguration.HeaderFields"
+                        asp-items="ViewBag.AssociatedProductsHeaderFields"
+                        placeholder="@ViewBag.DefaultAssociatedProductsHeaderFields"
+                        multiple="multiple"
+                        data-tags="true"></select>
                 <span asp-validation-for="GroupedProductConfiguration.HeaderFields"></span>
             </div>
         </div>

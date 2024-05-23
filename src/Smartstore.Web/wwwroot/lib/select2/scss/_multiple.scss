@@ -20,6 +20,7 @@
 
 .select2-search--inline {
   float: left;
+  flex-grow: 1;
 
   .select2-search__field {
     box-sizing: border-box;

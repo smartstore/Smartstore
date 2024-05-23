@@ -349,6 +349,7 @@ namespace Smartstore.Web.Controllers
 
         #region ProductTags
 
+        [DisallowRobot]
         [LocalizedRoute("/producttag/{productTagId:int}/{*path}", Name = "ProductsByTag")]
         public async Task<IActionResult> ProductsByTag(int productTagId, CatalogSearchQuery query)
         {

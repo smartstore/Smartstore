@@ -429,7 +429,7 @@ namespace Smartstore.Web.Controllers
 
             var product = ctx.Product;
             var batchContext = ctx.BatchContext;
-            var pageSize = ctx.GroupedProductConfiguration.PageSize;
+            var pageSize = ctx.GroupedProductConfiguration.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
             var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength 
                 ? _searchSettings.GetSearchFields(true).ToArray()
                 : null;
@@ -1052,7 +1052,7 @@ namespace Smartstore.Web.Controllers
             toCart.ProductId = product.Id;
             toCart.AvailableForPreOrder = product.AvailableForPreOrder;
             toCart.HideQuantityControl = product.HideQuantityControl;
-            toCart.CollapsibleAssociatedProduct = ctx.IsAssociatedProduct && ctx.GroupedProductConfiguration?.Collapsible == true;
+            toCart.CollapsibleAssociatedProduct = ctx.IsAssociatedProduct && (ctx.GroupedProductConfiguration?.Collapsible ?? _catalogSettings.CollapsibleAssociatedProducts);
 
             await product.MapQuantityInputAsync(toCart, selectedQuantity);
             toCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later

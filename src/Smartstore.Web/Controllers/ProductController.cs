@@ -382,7 +382,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var ctx = await _helper.CreateModelContext(product, query, bundleItem, isAssociated, parentProductId);
-            var hasAssociatedHeader = isAssociated && ctx.GroupedProductConfiguration?.Collapsible == true;
+            var hasAssociatedHeader = isAssociated && (ctx.GroupedProductConfiguration?.Collapsible ?? _catalogSettings.CollapsibleAssociatedProducts);
 
             // Get merged model data.
             var model = new ProductDetailsModel();
@@ -403,9 +403,10 @@ namespace Smartstore.Web.Controllers
                 var file = await GetSelectedAttributeImage();
                 dynamicThumbUrl = file != null ? _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false) : null;
 
-                if (hasAssociatedHeader && ctx.GroupedProductConfiguration.HasHeader(AssociatedProductHeader.Image))
+                var headerFields = ctx.GroupedProductConfiguration.HeaderFields ?? _catalogSettings.CollapsibleAssociatedProductsHeaders ?? [];
+                if (hasAssociatedHeader && headerFields.Any(x => x.EqualsNoCase(AssociatedProductHeader.Image)))
                 {
-                    // Render associated product thumbnail in collabsable header.
+                    // Render associated product thumbnail in collapsible header.
                     var files = file != null
                         ? [_mediaService.ConvertMediaFile(file)]
                         : (await LoadFiles()).Select(x => _mediaService.ConvertMediaFile(x.MediaFile)).ToList();

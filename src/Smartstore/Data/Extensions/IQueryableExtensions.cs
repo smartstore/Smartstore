@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.ComponentModel;
@@ -17,7 +18,7 @@ namespace Smartstore
     public static class IQueryableExtensions
     {
         public readonly static MethodInfo StringSubstringMethod = typeof(string)
-            .GetMethod(nameof(string.Substring), new Type[] { typeof(int), typeof(int) });
+            .GetMethod(nameof(string.Substring), [typeof(int), typeof(int)]);
 
         private readonly static ConcurrentDictionary<Type, LambdaExpression> _memberInitExpressions = new();
         
@@ -72,7 +73,7 @@ namespace Smartstore
         {
             Guard.NotNull(query);
 
-            var selector = GetEntitySummarySelector<T>();
+            var selector = GetEntitySummarySelector<T>(query.GetDbContext().Model);
 
             if (selector != null)
             {
@@ -84,7 +85,7 @@ namespace Smartstore
             }
         }
 
-        private static Expression<Func<T, T>> GetEntitySummarySelector<T>()
+        private static Expression<Func<T, T>> GetEntitySummarySelector<T>(IModel entityModel)
             where T : BaseEntity
         {
             // x => ...
@@ -98,7 +99,9 @@ namespace Smartstore
                 var memberBindings = new List<MemberBinding>();
                 var numNonSummaryAttributes = 0;
 
+                var entityType = entityModel.FindEntityType(typeof(T));
                 var props = FastProperty.GetProperties(typeof(T));
+
                 foreach (var kvp in props)
                 {
                     var prop = kvp.Value.Property;
@@ -127,7 +130,11 @@ namespace Smartstore
 
                     if (!prop.PropertyType.IsBasicOrNullableType())
                     {
-                        continue;
+                        // Always select a complex property that has a value converter.
+                        if (entityType.FindProperty(prop)?.GetValueConverter() is null)
+                        {
+                            continue;
+                        }
                     }
 
                     // { Name = --> x.Name <-- }

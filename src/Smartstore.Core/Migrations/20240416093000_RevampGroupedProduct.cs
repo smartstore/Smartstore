@@ -46,7 +46,7 @@ namespace Smartstore.Core.Migrations
                 "Header fields",
                 "Felder in der Titelzeile",
                 "Specifies additional fields for the header of an associated product. The product name is always displayed.",
-                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Produktname wird immer angezeigt.");
+                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Der Produktname wird immer angezeigt.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.AssociatedProductHeaderThumbSize",
                 "Associated (grouped) product in the header",

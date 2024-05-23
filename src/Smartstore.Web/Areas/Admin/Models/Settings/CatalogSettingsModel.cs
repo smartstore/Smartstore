@@ -185,6 +185,22 @@ namespace Smartstore.Admin.Models
 
         #endregion
 
+        #region Grouped product configuration
+
+        [LocalizedDisplay("*AssociatedProductsPageSize")]
+        public int AssociatedProductsPageSize { get; set; }
+
+        [LocalizedDisplay("*SearchMinAssociatedProductsCount")]
+        public int SearchMinAssociatedProductsCount { get; set; }
+
+        [LocalizedDisplay("*CollapsibleAssociatedProducts")]
+        public bool CollapsibleAssociatedProducts { get; set; }
+
+        [LocalizedDisplay("*CollapsibleAssociatedProductsHeaders")]
+        public string[] CollapsibleAssociatedProductsHeaders { get; set; }
+
+        #endregion
+
         #region Product tags
 
         [LocalizedDisplay("*NumberOfProductTags")]
@@ -276,7 +292,7 @@ namespace Smartstore.Admin.Models
         #endregion
 
         public PriceSettingsModel PriceSettings { get; set; } = new();
-        public List<PriceSettingsLocalizedModel> Locales { get; set; } = new();
+        public List<PriceSettingsLocalizedModel> Locales { get; set; } = [];
     }
 
     public partial class CatalogSettingsValidator : SettingModelValidator<CatalogSettingsModel, CatalogSettings>
@@ -316,6 +332,9 @@ namespace Smartstore.Admin.Models
                 .WhenSettingOverriden((m, ctx) => m.LabelAsNewForMaxDays != null);
 
             RuleFor(x => x.DisplayAllImagesNumber).GreaterThanOrEqualTo(0);
+
+            RuleFor(x => x.AssociatedProductsPageSize).GreaterThan(0);
+            RuleFor(x => x.SearchMinAssociatedProductsCount).GreaterThanOrEqualTo(0);
         }
     }
 }

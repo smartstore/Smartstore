@@ -481,6 +481,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.SearchProducts", "Search products", "Produkte durchsuchen");
             builder.AddOrUpdate("Common.NoProductsFound", "No products were found.", "Es wurden keine Produkte gefunden.");
 
+            // ----- Revamp grouped products (begin)
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.SearchMinAssociatedCount",
                 "Minimum product count for search",
                 "Minimale Produktanzahl für Suche",
@@ -490,8 +491,37 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                  "Collapsible associated products",
                  "Aufklappbare verknüpfte Produkte",
-                 "Specifies whether details of the associated product are expanded/collapsed by clicking on a header (Accordion).",
+                 "Specifies whether details of the associated product are expanded/collapsed by clicking on a header (accordion).",
                  "Legt fest, ob Details zum verknüpften Produkt durch Klick auf eine Titelzeile auf- oder zugeklappt werden (Akkordeon).");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AssociatedProductsPageSize",
+                "Page size of associated products list",
+                "Listengröße von verknüpften Produkten",
+                "Specifies the number of associated products per page for grouped products.",
+                "Legt die Anzahl verknüpfter Produkte pro Seite für Gruppenprodukte fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.SearchMinAssociatedProductsCount",
+                "Minimum number of associated products for search",
+                "Minimale Anzahl verknüpfter Produkte für Suche",
+                "Specifies the minimum number of associated products from which a search field is displayed.",
+                "Legt die Mindestanzahl verknüpfter Produkte fest, ab denen ein Suchfeld angezeigt wird.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.CollapsibleAssociatedProducts",
+                "Collapsible associated products",
+                "Aufklappbare verknüpfte Produkte",
+                "Specifies whether details of the associated product are expanded/collapsed by clicking on a header (accordion).",
+                "Legt fest, ob Details zum verknüpften Produkt durch Klick auf eine Titelzeile auf- oder zugeklappt werden (Akkordeon).");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.CollapsibleAssociatedProductsHeaders",
+                "Header fields of associated products",
+                "Felder in der Titelzeile verknüpfter Produkte",
+                "Specifies additional fields for the header of an associated product. The product name is always displayed.",
+                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Der Produktname wird immer angezeigt.");
+
+            builder.AddOrUpdate("Admin.Catalog.GroupedProductConfiguration.Note",
+                "Settings for grouped products can be overwritten at product level.",
+                "Einstellungen für Gruppenprodukte können beim jeweiligen Produkt überschrieben werden.");
+            // ----- Revamp grouped products (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines",
                 "Additional lines",
