@@ -12,7 +12,7 @@ namespace Smartstore.Web.Models.Checkout
         /// <summary>
         /// Gets a value indicating whether the current checkout page is the confirm page.
         /// </summary>
-        public bool IsConfirm
+        public bool IsConfirmPage
             => ActionName == CheckoutActionNames.Confirm;
 
         public List<string> Warnings { get; set; } = [];

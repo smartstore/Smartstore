@@ -258,7 +258,9 @@
 				"order_summary_totals_after",
 				"order_summary_buttons_before",
 				"order_summary_buttons_after",
-				"order_summary_content_after"
+        "order_summary_content_after",
+        "order_bottom_totals_before",
+        "order_bottom_totals_after"
 			]
 		}
 	]

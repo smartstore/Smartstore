@@ -9,7 +9,7 @@
         : null;
 }
 
-<div class="cart-footer@(Model.IsConfirm ? string.Empty : " cart-footer-panel")">
+<div class="cart-footer@(Model.IsConfirmPage ? string.Empty : " cart-footer-panel")">
     <div class="row">
         <div class="col-12 cart-footer-group">
             <zone name="order_summary_totals_before" />
@@ -32,7 +32,7 @@
                 <zone name="order_summary_buttons_before" />
 
                 <div class="cart-buttons">
-                    @if (Model.IsConfirm)
+                    @if (Model.IsConfirmPage)
                     {
                         <button type="button" class="btn btn-danger btn-lg btn-block @Model.NextStepClass" onclick="return false;">
                             <span>@T("Checkout.ConfirmButton")</span>

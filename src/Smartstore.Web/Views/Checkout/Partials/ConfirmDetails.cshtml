@@ -5,8 +5,6 @@
 
 @{
     var cart = Model.ShoppingCart;
-    var hasDownloadUserAgreement = cart.Items.Any(x => x.IsDownload && x.HasUserAgreement);
-
     var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
     var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
     var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("PrivacyInfo", true));
@@ -87,7 +85,7 @@
 @if (cart.Items.Any())
 {
     <div>
-        <div sm-if="Model.IsConfirm" class="row align-items-end mb-2">
+        <div sm-if="Model.IsConfirmPage" class="row align-items-end mb-2">
             <div class="col">
                 <span class="h5">
                     @Html.Raw(T("ShoppingCart.Products"))
@@ -117,9 +115,32 @@ else
     </div>
 }
 
+<div class="cart-bottom-order-total">
+    <div class="row">
+        <div class="col col-auto">
+            <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
+                <span>@T("Checkout.ConfirmButton")</span>
+                <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+        <div class="col col-3">
+            <zone name="order_bottom_totals_before" />
+
+            @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
+
+            <zone name="order_bottom_totals_after" />
+        </div>
+    </div>
+    @*<div class="row">
+        <div class="col text-muted mt-2">
+            Interactively procrastinate prospective vortals vis-a-vis 24/7 meta-services. Appropriately deploy prospective "outside the box" thinking without functional deliverables. Intrinsicly brand enabled potentialities for customer directed best practices. Phosfluorescently scale extensible strategic theme areas for.
+        </div>
+    </div>*@
+</div>
+
 <zone name="order_summary_content_after" />
 
-@if (hasDownloadUserAgreement)
+@if (cart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {
     <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
         <modal-body></modal-body>
@@ -128,30 +149,3 @@ else
         </modal-footer>
     </modal>
 }
-
-<script sm-target-zone="scripts" data-origin="order-summary">
-    $(function () {
-        $('#frm-shopping-cart').on('keydown', function (e) {
-            return e.key !== 'Enter' || e.target.tagName.toLowerCase() == 'textarea';
-        });
-
-        @if (hasDownloadUserAgreement)
-        {
-            <text>
-            $('a.download-user-agreement').on('click', function () {
-                const url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id');
-                const dialog = $('#user-agreement-modal');
-
-                dialog.find('.modal-body').empty();
-
-                $.get(url, function (html) {
-                    dialog.find('.modal-body').html(html);
-                });
-
-                dialog.modal();
-                return false;
-            });
-            </text>
-        }
-    });
-</script>
