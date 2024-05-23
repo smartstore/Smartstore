@@ -79,7 +79,9 @@
                         </div>
                     }
 
-                    <partial name="AddNewAddress" />
+                    <div class="col">
+                        <partial name="AddAddressButton" />
+                    </div>
                 </div>
             </fieldset>
 
@@ -111,27 +113,4 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="billing-address">
-    $(function () {
-        $('.select-billing-address-button').on('click', function (e) {
-            e.preventDefault();
-            var shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
-
-            $(this).postData({
-                data: { shippingAddressDiffers }
-            });
-
-            return false;
-        });
-
-        $('.new-address-next-step-button').on('click', function () {
-            $('#nextstep').trigger('click');
-            return false;
-        });
-
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <text>$.scrollTo($('.address-form'), 400, { offset: -40 });</text>
-        }
-    });
-</script>
+<partial name="AddressScript" />
