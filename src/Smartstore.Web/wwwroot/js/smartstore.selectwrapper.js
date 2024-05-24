@@ -271,19 +271,29 @@
                         title = '',
                         preHtml = '',
                         postHtml = '',
-                        classes = option.data('item-class') || '',
+                        classes = item.cssClass || option.data('item-class') || '',
                         hint = item.hint || option.attr('data-hint'),
                         description = item.description || option.attr('data-description'),
                         icon = option.data('icon'),
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
 
+                    const itemTitle = item.title || option.data('title') || '';
+
+                    if (!isResult && sel.prop('multiple')) {
+                        // Should not be applied. Looks ugly for selected options.
+                        classes = '';
+                    }
+
                     if (classes.length > 0) {
                         classes = ' ' + classes;
                     }
 
-                    if (truncateText || appendHint) {
+                    if (truncateText || appendHint || itemTitle.length > 0) {
                         title = text;
+                        if (itemTitle.length > 0) {
+                            title += ' [' + itemTitle + ']';
+                        }
                         if (appendHint) {
                             title += ' [' + hint + ']';
                         }
