@@ -183,6 +183,9 @@ namespace Smartstore.Admin.Controllers
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecords(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
+                model.LastUserAgent = customer.LastUserAgent.NaIfEmpty();
+                model.LastUserDeviceType = customer.LastUserDeviceType.NaIfEmpty();
+                model.Location = (_geoCountryLookup.Value.LookupCountry(model.LastIpAddress)?.Name).NaIfEmpty();
 
                 model.Addresses = new()
                 {
@@ -218,36 +221,6 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
-
-            // INFO: (mw) Please follow the dev conventions!!! Don't reinvent the wheel!
-            // TODO: (mw) Add LastUserAgent, LastUserDeviceType and Location (like in OnlineCustomerModel) properties to CustomerModel class and map here accordingly
-            // INFO: (mw) Don't use ViewBag for this kind of stuff. Use a dedicated model class instead.
-            // TODO: (mw) Display LastUserAgent, LastUserDeviceType and Location in the General tab beneath LastIpAddress. Make a new group for this (including CreatedDate and LastActivityDate).
-            // TODO: (mw) Show only the Grid in Attributes tab (like it is the case in Order view).
-            // TODO: (mw) Get rid of "LocationGeoLocation". What is it for? It's not used anywhere.
-            // TODO: (mw) Get rid of _Attributes.cshtml.
-            // TODO: (mw) Always update changelog.md when you add/change something substantial.
-
-            // Location info.
-
-            string locationName = string.Empty;
-            if (model.LastIpAddress.HasValue())
-            {
-                var location = _geoCountryLookup.Value.LookupCountry(model.LastIpAddress);
-                locationName = location?.Name;
-            }
-
-            string geoLocation = string.Empty;
-            if (customer?.GenericAttributes.TryGetEntity("GeoLocation", 0, out var geoLocationAttribute) ?? false)
-            {
-                geoLocation = geoLocationAttribute.ToString();
-            }
-
-            ViewBag.LocationLastIpAddress = model.LastIpAddress.NaIfEmpty();
-            ViewBag.LocationUserAgent = customer.LastUserAgent.NaIfEmpty();
-            ViewBag.LocationUserDeviceType = customer.LastUserDeviceType.NaIfEmpty();
-            ViewBag.LocationName = locationName.NaIfEmpty();
-            ViewBag.LocationGeoLocation = geoLocation.NaIfEmpty();
 
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled && model.CountryId > 0)

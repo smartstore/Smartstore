@@ -134,6 +134,15 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*IPAddress")]
         public string LastIpAddress { get; set; }
 
+        [LocalizedDisplay("Admin.Rules.FilterDescriptor.LastUserAgent")]
+        public string LastUserAgent { get; set; }
+
+        [LocalizedDisplay("Admin.Rules.FilterDescriptor.LastDeviceFamily")]
+        public string LastUserDeviceType { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.OnlineCustomers.Fields.Location")]
+        public string Location { get; set; }
+
         [LocalizedDisplay("*LastVisitedPage")]
         public string LastVisitedPage { get; set; }
 

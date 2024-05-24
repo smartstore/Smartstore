@@ -355,12 +355,47 @@
     @if (Model.Id > 0)
     {
         <div class="adminRow">
+            <div class="adminSeparator">
+                <hr />
+            </div>
+        </div>
+        <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="LastIpAddress" />
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
                     @Html.DisplayFor(model => model.LastIpAddress)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LastUserAgent" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.LastUserAgent)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LastUserDeviceType" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.LastUserDeviceType)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Location" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.Location)
                 </div>
             </div>
         </div>
