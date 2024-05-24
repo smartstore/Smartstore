@@ -127,7 +127,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            model.ShippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
+            model.ShippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo", true);
             model.RequiresShipping = cart.IsShippingRequired;
             if (model.RequiresShipping)
             {

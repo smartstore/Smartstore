@@ -2,18 +2,18 @@
 
 @model OrderTotalsModel
 
-<table class="cart-summary">
-    <tr class="cart-summary-total">
-        <td class="cart-summary-label pt-0">@T("ShoppingCart.Totals.OrderTotal"):</td>
-        <td class="cart-summary-value pt-0">
-            @if (Model.OrderTotal != null)
-            {
-                <span>@Model.OrderTotal</span>
-            }
-            else
-            {
-                <span class="text-muted fs-h6 font-weight-normal text-wrap">@T("ShoppingCart.Totals.CalculatedDuringCheckout")</span>
-            }
-        </td>
-    </tr>
-</table>
+<div class="cart-bottom-total">
+    <zone name="order_totals_before" />
+
+    <span class="item fs-h5 fwm">@T("ShoppingCart.Totals.OrderTotal"):</span>
+    @if (Model.OrderTotal != null)
+    {
+        <span class="item fs-h5 fwm">@Model.OrderTotal</span>
+    }
+    else
+    {
+        <span class="item fs-h6 text-muted">@T("ShoppingCart.Totals.CalculatedDuringCheckout")</span>
+    }
+    @*TODO: (mg) add EasyCredit interest and total incl. interest via new zone "order_totals_after".*@
+    <zone name="order_totals_after" />
+</div>

@@ -36,7 +36,7 @@
             <modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
                 <modal-body></modal-body>
                 <modal-footer>
-                    <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
                 </modal-footer>
             </modal>
         }
@@ -115,27 +115,21 @@ else
     </div>
 }
 
-<div class="cart-bottom-order-total">
-    <div class="row">
-        <div class="col col-auto">
-            <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
-                <span>@T("Checkout.ConfirmButton")</span>
-                <i class="fa fa-angle-right"></i>
-            </button>
-        </div>
-        <div class="col col-3">
-            <zone name="order_bottom_totals_before" />
-
-            @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
-
-            <zone name="order_bottom_totals_after" />
-        </div>
+<div class="cart-bottom-total-container">
+    <div>
+        <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
+            <span>@T("Checkout.ConfirmButton")</span>
+            <i class="fa fa-angle-right"></i>
+        </button>
     </div>
-    @*<div class="row">
-        <div class="col text-muted mt-2">
-            Interactively procrastinate prospective vortals vis-a-vis 24/7 meta-services. Appropriately deploy prospective "outside the box" thinking without functional deliverables. Intrinsicly brand enabled potentialities for customer directed best practices. Phosfluorescently scale extensible strategic theme areas for.
+    <div>
+        <div>
+            @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
         </div>
-    </div>*@
+        @*<div class="text-muted mt-2">
+            Interactively procrastinate prospective vortals vis-a-vis 24/7 meta-services. Appropriately deploy prospective "outside the box" thinking without functional deliverables. Intrinsicly brand enabled potentialities for customer directed best practices. Phosfluorescently scale extensible strategic theme areas for.
+        </div>*@
+    </div>
 </div>
 
 <zone name="order_summary_content_after" />

@@ -192,20 +192,13 @@
 }
 
 #cart-items,
-.cart-bottom-order-total {
+.cart-bottom-total-container {
     border-radius: var(--cart-border-radius);
     border: 1px solid var(--cart-border-color);
 }
 
 #cart-items {
     @include border-bottom-radius(0);
-}
-
-.cart-bottom-order-total {
-    padding: 1.25rem;
-    background-color: var(--cart-footer-bg);
-    border-top-width: 0;
-    @include border-top-radius(0);
 }
 
 .cart-row {
@@ -414,6 +407,30 @@
 }
 
 
+// Bottom order total
+// =================================
+
+.cart-bottom-total-container {
+    display: grid;
+    grid-template-columns: max-content auto;
+    gap: var(--gutter-y) var(--gutter-x);
+    padding: 1.25rem;
+    background-color: var(--cart-footer-bg);
+    border-top-width: 0;
+    @include border-top-radius(0);
+}
+
+.cart-bottom-total {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: 8px 12px;
+
+    .item:nth-child(even) {
+        justify-self: end;
+    }
+}
+
+
 // Collapsible cart action boxes
 // =================================
 
@@ -471,7 +488,7 @@
         }
     }
 
-    .cart-bottom-order-total {
+    .cart-bottom-total-container {
         display: none;
     }
 }

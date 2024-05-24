@@ -4,7 +4,7 @@
 
 @{
     var shippingLabelHtml = Model.ShippingInfoUrl.HasValue()
-        ? $"<a href=\"{Model.ShippingInfoUrl}\" target=\"_blank\">{T("ShoppingCart.Totals.Shipping")}</a>:"
+        ? $"<a href='javascript:;' data-toggle='modal' data-target='#shipping-info-modal'>{T("ShoppingCart.Totals.Shipping")}</a>:"
         : $"{T("ShoppingCart.Totals.Shipping")}:";
 }
 
@@ -31,8 +31,8 @@
             @if (Model.AllowRemovingSubTotalDiscount)
             {
                 <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-                    class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-                    title="@T("Common.Remove")">
+                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
+                   title="@T("Common.Remove")">
                     <i class="fa">&times;</i>
                 </a>
             }
@@ -92,8 +92,8 @@
             @if (Model.AllowRemovingOrderTotalDiscount)
             {
                 <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-                    class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-                    title="@T("Common.Remove")">
+                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
+                   title="@T("Common.Remove")">
                     <i class="fa">&times;</i>
                 </a>
             }
@@ -111,9 +111,9 @@
 
                     <div sm-if="Model.IsEditable" class="col col-auto">
                         <a href="#"
-                            data-href='@Url.Action("RemoveGiftCardCoupon", "ShoppingCart", new { giftCardId = gc.Id })'
-                            class="btn-remove remove-discount-button pretty-link ajax-action-link"
-                            title="@T("Common.Remove")">
+                           data-href='@Url.Action("RemoveGiftCardCoupon", "ShoppingCart", new { giftCardId = gc.Id })'
+                           class="btn-remove remove-discount-button pretty-link ajax-action-link"
+                           title="@T("Common.Remove")">
                             <i class="fa">&times;</i>
                         </a>
                     </div>
@@ -157,3 +157,15 @@
         </td>
     </tr>
 </table>
+
+@if (Model.ShippingInfoUrl.HasValue())
+{
+    <modal id="shipping-info-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+        <modal-body>
+            <iframe src="@Model.ShippingInfoUrl" frameBorder="0" class="h-100"></iframe>
+        </modal-body>
+        <modal-footer>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Close")</button>
+        </modal-footer>
+    </modal>
+}
