@@ -38,12 +38,12 @@ namespace Smartstore.Admin.Controllers
 
                     var attributes = allAttributes
                         .AsQueryable()
+                        .Where(x => x.StoreId == storeId || x.StoreId == 0)
                         .ApplyGridCommand(command, true);
 
-                    totalCount = allAttributes.Count();
+                    totalCount = attributes.Count();
 
                     attributesItems = attributes
-                        .Where(x => x.StoreId == storeId || x.StoreId == 0)
                         .Select(x => new GenericAttributeModel
                         {
                             Id = x.Id,
