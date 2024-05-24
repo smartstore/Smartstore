@@ -82,7 +82,7 @@ namespace Smartstore.Core.Identity
 
         private void DoTrack(ActionExecutingContext context)
         {
-            if (!context.HttpContext.Request.IsGet())
+            if (!context.HttpContext.Request.IsNonAjaxGet())
             {
                 return;
             }
