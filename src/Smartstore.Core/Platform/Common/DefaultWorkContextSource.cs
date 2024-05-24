@@ -28,8 +28,8 @@ namespace Smartstore.Core
         const string CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY = "customerroles:taxdisplaytypes-{0}-{1}";
         const string CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY = "customerroles:taxdisplaytypes*";
 
-        private readonly static Func<DetectCustomerContext, Task<Customer>>[] _customerDetectors = new[] 
-        {
+        private readonly static Func<DetectCustomerContext, Task<Customer>>[] _customerDetectors =
+        [
             DetectTaskScheduler,
             DetectPdfConverter,
             DetectAuthenticated,
@@ -37,7 +37,7 @@ namespace Smartstore.Core
             DetectBot,
             DetectWebhookEndpoint,
             DetectByClientIdent
-        };
+        ];
 
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
