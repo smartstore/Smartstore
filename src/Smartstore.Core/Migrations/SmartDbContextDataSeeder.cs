@@ -523,6 +523,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines",
                 "Additional lines",
                 "Zusätzliche Zeilen");
+
+            builder.AddOrUpdate("Admin.Customers.Customers.Fields.IPAddress.Hint",
+                "IP address of last visit",
+                "IP-Adresse, mit der der Kunde zuletzt im Shop aktiv war.");
         }
     }
 }

@@ -3,6 +3,11 @@
 @{
     var shippingMethods = (ViewBag.ShippingMethods as List<SelectListItem>) ?? new();
     var paymentMethods = (ViewBag.PaymentMethods as List<SelectListItem>) ?? new();
+    var lastLocation = Model.LastIpAddress;
+    if (Model.Location.HasValue())
+    {
+        lastLocation += " (" + Model.Location + ")";
+    }
 }
 
 <div class="adminContent">
@@ -364,9 +369,7 @@
                 <smart-label asp-for="LastIpAddress" />
             </div>
             <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.LastIpAddress)
-                </div>
+                <div class="form-control-plaintext">@lastLocation</div>
             </div>
         </div>
         <div class="adminRow">
@@ -389,23 +392,13 @@
                 </div>
             </div>
         </div>
-        <div class="adminRow">
+        <div sm-if="Model.LastVisitedPage.HasValue()" class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="Location" />
+                <smart-label asp-for="LastVisitedPage" />
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.Location)
-                </div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CreatedOn" />
-            </div>
-            <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.CreatedOn)
+                    <a href="@Model.LastVisitedPage">@Model.LastVisitedPage.Truncate(128, "...")</a>
                 </div>
             </div>
         </div>
@@ -419,16 +412,15 @@
                 </div>
             </div>
         </div>
-    }
-
-    <div sm-if="Model.Id > 0 && Model.LastVisitedPage.HasValue()" class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="LastVisitedPage" />
-        </div>
-        <div class="adminData">
-            <div class="form-control-plaintext">
-                <a href="@Model.LastVisitedPage">@Model.LastVisitedPage.Truncate(128, "...")</a>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreatedOn" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.CreatedOn)
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
