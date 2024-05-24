@@ -324,9 +324,6 @@ bots:
   - match: curl/
     name: cURL
 
-  - match: urlwatch
-    name: urlwatch
-
   - match: okhttp/
     name: OkHttp
 
@@ -336,24 +333,38 @@ bots:
   - match: Chrome-Lighthouse
     name: Chrome Lighthouse
 
+  - match: urlwatch
   - match: uptime-kuma
+  - match: UptimeRobot
   - match: GPTBot
   - match: ChatGPT-User
   - match: PhxBot
   - match: ImagesiftBot
+  - match: PaperLiBot
   - match: GeedoBot
   - match: Audisto Crawler
-  - match: PerplexityBot/
   - match: Monsidobot
   - match: GroupMeBot
   - match: MetaInspector
   - match: Iframely
   - match: Synapse
-    name: $1
-
+  - match: lua-restly-http
   - match: Nessus
   - match: Pingdom
+  - match: coccocbot-web
+  - match: MojeekBot
+  - match: SiteAuditBot
+  - match: AwarioBot
+  - match: PinterestBot
+  - match: SurdotlyBot
+  - match: WebwikiBot
+  - match: ZumBot
+  - match: Newslitbot
+  - match: Feedly
     name: $1
+
+  - match: PerplexityBot/
+    name: Perplexity Bot  
 
   - match: axios/
     name: Axios
@@ -366,9 +377,6 @@ bots:
 
   - match: GuzzleHttp/
     name: Guzzle Http
-
-  - match: Feedly
-    name: Feedly
 
   - match: GTmetrix
     name: GTmetrix Analyser
