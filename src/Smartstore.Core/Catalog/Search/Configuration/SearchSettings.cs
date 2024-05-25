@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Search
         /// <summary>
         /// Gets or sets name of fields to be searched. The name field is always searched.
         /// </summary>
-        public List<string> SearchFields { get; set; } = ["sku", "shortdescription", "tagname", "manufacturer", "category"];
+        public List<string> SearchFields { get; set; } = ["sku", "shortdescription", "tagname", "keyword", "manufacturer", "category"];
 
         /// <summary>
         /// Gets or sets a value indicating whether instant-search is enabled
@@ -101,7 +101,7 @@ namespace Smartstore.Core.Catalog.Search
 
             if (forInstantSearch)
             {
-                fields = ["name", "shortdescription", "tagname"];
+                fields = ["name", "shortdescription", "tagname", "keyword"];
 
                 foreach (var fieldName in _instantSearchFields)
                 {

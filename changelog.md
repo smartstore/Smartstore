@@ -29,7 +29,9 @@
 - Enhanced database optimization and vacuum operations
 - Vacuum single database table
 - #909 Allow to control the product availability based on the existence of an attribute combination.
-- MegaSearch: setting to place the search hits of unavailable products further back in the search list.
+- MegaSearch
+  - Setting to place the search hits of unavailable products further back in the search list.
+  - Added product meta keywords to the search index.
 - Affiliates
   - #896 Added a cart rule for affiliates.
   - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
@@ -73,7 +75,7 @@
 - Stripe: Update shipping address on confirm order.
 - Addresses: make first and last name optional if a company name has been specified.
 - #1012 Estimate shipping costs without rules if no shipping method was found with rules.
-- PayPal: Orders were cancled when capturing was declined, now they are being voided instead.
+- PayPal: Orders were canceled when capturing was declined, now they are being voided instead.
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
 - ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
