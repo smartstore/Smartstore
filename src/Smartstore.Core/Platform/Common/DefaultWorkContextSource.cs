@@ -12,6 +12,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Data.Hooks;
 using Smartstore.Net;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core
@@ -80,6 +81,8 @@ namespace Smartstore.Core
             _geoCountryLookup = geoCountryLookup;
         }
 
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
         public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             if (entry.Entity is CustomerRole)
@@ -101,7 +104,7 @@ namespace Smartstore.Core
             }
         }
 
-        public async virtual Task<(Customer, Customer)> ResolveCurrentCustomerAsync()
+        public async Task<(Customer, Customer)> ResolveCurrentCustomerAsync()
         {
             var context = new DetectCustomerContext
             {
@@ -109,9 +112,23 @@ namespace Smartstore.Core
                 CustomerService = _customerService,
                 Db = _db,
                 HttpContext = _httpContextAccessor.HttpContext,
-                UserAgent = _userAgent
+                UserAgent = _userAgent,
+                WebHelper = _webHelper
             };
 
+            try
+            {
+                var result = await ResolveCurrentCustomerCoreAsync(context);
+                return result;
+            }
+            finally
+            {
+                await ReleaseIdentLockAsync(context);
+            }
+        }
+
+        protected virtual async Task<(Customer, Customer)> ResolveCurrentCustomerCoreAsync(DetectCustomerContext context)
+        {
             Customer customer = null;
 
             for (var i = 0; i < _customerDetectors.Length; i++)
@@ -142,6 +159,11 @@ namespace Smartstore.Core
                 return impersonatedCustomer != null
                     ? (impersonatedCustomer, customer)
                     : (customer, null);
+            }
+
+            if (context.ClientIdent.HasValue())
+            {
+                customer = await context.CustomerService.FindCustomerByClientIdentAsync(context.ClientIdent, maxAgeSeconds: 300);
             }
 
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
@@ -388,13 +410,17 @@ namespace Smartstore.Core
         
         #region Customer resolvers
 
-        private class DetectCustomerContext
+        protected class DetectCustomerContext
         {
-            public DefaultWorkContextSource WorkContextSource { get; set; }
-            public HttpContext HttpContext { get; set; }
-            public SmartDbContext Db { get; set; }
-            public ICustomerService CustomerService { get; set; }
-            public IUserAgent UserAgent { get; set; }
+            public DefaultWorkContextSource WorkContextSource { get; init; }
+            public HttpContext HttpContext { get; init; }
+            public SmartDbContext Db { get; init; }
+            public ICustomerService CustomerService { get; init; }
+            public IUserAgent UserAgent { get; init; }
+            public IWebHelper WebHelper { get; init; }
+
+            public string ClientIdent { get; set; }
+            public ILockHandle LockHandle { get; set; }
         }
 
         private static Task<Customer> DetectAuthenticated(DetectCustomerContext context)
@@ -487,8 +513,26 @@ namespace Smartstore.Core
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
-            // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent combination)
-            var customer = await context.CustomerService.FindCustomerByClientIdentAsync(maxAgeSeconds: 300);
+            // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent combination).
+            var clientIdent = context.WebHelper.GetClientIdent();
+            context.ClientIdent = clientIdent;
+
+            var customer = await context.CustomerService.FindCustomerByClientIdentAsync(clientIdent, maxAgeSeconds: 300);
+
+            if (customer == null)
+            {
+                // Prevent another parallel request to recreate the guest customer with same client ident.
+                var lockProvider = context.HttpContext.RequestServices.GetRequiredService<IDistributedLockProvider>();
+                var @lock = lockProvider.GetLock("clientident:" + clientIdent);
+
+                if ((await @lock.TryAcquireAsync(TimeSpan.FromSeconds(2))).Out(out var lockHandle))
+                {
+                    context.LockHandle = lockHandle;
+
+                    // Try again after lock acquisition. Guest account may have been created in the meantime.
+                    customer = await context.CustomerService.FindCustomerByClientIdentAsync(clientIdent, maxAgeSeconds: 300);
+                }
+            }
 
             if (customer != null)
             {
@@ -504,6 +548,15 @@ namespace Smartstore.Core
             }
 
             return customer;
+        }
+
+        private static async Task ReleaseIdentLockAsync(DetectCustomerContext context)
+        {
+            if (context.LockHandle != null)
+            {
+                await context.LockHandle.ReleaseAsync();
+                context.LockHandle = null;
+            }
         }
 
         #endregion

@@ -129,7 +129,7 @@ namespace Smartstore.Core.Identity
                 var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
 
                 var customer = await _db.Customers
-                    .Where(c => c.Id == customerId && c.Username == null && c.Email == null && c.LastActivityDateUtc >= dateFrom)
+                    .Where(c => c.Id == customerId && c.Username == null && c.Email == null /*&& c.LastActivityDateUtc >= dateFrom*/)
                     .IncludeCustomerRoles()
                     // Disabled because of SqlClient "Deadlock" exception (?)
                     //.IncludeShoppingCart()
