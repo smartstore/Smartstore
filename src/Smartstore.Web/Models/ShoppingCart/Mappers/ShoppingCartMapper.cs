@@ -82,7 +82,6 @@ namespace Smartstore.Web.Models.Cart
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ModuleManager _moduleManager;
-        private readonly OrderSettings _orderSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
@@ -105,7 +104,6 @@ namespace Smartstore.Web.Models.Cart
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
-            OrderSettings orderSettings,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
             RewardPointsSettings rewardPointsSettings,
@@ -127,7 +125,6 @@ namespace Smartstore.Web.Models.Cart
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _moduleManager = moduleManager;
             _shippingSettings = shippingSettings;
-            _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
         }
 
@@ -164,7 +161,6 @@ namespace Smartstore.Web.Models.Cart
             to.MediaDimensions = _mediaSettings.CartThumbPictureSize;
             to.DisplayBasePrice = _shoppingCartSettings.ShowBasePrice;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
-            to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
             to.DisplayCommentBox = _shoppingCartSettings.ShowCommentBox;
             to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.IsEditable = isEditable;

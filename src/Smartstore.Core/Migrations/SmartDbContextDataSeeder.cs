@@ -420,6 +420,13 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("ShoppingCart.Products", "Products", "Artikel");
             builder.AddOrUpdate("ShoppingCart.BackToCart", "Back to shopping cart", "Zurück zum Warenkorb");
+
+            builder.Delete(
+                "Checkout.TermsOfService.PleaseAccept",
+                "Checkout.TermsOfService.Read",
+                "Checkout.TermsOfService",
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

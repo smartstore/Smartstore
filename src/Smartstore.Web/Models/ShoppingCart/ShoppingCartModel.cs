@@ -16,7 +16,6 @@ namespace Smartstore.Web.Models.Cart
         public string CheckoutAttributeInfo { get; set; }
         public List<CheckoutAttributeModel> CheckoutAttributes { get; set; } = [];
 
-        public bool TermsOfServiceEnabled { get; set; }
         public EstimateShippingModel EstimateShipping { get; set; } = new();
         public DiscountBoxModel DiscountBox { get; set; } = new();
         public GiftCardBoxModel GiftCardBox { get; set; } = new();

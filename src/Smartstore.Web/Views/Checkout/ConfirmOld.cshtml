@@ -9,6 +9,7 @@
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart content-overflow-initial");
     Assets.AddMetaRobots();
 
+    var termsOfServiceEnabled = true;
     var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
     var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("ConditionsOfUse", true));
     var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
@@ -36,14 +37,14 @@
 
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
 
-            <div sm-if="Model.TermsOfServiceEnabled
+            <div sm-if="termsOfServiceEnabled
                 || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
                 || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
                 || consentZoneHasWidgets"
                  id="terms-of-service-consent-box" class="card mb-3">
                 <div class="card-body">
 
-                    @if (Model.TermsOfServiceEnabled)
+                    @if (termsOfServiceEnabled)
                     {
                         <div class="form-check">
                             <input id="termsofservice" type="checkbox" name="termsofservice" class="form-check-input" />
@@ -119,7 +120,7 @@
 
 <script sm-target-zone="scripts" data-origin="checkout-confirm">
     $(function () {
-        @if (Model.TermsOfServiceEnabled)
+        @if (termsOfServiceEnabled)
         {
             <text>
                 var modal = $("#terms-of-service-modal .modal-body");
@@ -154,7 +155,7 @@
             }
 
 			// Terms of services.
-            @if (Model.TermsOfServiceEnabled)
+            @if (termsOfServiceEnabled)
             {
 				<text>
                 if (!$('#termsofservice').is(':checked')) {

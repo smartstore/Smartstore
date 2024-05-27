@@ -5,15 +5,8 @@
 
 @{
     var cart = Model.ShoppingCart;
-    var termsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
-    var disclaimerLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("Disclaimer", true));
-    var privacyLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("PrivacyInfo", true));
 
-    var termsLink = termsLinkTemplate.FormatInvariant(await Url.TopicAsync("ConditionsOfUse", true));
-    var terms = T("Checkout.TermsOfService.IAccept", termsLink, "</a>", disclaimerLink, privacyLink);
-
-    var showConsentBox = Model.TermsOfServiceEnabled
-        || Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
+    var showConsentBox = Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
         || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
         || await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
 }
@@ -26,21 +19,6 @@
 
 <div sm-if="showConsentBox" id="terms-of-service-consent-box" class="card mb-3">
     <div class="card-body">
-        @if (Model.TermsOfServiceEnabled)
-        {
-            <div class="form-check">
-                <input id="termsofservice" type="checkbox" name="termsofservice" class="form-check-input" />
-                <label class="mb-0 form-check-label" for="termsofservice">@Html.Raw(terms)</label>
-            </div>
-
-            <modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
-                <modal-body></modal-body>
-                <modal-footer>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
-                </modal-footer>
-            </modal>
-        }
-
         <div sm-if="Model.NewsletterSubscription != CheckoutNewsletterSubscription.None" class="form-check">
             <input attr-checked='(Model.NewsletterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
                    type="checkbox" id="SubscribeToNewsletter" name="SubscribeToNewsletter" class="form-check-input" />
@@ -115,24 +93,33 @@ else
     </div>
 }
 
-<div class="cart-bottom-total-container">
-    <div>
-        <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
-            <span>@T("Checkout.ConfirmButton")</span>
-            <i class="fa fa-angle-right"></i>
-        </button>
+<div class="cart-bottom-total-container card card-body">
+    <div class="row">
+        <div class="cart-terms">@Html.Raw(Model.TermsOfService)</div>
     </div>
-    <div>
-        <div>
-            @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
+    <div class="row">
+        <div class="col col-auto cart-buttons">
+            <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
+                <span>@T("Checkout.ConfirmButton")</span>
+                <i class="fa fa-angle-right"></i>
+            </button>
         </div>
-        @*<div class="text-muted mt-2">
-            Interactively procrastinate prospective vortals vis-a-vis 24/7 meta-services. Appropriately deploy prospective "outside the box" thinking without functional deliverables. Intrinsicly brand enabled potentialities for customer directed best practices. Phosfluorescently scale extensible strategic theme areas for.
-        </div>*@
+        <div class="col col-auto">
+            <div>
+                @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
+            </div>
+        </div>
     </div>
 </div>
 
 <zone name="order_summary_content_after" />
+
+<modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+    <modal-body></modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+    </modal-footer>
+</modal>
 
 @if (cart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {

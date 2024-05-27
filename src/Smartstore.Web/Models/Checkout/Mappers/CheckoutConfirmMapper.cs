@@ -1,6 +1,7 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Cart;
@@ -9,11 +10,13 @@ namespace Smartstore.Web.Models.Checkout
 {
     public class CheckoutConfirmMapper : Mapper<CheckoutContext, CheckoutConfirmModel>
     {
+        const string TermsLinkTemplate = "<a class='terms-trigger read' href='{0}' data-toggle='modal' data-target='#terms-of-service-modal'>";
+
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
         private readonly ICheckoutFactory _checkoutFactory;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly OrderSettings _orderSettings;
+        private readonly IUrlHelper _urlHelper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CheckoutConfirmMapper(
@@ -21,14 +24,14 @@ namespace Smartstore.Web.Models.Checkout
             IWorkContext workContext,
             ICheckoutFactory checkoutFactory,
             IShoppingCartService shoppingCartService,
-            OrderSettings orderSettings,
+            IUrlHelper urlHelper,
             ShoppingCartSettings shoppingCartSettings)
         {
             _storeContext = storeContext;
             _workContext = workContext;
             _checkoutFactory = checkoutFactory;
             _shoppingCartService = shoppingCartService;
-            _orderSettings = orderSettings;
+            _urlHelper = urlHelper;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -47,10 +50,15 @@ namespace Smartstore.Web.Models.Checkout
 
             to.ActionName = CheckoutActionNames.Confirm;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
-            to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
             to.ShowEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;
+
+            to.TermsOfService = T("Checkout.TermsOfService.IAccept",
+                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("ConditionsOfUse", true)),
+                "</a>",
+                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("Disclaimer", true)),
+                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("PrivacyInfo", true)));
 
             if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None)
             {

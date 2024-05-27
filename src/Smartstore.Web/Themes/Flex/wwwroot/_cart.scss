@@ -406,15 +406,18 @@
     text-align: center;
 }
 
+.cart-terms {
+    font-size: 90%;
+    margin-block-end: 1rem;
+    line-height: normal;
+    text-wrap: balance;
+}
+
 
 // Bottom order total
 // =================================
 
 .cart-bottom-total-container {
-    display: grid;
-    grid-template-columns: max-content auto;
-    gap: var(--gutter-y) var(--gutter-x);
-    padding: 1.25rem;
     background-color: var(--cart-footer-bg);
     border-top-width: 0;
     @include border-top-radius(0);
@@ -425,7 +428,7 @@
     grid-template-columns: max-content max-content;
     gap: 8px 12px;
 
-    .item:nth-child(even) {
+    .total-item:nth-child(even) {
         justify-self: end;
     }
 }

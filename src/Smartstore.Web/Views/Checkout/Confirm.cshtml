@@ -77,13 +77,10 @@
             }
         });
 
-        @if (Model.TermsOfServiceEnabled)
-        {<text>
-            $('.terms-trigger').on('click', function (e) {
-                e.preventDefault();
-                $('#terms-of-service-modal .modal-body').html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
-            });
-        </text>}
+        $('.terms-trigger').on('click', function (e) {
+            e.preventDefault();
+            $('#terms-of-service-modal .modal-body').html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
+        });
 
         @if (Model.ShoppingCart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
         {<text>
@@ -110,10 +107,9 @@
         }
 
         function processBuyButtonClick(customerAgreed, showThrobber) {
-            var termOfServiceOk = true,
-                userAgreementsOk = true,
-                esdRevocationWaiverOk = true,
-                cartItems = $('#cart-items');
+            var userAgreementsOk = true;
+            var esdRevocationWaiverOk = true;
+            var cartItems = $('#cart-items');
 
             if (_.isTrue(customerAgreed)) {
                 // Reverse apply. We do that just to indicate that no entered data is lost.
@@ -123,19 +119,6 @@
                 $("#customercommenthidden").val($("#CustomerComment").val());
             }
 
-            // Terms of services.
-            @if (Model.TermsOfServiceEnabled)
-            {<text>
-                if (!$('#termsofservice').is(':checked')) {
-                    displayNotification(@T("Checkout.TermsOfService.PleaseAccept").JsValue, "error");
-                    termOfServiceOk = false;
-                    $.scrollTo($('#termsofservice'), 800, { offset: -70 });
-                }
-                else {
-                    termOfServiceOk = true;
-                }
-            </text>}
-
             // Agree user agreement for downloadable products.
             cartItems.find('input[name^=AgreeUserAgreement]').each(function () {
                 if (_.isTrue(customerAgreed)) {
@@ -144,9 +127,7 @@
                 else if (!$(this).is(':checked')) {
                     userAgreementsOk = false;
                     displayNotification(@T("Checkout.DownloadUserAgreement.PleaseAgree").JsValue);
-                    if (termOfServiceOk) {
-                        $.scrollTo(cartItems, 800, { offset: -20 });
-                    }
+                    $.scrollTo(cartItems, 800, { offset: -20 });
                     return false;
                 }
             });
@@ -161,15 +142,13 @@
                     else if (!$(this).is(':checked')) {
                         esdRevocationWaiverOk = false;
                         displayNotification(@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").JsValue);
-                        if (termOfServiceOk) {
-                            $.scrollTo(cartItems, 800, { offset: -20 });
-                        }
+                        $.scrollTo(cartItems, 800, { offset: -20 });
                         return false;
                     }
                 });
             </text>}
 
-            if (termOfServiceOk && userAgreementsOk && esdRevocationWaiverOk) {
+            if (userAgreementsOk && esdRevocationWaiverOk) {
                 var submitOrderEvent = jQuery.Event('submitOrder');
                 submitOrderEvent.isOrderValid = true;
                 submitOrderEvent.isMobile = false;
