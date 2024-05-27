@@ -15,14 +15,14 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <summary>
         /// Gets a value indicating whether the payment method requires user input in checkout
-        /// before proceeding, e.g. credit card or direct debit payment.
+        /// before proceeding, e.g. credit card or direct debit payment. Default is <c>false</c>.
         /// </summary>
         bool RequiresInteraction { get; }
 
         /// <summary>
         /// Gets a value indicating whether the payment method requires the payment selection page in checkout
         /// before proceeding. For example, to create a payment transaction at this stage.
-        /// If <c>false</c>, then the payment method is qualified for Quick Checkout and 
+        /// Default is <c>true</c>. If <c>false</c>, then the payment method is qualified for Quick Checkout and 
         /// <see cref="CreateProcessPaymentRequestAsync"/> must be implemented.
         /// </summary>
         bool RequiresPaymentSelection { get; }
