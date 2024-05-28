@@ -7,10 +7,11 @@ namespace Smartstore.Core.Data.Migrations
     internal class ClientIdent : Migration
     {
         const string CustomerTable = nameof(Customer);
-        const string ClientIdentColumn = nameof(Customer.ClientIdent);
         const string ClientIdentIndexName = "IX_Customer_ClientIdent";
-        const string LanguageIdColumn = nameof(Customer.LanguageId);
+        const string ClientIdentColumn = nameof(Customer.ClientIdent);
         const string LastVisitedPageColumn = nameof(Customer.LastVisitedPage);
+        const string LanguageIdColumn = nameof(Customer.LanguageId);
+        
 
         public override void Up()
         {
@@ -20,14 +21,19 @@ namespace Smartstore.Core.Data.Migrations
                     .Indexed(ClientIdentIndexName);
             }
 
+            if (!Schema.Table(CustomerTable).Column(LastVisitedPageColumn).Exists())
+            {
+                Create.Column(LastVisitedPageColumn).OnTable(CustomerTable).AsString(2048).Nullable();
+            }
+
             if (!Schema.Table(CustomerTable).Column(LanguageIdColumn).Exists())
             {
                 Create.Column(LanguageIdColumn).OnTable(CustomerTable).AsInt32().Nullable();
             }
-
-            if (!Schema.Table(CustomerTable).Column(LastVisitedPageColumn).Exists())
+            else
             {
-                Create.Column(LastVisitedPageColumn).OnTable(CustomerTable).AsString(2048).Nullable();
+                // Legacy migration
+                Alter.Column(LanguageIdColumn).OnTable(CustomerTable).AsInt32().Nullable();
             }
         }
 
