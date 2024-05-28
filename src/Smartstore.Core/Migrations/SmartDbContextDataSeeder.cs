@@ -251,6 +251,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("ShoppingCart.Products", "Products", "Artikel");
             builder.AddOrUpdate("ShoppingCart.BackToCart", "Back to shopping cart", "Zurück zum Warenkorb");
+            builder.AddOrUpdate("ShoppingCart.Totals.ShippingWithinCountry", "Shipping within {0}", "Lieferung innerhalb {0}");
 
             builder.AddOrUpdate("Checkout.ConfirmHint",
                 "Please verify the order total and the specifics regarding the billing address and, if required, the shipping address. You can make corrections to your entry anytime by clicking on <strong>Change</strong>. If everything is as it should be, deliver your order to us by clicking <strong>Confirm</strong>.",

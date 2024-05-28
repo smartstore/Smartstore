@@ -130,8 +130,9 @@ namespace Smartstore.Web.Components
                 if (shipping.ShippingTotal != null)
                 {
                     var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shipping.ShippingTotal.Value.Amount, currency);
-                    model.Shipping = shippingTotalConverted.ToString();
+                    model.ShippingTotal = shippingTotalConverted.ToString();
                     model.SelectedShippingMethod = shipping.Option?.Name;
+                    model.ShippingCountry = customer.ShippingAddress?.Country?.GetLocalized(x => x.Name);
                 }
             }
 

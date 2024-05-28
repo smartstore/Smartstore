@@ -44,19 +44,24 @@
     </tr>
     <tr class="cart-summary-shipping">
         <td class="cart-summary-label">
-            <span class="text-nowrap">
-                @Html.Raw(shippingLabelHtml)
-            </span>
-            <span sm-if="Model.RequiresShipping && Model.SelectedShippingMethod.HasValue()" class="font-weight-medium">
-                @Model.SelectedShippingMethod
-            </span>
+            <div>
+                <span class="text-nowrap">
+                    @Html.Raw(shippingLabelHtml)
+                </span>
+                <span sm-if="Model.RequiresShipping && Model.SelectedShippingMethod.HasValue()" class="font-weight-medium">
+                    @Model.SelectedShippingMethod
+                </span>
+            </div>
+            <div sm-if="Model.ShippingCountry.HasValue()" class="text-muted small pt-1">
+                @Html.Raw(T("ShoppingCart.Totals.ShippingWithinCountry", Model.ShippingCountry))
+            </div>
         </td>
         <td class="cart-summary-value">
             @if (Model.RequiresShipping)
             {
-                if (Model.Shipping.HasValue())
+                if (Model.ShippingTotal.HasValue())
                 {
-                    <span class="cart-summary-neg">@Model.Shipping</span>
+                    <span class="cart-summary-neg">@Model.ShippingTotal</span>
                 }
                 else
                 {
