@@ -5,6 +5,7 @@
 
 @{
     var cart = Model.ShoppingCart;
+    var shippingInfoUrl = await Url.TopicAsync("ShippingInfo", true);
 
     var showConsentBox = Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
         || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
@@ -120,6 +121,18 @@ else
         <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
     </modal-footer>
 </modal>
+
+@if (shippingInfoUrl.HasValue())
+{
+    <modal id="shipping-info-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+        <modal-body>
+            <iframe src="@shippingInfoUrl" frameBorder="0" class="h-100"></iframe>
+        </modal-body>
+        <modal-footer>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Close")</button>
+        </modal-footer>
+    </modal>
+}
 
 @if (cart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {

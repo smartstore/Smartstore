@@ -32,7 +32,6 @@ namespace Smartstore.Web.Models.Cart
         public bool RequiresShipping { get; set; }
         public string Shipping { get; set; }
         public string SelectedShippingMethod { get; set; }
-        public string ShippingInfoUrl { get; set; }
 
         public ShoppingCartSubtotal CartSubtotal { get; set; }
         public ShoppingCartTotal CartTotal { get; set; }
