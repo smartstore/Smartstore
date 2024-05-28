@@ -34,12 +34,12 @@
                     }
                     else
                     {
-                        <ai-text-creation asp-for="Subject"
-                                          entity-name="@Model.Name"
-                                          entity-type="Campaign"
-                                          word-count="50">
+                        <ai-text asp-for="Subject"
+                                 entity-name="@Model.Name"
+                                 entity-type="Campaign"
+                                 word-count="50">
                             <input asp-for="Subject" />
-                        </ai-text-creation>
+                        </ai-text>
                     }
                     <span asp-validation-for="Subject"></span>
                 </div>
@@ -75,11 +75,11 @@
                     <smart-label asp-for="Body"/>
                 </div>
                 <div class="adminData wide">
-                    <ai-rich-text-creation asp-for="Body"
-                                           entity-name="@Model.Subject"
-                                           entity-type="Campaign">
+                    <ai-rich-text asp-for="Body"
+                                  entity-name="@Model.Subject"
+                                  entity-type="Campaign">
                         <editor asp-for="Body" />
-                    </ai-rich-text-creation>
+                    </ai-rich-text>
                     <span asp-validation-for="Body"></span>
                 </div>
             </div>

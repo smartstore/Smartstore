@@ -1316,6 +1316,7 @@ namespace Smartstore.Admin.Controllers
         {
             const int pageSize = 500;
             var skip = page * pageSize;
+            var unpublishedStr = T("Common.Unpublished").Value;
 
             var query = _db.ProductTags.AsNoTracking();
 
@@ -1326,16 +1327,18 @@ namespace Smartstore.Admin.Controllers
 
             var tags = await query
                 .OrderBy(x => x.Name)
-                .Select(x => x.Name)
                 .ToPagedList(page - 1, pageSize)
                 .LoadAsync();
 
-            var results = tags.Select(x => new ChoiceListItem
-            {
-                Id = x,
-                Text = x,
-                Selected = selectedNames?.Contains(x) ?? false
-            })
+            var results = tags
+                .Select(x => new ChoiceListItem
+                {
+                    Id = x.Name,
+                    Text = x.Name,
+                    Selected = selectedNames?.Contains(x.Name) ?? false,
+                    Title = !x.Published ? unpublishedStr : null,
+                    CssClass = !x.Published ? "choice-item-unavailable" : null
+                })
                 .ToList();
 
             return new JsonResult(new

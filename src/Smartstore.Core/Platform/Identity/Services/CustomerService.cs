@@ -119,6 +119,7 @@ namespace Smartstore.Core.Identity
                 var customerId = await _db.GenericAttributes
                     .Where(a => a.Key == "ClientIdent" && a.KeyGroup == "Customer" && a.Value == clientIdent)
                     .Select(a => a.EntityId)
+                    .OrderByDescending(a => a)
                     .FirstOrDefaultAsync();
 
                 if (customerId == 0)

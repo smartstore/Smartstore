@@ -8,10 +8,7 @@ namespace Smartstore.PayPal
 
         public IEnumerable<string> GetCacheableRoutes()
         {
-            return new string[]
-            {
-                "vc:Smartstore.PayPal/PayPalPayLaterMessage"
-            };
+            return [ "vc:Smartstore.PayPal/PayPalPayLaterMessage" ];
         }
     }
 }

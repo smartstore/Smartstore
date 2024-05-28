@@ -26,7 +26,7 @@ namespace Smartstore.Core.Tests.Common
                     ["14.232.208.88"] = new LookupCountryResponse { IsoCode = "VN", Name = "Vietnam" },
                     ["88.199.164.142"] = new LookupCountryResponse { IsoCode = "PL", Name = "Poland", IsInEu = true },
                     ["186.10.251.74"] = new LookupCountryResponse { IsoCode = "CL", Name = "Chile" },
-                    ["131.196.141.56"] = new LookupCountryResponse { IsoCode = "MX", Name = "Mexico" },
+                    ["131.196.141.56"] = new LookupCountryResponse { IsoCode = "BR", Name = "Brazil" },
                     ["1.179.245.146"] = new LookupCountryResponse { IsoCode = "TH", Name = "Thailand" },
                     ["85.62.10.84"] = new LookupCountryResponse { IsoCode = "ES", Name = "Spain", IsInEu = true },
                     ["89.111.105.72"] = new LookupCountryResponse { IsoCode = "CZ", Name = "Czechia", IsInEu = true },

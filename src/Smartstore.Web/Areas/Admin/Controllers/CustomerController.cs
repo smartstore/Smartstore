@@ -183,6 +183,9 @@ namespace Smartstore.Admin.Controllers
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecords(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
                 model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
+                model.LastUserAgent = customer.LastUserAgent.NaIfEmpty();
+                model.LastUserDeviceType = customer.LastUserDeviceType.NaIfEmpty();
+                model.Location = _geoCountryLookup.Value.LookupCountry(model.LastIpAddress)?.Name;
 
                 model.Addresses = new()
                 {

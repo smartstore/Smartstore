@@ -260,6 +260,7 @@ bots:
   # Common bots
   - match: Googlebot
   - match: Applebot
+  - match: DuckDuckBot
     name: $1
 
   - match: googleweblight
@@ -267,6 +268,7 @@ bots:
 
   - match: YandexBot
   - match: yandex-bot
+  - match: YaDirectFetcher
     name: YandexBot
 
   - match: YandexImages
@@ -292,6 +294,8 @@ bots:
   - match: Swiftbot
   - match: CCBot
   - match: GoogleOther
+  - match: Google-Extended
+  - match: Google-InspectionTool
     name: $1
 
   - match: AdsBot-Google-Mobile
@@ -304,6 +308,7 @@ bots:
     name: Google FeedFetcher
 
   - match: facebookexternalhit
+  - match: FacebookBot
     name: Facebook
 
   - match: AdScanner
@@ -320,9 +325,6 @@ bots:
   - match: curl/
     name: cURL
 
-  - match: urlwatch
-    name: urlwatch
-
   - match: okhttp/
     name: OkHttp
 
@@ -332,9 +334,38 @@ bots:
   - match: Chrome-Lighthouse
     name: Chrome Lighthouse
 
+  - match: urlwatch
+  - match: uptime-kuma
+  - match: UptimeRobot
+  - match: GPTBot
+  - match: ChatGPT-User
+  - match: PhxBot
+  - match: ImagesiftBot
+  - match: PaperLiBot
+  - match: GeedoBot
+  - match: Audisto Crawler
+  - match: Monsidobot
+  - match: GroupMeBot
+  - match: MetaInspector
+  - match: Iframely
+  - match: Synapse
+  - match: lua-restly-http
   - match: Nessus
   - match: Pingdom
+  - match: coccocbot-web
+  - match: MojeekBot
+  - match: SiteAuditBot
+  - match: AwarioBot
+  - match: PinterestBot
+  - match: SurdotlyBot
+  - match: WebwikiBot
+  - match: ZumBot
+  - match: Newslitbot
+  - match: Feedly
     name: $1
+
+  - match: PerplexityBot/
+    name: Perplexity Bot  
 
   - match: axios/
     name: Axios
@@ -347,9 +378,6 @@ bots:
 
   - match: GuzzleHttp/
     name: Guzzle Http
-
-  - match: Feedly
-    name: Feedly
 
   - match: GTmetrix
     name: GTmetrix Analyser
@@ -383,6 +411,12 @@ bots:
   - match: LinkedInBot
     name: $1
 
+  - match: anthropic-ai
+    name: Anthropic AI
+
+  - match: /[cC]laude[bB]ot/
+    name: Claude Bot
+
   - match: infoseek
     name: InfoSeek Robot 1.0
 
@@ -392,11 +426,17 @@ bots:
   - match: google-read-aloud
     name: Google ReadAloud
 
+  - match: google-Safety
+    name: Google Safety
+
   - match: ia_archiver
     name: Alexa Crawler
 
   - match: MJ12bot
     name: Majestic
+
+  - match: OmigiliBot
+    name: Webz.io (Omigili Bot)
 
   - match: CheckMarkNetwork
   - match: Uptimebot

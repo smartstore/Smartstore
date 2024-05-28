@@ -13,7 +13,7 @@ namespace Smartstore.Core.Identity
         public TrackActivityAttribute()
             : base(typeof(TrackActivityFilter))
         {
-            Arguments = new object[] { this };
+            Arguments = [this];
         }
 
         /// <summary>

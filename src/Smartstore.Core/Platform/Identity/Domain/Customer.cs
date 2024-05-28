@@ -114,6 +114,12 @@ namespace Smartstore.Core.Identity
         }
 
         /// <summary>
+        /// Gets or sets the client identification hash (IP + UserAgent).
+        /// </summary>
+        [StringLength(32)]
+        public string ClientIdent { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the customer was detected
         /// cookie-less by evaluating the ClientIdent (IP+UserAgent).
         /// </summary>
@@ -138,6 +144,11 @@ namespace Smartstore.Core.Identity
         /// Gets or sets a value indicating whether the customer is tax exempt
         /// </summary>
         public bool IsTaxExempt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language identifier.
+        /// </summary>
+        public int? LanguageId { get; set; }
 
         /// <summary>
         /// Gets or sets the affiliate identifier
@@ -192,6 +203,12 @@ namespace Smartstore.Core.Identity
         /// Gets or sets the date and time of last activity
         /// </summary>
         public DateTime LastActivityDateUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the URL of the last page visited.
+        /// </summary>
+        [StringLength(2048)]
+        public string LastVisitedPage { get; set; }
 
         /// <summary>
         /// For future use

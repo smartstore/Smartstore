@@ -24,9 +24,9 @@ namespace Smartstore.Core.Platform.AI
 
         #region Feature flags
 
-        // TODO: (mh) No interface, just AIProvider.
-        // TODO: (mh) This belongs to IAIProvider. All methods starting with "Supports*" must be removed from interface. TBD with MC.
-        // TODO: (mh) Method naming convention: CanDoSomething, e.g. CanCreateText, CanCreateImage, CanTranslate etc.
+        // TODO: (mh) (ai) No interface, just AIProvider.
+        // TODO: (mh) (ai) This belongs to IAIProvider. All methods starting with "Supports*" must be removed from interface. TBD with MC.
+        // TODO: (mh) (ai) Method naming convention: CanDoSomething, e.g. CanCreateText, CanCreateImage, CanTranslate etc.
         public virtual AIProviderFeatures Features { get; } = AIProviderFeatures.None;
 
         /// <inheritdoc/>
@@ -67,8 +67,7 @@ namespace Smartstore.Core.Platform.AI
 
         #endregion
 
-        // TODO: (mh) Rename --> GetDialogRoute
         /// <inheritdoc/>
-        public abstract RouteInfo GetModalDialogRoute(AIModalDialogType modalDialogType);
+        public abstract RouteInfo GetDialogRoute(AIDialogType modalDialogType);
     }
 }
