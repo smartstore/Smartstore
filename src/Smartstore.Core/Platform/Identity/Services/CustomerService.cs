@@ -119,6 +119,7 @@ namespace Smartstore.Core.Identity
                 var customerId = await _db.GenericAttributes
                     .Where(a => a.Key == "ClientIdent" && a.KeyGroup == "Customer" && a.Value == clientIdent)
                     .Select(a => a.EntityId)
+                    .OrderByDescending(a => a)
                     .FirstOrDefaultAsync();
 
                 if (customerId == 0)
@@ -129,7 +130,7 @@ namespace Smartstore.Core.Identity
                 var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
 
                 var customer = await _db.Customers
-                    .Where(c => c.Id == customerId && c.Username == null && c.Email == null /*&& c.LastActivityDateUtc >= dateFrom*/)
+                    .Where(c => c.Id == customerId && c.Username == null && c.Email == null && c.LastActivityDateUtc >= dateFrom)
                     .IncludeCustomerRoles()
                     // Disabled because of SqlClient "Deadlock" exception (?)
                     //.IncludeShoppingCart()
