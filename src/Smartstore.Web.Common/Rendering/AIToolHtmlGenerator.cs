@@ -8,7 +8,7 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Rendering
 {
-    // TODO: (mh) Make interface for this class
+    // TODO: (mh) (ai) Make interface for this class
     /// <summary>
     /// Helper class to be used in AI TagHelpers to generate the HTML for the AI dialog openers.
     /// </summary>
@@ -33,7 +33,7 @@ namespace Smartstore.Web.Rendering
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        // TODO: (mh) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
+        // TODO: (mh) (ai) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
         /// <summary>
         /// Creates the button to open the translation dialog.
         /// </summary>
@@ -54,7 +54,7 @@ namespace Smartstore.Web.Rendering
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu";
 
-            // TODO: (mh) Dangerous! TBD with MC.
+            // TODO: (mh) (ai) Dangerous! TBD with MC.
             var properties = ExtractLabelsAndIdsAsync(localizedContent).GetAwaiter().GetResult();
 
             foreach (var provider in providers)
@@ -62,10 +62,10 @@ namespace Smartstore.Web.Rendering
                 var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
 
                 // Add attributes from tag helper properties.
-                var route = provider.Value.GetModalDialogRoute(AIModalDialogType.Translation);
+                var route = provider.Value.GetDialogRoute(AIDialogType.Translation);
                 var routeUrl = _urlHelper.RouteUrl(route);
 
-                var dropdownLiTitle = T("Admin.AI.TranslateTextWith").Value + " " + friendlyName;
+                var dropdownLiTitle = T("Admin.AI.TranslateTextWith", friendlyName).ToString();
                 var headingLi = new TagBuilder("li");
                 headingLi.Attributes["class"] = "dropdown-header";
                 headingLi.InnerHtml.AppendHtml(dropdownLiTitle);
@@ -137,7 +137,7 @@ namespace Smartstore.Web.Rendering
                 btn.Attributes["aria-expanded"] = "false";
                 btn.InnerHtml.AppendHtml(friendlyName);
 
-                AddTagHelperProperties(btn, provider, attributes, AIModalDialogType.Text);
+                AddTagHelperProperties(btn, provider, attributes, AIDialogType.Text);
 
                 btnGroupDiv.InnerHtml.AppendHtml(btn);
 
@@ -219,7 +219,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIModalDialogType.Suggestion);
+            return GenerateOutput(providers, attributes, AIDialogType.Suggestion);
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIModalDialogType.Image);
+            return GenerateOutput(providers, attributes, AIDialogType.Image);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIModalDialogType.RichText);
+            return GenerateOutput(providers, attributes, AIDialogType.RichText);
         }
 
         /// <summary>
@@ -265,12 +265,12 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="providers">List of providers to generate dropdown items for.</param>
         /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <param name="dialogType">The type of dialog to be opened <see cref="AIModalDialogType"/></param>
+        /// <param name="dialogType">The type of dialog to be opened <see cref="AIDialogType"/></param>
         /// <returns>
         /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
         /// containing all the metadata needed to open the dialog.
         /// </returns>
-        private TagBuilder GenerateOutput(List<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIModalDialogType dialogType)
+        private TagBuilder GenerateOutput(List<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
         {
             var additionalClasses = GetDialogIdentifierClass(dialogType);
 
@@ -312,9 +312,9 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Adds the necessary data attributes to the given control.
         /// </summary>
-        private void AddTagHelperProperties(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIModalDialogType dialogType)
+        private void AddTagHelperProperties(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIDialogType dialogType)
         {
-            var route = provider.Value.GetModalDialogRoute(dialogType);
+            var route = provider.Value.GetDialogRoute(dialogType);
             ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
             ctrl.MergeAttribute("data-modal-url", _urlHelper.RouteUrl(route));
             ctrl.MergeAttributes(attributes);
@@ -323,18 +323,18 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Gets the class name used as the dialog identifier.
         /// </summary>
-        private static string GetDialogIdentifierClass(AIModalDialogType dialogType)
+        private static string GetDialogIdentifierClass(AIDialogType dialogType)
         {
             switch (dialogType)
             {
-                case AIModalDialogType.Text:
-                case AIModalDialogType.RichText:
+                case AIDialogType.Text:
+                case AIDialogType.RichText:
                     return "ai-text-creation";
-                case AIModalDialogType.Image:
+                case AIDialogType.Image:
                     return "ai-image-creation";
-                case AIModalDialogType.Translation:
+                case AIDialogType.Translation:
                     return "ai-translation";
-                case AIModalDialogType.Suggestion:
+                case AIDialogType.Suggestion:
                     return "ai-suggestion";
                 default:
                     throw new Exception("Unknown modal dialog type");
@@ -344,19 +344,19 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Gets the title of a dropdown item that opens an AI dialog.
         /// </summary>
-        private string GetDialogOpenerText(AIModalDialogType dialogType, string providerName)
+        private string GetDialogOpenerText(AIDialogType dialogType, string providerName)
         {
             switch (dialogType)
             {
-                case AIModalDialogType.Text:
-                case AIModalDialogType.RichText:
-                    return T("Admin.AI.CreateTextWith").Value + " " + providerName;
-                case AIModalDialogType.Image:
-                    return T("Admin.AI.CreateImageWith").Value + " " + providerName;
-                case AIModalDialogType.Translation:
-                    return T("Admin.AI.TranslateTextWith", providerName).Value;
-                case AIModalDialogType.Suggestion:
-                    return T("Admin.AI.MakeSuggestionWith").Value + " " + providerName;
+                case AIDialogType.Text:
+                case AIDialogType.RichText:
+                    return T("Admin.AI.CreateTextWith", providerName);
+                case AIDialogType.Image:
+                    return T("Admin.AI.CreateImageWith", providerName);
+                case AIDialogType.Translation:
+                    return T("Admin.AI.TranslateTextWith", providerName);
+                case AIDialogType.Suggestion:
+                    return T("Admin.AI.MakeSuggestionWith", providerName);
                 default:
                     throw new Exception("Unknown modal dialog type");
             }
@@ -371,9 +371,8 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener.</returns>
         private static TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            // TODO: (mh) Icon does not look good. Must be perfect. TBD with MC. Circled with spacing.
             var inputGroupColDiv = new TagBuilder("div");
-            // TODO: (mh) Bad CSS class naming (*-cnt). TBD with MC.
+            // TODO: (mh) (ai) Bad CSS class naming (*-cnt). TBD with MC.
             inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right cnt-ai-dialog-opener " + (isDropdown ? "dropdown" : "ai-provider-cnt");
 
             var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
@@ -395,20 +394,18 @@ namespace Smartstore.Web.Rendering
             var iconA = new TagBuilder("a");
             iconA.Attributes["href"] = "javascript:void(0)";
 
+            var btnClasses = "btn btn-icon btn-flat btn-sm rounded-circle btn-outline-secondary input-group-icon ai-dialog-opener no-chevron ";
+
             if (isDropdown)
             {
-                iconA.Attributes["class"] = "btn btn-icon btn-flat input-group-icon ai-dialog-opener dropdown-toggle no-chevron";
+                iconA.Attributes["class"] = btnClasses + "dropdown-toggle";
                 iconA.Attributes["data-toggle"] = "dropdown";
             }
             else
             {
-                iconA.Attributes["class"] = "btn btn-icon btn-flat input-group-icon ai-dialog-opener no-chevron " + additionalClasses;
+                iconA.Attributes["class"] = btnClasses + additionalClasses;
                 iconA.Attributes["title"] = title;
             }
-
-            //var iconI = new TagBuilder("i");
-            //iconI.Attributes["class"] = "fa fa-lg fa-wand-magic-sparkles";
-            //iconA.InnerHtml.AppendHtml(iconI);
 
             var iconSvg = new TagBuilder("svg");
             iconSvg.Attributes["class"] = "dropdown-icon bi-fw bi";
@@ -469,7 +466,7 @@ namespace Smartstore.Web.Rendering
         /// </returns>
         private static async Task<List<(string, string, bool)>> ExtractLabelsAndIdsAsync(string htmlContent)
         {
-            // TODO: (mh) VERY BAD decision to implement a scraper. TBD with MC.
+            // TODO: (mh) (ai) VERY BAD decision to implement a scraper. TBD with MC.
             var context = BrowsingContext.New(Configuration.Default);
             var document = await context.OpenAsync(req => req.Content(htmlContent));
             var elements = document.QuerySelectorAll("input[id], textarea[id]").OfType<IHtmlElement>();

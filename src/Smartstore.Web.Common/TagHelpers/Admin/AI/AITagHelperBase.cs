@@ -39,7 +39,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         protected virtual string GetHtmlId()
         {
-            // TODO: (mh) Use HtmlHelper.IdFor<>(). TBD with MC.
+            // TODO: (mh) (ai) Find underling methods for GenerateLabel via DotPeek and use them directly.
             var tagBuilder = _htmlGenerator.GenerateLabel(
                 ViewContext,
                 For.ModelExplorer,

@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Platform.AI.Chat
+﻿namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
     /// Interface to be implemented by all image generation prompts.
