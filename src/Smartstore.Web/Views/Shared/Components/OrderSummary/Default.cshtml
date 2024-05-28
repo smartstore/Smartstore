@@ -158,8 +158,8 @@
     <script sm-target-zone="scripts" data-origin="order-summary">
         $(function () {
             $('a.download-user-agreement').on("click", function () {
-                var url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id'),
-                    dialog = $('#user-agreement-modal');
+                const url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id');
+                const dialog = $('#user-agreement-modal');
 
                 dialog.find('.modal-body').empty();
 
@@ -168,7 +168,6 @@
                 });
 
                 dialog.modal();
-
                 return false;
             });
         });

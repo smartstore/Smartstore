@@ -33,7 +33,7 @@
                     <div sm-if="item.IsDownload && item.HasUserAgreement" class="download-agreement form-check">
                         <input type="checkbox" id="AgreeUserAgreement@(item.ProductId)" name="AgreeUserAgreement@(item.ProductId)" class="form-check-input" />
                         <label class="form-check-label" for="AgreeUserAgreement@(item.ProductId)">
-                            <span>@T("DownloadableProducts.UserAgreementConfirmation", item.ProductId)</span>
+                            <span>@Html.Raw(T("DownloadableProducts.UserAgreementConfirmation", item.ProductId))</span>
                         </label>
                     </div>
                     <div sm-if="Model.DisplayEsdRevocationWaiverBox && item.IsEsd" class="esd-revocation-waiver form-check">
