@@ -268,6 +268,7 @@ bots:
 
   - match: YandexBot
   - match: yandex-bot
+  - match: YaDirectFetcher
     name: YandexBot
 
   - match: YandexImages
