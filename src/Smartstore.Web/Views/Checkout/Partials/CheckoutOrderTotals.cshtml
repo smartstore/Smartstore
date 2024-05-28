@@ -28,7 +28,7 @@
 
         <zone name="order_summary_actions" remove-if-empty="true" replace-content="true">
             <div class="col-12 mt-3 cart-footer-actions">
-                <div sm-if="Model.IsConfirmPage" class="cart-terms">@Html.Raw(confirmModel.TermsOfService)</div>
+                <div sm-if="Model.IsConfirmPage && confirmModel.TermsOfService.HasValue()" class="cart-terms">@Html.Raw(confirmModel.TermsOfService)</div>
 
                 <zone name="order_summary_buttons_before" />
 

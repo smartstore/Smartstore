@@ -123,7 +123,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            model.RequiresShipping = cart.IsShippingRequired;
+            model.RequiresShipping = cart.IsShippingRequired && !_shoppingCartSettings.IsTerminalCheckoutActivated();
             if (model.RequiresShipping)
             {
                 var shipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);

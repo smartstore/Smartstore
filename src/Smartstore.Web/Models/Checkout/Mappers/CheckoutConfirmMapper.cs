@@ -54,11 +54,14 @@ namespace Smartstore.Web.Models.Checkout
             to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;
 
-            to.TermsOfService = T("Checkout.TermsOfService.IAccept",
-                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("ConditionsOfUse", true)),
-                "</a>",
-                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("Disclaimer", true)),
-                TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("PrivacyInfo", true)));
+            if (!_shoppingCartSettings.IsTerminalCheckoutActivated())
+            {
+                to.TermsOfService = T("Checkout.TermsOfService.IAccept",
+                    TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("ConditionsOfUse", true)),
+                    "</a>",
+                    TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("Disclaimer", true)),
+                    TermsLinkTemplate.FormatInvariant(await _urlHelper.TopicAsync("PrivacyInfo", true)));
+            }
 
             if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None)
             {

@@ -3,8 +3,7 @@
 @model OrderTotalsModel
 
 @{
-    var shippingInfoUrl = await Url.TopicAsync("ShippingInfo", true);
-    var shippingLabelHtml = shippingInfoUrl.HasValue()
+    var shippingLabelHtml = Model.RequiresShipping && (await Url.TopicAsync("ShippingInfo")).HasValue()
         ? $"<a href='javascript:;' data-toggle='modal' data-target='#shipping-info-modal'>{T("ShoppingCart.Totals.Shipping")}</a>:"
         : $"{T("ShoppingCart.Totals.Shipping")}:";
 }
