@@ -131,12 +131,16 @@ $btn-wide-padding-x-sm: 1.2rem;
     > span {
         //display: none;
     }
-
     // Move caret to bottom right corner
     &.dropdown-toggle:after {
         position: absolute;
         inset-inline-end: 3px;
         bottom: 0.5em;
+    }
+
+    &.btn-sm {
+        --inline-icon-size: #{$input-height-sm};
+        --inline-icon-font-size: #{$font-size-sm};
     }
 }
 
