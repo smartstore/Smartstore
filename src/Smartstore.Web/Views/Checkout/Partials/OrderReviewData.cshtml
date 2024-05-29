@@ -1,12 +1,7 @@
-﻿@using Smartstore.Web.Models.Common;
-@using Smartstore.Web.Models.Cart;
+﻿@using Smartstore.Web.Models.Common
+@using Smartstore.Web.Models.Checkout
 
-@model ShoppingCartModel.OrderReviewDataModel
-
-@if (!Model.Display)
-{
-    return;
-}
+@model CheckoutConfirmModel.OrderReviewDataModel
 
 @{
     async Task RenderAddress(AddressModel address)

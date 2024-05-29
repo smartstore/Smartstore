@@ -20,8 +20,6 @@
      data-update-item-url="@Url.Action("UpdateCartItem", "ShoppingCart")">
     <zone name="order_summary_content_before" />
 
-    <partial name="_OrderReviewData" model="Model.OrderReviewData" />
-
     @if (Model.DisplayCommentBox && !Model.IsEditable)
     {
         <partial name="_CommentBox" model="Model" />

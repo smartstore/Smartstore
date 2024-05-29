@@ -18,7 +18,6 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(
             ShoppingCartModel model = null,
-            bool prepareAndDisplayOrderReviewData = false,
             Customer customer = null,
             int? storeId = null)
         {
@@ -29,10 +28,7 @@ namespace Smartstore.Web.Components
 
                 var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
 
-                model = await cart.MapAsync(
-                    isEditable: false,
-                    prepareEstimateShippingIfEnabled: false,
-                    prepareAndDisplayOrderReviewData: prepareAndDisplayOrderReviewData);
+                model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
             }
 
             return View(model);

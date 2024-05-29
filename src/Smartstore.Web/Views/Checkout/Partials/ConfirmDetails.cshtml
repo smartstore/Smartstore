@@ -54,7 +54,10 @@
 <zone name="checkout_confirm_before_summary" />
 <zone name="order_summary_content_before" />
 
-<partial name="OrderReviewData" model="cart.OrderReviewData" />
+@if (Model.OrderReviewData != null)
+{
+    <partial name="OrderReviewData" model="Model.OrderReviewData" />
+}
 
 @if (cart.DisplayCommentBox)
 {

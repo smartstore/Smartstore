@@ -1,10 +1,13 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Cart;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
 {
@@ -16,7 +19,10 @@ namespace Smartstore.Web.Models.Checkout
         private readonly IWorkContext _workContext;
         private readonly ICheckoutFactory _checkoutFactory;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IPaymentService _paymentService;
         private readonly IUrlHelper _urlHelper;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ModuleManager _moduleManager;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public CheckoutConfirmMapper(
@@ -24,14 +30,20 @@ namespace Smartstore.Web.Models.Checkout
             IWorkContext workContext,
             ICheckoutFactory checkoutFactory,
             IShoppingCartService shoppingCartService,
+            IPaymentService paymentService,
             IUrlHelper urlHelper,
+            ICheckoutStateAccessor checkoutStateAccessor,
+            ModuleManager moduleManager,
             ShoppingCartSettings shoppingCartSettings)
         {
             _storeContext = storeContext;
             _workContext = workContext;
             _checkoutFactory = checkoutFactory;
             _shoppingCartService = shoppingCartService;
+            _paymentService = paymentService;
             _urlHelper = urlHelper;
+            _checkoutStateAccessor = checkoutStateAccessor;
+            _moduleManager = moduleManager;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -46,7 +58,10 @@ namespace Smartstore.Web.Models.Checkout
             Guard.NotNull(from);
 
             var storeId = _storeContext.CurrentStore.Id;
-            var cart = await _shoppingCartService.GetCartAsync(null, ShoppingCartType.ShoppingCart, storeId);
+            var customer = _workContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+            var isBillingAddresRequired = cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
+            var isPaymentRequired = cart.Requirements.HasFlag(CheckoutRequirements.Payment);
 
             to.ActionName = CheckoutActionNames.Confirm;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
@@ -78,10 +93,43 @@ namespace Smartstore.Web.Models.Checkout
                 }
             }
 
-            to.ShoppingCart = await cart.MapAsync(
-                isEditable: false,
-                prepareEstimateShippingIfEnabled: false,
-                prepareAndDisplayOrderReviewData: true);
+            to.ShoppingCart = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
+
+            if (cart.IsShippingRequired || isBillingAddresRequired || isPaymentRequired)
+            {
+                var state = _checkoutStateAccessor.CheckoutState;
+                var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
+                var paymentMethod = pm != null ? _moduleManager.GetLocalizedFriendlyName(pm.Metadata).NullEmpty() : null;
+
+                state.CustomProperties.TryGetValueAs("HasOnlyOneActivePaymentMethod", out bool singlePaymentMethod);
+
+                to.OrderReviewData = new()
+                {
+                    IsBillingAddressRequired = isBillingAddresRequired,
+                    IsShippable = cart.IsShippingRequired,
+                    PaymentSummary = state.PaymentSummary,
+                    PaymentMethod = paymentMethod ?? customer.GenericAttributes.SelectedPaymentMethod,
+                    IsPaymentSelectionSkipped = state.IsPaymentSelectionSkipped,
+                    IsPaymentRequired = state.IsPaymentRequired && isPaymentRequired,
+                    DisplayPaymentMethodChangeOption = !singlePaymentMethod
+                };
+
+                if (customer.BillingAddress != null && isBillingAddresRequired)
+                {
+                    to.OrderReviewData.BillingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.BillingAddress);
+                }
+
+                if (to.OrderReviewData.IsShippable)
+                {
+                    to.OrderReviewData.ShippingMethod = customer.GenericAttributes.SelectedShippingOption?.Name;
+                    to.OrderReviewData.DisplayShippingMethodChangeOption = (customer.GenericAttributes.OfferedShippingOptions?.Count ?? int.MaxValue) > 1;
+
+                    if (customer.ShippingAddress != null)
+                    {
+                        to.OrderReviewData.ShippingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.ShippingAddress);
+                    }
+                }
+            }
         }
     }
 }

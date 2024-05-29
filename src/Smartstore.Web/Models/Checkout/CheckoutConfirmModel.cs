@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Web.Models.Cart;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
 {
@@ -13,5 +14,23 @@ namespace Smartstore.Web.Models.Checkout
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
         public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }
         public ShoppingCartModel ShoppingCart { get; set; }
+        public OrderReviewDataModel OrderReviewData { get; set; }
+
+        public partial class OrderReviewDataModel : ModelBase
+        {
+            public bool IsBillingAddressRequired { get; set; }
+            public AddressModel BillingAddress { get; set; }
+
+            public bool IsShippable { get; set; }
+            public AddressModel ShippingAddress { get; set; }
+            public string ShippingMethod { get; set; }
+            public bool DisplayShippingMethodChangeOption { get; set; }
+
+            public bool IsPaymentRequired { get; set; }
+            public string PaymentMethod { get; set; }
+            public string PaymentSummary { get; set; }
+            public bool IsPaymentSelectionSkipped { get; set; }
+            public bool DisplayPaymentMethodChangeOption { get; set; }
+        }
     }
 }

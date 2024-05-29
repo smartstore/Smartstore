@@ -25,7 +25,10 @@
 <zone name="order_summary_content_before" />
 
 @*INFO: OrderReviewData required for "Terminal with payment".*@
-<partial name="OrderReviewData" model="cart.OrderReviewData" />
+@if (Model.OrderReviewData != null)
+{
+    <partial name="OrderReviewData" model="Model.OrderReviewData" />
+}
 
 @if (cart.Items.Any())
 {

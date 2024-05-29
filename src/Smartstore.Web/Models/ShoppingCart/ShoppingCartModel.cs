@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Cart
@@ -20,7 +19,6 @@ namespace Smartstore.Web.Models.Cart
         public DiscountBoxModel DiscountBox { get; set; } = new();
         public GiftCardBoxModel GiftCardBox { get; set; } = new();
         public RewardPointsBoxModel RewardPoints { get; set; } = new();
-        public OrderReviewDataModel OrderReviewData { get; set; } = new();
         public int MediaDimensions { get; set; }
         public ButtonPaymentMethodModel ButtonPaymentMethods { get; set; } = new();
         public string CustomerComment { get; set; }
@@ -92,25 +90,6 @@ namespace Smartstore.Web.Models.Cart
             public int RewardPointsBalance { get; set; }
             public string RewardPointsAmount { get; set; }
             public bool UseRewardPoints { get; set; }
-        }
-
-        public partial class OrderReviewDataModel : ModelBase
-        {
-            public bool Display { get; set; }
-
-            public bool IsBillingAddressRequired { get; set; }
-            public AddressModel BillingAddress { get; set; }
-
-            public bool IsShippable { get; set; }
-            public AddressModel ShippingAddress { get; set; }
-            public string ShippingMethod { get; set; }
-            public bool DisplayShippingMethodChangeOption { get; set; }
-
-            public bool IsPaymentRequired { get; set; }
-            public string PaymentMethod { get; set; }
-            public string PaymentSummary { get; set; }
-            public bool IsPaymentSelectionSkipped { get; set; }
-            public bool DisplayPaymentMethodChangeOption { get; set; }
         }
     }
 }
