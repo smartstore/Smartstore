@@ -149,12 +149,6 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.AccountActivationToken, value);
         }
 
-        public string LastVisitedPage
-        {
-            get => Get<string>(SystemCustomerAttributeNames.LastVisitedPage);
-            set => Set(SystemCustomerAttributeNames.LastVisitedPage, value);
-        }
-
         public int? ImpersonatedCustomerId
         {
             get => Get<int?>(SystemCustomerAttributeNames.ImpersonatedCustomerId);
@@ -183,12 +177,6 @@ namespace Smartstore.Core.Identity
         {
             get => Get<bool>(SystemCustomerAttributeNames.HasConsentedToGdpr);
             set => Set(SystemCustomerAttributeNames.HasConsentedToGdpr, value);
-        }
-
-        public string ClientIdent
-        {
-            get => Get<string>(SystemCustomerAttributeNames.ClientIdent);
-            set => Set(SystemCustomerAttributeNames.ClientIdent, value);
         }
 
         #endregion

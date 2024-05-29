@@ -21,13 +21,11 @@
         public static string AvatarColor => "AvatarColor";
         public static string PasswordRecoveryToken => "PasswordRecoveryToken";
         public static string AccountActivationToken => "AccountActivationToken";
-        public static string LastVisitedPage => "LastVisitedPage";
         public static string ImpersonatedCustomerId => "ImpersonatedCustomerId";
         public static string AdminAreaStoreScopeConfiguration => "AdminAreaStoreScopeConfiguration";
         public static string MostRecentlyUsedCategories => "MostRecentlyUsedCategories";
         public static string MostRecentlyUsedManufacturers => "MostRecentlyUsedManufacturers";
         public static string HasConsentedToGdpr => "HasConsentedToGdpr";
-        public static string ClientIdent => "ClientIdent";
 
         // Checkout
         public static string DefaultBillingAddressId => "DefaultBillingAddressId";

@@ -146,11 +146,6 @@ namespace Smartstore.Core.Identity
         public bool IsTaxExempt { get; set; }
 
         /// <summary>
-        /// Gets or sets the language identifier.
-        /// </summary>
-        public int? LanguageId { get; set; }
-
-        /// <summary>
         /// Gets or sets the affiliate identifier
         /// </summary>
         public int AffiliateId { get; set; }

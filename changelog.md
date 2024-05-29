@@ -3,7 +3,8 @@
 ## Smartstore 5.2.0
 
 ### Breaking Changes
-- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024) 
+- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024)
+- Storage location for `Customer.LastVisitedPage` has changed. The historical data will be collected again successively after the update.
 
 ### New Features
 
@@ -79,6 +80,7 @@
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
 - ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
+- Identity: Moved `ClientIdent` and `LastViditedPage` from `GenericAttribute` to `Customer` table (for performance reasons and to distress GenericAttribute table)
 
 ### Bugfixes
 

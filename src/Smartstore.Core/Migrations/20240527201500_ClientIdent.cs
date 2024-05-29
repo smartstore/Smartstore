@@ -7,9 +7,8 @@ namespace Smartstore.Core.Data.Migrations
     internal class ClientIdent : Migration
     {
         const string CustomerTable = nameof(Customer);
-        const string ClientIdentColumn = nameof(Customer.ClientIdent);
         const string ClientIdentIndexName = "IX_Customer_ClientIdent";
-        const string LanguageIdColumn = nameof(Customer.LanguageId);
+        const string ClientIdentColumn = nameof(Customer.ClientIdent);
         const string LastVisitedPageColumn = nameof(Customer.LastVisitedPage);
 
         public override void Up()
@@ -18,11 +17,6 @@ namespace Smartstore.Core.Data.Migrations
             {
                 Create.Column(ClientIdentColumn).OnTable(CustomerTable).AsString(32).Nullable()
                     .Indexed(ClientIdentIndexName);
-            }
-
-            if (!Schema.Table(CustomerTable).Column(LanguageIdColumn).Exists())
-            {
-                Create.Column(LanguageIdColumn).OnTable(CustomerTable).AsInt32().Nullable();
             }
 
             if (!Schema.Table(CustomerTable).Column(LastVisitedPageColumn).Exists())
@@ -41,11 +35,6 @@ namespace Smartstore.Core.Data.Migrations
             if (Schema.Table(CustomerTable).Column(ClientIdentColumn).Exists())
             {
                 Delete.Column(ClientIdentColumn).FromTable(CustomerTable);
-            }
-
-            if (Schema.Table(CustomerTable).Column(LanguageIdColumn).Exists())
-            {
-                Delete.Column(LanguageIdColumn).FromTable(CustomerTable);
             }
 
             if (Schema.Table(CustomerTable).Column(LastVisitedPageColumn).Exists())

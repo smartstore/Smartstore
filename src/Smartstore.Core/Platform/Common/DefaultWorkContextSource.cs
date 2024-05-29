@@ -162,17 +162,12 @@ namespace Smartstore.Core
                     : (customer, null);
             }
 
-            if (context.ClientIdent.HasValue())
-            {
-                customer = await context.CustomerService.FindCustomerByClientIdentAsync(context.ClientIdent, maxAgeSeconds: 300);
-            }
-
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
                 // Create new record in these cases.
-                customer = await CreateGuestCustomerAsync();
+                customer = await CreateGuestCustomerAsync(context.ClientIdent);
             }
 
             return (customer, null);
@@ -196,9 +191,9 @@ namespace Smartstore.Core
             return null;
         }
 
-        protected virtual async Task<Customer> CreateGuestCustomerAsync()
+        protected virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent)
         {
-            var customer = await _customerService.CreateGuestCustomerAsync();
+            var customer = await _customerService.CreateGuestCustomerAsync(clientIdent);
 
             _customerService.AppendVisitorCookie(customer);
 
@@ -475,7 +470,7 @@ namespace Smartstore.Core
                     var customer = await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.WebhookClient);
                     if (customer == null)
                     {
-                        customer = await context.CustomerService.CreateGuestCustomerAsync(false, c =>
+                        customer = await context.CustomerService.CreateGuestCustomerAsync(null, c =>
                         {
                             c.Email = "builtin@webhook-client.com";
                             c.AdminComment = "Built-in system record used for webhook clients.";
