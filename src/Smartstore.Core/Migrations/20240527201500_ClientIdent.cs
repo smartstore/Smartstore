@@ -10,8 +10,6 @@ namespace Smartstore.Core.Data.Migrations
         const string ClientIdentIndexName = "IX_Customer_ClientIdent";
         const string ClientIdentColumn = nameof(Customer.ClientIdent);
         const string LastVisitedPageColumn = nameof(Customer.LastVisitedPage);
-        const string LanguageIdColumn = nameof(Customer.LanguageId);
-        
 
         public override void Up()
         {
@@ -25,16 +23,6 @@ namespace Smartstore.Core.Data.Migrations
             {
                 Create.Column(LastVisitedPageColumn).OnTable(CustomerTable).AsString(2048).Nullable();
             }
-
-            if (!Schema.Table(CustomerTable).Column(LanguageIdColumn).Exists())
-            {
-                Create.Column(LanguageIdColumn).OnTable(CustomerTable).AsInt32().Nullable();
-            }
-            else
-            {
-                // Legacy migration
-                Alter.Column(LanguageIdColumn).OnTable(CustomerTable).AsInt32().Nullable();
-            }
         }
 
         public override void Down()
@@ -47,11 +35,6 @@ namespace Smartstore.Core.Data.Migrations
             if (Schema.Table(CustomerTable).Column(ClientIdentColumn).Exists())
             {
                 Delete.Column(ClientIdentColumn).FromTable(CustomerTable);
-            }
-
-            if (Schema.Table(CustomerTable).Column(LanguageIdColumn).Exists())
-            {
-                Delete.Column(LanguageIdColumn).FromTable(CustomerTable);
             }
 
             if (Schema.Table(CustomerTable).Column(LastVisitedPageColumn).Exists())

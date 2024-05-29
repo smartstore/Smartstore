@@ -742,7 +742,7 @@ namespace Smartstore.Web.Controllers
         private async Task<IActionResult> FinalizeCustomerRegistrationAsync(Customer customer, string returnUrl)
         {
             // Remove ClientIdent: no other "same-building" guest should be identified by this ident.
-            customer.GenericAttributes.ClientIdent = null;
+            customer.ClientIdent = null;
 
             await AssignCustomerRolesAsync(customer);
 
