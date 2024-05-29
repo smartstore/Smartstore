@@ -366,3 +366,10 @@
     font-weight: $font-weight-medium !important;
     @include text-truncate();
 }
+
+.terms-of-service {
+    font-size: 90%;
+    margin-block-end: 1rem;
+    line-height: normal;
+    //text-wrap: balance;
+}
