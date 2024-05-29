@@ -192,7 +192,7 @@
 }
 
 #cart-items,
-.cart-bottom-total-container {
+.bottom-order-total-container {
     border-radius: var(--cart-border-radius);
     border: 1px solid var(--cart-border-color);
 }
@@ -417,13 +417,13 @@
 // Bottom order total
 // =================================
 
-.cart-bottom-total-container {
+.bottom-order-total-container {
     background-color: var(--cart-footer-bg);
     border-top-width: 0;
     @include border-top-radius(0);
 }
 
-.cart-bottom-total {
+.bottom-order-total {
     display: grid;
     grid-template-columns: max-content max-content;
     gap: 8px 12px;
@@ -491,7 +491,7 @@
         }
     }
 
-    .cart-bottom-total-container {
+    .bottom-order-total-container {
         display: none;
     }
 }
