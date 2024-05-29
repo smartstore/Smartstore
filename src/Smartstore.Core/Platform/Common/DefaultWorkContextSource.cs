@@ -162,11 +162,6 @@ namespace Smartstore.Core
                     : (customer, null);
             }
 
-            if (context.ClientIdent.HasValue())
-            {
-                customer = await context.CustomerService.FindCustomerByClientIdentAsync(context.ClientIdent, maxAgeSeconds: 300);
-            }
-
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
                 // No record yet or account deleted/deactivated.
