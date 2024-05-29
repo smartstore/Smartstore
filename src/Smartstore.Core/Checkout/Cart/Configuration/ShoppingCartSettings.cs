@@ -197,5 +197,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool AddProductsToBasketInSinglePositions { get; set; }
         // TODO: (mh) (core) A really fucked up name for something that I don't understand! What is a "single position"? Better name and explanation please.
+
+        /// <summary>
+        /// Gets a value indicating whether the terminal checkout is activated.
+        /// </summary>
+        public bool IsTerminalCheckoutActivated()
+            => CheckoutProcess.EqualsNoCase(Orders.CheckoutProcess.Terminal) || CheckoutProcess.EqualsNoCase(Orders.CheckoutProcess.TerminalWithPayment);
     }
 }

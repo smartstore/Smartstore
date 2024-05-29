@@ -307,7 +307,8 @@ namespace Smartstore.Web.Controllers
 
             if (result.Errors.Length > 0)
             {
-                var model = new CheckoutConfirmModel();
+                var context = await CreateCheckoutContext();
+                var model = await MapperFactory.MapAsync<CheckoutContext, CheckoutConfirmModel>(context);
 
                 result.Errors.Each(x => model.Warnings.Add(x.ErrorMessage));
 

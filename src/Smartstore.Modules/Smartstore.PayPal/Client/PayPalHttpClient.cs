@@ -444,11 +444,7 @@ namespace Smartstore.PayPal.Client
 
         private async Task<List<PurchaseUnitItem>> GetPurchaseUnitItemsAsync(ShoppingCart cart, Customer customer, Currency currency)
         {
-            var model = await cart.MapAsync(
-                isEditable: false,
-                prepareEstimateShippingIfEnabled: false,
-                prepareAndDisplayOrderReviewData: false);
-
+            var model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
             var purchaseUnitItems = new List<PurchaseUnitItem>();
             var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
             var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);

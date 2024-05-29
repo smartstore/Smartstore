@@ -359,3 +359,10 @@
 .checkout-data .change-checkout-data {
     padding: 0.25rem 0.5rem;
 }
+
+.order-review-heading {
+    max-width: 100%;
+    line-height: normal;
+    font-weight: $font-weight-medium !important;
+    @include text-truncate();
+}

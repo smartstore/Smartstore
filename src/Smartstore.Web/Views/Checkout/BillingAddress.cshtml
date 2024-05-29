@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc.ModelBinding;
-@using Smartstore.Web.Models.Checkout;
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Smartstore.Web.Models.Checkout
 
 @model CheckoutAddressModel
 
@@ -8,10 +8,16 @@
     Assets.AppendTitleParts(T("PageTitle.Checkout.BillingAddress"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
+
+    var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+    dataDictAddress["breakpoint"] = "sm";
+    // Merge ModelState (required for validation).
+    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
 }
 
 <widget target-zone="order_progress">
-    @await Component.InvokeAsync("CheckoutProgress", new { action = nameof(CheckoutController.BillingAddress) })
+    @await Component.InvokeAsync("CheckoutProgress", new { action = Model.ActionName })
 </widget>
 
 <div class="page billing-address-page">
@@ -73,7 +79,9 @@
                         </div>
                     }
 
-                    <partial name="_AddNewAddress" />
+                    <div class="col">
+                        <partial name="AddAddressButton" />
+                    </div>
                 </div>
             </fieldset>
 
@@ -83,14 +91,6 @@
                 <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterBillingAddress")</span></legend>
                 <div class="enter-address">
                     <div class="enter-address-body">
-                        @{
-                            var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
-                            dataDictAddress["breakpoint"] = "sm";
-                            // Merge ModelState (required for validation).
-                            dataDictAddress.ModelState.Merge(ViewData.ModelState);
-                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
-                        }
-
                         <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
                     </div>
 
@@ -113,27 +113,4 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="billing-address">
-    $(function () {
-        $('.select-billing-address-button').on('click', function (e) {
-            e.preventDefault();
-            var shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
-
-            $(this).postData({
-                data: { shippingAddressDiffers }
-            });
-
-            return false;
-        });
-
-        $('.new-address-next-step-button').on('click', function () {
-            $('#nextstep').trigger('click');
-            return false;
-        });
-
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <text>$.scrollTo($('.address-form'), 400, { offset: -40 });</text>
-        }
-    });
-</script>
+<partial name="AddressScript" />

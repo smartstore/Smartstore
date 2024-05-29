@@ -1,0 +1,118 @@
+﻿@using Smartstore.Web.Models.Common
+@using Smartstore.Web.Models.Checkout
+
+@model CheckoutConfirmModel.OrderReviewDataModel
+
+@{
+    async Task RenderAddress(AddressModel address)
+    {
+        if (address == null)
+        {
+            return;
+        }
+
+        var cityStateZip = address.GetFormattedCityStateZip();
+
+        <div class="mb-2">
+            <div sm-if="address.CompanyEnabled && address.Company.HasValue()" class="company">
+                @address.Company
+            </div>
+            <div class="name">
+                <span class="bidi-embed first-name">@address.FirstName</span>
+                <span class="bidi-embed last-name">@address.LastName</span>
+            </div>
+            <div sm-if="address.StreetAddressEnabled && address.Address1.HasValue()" class="address1">
+                @address.Address1
+            </div>
+            <div sm-if="address.StreetAddress2Enabled && address.Address2.HasValue()" class="address2">
+                @address.Address2
+            </div>
+            <div sm-if="cityStateZip.HasValue()" class="city-state-zip">
+                @Html.Raw(cityStateZip)
+            </div>
+            <div sm-if="address.CountryEnabled && address.CountryName.HasValue()" class="country">
+                @address.CountryName
+            </div>
+        </div>
+        <div class="email">
+            <span class="pr-1">@T("Order.Email"):</span>
+            <span>@address.Email</span>
+        </div>
+        <div sm-if="address.PhoneEnabled && address.PhoneNumber.HasValue()" class="phone">
+            <span>@T("Order.Phone"):</span>
+            <span>@address.PhoneNumber</span>
+        </div>
+        <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
+            <span>@T("Order.Fax"):</span>
+            <span>@address.FaxNumber</span>
+        </div>
+    }
+}
+
+<div class="card card-body mb-3 order-review-data-box">
+    <div sm-if="Model.IsBillingAddressRequired || Model.IsShippable" class="row">
+        <div sm-if="Model.IsBillingAddressRequired" class="col mb-3 billing-address">
+            <div class="row sm-gutters d-flex flex-nowrap">
+                <div class="col">
+                    <div class="heading">
+                        <h5 class="heading-title order-review-heading">@T("Order.BillingAddress")</h5>
+                    </div>
+                </div>
+                <div class="col col-auto">
+                    <a asp-action="BillingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-billing-address">
+                        @T("Common.Change")
+                    </a>
+                </div>
+            </div>
+            @{ await RenderAddress(Model.BillingAddress); }
+        </div>
+        <div sm-if="Model.IsShippable" class="col mb-3 shipping-address">
+            <div class="row sm-gutters d-flex flex-nowrap">
+                <div class="col">
+                    <div class="heading">
+                        <h5 class="heading-title order-review-heading">@T("Order.ShippingAddress")</h5>
+                    </div>
+                </div>
+                <div class="col col-auto">
+                    <a asp-action="ShippingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-shipping-address">
+                        @T("Common.Change")
+                    </a>
+                </div>
+            </div>
+            @{ await RenderAddress(Model.ShippingAddress); }
+        </div>
+    </div>
+    <div sm-if="Model.IsShippable || Model.IsPaymentRequired" class="row">
+        <div sm-if="Model.IsShippable" class="col mb-3 mb-lg-0 shipping-method">
+            <div class="row sm-gutters d-flex flex-nowrap">
+                <div class="col">
+                    <div class="heading">
+                        <h5 class="heading-title order-review-heading">@T("Order.ShippingMethod")</h5>
+                    </div>
+                </div>
+                <div sm-if="Model.DisplayShippingMethodChangeOption" class="col col-auto">
+                    <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-shipping-method">
+                        @T("Common.Change")
+                    </a>
+                </div>
+            </div>
+            <div>@Model.ShippingMethod</div>
+        </div>
+        <div sm-if="Model.IsPaymentRequired" class="col payment-method">
+            <div class="row sm-gutters d-flex flex-nowrap">
+                <div class="col">
+                    <div class="heading">
+                        <h5 class="heading-title order-review-heading">@T("Order.PaymentMethod")</h5>
+                    </div>
+                </div>
+                <div sm-if="Model.DisplayPaymentMethodChangeOption" class="col col-auto">
+                    <a asp-action="PaymentMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-payment-method">
+                        @T("Common.Change")
+                    </a>
+                </div>
+            </div>
+            <div>@Model.PaymentMethod</div>
+            <div sm-if="Model.PaymentSummary.HasValue()" class="text-muted mt-2">@Model.PaymentSummary</div>
+        </div>
+    </div>
+</div>

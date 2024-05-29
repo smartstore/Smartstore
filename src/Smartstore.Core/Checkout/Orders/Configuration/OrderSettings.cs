@@ -32,11 +32,6 @@ namespace Smartstore.Core.Checkout.Orders
         public bool AnonymousCheckoutAllowed { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to enable "Terms of service".
-        /// </summary>
-        public bool TermsOfServiceEnabled { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether "Order completed" page should be skipped-
         /// </summary>
         public bool DisableOrderCompletedPage { get; set; }

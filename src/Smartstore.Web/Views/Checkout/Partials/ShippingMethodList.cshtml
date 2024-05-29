@@ -1,0 +1,64 @@
+﻿@using Smartstore.Web.Models.Checkout
+
+@model CheckoutShippingMethodModel
+
+<zone name="checkout_shipping_method_content_before" />
+
+@if (Model.Warnings.Count > 0)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var warning in Model.Warnings)
+            {
+                <li>@warning</li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <ul class="list-group opt-list shipping-options">
+        @for (int i = 0; i < Model.ShippingMethods.Count; i++)
+        {
+            var shippingMethod = Model.ShippingMethods[i];
+
+            <li class="list-group-item opt-list-item shipping-option-item" attr-class='(shippingMethod.Selected, "active")'>
+                <div class="opt-data">
+                    <div class="form-check opt-control option-name radio">
+                        <input id="shippingoption_@(i)" type="radio" name="shippingoption"
+                                class="opt-radio form-check-input"
+                                attr-checked='(shippingMethod.Selected, "checked")'
+                                value="@(shippingMethod.ShippingMethodId)___@(shippingMethod.ShippingRateComputationMethodSystemName)" />
+                        <label class="form-check-label" for="shippingoption_@(i)">
+                            <span class="opt-name">@Html.Raw(shippingMethod.Name.HtmlDecode())</span>
+                        </label>
+                    </div>
+
+                    <div sm-if="shippingMethod.Fee > decimal.Zero" class="opt-fee shipping-fee badge badge-danger ml-auto">
+                        @shippingMethod.Fee
+                    </div>
+                </div>
+
+                <div sm-if="shippingMethod.Description.HasValue()" class="opt-info text-muted shipping-option-description">
+                    @if (shippingMethod.BrandUrl.HasValue())
+                    {
+                        <div class="media">
+                            <span class="float-left">
+                                <img class="media-object img-fluid" src="@Url.Content(shippingMethod.BrandUrl)" alt="@shippingMethod.Name" />
+                            </span>
+                            <div class="media-body">
+                                @Html.Raw(shippingMethod.Description)
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.Raw(shippingMethod.Description);
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+}
+
+<zone name="checkout_shipping_method_content_after" />

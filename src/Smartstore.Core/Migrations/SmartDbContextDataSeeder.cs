@@ -248,6 +248,21 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout-Prozess",
                 "Specifies the type of checkout with the steps to be processed.",
                 "Legt die Art des Checkout mit den zu durchlaufenden Schritten fest.");
+
+            builder.AddOrUpdate("ShoppingCart.Products", "Products", "Artikel");
+            builder.AddOrUpdate("ShoppingCart.BackToCart", "Back to shopping cart", "Zurück zum Warenkorb");
+            builder.AddOrUpdate("ShoppingCart.Totals.ShippingWithinCountry", "Shipping within {0}", "Lieferung innerhalb {0}");
+
+            builder.AddOrUpdate("Checkout.ConfirmHint",
+                "Please verify the order total and the specifics regarding the billing address and, if required, the shipping address. You can make corrections to your entry anytime by clicking on <strong>Change</strong>. If everything is as it should be, deliver your order to us by clicking <strong>Confirm</strong>.",
+                "Bitte prüfen Sie die Gesamtsumme und die Rechnungsadresse. Bei abweichender Lieferanschrift prüfen Sie bitte auch diese. Änderungen können Sie jederzeit mit einem Klick auf <strong>Ändern</strong> vornehmen. Sind alle Daten richtig, bestätigen Sie bitte mit einem Klick auf <strong>Kaufen</strong> Ihre Bestellung.");
+
+            builder.Delete(
+                "Checkout.TermsOfService.PleaseAccept",
+                "Checkout.TermsOfService.Read",
+                "Checkout.TermsOfService",
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",

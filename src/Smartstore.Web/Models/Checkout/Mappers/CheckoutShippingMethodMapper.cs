@@ -55,9 +55,10 @@ namespace Smartstore.Web.Models.Checkout
             var options = customer.GenericAttributes.OfferedShippingOptions ??
                 (await _shippingService.GetShippingOptionsAsync(cart, customer.ShippingAddress, storeId: cart.StoreId)).ShippingOptions;
 
+            to.ActionName = CheckoutActionNames.ShippingMethod;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
 
-            if (options.Count > 0)
+            if (!options.IsNullOrEmpty())
             {
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(cart.StoreId);
 
