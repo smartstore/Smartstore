@@ -369,7 +369,7 @@
 
                             <zone name="orderdetails_page_aftertotal" />
 
-                            <div sm-if="Model.Items.Count > 0" class="col-12 mt-3 cart-footer-actions" sm-suppress-if-empty>
+                            <div sm-if="Model.Items.Count > 0" class="col-12 mt-2 cart-footer-actions" sm-suppress-if-empty>
                                 <zone name="orderdetails_buttons_before" />
 
                                 <a sm-if="Model.IsReturnRequestAllowed" asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@Model.Id" class="btn btn-secondary btn-block" rel="nofollow">

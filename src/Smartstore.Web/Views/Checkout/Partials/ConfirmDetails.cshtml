@@ -76,6 +76,7 @@
             <div class="col col-auto">
                 <a href="@Url.RouteUrl("ShoppingCart")" class="btn btn-secondary btn-sm">
                     <i class="fa fa-angle-left"></i>
+                    @* TODO: (mg) Should be labeled "Edit cart" / "Warenkorb bearbeiten" *@
                     <span>@T("ShoppingCart.BackToCart")</span>
                 </a>
             </div>
@@ -101,7 +102,7 @@ else
     <div class="row">
         <div class="terms-of-service">@Html.Raw(Model.TermsOfService)</div>
     </div>
-    <div class="row">
+    <div class="row align-items-center">
         <div class="col col-auto cart-buttons">
             <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
                 <span>@T("Checkout.ConfirmButton")</span>
