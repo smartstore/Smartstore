@@ -4,16 +4,11 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Web.TagHelpers.Admin
 {
     [HtmlTargetElement("a", Attributes = BackToAttributeName)]
-    public class BackToTagHelper : TagHelper
+    public class BackToTagHelper(Localizer localizer) : TagHelper
     {
         const string BackToAttributeName = "sm-backto";
 
-        public BackToTagHelper(Localizer localizer)
-        {
-            T = localizer;
-        }
-
-        private Localizer T { get; }
+        private Localizer T { get; } = localizer;
 
         /// <summary>
         /// Renders the link as a regular button with a left arrow icon.

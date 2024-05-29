@@ -9,7 +9,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for image creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AIImageTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator) : AITagHelperBase(htmlGenerator)
+    public class AIImageTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string EditorTagName = "ai-image";
 

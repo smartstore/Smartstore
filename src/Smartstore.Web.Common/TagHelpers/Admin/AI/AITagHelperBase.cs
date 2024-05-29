@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -30,24 +29,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(EntityNameAttributeName)]
         public string EntityName { get; set; }
 
-        private readonly IHtmlGenerator _htmlGenerator;
-
-        public AITagHelperBase(IHtmlGenerator htmlGenerator)
-        {
-            _htmlGenerator = htmlGenerator;
-        }
-
         protected virtual string GetHtmlId()
         {
-            // TODO: (mh) (ai) Find underling methods for GenerateLabel via DotPeek and use them directly.
-            var tagBuilder = _htmlGenerator.GenerateLabel(
-                ViewContext,
-                For.ModelExplorer,
-                For.Name,
-                labelText: null,
-                htmlAttributes: null);
+            var fullname = HtmlHelper.Name(For.Name);
+            var id = HtmlHelper.GenerateIdFromName(fullname);
 
-            return tagBuilder.Attributes["for"];
+            return id;
         }
     }
 }

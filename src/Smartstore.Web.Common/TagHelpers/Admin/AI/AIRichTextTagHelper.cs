@@ -8,7 +8,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for Html text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AIRichTextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator) : AITagHelperBase(htmlGenerator)
+    public class AIRichTextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string EditorTagName = "ai-rich-text";
 
@@ -16,6 +16,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayLinkOptionsAttributeName = "display-link-options";
         const string DisplayStructureOptionsAttributeName = "display-structure-options";
         const string DisplayImageOptionsAttributeName = "display-image-options";
+
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Defines whether the additional content options should be displayed in the text creation dialog.
@@ -40,8 +42,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(DisplayImageOptionsAttributeName)]
         public bool DisplayImageOptions { get; set; } = true;
-
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {

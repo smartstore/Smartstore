@@ -9,7 +9,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AITextTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase(htmlGenerator)
+    public class AITextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string EditorTagName = "ai-text";
 
