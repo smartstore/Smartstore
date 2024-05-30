@@ -3,21 +3,21 @@
     /// <summary>
     /// Represents a text generation model with table of content (TOC) properties.
     /// </summary>
-    public partial interface ITableOfContentsGenerationPrompt
+    public partial interface ITocGenerationPrompt
     {
         /// <summary>
         /// Gets or sets a value defining whether a table of contents should be added to the generated text.
         /// </summary>
-        bool AddTableOfContents { get; set; }
+        bool AddToc { get; set; }
 
         /// <summary>
         /// Gets or sets a value defining the title of the table of contents.
         /// </summary>
-        string TableOfContentsTitle { get; set; }
+        string TocTitle { get; set; }
 
         /// <summary>
         /// Gets or sets a value defining the tag that should be used for the title of the table of contents.
         /// </summary>
-        string TableOfContentsTitleTag { get; set; }
+        string TocTitleTag { get; set; }
     }
 }

@@ -361,39 +361,8 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <returns>AI Instruction: e.g.: Be a SEO expert.</returns>
         public virtual string Role(AIRole role, string entityName = "")
         {
-            var prompt = string.Empty;
+            return P($"Role.{Enum.GetName(typeof(AIRole), role)}");
 
-            switch (role)
-            {
-                case AIRole.Translator:
-                    prompt += P("Role.Translator");
-                    break;
-                case AIRole.Copywriter:
-                    prompt += P("Role.Copywriter");
-                    break;
-                case AIRole.Marketer:
-                    prompt += P("Role.Marketer");
-                    break;
-                case AIRole.SEOExpert:
-                    prompt += P("Role.SEOExpert");
-                    break;
-                case AIRole.Blogger:
-                    prompt += P("Role.Blogger");
-                    break;
-                case AIRole.Journalist:
-                    prompt += P("Role.Journalist");
-                    break;
-                case AIRole.SalesPerson:
-                    prompt += P("Role.SalesPerson");
-                    break;
-                case AIRole.ProductExpert:
-                    prompt += P("Role.ProductExpert", args: [entityName]);
-                    break;
-                default:
-                    break;
-            }
-
-            return prompt;
         }
 
         /// <summary>

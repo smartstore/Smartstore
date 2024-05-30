@@ -22,7 +22,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Builds the prompt for given <see cref="ITextGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt model)
+        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt)
         {
             // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
@@ -31,14 +31,14 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.EntityName));
+            return Task.FromResult(value.FormatCurrent(prompt.EntityName));
         }
 
         /// <summary>
         /// Builds the prompt for given <see cref="IImageGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt model)
+        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt)
         {
             // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
@@ -47,14 +47,14 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.EntityName));
+            return Task.FromResult(value.FormatCurrent(prompt.EntityName));
         }
 
         /// <summary>
         /// Builds the prompt for given <see cref="ISuggestionPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt model)
+        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt)
         {
             // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.Input));
+            return Task.FromResult(value.FormatCurrent(prompt.Input));
         }
     }
 }

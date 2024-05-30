@@ -7,7 +7,7 @@
         ILanguageGenerationPrompt, 
         IStructureGenerationPrompt, 
         IKeywordGenerationPrompt, 
-        ITableOfContentsGenerationPrompt,
+        ITocGenerationPrompt,
         ILinkGenerationPrompt,
         IIncludeImagesGenerationPrompt
     {

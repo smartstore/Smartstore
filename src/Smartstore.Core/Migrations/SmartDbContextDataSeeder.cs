@@ -377,7 +377,7 @@ namespace Smartstore.Core.Data.Migrations
             AddAIResources(builder);
         }
 
-        public static void AddAIResources(LocaleResourcesBuilder builder)
+        private static void AddAIResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.AI.CreateImageWith", "Create image with {0}", "Bild erzeugen mit {0}");
             builder.AddOrUpdate("Admin.AI.CreateTextWith", "Create text with {0}", "Text erzeugen mit {0}");
@@ -425,7 +425,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Liste soll kommagetrennt sein, so dass sie direkt als META-tag eingefügt werden kann.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
                 "Do not use the name of the website as this will be added later. Reserve 5 words for this.",
-                "Verwende dabei nicht den Namen der Webseite da dieser später hinzugefügt wird. Reserviere dafür 5 Worte.");
+                "Verwende dabei nicht den Namen der Website, da dieser später hinzugefügt wird. Reserviere dafür 5 Wörter.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreatePicture",
                 "Create an image for the topic: '{0}'.",
                 "Erstelle ein Bild zum Thema: '{0}'.");
@@ -448,7 +448,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeImages",
                 "After each paragraph, add another p-tag with the style specification 'width:450px', which contains an i-tag with the classes 'far fa-xl fa-file-image ai-preview-file'." +
                 " The title attribute of the i-tag should be the heading of the respective paragraph.",
-                "Füge nach jedem Absatz ein weiteres p-Tag zu mit der style-Angabe 'width:450px', das ein i-Tag mit den Klassen 'far fa-xl fa-file-image ai-preview-file' enthält." +
+                "Füge nach jedem Absatz ein weiteres p-Tag mit der style-Angabe 'width:450px' ein, das ein i-Tag mit den Klassen 'far fa-xl fa-file-image ai-preview-file' enthält." +
                 " Das title-Attribut des i-Tags soll die Überschrift des jeweiligen Absatzes sein.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.NoIntroImage",
                 "The intro does not receive a picture.",
@@ -478,8 +478,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Each section should contain a maximum of {0} words.",
                 "Jeder Abschnitt soll maximal {0} Wörter enthalten.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.ParagraphCount",
-                "The text should be divided into {0} paragraphs, which are enclosed with p tags.",
-                "Der Text soll in {0} Abschnitte eingeteilt werden, die mit p-Tags umschlossen werden.");
+                "The text should be divided into {0} paragraphs, which are enclosed in p tags.",
+                "Der Text ist in {0} Abschnitte zu gliedern, die von p-Tags umschlossen sind.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.MainHeadingTag",
                 "The main heading is given a {0} tag.",
                 "Die Hauptüberschrift erhält ein {0}-Tag.");
@@ -506,7 +506,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Don't give explanations about what you have created or introductions like: 'Gladly, here is your HTML'. " +
                 "Do not include the generated HTML in any delimiters like: '```html'.",
                 "Gib nur das erstellte HTML-zurück, so dass es direkt in einer Webseite eingebunden werden kann. " +
-                "Mache keine Erklärungen dazu was du erstellt hast oder Einleitungen wie: 'Gerne, hier ist dein HTML'. " +
+                "Mache keine Erklärungen dazu, was du erstellt hast oder Einleitungen wie: 'Gerne, hier ist dein HTML'. " +
                 "Schließe das erzeugte HTML auch nicht in irgendwelche Begrenzer ein wie: '```html'.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
                 "Create HTML text.",
@@ -534,7 +534,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Be a assistant that creates product descriptions that convince a potential customer to make a purchase.",
                 "Sei ein Assistent, der Produktbeschreibungen erstellt, die einen potentiellen Kunden von einem Kauf überzeugen.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
-                "Be a expert for the product: '{0}'.",
+                "Be an expert for the product: '{0}'.",
                 "Sei ein Experte für das Produkt: '{0}'.");
         }
     }
