@@ -4,7 +4,7 @@
 
 <script sm-target-zone="scripts" data-origin="checkout-confirm">
     $(function () {
-        var buyButton = $('.btn-buy');
+        const buyButton = $('.btn-buy');
 
         // Buy button has been clicked.
         buyButton.on('click', function () {
@@ -30,7 +30,7 @@
                 }
                 str += '</ul></div>';
 
-                var warnings = $('#confirm-warnings');
+                const warnings = $('#confirm-warnings');
                 warnings.html(str);
 
                 try {
@@ -72,9 +72,9 @@
         }
 
         function processBuyButtonClick(customerAgreed, showThrobber) {
-            var userAgreementsOk = true;
-            var esdRevocationWaiverOk = true;
-            var cartItems = $('#cart-items');
+            let userAgreementsOk = true;
+            let esdRevocationWaiverOk = true;
+            let cartItems = $('#cart-items');
 
             if (_.isTrue(customerAgreed)) {
                 // Reverse apply. We do that just to indicate that no entered data is lost.
@@ -114,7 +114,7 @@
             </text>}
 
             if (userAgreementsOk && esdRevocationWaiverOk) {
-                var submitOrderEvent = jQuery.Event('submitOrder');
+                const submitOrderEvent = jQuery.Event('submitOrder');
                 submitOrderEvent.isOrderValid = true;
                 submitOrderEvent.isMobile = false;
                 submitOrderEvent.disableBuyButton = false;
