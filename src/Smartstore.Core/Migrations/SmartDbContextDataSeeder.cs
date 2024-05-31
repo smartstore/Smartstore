@@ -250,7 +250,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt die Art des Checkout mit den zu durchlaufenden Schritten fest.");
 
             builder.AddOrUpdate("ShoppingCart.Products", "Products", "Artikel");
-            builder.AddOrUpdate("ShoppingCart.BackToCart", "Back to shopping cart", "Zurück zum Warenkorb");
+            builder.AddOrUpdate("ShoppingCart.EditCart", "Edit cart", "Warenkorb bearbeiten");
             builder.AddOrUpdate("ShoppingCart.Totals.ShippingWithinCountry", "Shipping within {0}", "Lieferung innerhalb {0}");
 
             builder.AddOrUpdate("Checkout.ConfirmHint",
