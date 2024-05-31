@@ -5,7 +5,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
     /// <summary>
     /// Contains methods to obtain string resources for AI prompts.
     /// </summary>
-    public class PromptResources
+    public partial class PromptResources
     {
         private const string ResNamespace = "Smartstore.AI.Prompts.";
 
@@ -372,7 +372,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <param name="enhanceResourceId">Whether to enhance the resource id with the namespace.</param>
         /// <param name="args">The arguments to format the resource string.</param>
         /// <returns>The resource without NewLine breaks.</returns>
-        public string P(string resourceId, bool enhanceResourceId = true, params object[] args)
+        public virtual string P(string resourceId, bool enhanceResourceId = true, params object[] args)
         {
             if (enhanceResourceId)
             {

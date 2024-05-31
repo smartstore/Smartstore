@@ -17,8 +17,8 @@ namespace Smartstore.Core.Bootstrapping
                     builder.RegisterType(type).As<IPromptGenerator>().Keyed<IPromptGenerator>(type).InstancePerLifetimeScope();
                 }
 
-                builder.RegisterType<PromptBuilder>().InstancePerLifetimeScope();
-                builder.RegisterType<PromptResources>().InstancePerLifetimeScope();
+                builder.RegisterType<PromptBuilder>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<PromptResources>().AsSelf().InstancePerLifetimeScope();
             }
         }
     }
