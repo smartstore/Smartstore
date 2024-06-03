@@ -125,6 +125,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             {
                 providers ??= await GetPaymentMethods(cart);
 
+                var applyMethod = true;
                 var preferredMethodName = ga.PreferredPaymentMethod;
                 var preferredMethod = preferredMethodName.HasValue() 
                     ? providers.FirstOrDefault(x => x.Metadata.SystemName.EqualsNoCase(preferredMethodName) && !x.Value.RequiresPaymentSelection)?.Value 
@@ -132,26 +133,24 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
                 if (preferredMethod != null)
                 {
-                    // The preferred payment method can be applied automatically.
-                    ga.SelectedPaymentMethod = preferredMethodName;
-                    await ga.SaveChangesAsync();
-
                     if (preferredMethod.RequiresInteraction)
                     {
                         // Call payment provider to get payment data from last order.
-                        var lastOrder = await _db.Orders
-                            .Where(x => x.PaymentMethodSystemName == preferredMethodName)
-                            .ApplyStandardFilter(cart.Customer.Id, cart.StoreId)
-                            .FirstOrDefaultAsync();
-                        if (lastOrder != null)
+                        var request = await preferredMethod.CreateProcessPaymentRequestAsync(cart);
+                        applyMethod = request != null;
+
+                        if (applyMethod)
                         {
-                            var request = await preferredMethod.CreateProcessPaymentRequestAsync(cart, lastOrder);
-                            if (request != null)
-                            {
-                                context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, request);
-                                state.PaymentSummary = await preferredMethod.GetPaymentSummaryAsync();
-                            }
+                            context.HttpContext.Session.TrySetObject(CheckoutState.OrderPaymentInfoName, request);
+                            state.PaymentSummary = await preferredMethod.GetPaymentSummaryAsync();
                         }
+                    }
+
+                    if (applyMethod)
+                    {
+                        // The preferred payment method can be applied automatically.
+                        ga.SelectedPaymentMethod = preferredMethodName;
+                        await ga.SaveChangesAsync();
                     }
                 }
             }

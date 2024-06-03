@@ -51,7 +51,7 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual Task<string> GetPaymentSummaryAsync()
             => Task.FromResult<string>(null);
 
-        public virtual Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart, Order lastOrder)
+        public virtual Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart)
             => Task.FromResult(new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
 
         public virtual Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request)

@@ -108,12 +108,11 @@ namespace Smartstore.Core.Checkout.Payment
         /// Only required if <see cref="RequiresPaymentSelection"/> is <c>false</c>.
         /// </summary>
         /// <param name="cart">Current shopping cart.</param>
-        /// <param name="lastOrder">The last order of the current customer.</param>
         /// <returns>
         /// <see cref="ProcessPaymentRequest"/> or <c>null</c> if the payment request cannot be fulfilled automatically.
         /// In this case, the customer will be directed to the payment selection page.
         /// </returns>
-        Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart, Order lastOrder);
+        Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart);
 
         /// <summary>
         /// Pre-process a payment. Called immediately before <see cref="ProcessPaymentAsync(ProcessPaymentRequest)"/>.
