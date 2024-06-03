@@ -111,7 +111,6 @@ namespace Smartstore.Admin.Controllers
             _shoppingCartSettings = shoppingCartSettings;
             _mediaSettings = mediaSettings;
             _adminAreaSettings = adminAreaSettings;
-
             _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
@@ -167,7 +166,9 @@ namespace Smartstore.Admin.Controllers
             var withPaymentMethodString = T("Admin.Order.WithPaymentMethod").Value;
             var fromStoreString = T("Admin.Order.FromStore").Value;
             var paymentMethodSystemnames = model.PaymentMethods.SplitSafe(',').ToArray();
-
+            var customer = Services.WorkContext.CurrentCustomer;
+            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+            
             DateTime? startDateUtc = model.StartDate == null
                 ? null
                 : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
@@ -184,7 +185,8 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
-                .ApplyPaymentFilter(paymentMethodSystemnames);
+                .ApplyPaymentFilter(paymentMethodSystemnames)
+                .ApplyCustomerFilter(authorizedStoreIds);
 
             if (productId > 0)
             {

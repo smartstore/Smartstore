@@ -282,6 +282,10 @@ namespace Smartstore.Core.DataExchange.Import
                 if (_customerSettings.GenderEnabled)
                     row.SetProperty(context.Result, (x) => x.Gender);
 
+                // With new entities, "LimitedToStores" is an implicit field, meaning
+                // it has to be set to true by code if it's absent but "StoreIds" exists.
+                row.SetProperty(context.Result, (x) => x.LimitedToStores, !row.GetDataValue<List<int>>("StoreIds").IsNullOrEmpty());
+
                 if (affiliateId > 0 && cargo.AffiliateIds.Contains(affiliateId))
                     customer.AffiliateId = affiliateId;
 

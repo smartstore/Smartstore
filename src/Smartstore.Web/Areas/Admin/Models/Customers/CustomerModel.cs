@@ -167,6 +167,14 @@ namespace Smartstore.Admin.Models.Customers
         public PermissionTree PermissionTree { get; set; }
         public AddressesModel Addresses { get; set; }
 
+        [UIHint("Stores")]
+        [AdditionalMetadata("multiple", true)]
+        [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
+        public int[] SelectedStoreIds { get; set; }
+
+        [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
+        public bool LimitedToStores { get; set; }
+
         #region Nested classes
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth.Fields.")]

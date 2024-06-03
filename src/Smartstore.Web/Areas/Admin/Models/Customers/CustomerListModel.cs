@@ -29,5 +29,6 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*SearchZipCode")]
         public string SearchZipPostalCode { get; set; }
         public bool ZipPostalCodeEnabled { get; set; }
+        public bool IsSingleStoreMode { get; set; }
     }
 }

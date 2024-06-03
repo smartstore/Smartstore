@@ -39,6 +39,7 @@ namespace Smartstore.Core
         private readonly IMediaService _mediaService;
         private readonly Lazy<IDisplayControl> _displayControl;
         private readonly ICurrencyService _currencyService;
+        private readonly IStoreMappingService _storeMappingService;
 
         public CommonServices(
             IComponentContext container,
@@ -62,7 +63,8 @@ namespace Smartstore.Core
             IDateTimeHelper dateTimeHelper,
             IMediaService mediaService,
             Lazy<IDisplayControl> displayControl,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IStoreMappingService storeMappingService)
         {
             _container = container;
             _appContext = appContext;
@@ -86,6 +88,7 @@ namespace Smartstore.Core
             _mediaService = mediaService;
             _displayControl = displayControl;
             _currencyService = currencyService;
+            _storeMappingService = storeMappingService;
         }
 
         public IComponentContext Container => _container;
@@ -110,5 +113,6 @@ namespace Smartstore.Core
         public IMediaService MediaService => _mediaService;
         public IDisplayControl DisplayControl => _displayControl.Value;
         public ICurrencyService CurrencyService => _currencyService;
+        public IStoreMappingService StoreMappingService => _storeMappingService;
     }
 }

@@ -39,6 +39,7 @@ namespace Smartstore.Core
         IMediaService MediaService { get; }
         IDisplayControl DisplayControl { get; }
         ICurrencyService CurrencyService { get; }
+        IStoreMappingService StoreMappingService { get; }
     }
 
     public static class ICommonServicesExtensions

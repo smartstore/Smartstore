@@ -273,6 +273,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="SelectedStoreIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="SelectedStoreIds" />
+            <span asp-validation-for="SelectedStoreIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="SelectedCustomerRoleIds" />
         </div>
         <div class="adminData">

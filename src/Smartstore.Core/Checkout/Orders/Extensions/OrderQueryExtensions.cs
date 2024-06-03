@@ -345,5 +345,20 @@ namespace Smartstore
 
             return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
         }
+
+        /// <summary>
+        /// Selects customer authorized orders from query.
+        /// </summary>
+        /// <param name="query">Order query from which to select.</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="OrderDataPoint"/>.</returns>
+        public static IQueryable<Order> ApplyCustomerFilter(this IQueryable<Order> query, int[] authorizedStoreIds)
+        {
+            Guard.NotNull(query);
+            if (!authorizedStoreIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => authorizedStoreIds.Contains(x.StoreId));
+            }
+            return query;
+        }
     }
 }
