@@ -4,7 +4,6 @@
 @model CheckoutConfirmModel
 
 @{
-    // TODO: (mg) Make a global setting for the visibility of the second "Buy" footer beneath the cart. It should be possible to switch it off. Not everyone lives in the EU. Default: true,
     var cart = Model.ShoppingCart;
     var shippingInfoUrl = await Url.TopicAsync("ShippingInfo", true);
 
@@ -98,7 +97,7 @@ else
     </div>
 }
 
-<div class="bottom-order-total-container card card-body">
+<div sm-if="Model.ShowSecondBuyButtonBelowCart" class="bottom-order-total-container card card-body">
     <div class="row">
         <div class="terms-of-service">@Html.Raw(Model.TermsOfService)</div>
     </div>

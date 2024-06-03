@@ -257,6 +257,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Please verify the order total and the specifics regarding the billing address and, if required, the shipping address. You can make corrections to your entry anytime by clicking on <strong>Change</strong>. If everything is as it should be, submit your order to us by clicking <strong>Confirm</strong>.",
                 "Bitte prüfen Sie die Gesamtsumme und die Rechnungsadresse. Bei abweichender Lieferanschrift prüfen Sie bitte auch diese. Änderungen können Sie jederzeit mit einem Klick auf <strong>Ändern</strong> vornehmen. Sind alle Daten richtig, bestätigen Sie bitte mit einem Klick auf <strong>Kaufen</strong> Ihre Bestellung.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.ShowSecondBuyButtonBelowCart",
+                "Second buy-button below cart",
+                "Zweiter Kauf-Button unterhalb des Warenkorbs",
+                "Specifies whether to show a second buy button (including order total) below the cart items on the confirmation page. Recommended for stores in the EU for reasons of legal certainty.",
+                "Legt fest, ob auf der Bestellabschlussseite ein zweiter Kauf-Button (einschließlich der Gesamtsumme der Bestellung) unterhalb der Warenkorbartikel angezeigt werden soll. Aus Gründen der Rechtssicherheit wird dies für Shops in der EU empfohlen.");
+
             builder.Delete(
                 "Checkout.TermsOfService.PleaseAccept",
                 "Checkout.TermsOfService.Read",

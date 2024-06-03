@@ -6,6 +6,7 @@ namespace Smartstore.Web.Models.Checkout
 {
     public partial class CheckoutConfirmModel : CheckoutModelBase
     {
+        public bool ShowSecondBuyButtonBelowCart { get; set; } = true;
         public bool ShowEsdRevocationWaiverBox { get; set; }
         public bool? SubscribeToNewsletter { get; set; }
         public bool? AcceptThirdPartyEmailHandOver { get; set; }

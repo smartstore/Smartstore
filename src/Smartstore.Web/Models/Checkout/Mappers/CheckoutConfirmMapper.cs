@@ -65,6 +65,7 @@ namespace Smartstore.Web.Models.Checkout
 
             to.ActionName = CheckoutActionNames.Confirm;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
+            to.ShowSecondBuyButtonBelowCart = _shoppingCartSettings.ShowSecondBuyButtonBelowCart;
             to.ShowEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;

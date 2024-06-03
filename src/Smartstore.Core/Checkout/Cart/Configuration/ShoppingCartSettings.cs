@@ -110,6 +110,14 @@ namespace Smartstore.Core.Checkout.Cart
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to show a second buy button (including order total) below the cart items.
+        /// </summary>
+        /// <remarks>
+        /// For reasons of legal certainty, the display of a buy button below the products is recommended for stores in the EU.
+        /// </remarks>
+        public bool ShowSecondBuyButtonBelowCart { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to show a legal hint in the order summary
         /// </summary>
         public bool ShowConfirmOrderLegalHint { get; set; }
