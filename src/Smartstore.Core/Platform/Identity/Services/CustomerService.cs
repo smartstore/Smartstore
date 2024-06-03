@@ -55,22 +55,25 @@ namespace Smartstore.Core.Identity
 
         #region Guest customers
 
-        public virtual async Task<Customer> CreateGuestCustomerAsync(bool generateClientIdent = true, Action<Customer> customAction = null)
+        public virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent = null, Action<Customer> customAction = null)
         {
+            if (clientIdent.HasValue() && clientIdent.Length < 8)
+            {
+                throw new ArgumentException("Client ident must be at least 8 chars long.", nameof(clientIdent));
+            }
+            
             var customer = new Customer
             {
                 CustomerGuid = Guid.NewGuid(),
-                Active = true,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
+                ClientIdent = clientIdent.NullEmpty(),
+                Active = true
             };
 
             // Add to 'Guests' role
-            var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests);
-            if (guestRole == null)
-            {
-                throw new InvalidOperationException("'Guests' role could not be loaded");
-            }
+            var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests) 
+                ?? throw new InvalidOperationException("'Guests' role could not be loaded");
 
             using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
             {
@@ -89,16 +92,6 @@ namespace Smartstore.Core.Identity
                 _db.Customers.Add(customer);
 
                 await _db.SaveChangesAsync();
-
-                if (generateClientIdent)
-                {
-                    var clientIdent = _webHelper.GetClientIdent();
-                    if (clientIdent.HasValue())
-                    {
-                        customer.GenericAttributes.ClientIdent = clientIdent;
-                        await _db.SaveChangesAsync();
-                    }
-                }
             }
 
             //Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
@@ -116,20 +109,11 @@ namespace Smartstore.Core.Identity
                     return null;
                 }
 
-                var customerId = await _db.GenericAttributes
-                    .Where(a => a.Key == "ClientIdent" && a.KeyGroup == "Customer" && a.Value == clientIdent)
-                    .Select(a => a.EntityId)
-                    .FirstOrDefaultAsync();
-
-                if (customerId == 0)
-                {
-                    return null;
-                }
-
                 var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
 
                 var customer = await _db.Customers
-                    .Where(c => c.Id == customerId && c.Username == null && c.Email == null /*&& c.LastActivityDateUtc >= dateFrom*/)
+                    .Where(c => c.ClientIdent == clientIdent && c.Username == null && c.Email == null && c.LastActivityDateUtc >= dateFrom)
+                    .OrderByDescending(c => c.Id)
                     .IncludeCustomerRoles()
                     // Disabled because of SqlClient "Deadlock" exception (?)
                     //.IncludeShoppingCart()

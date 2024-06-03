@@ -1,7 +1,6 @@
 ﻿using Smartstore.Core.Localization;
-using Smartstore.Core.Platform.AI.Chat;
 
-namespace Smartstore.Core.AI
+namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
     /// Creates prompts based on entity type and underlying model.
@@ -23,51 +22,48 @@ namespace Smartstore.Core.AI
         /// Builds the prompt for given <see cref="ITextGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GetPromptAsync(ITextGenerationPrompt model)
+        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt)
         {
-            // TODO: (mh) Rename --> GenerateTextPromptAsync
-            // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
+            // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.TextCreation.DefaultPrompt",
                 EngineContext.Current.ResolveService<IWorkContext>().WorkingLanguage.Id,
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.EntityName));
+            return Task.FromResult(value.FormatCurrent(prompt.EntityName));
         }
 
         /// <summary>
         /// Builds the prompt for given <see cref="IImageGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GetPromptAsync(IImageGenerationPrompt model)
+        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt)
         {
-            // TODO: (mh) Rename --> GenerateImagePromptAsync
-            // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
+            // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.ImageCreation.DefaultPrompt",
                 EngineContext.Current.ResolveService<IWorkContext>().WorkingLanguage.Id,
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.EntityName));
+            return Task.FromResult(value.FormatCurrent(prompt.EntityName));
         }
 
         /// <summary>
         /// Builds the prompt for given <see cref="ISuggestionPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GetPromptAsync(ISuggestionPrompt model)
+        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt)
         {
-            // TODO: (mh) Rename --> GenerateSuggestionPromptAsync
-            // TODO: (mh) Don't do this. Use ctor dependencies in impl class.
+            // TODO: (mh) (ai) Don't do this. Use ctor dependencies in impl class.
             var value = EngineContext.Current.ResolveService<ILocalizationService>().GetResource(
                 "Admin.AI.Suggestions.DefaultPrompt",
                 EngineContext.Current.ResolveService<IWorkContext>().WorkingLanguage.Id,
                 returnEmptyIfNotFound: true);
 
             // Simple default implementation
-            return Task.FromResult(value.FormatCurrent(model.Input));
+            return Task.FromResult(value.FormatCurrent(prompt.Input));
         }
     }
 }

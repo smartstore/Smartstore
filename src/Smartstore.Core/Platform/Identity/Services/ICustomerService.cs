@@ -11,22 +11,25 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Creates and inserts a guest customer account.
         /// </summary>
-        /// <param name="generateClientIdent">
-        /// Whether to generate an identifier to be saved as generic attribute.
+        /// <param name="clientIdent">
+        /// The client ident string, which usually is a hashed combination of client IP address and user agent. 
+        /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string. 
+        /// The string should be unique for each client and must be at least 8 chars long.
         /// </param>
         /// <param name="customAction">
         /// An optional entity modifier action that is invoked right before the entity is saved to database.
         /// </param>
-        /// <returns>Customer</returns>
-        Task<Customer> CreateGuestCustomerAsync(bool generateClientIdent = true, Action<Customer> customAction = null);
+        /// <returns>Customer entity</returns>
+        Task<Customer> CreateGuestCustomerAsync(string clientIdent = null, Action<Customer> customAction = null);
 
         /// <summary>
         /// Tries to find a customer record by client ident. This method should be called when an
         /// anonymous visitor rejects cookies and therefore cannot be identified automatically.
         /// </summary>
         /// <param name="clientIdent">
-        /// The client ident string, which is a hashed combination of client IP address and user agent. 
-        /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string, or pass <c>null</c> to let this method obtain it automatically.</param>
+        /// The client ident string, which usually is a hashed combination of client IP address and user agent. 
+        /// Call <see cref="IWebHelper.GetClientIdent()"/> to obtain an ident string, or pass <c>null</c> to let this method obtain it automatically.
+        /// </param>
         /// <param name="maxAgeSeconds">The max age of the newly created guest customer record. The shorter, the better (default is 1 min.)</param>
         /// <returns>The identified customer or <c>null</c></returns>
         Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60);

@@ -497,7 +497,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var maxDisplayOrder = (await _db.ProductVariantAttributeValues
-                .Where(x => x.ProductVariantAttribute.ProductId == pva.ProductId)
+                .Where(x => x.ProductVariantAttribute.ProductId == pva.ProductId && x.ProductVariantAttribute.ProductAttributeId == pva.ProductAttributeId)
                 .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
 
             var model = new ProductModel.ProductVariantAttributeValueModel

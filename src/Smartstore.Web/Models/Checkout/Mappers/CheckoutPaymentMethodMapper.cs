@@ -73,8 +73,9 @@ namespace Smartstore.Web.Models.Checkout
                 providers = providers.Where(x => x.Value.RecurringPaymentType > RecurringPaymentType.NotSupported);
             }
 
-            to.DisplayPaymentMethodIcons = _paymentSettings.DisplayPaymentMethodIcons;
+            to.ActionName = CheckoutActionNames.PaymentMethod;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
+            to.DisplayPaymentMethodIcons = _paymentSettings.DisplayPaymentMethodIcons;
 
             foreach (var pp in providers)
             {

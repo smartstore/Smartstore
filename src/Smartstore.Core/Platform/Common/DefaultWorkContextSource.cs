@@ -35,6 +35,7 @@ namespace Smartstore.Core
             DetectPdfConverter,
             DetectAuthenticated,
             DetectGuest,
+            DetectBotForMedia,
             DetectBot,
             DetectWebhookEndpoint,
             DetectByClientIdent
@@ -161,17 +162,12 @@ namespace Smartstore.Core
                     : (customer, null);
             }
 
-            if (context.ClientIdent.HasValue())
-            {
-                customer = await context.CustomerService.FindCustomerByClientIdentAsync(context.ClientIdent, maxAgeSeconds: 300);
-            }
-
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
                 // Create new record in these cases.
-                customer = await CreateGuestCustomerAsync();
+                customer = await CreateGuestCustomerAsync(context.ClientIdent);
             }
 
             return (customer, null);
@@ -195,9 +191,9 @@ namespace Smartstore.Core
             return null;
         }
 
-        protected virtual async Task<Customer> CreateGuestCustomerAsync()
+        protected virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent)
         {
-            var customer = await _customerService.CreateGuestCustomerAsync();
+            var customer = await _customerService.CreateGuestCustomerAsync(clientIdent);
 
             _customerService.AppendVisitorCookie(customer);
 
@@ -419,6 +415,7 @@ namespace Smartstore.Core
             public IUserAgent UserAgent { get; init; }
             public IWebHelper WebHelper { get; init; }
 
+            public Guid? CustomerGuid { get; set; }
             public string ClientIdent { get; set; }
             public ILockHandle LockHandle { get; set; }
         }
@@ -473,7 +470,7 @@ namespace Smartstore.Core
                     var customer = await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.WebhookClient);
                     if (customer == null)
                     {
-                        customer = await context.CustomerService.CreateGuestCustomerAsync(false, c =>
+                        customer = await context.CustomerService.CreateGuestCustomerAsync(null, c =>
                         {
                             c.Email = "builtin@webhook-client.com";
                             c.AdminComment = "Built-in system record used for webhook clients.";
@@ -494,6 +491,8 @@ namespace Smartstore.Core
             var visitorCookie = context.HttpContext?.Request?.Cookies[CookieNames.Visitor];
             if (visitorCookie != null && Guid.TryParse(visitorCookie, out var customerGuid))
             {
+                context.CustomerGuid = customerGuid;
+                
                 // Cookie present. Try to load guest customer by it's value.
                 var customer = await context.Db.Customers
                     //.IncludeShoppingCart()
@@ -509,6 +508,19 @@ namespace Smartstore.Core
             }
 
             return null;
+        }
+
+        private static Task<Customer> DetectBotForMedia(DetectCustomerContext context)
+        {
+            // Don't overstress the system with guest detection for media files.
+            // If there's no endpoint, it's most likely a media file request.
+            // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
+            if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
+            {
+                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+            }
+
+            return Task.FromResult<Customer>(null);
         }
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)

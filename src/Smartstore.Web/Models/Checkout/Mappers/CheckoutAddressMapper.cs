@@ -75,8 +75,9 @@ namespace Smartstore.Web.Models.Checkout
                 to.ExistingAddresses.Add(await address.MapAsync());
             }
 
-            to.IsShippingRequired = cart.IsShippingRequired;
+            to.ActionName = shipping ? CheckoutActionNames.ShippingAddress : CheckoutActionNames.BillingAddress;
             to.PreviousStepUrl = _checkoutFactory.GetNextCheckoutStepUrl(from, false);
+            to.IsShippingRequired = cart.IsShippingRequired;
 
             // New address.
             await new Address().MapAsync(to.NewAddress);

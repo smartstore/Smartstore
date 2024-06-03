@@ -113,6 +113,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="DirectDebitIban" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitIban</div>
+            <input asp-for="DirectDebitIban" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="DirectDebitBankName" />
         </div>
         <div class="adminData dd-control">
@@ -136,15 +145,6 @@
         <div class="adminData dd-control">
             <div class="form-control-plaintext">@Model.DirectDebitCountry</div>
             <input asp-for="DirectDebitCountry" />
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="DirectDebitIban" />
-        </div>
-        <div class="adminData dd-control">
-            <div class="form-control-plaintext">@Model.DirectDebitIban</div>
-            <input asp-for="DirectDebitIban" />
         </div>
     </div>
     <div class="adminRow">

@@ -61,11 +61,12 @@ namespace Smartstore.Web.Components
             _taxSettings = taxSettings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(bool isEditable = false)
+        public async Task<IViewComponentResult> InvokeAsync(bool isEditable = false, bool orderTotalOnly = false)
         {
             var orderTotalsEvent = new RenderingOrderTotalsEvent();
             await Services.EventPublisher.PublishAsync(orderTotalsEvent);
 
+            var viewName = orderTotalOnly ? "OrderTotalOnly" : null;
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = orderTotalsEvent.Customer ?? Services.WorkContext.CurrentCustomer;
             var storeId = orderTotalsEvent.StoreId ?? Services.StoreContext.CurrentStore.Id;
@@ -79,17 +80,27 @@ namespace Smartstore.Web.Components
 
             if (!cart.HasItems)
             {
-                return View(model);
+                return View(viewName, model);
             }
 
             var batchContext = _productService.CreateProductBatchContext(cart.GetAllProducts(), null, customer, false);
 
-            model.Weight = await _shippingService.GetCartTotalWeightAsync(cart);
+            // Cart total
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
+            model.CartTotal = cartTotal;
 
-            var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-            if (measureWeight != null)
+            if (cartTotal.ConvertedAmount.Total.HasValue)
             {
-                model.WeightMeasureUnitName = measureWeight.GetLocalized(x => x.Name);
+                model.OrderTotal = cartTotal.ConvertedAmount.Total.Value;
+                if (cartTotal.ConvertedAmount.ToNearestRounding != decimal.Zero)
+                {
+                    model.OrderTotalRounding = cartTotal.ConvertedAmount.ToNearestRounding;
+                }
+            }
+
+            if (orderTotalOnly)
+            {
+                return View(viewName, model);
             }
 
             // Subtotal
@@ -112,19 +123,16 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            model.RequiresShipping = cart.IsShippingRequired;
+            model.RequiresShipping = cart.IsShippingRequired && !_shoppingCartSettings.IsTerminalCheckoutActivated();
             if (model.RequiresShipping)
             {
-                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
-                if (shippingTotal.ShippingTotal.HasValue)
+                var shipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                if (shipping.ShippingTotal != null)
                 {
-                    var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shippingTotal.ShippingTotal.Value.Amount, currency);
-                    model.Shipping = shippingTotalConverted.ToString();
-
-                    // Selected shipping method
-                    var shippingOption = customer.GenericAttributes.SelectedShippingOption;
-                    if (shippingOption != null)
-                        model.SelectedShippingMethod = shippingOption.Name;
+                    var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shipping.ShippingTotal.Value.Amount, currency);
+                    model.ShippingTotal = shippingTotalConverted.ToString();
+                    model.SelectedShippingMethod = shipping.Option?.Name;
+                    model.ShippingCountry = customer.ShippingAddress?.Country?.GetLocalized(x => x.Name);
                 }
             }
 
@@ -177,20 +185,14 @@ namespace Smartstore.Web.Components
             model.DisplayTaxRates = displayTaxRates;
             model.DisplayTax = displayTax;
 
+            model.Weight = await _shippingService.GetCartTotalWeightAsync(cart);
             model.DisplayWeight = _shoppingCartSettings.ShowWeight;
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
-            // Cart total
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, batchContext: batchContext);
-            model.CartTotal = cartTotal;
-
-            if (cartTotal.ConvertedAmount.Total.HasValue)
+            var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            if (measureWeight != null)
             {
-                model.OrderTotal = cartTotal.ConvertedAmount.Total.Value;
-                if (cartTotal.ConvertedAmount.ToNearestRounding != decimal.Zero)
-                {
-                    model.OrderTotalRounding = cartTotal.ConvertedAmount.ToNearestRounding;
-                }
+                model.WeightMeasureUnitName = measureWeight.GetLocalized(x => x.Name);
             }
 
             // Discount
@@ -245,7 +247,7 @@ namespace Smartstore.Web.Components
                 model.CreditBalance = (convertedCreditBalance * -1).ToString(true);
             }
 
-            return View(model);
+            return View(viewName, model);
         }
     }
 }

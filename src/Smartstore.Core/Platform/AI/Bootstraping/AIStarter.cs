@@ -1,6 +1,5 @@
 ﻿using Autofac;
-using Smartstore.AI.Services;
-using Smartstore.Core.AI;
+using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
@@ -18,7 +17,8 @@ namespace Smartstore.Core.Bootstrapping
                     builder.RegisterType(type).As<IPromptGenerator>().Keyed<IPromptGenerator>(type).InstancePerLifetimeScope();
                 }
 
-                builder.RegisterType<PromptHelper>().InstancePerLifetimeScope();                
+                builder.RegisterType<PromptBuilder>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<PromptResources>().AsSelf().InstancePerLifetimeScope();
             }
         }
     }

@@ -172,13 +172,13 @@
                         <smart-label asp-for="Description" />
 			        </div>
                     <div class="adminData wide">
-                        <ai-rich-text-creation asp-for="Description"
-                                               entity-name="@Model.Name"
-                                               entity-type="Category"
-                                               display-image-options="false"
-                                               display-structure-options="false">
+                        <ai-rich-text asp-for="Description"
+                                      entity-name="@Model.Name"
+                                      entity-type="Category"
+                                      display-image-options="false"
+                                      display-structure-options="false">
                             <editor asp-for="Description" />
-                        </ai-rich-text-creation>
+                        </ai-rich-text>
                         <span asp-validation-for="Description"></span>
                     </div>
 		        </div>
@@ -187,14 +187,14 @@
                         <smart-label asp-for="BottomDescription" />
 			        </div>
                     <div class="adminData wide">
-                        <ai-rich-text-creation asp-for="BottomDescription"
-                                               entity-name="@Model.Name"
-                                               entity-type="Category"
-                                               entity-id="@Model.Id"
-                                               display-structure-options="false"
-                                               display-image-options="false">
+                        <ai-rich-text asp-for="BottomDescription"
+                                      entity-name="@Model.Name"
+                                      entity-type="Category"
+                                      entity-id="@Model.Id"
+                                      display-structure-options="false"
+                                      display-image-options="false">
                             <editor asp-for="BottomDescription" />
-                        </ai-rich-text-creation>
+                        </ai-rich-text>
                         <span asp-validation-for="BottomDescription"></span>
                     </div>
 		        </div>
@@ -236,13 +236,13 @@
                     <smart-label asp-for="PictureId" />
                 </div>
                 <div class="adminData">
-                    <ai-image-creation asp-for="PictureId" 
-                                       entity-name="@Model.Name" 
-                                       entity-type="Category"
-                                       format="Square"
-                                       media-folder="@SystemAlbumProvider.Catalog">
+                    <ai-image asp-for="PictureId" 
+                              entity-name="@Model.Name" 
+                              entity-type="Category"
+                              format="Square"
+                              media-folder="@SystemAlbumProvider.Catalog">
                         <editor asp-for="PictureId" />
-                    </ai-image-creation>
+                    </ai-image>
                     <span asp-validation-for="PictureId"></span>
                 </div>
             </div>
@@ -428,13 +428,13 @@
                         <smart-label asp-for="MetaTitle" />
                     </div>
                     <div class="adminData">
-                        <ai-text-creation asp-for="MetaTitle"
-                                          entity-name="@Model.Name"
-                                          entity-type="Category"
-                                          display-optimization-options="false"
-                                          display-word-limit="false">
+                        <ai-text asp-for="MetaTitle"
+                                 entity-name="@Model.Name"
+                                 entity-type="Category"
+                                 display-optimization-options="false"
+                                 display-word-limit="false">
                             <input asp-for="MetaTitle" />
-                        </ai-text-creation>
+                        </ai-text>
                         <span asp-validation-for="MetaTitle"></span>
                     </div>
                 </div>
@@ -443,13 +443,13 @@
                         <smart-label asp-for="MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <ai-text-creation asp-for="MetaDescription"
-                                          entity-name="@Model.Name"
-                                          entity-type="Category"
-                                          display-optimization-options="false"
-                                          display-word-limit="false">
+                        <ai-text asp-for="MetaDescription"
+                                 entity-name="@Model.Name"
+                                 entity-type="Category"
+                                 display-optimization-options="false"
+                                 display-word-limit="false">
                             <textarea asp-for="MetaDescription"></textarea>
-                        </ai-text-creation>
+                        </ai-text>
                         <span asp-validation-for="MetaDescription"></span>
                     </div>
                 </div>
@@ -458,13 +458,13 @@
                         <smart-label asp-for="MetaKeywords" />
                     </div>
                     <div class="adminData">
-                        <ai-text-creation asp-for="MetaKeywords"
-                                          entity-name="@Model.Name"
-                                          entity-type="Category"
-                                          display-optimization-options="false"
-                                          display-word-limit="false">
+                        <ai-text asp-for="MetaKeywords"
+                                 entity-name="@Model.Name"
+                                 entity-type="Category"
+                                 display-optimization-options="false"
+                                 display-word-limit="false">
                             <input asp-for="MetaKeywords" />
-                        </ai-text-creation>
+                        </ai-text>
                         <span asp-validation-for="MetaKeywords"></span>
                     </div>
                 </div>

@@ -1,0 +1,148 @@
+﻿@using Smartstore.Core.Checkout.Cart
+@using Smartstore.Web.Models.Checkout
+
+@model CheckoutConfirmModel
+
+@{
+    var cart = Model.ShoppingCart;
+    var shippingInfoUrl = await Url.TopicAsync("ShippingInfo", true);
+
+    var showConsentBox = Model.NewsletterSubscription != CheckoutNewsletterSubscription.None
+        || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
+        || await Display.ZoneHasWidgetsAsync("checkout_submit_data_consent");
+}
+
+<input type="hidden" id="customercommenthidden" name="customercommenthidden" />
+
+<p class="page-intro lead">
+    @Html.Raw(T("Checkout.ConfirmHint"))
+</p>
+
+<div sm-if="showConsentBox" id="terms-of-service-consent-box" class="card mb-3">
+    <div class="card-body">
+        <div sm-if="Model.NewsletterSubscription != CheckoutNewsletterSubscription.None" class="form-check">
+            <input attr-checked='(Model.NewsletterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
+                   type="checkbox" id="SubscribeToNewsletter" name="SubscribeToNewsletter" class="form-check-input" />
+            <label class="form-check-label" for="SubscribeToNewsletter">
+                <span>@T("Checkout.SubscribeToNewsletter")</span>
+            </label>
+        </div>
+
+        <div sm-if="Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None" class="form-check">
+            <input attr-checked='(Model.ThirdPartyEmailHandOver == CheckoutThirdPartyEmailHandOver.Activated, "checked")'
+                   type="checkbox" id="AcceptThirdPartyEmailHandOver" name="AcceptThirdPartyEmailHandOver" class="form-check-input" />
+            <label class="form-check-label" for="AcceptThirdPartyEmailHandOver">
+                <span>@Model.ThirdPartyEmailHandOverLabel</span>
+            </label>
+        </div>
+
+        <zone name="checkout_submit_data_consent" />
+    </div>
+</div>
+
+<div id="confirm-warnings" class="confirm-order">
+    <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger mb-3">
+        <ul>
+            @foreach (var warning in Model.Warnings)
+            {
+                <li>@Html.Raw(warning)</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<zone name="checkout_confirm_before_summary" />
+<zone name="order_summary_content_before" />
+
+@if (Model.OrderReviewData != null)
+{
+    <partial name="OrderReviewData" model="Model.OrderReviewData" />
+}
+
+@if (cart.DisplayCommentBox)
+{
+    <partial name="_CommentBox" model="cart" />
+}
+
+@if (cart.Items.Any())
+{
+    <div>
+        <div class="row align-items-end mb-2">
+            <div class="col">
+                <span class="h5">
+                    @Html.Raw(T("ShoppingCart.Products"))
+                </span>
+            </div>
+            <div class="col col-auto">
+                <a href="@Url.RouteUrl("ShoppingCart")" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("ShoppingCart.EditCart")</span>
+                </a>
+            </div>
+        </div>
+        <div id="cart-warnings">
+            <partial name="CartWarnings" model="cart.Warnings" />
+        </div>
+        <div id="cart-items" class="cart">
+            <div class="cart-body">
+                <partial name="CartItems" model="cart" />
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning fade show">
+        @T("ShoppingCart.CartIsEmpty")
+    </div>
+}
+
+<div sm-if="Model.ShowSecondBuyButtonBelowCart" class="bottom-order-total-container card card-body">
+    <div class="row">
+        <div class="terms-of-service">@Html.Raw(Model.TermsOfService)</div>
+    </div>
+    <div class="row align-items-center">
+        <div class="col col-auto cart-buttons">
+            <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
+                <span>@T("Checkout.ConfirmButton")</span>
+                <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+        <div class="col col-auto">
+            <div>
+                @await Component.InvokeAsync("OrderTotals", new { orderTotalOnly = true })
+            </div>
+        </div>
+    </div>
+</div>
+
+<zone name="order_summary_content_after" />
+
+<modal id="terms-of-service-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+    <modal-body></modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+    </modal-footer>
+</modal>
+
+@if (shippingInfoUrl.HasValue())
+{
+    <modal id="shipping-info-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
+        <modal-body>
+            <iframe src="@shippingInfoUrl" frameBorder="0" class="h-100"></iframe>
+        </modal-body>
+        <modal-footer>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Close")</button>
+        </modal-footer>
+    </modal>
+}
+
+@if (cart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
+{
+    <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
+        <modal-body></modal-body>
+        <modal-footer>
+            <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+        </modal-footer>
+    </modal>
+}

@@ -2,7 +2,6 @@
 
 @{
     var breakpoint = (ViewData["breakpoint"] as string).NullEmpty() ?? "md";
-    var nameRequired = !Model.CompanyEnabled;
 }
 
 <input asp-for="Id" type="hidden" />
@@ -12,9 +11,8 @@
 <input asp-for="DefaultAddressesEnabled" type="hidden" />
 
 <div class="form-horizontal address-form">
-
     <div sm-if="Model.CompanyEnabled" class="form-group row">
-        <label asp-for="Company" class="col-@(breakpoint)-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
+        <label id="CompanyLabel" asp-for="Company" class="col-@(breakpoint)-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
             <input asp-for="Company" sm-required="Model.CompanyRequired" />
             <span asp-validation-for="Company"></span>
@@ -42,16 +40,16 @@
         }
     </div>
     <div class="form-group row">
-        <label asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label@(nameRequired ? " required" : string.Empty)"></label>
+        <label id="FirstNameLabel" asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="FirstName" sm-required="nameRequired ? true : null" />
+            <input asp-for="FirstName" sm-required="Model.CompanyEnabled ? null : true" />
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
     <div class="form-group row">
-        <label asp-for="LastName" class="col-@(breakpoint)-3 col-form-label@(nameRequired ? " required" : string.Empty)"></label>
+        <label id="LastNameLabel" asp-for="LastName" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="LastName" sm-required="nameRequired ? true : null" />
+            <input asp-for="LastName" sm-required="Model.CompanyEnabled ? null : true" />
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
@@ -189,12 +187,13 @@
     </div>
 </div>
 
-@if (Model.CountryEnabled && Model.StateProvinceEnabled && Model.AvailableStates.Count == 0)
-{
-    <script sm-target-zone="scripts" data-origin="create-update-address">
-        $(function () {
-            // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
-            $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+<script sm-target-zone="scripts" data-origin="create-update-address">
+    $(function () {
+        // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
+        $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+
+        $('#@Html.IdFor(x => x.Company)').on('change', function () {
+            $('#FirstNameLabel, #LastNameLabel').toggleClass('required', $(this).val().length == 0);
         });
-    </script>
-}
+    });
+</script>

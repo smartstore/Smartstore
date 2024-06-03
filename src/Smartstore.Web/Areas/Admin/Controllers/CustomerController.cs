@@ -182,7 +182,7 @@ namespace Smartstore.Admin.Controllers
                 model.CreatedOn = dtHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = dtHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
                 model.LastIpAddress = customer.LastIpAddress;
-                model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
+                model.LastVisitedPage = customer.LastVisitedPage;
                 model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !model.IsGuest;
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecords(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
@@ -1029,7 +1029,7 @@ namespace Smartstore.Admin.Controllers
                     LastIpAddress = x.LastIpAddress,
                     Location = _geoCountryLookup.Value.LookupCountry(x.LastIpAddress)?.Name.EmptyNull(),
                     LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                    LastVisitedPage = x.GenericAttributes.LastVisitedPage,
+                    LastVisitedPage = x.LastVisitedPage,
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                     EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
                 })

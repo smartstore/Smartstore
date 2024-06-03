@@ -4,15 +4,13 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (mh) Rename --> AIRichTextTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for Html text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class RichTextCreationTagHelper : AITagHelperBase
+    public class AIRichTextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator) : AITagHelperBase(htmlGenerator)
     {
-        // TODO: (mh) Rename --> ai-rich-text
-        const string EditorTagName = "ai-rich-text-creation";
+        const string EditorTagName = "ai-rich-text";
 
         const string DisplayAdditionalContentOptionsAttributeName = "display-additional-content-options";
         const string DisplayLinkOptionsAttributeName = "display-link-options";
@@ -43,13 +41,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(DisplayImageOptionsAttributeName)]
         public bool DisplayImageOptions { get; set; } = true;
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
-
-        public RichTextCreationTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator)
-            : base(htmlGenerator)
-        {
-            _aiToolHtmlGenerator = aiToolHtmlGenerator;
-        }
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {

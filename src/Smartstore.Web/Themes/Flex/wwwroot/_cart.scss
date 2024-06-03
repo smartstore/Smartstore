@@ -191,9 +191,14 @@
     max-width: 100%;
 }
 
-#cart-items {
+#cart-items,
+.bottom-order-total-container {
     border-radius: var(--cart-border-radius);
     border: 1px solid var(--cart-border-color);
+}
+
+#cart-items {
+    @include border-bottom-radius(0);
 }
 
 .cart-row {
@@ -402,6 +407,26 @@
 }
 
 
+// Bottom order total
+// =================================
+
+.bottom-order-total-container {
+    background-color: var(--cart-footer-bg);
+    border-top-width: 0;
+    @include border-top-radius(0);
+}
+
+.bottom-order-total {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: 8px 12px;
+
+    .total-item:nth-child(even) {
+        justify-self: end;
+    }
+}
+
+
 // Collapsible cart action boxes
 // =================================
 
@@ -450,14 +475,17 @@
 @include media-breakpoint-down(md) {
     // Collapse items and summary
 
-    #cart-items {
-        @include border-bottom-radius(0);
-    }
-
     .cart-footer {
         @include border-top-radius(0);
         border: 1px solid var(--cart-border-color);
-        border-top-width: 0;
+
+        &:not(.cart-footer-panel) {
+            border-top-width: 0;
+        }
+    }
+
+    .bottom-order-total-container {
+        display: none;
     }
 }
 

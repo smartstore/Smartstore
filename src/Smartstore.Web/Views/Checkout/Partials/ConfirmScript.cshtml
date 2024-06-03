@@ -1,0 +1,142 @@
+﻿@using Smartstore.Web.Models.Checkout
+
+@model CheckoutConfirmModel
+
+<script sm-target-zone="scripts" data-origin="checkout-confirm">
+    $(function () {
+        const buyButton = $('.btn-buy');
+
+        // Buy button has been clicked.
+        buyButton.on('click', function () {
+            processBuyButtonClick(false);
+        });
+
+        // Simulate buy button click.
+        $(document).on('clickBuyButton', function (e) {
+            processBuyButtonClick(e.customerAgreed, e.showThrobber);
+        });
+
+        // Report error.
+        $(document).on('reportError', function (e) {
+            if (!_.isEmpty(e.message)) {
+                var str = '<div class="alert alert-danger mb-3"><ul>';
+                if (_.isArray(e.message)) {
+                    $.each(e.message, function (index, value) {
+                        str += '<li>' + value + '</li>';
+                    });
+                }
+                else {
+                    str += '<li>' + e.message + '</li>';
+                }
+                str += '</ul></div>';
+
+                const warnings = $('#confirm-warnings');
+                warnings.html(str);
+
+                try {
+                    setBuyButtonState(false);
+                    $.throbber.hide(true);
+                    $.scrollTo(warnings, 800, { offset: -20 });
+                }
+                catch (e) { }
+            }
+        });
+
+        $('.terms-trigger').on('click', function (e) {
+            e.preventDefault();
+            $('#terms-of-service-modal .modal-body').html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
+        });
+
+        @if (Model.ShoppingCart.Items.Any(x => x.IsDownload && x.HasUserAgreement))
+        {<text>
+            $('a.download-user-agreement').on('click', function () {
+                const url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id');
+                const dialog = $('#user-agreement-modal');
+
+                dialog.find('.modal-body').empty();
+
+                $.get(url, function (html) {
+                    dialog.find('.modal-body').html(html);
+                });
+
+                dialog.modal();
+                return false;
+            });
+        </text>}
+
+        function setBuyButtonState(disable) {
+            buyButton.prop('disabled', disable);
+            buyButton.find('.fa')
+                .removeClass('fa-angle-right fa-spinner fa-spin')
+                .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+        }
+
+        function processBuyButtonClick(customerAgreed, showThrobber) {
+            let userAgreementsOk = true;
+            let esdRevocationWaiverOk = true;
+            let cartItems = $('#cart-items');
+
+            if (_.isTrue(customerAgreed)) {
+                // Reverse apply. We do that just to indicate that no entered data is lost.
+                $("#CustomerComment").val($("#customercommenthidden").val());
+            }
+            else {
+                $("#customercommenthidden").val($("#CustomerComment").val());
+            }
+
+            // Agree user agreement for downloadable products.
+            cartItems.find('input[name^=AgreeUserAgreement]').each(function () {
+                if (_.isTrue(customerAgreed)) {
+                    $(this).prop('checked', true);
+                }
+                else if (!$(this).is(':checked')) {
+                    userAgreementsOk = false;
+                    displayNotification(@T("Checkout.DownloadUserAgreement.PleaseAgree").JsValue);
+                    $.scrollTo(cartItems, 800, { offset: -20 });
+                    return false;
+                }
+            });
+
+            // Agree ESD revocation waiver.
+			@if(Model.ShowEsdRevocationWaiverBox)
+			{<text>
+                cartItems.find('input[name^=AgreeEsdRevocationWaiver]').each(function () {
+                    if (_.isTrue(customerAgreed)) {
+                        $(this).prop('checked', true);
+                    }
+                    else if (!$(this).is(':checked')) {
+                        esdRevocationWaiverOk = false;
+                        displayNotification(@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").JsValue);
+                        $.scrollTo(cartItems, 800, { offset: -20 });
+                        return false;
+                    }
+                });
+            </text>}
+
+            if (userAgreementsOk && esdRevocationWaiverOk) {
+                const submitOrderEvent = jQuery.Event('submitOrder');
+                submitOrderEvent.isOrderValid = true;
+                submitOrderEvent.isMobile = false;
+                submitOrderEvent.disableBuyButton = false;
+
+                $(document).trigger(submitOrderEvent);
+
+                if (true === submitOrderEvent.isOrderValid) {
+                    try {
+                        setBuyButtonState(true);
+
+                        if (_.isTrue(showThrobber)) {
+                            $.throbber.show({ white: true, small: false, speed: 0, message: @T("Checkout.OrderCompletes").JsValue});
+                        }
+                    }
+                    catch (e) { }
+
+                    $('#confirm-order-form').submit();
+                }
+                else if (true === submitOrderEvent.disableBuyButton) {
+                    setBuyButtonState(true);
+                }
+            }
+        }
+    });
+</script>

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Checkout.Shipping;
+﻿using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization;
 using Smartstore.Http;
 
@@ -30,31 +29,6 @@ namespace Smartstore.Shipping
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "FixedRate", new { area = "Admin" });
-
-        public async Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request)
-        {
-            Guard.NotNull(request);
-
-            var rates = new List<decimal>();
-            var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
-
-            foreach (var shippingMethod in shippingMethods)
-            {
-                var rate = GetRate(shippingMethod.Id);
-                if (!rates.Contains(rate))
-                {
-                    rates.Add(rate);
-                }
-            }
-
-            // Return default rate if all of them are equal.
-            if (rates.Count == 1)
-            {
-                return rates[0];
-            }
-
-            return null;
-        }
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {

@@ -4238,13 +4238,13 @@
 		<Value>Available Languages</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Languages.AvailableLanguages.Note">
-		<Value>Click &lt;b class="font-weight-medium"&gt;Download&lt;/b&gt; to install a new language including all localized resources. On &lt;a class="font-weight-medium" href="https://translate.smartstore.com/" target="_blank"&gt;translate.smartstore.com&lt;/a&gt; you will find more details about available resources.</Value>
+		<Value>Click &lt;b class="fwm"&gt;Download&lt;/b&gt; to install a new language including all localized resources. On &lt;a class="fwm" href="https://translate.smartstore.com/" target="_blank"&gt;translate.smartstore.com&lt;/a&gt; you will find more details about available resources.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Languages.CheckAvailableLanguagesFailed">
 		<Value>An error occurred while checking for other available languages.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Languages.DefaultLanguage.Note">
-		<Value>The default language of the shop is &lt;b class="font-weight-medium"&gt;{0}&lt;/b&gt;. The default is always the first published language.</Value>
+		<Value>The default language of the shop is &lt;b class="fwm"&gt;{0}&lt;/b&gt;. The default is always the first published language.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Languages.Deleted">
 		<Value>The language has been deleted successfully.</Value>
@@ -12750,16 +12750,16 @@
 		<Value>Edit rule</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.Execute.DoesNotMatchCart">
-		<Value>The rule conditions are &lt;b class="font-weight-medium"&gt;false&lt;/b&gt; for the current customer {0}.</Value>
+		<Value>The rule conditions are &lt;b class="fwm"&gt;false&lt;/b&gt; for the current customer {0}.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.Execute.MatchCart">
-		<Value>The rule conditions are &lt;b class="font-weight-medium"&gt;true&lt;/b&gt; for the current customer {0}.</Value>
+		<Value>The rule conditions are &lt;b class="fwm"&gt;true&lt;/b&gt; for the current customer {0}.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.Execute.MatchCustomers">
-		<Value>&lt;b class="font-weight-medium"&gt;{0}&lt;/b&gt; customers match the rule conditions.</Value>
+		<Value>&lt;b class="fwm"&gt;{0}&lt;/b&gt; customers match the rule conditions.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.Execute.MatchProducts">
-		<Value>&lt;b class="font-weight-medium"&gt;{0}&lt;/b&gt; products match the rule conditions.</Value>
+		<Value>&lt;b class="fwm"&gt;{0}&lt;/b&gt; products match the rule conditions.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.AcceptThirdPartyEmailHandOver">
 		<Value>Accept third party email handover</Value>

@@ -22,9 +22,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*AnonymousCheckoutAllowed")]
         public bool AnonymousCheckoutAllowed { get; set; }
 
-        [LocalizedDisplay("*TermsOfServiceEnabled")]
-        public bool TermsOfServiceEnabled { get; set; }
-
         [LocalizedDisplay("*DisableOrderCompletedPage")]
         public bool DisableOrderCompletedPage { get; set; }
 

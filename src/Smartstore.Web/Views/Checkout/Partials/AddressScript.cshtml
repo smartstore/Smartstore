@@ -1,0 +1,40 @@
+﻿@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
+
+@model CheckoutAddressModel
+
+@{
+    var isShippingAddress = Model.ActionName == CheckoutActionNames.ShippingAddress;
+}
+
+<script sm-target-zone="scripts" data-origin="checkout-address">
+    $(function () {
+
+        $('@(isShippingAddress ? ".select-shipping-address-button" : ".select-billing-address-button")').on('click', function (e) {
+            e.preventDefault();
+            const shippingAddressDiffers = $('#@Html.IdFor(x => x.ShippingAddressDiffers)').is(':checked');
+
+            $(this).postData({
+                data: { shippingAddressDiffers }
+            });
+
+            return false;
+        });
+
+        $('.new-address-next-step-button').on('click', function () {
+            $('#nextstep').trigger('click');
+            return false;
+        });
+
+        $('.add-new-address').on('click', function (e) {
+            e.preventDefault();
+            $('.cnt-add-new-address').slideDown();
+            return false;
+        });
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <text>$.scrollTo($('.address-form'), 400, { offset: -40 });</text>
+        }
+    });
+</script>

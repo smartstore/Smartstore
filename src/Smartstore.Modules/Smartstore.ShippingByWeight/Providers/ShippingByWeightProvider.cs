@@ -136,9 +136,6 @@ namespace Smartstore.Shipping
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "ShippingByWeight", new { area = "Admin" });
 
-        public Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request)
-            => Task.FromResult<decimal?>(null);
-
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {
             Guard.NotNull(request);

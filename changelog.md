@@ -3,15 +3,18 @@
 ## Smartstore 5.2.0
 
 ### Breaking Changes
-- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024) 
+- Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024)
+- Storage location for `Customer.LastVisitedPage` has changed. The historical data will be collected again successively after the update.
 
 ### New Features
 
 - **Conditional product attributes**
   - Makes the visibility of an attribute dependent on the selection state of other attributes.
   - Copying attributes, options and rules from one product to another.
-- **Simplified checkout process**
+- **Improved checkout process**
   - Quick-Checkout allows to skip addresses, shipping and payment method selection if these are known.
+  - The order total amount is displayed in a sticky sidebar on each checkout page.
+  - Improved design and greater legal certainty of the confirmation page.
   - One-click checkout for sales at retail terminals.
 - **Essential specification attributes**
   - Specification attributes marked as an *essential feature* are displayed in the checkout.
@@ -79,6 +82,7 @@
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
 - ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
+- Identity: Moved `ClientIdent` and `LastViditedPage` from `GenericAttribute` to `Customer` table (for performance reasons and to distress GenericAttribute table)
 
 ### Bugfixes
 

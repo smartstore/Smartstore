@@ -95,6 +95,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*CustomersCanChangePreferredPayment")]
         public bool CustomersCanChangePreferredPayment { get; set; }
 
+        [LocalizedDisplay("*ShowSecondBuyButtonBelowCart")]
+        public bool ShowSecondBuyButtonBelowCart { get; set; }
+
         [LocalizedDisplay("*ShowCommentBox")]
         public bool ShowCommentBox { get; set; }
 

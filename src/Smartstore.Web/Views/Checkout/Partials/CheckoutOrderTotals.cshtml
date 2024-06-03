@@ -1,0 +1,62 @@
+﻿@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Web.Models.Checkout
+
+@model CheckoutModelBase
+
+@{
+    var confirmModel = Model as CheckoutConfirmModel;
+    var cart = confirmModel?.ShoppingCart;
+}
+
+<div class="cart-footer@(Model.IsConfirmPage ? string.Empty : " cart-footer-panel")">
+    <div class="row">
+        <div class="col-12 cart-footer-group">
+            <zone name="order_summary_totals_before" />
+
+            <div id="order-totals">
+                @await Component.InvokeAsync("OrderTotals")
+            </div>
+
+            <zone name="order_summary_totals_after" />
+        </div>
+
+        <div sm-if="cart?.CheckoutAttributeInfo?.HasValue() ?? false" class="col-12 cart-footer-group">
+            <div class="selected-checkout-attributes">
+                @Html.Raw(cart.CheckoutAttributeInfo)
+            </div>
+        </div>
+
+        <zone name="order_summary_actions" remove-if-empty="true" replace-content="true">
+            <div class="col-12 mt-2 cart-footer-actions">
+                <div sm-if="Model.IsConfirmPage && confirmModel.TermsOfService.HasValue()" class="terms-of-service">@Html.Raw(confirmModel.TermsOfService)</div>
+
+                <zone name="order_summary_buttons_before" />
+
+                <div class="cart-buttons">
+                    @if (Model.IsConfirmPage)
+                    {
+                        <button type="button" class="btn btn-danger btn-lg btn-block @Model.NextStepClass" onclick="return false;">
+                            <span>@T("Checkout.ConfirmButton")</span>
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <input type="submit" id="nextstep" name="nextstep" class="d-none" />
+                        <button type="button" class="btn btn-primary btn-lg btn-block @Model.NextStepClass" onclick="return false;">
+                            <span>@T("Checkout.NextButton")</span>
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+
+                        if (Model.ActionName == CheckoutActionNames.PaymentMethod)
+                        {
+                            <zone name="checkout_payment_method_buttons" />
+                        }
+                    }
+                </div>
+
+                <zone name="order_summary_buttons_after" />
+            </div>
+        </zone>
+    </div>
+</div>

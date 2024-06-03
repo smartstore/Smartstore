@@ -108,7 +108,7 @@ namespace Smartstore.Core.Web
                 return physicalFile.OpenRead();
             }
 
-            // If physical file does exist, read embedded file from assembly
+            // If physical file does not exist, read embedded file from assembly
             var assembly = typeof(IUserAgent).Assembly;
             var fullPath = assembly.GetManifestResourceNames()
                 .Where(x => x.EndsWith("useragent.yml"))

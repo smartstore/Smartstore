@@ -6,9 +6,11 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Google.Analytics.Services
 {
@@ -27,6 +29,8 @@ namespace Smartstore.Google.Analytics.Services
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ICurrencyService _currencyService;
+        private readonly IPaymentService _paymentService;
+        private readonly ModuleManager _moduleManager;
         private readonly IRoundingHelper _roundingHelper;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -39,6 +43,8 @@ namespace Smartstore.Google.Analytics.Services
             IOrderCalculationService orderCalculationService,
             IShoppingCartService shoppingCartService,
             ICurrencyService currencyService,
+            IPaymentService paymentService,
+            ModuleManager moduleManager,
             IRoundingHelper roundingHelper,
             IWorkContext workContext,
             IStoreContext storeContext)
@@ -50,6 +56,8 @@ namespace Smartstore.Google.Analytics.Services
             _orderCalculationService = orderCalculationService;
             _shoppingCartService = shoppingCartService;
             _currencyService = currencyService;
+            _paymentService = paymentService;
+            _moduleManager = moduleManager;
             _roundingHelper = roundingHelper;
             _workContext = workContext;
             _storeContext = storeContext;
@@ -159,18 +167,32 @@ namespace Smartstore.Google.Analytics.Services
         /// <returns>Script part to fire GA event begin_checkout, add_shipping_info or add_payment_info</returns>
         public async Task<string> GetCheckoutScriptAsync(bool addShippingInfo = false, bool addPaymentInfo = false)
         {
-            var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+            var customer = _workContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var subtotal = await GetSubtotal(cart);
 
             var model = await cart.MapAsync();
             var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
+            
+            var shippingMethod = addShippingInfo ? customer.GenericAttributes.SelectedShippingOption?.Name : null;
+            string paymentMethod = null;
 
-            addPaymentInfo = addPaymentInfo && model.OrderReviewData.PaymentMethod.HasValue();
-            addShippingInfo = addShippingInfo && model.OrderReviewData.ShippingMethod.HasValue();
+            if (addPaymentInfo)
+            {
+                var pm = await _paymentService.LoadPaymentProviderBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
+                paymentMethod = pm != null ? _moduleManager.GetLocalizedFriendlyName(pm.Metadata).NullEmpty() : null;
+                paymentMethod ??= customer.GenericAttributes.SelectedPaymentMethod;
+            }
 
             var eventType = "begin_checkout";
-            if (addShippingInfo) eventType = "add_shipping_info";
-            if (addPaymentInfo) eventType = "add_payment_info";
+            if (shippingMethod.HasValue())
+            {
+                eventType = "add_shipping_info";
+            }
+            if (paymentMethod.HasValue())
+            {
+                eventType = "add_payment_info";
+            }
 
             return @$"
                 let cartItems = {cartItemsScript};
@@ -179,8 +201,8 @@ namespace Smartstore.Google.Analytics.Services
                     currency: '{_workContext.WorkingCurrency.CurrencyCode}',
                     value: {subtotal.ToStringInvariant()},
                     coupon: '{model.DiscountBox.CurrentCode}',
-                    {(addShippingInfo ? $"shipping_tier: '{model.OrderReviewData.ShippingMethod}'," : string.Empty)}
-                    {(addPaymentInfo ? $"payment_type: '{model.OrderReviewData.PaymentMethod}'," : string.Empty)}
+                    {(shippingMethod.HasValue() ? $"shipping_tier: '{shippingMethod}'," : string.Empty)}
+                    {(paymentMethod.HasValue() ? $"payment_type: '{paymentMethod}'," : string.Empty)}
                     items: cartItems
                 }});
             ";

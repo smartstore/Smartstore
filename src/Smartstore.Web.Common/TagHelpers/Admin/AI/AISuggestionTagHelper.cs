@@ -4,14 +4,12 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (mh) Rename --> AISuggestionTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text suggestions.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class SuggestionTagHelper : AITagHelperBase
+    public class AISuggestionTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase(htmlGenerator)
     {
-        // TODO: (mh) Rename --> ai-suggestion
         const string EditorTagName = "ai-suggestion";
 
         const string MandatoryEntityFieldsAttributeName = "mandatory-entity-fields";
@@ -24,13 +22,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(MandatoryEntityFieldsAttributeName)]
         public string MandatoryEntityFields { get; set; }
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
-
-        public SuggestionTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator)
-            : base(htmlGenerator)
-        {
-            _aiToolHtmlGenerator = aiToolHtmlGenerator;
-        }
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {

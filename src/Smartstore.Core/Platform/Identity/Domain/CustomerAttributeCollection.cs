@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 
@@ -148,12 +149,6 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.AccountActivationToken, value);
         }
 
-        public string LastVisitedPage
-        {
-            get => Get<string>(SystemCustomerAttributeNames.LastVisitedPage);
-            set => Set(SystemCustomerAttributeNames.LastVisitedPage, value);
-        }
-
         public int? ImpersonatedCustomerId
         {
             get => Get<int?>(SystemCustomerAttributeNames.ImpersonatedCustomerId);
@@ -182,12 +177,6 @@ namespace Smartstore.Core.Identity
         {
             get => Get<bool>(SystemCustomerAttributeNames.HasConsentedToGdpr);
             set => Set(SystemCustomerAttributeNames.HasConsentedToGdpr, value);
-        }
-
-        public string ClientIdent
-        {
-            get => Get<string>(SystemCustomerAttributeNames.ClientIdent);
-            set => Set(SystemCustomerAttributeNames.ClientIdent, value);
         }
 
         #endregion
@@ -231,6 +220,13 @@ namespace Smartstore.Core.Identity
             }
         }
 
+        /// <summary>
+        /// Gets or sets the customer's preferred payment method. It is preselected in the checkout if Quick Checkout is activated.
+        /// </summary>
+        /// <remarks>
+        /// Only payment methods for which <see cref="IPaymentMethod.RequiresPaymentSelection"/> 
+        /// is <c>false</c> are permitted as preferred payment method.
+        /// </remarks>
         public string PreferredPaymentMethod
         {
             get => Get<string>(SystemCustomerAttributeNames.PreferrePaymentMethod, CurrentStoreId);

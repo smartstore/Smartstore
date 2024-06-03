@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -18,12 +20,14 @@ namespace Smartstore.OfflinePayment
     [Order(100)]
     public class DirectDebitProvider : OfflinePaymentProviderBase<DirectDebitPaymentSettings>, IConfigurable
     {
+        private readonly SmartDbContext _db;
         private readonly IValidator<DirectDebitPaymentInfoModel> _validator;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IEncryptor _encryptor;
 
         public DirectDebitProvider(
+            SmartDbContext db,
             IStoreContext storeContext,
             ISettingFactory settingFactory,
             IValidator<DirectDebitPaymentInfoModel> validator,
@@ -32,6 +36,7 @@ namespace Smartstore.OfflinePayment
             IEncryptor encryptor)
             : base(storeContext, settingFactory)
         {
+            _db = db;
             _validator = validator;
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -102,14 +107,18 @@ namespace Smartstore.OfflinePayment
             return Task.FromResult(paymentInfo);
         }
 
-        public override Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart, Order lastOrder)
+        public override async Task<ProcessPaymentRequest> CreateProcessPaymentRequestAsync(ShoppingCart cart)
         {
-            if (!lastOrder.AllowStoringDirectDebit)
+            var lastOrder = await _db.Orders
+                .Where(x => x.PaymentMethodSystemName == "Payments.DirectDebit" && x.AllowStoringDirectDebit)
+                .ApplyStandardFilter(cart.Customer.Id, cart.StoreId)
+                .FirstOrDefaultAsync();
+            if (lastOrder == null)
             {
                 return null;
             }
 
-            var request = new ProcessPaymentRequest
+            var model = new DirectDebitPaymentInfoModel
             {
                 DirectDebitAccountHolder = _encryptor.DecryptText(lastOrder.DirectDebitAccountHolder),
                 DirectDebitAccountNumber = _encryptor.DecryptText(lastOrder.DirectDebitAccountNumber),
@@ -120,14 +129,31 @@ namespace Smartstore.OfflinePayment
                 DirectDebitBic = _encryptor.DecryptText(lastOrder.DirectDebitBIC)
             };
 
+            model.EnterIBAN = model.DirectDebitIban.HasValue() ? "iban" : "no-iban";
+
+            var validation = await _validator.ValidateAsync(model);
+            if (!validation.IsValid)
+            {
+                return null;
+            }
+
             var state = _checkoutStateAccessor.CheckoutState;
-            var enterIban = request.DirectDebitIban.HasValue() ? "iban" : "no-iban";
+            var request = new ProcessPaymentRequest
+            {
+                DirectDebitAccountHolder = model.DirectDebitAccountHolder,
+                DirectDebitAccountNumber = model.DirectDebitAccountNumber,
+                DirectDebitBankCode = model.DirectDebitBankCode,
+                DirectDebitBankName = model.DirectDebitBankName,
+                DirectDebitCountry = model.DirectDebitCountry,
+                DirectDebitIban = model.DirectDebitIban,
+                DirectDebitBic = model.DirectDebitBic
+            };
 
             // Required for payment summary.
-            state.CustomProperties["Payments.DirectDebit.EnterIban"] = enterIban;
+            state.CustomProperties["Payments.DirectDebit.EnterIban"] = model.EnterIBAN;
 
             // Required when navigating back to payment selection.
-            state.PaymentData["EnterIBAN"] = enterIban;
+            state.PaymentData["EnterIBAN"] = model.EnterIBAN;
             state.PaymentData["DirectDebitAccountHolder"] = request.DirectDebitAccountHolder;
             state.PaymentData["DirectDebitAccountNumber"] = request.DirectDebitAccountNumber;
             state.PaymentData["DirectDebitBankCode"] = request.DirectDebitBankCode;
@@ -136,7 +162,7 @@ namespace Smartstore.OfflinePayment
             state.PaymentData["DirectDebitIban"] = request.DirectDebitIban;
             state.PaymentData["DirectDebitBic"] = request.DirectDebitBic;
 
-            return Task.FromResult(request);
+            return request;
         }
 
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)

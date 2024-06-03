@@ -110,6 +110,14 @@ namespace Smartstore.Core.Checkout.Cart
         public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to show a second buy button (including order total) below the cart items.
+        /// </summary>
+        /// <remarks>
+        /// For reasons of legal certainty, the display of a buy button below the products is recommended for stores in the EU.
+        /// </remarks>
+        public bool ShowSecondBuyButtonBelowCart { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to show a legal hint in the order summary
         /// </summary>
         public bool ShowConfirmOrderLegalHint { get; set; }
@@ -197,5 +205,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public bool AddProductsToBasketInSinglePositions { get; set; }
         // TODO: (mh) (core) A really fucked up name for something that I don't understand! What is a "single position"? Better name and explanation please.
+
+        /// <summary>
+        /// Gets a value indicating whether the terminal checkout is activated.
+        /// </summary>
+        public bool IsTerminalCheckoutActivated()
+            => CheckoutProcess.EqualsNoCase(Orders.CheckoutProcess.Terminal) || CheckoutProcess.EqualsNoCase(Orders.CheckoutProcess.TerminalWithPayment);
     }
 }

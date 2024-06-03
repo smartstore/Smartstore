@@ -1,0 +1,19 @@
+﻿@using Smartstore.Web.Models.Cart
+
+@model OrderTotalsModel
+
+<div class="bottom-order-total">
+    <zone name="order_totals_before" />
+
+    <span class="total-item fs-h5 fwm">@T("ShoppingCart.Totals.OrderTotal"):</span>
+    @if (Model.OrderTotal != null)
+    {
+        <span class="total-item fs-h5 fwm">@Model.OrderTotal</span>
+    }
+    else
+    {
+        <span class="total-item fs-h6 text-muted">@T("ShoppingCart.Totals.CalculatedDuringCheckout")</span>
+    }
+
+    <zone name="order_totals_after" />
+</div>

@@ -5,15 +5,13 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (mh) Rename --> AITextTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class TextCreationTagHelper : AITagHelperBase
+    public class AITextTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase(htmlGenerator)
     {
-        // TODO: (mh) Rename --> ai-text
-        const string EditorTagName = "ai-text-creation";
+        const string EditorTagName = "ai-text";
 
         const string DisplayWordLimitAttributeName = "display-word-limit";
         const string DisplayStyleAttributeName = "display-style";
@@ -21,13 +19,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayOptimizationOptionsAttributeName = "display-optimization-options";
         const string WordCountAttributeName = "word-count";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
-
-        public TextCreationTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator)
-            : base(htmlGenerator)
-        {
-            _aiToolHtmlGenerator = aiToolHtmlGenerator;
-        }
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.

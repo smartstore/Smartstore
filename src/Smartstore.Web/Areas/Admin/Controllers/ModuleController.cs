@@ -591,7 +591,7 @@ namespace Smartstore.Admin.Controllers
             var model = new LicenseLabelModel
             {
                 IsLicensable = true,
-                LicenseUrl = Url.Action("LicenseModule", new { systemName = systemName }),
+                LicenseUrl = Url.Action("LicenseModule", new { systemName }),
                 LicenseState = result.State,
                 TruncatedLicenseKey = result.TruncatedLicenseKey,
                 RemainingDemoUsageDays = result.RemainingDemoDays

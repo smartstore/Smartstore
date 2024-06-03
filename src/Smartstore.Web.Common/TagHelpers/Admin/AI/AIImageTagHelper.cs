@@ -5,32 +5,24 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (mh) Rename --> AIImageTagHelper
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for image creation.
     /// </summary>
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class ImageCreationTagHelper : AITagHelperBase
+    public class AIImageTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator) : AITagHelperBase(htmlGenerator)
     {
-        // TODO: (mh) Rename --> ai-image
-        const string EditorTagName = "ai-image-creation";
+        const string EditorTagName = "ai-image";
 
         const string FormatAttributeName = "format";
         const string MediaFolderAttributeName = "media-folder";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator;
-
-        public ImageCreationTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator, IHtmlGenerator htmlGenerator)
-            : base(htmlGenerator)
-        {
-            _aiToolHtmlGenerator = aiToolHtmlGenerator;
-        }
+        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Used to be passed to AI provider to define the format of the picture about to be created.
         /// </summary>
         [HtmlAttributeName(FormatAttributeName)]
-        public AIImageCreationFormat Format { get; set; }
+        public AIImageFormat Format { get; set; }
 
         /// <summary>
         /// Used to define the MediaFolderName for the picture about to be created.
