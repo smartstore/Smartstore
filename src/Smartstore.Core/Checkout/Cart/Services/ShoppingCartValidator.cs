@@ -482,7 +482,7 @@ namespace Smartstore.Core.Checkout.Cart
             IEnumerable<OrganizedShoppingCartItem> cartItems = null)
         {
             customer ??= _workContext.CurrentCustomer;
-            cartItems ??= Enumerable.Empty<OrganizedShoppingCartItem>();
+            cartItems ??= [];
 
             // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select.
             if (product.ProductType == ProductType.BundledProduct ||
@@ -500,15 +500,6 @@ namespace Smartstore.Core.Checkout.Cart
                     warnings.Add(T("ShoppingCart.AttributeError"));
                     return false;
                 }
-            }
-
-            // Checks whether there is an active selected attribute combination.
-            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-            if ((combination != null && !combination.IsActive) ||
-                (product.AttributeCombinationRequired && combination == null))
-            {
-                warnings.Add(T("ShoppingCart.NotAvailable"));
-                return false;
             }
 
             // Check product variant attributes.
@@ -534,7 +525,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     if (pva.Id == attribute.Id)
                     {
-                        var values = selection.GetAttributeValues(pva.Id) ?? Enumerable.Empty<object>();
+                        var values = selection.GetAttributeValues(pva.Id) ?? [];
                         foreach (var value in values)
                         {
                             var strValue = value?.ToString().EmptyNull();
@@ -572,6 +563,16 @@ namespace Smartstore.Core.Checkout.Cart
             if (currentWarnings.Count > 0)
             {
                 warnings.AddRange(currentWarnings);
+                return false;
+            }
+
+            // Checks whether there is an active selected attribute combination.
+            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+            if ((combination != null && !combination.IsActive) ||
+                (combination == null && product.AttributeCombinationRequired && product.ProductVariantAttributes.Count > 0))
+            {
+                // INFO: warning on the shopping cart page if the cart contains a variant that has become unavailable in the meantime.
+                warnings.Add(T("ShoppingCart.NotAvailableVariant"));
                 return false;
             }
 

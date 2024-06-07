@@ -253,6 +253,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("ShoppingCart.EditCart", "Edit cart", "Warenkorb bearbeiten");
             builder.AddOrUpdate("ShoppingCart.Totals.ShippingWithinCountry", "Shipping within {0}", "Lieferung innerhalb {0}");
 
+            builder.AddOrUpdate("ShoppingCart.NotAvailableVariant",
+                "The selected product variant is not available.",
+                "Die gewählte Produktvariante ist nicht verfügbar.");
+
             builder.AddOrUpdate("Checkout.ConfirmHint",
                 "Please verify the order total and the specifics regarding the billing address and, if required, the shipping address. You can make corrections to your entry anytime by clicking on <strong>Change</strong>. If everything is as it should be, submit your order to us by clicking <strong>Confirm</strong>.",
                 "Bitte prüfen Sie die Gesamtsumme und die Rechnungsadresse. Bei abweichender Lieferanschrift prüfen Sie bitte auch diese. Änderungen können Sie jederzeit mit einem Klick auf <strong>Ändern</strong> vornehmen. Sind alle Daten richtig, bestätigen Sie bitte mit einem Klick auf <strong>Kaufen</strong> Ihre Bestellung.");
