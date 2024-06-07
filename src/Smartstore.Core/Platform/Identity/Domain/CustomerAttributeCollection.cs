@@ -70,7 +70,7 @@ namespace Smartstore.Core.Identity
         public string VatNumber
         {
             get => Get<string>(SystemCustomerAttributeNames.VatNumber);
-            set => Set(SystemCustomerAttributeNames.VatNumber, value);
+            set => Set(SystemCustomerAttributeNames.VatNumber, value.TrimSafe());
         }
 
         #endregion
