@@ -76,7 +76,7 @@ namespace Smartstore.Engine
         public Architecture ProcessArchitecture { get; } = RuntimeInformation.ProcessArchitecture;
 
         /// <summary>
-        /// Gets the version agnostic runtime identifier (RID), e.g. win-x64, linux-x64, osx-x64 etc.
+        /// Gets the version agnostic runtime identifier (RID), e.g. win-x64, linux-x64, osx-arm64 etc.
         /// </summary>
         public string RID { get; }
     }

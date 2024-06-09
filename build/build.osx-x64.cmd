@@ -1,2 +1,2 @@
 cd ..
-build --target deploy --configuration release --runtime osx-x64
+build --target deploy --configuration release --runtime osx-arm64
