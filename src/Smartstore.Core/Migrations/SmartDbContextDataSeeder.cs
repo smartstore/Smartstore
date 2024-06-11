@@ -384,6 +384,9 @@ namespace Smartstore.Core.Data.Migrations
                 "IP address of last visit",
                 "IP-Adresse, mit der der Kunde zuletzt im Shop aktiv war.");
 
+            builder.AddOrUpdate("Admin.DataExchange.Export.CompletedEmailAddresses", "Recipients e-mail addresses", "Empfänger E-Mail Adressen");
+            builder.AddOrUpdate("Admin.DataExchange.Export.Deployment.EmailAddresses", "Recipients e-mail addresses", "Empfänger E-Mail Adressen");
+
             AddAIResources(builder);
         }
 
