@@ -112,14 +112,16 @@
 	position: absolute;
 	display: none;
 	font-size: 1rem;
-	padding: 0.5rem;
+	padding: 10px;
 	top: 0.5rem;
 	right: 0.5rem;
+    background-color: $white;
+    border-radius: 50%;
 	z-index: $zindex-modal-backdrop + 1;
 
-	.modal[data-backdrop=true] > & {
-        filter: var(--btn-close-white-filter);
-	}
+	//.modal[data-backdrop=true] > & {
+    //    filter: var(--btn-close-white-filter);
+	//}
 }
 
 .modal-dialog.modal-flex {
