@@ -34,7 +34,7 @@
 .modal-has-backdrop {
     --modal-backdrop-bg: #{$modal-backdrop-bg};
     --modal-backdrop-opacity: #{$modal-backdrop-opacity};
-    --modal-backdrop-blur: 0;
+    --modal-backdrop-blur: 4px;
 
     &.modal-backdrop-inverse {
         --modal-backdrop-bg: #{invert($modal-backdrop-bg)};
