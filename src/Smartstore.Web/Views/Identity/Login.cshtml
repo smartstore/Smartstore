@@ -23,7 +23,7 @@
 	</div>
 
 	<div class="row mt-4">
-		<div class="col-12 col-md-7 col-lg-6 col-xl-5 order-md-last">
+		<div class="col-12 col-md-7 col-lg-6 col-xl-5 col-xxl-4 order-md-last">
 			<div class="card shadow-sm p-4 mb-5 mb-md-0 login-box">
 				<h3 class="h4 mb-0">
 					@T("Account.Login.ReturningCustomer")
@@ -37,7 +37,7 @@
                     <input asp-for="CustomerLoginType" type="hidden" />
                     @if (Model.CustomerLoginType == CustomerLoginType.Username)
                     {
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <div class="input-group input-group-lg has-icon">
                                 <input asp-for="Username" class="username rounded" autofocus="autofocus" />
                                 <span class="input-group-icon text-muted">
@@ -45,11 +45,16 @@
                                 </span>
                             </div>
                             <span asp-validation-for="Username"></span>
+                        </div> *@
+                        <div class="form-floating mb-3">
+                            <input asp-for="Username" class="username" placeholder="@Html.DisplayNameFor(x => x.Username)" />
+                            <label asp-for="Username"></label>
+                            <span asp-validation-for="Username"></span>
                         </div>
                     }
                     else if (Model.CustomerLoginType == CustomerLoginType.Email)
                     {
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <div class="input-group input-group-lg has-icon">
                                 <input asp-for="Email" class="email rounded" autofocus="autofocus" />
                                 <span class="input-group-icon text-muted">
@@ -57,11 +62,16 @@
                                 </span>
                             </div>
                             <span asp-validation-for="Email"></span>
+                        </div> *@
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="email" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email"></span>
                         </div>
                     }
                     else
                     {
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <div class="input-group input-group-lg has-icon">
                                 <input asp-for="UsernameOrEmail" class="username rounded" autofocus="autofocus" />
                                 <span class="input-group-icon text-muted">
@@ -69,10 +79,15 @@
                                 </span>
                             </div>
                             <span asp-validation-for="UsernameOrEmail"></span>
+                        </div> *@
+                        <div class="form-floating mb-3">
+                            <input asp-for="UsernameOrEmail" class="username" placeholder="@Html.DisplayNameFor(x => x.UsernameOrEmail)" />
+                            <label asp-for="UsernameOrEmail"></label>
+                            <span asp-validation-for="UsernameOrEmail"></span>
                         </div>
                     }
 
-                    <div class="form-group">
+                    @*<div class="form-group">
                         <div class="input-group input-group-lg has-icon">
                             <input asp-for="Password" class="password rounded" autocomplete="off" />
                             <span class="input-group-icon text-muted">
@@ -80,6 +95,14 @@
                             </span>
                         </div>
                         <span asp-validation-for="Password"></span>
+                    </div> *@
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" class="password" autocomplete="off" placeholder="@Html.DisplayNameFor(x => x.Password)" />
+                        <label asp-for="Password"></label>
+                        <span asp-validation-for="Password"></span>
+                        <button type="button" class="btn btn-secondary btn-flat btn-no-border btn-icon btn-sm rounded-circle position-absolute" style="right: 8px; top: 50%; transform: translateY(-50%)">
+                            <i class="icm icm-eye-crossed"></i>
+                        </button>
                     </div>
 
                     <div class="form-group d-flex justify-content-between">
@@ -110,7 +133,7 @@
                 </form>
 			</div>
 		</div>
-		<div class="col-12 col-md-5 col-lg-6 col-xl-7 order-md-first">
+		<div class="col-12 col-md-5 col-lg-6 col-xl-7 col-xxl-8 order-md-first">
 			<div class="page-info">
 				@await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo", bodyOnly = true, isLead = true })
 			</div>
