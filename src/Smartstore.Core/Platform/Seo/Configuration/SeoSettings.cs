@@ -64,6 +64,7 @@ namespace Smartstore.Core.Seo
             "ö;oe",
             "ü;ue",
             "ı;i",
+            "İ;i",
             "Ä;Ae",
             "Ö;Oe",
             "Ü;Ue",
