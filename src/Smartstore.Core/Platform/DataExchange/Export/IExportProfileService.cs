@@ -88,5 +88,19 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="endDate">Delete only files whose creation date is less than the specified date</param>
         /// <returns>Number of deleted files and folders.</returns>
         Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate);
+
+        /// <summary>
+        /// Resolves tokens in a pattern string, for example for a profile related file name.
+        /// </summary>
+        /// <param name="pattern">The pattern to resolve.</param>
+        /// <param name="fileIndex">File index if the pattern is a file name.</param>
+        /// <param name="maxLength">Maximum length of the resolved string.</param>
+        /// <returns>Resolved pattern string.</returns>
+        string ResolveTokens(
+            ExportProfile profile,
+            string pattern,
+            int? fileIndex = null,
+            int? maxLength = null,
+            Store store = null);
     }
 }

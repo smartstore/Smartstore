@@ -317,15 +317,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
-        public async Task<IActionResult> ResolveFileNamePatternExample(int id, string pattern)
+        public async Task<IActionResult> ResolveTokens(int id, string pattern, int? fileIndex = null)
         {
-            var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
-
-            var resolvedPattern = profile.ResolveFileNamePattern(
-                Services.StoreContext.CurrentStore,
-                1,
-                _dataExchangeSettings.MaxFileNameLength,
-                pattern.EmptyNull());
+            var resolvedPattern = _exportProfileService.ResolveTokens(
+                await _db.ExportProfiles.FindByIdAsync(id, false), 
+                pattern.EmptyNull(), 
+                fileIndex,
+                fileIndex != null ? _dataExchangeSettings.MaxFileNameLength : null);
 
             return Content(resolvedPattern);
         }
@@ -846,7 +844,6 @@ namespace Smartstore.Admin.Controllers
             model.IsTaskEnabled = profile.Task.Enabled;
             model.LogFileExists = logFile.Exists;
             model.HasActiveProvider = provider != null;
-            model.FileNamePatternDescriptions = T("Admin.DataExchange.Export.FileNamePatternDescriptions").Value.SplitSafe(';').ToArray();
 
             model.Provider = new ExportProfileModel.ProviderModel
             {
@@ -870,7 +867,6 @@ namespace Smartstore.Admin.Controllers
             var filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering);
 
             var language = Services.WorkContext.WorkingLanguage;
-            var store = Services.StoreContext.CurrentStore;
             var stores = Services.StoreContext.GetAllStores();
             var emailAccounts = await _db.EmailAccounts.AsNoTracking().ToListAsync();
             var languages = await _languageService.GetAllLanguagesAsync(true);
@@ -889,7 +885,13 @@ namespace Smartstore.Admin.Controllers
             model.CreateZipArchive = profile.CreateZipArchive;
             model.Cleanup = profile.Cleanup;
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            model.FileNamePatternExample = profile.ResolveFileNamePattern(store, 1, _dataExchangeSettings.MaxFileNameLength);
+
+            model.ResolveTokensExample = new()
+            {
+                Id = profile.Id,
+                PatternInputId = nameof(ExportProfileModel.FileNamePattern),
+                ResolvedExample = _exportProfileService.ResolveTokens(profile, profile.FileNamePattern, 1, _dataExchangeSettings.MaxFileNameLength)
+            };
 
             ViewBag.EmailAccounts = emailAccounts
                 .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString() })
@@ -1013,7 +1015,7 @@ namespace Smartstore.Admin.Controllers
             {
                 if (ids.IsNullOrEmpty())
                 {
-                    return new();
+                    return [];
                 }
 
                 return ids

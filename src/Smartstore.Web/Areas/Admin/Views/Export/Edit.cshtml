@@ -330,18 +330,6 @@
 			$('#CompletedEmailAddressesContainer').toggle(!_.isEmpty($(this).val()));
 		}).trigger('change');
 
-		// Resolve file name pattern example.
-		$('#FileNamePatternExampleButton').on('click', function () {
-			var pattern = $('#@(Html.IdFor(x => x.FileNamePattern))').val();
-            $(this).ajax({
-				type: 'GET',
-				url: '@Url.Action("ResolveFileNamePatternExample", new { id = Model.Id })' + '?pattern=' + encodeURIComponent(pattern),
-				success: function (response) {
-					$('#FileNamePatternExample').text(response);
-				}
-			});
-		});
-
 		// Execute export.
 		$('#ProfileExportButton').on('click', function (e) {
 			e.preventDefault();

@@ -37,67 +37,7 @@
             &nbsp;
         </div>
         <div class="adminData">
-			<div>
-				<button id="FileNamePatternExampleButton" type="button" class="btn btn-sm btn-secondary mr-3">
-					<i class="fa fa-sync"></i>
-					<span>@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")</span>
-				</button>
-				<span id="FileNamePatternExample">@Model.FileNamePatternExample</span>
-			</div>
-			<div>
-				<div class="mt-2">
-					<button id="FileNamePatternDescriptionLink" type="button" class="btn btn-outline-light btn-sm font-weight-normal">
-                        <span>@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")</span>
-                        <i class="fa fa-chevron-down"></i>
-					</button>
-				</div>
-				<div id="FileNamePatternDescription" class="hide mt-2">
-					<div class="table-responsive">
-						<table class="table admin-table">
-							<thead>
-								<tr>
-									<th>@T("Admin.Common.Placeholder")</th>
-									<th>@T("Common.Description")</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>%Profile.Id%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(0)</td>
-								</tr>
-								<tr>
-									<td>%Profile.FolderName%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(1)</td>
-								</tr>
-								<tr>
-									<td>%Profile.SeoName%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(2)</td>
-								</tr>
-								<tr>
-									<td>%Store.Id%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(3)</td>
-								</tr>
-								<tr>
-									<td>%Store.SeoName%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(4)</td>
-								</tr>
-								<tr>
-									<td>%File.Index%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(5)</td>
-								</tr>
-								<tr>
-									<td>%Random.Number%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(6)</td>
-								</tr>
-								<tr>
-									<td>%Timestamp%</td>
-									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(7)</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
+            <partial name="_ResolveTokensExample" model="Model.ResolveTokensExample" />
         </div>
     </div>
     <div class="adminRow">

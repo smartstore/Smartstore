@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
@@ -500,6 +501,56 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             return (numFiles, numFolders);
+        }
+
+        public virtual string ResolveTokens(
+            ExportProfile profile,
+            string pattern,
+            int? fileIndex = null,
+            int? maxLength = null,
+            Store store = null)
+        {
+            Guard.NotNull(profile);
+
+            store ??= _storeContext.CurrentStore;
+
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+            sb.Append(pattern);
+            sb.Replace("%Profile.Id%", profile.Id.ToString());
+            sb.Replace("%Profile.FolderName%", profile.FolderName);
+            sb.Replace("%Store.Id%", store.Id.ToString());
+
+            if (pattern.Contains("%Profile.SeoName%"))
+            {
+                sb.Replace("%Profile.SeoName%", SlugUtility.Slugify(profile.Name, true, false, false).Replace("-", ""));
+            }
+            if (pattern.Contains("%Store.SeoName%"))
+            {
+                sb.Replace("%Store.SeoName%", profile.PerStore ? SlugUtility.Slugify(store.Name, true, false, true) : "allstores");
+            }
+            if (pattern.Contains("%Random.Number%"))
+            {
+                sb.Replace("%Random.Number%", CommonHelper.GenerateRandomInteger().ToString());
+            }
+            if (pattern.Contains("%Timestamp%"))
+            {
+                sb.Replace("%Timestamp%", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture));
+            }
+
+            string result;
+            if (fileIndex != null)
+            {
+                sb.Replace("%File.Index%", fileIndex.Value.ToString("D4"));
+
+                result = PathUtility.SanitizeFileName(sb.ToString(), string.Empty);
+            }
+            else
+            {
+                result = sb.ToString();
+            }
+
+            return maxLength != null ? result.Truncate(maxLength.Value) : result;
         }
     }
 }

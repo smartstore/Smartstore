@@ -468,7 +468,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (ctx.IsFileBasedExport)
                 {
                     context.FileIndex += 1;
-                    context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
+                    context.FileName = _exportProfileService.ResolveTokens(profile, profile.FileNamePattern, context.FileIndex, context.MaxFileNameLength, ctx.Store) + fileExtension;
                     file = await dir.GetFileAsync(context.FileName);
 
                     if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))

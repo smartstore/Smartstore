@@ -26,7 +26,6 @@ namespace Smartstore.Admin.Models.Export
 
         [LocalizedDisplay("*FileNamePattern")]
         public string FileNamePattern { get; set; }
-        public string FileNamePatternExample { get; set; }
 
         [LocalizedDisplay("Common.Enabled")]
         public bool Enabled { get; set; }
@@ -71,12 +70,12 @@ namespace Smartstore.Admin.Models.Export
         public ExportFilterModel Filter { get; set; }
         public ExportProjectionModel Projection { get; set; }
         public List<ExportDeploymentModel> Deployments { get; set; }
+        public ResolveTokensExampleModel ResolveTokensExample { get; set; }
 
         public TaskModel TaskModel { get; set; }
 
         public bool LogFileExists { get; set; }
         public bool HasActiveProvider { get; set; }
-        public string[] FileNamePatternDescriptions { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
         public int FileCount { get; set; }
 
@@ -164,6 +163,13 @@ namespace Smartstore.Admin.Models.Export
             public string FriendlyFileUrl { get; set; }
             public string FileRootPath { get; set; }
         }
+    }
+
+    public partial class ResolveTokensExampleModel : EntityModelBase
+    {
+        public string ResolvedExample { get; set; }
+        public string PatternInputId { get; set; }
+        public bool SupportsFileTokens { get; set; } = true;
     }
 
     public partial class ExportProfileValidator : AbstractValidator<ExportProfileModel>
