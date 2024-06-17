@@ -387,6 +387,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.DataExchange.Export.CompletedEmailAddresses", "Recipients e-mail addresses", "Empfänger E-Mail Adressen");
             builder.AddOrUpdate("Admin.DataExchange.Export.Deployment.EmailAddresses", "Recipients e-mail addresses", "Empfänger E-Mail Adressen");
 
+            builder.AddOrUpdate("Admin.DataExchange.Export.FileNamePatternDescriptions",
+                "ID of export profil;Folder name of export profil;SEO name of export profil;Store ID;SEO name of store;One based file index;Random number;UTC timestamp;Date and time",
+                "ID des Exportprofils;Ordername des Exportprofils;SEO Name des Exportprofils;Shop ID;SEO Name des Shops;Mit 1 beginnender Dateiindex;Zufallszahl;UTC Zeitstempel;Datum und Uhrzeit");
+
             AddAIResources(builder);
         }
 

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -28,6 +29,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
         private readonly Lazy<IUrlHelper> _urlHelper;
+        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ITaskStore _taskStore;
         private readonly IProviderManager _providerManager;
         private readonly DataExchangeSettings _dataExchangeSettings;
@@ -38,6 +40,7 @@ namespace Smartstore.Core.DataExchange.Export
             IStoreContext storeContext,
             ILocalizationService localizationService,
             Lazy<IUrlHelper> urlHelper,
+            IDateTimeHelper dateTimeHelper,
             ITaskStore taskStore,
             IProviderManager providerManager,
             DataExchangeSettings dataExchangeSettings)
@@ -47,6 +50,7 @@ namespace Smartstore.Core.DataExchange.Export
             _storeContext = storeContext;
             _localizationService = localizationService;
             _urlHelper = urlHelper;
+            _dateTimeHelper = dateTimeHelper;
             _taskStore = taskStore;
             _providerManager = providerManager;
             _dataExchangeSettings = dataExchangeSettings;
@@ -512,6 +516,11 @@ namespace Smartstore.Core.DataExchange.Export
         {
             Guard.NotNull(profile);
 
+            if (pattern.IsEmpty())
+            {
+                return pattern;
+            }
+
             store ??= _storeContext.CurrentStore;
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
@@ -536,6 +545,10 @@ namespace Smartstore.Core.DataExchange.Export
             if (pattern.Contains("%Timestamp%"))
             {
                 sb.Replace("%Timestamp%", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture));
+            }
+            if (pattern.Contains("%DateTime%"))
+            {
+                sb.Replace("%DateTime%", _dateTimeHelper.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).ToString());
             }
 
             string result;

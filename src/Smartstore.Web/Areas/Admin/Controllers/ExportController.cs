@@ -886,11 +886,12 @@ namespace Smartstore.Admin.Controllers
             model.Cleanup = profile.Cleanup;
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
-            model.ResolveTokensExample = new()
+            model.FileNamePatternExample = new()
             {
                 Id = profile.Id,
                 PatternInputId = nameof(ExportProfileModel.FileNamePattern),
-                ResolvedExample = _exportProfileService.ResolveTokens(profile, profile.FileNamePattern, 1, _dataExchangeSettings.MaxFileNameLength)
+                ResolvedExample = _exportProfileService.ResolveTokens(profile, profile.FileNamePattern, 1, _dataExchangeSettings.MaxFileNameLength),
+                SupportsFileTokens = true
             };
 
             ViewBag.EmailAccounts = emailAccounts
@@ -1040,6 +1041,13 @@ namespace Smartstore.Admin.Controllers
             model.EmailAddresses = deployment.EmailAddresses.SplitSafe(',').ToArray();
             model.DeploymentTypeName = Services.Localization.GetLocalizedEnum(deployment.DeploymentType);
             model.PublicFolderUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(deployment);
+
+            model.EmailSubjectExample = new()
+            {
+                Id = profile.Id,
+                PatternInputId = nameof(ExportDeploymentModel.EmailSubject),
+                ResolvedExample = _exportProfileService.ResolveTokens(profile, deployment.EmailSubject)
+            };
 
             if (createForEdit)
             {

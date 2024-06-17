@@ -84,6 +84,7 @@
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
 - ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
 - Identity: Moved `ClientIdent` and `LastViditedPage` from `GenericAttribute` to `Customer` table (for performance reasons and to distress GenericAttribute table)
+- Enable tokens (e.g. current date and time) for email subject in email export deployments.
 
 ### Bugfixes
 
@@ -126,7 +127,7 @@
 - #1072 Missing customer welcome message after approval of the registration by admin.
 - #897 Discount code input seems to be confirmed (border color and check icon)
 - #964 Removed meta information from publication according to catalog settings.
-- Fixed shoping cart MinOrderValidation 
+- Fixed shoping cart `MinOrderValidation`.
 - Added quantity information on non-editable wishlist page.
 - Some external authentication methods (like AmazonPay) were not displayed on customer pages.
 - Hitting the return key in the text field of a product variant resulted in a 404 status error.
@@ -145,7 +146,8 @@
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
-- PayPal: Fixed VAT exempt & currency conversion problems
+- PayPal: Fixed VAT exempt & currency conversion problems.
+- Files from subfolders must not be attached to an e-mail when deploying an export (can be thousands).
 
 
 ## Smartstore 5.1.0

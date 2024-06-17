@@ -26,6 +26,7 @@ namespace Smartstore.Admin.Models.Export
 
         [LocalizedDisplay("*FileNamePattern")]
         public string FileNamePattern { get; set; }
+        public ResolveTokensExampleModel FileNamePatternExample { get; set; }
 
         [LocalizedDisplay("Common.Enabled")]
         public bool Enabled { get; set; }
@@ -70,7 +71,6 @@ namespace Smartstore.Admin.Models.Export
         public ExportFilterModel Filter { get; set; }
         public ExportProjectionModel Projection { get; set; }
         public List<ExportDeploymentModel> Deployments { get; set; }
-        public ResolveTokensExampleModel ResolveTokensExample { get; set; }
 
         public TaskModel TaskModel { get; set; }
 
@@ -133,20 +133,10 @@ namespace Smartstore.Admin.Models.Export
     public partial class ExportFileDetailsModel : EntityModelBase
     {
         public int FileCount
-        {
-            get
-            {
-                var result = ExportFiles.Count;
+            => ExportFiles.Count == 0 ? PublicFiles.Count : ExportFiles.Count;
 
-                if (result == 0)
-                    result = PublicFiles.Count;
-
-                return result;
-            }
-        }
-
-        public List<FileInfo> ExportFiles { get; set; } = new();
-        public List<FileInfo> PublicFiles { get; set; } = new();
+        public List<FileInfo> ExportFiles { get; set; } = [];
+        public List<FileInfo> PublicFiles { get; set; } = [];
 
         public bool IsForDeployment { get; set; }
 
@@ -169,7 +159,7 @@ namespace Smartstore.Admin.Models.Export
     {
         public string ResolvedExample { get; set; }
         public string PatternInputId { get; set; }
-        public bool SupportsFileTokens { get; set; } = true;
+        public bool SupportsFileTokens { get; set; }
     }
 
     public partial class ExportProfileValidator : AbstractValidator<ExportProfileModel>

@@ -32,7 +32,8 @@
                     <option value="@item.Value"
                             data-icon="@(deploymentTypeIconClasses.GetValueOrDefault(type))"
                             attr-selected='(Model.DeploymentType == type, "selected")'>
-                        @item.Text</option>
+                        @item.Text
+                    </option>
                 }
             </select>
             <span asp-validation-for="DeploymentType"></span>
@@ -99,6 +100,14 @@
         <div class="adminData">
             <input asp-for="EmailSubject" />
             <span asp-validation-for="EmailSubject"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@emailType">
+        <div class="adminTitle">
+            &nbsp;
+        </div>
+        <div class="adminData">
+            <partial name="_ResolveTokensExample" model="Model.EmailSubjectExample" />
         </div>
     </div>
     <div class="adminRow deployment-@httpType deployment-@ftpType">

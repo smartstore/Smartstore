@@ -3,20 +3,15 @@ using System.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
-    public class HttpFilePublisher : IFilePublisher
+    public class HttpFilePublisher(IHttpClientFactory httpClientFactory) : IFilePublisher
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public HttpFilePublisher(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = Guard.NotNull(httpClientFactory, nameof(httpClientFactory));
-        }
+        private readonly IHttpClientFactory _httpClientFactory = Guard.NotNull(httpClientFactory);
 
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var succeededFiles = 0;
             var url = deployment.Url;
-            var files = await context.GetDeploymentFilesAsync(cancelToken);
+            var files = await context.GetDeploymentFilesAsync(true, cancelToken);
 
             if (!url.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) &&
                 !url.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase))

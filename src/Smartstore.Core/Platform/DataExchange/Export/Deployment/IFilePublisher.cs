@@ -25,26 +25,26 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
         public DataDeploymentResult Result { get; set; }
 
-        public async Task<IList<IFile>> GetDeploymentFilesAsync(CancellationToken cancelToken)
+        /// <summary>
+        /// Gets a list of deployment files.
+        /// </summary>
+        /// <param name="deep">A value indicating whether to get the files from just the top directory or from all sub-directories as well.</param>
+        /// <returns>List of deployment files.</returns>
+        public async Task<IFile[]> GetDeploymentFilesAsync(bool deep, CancellationToken cancelToken)
         {
-            if (CreateZipArchive)
+            if (!CreateZipArchive)
             {
-                if (ZipFile?.Exists ?? false)
-                {
-                    return new List<IFile> { ZipFile };
-                }
-            }
-            else
-            {
-                // Avoid accidents with incalculable consequences due to hundreds of files.
-                if (ExportDirectory?.SubPath?.HasValue() ?? false)
-                {
-                    var files = await ExportDirectory.EnumerateFilesAsync("*", true, cancelToken).ToListAsync(cancelToken);
-                    return files;
-                }
+                return await ExportDirectory
+                    .EnumerateFilesAsync("*", deep, cancelToken)
+                    .ToArrayAsync(cancelToken);
             }
 
-            return new List<IFile>();
+            if (ZipFile?.Exists ?? false)
+            {
+                return [ZipFile];
+            }
+
+            return [];
         }
     }
 }

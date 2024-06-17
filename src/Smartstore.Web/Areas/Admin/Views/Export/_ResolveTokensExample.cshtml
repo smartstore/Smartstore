@@ -21,10 +21,8 @@
             <span>@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")</span>
             <i class="fa fa-chevron-down"></i>
         </button>
-
-        <button type="button" class="btn btn-sm btn-secondary btn-resolve-tokens mr-3">
+        <button type="button" class="btn btn-sm btn-secondary btn-resolve-tokens mr-2" title="@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")">
             <i class="fa fa-sync"></i>
-            <span>@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")</span>
         </button>
         <span class="resolve-tokens-example">@Model.ResolvedExample</span>
     </div>
@@ -70,6 +68,10 @@
                         <td>%Timestamp%</td>
                         <td>@descriptions.ElementAtOrDefault(7)</td>
                     </tr>
+                    <tr>
+                        <td>%DateTime%</td>
+                        <td>@descriptions.ElementAtOrDefault(8)</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -79,9 +81,10 @@
 <script sm-target-zone="scripts" data-origin="resolve-tokens-example">
     $(function () {
         const container = $('#@containerId');
+        const elInput = $('#@(Model.PatternInputId)');
 
         container.on('click', '.btn-resolve-tokens', function () {
-            const queryString = '?pattern=' + encodeURIComponent($('#@(Model.PatternInputId)').val()) + '@Html.Raw(Model.SupportsFileTokens ? "&fileIndex=1" : string.Empty)';
+            const queryString = '?pattern=' + encodeURIComponent(elInput.val()) + '@Html.Raw(Model.SupportsFileTokens ? "&fileIndex=1" : string.Empty)';
 
             $(this).ajax({
 				type: 'GET',
@@ -90,6 +93,10 @@
                     container.find('.resolve-tokens-example').text(response);
 				}
 			});
-		});
+        });
+
+        elInput.on('change', function () {
+            container.find('.btn-resolve-tokens, .resolve-tokens-example').toggle(elInput.val().length > 0);
+        }).trigger('change');
 	});
 </script>

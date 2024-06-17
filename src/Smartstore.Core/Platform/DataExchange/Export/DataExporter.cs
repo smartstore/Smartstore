@@ -1402,7 +1402,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 IFilePublisher publisher = null;
 
-                context.Result = new DataDeploymentResult
+                context.Result = new()
                 {
                     LastExecutionUtc = DateTime.UtcNow
                 };
@@ -1413,7 +1413,8 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         case ExportDeploymentType.Email:
                             publisher = new EmailFilePublisher(_db,
-                                (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value);
+                                (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value,
+                                _exportProfileService);
                             break;
                         case ExportDeploymentType.FileSystem:
                             publisher = new FileSystemFilePublisher(_services.ApplicationContext);
