@@ -88,15 +88,25 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" asp-for="AdminPassword">@T("AdminPassword")</label>
                             <div class="col-md-9">
-                                <input asp-for="AdminPassword" class="form-control" />
-                                <span asp-validation-for="AdminPassword"></span>
+                                <div class="position-relative">
+                                    <input asp-for="AdminPassword" class="form-control" />
+                                    <button type="button" class="btn-toggle-pwd">
+                                        <i class="fa fa-eye-slash"></i>
+                                    </button>
+                                    <span asp-validation-for="AdminPassword"></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" asp-for="ConfirmPassword">@T("ConfirmPassword")</label>
                             <div class="col-md-9">
-                                <input asp-for="ConfirmPassword" class="form-control" />
-                                <span asp-validation-for="ConfirmPassword"></span>
+                                <div class="position-relative">
+                                    <input asp-for="ConfirmPassword" class="form-control" />
+                                    <button type="button" class="btn-toggle-pwd">
+                                        <i class="fa fa-eye-slash"></i>
+                                    </button>
+                                    <span asp-validation-for="ConfirmPassword"></span>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
