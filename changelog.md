@@ -52,6 +52,7 @@
 - #876 Changing password in backend via modal dialog.
 - #871 Show the total media file size in dashboard stats.
 - Theming
+  - Revamped SignIn / Register page
   - Revamped dashboard stats
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
 - Page Builder

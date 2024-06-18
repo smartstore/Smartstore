@@ -4,8 +4,12 @@
 // Login & Registration Styles
 // --------------------------------------------------
 
+.register-box {
+    background-color: $register-box-bg;
+}
+
 .login-box {
-    background-color: $login-box-bg;
+    background-color: $white;
 
     hr {
 		width: 100%;
