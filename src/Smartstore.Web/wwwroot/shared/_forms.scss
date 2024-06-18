@@ -205,6 +205,35 @@ fieldset.content-group {
 }
 
 
+// Toggle password visibility
+// ------------------------------------------------------
+
+.btn-toggle-pwd {
+    position: absolute;
+    cursor: pointer;
+    right: 0.75rem; 
+    top: 50%; 
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 3px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+
+    input[type=password] + & {
+        color: var(--gray-600);
+    }
+
+    input[type=text] + & {
+        color: inherit;
+
+        > .fa:before {
+            content: '\f06e'; // eye
+        }
+    }
+}
+
+
 // Custom range
 // ------------------------------------------------------
 

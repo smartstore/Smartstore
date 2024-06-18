@@ -28,6 +28,7 @@
   - Faster app startup
   - Increased overall performance
   - ~10 % less memory usage after app start
+- Toggle password visibility
 - New app setting for MS SQL Server compatibility level
 - Enhanced database optimization and vacuum operations
 - Vacuum single database table

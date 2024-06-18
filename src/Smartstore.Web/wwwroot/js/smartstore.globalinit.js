@@ -416,6 +416,17 @@ jQuery(function () {
         win.on("scroll", throttledScroll);
     })();
 
+    // Toggle password visibility
+    $(document).on('click', '.btn-toggle-pwd', function () {
+        const input = $(this).prev('.form-control')[0];
+        if (input?.type == 'text') {
+            input.type = 'password';
+        }
+        else if (input?.type == 'password') {
+            input.type = 'text';
+        }
+    });
+
     // Modal stuff
     $(document).on('hide.bs.modal', '.modal', function (e) { body.addClass('modal-hiding'); });
     $(document).on('hidden.bs.modal', '.modal', function (e) { body.removeClass('modal-hiding'); });
