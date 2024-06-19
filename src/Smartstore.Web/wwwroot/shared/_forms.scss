@@ -212,7 +212,7 @@ fieldset.content-group {
     position: absolute;
     cursor: pointer;
     text-decoration: none;
-    right: 0.75rem;
+    right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     margin: 0;
@@ -229,8 +229,8 @@ fieldset.content-group {
     input[type=text] + & {
         color: inherit;
 
-        > .fa:before {
-            content: '\f06e'; // eye
+        > .far:before {
+            content: '\f06e'; // eye regular
         }
     }
 

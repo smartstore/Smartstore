@@ -21,7 +21,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (EnableVisibilityToggle)
             {
                 output.PreElement.AppendHtml("<div class=\"position-relative\">");
-                output.PostElement.AppendHtml("<button type=\"button\" class=\"btn-toggle-pwd\"><i class=\"fa fa-fw fa-eye-slash\"></i></button></div>");
+                output.PostElement.AppendHtml("<button type=\"button\" class=\"btn-toggle-pwd\"><i class=\"far fa-fw fa-eye-slash\"></i></button></div>");
             }
         }
     }
