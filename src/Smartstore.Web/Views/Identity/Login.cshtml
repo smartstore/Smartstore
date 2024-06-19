@@ -55,9 +55,9 @@
             }
 
             <div class="form-floating mb-3">
-                <input asp-for="Password" class="password" autocomplete="off" placeholder="@Html.DisplayNameFor(x => x.Password)" />
+                <input asp-for="Password" sm-enable-visibility-toggle="false" class="password" autocomplete="off" placeholder="@Html.DisplayNameFor(x => x.Password)" />
                 <button type="button" class="btn-toggle-pwd">
-                    <i class="fa fa-eye-slash"></i>
+                    <i class="fa fa-fw fa-eye-slash"></i>
                 </button>
                 <label asp-for="Password"></label>
                 <span asp-validation-for="Password"></span>

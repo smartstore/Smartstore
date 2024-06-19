@@ -211,8 +211,9 @@ fieldset.content-group {
 .btn-toggle-pwd {
     position: absolute;
     cursor: pointer;
-    right: 0.75rem; 
-    top: 50%; 
+    text-decoration: none;
+    right: 0.75rem;
+    top: 50%;
     transform: translateY(-50%);
     margin: 0;
     padding: 3px;
@@ -222,7 +223,7 @@ fieldset.content-group {
     z-index: 10;
 
     input[type=password] + & {
-        color: var(--gray-600);
+        color: var(--gray-700);
     }
 
     input[type=text] + & {
@@ -231,6 +232,12 @@ fieldset.content-group {
         > .fa:before {
             content: '\f06e'; // eye
         }
+    }
+
+    input[disabled] + & {
+        color: var(--gray-400);
+        user-select: inherit;
+        pointer-events: none;
     }
 }
 

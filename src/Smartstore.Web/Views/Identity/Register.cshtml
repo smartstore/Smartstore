@@ -98,25 +98,15 @@
                     <div class="form-group row">
                         <label asp-for="Password" class="col-md-3 col-form-label required"></label>
                         <div class="col-md-9">
-                            <div class="position-relative">
-                                <input asp-for="Password" sm-required="true" />
-                                <button type="button" class="btn-toggle-pwd">
-                                    <i class="fa fa-eye-slash"></i>
-                                </button>
-                                <span asp-validation-for="Password"></span>
-                            </div>
+                            <input asp-for="Password" type="password" sm-required="true" />
+                            <span asp-validation-for="Password"></span>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label asp-for="ConfirmPassword" class="col-md-3 col-form-label required"></label>
                         <div class="col-md-9">
-                            <div class="position-relative">
-                                <input asp-for="ConfirmPassword" sm-required="true" />
-                                <button type="button" class="btn-toggle-pwd">
-                                    <i class="fa fa-eye-slash"></i>
-                                </button>
-                                <span asp-validation-for="ConfirmPassword"></span>
-                            </div>
+                            <input asp-for="ConfirmPassword" type="password" sm-required="true" />
+                            <span asp-validation-for="ConfirmPassword"></span>
                         </div>
                     </div>
 
