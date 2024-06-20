@@ -3,7 +3,7 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    [MigrationVersion("2024-05-27 16:37:00", "Core: MultiStoreCustomer")]
+    [MigrationVersion("2024-06-20 16:37:00", "Core: MultiStoreCustomer")]
     internal class MultiStoreCustomer : Migration
     {
         public override void Up()
