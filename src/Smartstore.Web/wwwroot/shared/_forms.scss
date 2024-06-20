@@ -155,12 +155,12 @@ fieldset.content-group {
 	}
 
 	&.input-group-lg {
-        --inline-icon-size: #{$input-height-lg};
+        --inline-icon-size: calc(#{$input-height-lg} - 2px);
         --inline-icon-font-size: #{$font-size-lg};
 	}
 
 	&.input-group-sm {
-        --inline-icon-size: #{$input-height-sm};
+        --inline-icon-size: calc(#{$input-height-sm} - 2px);
         --inline-icon-font-size: #{$font-size-sm};
 	}
 
