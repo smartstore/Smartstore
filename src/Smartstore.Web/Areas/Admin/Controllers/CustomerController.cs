@@ -48,6 +48,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IShippingService> _shippingService;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly IStoreMappingService _storeMappingService;
 
         public CustomerController(
             SmartDbContext db,
@@ -68,7 +69,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IShoppingCartService> shoppingCartService,
             Lazy<IShippingService> shippingService,
             Lazy<IPaymentService> paymentService,
-            ShoppingCartSettings shoppingCartSettings)
+            ShoppingCartSettings shoppingCartSettings,
+            IStoreMappingService storeMappingService)
         {
             _db = db;
             _customerService = customerService;
@@ -89,6 +91,7 @@ namespace Smartstore.Admin.Controllers
             _shippingService = shippingService;
             _paymentService = paymentService;
             _shoppingCartSettings = shoppingCartSettings;
+            _storeMappingService = storeMappingService;
         }
 
         #region Utilities
@@ -138,6 +141,7 @@ namespace Smartstore.Admin.Controllers
             model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
             model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+            model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(customer);
 
             if (customer != null)
             {
@@ -574,6 +578,7 @@ namespace Smartstore.Admin.Controllers
                         });
                     });
 
+                    await _storeMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds);
                     await _db.SaveChangesAsync();
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
@@ -759,6 +764,9 @@ namespace Smartstore.Admin.Controllers
 
                             await scope.CommitAsync();
                         }
+
+                        await _storeMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds);
+                        await _db.SaveChangesAsync();
 
                         await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomer, T("ActivityLog.EditCustomer"), customer.Id);

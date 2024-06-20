@@ -77,5 +77,6 @@ namespace Smartstore.Core.Tests
         public IMediaService MediaService => new Mock<IMediaService>().Object;
         public IDisplayControl DisplayControl => new Mock<IDisplayControl>().Object;
         public ICurrencyService CurrencyService => new Mock<ICurrencyService>().Object;
+        public IStoreMappingService StoreMappingService => new Mock<IStoreMappingService>().Object;
     }
 }

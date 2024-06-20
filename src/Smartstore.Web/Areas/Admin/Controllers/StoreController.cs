@@ -210,7 +210,11 @@ namespace Smartstore.Admin.Controllers
         public async Task<JsonResult> StoreDashboardReportAsync()
         {
             var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
-            var ordersQuery = _db.Orders.AsNoTracking();
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+
+            var ordersQuery = _db.Orders.ApplyCustomerFilter(authorizedStoreIds).AsNoTracking();
             var registeredRole = await _db.CustomerRoles
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);

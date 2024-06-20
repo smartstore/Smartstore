@@ -1947,7 +1947,7 @@ namespace Smartstore.Admin.Controllers
             var attributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
                 .Include(x => x.ProductAttribute)
-                .ApplyProductFilter(new[] { bundleItem.ProductId })
+                .ApplyProductFilter([bundleItem.ProductId])
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 

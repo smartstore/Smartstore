@@ -5,6 +5,7 @@
 @{
 	var parentModel = ViewData["Parent"] as RuleSetModel;
 	var usernamesEnabled = (bool)ViewData["UsernamesEnabled"];
+    var isSingleStoreMode = (bool)ViewData["IsSingleStoreMode"];
 }
 
 <datagrid id="customer-preview-grid" 
@@ -31,6 +32,10 @@
 		<column for="Active" halign="center" />
 		<column for="CreatedOn" />
 		<column for="LastActivityDate" />
+        @if (!isSingleStoreMode)
+        {
+            <column for="LimitedToStores" halign="center" />
+        }
 	</columns>
 </datagrid>
 

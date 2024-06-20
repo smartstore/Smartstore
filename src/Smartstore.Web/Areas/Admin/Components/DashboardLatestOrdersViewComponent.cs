@@ -22,8 +22,12 @@ namespace Smartstore.Admin.Components
                 return Empty();
             }
 
+            var customer = Services.WorkContext.CurrentCustomer;
+            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+
             var model = new DashboardLatestOrdersModel();
             var latestOrders = await _db.Orders
+                .ApplyCustomerFilter(authorizedStoreIds)
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(x => x.Customer)

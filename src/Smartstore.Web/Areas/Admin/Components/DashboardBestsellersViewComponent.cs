@@ -20,12 +20,15 @@ namespace Smartstore.Admin.Components
                 return Empty();
             }
 
+            var customer = Services.WorkContext.CurrentCustomer;
+            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+
             const int pageSize = 7;
 
             // INFO: join tables to ignore soft-deleted products and orders.
             var orderItemQuery =
                 from oi in _db.OrderItems.AsNoTracking()
-                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
+                join o in _db.Orders.ApplyCustomerFilter(authorizedStoreIds).AsNoTracking() on oi.OrderId equals o.Id
                 join p in _db.Products.AsNoTracking() on oi.ProductId equals p.Id
                 where !p.IsSystemProduct
                 select oi;

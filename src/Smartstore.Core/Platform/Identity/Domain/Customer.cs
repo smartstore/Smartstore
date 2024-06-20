@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Identity
 {
@@ -70,7 +71,8 @@ namespace Smartstore.Core.Identity
     [Index(nameof(CustomerNumber), Name = "IX_Customer_CustomerNumber")]
     [Index(nameof(BirthDate), Name = "IX_Customer_BirthDate")]
     [Index(nameof(Deleted), nameof(IsSystemAccount), Name = "IX_Customer_Deleted_IsSystemAccount")]
-    public partial class Customer : EntityWithAttributes, ISoftDeletable
+    [Index(nameof(LimitedToStores), Name = "IX_Product_LimitedToStores")]
+    public partial class Customer : EntityWithAttributes, ISoftDeletable, IStoreRestricted
     {
         /// <summary>
         /// Gets or sets the customer Guid
@@ -256,6 +258,9 @@ namespace Smartstore.Core.Identity
         [NotMapped, IgnoreDataMember]
         public override CustomerAttributeCollection GenericAttributes
             => new(base.GenericAttributes);
+
+        /// <inheritdoc/>
+        public bool LimitedToStores { get; set; }
 
         #region Navigation properties
 
