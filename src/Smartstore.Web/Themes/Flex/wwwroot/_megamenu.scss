@@ -242,7 +242,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 
     .show .mega-menu-dropdown,
-    .show .dropdown-menu {
+    .show > .dropdown-menu {
         display: block;
         visibility: visible;
         opacity: 1;
