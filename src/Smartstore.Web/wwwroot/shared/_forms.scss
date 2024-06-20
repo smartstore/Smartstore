@@ -125,7 +125,7 @@ fieldset.content-group {
 
 .has-icon {
     --inline-icon-size: #{$input-height};
-    --inline-icon-font-size: inherit;
+    --inline-icon-font-size: #{$font-size-base};
     --inline-icon-offset: 0px;
 
 	position: relative;
@@ -139,14 +139,14 @@ fieldset.content-group {
 	.input-group-icon {
 		position: absolute;
 		z-index: 10;
+        width: var(--inline-icon-size);
         height: 100%;
-		width: var(--inline-icon-size);
-        line-height: var(--inline-icon-size);
         font-size: cssmax(16px, var(--inline-icon-font-size));
         inset-inline-start: var(--inline-icon-offset);
-		text-align: center;
-		vertical-align: middle;
         pointer-events: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 	}
 
 	&.has-icon-right .input-group-icon {
@@ -155,12 +155,12 @@ fieldset.content-group {
 	}
 
 	&.input-group-lg {
-        --inline-icon-size: calc(#{$input-height-lg} - 2px);
+        --inline-icon-size: #{$input-height-lg};
         --inline-icon-font-size: #{$font-size-lg};
 	}
 
 	&.input-group-sm {
-        --inline-icon-size: calc(#{$input-height-sm} - 2px);
+        --inline-icon-size: #{$input-height-sm};
         --inline-icon-font-size: #{$font-size-sm};
 	}
 
