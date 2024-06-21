@@ -1,0 +1,28 @@
+/// <reference path="references.scss" />
+
+//TODO: (mh) (core) A better solution must be found. Maybe something with an absolute position popup which doesn't disturb the flow
+
+.widget-zone-info {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    border: 1px dashed rgba(var(--badge-ring-color-rgb), 0.2);
+    margin-block: 3px;
+    text-align: start;
+    box-shadow: none !important;
+
+    > .btn-clipboard {
+        position: absolute;
+        inset-inline-end: 0;
+        opacity: 0;
+    }
+
+    &:hover > .btn-clipboard {
+        opacity: 1;
+    }
+
+    #header &, .options & {
+        display: inline-flex;
+    }
+}

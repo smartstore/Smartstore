@@ -289,6 +289,7 @@ jQuery(function () {
         $('.more-less').moreLess();
     }
 
+    // Toggle grouped buttons
     $(document).on('mouseup', '.btn-group-toggle.unselectable > .btn', function (e) {
         let btn = $(this);
         let radio = btn.find('input:radio');

@@ -1,14 +1,17 @@
 ﻿@{
-    var widgetZone = ViewData["widgetZone"] as string;
+    var zoneName = ViewData["widgetZone"] as string;
 }
 
-@if (WorkContext.IsAdminArea && "sidebar_left".Equals(widgetZone))
+@if (WorkContext.IsAdminArea && "sidebar_left".Equals(zoneName))
 {
     // Ignore, because it messes up the admin layout completely.
 }
 else
 {
-    <span class="badge badge-default widget-zone-info" title="@ViewData["widgetZone"]">
-        Widget Zone
+    <span class="badge badge-primary badge-subtle badge-ring widget-zone-info text-truncate" title="@zoneName">
+        @zoneName
+        <button type="button" class="btn btn-clipboard btn-sm btn-flat btn-light" data-copy="@zoneName">
+            <i class="far fa-paste"></i>
+        </button>
     </span>
 }
