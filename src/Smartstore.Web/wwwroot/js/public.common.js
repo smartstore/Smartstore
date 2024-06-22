@@ -94,7 +94,11 @@
                 el.closest(".qty-input").find(".numberinput-postfix").text(qtyUnitName);
             });
         },
-        // newsletter subsription
+        // Copy to clipboard button
+        function (ctx) {
+            connectCopyToClipboard(ctx.find(".btn-clipboard"));
+        },
+        // Newsletter subsription
         function (ctx) {
             var newsletterContainer = $(".footer-newsletter");
             if (newsletterContainer.length > 0) {
@@ -138,7 +142,7 @@
                 });
             }
         },
-        // cookie manager
+        // Cookie manager
         function (ctx) {
             ctx.find('.cookie-manager').on("click", function (e) {
                 e.preventDefault();
@@ -166,7 +170,7 @@
                 }
             });
         },
-        // slick carousel
+        // Slick carousel
         function (ctx) {
             if ($.fn.slick === undefined)
                 return;

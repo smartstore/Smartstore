@@ -39,45 +39,7 @@
         },
         // Copy to clipboard button
         function (ctx) {
-            ctx.find(".btn-clipboard").tooltip({
-                boundary: 'window',
-                placement: "top",
-                trigger: 'hover',
-                title: Res['Common.CopyToClipboard']
-            }).on('click', function (e) {
-                e.preventDefault();
-                let btn = $(this);
-                let text = btn.data('copy');
-
-                if (!text) {
-                    // Try to copy text from another element
-                    let copyFromSelector = btn.data('copy-from');
-                    if (copyFromSelector) {
-                        let copyFrom = $(copyFromSelector);
-                        if (copyFrom.length) {
-                            if (copyFrom.is('input, select, textarea')) {
-                                text = copyFrom.val();
-                            }
-                            else {
-                                text = copyFrom.text();
-                            }
-                        }
-                    }
-                }
-
-                if (text) {
-                    window.copyTextToClipboard(text)
-                        .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
-                        .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
-                        .finally(() => {
-                            setTimeout(() => {
-                                btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
-                            }, 2000);
-                        });
-                }
-
-                return false;
-            });
+            connectCopyToClipboard(ctx.find(".btn-clipboard"));
         },
         //// Lazy summernote
         //function (ctx) {

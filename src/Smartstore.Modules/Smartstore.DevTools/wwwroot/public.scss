@@ -1,0 +1,7 @@
+﻿/// <reference path="_core.scss" />
+
+@import '_core.scss';
+
+.widget-zone-info {
+    @include widget-zone-info();
+}
