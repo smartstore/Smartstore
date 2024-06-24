@@ -500,8 +500,21 @@
 
     .news-feed {
         grid-column: 11 / -1;
-        // TODO: (mh) Shitty fix! Try another approach!
-        grid-row: 1 / 8;
+        grid-row: 1 / 7;
+    }
+
+    .newsfeed-body {
+        max-height: calc(2954px - 4.375rem);
+
+        .accordion {
+            display: flex;
+            flex-direction: column;
+            max-height: inherit;
+
+            .newsfeed-channel {
+                overflow: auto;
+            }
+        }
     }
 
     .report-orders {
@@ -530,6 +543,24 @@
     }
 }
 
+@media screen and (min-width: 1043px) {
+    .newsfeed-body {
+        max-height: calc(2914.37px - 4.375rem);
+    }
+}
+
+@include media-breakpoint-up(xl) {
+    .newsfeed-body {
+        max-height: calc(2798px - 4.375rem);
+    }
+}
+
+@include media-breakpoint-up(xxl) {
+    .newsfeed-body {
+        max-height: calc(2870px - 4.375rem);
+    }
+}
+
 @media screen and (min-width: 1600px) {
     .report-incomplete-orders {
         grid-column: 1 / 11;
@@ -541,7 +572,11 @@
 
     .news-feed {
         grid-column: 11 / 13;
-        grid-row: 1 / 6;
+        grid-row: 1 / 5;
+    }
+
+    .newsfeed-body {
+        max-height: calc(1942px - 4.375rem);
     }
 
     .report-orders {
@@ -583,12 +618,10 @@
 }
 
 .news-feed .report-title-row {
-    padding: 1.5rem 1rem 0 1rem !important;
+    padding: 1.5rem 1rem 1rem 1rem !important;
 }
 
 .newsfeed-body {
-    padding-top: 1rem;
-
     .admin-config-group > .title {
         padding-left: 1rem;
         padding-right: 1rem;
