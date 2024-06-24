@@ -58,10 +58,12 @@
                                             @item.Title
                                         }
                                     </div>
-                                    <div sm-if="item.PublishDate > DateTime.Now.AddMonths(-3)" class="muted">@item.PublishDate.ToHumanizedString()</div>
-                                    <div>
-                                        @Html.Raw(item.Short)
-                                        <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">@T("Common.MoreInfo").Value.ToLower()...</a>
+                                    <div class="newsfeed-item-body small">
+                                        <div sm-if="item.PublishDate > DateTime.Now.AddMonths(-3)" class="newsfeed-item-date muted">@item.PublishDate.ToHumanizedString()</div>
+                                        <div>
+                                            @Html.Raw(item.Short)
+                                            <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">@T("Common.MoreInfo").Value.ToLower()...</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
