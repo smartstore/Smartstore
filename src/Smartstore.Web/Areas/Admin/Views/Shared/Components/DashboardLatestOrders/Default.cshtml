@@ -23,7 +23,7 @@
                 {
                     <tr class="order-row" index="@x.OrderId">
                         <td class="display-row" title="@x.CustomerDisplayName">
-                            <a asp-action="Edit" asp-controller="Cutomer" asp-route-id="@x.CustomerId">@x.CustomerDisplayName</a>
+                            <a asp-action="Edit" asp-controller="Customer" asp-route-id="@x.CustomerId">@x.CustomerDisplayName</a>
                         </td>
                         <td class="display-row text-center d-none d-sm-table-cell" title="@x.ProductsTotal">@x.ProductsTotal</td>
                         <td class="display-row text-right" style="padding-right: 2rem" title="@x.TotalAmount @T("Tax.InclVAT")">@x.TotalAmount</td>
