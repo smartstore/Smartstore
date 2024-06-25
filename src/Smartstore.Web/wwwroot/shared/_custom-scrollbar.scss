@@ -16,7 +16,9 @@
     overflow-y: var(--overflow-y, auto) !important;
 
     // For Firefox
-    scrollbar-width: thin;
+    .moz & {
+        scrollbar-width: thin;
+    }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -108,15 +110,22 @@
 // Overlaying scrollbar
 // ------------------------------
 
-.wkit .custom-scrollbar.custom-scrollbar-overlay {
-    --overflow-x: overlay;
-    --overflow-y: overlay;
-}
+// INFO: Does not work anymore!
+//.wkit .custom-scrollbar.custom-scrollbar-overlay {
+//    --overflow-x: overlay;
+//    --overflow-y: overlay;
+//}
 
 .custom-scrollbar.custom-scrollbar-overlay::-webkit-scrollbar {
-    display: none;
+    visibility: hidden;
+}
+.custom-scrollbar.custom-scrollbar-overlay:hover::-webkit-scrollbar {
+    visibility: visible;
 }
 
-.custom-scrollbar.custom-scrollbar-overlay:hover::-webkit-scrollbar {
+.custom-scrollbar.custom-scrollbar-overlay::-webkit-scrollbar-thumb {
+    display: none;
+}
+.custom-scrollbar.custom-scrollbar-overlay:hover::-webkit-scrollbar-thumb {
     display: block;
 }
