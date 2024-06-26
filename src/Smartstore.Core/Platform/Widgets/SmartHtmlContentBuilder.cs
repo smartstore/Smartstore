@@ -30,7 +30,7 @@ namespace Smartstore.Core.Widgets
             {
                 if (_entries == null)
                 {
-                    _entries = new List<object>();
+                    _entries = [];
                 }
 
                 if (_isSingleContentSet)

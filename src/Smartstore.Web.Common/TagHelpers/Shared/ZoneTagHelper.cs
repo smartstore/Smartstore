@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Events;
+using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -12,10 +14,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string RemoveIfEmptyAttributeName = "remove-if-empty";
 
         private readonly IWidgetSelector _widgetSelector;
+        private readonly IEventPublisher _eventPublisher;
 
-        public ZoneTagHelper(IWidgetSelector widgetSelector)
+        public ZoneTagHelper(IWidgetSelector widgetSelector, IEventPublisher eventPublisher)
         {
             _widgetSelector = widgetSelector;
+            _eventPublisher = eventPublisher;
         }
 
         [HtmlAttributeName(NameAttributeName)]
@@ -55,6 +59,10 @@ namespace Smartstore.Web.TagHelpers.Shared
             var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, ZoneName);
             // ...if not, generate it here.
             zoneContent ??= await _widgetSelector.GetContentAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
+
+            // Publish event to give integrators a chance to inject custom content to the zone.
+            var evt = new ViewZoneRenderingEvent(ZoneName, Model, zoneContent);
+            await _eventPublisher.PublishAsync(evt);
 
             if (zoneContent.IsEmptyOrWhiteSpace)
             {
@@ -99,8 +107,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ZoneNameAttributeName = "zone-name";
 
-        public HtmlZoneTagHelper(IWidgetSelector widgetSelector)
-            : base(widgetSelector)
+        public HtmlZoneTagHelper(IWidgetSelector widgetSelector, IEventPublisher eventPublisher)
+            : base(widgetSelector, eventPublisher)
         {
         }
 
