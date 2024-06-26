@@ -7,11 +7,11 @@ namespace Smartstore.Templating
     /// By subscribing to this event, implementors can inject custom
     /// content to specific template zones.
     /// </summary>
-    public sealed class ZoneRenderingEvent
+    public sealed class TemplateZoneRenderingEvent
     {
         private IList<Snippet> _snippets;
 
-        public ZoneRenderingEvent(string zoneName, IDictionary<string, object> model)
+        public TemplateZoneRenderingEvent(string zoneName, IDictionary<string, object> model)
         {
             ZoneName = zoneName;
             Model = model;
@@ -59,7 +59,7 @@ namespace Smartstore.Templating
 
         private void AddSnippet(Snippet snippet)
         {
-            _snippets ??= new List<Snippet>();
+            _snippets ??= [];
             _snippets.Add(snippet);
         }
 
