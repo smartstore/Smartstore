@@ -72,10 +72,10 @@ namespace Smartstore.Admin.Models.Customers
             to.OrderCount = from.OrderCount.ToString("N0");
             to.CustomerId = from.CustomerId;
             to.CustomerNumber = customer?.CustomerNumber;
-            to.CustomerDisplayName = customer?.FindEmail() ?? customer?.FormatUserName(_customerSettings, T, false) ?? StringExtensions.NotAvailable;
             to.Email = customer?.Email.NullEmpty() ?? (customer != null && customer.IsGuest() ? T("Admin.Customers.Guest") : StringExtensions.NotAvailable);
             to.Username = customer?.Username;
-            to.FullName = customer?.GetFullName();
+            to.FullName = customer?.GetFullName().NullEmpty() ?? customer?.FindEmail();
+            to.CustomerDisplayName = customer?.FormatUserName(_customerSettings, T, false) ?? customer?.FindEmail() ?? StringExtensions.NotAvailable;
             to.Active = customer?.Active == true;
             to.LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc);
             to.EditUrl = _urlHelper.Action("Edit", "Customer", new { id = from.CustomerId, Area = "Admin" });

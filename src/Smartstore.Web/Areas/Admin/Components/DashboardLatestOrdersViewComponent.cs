@@ -45,9 +45,9 @@ namespace Smartstore.Admin.Components
                 model.LatestOrders.Add(
                     new DashboardOrderModel
                     {
-                        OrderNumber = order.OrderNumber.HasValue() ? order.OrderNumber : order.Id.ToString(),
+                        OrderNumber = order.OrderNumber.NullEmpty() ?? order.Id.ToString(),
                         CustomerId = order.CustomerId,
-                        CustomerDisplayName = order.Customer.GetFullName().HasValue() ? order.Customer.GetFullName() : order.Customer.FindEmail(),
+                        CustomerDisplayName = order.Customer.GetFullName().NullEmpty() ?? order.Customer.FindEmail(),
                         ProductsTotal = order.OrderItems.Sum(x => x.Quantity),
                         TotalAmount = Services.CurrencyService.CreateMoney(order.OrderTotal, primaryCurrency),
                         Created = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),

@@ -11,7 +11,7 @@
         <table class="table small">
             <thead>
                 <tr>
-                    <th class="display-row" style="width: 15%">@T("Admin.Customers.Reports.BestBy.Fields.OrderNumber")</th>
+                    <th class="display-row" style="width: 10%">#</th>
                     <th class="display-row" style="width: 15%">@T("Account.CustomerOrders.OrderStatus")</th>
                     <th class="display-row text-center px-3 d-none d-sm-table-cell" style="width: 10%">@T("Admin.Catalog.Categories.Products")</th>
                     <th class="display-row text-right" style="width: 15%; padding-right: 2rem">@T("Common.Amount")</th>
@@ -30,28 +30,28 @@
                         {
                             <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Pending")">
                                 <div class="bg-warning indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Pending")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Pending")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Processing)
                         {
                             <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Processing")">
                                 <div class="bg-success indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Processing")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Processing")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Complete)
                         {
                             <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Complete")">
                                 <div class="bg-primary indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Complete")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Complete")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Cancelled)
                         {
                             <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Cancelled")">
                                 <div class="bg-danger indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Cancelled")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-truncate">@T("Enums.OrderStatus.Cancelled")</a>
                             </td>
                         }
 
