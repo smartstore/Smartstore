@@ -1291,7 +1291,7 @@ Vue.component("sm-datagrid", {
                 if (elFocus.length === 0) {
                     elFocus = $(editing.tr).find('.dg-cell-edit :input:visible');
                 }
-                elFocus.first().focus();
+                elFocus.first().trigger('focus');
             });
         },
 

@@ -150,7 +150,7 @@ input.form-control-plaintext {
         position: sticky;
         top: 0;
         background-color: var(--dg-header-bg);
-        border-bottom: 1px solid var(--dg-border-color);
+        border-bottom: 2px solid var(--dg-border-color);
         z-index: 2;
         user-select: none;
         overflow-x: hidden; // Removes annoying x-scrollbar
@@ -198,10 +198,6 @@ input.form-control-plaintext {
     --dg-row-even-bg: var(--dg-row-hover-color);
 }
 
-.dg-cell-header {
-    //line-height: 1.2;
-}
-
 .dg-cell {
     position: relative;
     overflow: hidden;
@@ -239,7 +235,6 @@ input.form-control-plaintext {
 }
 
 .dg-vborders {
-    > thead > tr > .dg-th,
     > tbody > tr > .dg-td {
         border-bottom: 1px solid var(--dg-border-color);
     }
@@ -605,22 +600,17 @@ input.form-control-plaintext {
 // Paging
 // -----------------------------------------
 
+.dg-pager-wrapper {
+    --border-width: 2px;
+}
+
 .dg-pager {
     padding: 4px;
     background-color: var(--dg-pager-bg);
     @include border-bottom-radius(var(--border-radius-md));
 }
 
-.dg-pager-top {
-    border-bottom: 1px solid $dg-border;
-}
-
-.dg-pager-bottom {
-    border-top: 1px solid $dg-border;
-}
-
 .dg-page {
-    //padding: 8px 6px;
     margin: 0 1px;
     color: inherit;
 }
