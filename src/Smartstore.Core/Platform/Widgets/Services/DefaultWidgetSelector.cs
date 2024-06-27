@@ -5,8 +5,8 @@ namespace Smartstore.Core.Widgets
 {
     public class DefaultWidgetSelector : IWidgetSelector
     {
-        private readonly static string[] StartAliases = new[] { "body_start_html_tag_after", "head_html_tag" };
-        private readonly static string[] EndAliases = new[] { "body_end_html_tag_before" };
+        private readonly static string[] StartAliases = ["body_start_html_tag_after", "head_html_tag"];
+        private readonly static string[] EndAliases = ["body_end_html_tag_before"];
 
         private readonly IWidgetSource[] _widgetSources;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -24,14 +24,14 @@ namespace Smartstore.Core.Widgets
             var httpContext = _httpContextAccessor.HttpContext;
             var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
             var zoneAliases = GetZoneAliases(zone);
-            var widgets = Enumerable.Empty<Widget>();
+            var sortedWidgets = new SortedSet<Widget>();
 
             for (var i = 0; i < _widgetSources.Length; i++)
             {
                 var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea, model);
                 if (localWidgets != null)
                 {
-                    widgets = widgets.Concat(localWidgets);
+                    sortedWidgets.AddRange(localWidgets);
                 }
 
                 if (zoneAliases != null)
@@ -41,21 +41,13 @@ namespace Smartstore.Core.Widgets
                         var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(zoneAliases[y], isPublicArea, model);
                         if (legacyWidgets != null)
                         {
-                            widgets = widgets.Concat(legacyWidgets);
+                            sortedWidgets.AddRange(legacyWidgets);
                         }
                     }
                 }
             }
 
-            if (widgets.Any())
-            {
-                widgets = widgets
-                    .Distinct()
-                    .OrderBy(x => x.Prepend)
-                    .ThenBy(x => x.Order);
-            }
-
-            return widgets;
+            return sortedWidgets;
         }
 
         /// <summary>

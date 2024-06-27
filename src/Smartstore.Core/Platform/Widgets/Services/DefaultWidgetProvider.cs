@@ -66,7 +66,7 @@ namespace Smartstore.Core.Widgets
 
             if (_zoneExpressionWidgetsMap == null)
             {
-                _zoneExpressionWidgetsMap = new Multimap<Regex, Widget>(invokers => new HashSet<Widget>());
+                _zoneExpressionWidgetsMap = new Multimap<Regex, Widget>(invokers => []);
             }
 
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);

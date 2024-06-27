@@ -10,7 +10,7 @@ namespace Smartstore.Core.Widgets
     /// <summary>
     /// Base class for widgets.
     /// </summary>
-    public abstract class Widget : IEquatable<Widget>
+    public abstract class Widget : IEquatable<Widget>, IComparable<Widget>
     {
         /// <summary>
         /// Order of widget within the zone.
@@ -41,6 +41,20 @@ namespace Smartstore.Core.Widgets
         /// <returns>The result HTML content.</returns>
         public abstract Task<IHtmlContent> InvokeAsync(WidgetContext context);
 
+        /// <inheritdoc />
+        int IComparable<Widget>.CompareTo(Widget? other)
+        {
+            if (other is null) return 1;
+
+            int result = Prepend.CompareTo(other.Prepend);
+            if (result == 0)
+            {
+                result = Order.CompareTo(other.Order);
+            }
+
+            return result;
+        }
+
         #region Equatable
 
         public static bool operator ==(Widget x, Widget y)
@@ -60,15 +74,15 @@ namespace Smartstore.Core.Widgets
 
         bool IEquatable<Widget>.Equals(Widget? other)
         {
-            if (other is null || Key == null || other.Key == null)
-            {
-                return false;
-            }   
-
             if (ReferenceEquals(this, other))
             {
                 return true;
-            } 
+            }
+
+            if (other is null || Key == null || other.Key == null)
+            {
+                return false;
+            }
 
             return Key == other.Key && GetType() == other.GetType();
         }
