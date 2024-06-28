@@ -108,7 +108,7 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc />
         public void CopyTo(IHtmlContentBuilder destination)
         {
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(destination);
 
             if (!_hasContent)
             {
@@ -131,7 +131,7 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc />
         public void MoveTo(IHtmlContentBuilder destination)
         {
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(destination);
 
             if (!_hasContent)
             {
@@ -156,8 +156,8 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc />
         public void WriteTo(TextWriter writer, HtmlEncoder encoder)
         {
-            Guard.NotNull(writer, nameof(writer));
-            Guard.NotNull(encoder, nameof(encoder));
+            Guard.NotNull(writer);
+            Guard.NotNull(encoder);
 
             if (!_hasContent)
             {

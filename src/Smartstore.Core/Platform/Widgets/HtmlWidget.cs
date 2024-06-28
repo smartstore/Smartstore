@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
 
         public HtmlWidget(IHtmlContent content)
         {
-            Content = Guard.NotNull(content, nameof(content));
+            Content = Guard.NotNull(content);
         }
 
         public IHtmlContent Content { get; }

@@ -72,8 +72,8 @@ namespace Smartstore.DevTools
                 o.Filters.AddConditional<MachineNameFilter>(
                     context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
-                o.Filters.AddConditional<WidgetZoneFilter>(
-                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
+                //o.Filters.AddConditional<WidgetZoneFilter>(
+                //    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
                 //    context => context.ControllerIs<ProductController>());

@@ -2,9 +2,6 @@
 
 @model SearchBoxModel
 
-@{
-}
-
 <form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get">
     <input type="text"
            class="instasearch-term form-control"
@@ -32,5 +29,5 @@
         <div class="instasearch-drop-body clearfix"></div>
     </div>
 
-    <zone name="searchbox"></zone>
+    <zone name="searchbox_addon"></zone>
 </form>

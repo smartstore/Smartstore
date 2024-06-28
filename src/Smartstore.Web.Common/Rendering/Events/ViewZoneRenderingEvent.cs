@@ -1,20 +1,41 @@
-﻿namespace Smartstore.Web.Rendering.Events
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Smartstore.Web.Rendering.Events
 {
-    public class ViewZoneRenderingEvent(string zoneName, object model, ZoneHtmlContent content)
+    public class ViewZoneRenderingEvent
     {
-        /// <summary>
-        /// The name of the zone which is rendered.
-        /// </summary>
-        public string ZoneName { get; } = zoneName;
+        public ViewZoneRenderingEvent(IWidgetZone zone, ZoneHtmlContent content, ViewContext viewContext)
+        {
+            Zone = Guard.NotNull(zone);
+            Content = Guard.NotNull(content);
+            ViewContext = Guard.NotNull(viewContext);
+        }
 
         /// <summary>
-        /// The view model.
+        /// The widget zone.
         /// </summary>
-        public object Model { get; } = model;
+        public IWidgetZone Zone { get; }
 
         /// <summary>
         /// The zone content.
         /// </summary>
-        public ZoneHtmlContent Content { get; } = content;
+        public ZoneHtmlContent Content { get; }
+
+        /// <summary>
+        /// The view context.
+        /// </summary>
+        public ViewContext ViewContext { get; }
+
+        /// <summary>
+        /// The view model.
+        /// </summary>
+        public object? Model { get; init; }
+
+        /// <summary>
+        /// Whether an event handler has generated some preview content.
+        /// </summary>
+        public bool HasPreview { get; set; }
     }
 }

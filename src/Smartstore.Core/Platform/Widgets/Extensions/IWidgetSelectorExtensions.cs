@@ -21,8 +21,8 @@ namespace Smartstore.Core.Widgets
         /// <param name="viewContext">The current view context.</param>
         public static async Task<bool> HasContentAsync(this IWidgetSelector selector, string zone, ViewContext viewContext)
         {
-            Guard.NotNull(selector, nameof(selector));
-            Guard.NotNull(viewContext, nameof(viewContext));
+            Guard.NotNull(selector);
+            Guard.NotNull(viewContext);
 
             var widgets = await selector.GetWidgetsAsync(zone);
 

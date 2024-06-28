@@ -29,13 +29,10 @@ namespace Smartstore.DevTools
 
         public void HandleEvent(ModelBoundEvent message)
         {
-            if (!message.BoundModel.CustomProperties.ContainsKey("DevTools"))
-                return;
-
-            var model = message.BoundModel.CustomProperties["DevTools"] as BackendExtensionModel;
-            if (model == null)
-                return;
-
+            if (message.BoundModel.CustomProperties.TryGetValueAs<BackendExtensionModel>("DevTools", out var model))
+            {
+                // Do something with BackendExtensionModel instance
+            }
         }
     }
 }
