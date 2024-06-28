@@ -171,23 +171,24 @@ namespace Smartstore.Core.Catalog.Search
             if (facets.TryGetValue("price", out var group))
             {
                 // TODO: formatting without decimals would be nice.
-                foreach (var facet in group.Facets)
+                foreach (var v in group.Facets.Select(x => x.Value))
                 {
-                    var val = facet.Value;
+                    if (v.Value != null && v.UpperValue != null)
+                    {
+                        var val = v.Value.Convert<decimal>();
+                        var upperVal = v.UpperValue.Convert<decimal>();
 
-                    if (val.Value == null && val.UpperValue != null)
-                    {
-                        val.Label = rangeMaxTemplate.FormatInvariant(FormatPrice(val.UpperValue.Convert<decimal>()));
+                        v.Label = val == upperVal
+                            ? FormatPrice(val)
+                            : rangeBetweenTemplate.FormatInvariant(FormatPrice(val), FormatPrice(upperVal));
                     }
-                    else if (val.Value != null && val.UpperValue == null)
+                    else if (v.Value == null && v.UpperValue != null)
                     {
-                        val.Label = rangeMinTemplate.FormatInvariant(FormatPrice(val.Value.Convert<decimal>()));
+                        v.Label = rangeMaxTemplate.FormatInvariant(FormatPrice(v.UpperValue.Convert<decimal>()));
                     }
-                    else if (val.Value != null && val.UpperValue != null)
+                    else if (v.Value != null && v.UpperValue == null)
                     {
-                        val.Label = rangeBetweenTemplate.FormatInvariant(
-                            FormatPrice(val.Value.Convert<decimal>()),
-                            FormatPrice(val.UpperValue.Convert<decimal>()));
+                        v.Label = rangeMinTemplate.FormatInvariant(FormatPrice(v.Value.Convert<decimal>()));
                     }
                 }
             }
@@ -211,22 +212,23 @@ namespace Smartstore.Core.Catalog.Search
 
             foreach (var numericRange in numericRanges)
             {
-                foreach (var facet in numericRange.SelectedFacets)
+                foreach (var v in numericRange.SelectedFacets.Select(x => x.Value))
                 {
-                    var val = facet.Value;
-                    var labels = val.Label.SplitSafe('~');
+                    var labels = v.Label.SplitSafe('~');
 
-                    if (val.Value == null && val.UpperValue != null)
+                    if (v.Value != null && v.UpperValue != null)
                     {
-                        val.Label = rangeMaxTemplate.FormatInvariant(labels.FirstOrDefault());
+                        v.Label = v.Value.Equals(v.UpperValue)
+                            ? labels.FirstOrDefault()
+                            : rangeBetweenTemplate.FormatInvariant(labels.FirstOrDefault(), labels.Skip(1).FirstOrDefault());
                     }
-                    else if (val.Value != null && val.UpperValue == null)
+                    else if (v.Value == null && v.UpperValue != null)
                     {
-                        val.Label = rangeMinTemplate.FormatInvariant(labels.FirstOrDefault());
+                        v.Label = rangeMaxTemplate.FormatInvariant(labels.FirstOrDefault());
                     }
-                    else if (val.Value != null && val.UpperValue != null)
+                    else if (v.Value != null && v.UpperValue == null)
                     {
-                        val.Label = rangeBetweenTemplate.FormatInvariant(labels.FirstOrDefault(), labels.Skip(1).FirstOrDefault());
+                        v.Label = rangeMinTemplate.FormatInvariant(labels.FirstOrDefault());
                     }
                 }
             }
@@ -271,7 +273,7 @@ namespace Smartstore.Core.Catalog.Search
                 var entityName = nameof(Product);
                 var pager = Query.ToFastPager(Context.MaximumNodeCount);
 
-                while ((await pager.ReadNextPageAsync(x => new { x.Id, x.UpdatedOnUtc }, x => x.Id)).Out(out var products))
+                while ((await pager.ReadNextPageAsync(x => new { x.Id, x.UpdatedOnUtc }, x => x.Id, cancelToken)).Out(out var products))
                 {
                     if (Context.CancellationToken.IsCancellationRequested)
                     {

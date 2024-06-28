@@ -9,8 +9,8 @@
         private readonly int _maxChoicesCount;
         private int _uncalculatedSelectedCount;
         private readonly HashSet<FacetValue> _selectedValues;
-        private readonly List<Facet> _selectedFacets = new();
-        private readonly List<Facet> _nonSelectedFacets = new();
+        private readonly List<Facet> _selectedFacets = [];
+        private readonly List<Facet> _nonSelectedFacets = [];
 
         public FacetCollector(IEnumerable<FacetValue> selectedValues, int maxChoicesCount)
         {
@@ -80,14 +80,14 @@
             _nonSelectedFacets.Add(facet);
         }
 
-        public List<Facet> GetSelectedValues(IDictionary<object, FacetMetadata> metadata)
+        public List<Facet> GetSelectedValues(IDictionary<string, FacetMetadata> metadata)
         {
             var result = new List<Facet>();
 
             foreach (var value in _selectedValues)
             {
                 // Try to get label from index metadata.
-                var newFacet = value?.Value != null && metadata.TryGetValue(value.Value, out var item) && item?.Value != null
+                var newFacet = value?.Value != null && metadata.TryGetValue(value.Key, out var item) && item?.Value != null
                     ? new Facet(item.Value)
                     : new Facet(value);
 
