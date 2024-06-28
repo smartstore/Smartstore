@@ -233,11 +233,9 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Sets the assigned media file identifiers.
         /// </summary>
-        public void SetAssignedMediaIds(int[] ids)
-        {
+        public void SetAssignedMediaIds(int[] ids) =>
             AssignedMediaFileIds = ids?.Length > 0
                 ? string.Join(',', ids)
                 : null;
-        }
     }
 }

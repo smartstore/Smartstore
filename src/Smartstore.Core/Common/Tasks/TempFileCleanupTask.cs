@@ -5,14 +5,9 @@ namespace Smartstore.Core.Common.Tasks
     /// <summary>
     /// Task to cleanup temporary files.
     /// </summary>
-    public partial class TempFileCleanupTask : ITask
+    public partial class TempFileCleanupTask(IApplicationContext appContext) : ITask
     {
-        private readonly IApplicationContext _appContext;
-
-        public TempFileCleanupTask(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
+        private readonly IApplicationContext _appContext = appContext;
 
         public Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {

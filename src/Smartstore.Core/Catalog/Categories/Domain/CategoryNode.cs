@@ -39,27 +39,15 @@ namespace Smartstore.Core.Catalog.Categories
         public bool LimitedToStores { get; set; }
 
         /// <inheritdoc/>
-        object IKeyedNode.GetNodeKey()
-        {
-            return Id;
-        }
+        object IKeyedNode.GetNodeKey() => Id;
 
         /// <inheritdoc/>
-        public string GetDisplayName()
-        {
-            return Name;
-        }
+        public string GetDisplayName() => Name;
 
         /// <inheritdoc/>
-        public string[] GetDisplayNameMemberNames()
-        {
-            return new[] { nameof(Name) };
-        }
+        public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
 
         /// <inheritdoc/>
-        public string GetEntityName()
-        {
-            return nameof(Category);
-        }
+        public string GetEntityName() => nameof(Category);
     }
 }

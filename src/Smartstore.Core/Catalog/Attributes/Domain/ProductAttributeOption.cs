@@ -9,14 +9,12 @@ namespace Smartstore.Core.Catalog.Attributes
 {
     internal class ProductAttributeOptionMap : IEntityTypeConfiguration<ProductAttributeOption>
     {
-        public void Configure(EntityTypeBuilder<ProductAttributeOption> builder)
-        {
+        public void Configure(EntityTypeBuilder<ProductAttributeOption> builder) =>
             // INFO: DeleteBehavior.Cascade required otherwise System.InvalidOperationException when deleting ProductAttributeOptionsSet.
             builder.HasOne(c => c.ProductAttributeOptionsSet)
                 .WithMany(c => c.ProductAttributeOptions)
                 .HasForeignKey(c => c.ProductAttributeOptionsSetId)
                 .OnDelete(DeleteBehavior.Cascade);
-        }
     }
 
     /// <summary>
@@ -108,29 +106,25 @@ namespace Smartstore.Core.Catalog.Attributes
         public int Quantity { get; set; }
 
         /// <inheritdoc/>
-        public ProductVariantAttributeValue Clone()
-        {
-            var value = new ProductVariantAttributeValue
-            {
-                Alias = Alias,
-                Name = Name,
-                MediaFileId = MediaFileId,
-                Color = Color,
-                PriceAdjustment = PriceAdjustment,
-                WeightAdjustment = WeightAdjustment,
-                IsPreSelected = IsPreSelected,
-                DisplayOrder = DisplayOrder,
-                ValueTypeId = ValueTypeId,
-                LinkedProductId = LinkedProductId,
-                Quantity = Quantity
-            };
+        public ProductVariantAttributeValue Clone() =>
+             new ProductVariantAttributeValue
+             {
+                 Alias = Alias,
+                 Name = Name,
+                 MediaFileId = MediaFileId,
+                 Color = Color,
+                 PriceAdjustment = PriceAdjustment,
+                 WeightAdjustment = WeightAdjustment,
+                 IsPreSelected = IsPreSelected,
+                 DisplayOrder = DisplayOrder,
+                 ValueTypeId = ValueTypeId,
+                 LinkedProductId = LinkedProductId,
+                 Quantity = Quantity
+             };
 
-            return value;
-        }
 
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+
+
+        object ICloneable.Clone() => Clone();
     }
 }

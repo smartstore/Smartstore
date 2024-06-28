@@ -6,65 +6,60 @@ namespace Smartstore.Core.Checkout.Tax
     /// <summary>
     /// Represents tax info.
     /// </summary>
-    public readonly struct Tax
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="Tax"/> structure.
+    /// </remarks>
+    /// <param name="rate">The tax rate.</param>
+    /// <param name="amount">The calculated tax amount.</param>
+    /// <param name="price">The origin price.</param>
+    /// <param name="priceNet">The calculated bet price.</param>
+    /// <param name="priceGross">The calculated gross price.</param>
+    /// <param name="isGrossPrice">A value indicating whether <paramref name="price"/> includes tax already.</param>
+    /// <param name="inclusive">A value indicating whether the result price should be gross (including tax).</param>
+    public readonly struct Tax(TaxRate rate,
+        decimal amount,
+        decimal price, 
+        decimal priceNet,
+        decimal priceGross, 
+        bool isGrossPrice,
+        bool inclusive)
     {
         public readonly static Tax Zero;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Tax"/> structure.
-        /// </summary>
-        /// <param name="rate">The tax rate.</param>
-        /// <param name="amount">The calculated tax amount.</param>
-        /// <param name="price">The origin price.</param>
-        /// <param name="priceNet">The calculated bet price.</param>
-        /// <param name="priceGross">The calculated gross price.</param>
-        /// <param name="isGrossPrice">A value indicating whether <paramref name="price"/> includes tax already.</param>
-        /// <param name="inclusive">A value indicating whether the result price should be gross (including tax).</param>
-        public Tax(TaxRate rate, decimal amount, decimal price, decimal priceNet, decimal priceGross, bool isGrossPrice, bool inclusive)
-        {
-            Rate = rate;
-            Amount = amount;
-            IsGrossPrice = isGrossPrice;
-            Inclusive = inclusive;
-            PriceNet = priceNet;
-            PriceGross = priceGross;
-            Price = price;
-        }
-
-        /// <summary>
         /// The tax rate used for calculation.
         /// </summary>
-        public TaxRate Rate { get; }
+        public TaxRate Rate { get; } = rate;
 
         /// <summary>
         /// The unrounded tax amount.
         /// </summary>
-        public decimal Amount { get; }
+        public decimal Amount { get; } = amount;
 
         /// <summary>
         /// Whether source price is gross (including tax)
         /// </summary>
-        public bool IsGrossPrice { get; }
+        public bool IsGrossPrice { get; } = isGrossPrice;
 
         /// <summary>
         /// Whether result price is gross (including tax)
         /// </summary>
-        public bool Inclusive { get; }
+        public bool Inclusive { get; } = inclusive;
 
         /// <summary>
         /// The unrounded net price.
         /// </summary>
-        public decimal PriceNet { get; }
+        public decimal PriceNet { get; } = priceNet;
 
         /// <summary>
         /// The unrounded gross price.
         /// </summary>
-        public decimal PriceGross { get; }
+        public decimal PriceGross { get; } = priceGross;
 
         /// <summary>
         /// The rounded price, either net or gross according to <see cref="Inclusive"/>.
         /// </summary>
-        public decimal Price { get; }
+        public decimal Price { get; } = price;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()

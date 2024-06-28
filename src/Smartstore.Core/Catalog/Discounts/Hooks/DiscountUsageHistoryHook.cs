@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    internal class DiscountUsageHistoryHook : AsyncDbSaveHook<DiscountUsageHistory>
+    internal class DiscountUsageHistoryHook(IRequestCache requestCache) : AsyncDbSaveHook<DiscountUsageHistory>
     {
-        private readonly IRequestCache _requestCache;
-
-        public DiscountUsageHistoryHook(IRequestCache requestCache)
-        {
-            _requestCache = requestCache;
-        }
+        private readonly IRequestCache _requestCache = requestCache;
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

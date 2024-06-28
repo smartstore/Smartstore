@@ -5,14 +5,9 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    public partial class CheckoutAttributeMaterializer : ICheckoutAttributeMaterializer
+    public partial class CheckoutAttributeMaterializer(SmartDbContext db) : ICheckoutAttributeMaterializer
     {
-        private readonly SmartDbContext _db;
-
-        public CheckoutAttributeMaterializer(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public async Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection)
         {

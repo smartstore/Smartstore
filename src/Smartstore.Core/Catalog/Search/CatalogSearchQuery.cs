@@ -206,18 +206,14 @@ namespace Smartstore.Core.Catalog.Search
             return this;
         }
 
-        public CatalogSearchQuery PublishedOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsPublished, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery PublishedOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.IsPublished, value).Mandatory().ExactMatch().NotAnalyzed());
 
         /// <summary>
         /// Filters products based on their stock level.
         /// </summary>
-        public CatalogSearchQuery AvailableOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsAvailable, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery AvailableOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.IsAvailable, value).Mandatory().ExactMatch().NotAnalyzed());
 
         /// <summary>
         /// Filters products by their availability date.
@@ -240,15 +236,11 @@ namespace Smartstore.Core.Catalog.Search
             return this;
         }
 
-        public CatalogSearchQuery WithVisibility(ProductVisibility value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.Visibility, (int)value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery WithVisibility(ProductVisibility value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.Visibility, (int)value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery HasParentGroupedProduct(params int[] parentProductIds)
-        {
-            return CreateFilter(KnownFilters.ParentId, parentProductIds);
-        }
+        public CatalogSearchQuery HasParentGroupedProduct(params int[] parentProductIds) => 
+            CreateFilter(KnownFilters.ParentId, parentProductIds);
 
         public override CatalogSearchQuery HasStoreId(int id)
         {
@@ -271,15 +263,10 @@ namespace Smartstore.Core.Catalog.Search
             return this;
         }
 
-        public CatalogSearchQuery IsProductType(ProductType type)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.TypeId, (int)type).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery IsProductType(ProductType type) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.TypeId, (int)type).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery WithProductIds(params int[] ids)
-        {
-            return CreateFilter(KnownFilters.ProductId, ids);
-        }
+        public CatalogSearchQuery WithProductIds(params int[] ids) => CreateFilter(KnownFilters.ProductId, ids);
 
         public CatalogSearchQuery WithProductId(int? fromId, int? toId)
         {
@@ -376,15 +363,9 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
-        public CatalogSearchQuery WithProductTagIds(params int[] ids)
-        {
-            return CreateFilter(KnownFilters.TagId, ids);
-        }
+        public CatalogSearchQuery WithProductTagIds(params int[] ids) => CreateFilter(KnownFilters.TagId, ids);
 
-        public CatalogSearchQuery WithDeliveryTimeIds(params int[] ids)
-        {
-            return CreateFilter(KnownFilters.DeliveryId, ids);
-        }
+        public CatalogSearchQuery WithDeliveryTimeIds(params int[] ids) => CreateFilter(KnownFilters.DeliveryId, ids);
 
         public CatalogSearchQuery WithCondition(params ProductCondition[] conditions)
         {
@@ -405,45 +386,29 @@ namespace Smartstore.Core.Catalog.Search
             return this;
         }
 
-        public CatalogSearchQuery HomePageProductsOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.ShowOnHomepage, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery HomePageProductsOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.ShowOnHomepage, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery DownloadOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsDownload, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery DownloadOnly(bool value) =>
+            WithFilter(SearchFilter.ByField(KnownFilters.IsDownload, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery RecurringOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsRecurring, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery RecurringOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.IsRecurring, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery ShipEnabledOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsShippingEnabled, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery ShipEnabledOnly(bool value) =>
+            WithFilter(SearchFilter.ByField(KnownFilters.IsShippingEnabled, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery FreeShippingOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsFreeShipping, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery FreeShippingOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.IsFreeShipping, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery TaxExemptOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsTaxExempt, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery TaxExemptOnly(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.IsTaxExempt, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery EsdOnly(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.IsEsd, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery EsdOnly(bool value) =>
+            WithFilter(SearchFilter.ByField(KnownFilters.IsEsd, value).Mandatory().ExactMatch().NotAnalyzed());
 
-        public CatalogSearchQuery HasDiscount(bool value)
-        {
-            return WithFilter(SearchFilter.ByField(KnownFilters.HasDiscount, value).Mandatory().ExactMatch().NotAnalyzed());
-        }
+        public CatalogSearchQuery HasDiscount(bool value) => 
+            WithFilter(SearchFilter.ByField(KnownFilters.HasDiscount, value).Mandatory().ExactMatch().NotAnalyzed());
 
         public CatalogSearchQuery WithStockQuantity(
             int? fromQuantity,

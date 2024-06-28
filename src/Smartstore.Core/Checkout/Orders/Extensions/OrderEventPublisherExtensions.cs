@@ -11,35 +11,33 @@ namespace Smartstore
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderPaidAsync(this IEventPublisher eventPublisher, Order order)
-        {
-            return order != null
+        public static Task PublishOrderPaidAsync(this IEventPublisher eventPublisher, Order order) =>
+                order != null
                 ? eventPublisher.PublishAsync(new OrderPaidEvent(order))
                 : Task.CompletedTask;
-        }
+
 
         /// <summary>
         /// Publishes the order placed event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderPlacedAsync(this IEventPublisher eventPublisher, Order order)
-        {
-            return order != null
+        public static Task PublishOrderPlacedAsync(this IEventPublisher eventPublisher, Order order) =>
+
+                order != null
                 ? eventPublisher.PublishAsync(new OrderPlacedEvent(order))
                 : Task.CompletedTask;
-        }
+
 
         /// <summary>
         /// Publishes the order updated event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderUpdatedAsync(this IEventPublisher eventPublisher, Order order)
-        {
-            return order != null
+        public static Task PublishOrderUpdatedAsync(this IEventPublisher eventPublisher, Order order) =>
+                order != null
                 ? eventPublisher.PublishAsync(new OrderUpdatedEvent(order))
                 : Task.CompletedTask;
-        }
+
     }
 }

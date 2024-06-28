@@ -3,25 +3,22 @@
     /// <summary>
     /// Represents an organized shopping cart item.
     /// </summary>
-    public partial class OrganizedShoppingCartItem : IEquatable<OrganizedShoppingCartItem>
+    public partial class OrganizedShoppingCartItem(
+        ShoppingCartItem item, 
+        bool? active = null) : IEquatable<OrganizedShoppingCartItem>
     {
-        public OrganizedShoppingCartItem(ShoppingCartItem item, bool? active = null)
-        {
-            Item = Guard.NotNull(item);
-            Active = active ?? item.Active;
-        }
 
         /// <summary>
         /// Gets the shopping cart item.
         /// </summary>
-        public ShoppingCartItem Item { get; }
+        public ShoppingCartItem Item { get; } = Guard.NotNull(item);
 
         /// <summary>
         /// Gets a value indicating whether the cart item is active.
         /// May differ from <see cref="ShoppingCartItem.Active"/> and has precedence over it.
         /// Always <c>true</c> if <see cref="ShoppingCartSettings.AllowActivatableCartItems"/> is <c>false</c>.
         /// </summary>
-        public bool Active { get; }
+        public bool Active { get; } = active ?? item.Active;
 
         /// <summary>
         /// Gets or sets the list of child items.

@@ -2,9 +2,9 @@
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public class PaymentResponse
+    public class PaymentResponse(HttpStatusCode status, IDictionary<string, string> headers, object body)
     {
-        private readonly object _body;
+        private readonly object _body = body;
 
         public PaymentResponse(HttpStatusCode status)
             : this(status, null, null)
@@ -16,16 +16,9 @@ namespace Smartstore.Core.Checkout.Payment
         {
         }
 
-        public PaymentResponse(HttpStatusCode status, IDictionary<string, string> headers, object body)
-        {
-            Headers = headers;
-            Status = status;
-            _body = body;
-        }
+        public HttpStatusCode Status { get; } = status;
 
-        public HttpStatusCode Status { get; }
-
-        public IDictionary<string, string> Headers { get; }
+        public IDictionary<string, string> Headers { get; } = headers;
 
         public bool HasBody
             => _body != null;

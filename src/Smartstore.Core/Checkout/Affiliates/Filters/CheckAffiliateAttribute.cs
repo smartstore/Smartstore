@@ -14,16 +14,10 @@ namespace Smartstore.Core.Checkout.Affiliates
         {
         }
 
-        class CheckAffiliateFilter : IAsyncActionFilter
+        class CheckAffiliateFilter(SmartDbContext db, IWorkContext workContext) : IAsyncActionFilter
         {
-            private readonly SmartDbContext _db;
-            private readonly IWorkContext _workContext;
-
-            public CheckAffiliateFilter(SmartDbContext db, IWorkContext workContext)
-            {
-                _db = db;
-                _workContext = workContext;
-            }
+            private readonly SmartDbContext _db = db;
+            private readonly IWorkContext _workContext = workContext;
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {

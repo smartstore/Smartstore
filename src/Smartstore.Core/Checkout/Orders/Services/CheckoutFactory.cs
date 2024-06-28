@@ -54,10 +54,7 @@ namespace Smartstore.Core.Checkout.Orders
             return requirements;
         }
 
-        public virtual CheckoutStep[] GetCheckoutSteps()
-        {
-            return _handlers.Select(Convert).ToArray();
-        }
+        public virtual CheckoutStep[] GetCheckoutSteps() => _handlers.Select(Convert).ToArray();
 
         public virtual CheckoutStep GetCheckoutStep(string action, string controller = "Checkout", string area = null)
         {

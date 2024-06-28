@@ -6,27 +6,18 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Catalog.Products.Rules
 {
-    public partial class ProductRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ProductRuleOptionsProvider(
+        SmartDbContext db,
+        IWorkContext workContext,
+        ICatalogSearchService catalogSearchService,
+        ILocalizedEntityService localizedEntityService,
+        SearchSettings searchSettings) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly ICatalogSearchService _catalogSearchService;
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly SearchSettings _searchSettings;
-
-        public ProductRuleOptionsProvider(
-            SmartDbContext db,
-            IWorkContext workContext,
-            ICatalogSearchService catalogSearchService,
-            ILocalizedEntityService localizedEntityService,
-            SearchSettings searchSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _catalogSearchService = catalogSearchService;
-            _localizedEntityService = localizedEntityService;
-            _searchSettings = searchSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly ICatalogSearchService _catalogSearchService = catalogSearchService;
+        private readonly ILocalizedEntityService _localizedEntityService = localizedEntityService;
+        private readonly SearchSettings _searchSettings = searchSettings;
 
         public int Order => 0;
 

@@ -8,14 +8,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// That's why this calculator must run very early.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Early + 1)]
-    public class PreselectedPriceCalculator : IPriceCalculator
+    public class PreselectedPriceCalculator(IProductAttributeMaterializer productAttributeMaterializer) : IPriceCalculator
     {
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-
-        public PreselectedPriceCalculator(IProductAttributeMaterializer productAttributeMaterializer)
-        {
-            _productAttributeMaterializer = productAttributeMaterializer;
-        }
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
 
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

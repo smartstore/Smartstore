@@ -2,16 +2,10 @@
 
 namespace Smartstore.Core.Checkout.Rules
 {
-    public class CartCompositeRule : IRule<CartRuleContext>
+    public class CartCompositeRule(RuleExpressionGroup group, CartRuleProvider cartRuleProvider) : IRule<CartRuleContext>
     {
-        private readonly RuleExpressionGroup _group;
-        private readonly CartRuleProvider _cartRuleProvider;
-
-        public CartCompositeRule(RuleExpressionGroup group, CartRuleProvider cartRuleProvider)
-        {
-            _group = group;
-            _cartRuleProvider = cartRuleProvider;
-        }
+        private readonly RuleExpressionGroup _group = group;
+        private readonly CartRuleProvider _cartRuleProvider = cartRuleProvider;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

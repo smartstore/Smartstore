@@ -3,14 +3,9 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    internal class ProductBundleItemHook : AsyncDbSaveHook<ProductBundleItem>
+    internal class ProductBundleItemHook(SmartDbContext db) : AsyncDbSaveHook<ProductBundleItem>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductBundleItemHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override Task<HookResult> OnDeletingAsync(ProductBundleItem entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

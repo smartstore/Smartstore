@@ -12,45 +12,33 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Rules
 {
-    public partial class ProductRuleProvider : RuleProviderBase, IProductRuleProvider
+    public partial class ProductRuleProvider(
+        ICommonServices services,
+        IRuleService ruleService,
+        ICatalogSearchService catalogSearchService,
+        ICategoryService categoryService,
+        ILocalizationService localizationService,
+        CatalogSettings catalogSettings) : RuleProviderBase(RuleScope.Product), IProductRuleProvider
     {
-        private readonly ICommonServices _services;
-        private readonly IRuleService _ruleService;
-        private readonly ICatalogSearchService _catalogSearchService;
-        private readonly ICategoryService _categoryService;
-        private readonly ILocalizationService _localizationService;
-        private readonly CatalogSettings _catalogSettings;
-
-        public ProductRuleProvider(
-            ICommonServices services,
-            IRuleService ruleService,
-            ICatalogSearchService catalogSearchService,
-            ICategoryService categoryService,
-            ILocalizationService localizationService,
-            CatalogSettings catalogSettings)
-            : base(RuleScope.Product)
-        {
-            _services = services;
-            _ruleService = ruleService;
-            _catalogSearchService = catalogSearchService;
-            _categoryService = categoryService;
-            _localizationService = localizationService;
-            _catalogSettings = catalogSettings;
-        }
+        private readonly ICommonServices _services = services;
+        private readonly IRuleService _ruleService = ruleService;
+        private readonly ICatalogSearchService _catalogSearchService = catalogSearchService;
+        private readonly ICategoryService _categoryService = categoryService;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<SearchFilterExpressionGroup> CreateExpressionGroupAsync(int ruleSetId)
-        {
-            return await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as SearchFilterExpressionGroup;
-        }
+        public async Task<SearchFilterExpressionGroup> CreateExpressionGroupAsync(int ruleSetId) =>
+            await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as SearchFilterExpressionGroup;
 
         public override async Task<IRuleExpression> VisitRuleAsync(RuleEntity rule)
         {
             var expression = new SearchFilterExpression();
             await base.ConvertRuleAsync(rule, expression);
             expression.Descriptor = ((RuleExpression)expression).Descriptor as SearchFilterDescriptor;
+
             return expression;
         }
 

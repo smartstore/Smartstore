@@ -11,23 +11,16 @@ using EState = Smartstore.Data.EntityState;
 namespace Smartstore.Core.Catalog.Search
 {
     [Important]
-    internal class SearchQueryAliasHook : AsyncDbSaveHook<BaseEntity>
+    internal class SearchQueryAliasHook(
+        SmartDbContext db,
+        Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
+        SeoSettings seoSettings) : AsyncDbSaveHook<BaseEntity>
     {
-        private readonly SmartDbContext _db;
-        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
-        private readonly SeoSettings _seoSettings;
+        private readonly SmartDbContext _db = db;
+        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+        private readonly SeoSettings _seoSettings = seoSettings;
 
         private string _errorMessage;
-
-        public SearchQueryAliasHook(
-            SmartDbContext db,
-            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
-            SeoSettings seoSettings)
-        {
-            _db = db;
-            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-            _seoSettings = seoSettings;
-        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;

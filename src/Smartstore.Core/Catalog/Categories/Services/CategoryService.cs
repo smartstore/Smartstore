@@ -14,7 +14,15 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Categories
 {
-    public partial class CategoryService : ICategoryService, IXmlSitemapPublisher
+    public partial class CategoryService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        ICacheManager cache,
+        IRequestCache requestCache,
+        IStoreMappingService storeMappingService,
+        IAclService aclService,
+        ICatalogSearchService catalogSearchService) : ICategoryService, IXmlSitemapPublisher
     {
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
@@ -26,34 +34,14 @@ namespace Smartstore.Core.Catalog.Categories
         internal readonly static CompositeFormat CategoriesByParentIdKey = CompositeFormat.Parse("category:byparent-{0}-{1}-{2}-{3}");
         internal const string CategoriesPatternKey = "category:*";
 
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly ICacheManager _cache;
-        private readonly IRequestCache _requestCache;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly IAclService _aclService;
-        private readonly ICatalogSearchService _catalogSearchService;
-
-        public CategoryService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            ICacheManager cache,
-            IRequestCache requestCache,
-            IStoreMappingService storeMappingService,
-            IAclService aclService,
-            ICatalogSearchService catalogSearchService)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _cache = cache;
-            _requestCache = requestCache;
-            _storeMappingService = storeMappingService;
-            _aclService = aclService;
-            _catalogSearchService = catalogSearchService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly ICacheManager _cache = cache;
+        private readonly IRequestCache _requestCache = requestCache;
+        private readonly IStoreMappingService _storeMappingService = storeMappingService;
+        private readonly IAclService _aclService = aclService;
+        private readonly ICatalogSearchService _catalogSearchService = catalogSearchService;
 
         public virtual async Task DeleteCategoryAsync(Category category, bool deleteSubCategories = false)
         {

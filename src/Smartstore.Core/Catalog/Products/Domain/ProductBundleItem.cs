@@ -134,32 +134,28 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <inheritdoc/>
-        public ProductBundleItem Clone()
-        {
-            var bundleItem = new ProductBundleItem
-            {
-                ProductId = ProductId,
-                BundleProductId = BundleProductId,
-                Quantity = Quantity,
-                Discount = Discount,
-                DiscountPercentage = DiscountPercentage,
-                Name = Name,
-                ShortDescription = ShortDescription,
-                FilterAttributes = FilterAttributes,
-                HideThumbnail = HideThumbnail,
-                Visible = Visible,
-                Published = Published,
-                DisplayOrder = DisplayOrder,
-                CreatedOnUtc = CreatedOnUtc,
-                UpdatedOnUtc = UpdatedOnUtc
-            };
+        public ProductBundleItem Clone() =>
+             new ProductBundleItem
+             {
+                 ProductId = ProductId,
+                 BundleProductId = BundleProductId,
+                 Quantity = Quantity,
+                 Discount = Discount,
+                 DiscountPercentage = DiscountPercentage,
+                 Name = Name,
+                 ShortDescription = ShortDescription,
+                 FilterAttributes = FilterAttributes,
+                 HideThumbnail = HideThumbnail,
+                 Visible = Visible,
+                 Published = Published,
+                 DisplayOrder = DisplayOrder,
+                 CreatedOnUtc = CreatedOnUtc,
+                 UpdatedOnUtc = UpdatedOnUtc
+             };
 
-            return bundleItem;
-        }
 
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+
+
+        object ICloneable.Clone() => Clone();
     }
 }

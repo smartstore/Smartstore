@@ -5,15 +5,10 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
 {
-    internal class MeasureDimensionHook : AsyncDbSaveHook<MeasureDimension>
+    internal class MeasureDimensionHook(MeasureSettings measureSettings) : AsyncDbSaveHook<MeasureDimension>
     {
-        private readonly MeasureSettings _measureSettings;
+        private readonly MeasureSettings _measureSettings = measureSettings;
         private string _hookErrorMessage;
-
-        public MeasureDimensionHook(MeasureSettings measureSettings)
-        {
-            _measureSettings = measureSettings;
-        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

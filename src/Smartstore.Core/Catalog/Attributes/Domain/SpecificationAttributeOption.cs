@@ -9,12 +9,10 @@ namespace Smartstore.Core.Catalog.Attributes
 {
     internal class SpecificationAttributeOptionMap : IEntityTypeConfiguration<SpecificationAttributeOption>
     {
-        public void Configure(EntityTypeBuilder<SpecificationAttributeOption> builder)
-        {
+        public void Configure(EntityTypeBuilder<SpecificationAttributeOption> builder) => 
             builder.HasOne(c => c.SpecificationAttribute)
-                .WithMany(c => c.SpecificationAttributeOptions)
-                .HasForeignKey(c => c.SpecificationAttributeId);
-        }
+                   .WithMany(c => c.SpecificationAttributeOptions)
+                   .HasForeignKey(c => c.SpecificationAttributeId);
     }
 
     /// <summary>

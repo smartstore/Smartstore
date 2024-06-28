@@ -4,7 +4,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class CustomerAuthenticationRule : IRule<CartRuleContext>
+    internal class CustomerAuthenticationRule(SmartDbContext db) : IRule<CartRuleContext>
     {
         // INFO: ExternalAuthenticationRecord.ProviderSystemName always contains the old system name, even for new logins!
         private readonly static FrozenDictionary<string, string> _legacyAuthenticationNamesMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -15,12 +15,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         }
         .ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-        private readonly SmartDbContext _db;
-
-        public CustomerAuthenticationRule(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

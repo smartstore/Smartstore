@@ -4,28 +4,21 @@ using Smartstore.Core.Common.Configuration;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class RoundingHelper : IRoundingHelper
+    public partial class RoundingHelper(IWorkContext workContext, CurrencySettings currencySettings) : IRoundingHelper
     {
-        private readonly IWorkContext _workContext;
-        private readonly CurrencySettings _currencySettings;
-
-        public RoundingHelper(IWorkContext workContext, CurrencySettings currencySettings)
-        {
-            _workContext = workContext;
-            _currencySettings = currencySettings;
-        }
+        private readonly IWorkContext _workContext = workContext;
+        private readonly CurrencySettings _currencySettings = currencySettings;
 
         public virtual decimal Round(decimal amount, Currency currency = null)
         {
             currency ??= _workContext.WorkingCurrency;
+
             return Round(amount, currency.RoundNumDecimals, currency.MidpointRounding);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.AwayFromZero)
-        {
-            return decimal.Round(amount, decimals, Convert(midpointRounding));
-        }
+        public virtual decimal Round(decimal amount, int decimals, CurrencyMidpointRounding midpointRounding = CurrencyMidpointRounding.AwayFromZero) => 
+            decimal.Round(amount, decimals, Convert(midpointRounding));
 
         public virtual bool IsShoppingCartRoundingEnabled(Currency currency = null, TaxDisplayType? taxDisplayType = null)
         {

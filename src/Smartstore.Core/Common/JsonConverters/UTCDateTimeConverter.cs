@@ -9,20 +9,13 @@ namespace Smartstore.Core.Common.JsonConverters
     {
         private readonly DateTimeConverterBase _innerConverter;
 
-        public UTCDateTimeConverter(DateTimeConverterBase innerConverter)
-        {
+        public UTCDateTimeConverter(DateTimeConverterBase innerConverter) => 
             _innerConverter = Guard.NotNull(innerConverter, nameof(innerConverter));
-        }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return _innerConverter.CanConvert(objectType);
-        }
+        public override bool CanConvert(Type objectType) => _innerConverter.CanConvert(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return _innerConverter.ReadJson(reader, objectType, existingValue, serializer);
-        }
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => 
+            _innerConverter.ReadJson(reader, objectType, existingValue, serializer);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

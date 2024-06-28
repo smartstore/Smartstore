@@ -5,14 +5,9 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Catalog.Attributes.Rules
 {
-    public partial class SpecificationAttributeOptionRuleOptionsProvider : IRuleOptionsProvider
+    public partial class SpecificationAttributeOptionRuleOptionsProvider(SmartDbContext db) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-
-        public SpecificationAttributeOptionRuleOptionsProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public int Order => 0;
 

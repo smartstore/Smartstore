@@ -8,26 +8,18 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class DateTimeHelper : IDateTimeHelper
+    public partial class DateTimeHelper(
+        SmartDbContext db,
+        ISettingService settingService,
+        IWorkContext workContext,
+        DateTimeSettings dateTimeSettings) : IDateTimeHelper
     {
-        private readonly SmartDbContext _db;
-        private readonly ISettingService _settingService;
-        private readonly IWorkContext _workContext;
-        private readonly DateTimeSettings _dateTimeSettings;
+        private readonly SmartDbContext _db = db;
+        private readonly ISettingService _settingService = settingService;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly DateTimeSettings _dateTimeSettings = dateTimeSettings;
 
         private TimeZoneInfo _cachedUserTimeZone;
-
-        public DateTimeHelper(
-            SmartDbContext db,
-            ISettingService settingService,
-            IWorkContext workContext,
-            DateTimeSettings dateTimeSettings)
-        {
-            _db = db;
-            _settingService = settingService;
-            _workContext = workContext;
-            _dateTimeSettings = dateTimeSettings;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual TimeZoneInfo FindTimeZoneById(string id)

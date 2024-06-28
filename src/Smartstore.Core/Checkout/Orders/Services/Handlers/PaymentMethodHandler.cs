@@ -8,30 +8,20 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     [CheckoutStep(40, CheckoutActionNames.PaymentMethod)]
-    public class PaymentMethodHandler : ICheckoutHandler
+    public class PaymentMethodHandler(
+        SmartDbContext db,
+        IPaymentService paymentService,
+        IOrderCalculationService orderCalculationService,
+        ICheckoutStateAccessor checkoutStateAccessor,
+        PaymentSettings paymentSettings,
+        ShoppingCartSettings shoppingCartSettings) : ICheckoutHandler
     {
-        private readonly SmartDbContext _db;
-        private readonly IPaymentService _paymentService;
-        private readonly IOrderCalculationService _orderCalculationService;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly PaymentSettings _paymentSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-
-        public PaymentMethodHandler(
-            SmartDbContext db,
-            IPaymentService paymentService,
-            IOrderCalculationService orderCalculationService,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            PaymentSettings paymentSettings,
-            ShoppingCartSettings shoppingCartSettings)
-        {
-            _db = db;
-            _paymentService = paymentService;
-            _orderCalculationService = orderCalculationService;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _paymentSettings = paymentSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IPaymentService _paymentService = paymentService;
+        private readonly IOrderCalculationService _orderCalculationService = orderCalculationService;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor = checkoutStateAccessor;
+        private readonly PaymentSettings _paymentSettings = paymentSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
 
         public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {

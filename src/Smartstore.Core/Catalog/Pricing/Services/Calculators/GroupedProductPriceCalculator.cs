@@ -8,17 +8,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// the lowest price of all associated products.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.GroupedProduct, CalculatorOrdering.Early)]
-    public class GroupedProductPriceCalculator : PriceCalculator
+    public class GroupedProductPriceCalculator(
+        ICatalogSearchService catalogSearchService,
+        IPriceCalculatorFactory calculatorFactory, 
+        IProductService productService) : PriceCalculator(calculatorFactory)
     {
-        private readonly ICatalogSearchService _catalogSearchService;
-        private readonly IProductService _productService;
-
-        public GroupedProductPriceCalculator(ICatalogSearchService catalogSearchService, IPriceCalculatorFactory calculatorFactory, IProductService productService)
-            : base(calculatorFactory)
-        {
-            _catalogSearchService = catalogSearchService;
-            _productService = productService;
-        }
+        private readonly ICatalogSearchService _catalogSearchService = catalogSearchService;
+        private readonly IProductService _productService = productService;
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

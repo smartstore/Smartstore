@@ -10,18 +10,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// Also applies the discount amount on the minimum tier price if <see cref="PriceCalculationOptions.IgnorePercentageDiscountOnTierPrices"/> is activated.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.All, CalculatorOrdering.Late)]
-    public class DiscountPriceCalculator : IPriceCalculator
+    public class DiscountPriceCalculator(
+        SmartDbContext db,
+        IDiscountService discountService, 
+        PriceSettings priceSettings) : IPriceCalculator
     {
-        private readonly SmartDbContext _db;
-        private readonly IDiscountService _discountService;
-        private readonly PriceSettings _priceSettings;
-
-        public DiscountPriceCalculator(SmartDbContext db, IDiscountService discountService, PriceSettings priceSettings)
-        {
-            _db = db;
-            _discountService = discountService;
-            _priceSettings = priceSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IDiscountService _discountService = discountService;
+        private readonly PriceSettings _priceSettings = priceSettings;
 
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

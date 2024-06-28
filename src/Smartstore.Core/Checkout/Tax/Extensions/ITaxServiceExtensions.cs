@@ -38,6 +38,7 @@ namespace Smartstore
                 return source;
 
             var format = taxService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.Product, language);
+
             return source.WithPostFormat(format);
         }
 
@@ -71,6 +72,7 @@ namespace Smartstore
                 return source;
 
             var format = taxService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.ShippingCharge, language);
+
             return source.WithPostFormat(format);
         }
 
@@ -104,6 +106,7 @@ namespace Smartstore
                 return source;
 
             var format = taxService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.PaymentFee, language);
+
             return source.WithPostFormat(format);
         }
     }

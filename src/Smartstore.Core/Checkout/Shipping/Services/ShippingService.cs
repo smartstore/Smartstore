@@ -15,39 +15,26 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
-    public partial class ShippingService : IShippingService
+    public partial class ShippingService(
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+        IRuleProviderFactory ruleProviderFactory,
+        ShippingSettings shippingSettings,
+        IProviderManager providerManager,
+        ISettingFactory settingFactory,
+        IRoundingHelper roundingHelper,
+        IStoreContext storeContext,
+        SmartDbContext db) : IShippingService
     {
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly ICartRuleProvider _cartRuleProvider;
-        private readonly ShippingSettings _shippingSettings;
-        private readonly IProviderManager _providerManager;
-        private readonly ISettingFactory _settingFactory;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IStoreContext _storeContext;
-        private readonly SmartDbContext _db;
-
-        public ShippingService(
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            IRuleProviderFactory ruleProviderFactory,
-            ShippingSettings shippingSettings,
-            IProviderManager providerManager,
-            ISettingFactory settingFactory,
-            IRoundingHelper roundingHelper,
-            IStoreContext storeContext,
-            SmartDbContext db)
-        {
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
-            _shippingSettings = shippingSettings;
-            _providerManager = providerManager;
-            _settingFactory = settingFactory;
-            _roundingHelper = roundingHelper;
-            _storeContext = storeContext;
-            _db = db;
-        }
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+        private readonly ICartRuleProvider _cartRuleProvider = ruleProviderFactory.GetProvider<ICartRuleProvider>(RuleScope.Cart);
+        private readonly ShippingSettings _shippingSettings = shippingSettings;
+        private readonly IProviderManager _providerManager = providerManager;
+        private readonly ISettingFactory _settingFactory = settingFactory;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly SmartDbContext _db = db;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -146,8 +133,8 @@ namespace Smartstore.Core.Checkout.Shipping
         }
 
         public virtual ShippingOptionRequest CreateShippingOptionRequest(
-            ShoppingCart cart, 
-            Address shippingAddress, 
+            ShoppingCart cart,
+            Address shippingAddress,
             int storeId,
             bool matchRules = true)
         {
@@ -324,15 +311,11 @@ namespace Smartstore.Core.Checkout.Shipping
 
             return cartWeight;
 
-            bool IgnoreCartItem(OrganizedShoppingCartItem cartItem)
-            {
-                return !includeFreeShippingProducts && cartItem.Item.Product.IsFreeShipping;
-            }
+            bool IgnoreCartItem(OrganizedShoppingCartItem cartItem) =>
+                !includeFreeShippingProducts && cartItem.Item.Product.IsFreeShipping;
 
-            static string CreateAttributeKey(int productVariantAttributeId, int productVariantAttributeValueId)
-            {
-                return productVariantAttributeId + "-" + productVariantAttributeValueId;
-            }
+            static string CreateAttributeKey(int productVariantAttributeId, int productVariantAttributeValueId) =>
+                productVariantAttributeId + "-" + productVariantAttributeValueId;
         }
     }
 }

@@ -11,33 +11,22 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductUrlHelper
+    public partial class ProductUrlHelper(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IWebHelper webHelper,
+        Lazy<IUrlHelper> urlHelper,
+        IHttpContextAccessor httpContextAccessor,
+        Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IWebHelper _webHelper;
-        private readonly Lazy<IUrlHelper> _urlHelper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
-
-        public ProductUrlHelper(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IWebHelper webHelper,
-            Lazy<IUrlHelper> urlHelper,
-            IHttpContextAccessor httpContextAccessor,
-            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _webHelper = webHelper;
-            _urlHelper = urlHelper;
-            _httpContextAccessor = httpContextAccessor;
-            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper = urlHelper;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
 
         /// <summary>
         /// URL of the product page used to create the new product URL. Created from route if <c>null</c>.

@@ -6,10 +6,8 @@ namespace Smartstore.Core.Common
 {
     internal class MeasureWeightMap : IEntityTypeConfiguration<MeasureWeight>
     {
-        public void Configure(EntityTypeBuilder<MeasureWeight> builder)
-        {
+        public void Configure(EntityTypeBuilder<MeasureWeight> builder) => 
             builder.Property(c => c.Ratio).HasPrecision(18, 8);
-        }
     }
 
     /// <summary>

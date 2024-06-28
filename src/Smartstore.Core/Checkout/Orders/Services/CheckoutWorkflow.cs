@@ -14,53 +14,36 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class CheckoutWorkflow : ICheckoutWorkflow
+    public partial class CheckoutWorkflow(
+        SmartDbContext db,
+        IStoreContext storeContext,
+        INotifier notifier,
+        ILogger logger,
+        IWebHelper webHelper,
+        IEventPublisher eventPublisher,
+        IShoppingCartValidator shoppingCartValidator,
+        IOrderProcessingService orderProcessingService,
+        IPaymentService paymentService,
+        ICheckoutFactory checkoutFactory,
+        ICheckoutStateAccessor checkoutStateAccessor,
+        OrderSettings orderSettings,
+        ShoppingCartSettings shoppingCartSettings) : ICheckoutWorkflow
     {
         const int _maxWarnings = 3;
 
-        private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
-        private readonly INotifier _notifier;
-        private readonly ILogger _logger;
-        private readonly IWebHelper _webHelper;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IOrderProcessingService _orderProcessingService;
-        private readonly IPaymentService _paymentService;
-        private readonly ICheckoutFactory _checkoutFactory;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly OrderSettings _orderSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-
-        public CheckoutWorkflow(
-            SmartDbContext db,
-            IStoreContext storeContext,
-            INotifier notifier,
-            ILogger logger,
-            IWebHelper webHelper,
-            IEventPublisher eventPublisher,
-            IShoppingCartValidator shoppingCartValidator,
-            IOrderProcessingService orderProcessingService,
-            IPaymentService paymentService,
-            ICheckoutFactory checkoutFactory,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            OrderSettings orderSettings,
-            ShoppingCartSettings shoppingCartSettings)
-        {
-            _db = db;
-            _storeContext = storeContext;
-            _notifier = notifier;
-            _logger = logger;
-            _webHelper = webHelper;
-            _eventPublisher = eventPublisher;
-            _shoppingCartValidator = shoppingCartValidator;
-            _orderProcessingService = orderProcessingService;
-            _paymentService = paymentService;
-            _checkoutFactory = checkoutFactory;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _orderSettings = orderSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly INotifier _notifier = notifier;
+        private readonly ILogger _logger = logger;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly IShoppingCartValidator _shoppingCartValidator = shoppingCartValidator;
+        private readonly IOrderProcessingService _orderProcessingService = orderProcessingService;
+        private readonly IPaymentService _paymentService = paymentService;
+        private readonly ICheckoutFactory _checkoutFactory = checkoutFactory;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor = checkoutStateAccessor;
+        private readonly OrderSettings _orderSettings = orderSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

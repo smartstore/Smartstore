@@ -111,17 +111,14 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets a value indicating whether the attribute has a list of values.
         /// </summary>
-        public bool IsListTypeAttribute()
+        public bool IsListTypeAttribute() => AttributeControlType switch
         {
-            return AttributeControlType switch
-            {
-                AttributeControlType.TextBox or
-                AttributeControlType.MultilineTextbox or
-                AttributeControlType.Datepicker or
-                AttributeControlType.FileUpload => false,
-                _ => true,  // All other attribute control types support values.
-            };
-        }
+            AttributeControlType.TextBox or
+            AttributeControlType.MultilineTextbox or
+            AttributeControlType.Datepicker or
+            AttributeControlType.FileUpload => false,
+            _ => true,  // All other attribute control types support values.
+        };
 
         private ICollection<ProductVariantAttributeValue> _productVariantAttributeValues;
         /// <summary>
@@ -144,19 +141,16 @@ namespace Smartstore.Core.Catalog.Attributes
             set => _ruleSet = value;
         }
 
-        public ProductVariantAttribute Clone()
+        public ProductVariantAttribute Clone() => new()
         {
-            return new()
-            {
-                ProductId = ProductId,
-                ProductAttributeId = ProductAttributeId,
-                TextPrompt = TextPrompt,
-                CustomData = CustomData,
-                IsRequired = IsRequired,
-                AttributeControlTypeId = AttributeControlTypeId,
-                DisplayOrder = DisplayOrder,
-            };
-        }
+            ProductId = ProductId,
+            ProductAttributeId = ProductAttributeId,
+            TextPrompt = TextPrompt,
+            CustomData = CustomData,
+            IsRequired = IsRequired,
+            AttributeControlTypeId = AttributeControlTypeId,
+            DisplayOrder = DisplayOrder,
+        };
 
         object ICloneable.Clone()
             => Clone();

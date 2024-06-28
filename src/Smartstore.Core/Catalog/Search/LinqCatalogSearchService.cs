@@ -9,31 +9,21 @@ using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Catalog.Search
 {
-    public partial class LinqCatalogSearchService : SearchServiceBase, ICatalogSearchService
+    public partial class LinqCatalogSearchService(
+        SmartDbContext db,
+        IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>> queryVisitors,
+        ICommonServices services,
+        ICategoryService categoryService) : SearchServiceBase, ICatalogSearchService
     {
         private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
 
-        private readonly SmartDbContext _db;
-        private readonly LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>[] _queryVisitors;
-        private readonly ICommonServices _services;
-        private readonly ICategoryService _categoryService;
+        private readonly SmartDbContext _db = db;
+        private readonly LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>[] _queryVisitors = queryVisitors.OrderBy(x => x.Order).ToArray();
+        private readonly ICommonServices _services = services;
+        private readonly ICategoryService _categoryService = categoryService;
 
-        public LinqCatalogSearchService(
-            SmartDbContext db,
-            IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>> queryVisitors,
-            ICommonServices services,
-            ICategoryService categoryService)
-        {
-            _db = db;
-            _queryVisitors = queryVisitors.OrderBy(x => x.Order).ToArray();
-            _services = services;
-            _categoryService = categoryService;
-        }
-
-        public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null)
-        {
-            return GetProductQuery(searchQuery, baseQuery);
-        }
+        public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null) =>
+            GetProductQuery(searchQuery, baseQuery);
 
         public async Task<CatalogSearchResult> SearchAsync(CatalogSearchQuery searchQuery, bool direct = false)
         {
@@ -315,6 +305,7 @@ namespace Smartstore.Core.Catalog.Search
                 .ToListAsync();
 
             var result = values.ToDictionarySafe(x => x.EntityId, x => x.LocaleValue);
+
             return result;
         }
 

@@ -1,14 +1,8 @@
 ﻿namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductClonedEvent
+    public class ProductClonedEvent(Product source, Product clone)
     {
-        public ProductClonedEvent(Product source, Product clone)
-        {
-            Source = Guard.NotNull(source);
-            Clone = Guard.NotNull(clone);
-        }
-
-        public Product Source { get; }
-        public Product Clone { get; }
+        public Product Source { get; } = Guard.NotNull(source);
+        public Product Clone { get; } = Guard.NotNull(clone);
     }
 }
