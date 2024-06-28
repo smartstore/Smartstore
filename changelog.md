@@ -106,7 +106,9 @@
 - Fixed `NullReferenceException` calling search page without any search term.
 - Fixed `NullReferenceException` *typeFilter was null* when uploading a video.
 - Fixed `NullReferenceException` on product detail page if the main menu is not published.
-- MegaSearch: hits from an SKU search tend to appear too far back.
+- MegaSearch: 
+  - Fixed missing search filters for specification attribute options with numeric values.
+  - Hits from an SKU search tend to appear too far back.
 - Tax by region: fixed tax rate was not applied if asterisk placeholder character was saved for zip code.
 - #921 IOException "The filename, directory name, or volume label syntax is incorrect" when `MediaSettings.AppendFileVersionToUrl` is activated.
 - #922 Newsletter subscription event not triggered upon email confirmation.
