@@ -6,13 +6,11 @@ namespace Smartstore.Core.Content.Media
 {
     internal class DownloadMap : IEntityTypeConfiguration<Download>
     {
-        public void Configure(EntityTypeBuilder<Download> builder)
-        {
+        public void Configure(EntityTypeBuilder<Download> builder) =>
             builder.HasOne(c => c.MediaFile)
-                .WithMany()
-                .HasForeignKey(c => c.MediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
-        }
+                   .WithMany()
+                   .HasForeignKey(c => c.MediaFileId)
+                   .OnDelete(DeleteBehavior.SetNull);
     }
 
     /// <summary>
@@ -107,9 +105,6 @@ namespace Smartstore.Core.Content.Media
             return download;
         }
 
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+        object ICloneable.Clone() => Clone();
     }
 }

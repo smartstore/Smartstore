@@ -8,22 +8,15 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media.Hooks
 {
-    internal class ImageOffloaderHook : AsyncDbSaveHook<BaseEntity>
+    internal class ImageOffloaderHook(
+        Lazy<IImageOffloder> imageOffloader,
+        Lazy<SmartDbContext> db,
+        MediaSettings mediaSettings) : AsyncDbSaveHook<BaseEntity>
     {
-        private readonly Lazy<IImageOffloder> _imageOffloader;
-        private readonly Lazy<SmartDbContext> _db;
-        private readonly MediaSettings _mediaSettings;
+        private readonly Lazy<IImageOffloder> _imageOffloader = imageOffloader;
+        private readonly Lazy<SmartDbContext> _db = db;
+        private readonly MediaSettings _mediaSettings = mediaSettings;
         private readonly HashSet<BaseEntity> _toProcess = new();
-
-        public ImageOffloaderHook(
-            Lazy<IImageOffloder> imageOffloader, 
-            Lazy<SmartDbContext> db, 
-            MediaSettings mediaSettings)
-        {
-            _imageOffloader = imageOffloader;
-            _db = db;
-            _mediaSettings = mediaSettings;
-        }
 
         private static bool IsValidEntry(IHookedEntity entry)
         {
@@ -147,15 +140,12 @@ namespace Smartstore.Core.Content.Media.Hooks
             }
         }
 
-        private static string GetEntityTag(BaseEntity entity)
+        private static string GetEntityTag(BaseEntity entity) => entity switch
         {
-            return entity switch
-            {
-                Product x => "p" + x.Id.ToStringInvariant(),
-                Category x => "c" + x.Id.ToStringInvariant(),
-                Manufacturer x => "m" + x.Id.ToStringInvariant(),
-                _ => "t" + entity.Id.ToStringInvariant()
-            };
-        }
+            Product x => "p" + x.Id.ToStringInvariant(),
+            Category x => "c" + x.Id.ToStringInvariant(),
+            Manufacturer x => "m" + x.Id.ToStringInvariant(),
+            _ => "t" + entity.Id.ToStringInvariant()
+        };
     }
 }

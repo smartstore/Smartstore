@@ -4,7 +4,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Content.Media
 {
     [Important]
-    internal sealed class MediaTrackerHook : AsyncDbSaveHook<BaseEntity>
+    internal sealed class MediaTrackerHook(Lazy<IMediaTracker> mediaTracker) : AsyncDbSaveHook<BaseEntity>
     {
         // Track items for the current (SaveChanges) unit.
         private readonly HashSet<MediaTrack> _actionsUnit = new();
@@ -15,12 +15,7 @@ namespace Smartstore.Core.Content.Media
         // Entities that are not saved yet but contain effective changes. We won't track if an error occurred during save.
         private readonly Dictionary<BaseEntity, HashSet<MediaTrack>> _actionsTemp = new();
 
-        private readonly Lazy<IMediaTracker> _mediaTracker;
-
-        public MediaTrackerHook(Lazy<IMediaTracker> mediaTracker)
-        {
-            _mediaTracker = mediaTracker;
-        }
+        private readonly Lazy<IMediaTracker> _mediaTracker = mediaTracker;
 
         internal static bool Silent { get; set; }
 

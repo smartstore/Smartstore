@@ -13,15 +13,9 @@ using Smartstore.Data;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class SystemAlbumProvider : IAlbumProvider, IMediaTrackDetector
+    public class SystemAlbumProvider(SmartDbContext db) : IAlbumProvider, IMediaTrackDetector
     {
-        private readonly SmartDbContext _db;
-
-        public SystemAlbumProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
-
+        private readonly SmartDbContext _db = db;
         public const string Catalog = "catalog";
         public const string Content = "content";
         public const string Downloads = "download";

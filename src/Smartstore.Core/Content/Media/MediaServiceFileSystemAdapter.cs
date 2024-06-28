@@ -10,38 +10,26 @@ namespace Smartstore.Core.Content.Media
     /// <summary>
     /// A media service implementation that emulates file system.
     /// </summary>
-    public partial class MediaServiceFileSystemAdapter : FileSystemBase, IMediaFileSystem
+    public partial class MediaServiceFileSystemAdapter(
+        IMediaService mediaService,
+        IMediaSearcher mediaSearcher,
+        IFolderService folderService,
+        IMediaStorageConfiguration storageConfig,
+        MediaHelper mediaHelper,
+        MediaExceptionFactory exceptionFactory) : FileSystemBase, IMediaFileSystem
     {
-        private readonly IMediaService _mediaService;
-        private readonly IMediaSearcher _mediaSearcher;
-        private readonly IFolderService _folderService;
-        private readonly MediaHelper _mediaHelper;
-        private readonly IMediaStorageProvider _storageProvider;
-        private readonly MediaExceptionFactory _exceptionFactory;
-        private readonly string _mediaRootPath;
-
-        public MediaServiceFileSystemAdapter(
-            IMediaService mediaService,
-            IMediaSearcher mediaSearcher,
-            IFolderService folderService,
-            IMediaStorageConfiguration storageConfig,
-            MediaHelper mediaHelper,
-            MediaExceptionFactory exceptionFactory)
-        {
-            _mediaService = mediaService;
-            _mediaSearcher = mediaSearcher;
-            _folderService = folderService;
-            _mediaHelper = mediaHelper;
-            _storageProvider = mediaService.StorageProvider;
-            _exceptionFactory = exceptionFactory;
-            _mediaRootPath = storageConfig.PublicPath;
-            StorageConfiguration = storageConfig;
-        }
+        private readonly IMediaService _mediaService = mediaService;
+        private readonly IMediaSearcher _mediaSearcher = mediaSearcher;
+        private readonly IFolderService _folderService = folderService;
+        private readonly MediaHelper _mediaHelper = mediaHelper;
+        private readonly IMediaStorageProvider _storageProvider = mediaService.StorageProvider;
+        private readonly MediaExceptionFactory _exceptionFactory = exceptionFactory;
+        private readonly string _mediaRootPath = storageConfig.PublicPath;
 
         protected string Fix(string path)
             => path.Replace('\\', '/');
 
-        public IMediaStorageConfiguration StorageConfiguration { get; }
+        public IMediaStorageConfiguration StorageConfiguration { get; } = storageConfig;
 
         public bool IsCloudStorage => _storageProvider.IsCloudStorage;
 

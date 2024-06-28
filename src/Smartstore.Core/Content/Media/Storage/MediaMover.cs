@@ -7,20 +7,13 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Content.Media.Storage
 {
-    public class MediaMover : IMediaMover
+    public class MediaMover(SmartDbContext db, INotifier notifier, ISettingService settingService) : IMediaMover
     {
         private const int PAGE_SIZE = 50;
 
-        private readonly SmartDbContext _db;
-        private readonly INotifier _notifier;
-        private readonly ISettingService _settingService;
-
-        public MediaMover(SmartDbContext db, INotifier notifier, ISettingService settingService)
-        {
-            _db = db;
-            _notifier = notifier;
-            _settingService = settingService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly INotifier _notifier = notifier;
+        private readonly ISettingService _settingService = settingService;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;

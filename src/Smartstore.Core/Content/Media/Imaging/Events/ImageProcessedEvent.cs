@@ -3,15 +3,9 @@
     /// <summary>
     /// Published after processing finishes.
     /// </summary>
-    public class ImageProcessedEvent
+    public class ImageProcessedEvent(ProcessImageQuery query, ProcessImageResult result)
     {
-        public ImageProcessedEvent(ProcessImageQuery query, ProcessImageResult result)
-        {
-            Query = query;
-            Result = result;
-        }
-
-        public ProcessImageQuery Query { get; private set; }
-        public ProcessImageResult Result { get; private set; }
+        public ProcessImageQuery Query { get; private set; } = query;
+        public ProcessImageResult Result { get; private set; } = result;
     }
 }
