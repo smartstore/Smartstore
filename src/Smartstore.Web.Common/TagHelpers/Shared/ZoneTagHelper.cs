@@ -26,7 +26,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         [HtmlAttributeName(NameAttributeName)]
-        public virtual string ZoneName { get; set; }
+        public virtual string Name { get; set; }
 
         [HtmlAttributeName(ModelAttributeName)]
         public object Model { get; set; }
@@ -67,9 +67,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             var model = Model ?? ViewContext.ViewData.Model;
 
             // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
-            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, ZoneName);
+            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, Name);
             // ...if not, generate it here.
-            zoneContent ??= await _widgetSelector.GetContentAsync(ZoneName, ViewContext, model);
+            zoneContent ??= await _widgetSelector.GetContentAsync(Name, ViewContext, model);
 
             // Publish event to give integrators a chance to inject custom content to the zone.
             var renderEvent = new ViewZoneRenderingEvent(this, zoneContent, ViewContext)
@@ -128,10 +128,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         /// <inheritdoc/>
         [HtmlAttributeName(ZoneNameAttributeName)]
-        public override string ZoneName
+        public override string Name
         {
-            get => base.ZoneName;
-            set => base.ZoneName = value;
+            get => base.Name;
+            set => base.Name = value;
         }
     }
 }

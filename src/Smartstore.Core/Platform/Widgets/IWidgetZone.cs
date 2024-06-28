@@ -10,7 +10,7 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// The name of the zone which is rendered.
         /// </summary>
-        string ZoneName { get; }
+        string Name { get; }
 
         /// <summary>
         /// The view model.
@@ -38,11 +38,41 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// The css class(es) to apply to the widget zone preview.
         /// </summary>
-        string PreviewCssClass { get; }
+        string? PreviewCssClass { get; }
 
         /// <summary>
         /// The css style(s) to apply to the widget zone preview.
         /// </summary>
-        string PreviewCssStyle { get; }
+        string? PreviewCssStyle { get; }
+    }
+
+    public class PlainWidgetZone : IWidgetZone
+    {
+        public PlainWidgetZone(string name)
+        {
+            Guard.NotEmpty(name);
+            Name = name;
+        }
+
+        /// <inheritdoc />
+        public string Name { get; set; }
+
+        /// <inheritdoc />
+        public object? Model { get; set; }
+
+        /// <inheritdoc />
+        public bool ReplaceContent { get; set; }
+
+        /// <inheritdoc />
+        public bool RemoveIfEmpty { get; set; }
+
+        /// <inheritdoc />
+        public bool PreviewDisabled { get; set; }
+
+        /// <inheritdoc />
+        public string? PreviewCssClass { get; set; }
+
+        /// <inheritdoc />
+        public string? PreviewCssStyle { get; set; }
     }
 }

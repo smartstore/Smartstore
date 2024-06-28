@@ -43,8 +43,8 @@ namespace Smartstore.DevTools
 
             var tag = new TagBuilder("span");
             tag.Attributes["class"] = "widget-zone-info badge badge-primary badge-subtle badge-ring text-truncate";
-            tag.Attributes["title"] = zone.ZoneName;
-            tag.InnerHtml.AppendHtml($"<span class=\"text-truncate\">{zone.ZoneName}</span>");
+            tag.Attributes["title"] = zone.Name;
+            tag.InnerHtml.AppendHtml($"<span class=\"text-truncate\">{zone.Name}</span>");
 
             if (!string.IsNullOrEmpty(zone.PreviewCssClass))
             {
