@@ -6,24 +6,7 @@ namespace Smartstore
     public static class WidgetDisplayHelperExtensions
     {
         /// <summary>
-        /// Checks whether the given <paramref name="zone"/> contains at least one widget
-        /// that produces non-whitespace content.
-        /// </summary>
-        /// <remarks>
-        /// This method must actually INVOKE widgets in order to scan for content.
-        /// It will break iteration on first found real content though.
-        /// But to check for the mere existence of widgets in a zone it is better to call 
-        /// <see cref="IWidgetSelector.GetWidgetsAsync(string, object)"/>.Any() instead.
-        /// </remarks>
-        /// <param name="zone">The zone name to check.</param>
-        /// <param name="viewContext">The current view context.</param>
-        public static Task<bool> ZoneHasContentAsync(this IDisplayHelper displayHelper, string zone, ViewContext viewContext)
-        {
-            return displayHelper.Resolve<IWidgetSelector>().HasContentAsync(zone, viewContext);
-        }
-
-        /// <summary>
-        /// Checks whether the given <paramref name="zone"/> contains at least one widget.
+        /// Checks whether the given <paramref name="zoneName"/> contains at least one widget.
         /// </summary>
         /// <remarks>
         /// Because of deferred result invocation this method cannot check whether 
@@ -33,10 +16,27 @@ namespace Smartstore
         /// To check whether a zone actually contains non-whitespace content, 
         /// call <see cref="ZoneHasContentAsync(IDisplayHelper, string, ViewContext)"/> instead.
         /// </remarks>
-        /// <param name="zone">The zone name to check.</param>
-        public static async Task<bool> ZoneHasWidgetsAsync(this IDisplayHelper displayHelper, string zone)
+        /// <param name="zoneName">The zone name to check.</param>
+        public static ValueTask<bool> ZoneHasWidgetsAsync(this IDisplayHelper displayHelper, string zoneName)
         {
-            return (await displayHelper.Resolve<IWidgetSelector>().GetWidgetsAsync(zone)).Any();
+            return displayHelper.Resolve<IWidgetSelector>().EnumerateWidgetsAsync(zoneName).AnyAsync();
+        }
+
+        /// <summary>
+        /// Checks whether the given <paramref name="zoneName"/> contains at least one widget
+        /// that produces non-whitespace content.
+        /// </summary>
+        /// <remarks>
+        /// This method must actually INVOKE widgets in order to scan for content.
+        /// It will break iteration on first found real content though.
+        /// But to check for the mere existence of widgets in a zone it is better to call 
+        /// <see cref="IWidgetSelector.EnumerateWidgetsAsync(IWidgetZone)"/>.AnyAsync() instead.
+        /// </remarks>
+        /// <param name="zoneName">The zone name to check.</param>
+        /// <param name="viewContext">The current view context.</param>
+        public static Task<bool> ZoneHasContentAsync(this IDisplayHelper displayHelper, string zoneName, ViewContext viewContext)
+        {
+            return displayHelper.Resolve<IWidgetSelector>().HasContentAsync(zoneName, viewContext);
         }
     }
 }

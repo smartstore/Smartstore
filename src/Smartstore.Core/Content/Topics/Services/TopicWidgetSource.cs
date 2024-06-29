@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Topics
 
         public int Order => 0;
 
-        public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, bool isPublicArea, object model = null)
+        public async Task<IEnumerable<Widget>> GetWidgetsAsync(IWidgetZone zone, bool isPublicArea)
         {
             if (!isPublicArea)
             {
@@ -144,7 +144,7 @@ namespace Smartstore.Core.Content.Topics
                 return map;
             });
 
-            if (topicsByZone.TryGetValues(zone, out var values))
+            if (topicsByZone.TryGetValues(zone.Name, out var values))
             {
                 return values;
             }
@@ -156,7 +156,7 @@ namespace Smartstore.Core.Content.Topics
     internal class TopicWidgetInvoker : ComponentWidget
     {
         public TopicWidgetInvoker(TopicWidget model)
-            : base("TopicWidget", new { model = Guard.NotNull(model, nameof(model)) })
+            : base("TopicWidget", new { model = Guard.NotNull(model) })
         {
             // TODO: (core) TopicWidgetInvoker: I don't like the fact that a core library calls into web frontend.
             // Maybe we can granularize this part and move it to web project.

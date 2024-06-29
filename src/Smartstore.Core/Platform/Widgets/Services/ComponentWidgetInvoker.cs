@@ -102,7 +102,7 @@ namespace Smartstore.Core.Widgets
                 return arguments;
             }
 
-            var model = context.Model ?? context.ViewData?.Model;
+            var model = context.Model ?? context.Zone?.Model ?? context.ViewData?.Model;
             if (model == null)
             {
                 return null;

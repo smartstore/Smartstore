@@ -17,34 +17,59 @@ namespace Smartstore.Core.Widgets
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, object model = null)
+        public virtual async IAsyncEnumerable<Widget> EnumerateWidgetsAsync(IWidgetZone zone)
         {
-            Guard.NotEmpty(zone);
+            Guard.NotNull(zone);
 
             var httpContext = _httpContextAccessor.HttpContext;
             var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
-            var zoneAliases = GetZoneAliases(zone);
-            var sortedWidgets = new SortedSet<Widget>();
+            var zoneAliases = GetZoneAliases(zone.Name);
 
             for (var i = 0; i < _widgetSources.Length; i++)
             {
-                var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea, model);
+                var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea);
                 if (localWidgets != null)
                 {
-                    sortedWidgets.AddRange(localWidgets);
+                    foreach (var widget in localWidgets)
+                    {
+                        if (widget.IsValid(zone))
+                        {
+                            yield return widget;
+                        }
+                    }
                 }
 
                 if (zoneAliases != null)
                 {
-                    for (var y = 0; y < zoneAliases.Length; y++)
+                    var aliasZones = zoneAliases.Select(x => new PlainWidgetZone(zone) { Name = x }).ToArray();
+                    for (var y = 0; y < aliasZones.Length; y++)
                     {
-                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(zoneAliases[y], isPublicArea, model);
+                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(aliasZones[y], isPublicArea);
                         if (legacyWidgets != null)
                         {
-                            sortedWidgets.AddRange(legacyWidgets);
+                            foreach (var widget in legacyWidgets)
+                            {
+                                if (widget.IsValid(zone))
+                                {
+                                    yield return widget;
+                                }
+                            }
                         }
                     }
                 }
+            }
+        }
+
+        public async Task<IEnumerable<Widget>> GetWidgetsAsync(IWidgetZone zone)
+        {
+            Guard.NotNull(zone);
+
+            var sortedWidgets = new SortedSet<Widget>();
+            var widgets = EnumerateWidgetsAsync(zone);
+
+            await foreach (var widget in widgets)
+            {
+                sortedWidgets.Add(widget);
             }
 
             return sortedWidgets;

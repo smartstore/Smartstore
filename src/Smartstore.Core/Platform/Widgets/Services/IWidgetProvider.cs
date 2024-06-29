@@ -37,59 +37,69 @@ namespace Smartstore.Core.Widgets
         /// if a zone contained a <see cref="ComponentWidget"/> with an empty 
         /// result after invocation, this method would still return <c>true</c>.
         /// </remarks>
-        /// <param name="zone">The zone name to check.</param>
-        bool HasWidgets(string zone);
-
-        /// <summary>
-        /// Enumerates all injected widgets for a given zone.
-        /// </summary>
-        /// <param name="zone">Zone name to retrieve widgets for.</param>
-        /// <returns>List of <see cref="Widget"/> instances.</returns>
-        IEnumerable<Widget> GetWidgets(string zone);
+        /// <param name="zone">The zone to check.</param>
+        bool HasWidgets(IWidgetZone zone);
 
         /// <summary>
         /// Checks whether given <paramref name="zone"/> contains a widget
         /// with the same <see cref="Widget.Key"/> as <paramref name="widgetKey"/>.
         /// </summary>
-        /// <param name="zone">The zone name to check for existing widget.</param>
+        /// <param name="zone">The zone to check for existing widget.</param>
         /// <param name="widgetKey">The widget key to check.</param>
-        bool ContainsWidget(string zone, string widgetKey);
+        bool ContainsWidget(IWidgetZone zone, string widgetKey);
+
+        /// <summary>
+        /// Enumerates all injected widgets for a given zone.
+        /// </summary>
+        /// <param name="zone">Zone to retrieve widgets for.</param>
+        /// <returns>List of <see cref="Widget"/> instances.</returns>
+        IEnumerable<Widget> GetWidgets(IWidgetZone zone);
     }
 
     public static class IWidgetProviderExtensions
     {
+        /// <inheritdoc cref="IWidgetProvider.HasWidgets(IWidgetZone)" />
+        /// <param name="zoneName">The zone name to check for existing widget.</param>
+        public static bool HasWidgets(this IWidgetProvider provider, string zoneName)
+            => provider.HasWidgets(new PlainWidgetZone(zoneName));
+
+        /// <inheritdoc cref="IWidgetProvider.ContainsWidget(IWidgetZone, string)" />
+        /// <param name="zoneName">The zone name to check for existing widget.</param>
+        public static bool ContainsWidget(this IWidgetProvider provider, string zoneName, string widgetKey)
+            => provider.ContainsWidget(new PlainWidgetZone(zoneName), widgetKey);
+        
         /// <summary>
         /// Registers a custom widget for a single widget zone.
         /// </summary>
-        /// <param name="zone">The name of the widget zone to inject the HTML content to</param>
+        /// <param name="zoneName">The name of the widget zone to inject the HTML content to</param>
         /// <param name="widget">Widget to register</param>
-        public static void RegisterWidget(this IWidgetProvider provider, string zone, Widget widget)
+        public static void RegisterWidget(this IWidgetProvider provider, string zoneName, Widget widget)
         {
-            Guard.NotEmpty(zone);
-            provider.RegisterWidget([zone], widget);
+            Guard.NotEmpty(zoneName);
+            provider.RegisterWidget([zoneName], widget);
         }
 
         /// <summary>
         /// Registers custom HTML content for a single widget zone
         /// </summary>
-        /// <param name="zone">The name of the widget zones to inject the HTML content to</param>
+        /// <param name="zoneName">The name of the widget zones to inject the HTML content to</param>
         /// <param name="html">HTML to inject</param>
         /// <param name="order">Sort order within the specified widget zone</param>
-        public static void RegisterHtml(this IWidgetProvider provider, string zone, IHtmlContent html, int order = 0)
+        public static void RegisterHtml(this IWidgetProvider provider, string zoneName, IHtmlContent html, int order = 0)
         {
-            Guard.NotEmpty(zone);
-            provider.RegisterWidget([zone], new HtmlWidget(html) { Order = order });
+            Guard.NotEmpty(zoneName);
+            provider.RegisterWidget([zoneName], new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
         /// Registers custom HTML content for widget zones
         /// </summary>
-        /// <param name="zones">The names of the widget zones to inject the HTML content to</param>
+        /// <param name="zoneNames">The names of the widget zones to inject the HTML content to</param>
         /// <param name="html">HTML to inject</param>
         /// <param name="order">Sort order within the specified widget zones</param>
-        public static void RegisterHtml(this IWidgetProvider provider, string[] zones, IHtmlContent html, int order = 0)
+        public static void RegisterHtml(this IWidgetProvider provider, string[] zoneNames, IHtmlContent html, int order = 0)
         {
-            provider.RegisterWidget(zones, new HtmlWidget(html) { Order = order });
+            provider.RegisterWidget(zoneNames, new HtmlWidget(html) { Order = order });
         }
 
         /// <summary>
@@ -106,34 +116,34 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Registers a view component for a single widget zone
         /// </summary>
-        /// <param name="zone">The name of the widget zones to inject the view component to</param>
+        /// <param name="zoneName">The name of the widget zones to inject the view component to</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <param name="order">Sort order within the specified widget zone</param>
-        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string zone, object arguments = null, int order = 0)
+        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string zoneName, object arguments = null, int order = 0)
             where TComponent : ViewComponent
         {
-            Guard.NotEmpty(zone);
-            provider.RegisterWidget([zone], new ComponentWidget(typeof(TComponent), arguments) { Order = order });
+            Guard.NotEmpty(zoneName);
+            provider.RegisterWidget([zoneName], new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
 
         /// <summary>
         /// Registers a view component for a single widget zone
         /// </summary>
-        /// <param name="zones">The names of the widget zones to inject the view component to</param>
+        /// <param name="zoneNames">The names of the widget zones to inject the view component to</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <param name="order">Sort order within the specified widget zone</param>
-        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string[] zones, object arguments = null, int order = 0)
+        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string[] zoneNames, object arguments = null, int order = 0)
             where TComponent : ViewComponent
         {
-            provider.RegisterWidget(zones, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
+            provider.RegisterWidget(zoneNames, new ComponentWidget(typeof(TComponent), arguments) { Order = order });
         }
 
         /// <summary>

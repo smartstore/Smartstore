@@ -26,12 +26,47 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = 1000;
 
-        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(IWidgetZone zone, bool isPublicArea)
         {
             return Task.FromResult(GetWidgets(zone));
         }
 
         #endregion
+
+        public async Task<dynamic> GetAllKnownWidgetZonesAsync()
+        {
+            var fileName = "widgetzones.json";
+            var fs = _appContext.AppDataRoot;
+            var cacheKey = _memoryCache.BuildScopedKey(fileName);
+
+            var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+            {
+                if (fs.FileExists(fileName))
+                {
+                    entry.ExpirationTokens.Add(fs.Watch(fileName));
+                    return await fs.ReadAllTextAsync(fileName);
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            });
+
+            if (rawJson is string json && json.HasValue())
+            {
+                try
+                {
+                    return JObject.Parse(json);
+                }
+                catch
+                {
+                    // Json is invalid. Don't parse again.
+                    _memoryCache.Set(cacheKey, string.Empty);
+                }
+            }
+
+            return null;
+        }
 
         public virtual void RegisterWidget(string[] zones, Widget widget)
         {
@@ -72,14 +107,24 @@ namespace Smartstore.Core.Widgets
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
         }
 
-        public IEnumerable<Widget> GetWidgets(string zone)
+        public bool HasWidgets(IWidgetZone zone)
         {
-            if (zone.IsEmpty())
+            return GetWidgets(zone).Any();
+        }
+
+        public bool ContainsWidget(IWidgetZone zone, string widgetKey)
+        {
+            return GetWidgets(zone).Any(x => x.Key == widgetKey);
+        }
+
+        public IEnumerable<Widget> GetWidgets(IWidgetZone zone)
+        {
+            if (zone.Name.IsEmpty())
             {
                 yield break;
             }
 
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone.Name, out var widgets))
             {
                 foreach (var widget in widgets)
                 {
@@ -92,7 +137,7 @@ namespace Smartstore.Core.Widgets
                 foreach (var entry in _zoneExpressionWidgetsMap)
                 {
                     var rg = entry.Key;
-                    if (rg.IsMatch(zone))
+                    if (rg.IsMatch(zone.Name))
                     {
                         foreach (var widget in entry.Value)
                         {
@@ -101,51 +146,6 @@ namespace Smartstore.Core.Widgets
                     }
                 }
             }
-        }
-
-        public bool HasWidgets(string zone)
-        {
-            return GetWidgets(zone).Any();
-        }
-
-        public bool ContainsWidget(string zone, string widgetKey)
-        {
-            return GetWidgets(zone).Any(x => x.Key == widgetKey);
-        }
-
-        public async Task<dynamic> GetAllKnownWidgetZonesAsync()
-        {
-            var fileName = "widgetzones.json";
-            var fs = _appContext.AppDataRoot;
-            var cacheKey = _memoryCache.BuildScopedKey(fileName);
-
-            var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
-            {
-                if (fs.FileExists(fileName))
-                {
-                    entry.ExpirationTokens.Add(fs.Watch(fileName));
-                    return await fs.ReadAllTextAsync(fileName);
-                }
-                else
-                {
-                    return string.Empty;
-                }
-            });
-
-            if (rawJson is string json && json.HasValue())
-            {
-                try
-                {
-                    return JObject.Parse(json);
-                }
-                catch
-                {
-                    // Json is invalid. Don't parse again.
-                    _memoryCache.Set(cacheKey, string.Empty);
-                }
-            }
-
-            return null;
         }
     }
 }

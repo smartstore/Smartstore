@@ -54,6 +54,19 @@ namespace Smartstore.Core.Widgets
             Name = name;
         }
 
+        public PlainWidgetZone(IWidgetZone zone)
+        {
+            Guard.NotNull(zone);
+
+            Name = zone.Name;
+            Model = zone.Model;
+            ReplaceContent = zone.ReplaceContent;
+            RemoveIfEmpty = zone.RemoveIfEmpty;
+            PreviewDisabled = zone.PreviewDisabled;
+            PreviewCssClass = zone.PreviewCssClass;
+            PreviewCssStyle = zone.PreviewCssStyle;
+        }
+
         /// <inheritdoc />
         public string Name { get; set; }
 

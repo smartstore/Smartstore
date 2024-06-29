@@ -40,15 +40,15 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = -1000;
 
-        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(IWidgetZone zone, bool isPublicArea)
         {
             var widgets = Enumerable.Empty<Widget>();
 
             if (isPublicArea)
             {
                 var storeId = _storeContext.CurrentStore.Id;
-                widgets = LoadActiveWidgetsByWidgetZone(zone, storeId)
-                    .Select(x => x.Value.GetDisplayWidget(zone, model, storeId))
+                widgets = LoadActiveWidgetsByWidgetZone(zone.Name, storeId)
+                    .Select(x => x.Value.GetDisplayWidget(zone.Name, zone.Model, storeId))
                     .Where(x => x != null);
             }
 
