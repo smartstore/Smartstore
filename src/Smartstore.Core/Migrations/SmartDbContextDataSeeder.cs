@@ -553,6 +553,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
                 "Be an expert for the product: '{0}'.",
                 "Sei ein Experte für das Produkt: '{0}'.");
+
+            builder.AddOrUpdate("Admin.Orders.List.GoDirectlyToNumber",
+                "Search by order number or order reference number",
+                "Nach Auftrags- oder Bestellreferenznummer suchen");
         }
     }
 }
