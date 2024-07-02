@@ -9,8 +9,8 @@
         private readonly int _maxChoicesCount;
         private int _uncalculatedSelectedCount;
         private readonly HashSet<FacetValue> _selectedValues;
-        private readonly List<Facet> _selectedFacets = [];
-        private readonly List<Facet> _nonSelectedFacets = [];
+        private readonly List<Facet> _selectedFacets = new List<Facet>();
+        private readonly List<Facet> _nonSelectedFacets = new List<Facet>();
 
         public FacetCollector(IEnumerable<FacetValue> selectedValues, int maxChoicesCount)
         {
