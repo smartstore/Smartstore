@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Events;
 using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [DebuggerDisplay("Zone: {Name}")]
     [HtmlTargetElement("zone", Attributes = NameAttributeName)]
     public class ZoneTagHelper : SmartTagHelper, IWidgetZone
     {
@@ -69,7 +71,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
             var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, Name);
             // ...if not, generate it here.
-            zoneContent ??= await _widgetSelector.GetContentAsync(this, ViewContext);
+            zoneContent ??= await _widgetSelector.GetContentAsync(this, ViewContext, model);
 
             // Publish event to give integrators a chance to inject custom content to the zone.
             var renderEvent = new ViewZoneRenderingEvent(this, zoneContent, ViewContext)

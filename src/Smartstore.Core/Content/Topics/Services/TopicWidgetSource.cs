@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Topics
 
         public int Order => 0;
 
-        public async Task<IEnumerable<Widget>> GetWidgetsAsync(IWidgetZone zone, bool isPublicArea)
+        public async Task<IEnumerable<Widget>> GetWidgetsAsync(IWidgetZone zone, bool isPublicArea, object model = null)
         {
             if (!isPublicArea)
             {

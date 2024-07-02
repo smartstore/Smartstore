@@ -17,7 +17,7 @@ namespace Smartstore.Core.Widgets
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public virtual async IAsyncEnumerable<Widget> EnumerateWidgetsAsync(IWidgetZone zone)
+        public virtual async IAsyncEnumerable<Widget> EnumerateWidgetsAsync(IWidgetZone zone, object model = null)
         {
             Guard.NotNull(zone);
 
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Widgets
 
             for (var i = 0; i < _widgetSources.Length; i++)
             {
-                var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea);
+                var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea, model);
                 if (localWidgets != null)
                 {
                     foreach (var widget in localWidgets)
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Widgets
                     var aliasZones = zoneAliases.Select(x => new PlainWidgetZone(zone) { Name = x }).ToArray();
                     for (var y = 0; y < aliasZones.Length; y++)
                     {
-                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(aliasZones[y], isPublicArea);
+                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(aliasZones[y], isPublicArea, model);
                         if (legacyWidgets != null)
                         {
                             foreach (var widget in legacyWidgets)
@@ -58,21 +58,6 @@ namespace Smartstore.Core.Widgets
                     }
                 }
             }
-        }
-
-        public async Task<IEnumerable<Widget>> GetWidgetsAsync(IWidgetZone zone)
-        {
-            Guard.NotNull(zone);
-
-            var sortedWidgets = new SortedSet<Widget>();
-            var widgets = EnumerateWidgetsAsync(zone);
-
-            await foreach (var widget in widgets)
-            {
-                sortedWidgets.Add(widget);
-            }
-
-            return sortedWidgets;
         }
 
         /// <summary>

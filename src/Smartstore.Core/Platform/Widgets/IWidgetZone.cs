@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
+
 namespace Smartstore.Core.Widgets
 {
     /// <summary>
@@ -11,11 +13,6 @@ namespace Smartstore.Core.Widgets
         /// The name of the zone which is rendered.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// The view model.
-        /// </summary>
-        object? Model { get; }
 
         /// <summary>
         /// Specifies whether any default zone content should be removed if at least one 
@@ -46,6 +43,7 @@ namespace Smartstore.Core.Widgets
         string? PreviewCssStyle { get; }
     }
 
+    [DebuggerDisplay("Zone: {Name}")]
     public class PlainWidgetZone : IWidgetZone
     {
         public PlainWidgetZone(string name)
@@ -59,7 +57,6 @@ namespace Smartstore.Core.Widgets
             Guard.NotNull(zone);
 
             Name = zone.Name;
-            Model = zone.Model;
             ReplaceContent = zone.ReplaceContent;
             RemoveIfEmpty = zone.RemoveIfEmpty;
             PreviewDisabled = zone.PreviewDisabled;
@@ -69,9 +66,6 @@ namespace Smartstore.Core.Widgets
 
         /// <inheritdoc />
         public string Name { get; set; }
-
-        /// <inheritdoc />
-        public object? Model { get; set; }
 
         /// <inheritdoc />
         public bool ReplaceContent { get; set; }

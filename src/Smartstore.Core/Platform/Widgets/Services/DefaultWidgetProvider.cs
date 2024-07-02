@@ -26,7 +26,7 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = 1000;
 
-        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(IWidgetZone zone, bool isPublicArea)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(IWidgetZone zone, bool isPublicArea, object model)
         {
             return Task.FromResult(GetWidgets(zone));
         }
