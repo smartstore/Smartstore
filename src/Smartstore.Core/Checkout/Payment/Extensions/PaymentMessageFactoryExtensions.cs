@@ -12,6 +12,7 @@ namespace Smartstore.Core.Checkout.Payment
             Guard.NotNull(recurringPayment, nameof(recurringPayment));
 
             var order = recurringPayment.InitialOrder;
+
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.RecurringPaymentCancelledStoreOwner, languageId, order?.StoreId, order?.Customer),
                 true,

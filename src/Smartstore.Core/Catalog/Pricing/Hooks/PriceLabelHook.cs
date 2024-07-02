@@ -4,17 +4,11 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    internal class PriceLabelHook : AsyncDbSaveHook<PriceLabel>
+    internal class PriceLabelHook(SmartDbContext db, PriceSettings priceSettings) : AsyncDbSaveHook<PriceLabel>
     {
-        private readonly SmartDbContext _db;
-        private readonly PriceSettings _priceSettings;
+        private readonly SmartDbContext _db = db;
+        private readonly PriceSettings _priceSettings = priceSettings;
         private string _hookErrorMessage;
-
-        public PriceLabelHook(SmartDbContext db, PriceSettings priceSettings)
-        {
-            _db = db;
-            _priceSettings = priceSettings;
-        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

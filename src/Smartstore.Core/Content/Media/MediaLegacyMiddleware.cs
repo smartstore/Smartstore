@@ -18,10 +18,8 @@ namespace Smartstore.Core.Content.Media
 
         private readonly List<TemplateMatcher> _matchers = new(3);
 
-        public MediaLegacyMiddleware(RequestDelegate next, IMediaStorageConfiguration mediaStorageConfiguration)
-        {
+        public MediaLegacyMiddleware(RequestDelegate next, IMediaStorageConfiguration mediaStorageConfiguration) =>
             _matchers.AddRange(BuildTemplateMatchers(mediaStorageConfiguration.PublicPath));
-        }
 
         private static IEnumerable<TemplateMatcher> BuildTemplateMatchers(string publicPath)
         {

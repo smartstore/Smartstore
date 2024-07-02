@@ -3,31 +3,20 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class AlbumRegistry : IAlbumRegistry
+    public class AlbumRegistry(
+        SmartDbContext db,
+        ICacheManager cache,
+        IEnumerable<Lazy<IAlbumProvider>> albumProviders,
+        IEnumerable<Lazy<IMediaTrackDetector>> trackDetectors) : IAlbumRegistry
     {
         internal const string AlbumInfosKey = "media:albums:all";
 
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-        private readonly IEnumerable<Lazy<IAlbumProvider>> _albumProviders;
-        private readonly IEnumerable<Lazy<IMediaTrackDetector>> _trackDetectors;
+        private readonly SmartDbContext _db = db;
+        private readonly ICacheManager _cache = cache;
+        private readonly IEnumerable<Lazy<IAlbumProvider>> _albumProviders = albumProviders;
+        private readonly IEnumerable<Lazy<IMediaTrackDetector>> _trackDetectors = trackDetectors;
 
-        public AlbumRegistry(
-            SmartDbContext db,
-            ICacheManager cache,
-            IEnumerable<Lazy<IAlbumProvider>> albumProviders,
-            IEnumerable<Lazy<IMediaTrackDetector>> trackDetectors)
-        {
-            _db = db;
-            _cache = cache;
-            _albumProviders = albumProviders;
-            _trackDetectors = trackDetectors;
-        }
-
-        public virtual IReadOnlyCollection<AlbumInfo> GetAllAlbums()
-        {
-            return GetAlbumDictionary().Values;
-        }
+        public virtual IReadOnlyCollection<AlbumInfo> GetAllAlbums() => GetAlbumDictionary().Values;
 
         public IEnumerable<string> GetAlbumNames(bool withTrackDetectors = false)
         {
@@ -158,9 +147,6 @@ namespace Smartstore.Core.Content.Media
             return album;
         }
 
-        public Task ClearCacheAsync()
-        {
-            return _cache.RemoveAsync(AlbumInfosKey);
-        }
+        public Task ClearCacheAsync() => _cache.RemoveAsync(AlbumInfosKey);
     }
 }

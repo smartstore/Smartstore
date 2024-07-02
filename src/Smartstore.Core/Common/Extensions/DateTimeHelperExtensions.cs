@@ -20,10 +20,8 @@ namespace Smartstore
         /// Converts the date to current user date and time
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime ConvertToUserTime(this IDateTimeHelper helper, DateTime dt)
-        {
-            return helper.ConvertToUserTime(dt, dt.Kind);
-        }
+        public static DateTime ConvertToUserTime(this IDateTimeHelper helper, DateTime dt) =>
+            helper.ConvertToUserTime(dt, dt.Kind);
 
         /// <summary>
         /// Converts the date and time to Coordinated Universal Time (UTC)
@@ -33,6 +31,7 @@ namespace Smartstore
         {
             sourceTimeZone ??= helper.CurrentTimeZone;
             dt = DateTime.SpecifyKind(dt, sourceDateTimeKind);
+
             return helper.ConvertToUtcTime(dt, sourceTimeZone);
         }
 
@@ -40,9 +39,7 @@ namespace Smartstore
         /// Converts the date and time to Coordinated Universal Time (UTC)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime ConvertToUtcTime(this IDateTimeHelper helper, DateTime dt)
-        {
-            return helper.ConvertToUtcTime(dt, dt.Kind);
-        }
+        public static DateTime ConvertToUtcTime(this IDateTimeHelper helper, DateTime dt) =>
+            helper.ConvertToUtcTime(dt, dt.Kind);
     }
 }

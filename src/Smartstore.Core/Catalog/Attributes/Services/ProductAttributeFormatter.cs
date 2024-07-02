@@ -13,36 +13,24 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public partial class ProductAttributeFormatter : IProductAttributeFormatter
+    public partial class ProductAttributeFormatter(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IWebHelper webHelper,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ILocalizationService localizationService,
+        IPriceCalculationService priceCalculationService,
+        ShoppingCartSettings shoppingCartSettings,
+        PriceSettings priceSettings) : IProductAttributeFormatter
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IWebHelper _webHelper;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ILocalizationService _localizationService;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly PriceSettings _priceSettings;
-
-        public ProductAttributeFormatter(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IWebHelper webHelper,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ILocalizationService localizationService,
-            IPriceCalculationService priceCalculationService,
-            ShoppingCartSettings shoppingCartSettings,
-            PriceSettings priceSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _webHelper = webHelper;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _localizationService = localizationService;
-            _priceCalculationService = priceCalculationService;
-            _shoppingCartSettings = shoppingCartSettings;
-            _priceSettings = priceSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly IPriceCalculationService _priceCalculationService = priceCalculationService;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
+        private readonly PriceSettings _priceSettings = priceSettings;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<string> FormatAttributesAsync(

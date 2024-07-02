@@ -23,10 +23,7 @@ namespace Smartstore.Core.Content.Blocks
 
         public required ILocalizedEntityService LocalizedEntityService { protected get; set; }
 
-        public virtual TBlock Create(IBlockEntity entity)
-        {
-            return Activator.CreateInstance<TBlock>();
-        }
+        public virtual TBlock Create(IBlockEntity entity) => Activator.CreateInstance<TBlock>();
 
         protected virtual TBlock Load(IBlockEntity entity, StoryViewMode viewMode)
         {
@@ -87,38 +84,31 @@ namespace Smartstore.Core.Content.Blocks
             return Task.CompletedTask;
         }
 
-        public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity)
-        {
+        public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity) =>
             // Default impl does nothing.
-            return Task.CompletedTask;
-        }
+            Task.CompletedTask;
 
         public virtual void BeforeRender(IBlockContainer container, StoryViewMode viewMode, IBlockHtmlParts htmlParts)
         {
             // Default impl does nothing.
         }
 
-        public virtual Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity)
-        {
-            return Task.FromResult(sourceEntity.Model);
-        }
+        public virtual Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity) => 
+            Task.FromResult(sourceEntity.Model);
 
-        public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
-        {
-            return RenderCoreAsync(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
-        }
+        public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper) => 
+            RenderCoreAsync(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
 
         public async Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
         {
             using var writer = new StringWriter(CultureInfo.CurrentCulture);
             await RenderCoreAsync(element, templates, htmlHelper, writer);
+
             return new HtmlString(writer.ToString());
         }
 
-        protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
-        {
-            return RenderByViewAsync(element, templates, htmlHelper, textWriter);
-        }
+        protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter) => 
+            RenderByViewAsync(element, templates, htmlHelper, textWriter);
 
         protected virtual Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
@@ -172,10 +162,7 @@ namespace Smartstore.Core.Content.Blocks
             content.WriteTo(textWriter, HtmlEncoder.Default);
         }
 
-        protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template) => throw new NotImplementedException();
 
         private static ActionContext GetActionContextFor(IBlockContainer element, ActionContext originalContext)
         {

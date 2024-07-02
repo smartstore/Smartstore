@@ -7,16 +7,10 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public partial class ProductAttributeService : IProductAttributeService
+    public partial class ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService) : IProductAttributeService
     {
-        private readonly SmartDbContext _db;
-        private readonly ILocalizedEntityService _localizedEntityService;
-
-        public ProductAttributeService(SmartDbContext db, ILocalizedEntityService localizedEntityService)
-        {
-            _db = db;
-            _localizedEntityService = localizedEntityService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ILocalizedEntityService _localizedEntityService = localizedEntityService;
 
         public virtual async Task<Multimap<string, int>> GetExportFieldMappingsAsync(string fieldPrefix)
         {

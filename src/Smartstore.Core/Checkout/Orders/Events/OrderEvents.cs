@@ -1,32 +1,17 @@
 ﻿namespace Smartstore.Core.Checkout.Orders.Events
 {
-    public class OrderPaidEvent
+    public class OrderPaidEvent(Order order)
     {
-        public OrderPaidEvent(Order order)
-        {
-            Order = Guard.NotNull(order);
-        }
-
-        public Order Order { get; init; }
+        public Order Order { get; init; } = Guard.NotNull(order);
     }
 
-    public class OrderPlacedEvent
+    public class OrderPlacedEvent(Order order)
     {
-        public OrderPlacedEvent(Order order)
-        {
-            Order = Guard.NotNull(order);
-        }
-
-        public Order Order { get; init; }
+        public Order Order { get; init; } = Guard.NotNull(order);
     }
 
-    public class OrderUpdatedEvent
+    public class OrderUpdatedEvent(Order order)
     {
-        public OrderUpdatedEvent(Order order)
-        {
-            Order = Guard.NotNull(order);
-        }
-
-        public Order Order { get; init; }
+        public Order Order { get; init; } = Guard.NotNull(order);
     }
 }

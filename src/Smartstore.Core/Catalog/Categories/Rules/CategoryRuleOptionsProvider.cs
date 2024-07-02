@@ -4,16 +4,10 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Catalog.Categories.Rules
 {
-    public partial class CategoryRuleOptionsProvider : IRuleOptionsProvider
+    public partial class CategoryRuleOptionsProvider(SmartDbContext db, ICategoryService categoryService) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-        private readonly ICategoryService _categoryService;
-
-        public CategoryRuleOptionsProvider(SmartDbContext db, ICategoryService categoryService)
-        {
-            _db = db;
-            _categoryService = categoryService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICategoryService _categoryService = categoryService;
 
         public int Order => 0;
 

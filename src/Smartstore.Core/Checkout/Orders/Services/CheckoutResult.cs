@@ -4,20 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class CheckoutResult
+    public partial class CheckoutResult(bool success, CheckoutError[]? errors = null, bool skipPage = false)
     {
-        public CheckoutResult(bool success, CheckoutError[]? errors = null, bool skipPage = false)
-        {
-            Success = success;
-            Errors = errors ?? [];
-            SkipPage = skipPage;
-        }
-
         public CheckoutResult(CheckoutError[] errors, string? viewPath = null, bool success = false)
-            : this(success, errors)
-        {
-            ViewPath = viewPath;
-        }
+            : this(success, errors) => ViewPath = viewPath;
 
         public CheckoutResult(IActionResult actionResult, string? viewPath = null)
             : this(false)
@@ -31,19 +21,19 @@ namespace Smartstore.Core.Checkout.Orders
         /// If <c>true</c>, the next handler is called. Otherwise the customer is redirected to <see cref="ActionResult"/> or 
         /// the page belonging to current checkout step.
         /// </summary>
-        public bool Success { get; }
+        public bool Success { get; } = success;
 
         /// <summary>
         /// Gets a list of errors. Typically these are added to the model state by the caller
         /// to display them on current checkout page.
         /// </summary>
-        public CheckoutError[] Errors { get; }
+        public CheckoutError[] Errors { get; } = errors ?? [];
 
         /// <summary>
         /// Gets a value indicating whether the current checkout page should be skipped.
         /// Only applicable if <see cref="ICheckoutWorkflow.ProcessAsync"/> was called.
         /// </summary>
-        public bool SkipPage { get; }
+        public bool SkipPage { get; } = skipPage;
 
         /// <summary>
         /// Gets an <see cref="IActionResult"/> where the customer is to be redirected.

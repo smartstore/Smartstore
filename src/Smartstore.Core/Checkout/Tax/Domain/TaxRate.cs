@@ -3,25 +3,19 @@
     /// <summary>
     /// Represents the tax rate resolution result.
     /// </summary>
-    public readonly struct TaxRate
+    public readonly struct TaxRate(decimal rate, int taxCategoryId)
     {
         public readonly static TaxRate Zero;
-
-        public TaxRate(decimal rate, int taxCategoryId)
-        {
-            Rate = rate;
-            TaxCategoryId = taxCategoryId;
-        }
 
         /// <summary>
         /// The tax rate
         /// </summary>
-        public decimal Rate { get; }
+        public decimal Rate { get; } = rate;
 
         /// <summary>
         /// The tax category id
         /// </summary>
-        public int TaxCategoryId { get; }
+        public int TaxCategoryId { get; } = taxCategoryId;
 
         public static implicit operator decimal(TaxRate rate) => rate.Rate;
         public static implicit operator double(TaxRate rate) => Convert.ToDouble(rate.Rate);

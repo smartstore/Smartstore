@@ -107,80 +107,47 @@ namespace Smartstore.Core.Catalog.Products
 
         public IReadOnlyList<int> ProductIds => _productIds;
 
-        public LazyMultimap<ProductVariantAttribute> Attributes
-        {
-            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(LoadAttributes, _productIds);
-        }
+        public LazyMultimap<ProductVariantAttribute> Attributes => 
+            _attributes ??= new LazyMultimap<ProductVariantAttribute>(LoadAttributes, _productIds);
 
-        public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
-        {
-            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(LoadAttributeCombinations, _productIds);
-        }
+        public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations => 
+            _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(LoadAttributeCombinations, _productIds);
 
-        public LazyMultimap<TierPrice> TierPrices
-        {
-            get => _tierPrices ??= new LazyMultimap<TierPrice>(LoadTierPrices, _productIdsTierPrices);
-        }
+        public LazyMultimap<TierPrice> TierPrices =>
+            _tierPrices ??= new LazyMultimap<TierPrice>(LoadTierPrices, _productIdsTierPrices);
 
-        public LazyMultimap<ProductCategory> ProductCategories
-        {
-            get => _productCategories ??= new LazyMultimap<ProductCategory>(LoadProductCategories, _productIds);
-        }
+        public LazyMultimap<ProductCategory> ProductCategories => 
+            _productCategories ??= new LazyMultimap<ProductCategory>(LoadProductCategories, _productIds);
 
-        public LazyMultimap<ProductManufacturer> ProductManufacturers
-        {
-            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(LoadProductManufacturers, _productIds);
-        }
+        public LazyMultimap<ProductManufacturer> ProductManufacturers => 
+            _productManufacturers ??= new LazyMultimap<ProductManufacturer>(LoadProductManufacturers, _productIds);
 
-        public LazyMultimap<Discount> AppliedDiscounts
-        {
-            get => _appliedDiscounts ??= new LazyMultimap<Discount>(LoadAppliedDiscounts, _productIdsAppliedDiscounts);
-        }
+        public LazyMultimap<Discount> AppliedDiscounts =>
+            _appliedDiscounts ??= new LazyMultimap<Discount>(LoadAppliedDiscounts, _productIdsAppliedDiscounts);
 
-        public LazyMultimap<ProductBundleItem> ProductBundleItems
-        {
-            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(LoadProductBundleItems, _bundledProductIds);
-        }
+        public LazyMultimap<ProductBundleItem> ProductBundleItems => 
+            _productBundleItems ??= new LazyMultimap<ProductBundleItem>(LoadProductBundleItems, _bundledProductIds);
 
-        public LazyMultimap<Product> AssociatedProducts
-        {
-            get => _associatedProducts ??= new LazyMultimap<Product>(LoadAssociatedProducts, _groupedProductIds);
-        }
+        public LazyMultimap<Product> AssociatedProducts =>
+            _associatedProducts ??= new LazyMultimap<Product>(LoadAssociatedProducts, _groupedProductIds);
 
-        public LazyMultimap<ProductMediaFile> ProductMediaFiles
-        {
-            get => _productMediaFiles ??= new LazyMultimap<ProductMediaFile>(LoadProductMediaFiles, _productIds);
-        }
+        public LazyMultimap<ProductMediaFile> ProductMediaFiles => 
+            _productMediaFiles ??= new LazyMultimap<ProductMediaFile>(LoadProductMediaFiles, _productIds);
 
-        public LazyMultimap<ProductTag> ProductTags
-        {
-            get => _productTags ??= new LazyMultimap<ProductTag>(LoadProductTags, _productIds);
-        }
+        public LazyMultimap<ProductTag> ProductTags => 
+            _productTags ??= new LazyMultimap<ProductTag>(LoadProductTags, _productIds);
 
-        public LazyMultimap<ProductSpecificationAttribute> SpecificationAttributes
-        {
-            get => _specificationAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadSpecificationAttributes, _productIds);
-        }
+        public LazyMultimap<ProductSpecificationAttribute> SpecificationAttributes =>
+            _specificationAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadSpecificationAttributes, _productIds);
 
-        public LazyMultimap<ProductSpecificationAttribute> EssentialAttributes
-        {
-            get => _essentialSpecAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadEssentialAttributes, _productIds);
-        }
+        public LazyMultimap<ProductSpecificationAttribute> EssentialAttributes => 
+            _essentialSpecAttributes ??= new LazyMultimap<ProductSpecificationAttribute>(LoadEssentialAttributes, _productIds);
 
-        public LazyMultimap<Download> Downloads
-        {
-            get => _downloads ??= new LazyMultimap<Download>(LoadDownloads, _productIds);
-        }
+        public LazyMultimap<Download> Downloads => _downloads ??= new LazyMultimap<Download>(LoadDownloads, _productIds);
 
-        public LazyMultimap<RelatedProduct> RelatedProducts
-        {
-            get => _relatedProducts ??= new LazyMultimap<RelatedProduct>(LoadRelatedProducts, _productIds);
-        }
+        public LazyMultimap<RelatedProduct> RelatedProducts => _relatedProducts ??= new LazyMultimap<RelatedProduct>(LoadRelatedProducts, _productIds);
 
-        public LazyMultimap<CrossSellProduct> CrossSellProducts
-        {
-            get => _crossSellProducts ??= new LazyMultimap<CrossSellProduct>(LoadCrossSellProducts, _productIds);
-        }
+        public LazyMultimap<CrossSellProduct> CrossSellProducts => _crossSellProducts ??= new LazyMultimap<CrossSellProduct>(LoadCrossSellProducts, _productIds);
 
         /// <summary>
         /// Adds more product identifiers. Enables the subsequent loading of products.
@@ -243,6 +210,7 @@ namespace Smartstore.Core.Catalog.Products
                     .ThenBy(x => x.DisplayOrder)
                     .AsQueryable();
             var attributes = await query.ToListAsync();
+
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
 
@@ -254,6 +222,7 @@ namespace Smartstore.Core.Catalog.Products
                     .OrderBy(x => x.ProductId)
                     .AsQueryable();
             var attributeCombinations = await query.ToListAsync();
+
             return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
         }
 
@@ -277,12 +246,14 @@ namespace Smartstore.Core.Catalog.Products
         protected virtual async Task<Multimap<int, ProductCategory>> LoadProductCategories(int[] ids)
         {
             var productCategories = await CategoryService.GetProductCategoriesByProductIdsAsync(ids, _includeHidden);
+
             return productCategories.ToMultimap(x => x.ProductId, x => x);
         }
 
         protected virtual async Task<Multimap<int, ProductManufacturer>> LoadProductManufacturers(int[] ids)
         {
             var productManufacturers = await ManufacturerService.GetProductManufacturersByProductIdsAsync(ids, _includeHidden);
+
             return productManufacturers.ToMultimap(x => x.ProductId, x => x);
         }
 
@@ -357,24 +328,22 @@ namespace Smartstore.Core.Catalog.Products
             return files.ToMultimap(x => x.ProductId, x => x);
         }
 
-        protected virtual async Task<Multimap<int, ProductTag>> LoadProductTags(int[] ids)
-        {
-            return await ProductService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
-        }
+        protected virtual async Task<Multimap<int, ProductTag>> LoadProductTags(int[] ids) => 
+            await ProductService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
 
-        private static IQueryable<ProductSpecificationAttribute> BuildSpecAttributesQuery(SmartDbContext db, int[] ids, bool? essentialAttributes)
-        {
-            return db.ProductSpecificationAttributes
+        private static IQueryable<ProductSpecificationAttribute> BuildSpecAttributesQuery(SmartDbContext db, int[] ids, bool? essentialAttributes) => 
+            db.ProductSpecificationAttributes
                 .AsNoTracking()
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
                 .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
                 .OrderBy(x => x.ProductId)
                 .OrderBy(x => x.DisplayOrder);
-        }
+
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
         {
             var attributes = await BuildSpecAttributesQuery(_db, ids, null).ToListAsync();
+
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
 
@@ -389,6 +358,7 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var attributes = await BuildSpecAttributesQuery(_db, ids, true).ToListAsync();
+
             return attributes.ToMultimap(x => x.ProductId, x => x);
         }
 

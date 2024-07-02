@@ -10,7 +10,7 @@ namespace Smartstore.Core.Common.Hooks
     /// Without explicit deletion these assigned entities (like LocalizedProperty or MediaTrack) would remain in the database forever.
     /// </summary>
     [Important]
-    internal class AssignedEntitiesHook : AsyncDbSaveHook<BaseEntity>
+    internal class AssignedEntitiesHook(SmartDbContext db) : AsyncDbSaveHook<BaseEntity>
     {
         private static readonly FrozenSet<Type> _candidateTypes = new Type[]
         {
@@ -20,13 +20,8 @@ namespace Smartstore.Core.Common.Hooks
             typeof(SpecificationAttribute)
         }.ToFrozenSet();
 
-        private readonly SmartDbContext _db;
+        private readonly SmartDbContext _db = db;
         private readonly List<AssignedItem> _assignedItems = [];
-
-        public AssignedEntitiesHook(SmartDbContext db)
-        {
-            _db = db;
-        }
 
         protected override Task<HookResult> OnDeletingAsync(BaseEntity entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(_candidateTypes.Contains(entry.EntityType) ? HookResult.Ok : HookResult.Void);

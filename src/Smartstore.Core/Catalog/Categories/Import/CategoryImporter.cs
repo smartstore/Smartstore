@@ -9,7 +9,12 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    public class CategoryImporter : EntityImporterBase
+    public class CategoryImporter(
+        ICommonServices services,
+        IStoreMappingService storeMappingService,
+        IUrlService urlService,
+        IMediaImporter mediaImporter,
+        SeoSettings seoSettings) : EntityImporterBase(services, storeMappingService, urlService, seoSettings)
     {
         const string CargoDataKey = "CategoryImporter.CargoData";
         const string TargetCategoryIdsKey = "CategoryImporter.TargetCategoryIds";
@@ -26,18 +31,7 @@ namespace Smartstore.Core.DataExchange.Import
             { nameof(Category.MetaTitle), x => x.MetaTitle }
         }.ToFrozenDictionary();
 
-        private readonly IMediaImporter _mediaImporter;
-
-        public CategoryImporter(
-            ICommonServices services,
-            IStoreMappingService storeMappingService,
-            IUrlService urlService,
-            IMediaImporter mediaImporter,
-            SeoSettings seoSettings)
-            : base(services, storeMappingService, urlService, seoSettings)
-        {
-            _mediaImporter = mediaImporter;
-        }
+        private readonly IMediaImporter _mediaImporter = mediaImporter;
 
         public static string[] SupportedKeyFields => new[] { nameof(Category.Id), nameof(Category.Name) };
         public static string[] DefaultKeyFields => new[] { nameof(Category.Name), nameof(Category.Id) };
@@ -384,6 +378,7 @@ namespace Smartstore.Core.DataExchange.Import
             };
 
             context.CustomProperties[CargoDataKey] = result;
+
             return result;
         }
 

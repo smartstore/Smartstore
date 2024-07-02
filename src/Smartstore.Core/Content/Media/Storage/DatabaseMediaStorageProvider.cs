@@ -10,14 +10,9 @@ namespace Smartstore.Core.Content.Media.Storage
     [SystemName("MediaStorage.SmartStoreDatabase")]
     [FriendlyName("Database")]
     [Order(0)]
-    public class DatabaseMediaStorageProvider : IMediaStorageProvider, IMediaSender, IMediaReceiver
+    public class DatabaseMediaStorageProvider(SmartDbContext db) : IMediaStorageProvider, IMediaSender, IMediaReceiver
     {
-        private readonly SmartDbContext _db;
-
-        public DatabaseMediaStorageProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

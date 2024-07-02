@@ -5,21 +5,14 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Brands
 {
-    public partial class ManufacturerService : IManufacturerService, IXmlSitemapPublisher
+    public partial class ManufacturerService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext) : IManufacturerService, IXmlSitemapPublisher
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-
-        public ManufacturerService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
 
         public virtual async Task<IList<ProductManufacturer>> GetProductManufacturersByProductIdsAsync(int[] productIds, bool includeHidden = false)
         {
@@ -73,10 +66,7 @@ namespace Smartstore.Core.Catalog.Brands
         {
             public IQueryable<Manufacturer> Query { get; set; }
 
-            public override async Task<int> GetTotalCountAsync()
-            {
-                return await Query.CountAsync();
-            }
+            public override async Task<int> GetTotalCountAsync() => await Query.CountAsync();
 
             public override async IAsyncEnumerable<NamedEntity> EnlistAsync([EnumeratorCancellation] CancellationToken cancelToken = default)
             {

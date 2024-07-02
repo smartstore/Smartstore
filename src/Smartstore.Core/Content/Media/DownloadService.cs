@@ -5,16 +5,10 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Content.Media
 {
-    public partial class DownloadService : IDownloadService
+    public partial class DownloadService(SmartDbContext db, IMediaService mediaService) : IDownloadService
     {
-        private readonly SmartDbContext _db;
-        private readonly IMediaService _mediaService;
-
-        public DownloadService(SmartDbContext db, IMediaService mediaService)
-        {
-            _db = db;
-            _mediaService = mediaService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IMediaService _mediaService = mediaService;
 
         public virtual async Task<MediaFileInfo> InsertDownloadAsync(Download download, Stream stream, string fileName)
         {

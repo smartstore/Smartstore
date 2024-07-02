@@ -12,33 +12,22 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
+    public partial class CheckoutAttributeFormatter(
+        ICheckoutAttributeMaterializer attributeMaterializer,
+        ICurrencyService currencyService,
+        IWorkContext workContext,
+        ITaxService taxService,
+        ITaxCalculator taxCalculator,
+        IWebHelper webHelper,
+        SmartDbContext db) : ICheckoutAttributeFormatter
     {
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly ICurrencyService _currencyService;
-        private readonly ITaxService _taxService;
-        private readonly IWorkContext _workContext;
-        private readonly ITaxCalculator _taxCalculator;
-        private readonly IWebHelper _webHelper;
-        private readonly SmartDbContext _db;
-
-        public CheckoutAttributeFormatter(
-            ICheckoutAttributeMaterializer attributeMaterializer,
-            ICurrencyService currencyService,
-            IWorkContext workContext,
-            ITaxService taxService,
-            ITaxCalculator taxCalculator,
-            IWebHelper webHelper,
-            SmartDbContext db)
-        {
-            _checkoutAttributeMaterializer = attributeMaterializer;
-            _currencyService = currencyService;
-            _workContext = workContext;
-            _taxService = taxService;
-            _taxCalculator = taxCalculator;
-            _webHelper = webHelper;
-            _db = db;
-        }
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer = attributeMaterializer;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly ITaxService _taxService = taxService;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly ITaxCalculator _taxCalculator = taxCalculator;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly SmartDbContext _db = db;
 
         public async Task<string> FormatAttributesAsync(
             CheckoutAttributeSelection selection,

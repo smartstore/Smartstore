@@ -3,26 +3,20 @@
     /// <summary>
     /// Represents the result of VAT number check.
     /// </summary>
-    public partial class VatCheckResult
+    public partial class VatCheckResult(VatNumberStatus status, string vatNumber)
     {
-        public VatCheckResult(VatNumberStatus status, string vatNumber)
-        {
-            Status = status;
-            VatNumber = vatNumber;
-        }
-
         public static implicit operator VatNumberStatus(VatCheckResult obj)
             => obj.Status;
 
         /// <summary>
         /// Gets or sets the VAT number status.
         /// </summary>
-        public VatNumberStatus Status { get; private set; }
+        public VatNumberStatus Status { get; private set; } = status;
 
         /// <summary>
         /// Gets or sets the VAT number to be checked (including the two letter country ISO code).
         /// </summary>
-        public string VatNumber { get; private set; }
+        public string VatNumber { get; private set; } = vatNumber;
 
         /// <summary>
         /// Gets or sets the two letter country ISO code of the <see cref="VatNumber"/> returned by the VAT service.
@@ -45,9 +39,7 @@
         /// </summary>
         public Exception Exception { get; init; }
 
-        public override string ToString()
-        {
-            return $"VAT:{VatNumber} {Status}. name:{Name} country:{CountryCode} address:{Address}";
-        }
+        public override string ToString() => 
+            $"VAT:{VatNumber} {Status}. name:{Name} country:{CountryCode} address:{Address}";
     }
 }

@@ -4,14 +4,9 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Checkout.Affiliates.Rules
 {
-    public partial class AffiliateRuleOptionsProvider : IRuleOptionsProvider
+    public partial class AffiliateRuleOptionsProvider(SmartDbContext db) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-
-        public AffiliateRuleOptionsProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public int Order => 0;
 

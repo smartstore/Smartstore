@@ -8,31 +8,21 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class OrderService : AsyncDbSaveHook<Order>, IOrderService
+    public partial class OrderService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        Lazy<IOrderProcessingService> orderProcessingService,
+        IRoundingHelper roundingHelper,
+        IEventPublisher eventPublisher,
+        PaymentSettings paymentSettings) : AsyncDbSaveHook<Order>, IOrderService
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly Lazy<IOrderProcessingService> _orderProcessingService;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly PaymentSettings _paymentSettings;
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly Lazy<IOrderProcessingService> _orderProcessingService = orderProcessingService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly PaymentSettings _paymentSettings = paymentSettings;
         private readonly HashSet<Order> _toCapture = new();
-
-        public OrderService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            Lazy<IOrderProcessingService> orderProcessingService,
-            IRoundingHelper roundingHelper,
-            IEventPublisher eventPublisher,
-            PaymentSettings paymentSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _orderProcessingService = orderProcessingService;
-            _roundingHelper = roundingHelper;
-            _eventPublisher = eventPublisher;
-            _paymentSettings = paymentSettings;
-        }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

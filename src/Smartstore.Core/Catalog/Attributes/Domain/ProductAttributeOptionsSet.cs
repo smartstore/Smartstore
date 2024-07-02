@@ -6,12 +6,9 @@ namespace Smartstore.Core.Catalog.Attributes
 {
     internal class ProductAttributeOptionsSetMap : IEntityTypeConfiguration<ProductAttributeOptionsSet>
     {
-        public void Configure(EntityTypeBuilder<ProductAttributeOptionsSet> builder)
-        {
-            builder.HasOne(c => c.ProductAttribute)
+        public void Configure(EntityTypeBuilder<ProductAttributeOptionsSet> builder) => builder.HasOne(c => c.ProductAttribute)
                 .WithMany(c => c.ProductAttributeOptionsSets)
                 .HasForeignKey(c => c.ProductAttributeId);
-        }
     }
 
     /// <summary>

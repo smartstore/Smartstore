@@ -139,30 +139,29 @@ namespace Smartstore.Core.Common
         private ICollection<Customer> Customers { get; set; }
 #pragma warning restore IDE0051 // Remove unused private members
 
-        public object Clone()
-        {
-            var addr = new Address
-            {
-                Salutation = this.Salutation,
-                Title = this.Title,
-                FirstName = this.FirstName,
-                LastName = this.LastName,
-                Email = this.Email,
-                Company = this.Company,
-                Country = this.Country,
-                CountryId = this.CountryId,
-                StateProvince = this.StateProvince,
-                StateProvinceId = this.StateProvinceId,
-                City = this.City,
-                Address1 = this.Address1,
-                Address2 = this.Address2,
-                ZipPostalCode = this.ZipPostalCode,
-                PhoneNumber = this.PhoneNumber,
-                FaxNumber = this.FaxNumber,
-                CreatedOnUtc = this.CreatedOnUtc,
-            };
-            return addr;
-        }
+        public object Clone() =>
+             new Address
+             {
+                 Salutation = this.Salutation,
+                 Title = this.Title,
+                 FirstName = this.FirstName,
+                 LastName = this.LastName,
+                 Email = this.Email,
+                 Company = this.Company,
+                 Country = this.Country,
+                 CountryId = this.CountryId,
+                 StateProvince = this.StateProvince,
+                 StateProvinceId = this.StateProvinceId,
+                 City = this.City,
+                 Address1 = this.Address1,
+                 Address2 = this.Address2,
+                 ZipPostalCode = this.ZipPostalCode,
+                 PhoneNumber = this.PhoneNumber,
+                 FaxNumber = this.FaxNumber,
+                 CreatedOnUtc = this.CreatedOnUtc,
+             };
+
+
 
         public static string DefaultAddressFormat => @"{{ Salutation }} {{ Title }} {{ FirstName }} {{ LastName }}
 {{ Company }}
@@ -173,20 +172,11 @@ namespace Smartstore.Core.Common
 
         #region IEquatable 
 
-        public static bool operator ==(Address x, Address y)
-        {
-            return Equals(x, y);
-        }
+        public static bool operator ==(Address x, Address y) => Equals(x, y);
 
-        public static bool operator !=(Address x, Address y)
-        {
-            return !Equals(x, y);
-        }
+        public static bool operator !=(Address x, Address y) => !Equals(x, y);
 
-        public override bool Equals(object obj)
-        {
-            return ((IEquatable<Address>)this).Equals(obj as Address);
-        }
+        public override bool Equals(object obj) => ((IEquatable<Address>)this).Equals(obj as Address);
 
         bool IEquatable<Address>.Equals(Address other)
         {
@@ -232,10 +222,7 @@ namespace Smartstore.Core.Common
             return combiner.CombinedHash;
         }
 
-        public override string ToString()
-        {
-            return $"Address (Id: {Id}, {Company}, {FirstName} {LastName}, {Address1} {Address2}, {ZipPostalCode} {City}, StateProvinceId: {StateProvinceId}, CountryId: {CountryId})";
-        }
+        public override string ToString() => $"Address (Id: {Id}, {Company}, {FirstName} {LastName}, {Address1} {Address2}, {ZipPostalCode} {City}, StateProvinceId: {StateProvinceId}, CountryId: {CountryId})";
 
         #endregion
     }

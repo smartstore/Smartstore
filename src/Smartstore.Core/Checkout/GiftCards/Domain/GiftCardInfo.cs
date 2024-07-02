@@ -79,10 +79,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 SenderEmail?.ToLower(),
                 Message?.ToLower());
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as GiftCardInfo);
-        }
+        public override bool Equals(object obj) => Equals(obj as GiftCardInfo);
 
         protected virtual bool Equals(GiftCardInfo other)
         {

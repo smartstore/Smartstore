@@ -5,16 +5,10 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Categories
 {
     [Important]
-    internal class CategoryHook : AsyncDbSaveHook<Category>
+    internal class CategoryHook(SmartDbContext db, IRequestCache requestCache) : AsyncDbSaveHook<Category>
     {
-        private readonly SmartDbContext _db;
-        private readonly IRequestCache _requestCache;
-
-        public CategoryHook(SmartDbContext db, IRequestCache requestCache)
-        {
-            _db = db;
-            _requestCache = requestCache;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IRequestCache _requestCache = requestCache;
 
         protected override Task<HookResult> OnInsertedAsync(Category entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

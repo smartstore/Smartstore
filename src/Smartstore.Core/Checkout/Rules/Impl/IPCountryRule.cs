@@ -4,16 +4,10 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class IPCountryRule : IRule<CartRuleContext>
+    internal class IPCountryRule(IGeoCountryLookup countryLookup, IWebHelper webHelper) : IRule<CartRuleContext>
     {
-        private readonly IGeoCountryLookup _countryLookup;
-        private readonly IWebHelper _webHelper;
-
-        public IPCountryRule(IGeoCountryLookup countryLookup, IWebHelper webHelper)
-        {
-            _countryLookup = countryLookup;
-            _webHelper = webHelper;
-        }
+        private readonly IGeoCountryLookup _countryLookup = countryLookup;
+        private readonly IWebHelper _webHelper = webHelper;
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

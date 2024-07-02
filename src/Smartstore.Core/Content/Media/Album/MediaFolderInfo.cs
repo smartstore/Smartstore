@@ -8,31 +8,21 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
-    public partial class MediaFolderInfo : IDirectory
+    public partial class MediaFolderInfo(
+        TreeNode<MediaFolderNode> node,
+        IMediaService mediaService,
+        IMediaSearcher mediaSearcher,
+        IFolderService folderService,
+        MediaExceptionFactory exceptionFactory) : IDirectory
     {
-        private readonly IMediaService _mediaService;
-        private readonly IMediaSearcher _mediaSearcher;
-        private readonly IFolderService _folderService;
-        private readonly MediaExceptionFactory _exceptionFactory;
-        private readonly DateTimeOffset _now;
-
-        public MediaFolderInfo(
-            TreeNode<MediaFolderNode> node,
-            IMediaService mediaService,
-            IMediaSearcher mediaSearcher,
-            IFolderService folderService,
-            MediaExceptionFactory exceptionFactory)
-        {
-            Node = node;
-            _mediaService = mediaService;
-            _mediaSearcher = mediaSearcher;
-            _folderService = folderService;
-            _exceptionFactory = exceptionFactory;
-            _now = DateTimeOffset.UtcNow;
-        }
+        private readonly IMediaService _mediaService = mediaService;
+        private readonly IMediaSearcher _mediaSearcher = mediaSearcher;
+        private readonly IFolderService _folderService = folderService;
+        private readonly MediaExceptionFactory _exceptionFactory = exceptionFactory;
+        private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
 
         [IgnoreDataMember]
-        public TreeNode<MediaFolderNode> Node { get; }
+        public TreeNode<MediaFolderNode> Node { get; } = node;
 
         [JsonProperty("filesCount")]
         public int FilesCount => Node.Value.FilesCount;

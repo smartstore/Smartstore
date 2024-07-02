@@ -6,16 +6,10 @@ using Smartstore.Linq;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class MediaSearcher : IMediaSearcher
+    public class MediaSearcher(SmartDbContext db, Work<IFolderService> folderService) : IMediaSearcher
     {
-        private readonly SmartDbContext _db;
-        private readonly Work<IFolderService> _folderService;
-
-        public MediaSearcher(SmartDbContext db, Work<IFolderService> folderService)
-        {
-            _db = db;
-            _folderService = folderService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly Work<IFolderService> _folderService = folderService;
 
         public virtual IPagedList<MediaFile> SearchFiles(MediaSearchQuery query, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {

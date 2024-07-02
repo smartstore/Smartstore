@@ -11,19 +11,15 @@ namespace Smartstore.Core.Content.Media.Storage
     [SystemName("MediaStorage.SmartStoreFileSystem")]
     [FriendlyName("File system")]
     [Order(1)]
-    public class FileSystemMediaStorageProvider : IMediaStorageProvider, IMediaSender, IMediaReceiver
+    public class FileSystemMediaStorageProvider(
+        IMediaFileSystem fileSystem,
+        AsyncRunner asyncRunner) : IMediaStorageProvider, IMediaSender, IMediaReceiver
     {
         const string MediaRootPath = "Storage";
 
-        private readonly IMediaFileSystem _fileSystem;
-        private readonly AsyncRunner _asyncRunner;
+        private readonly IMediaFileSystem _fileSystem = fileSystem;
+        private readonly AsyncRunner _asyncRunner = asyncRunner;
         private readonly Dictionary<int, string> _pathCache = [];
-
-        public FileSystemMediaStorageProvider(IMediaFileSystem fileSystem, AsyncRunner asyncRunner)
-        {
-            _fileSystem = fileSystem;
-            _asyncRunner = asyncRunner;
-        }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

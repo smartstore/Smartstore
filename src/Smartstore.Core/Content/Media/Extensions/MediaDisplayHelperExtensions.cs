@@ -11,9 +11,8 @@ namespace Smartstore
 
     public static class MediaDisplayHelperExtensions
     {
-        public static string GetFileManagerUrl(this IDisplayHelper displayHelper)
-        {
-            return displayHelper.HttpContext.GetItem("FileManagerUrl", () =>
+        public static string GetFileManagerUrl(this IDisplayHelper displayHelper) =>
+             displayHelper.HttpContext.GetItem("FileManagerUrl", () =>
             {
                 var urlHelper = displayHelper.Resolve<IUrlHelper>();
                 var defaultUrl = urlHelper.Action("Index", "RoxyFileManager", new { area = "Admin" });
@@ -27,6 +26,6 @@ namespace Smartstore
 
                 return message.Url ?? defaultUrl;
             });
-        }
+
     }
 }

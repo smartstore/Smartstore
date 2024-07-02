@@ -3,16 +3,10 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class MeasureService : IMeasureService
+    public partial class MeasureService(SmartDbContext db, MeasureSettings measureSettings) : IMeasureService
     {
-        private readonly SmartDbContext _db;
-        private readonly MeasureSettings _measureSettings;
-
-        public MeasureService(SmartDbContext db, MeasureSettings measureSettings)
-        {
-            _db = db;
-            _measureSettings = measureSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly MeasureSettings _measureSettings = measureSettings;
 
         public virtual async Task<decimal> ConvertDimensionAsync(decimal quantity, MeasureDimension source, MeasureDimension target, bool round = true)
         {

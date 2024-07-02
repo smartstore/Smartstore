@@ -11,8 +11,7 @@ namespace Smartstore.Core.Checkout.Payment
 {
     internal class PaymentMethodMap : IEntityTypeConfiguration<PaymentMethod>
     {
-        public void Configure(EntityTypeBuilder<PaymentMethod> builder)
-        {
+        public void Configure(EntityTypeBuilder<PaymentMethod> builder)=>
             builder
                 .HasMany(c => c.RuleSets)
                 .WithMany(c => c.PaymentMethods)
@@ -35,7 +34,7 @@ namespace Smartstore.Core.Checkout.Payment
                         c.HasIndex("PaymentMethod_Id");
                         c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id");
                     });
-        }
+        
     }
 
     /// <summary>

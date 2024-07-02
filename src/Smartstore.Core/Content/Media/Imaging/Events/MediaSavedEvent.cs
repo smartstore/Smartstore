@@ -3,22 +3,17 @@
     /// <summary>
     /// Will be fired after a media upload has been saved.
     /// </summary>
-    public class MediaSavedEvent
+    public class MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityType)
     {
-        public MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityType)
-        {
-            MediaFileInfo = Guard.NotNull(mediaFileInfo);
-            EntityType = entityType;
-        }
 
         /// <summary>
         /// The media file info of the saved image.
         /// </summary>
-        public MediaFileInfo MediaFileInfo { get; }
+        public MediaFileInfo MediaFileInfo { get; } = Guard.NotNull(mediaFileInfo);
 
         /// <summary>
         /// The type of the entity that the image belongs to.
         /// </summary>
-        public string EntityType { get; }
+        public string EntityType { get; } = entityType;
     }
 }

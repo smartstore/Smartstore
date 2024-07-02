@@ -7,27 +7,18 @@ using Smartstore.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class StockSubscriptionService : IStockSubscriptionService
+    public partial class StockSubscriptionService(
+        SmartDbContext db,
+        IMessageFactory messageFactory,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        CatalogSettings catalogSettings) : IStockSubscriptionService
     {
-        private readonly SmartDbContext _db;
-        private readonly IMessageFactory _messageFactory;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly CatalogSettings _catalogSettings;
-
-        public StockSubscriptionService(
-            SmartDbContext db,
-            IMessageFactory messageFactory,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            CatalogSettings catalogSettings)
-        {
-            _db = db;
-            _messageFactory = messageFactory;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _catalogSettings = catalogSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IMessageFactory _messageFactory = messageFactory;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -172,11 +163,9 @@ namespace Smartstore.Core.Catalog.Products
             return numberOfMessages;
         }
 
-        protected virtual async Task<BackInStockSubscription> GetSubscriptionAsync(Product product, Customer customer, int storeId)
-        {
-            return await _db.BackInStockSubscriptions
+        protected virtual async Task<BackInStockSubscription> GetSubscriptionAsync(Product product, Customer customer, int storeId) =>
+            await _db.BackInStockSubscriptions
                 .ApplyStandardFilter(product.Id, customer.Id, storeId)
                 .FirstOrDefaultAsync();
-        }
     }
 }

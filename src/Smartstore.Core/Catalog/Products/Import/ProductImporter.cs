@@ -16,7 +16,12 @@ using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    public class ProductImporter : EntityImporterBase
+    public class ProductImporter(
+        ICommonServices services,
+        IStoreMappingService storeMappingService,
+        IUrlService urlService,
+        IMediaImporter mediaImporter,
+        SeoSettings seoSettings) : EntityImporterBase(services, storeMappingService, urlService, seoSettings)
     {
         const string CargoDataKey = "ProductImporter.CargoData";
 
@@ -41,18 +46,7 @@ namespace Smartstore.Core.DataExchange.Import
             { nameof(Product.BundleTitleText), x => x.BundleTitleText }
         }.ToFrozenDictionary();
 
-        private readonly IMediaImporter _mediaImporter;
-
-        public ProductImporter(
-            ICommonServices services,
-            IStoreMappingService storeMappingService,
-            IUrlService urlService,
-            IMediaImporter mediaImporter,
-            SeoSettings seoSettings)
-            : base(services, storeMappingService, urlService, seoSettings)
-        {
-            _mediaImporter = mediaImporter;
-        }
+        private readonly IMediaImporter _mediaImporter = mediaImporter;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

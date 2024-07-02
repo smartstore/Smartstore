@@ -5,14 +5,9 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    internal class ProductMediaFileHook : AsyncDbSaveHook<ProductMediaFile>
+    internal class ProductMediaFileHook(SmartDbContext db) : AsyncDbSaveHook<ProductMediaFile>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductMediaFileHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override Task<HookResult> OnInsertedAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

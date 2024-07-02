@@ -5,18 +5,13 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// General shipment tracker (finds an appropriate tracker by tracking number).
     /// </summary>
-    internal partial class CompositeShipmentTracker : IShipmentTracker
+    internal partial class CompositeShipmentTracker(ITypeScanner typeScanner) : IShipmentTracker
     {
         // TODO: (mg) (core) Implement a shipment tracker for DHL!
         private static Type[] _trackerTypes = null;
         private readonly static object _lock = new();
 
-        private readonly ITypeScanner _typeScanner;
-
-        public CompositeShipmentTracker(ITypeScanner typeScanner)
-        {
-            _typeScanner = typeScanner;
-        }
+        private readonly ITypeScanner _typeScanner = typeScanner;
 
         /// <summary>
         /// Gets all trackers. The result gets cached.

@@ -4,16 +4,10 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    internal class OrderNoteHook : AsyncDbSaveHook<OrderNote>
+    internal class OrderNoteHook(SmartDbContext db, IEventPublisher eventPublisher) : AsyncDbSaveHook<OrderNote>
     {
-        private readonly SmartDbContext _db;
-        private readonly IEventPublisher _eventPublisher;
-
-        public OrderNoteHook(SmartDbContext db, IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _eventPublisher = eventPublisher;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

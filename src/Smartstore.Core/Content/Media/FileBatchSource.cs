@@ -6,17 +6,13 @@ using Smartstore.Net.Http;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class FileBatchSource : Disposable
+    public class FileBatchSource(MediaStorageItem source) : Disposable
     {
-        public FileBatchSource(MediaStorageItem source)
-        {
-            Source = Guard.NotNull(source);
-        }
 
         /// <summary>
         /// The file source as <see cref="MediaStorageItem"/>.
         /// </summary>
-        public MediaStorageItem Source { get; }
+        public MediaStorageItem Source { get; } = Guard.NotNull(source);
 
         /// <summary>
         /// Name of file including extension.

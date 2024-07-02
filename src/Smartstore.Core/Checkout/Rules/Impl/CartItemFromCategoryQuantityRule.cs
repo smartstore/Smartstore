@@ -4,14 +4,9 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class CartItemFromCategoryQuantityRule : IRule<CartRuleContext>
+    internal class CartItemFromCategoryQuantityRule(SmartDbContext db) : IRule<CartRuleContext>
     {
-        private readonly SmartDbContext _db;
-
-        public CartItemFromCategoryQuantityRule(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

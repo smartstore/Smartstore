@@ -8,13 +8,11 @@ namespace Smartstore.Core.Checkout.GiftCards
 {
     internal class GiftCardMap : IEntityTypeConfiguration<GiftCard>
     {
-        public void Configure(EntityTypeBuilder<GiftCard> builder)
-        {
+        public void Configure(EntityTypeBuilder<GiftCard> builder) =>
             builder.HasOne(x => x.PurchasedWithOrderItem)
-                .WithMany(x => x.AssociatedGiftCards)
-                .HasForeignKey(x => x.PurchasedWithOrderItemId)
-                .OnDelete(DeleteBehavior.SetNull);
-        }
+                   .WithMany(x => x.AssociatedGiftCards)
+                   .HasForeignKey(x => x.PurchasedWithOrderItemId)
+                   .OnDelete(DeleteBehavior.SetNull);
     }
 
     /// <summary>

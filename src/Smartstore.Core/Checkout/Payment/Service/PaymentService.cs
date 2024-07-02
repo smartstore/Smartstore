@@ -423,6 +423,7 @@ namespace Smartstore.Core.Checkout.Payment
             }
 
             var provider = await LoadProviderOrThrow(processPaymentRequest.PaymentMethodSystemName);
+
             return await provider.Value.ProcessPaymentAsync(processPaymentRequest);
         }
 

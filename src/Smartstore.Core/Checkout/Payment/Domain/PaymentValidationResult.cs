@@ -29,10 +29,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Whether validation succeeded
         /// </summary>
-        public bool IsValid
-        {
-            get => _errors == null || _errors.Count == 0;
-        }
+        public bool IsValid => _errors == null || _errors.Count == 0;
 
         /// <summary>
         /// A collection of errors
@@ -65,10 +62,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Generates a string representation of the error messages separated by new lines.
         /// </summary>
-        public override string ToString()
-        {
-            return ToString(Environment.NewLine);
-        }
+        public override string ToString() => ToString(Environment.NewLine);
 
         /// <summary>
         /// Generates a string representation of the error messages separated by the specified character.

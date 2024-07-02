@@ -3,14 +3,9 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class PurchasedFromManufacturerRule : IRule<CartRuleContext>
+    internal class PurchasedFromManufacturerRule(SmartDbContext db) : IRule<CartRuleContext>
     {
-        private readonly SmartDbContext _db;
-
-        public PurchasedFromManufacturerRule(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

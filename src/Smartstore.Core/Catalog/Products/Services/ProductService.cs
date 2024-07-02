@@ -20,45 +20,30 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductService : IProductService
+    public partial class ProductService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IEventPublisher eventPublisher,
+        ICacheManager cache,
+        IComponentContext componentContext,
+        Lazy<IProductTagService> productTagService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IUrlService urlService,
+        IMessageFactory messageFactory,
+        LocalizationSettings localizationSettings) : IProductService
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly ICacheManager _cache;
-        private readonly IComponentContext _componentContext;
-        private readonly Lazy<IProductTagService> _productTagService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IUrlService _urlService;
-        private readonly IMessageFactory _messageFactory;
-        private readonly LocalizationSettings _localizationSettings;
-
-        public ProductService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IEventPublisher eventPublisher,
-            ICacheManager cache,
-            IComponentContext componentContext,
-            Lazy<IProductTagService> productTagService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IUrlService urlService,
-            IMessageFactory messageFactory,
-            LocalizationSettings localizationSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _eventPublisher = eventPublisher;
-            _cache = cache;
-            _componentContext = componentContext;
-            _productTagService = productTagService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _urlService = urlService;
-            _messageFactory = messageFactory;
-            _localizationSettings = localizationSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly ICacheManager _cache = cache;
+        private readonly IComponentContext _componentContext = componentContext;
+        private readonly Lazy<IProductTagService> _productTagService = productTagService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly IUrlService _urlService = urlService;
+        private readonly IMessageFactory _messageFactory = messageFactory;
+        private readonly LocalizationSettings _localizationSettings = localizationSettings;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public Localizer T { get; set; } = NullLocalizer.Instance;

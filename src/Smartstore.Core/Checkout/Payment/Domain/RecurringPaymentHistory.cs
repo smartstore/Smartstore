@@ -5,18 +5,11 @@ namespace Smartstore.Core.Checkout.Payment
 {
     internal class RecurringPaymentHistoryMap : IEntityTypeConfiguration<RecurringPaymentHistory>
     {
-        public void Configure(EntityTypeBuilder<RecurringPaymentHistory> builder)
-        {
+        public void Configure(EntityTypeBuilder<RecurringPaymentHistory> builder) => 
             builder.HasOne(x => x.RecurringPayment)
-                .WithMany(x => x.RecurringPaymentHistory)
-                .HasForeignKey(x => x.RecurringPaymentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Entity framework issue if we have navigation property to 'Order'.
-            // 1. save recurring payment with an order
-            // 2. save recurring payment history with an order
-            // 3. update associated order => exception is thrown
-        }
+                   .WithMany(x => x.RecurringPaymentHistory)
+                   .HasForeignKey(x => x.RecurringPaymentId)
+                   .OnDelete(DeleteBehavior.Cascade);// Entity framework issue if we have navigation property to 'Order'.// 1. save recurring payment with an order// 2. save recurring payment history with an order// 3. update associated order => exception is thrown
     }
 
     /// <summary>

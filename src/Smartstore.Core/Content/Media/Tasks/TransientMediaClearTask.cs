@@ -10,16 +10,10 @@ namespace Smartstore.Core.Content.Media.Tasks
     /// Represents a task for deleting transient media from the database
 	/// (files and downloads which have been uploaded but never assigned to an entity).
     /// </summary>
-    public partial class TransientMediaClearTask : ITask
+    public partial class TransientMediaClearTask(SmartDbContext db, IMediaService mediaService) : ITask
     {
-        private readonly SmartDbContext _db;
-        private readonly IMediaService _mediaService;
-
-        public TransientMediaClearTask(SmartDbContext db, IMediaService mediaService)
-        {
-            _db = db;
-            _mediaService = mediaService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IMediaService _mediaService = mediaService;
 
         public virtual async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {

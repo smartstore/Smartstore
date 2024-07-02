@@ -5,16 +5,12 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment.Rules
 {
-    public partial class PaymentMethodRuleOptionsProvider : IRuleOptionsProvider
+    public partial class PaymentMethodRuleOptionsProvider(
+        IProviderManager providerManager,
+        ILocalizationService localizationService) : IRuleOptionsProvider
     {
-        private readonly IProviderManager _providerManager;
-        private readonly ILocalizationService _localizationService;
-
-        public PaymentMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
-        {
-            _providerManager = providerManager;
-            _localizationService = localizationService;
-        }
+        private readonly IProviderManager _providerManager = providerManager;
+        private readonly ILocalizationService _localizationService = localizationService;
 
         public int Order => 0;
 

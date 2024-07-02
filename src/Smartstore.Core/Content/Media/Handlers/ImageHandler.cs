@@ -2,20 +2,15 @@
 
 namespace Smartstore.Core.Content.Media
 {
-    public class ImageHandler : ImageHandlerBase
+    public class ImageHandler(
+        IImageProcessor imageProcessor,
+        IImageCache imageCache,
+        MediaExceptionFactory exceptionFactory) : ImageHandlerBase(imageCache, exceptionFactory)
     {
-        private readonly IImageProcessor _imageProcessor;
+        private readonly IImageProcessor _imageProcessor = imageProcessor;
 
-        public ImageHandler(IImageProcessor imageProcessor, IImageCache imageCache, MediaExceptionFactory exceptionFactory)
-            : base(imageCache, exceptionFactory)
-        {
-            _imageProcessor = imageProcessor;
-        }
-
-        protected override bool IsProcessable(MediaHandlerContext context)
-        {
-            return context.ImageQuery.NeedsProcessing(true) && _imageProcessor.Factory.IsSupportedImage(context.PathData.Extension);
-        }
+        protected override bool IsProcessable(MediaHandlerContext context) =>
+            context.ImageQuery.NeedsProcessing(true) && _imageProcessor.Factory.IsSupportedImage(context.PathData.Extension);
 
         protected override async Task ProcessImageAsync(MediaHandlerContext context, CachedImage cachedImage, Stream inputStream)
         {

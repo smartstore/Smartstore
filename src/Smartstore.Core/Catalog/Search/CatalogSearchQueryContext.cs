@@ -2,15 +2,10 @@
 
 namespace Smartstore.Core.Catalog.Search
 {
-    public class CatalogSearchQueryContext : SearchQueryContext<CatalogSearchQuery>
+    public class CatalogSearchQueryContext(CatalogSearchQuery query, 
+        ICommonServices services) : SearchQueryContext<CatalogSearchQuery>(query)
     {
-        public CatalogSearchQueryContext(CatalogSearchQuery query, ICommonServices services)
-            : base(query)
-        {
-            Services = Guard.NotNull(services);
-        }
-
-        public ICommonServices Services { get; }
+        public ICommonServices Services { get; } = Guard.NotNull(services);
         public int? CategoryId { get; set; }
         public int? ManufacturerId { get; set; }
     }

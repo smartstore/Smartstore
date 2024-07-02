@@ -13,57 +13,37 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public partial class PriceCalculationService : IPriceCalculationService
+    public partial class PriceCalculationService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IPriceCalculatorFactory calculatorFactory,
+        ITaxCalculator taxCalculator,
+        IProductService productService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ITaxService taxService,
+        ICurrencyService currencyService,
+        IRoundingHelper roundingHelper,
+        IPriceLabelService priceLabelService,
+        PriceSettings priceSettings,
+        CurrencySettings currencySettings,
+        TaxSettings taxSettings) : IPriceCalculationService
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IPriceCalculatorFactory _calculatorFactory;
-        private readonly ITaxCalculator _taxCalculator;
-        private readonly IProductService _productService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IPriceLabelService _priceLabelService;
-        private readonly PriceSettings _priceSettings;
-        private readonly CurrencySettings _currencySettings;
-        private readonly TaxSettings _taxSettings;
-        private readonly Currency _primaryCurrency;
-
-        public PriceCalculationService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IPriceCalculatorFactory calculatorFactory,
-            ITaxCalculator taxCalculator,
-            IProductService productService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ITaxService taxService,
-            ICurrencyService currencyService,
-            IRoundingHelper roundingHelper,
-            IPriceLabelService priceLabelService,
-            PriceSettings priceSettings,
-            CurrencySettings currencySettings,
-            TaxSettings taxSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _calculatorFactory = calculatorFactory;
-            _taxCalculator = taxCalculator;
-            _productService = productService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _taxService = taxService;
-            _currencyService = currencyService;
-            _roundingHelper = roundingHelper;
-            _priceLabelService = priceLabelService;
-            _priceSettings = priceSettings;
-            _currencySettings = currencySettings;
-            _taxSettings = taxSettings;
-
-            _primaryCurrency = currencyService.PrimaryCurrency;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IPriceCalculatorFactory _calculatorFactory = calculatorFactory;
+        private readonly ITaxCalculator _taxCalculator = taxCalculator;
+        private readonly IProductService _productService = productService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly ITaxService _taxService = taxService;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IPriceLabelService _priceLabelService = priceLabelService;
+        private readonly PriceSettings _priceSettings = priceSettings;
+        private readonly CurrencySettings _currencySettings = currencySettings;
+        private readonly TaxSettings _taxSettings = taxSettings;
+        private readonly Currency _primaryCurrency = currencyService.PrimaryCurrency;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -174,6 +154,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
+
             return (price, subtotal);
         }
 

@@ -7,7 +7,10 @@ using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Catalog.Search.Modelling
 {
-    public partial class CatalogSearchQueryAliasMapper : ICatalogSearchQueryAliasMapper
+    public partial class CatalogSearchQueryAliasMapper(
+        SmartDbContext db,
+        ICacheManager cache,
+        ISettingService settingService) : ICatalogSearchQueryAliasMapper
     {
         private const string ALL_ATTRIBUTE_ID_BY_ALIAS_KEY = "search:attribute.id.alias.mappings.all";
         private const string ALL_ATTRIBUTE_ALIAS_BY_ID_KEY = "search:attribute.alias.id.mappings.all";
@@ -16,19 +19,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         private const string ALL_VARIANT_ID_BY_ALIAS_KEY = "search:variant.id.alias.mappings.all";
         private const string ALL_VARIANT_ALIAS_BY_ID_KEY = "search:variant.alias.id.mappings.all";
 
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-        private readonly ISettingService _settingService;
-
-        public CatalogSearchQueryAliasMapper(
-            SmartDbContext db,
-            ICacheManager cache,
-            ISettingService settingService)
-        {
-            _db = db;
-            _cache = cache;
-            _settingService = settingService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICacheManager _cache = cache;
+        private readonly ISettingService _settingService = settingService;
 
         #region Specification Attributes
 
@@ -392,13 +385,11 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         public string GetCommonFacetAliasByGroupKind(FacetGroupKind kind, int languageId)
         {
             var mappings = GetCommonFacetAliasByGroupKindMappings();
+
             return mappings.Get(FacetUtility.GetFacetAliasSettingKey(kind, languageId));
         }
 
-        public Task ClearCommonFacetCacheAsync()
-        {
-            return _cache.RemoveAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY);
-        }
+        public Task ClearCommonFacetCacheAsync() => _cache.RemoveAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY);
 
         protected virtual IDictionary<string, string> GetCommonFacetAliasByGroupKindMappings()
         {
@@ -449,23 +440,15 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         #region Utilities
 
-        protected static string CreateKey(string prefix, int languageId, string alias)
-        {
-            return $"{prefix}.{languageId}.{alias}";
-        }
-        protected static string CreateKey(string prefix, int languageId, int attributeId)
-        {
-            return $"{prefix}.{languageId}.{attributeId}";
-        }
+        protected static string CreateKey(string prefix, int languageId, string alias) =>
+            $"{prefix}.{languageId}.{alias}";
+        protected static string CreateKey(string prefix, int languageId, int attributeId) => 
+            $"{prefix}.{languageId}.{attributeId}";
 
-        protected static string CreateOptionKey(string prefix, int languageId, int attributeId, string optionAlias)
-        {
-            return $"{prefix}.{languageId}.{attributeId}.{optionAlias}";
-        }
-        protected static string CreateOptionKey(string prefix, int languageId, int optionId)
-        {
-            return $"{prefix}.{languageId}.{optionId}";
-        }
+        protected static string CreateOptionKey(string prefix, int languageId, int attributeId, string optionAlias) => 
+            $"{prefix}.{languageId}.{attributeId}.{optionAlias}";
+        protected static string CreateOptionKey(string prefix, int languageId, int optionId) => 
+            $"{prefix}.{languageId}.{optionId}";
 
         protected void CacheLocalizedAlias(string localeKeyGroup, Action<LocalizedProperty> caching)
         {

@@ -6,7 +6,10 @@ using Smartstore.Core.Catalog.Search.Modelling;
 
 namespace Smartstore.Core.Search.Facets
 {
-    public partial class CatalogFacetUrlHelper : FacetUrlHelperBase
+    public partial class CatalogFacetUrlHelper(
+        IHttpContextAccessor httpContextAccessor,
+        IWorkContext workContext,
+        ICatalogSearchQueryAliasMapper catalogAliasMapper) : FacetUrlHelperBase(httpContextAccessor.HttpContext?.Request)
     {
         private readonly static FrozenDictionary<FacetGroupKind, string> _queryNames = new Dictionary<FacetGroupKind, string>()
         {
@@ -19,18 +22,8 @@ namespace Smartstore.Core.Search.Facets
             { FacetGroupKind.NewArrivals, "n" }
         }.ToFrozenDictionary();
 
-        private readonly IWorkContext _workContext;
-        private readonly ICatalogSearchQueryAliasMapper _catalogAliasMapper;
-
-        public CatalogFacetUrlHelper(
-            IHttpContextAccessor httpContextAccessor,
-            IWorkContext workContext,
-            ICatalogSearchQueryAliasMapper catalogAliasMapper)
-            : base(httpContextAccessor.HttpContext?.Request)
-        {
-            _workContext = workContext;
-            _catalogAliasMapper = catalogAliasMapper;
-        }
+        private readonly IWorkContext _workContext = workContext;
+        private readonly ICatalogSearchQueryAliasMapper _catalogAliasMapper = catalogAliasMapper;
 
         public override int Order => 0;
 

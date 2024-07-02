@@ -74,30 +74,17 @@ namespace Smartstore.Core.Content.Media
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public MediaFileNotFoundException FileNotFound(string path)
-        {
-            return new MediaFileNotFoundException(T("Admin.Media.Exception.FileNotFound", path));
-        }
+        public MediaFileNotFoundException FileNotFound(string path) => new MediaFileNotFoundException(T("Admin.Media.Exception.FileNotFound", path));
 
-        public MediaFolderNotFoundException FolderNotFound(string path)
-        {
-            return new MediaFolderNotFoundException(T("Admin.Media.Exception.FolderNotFound", path));
-        }
+        public MediaFolderNotFoundException FolderNotFound(string path) => new MediaFolderNotFoundException(T("Admin.Media.Exception.FolderNotFound", path));
 
-        public DuplicateMediaFileException DuplicateFile(string fullPath, MediaFileInfo dupeFile, string uniquePath)
-        {
-            return new DuplicateMediaFileException(T("Admin.Media.Exception.DuplicateFile", fullPath), dupeFile, uniquePath);
-        }
+        public DuplicateMediaFileException DuplicateFile(string fullPath, MediaFileInfo dupeFile, string uniquePath) => new DuplicateMediaFileException(T("Admin.Media.Exception.DuplicateFile", fullPath), dupeFile, uniquePath);
 
         public DuplicateMediaFolderException DuplicateFolder(string fullPath, MediaFolderNode dupeFolder)
-        {
-            return new DuplicateMediaFolderException(T("Admin.Media.Exception.DuplicateFolder", fullPath), dupeFolder);
-        }
+        => new DuplicateMediaFolderException(T("Admin.Media.Exception.DuplicateFolder", fullPath), dupeFolder);
 
         public NotSameAlbumException NotSameAlbum(string sourcePath, string destPath)
-        {
-            return new NotSameAlbumException(T("Admin.Media.Exception.NotSameAlbum", sourcePath, destPath));
-        }
+        => new NotSameAlbumException(T("Admin.Media.Exception.NotSameAlbum", sourcePath, destPath));
 
         public DeniedMediaTypeException DeniedMediaType(string fileName, string currentType, string[] acceptedTypes = null)
         {
@@ -112,9 +99,7 @@ namespace Smartstore.Core.Content.Media
         }
 
         public ExtractThumbnailException ExtractThumbnail(string path, string reason = null)
-        {
-            return new ExtractThumbnailException(T("Admin.Media.Exception.ExtractThumbnail", path, reason.NaIfEmpty()));
-        }
+        => new ExtractThumbnailException(T("Admin.Media.Exception.ExtractThumbnail", path, reason.NaIfEmpty()));
 
         public ExtractThumbnailException ExtractThumbnail(string path, Exception innerException)
         {
@@ -123,13 +108,7 @@ namespace Smartstore.Core.Content.Media
         }
 
         public MaxMediaFileSizeExceededException MaxFileSizeExceeded(string fileName, long fileSize, long maxSize)
-        {
-            return new MaxMediaFileSizeExceededException(T(
-                "Admin.Media.Exception.MaxFileSizeExceeded",
-                fileName.NaIfEmpty(),
-                Prettifier.HumanizeBytes(fileSize),
-                Prettifier.HumanizeBytes(maxSize)));
-        }
+        => new MaxMediaFileSizeExceededException(T("Admin.Media.Exception.MaxFileSizeExceeded", fileName.NaIfEmpty(), Prettifier.HumanizeBytes(fileSize), Prettifier.HumanizeBytes(maxSize)));
 
         public DeleteTrackedFileException DeleteTrackedFile(MediaFile file, Exception innerException)
         {

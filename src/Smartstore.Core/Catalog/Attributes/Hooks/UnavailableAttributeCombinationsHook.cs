@@ -13,10 +13,7 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly ICacheManager _cache;
 
-        public UnavailableAttributeCombinationsHook(ICacheManager cache)
-        {
-            _cache = cache;
-        }
+        public UnavailableAttributeCombinationsHook(ICacheManager cache) => _cache = cache;
 
         public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {

@@ -5,14 +5,9 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Catalog.Brands.Rules
 {
-    public partial class ManufacturerRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ManufacturerRuleOptionsProvider(SmartDbContext db) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-
-        public ManufacturerRuleOptionsProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public int Order => 0;
 

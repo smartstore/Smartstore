@@ -13,10 +13,7 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         private readonly IPriceCalculatorFactory _calculatorFactory;
 
-        protected PriceCalculator(IPriceCalculatorFactory calculatorFactory)
-        {
-            _calculatorFactory = calculatorFactory;
-        }
+        protected PriceCalculator(IPriceCalculatorFactory calculatorFactory) => _calculatorFactory = calculatorFactory;
 
         public virtual async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

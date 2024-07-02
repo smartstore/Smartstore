@@ -4,17 +4,13 @@
     /// Specifies whether a property refers to an asset to be included in the story export.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public sealed class StoryAssetAttribute : Attribute
+    public sealed class StoryAssetAttribute(StoryAssetKind kind) : Attribute
     {
-        public StoryAssetAttribute(StoryAssetKind kind)
-        {
-            Kind = kind;
-        }
 
         /// <summary>
         /// The asset property kind.
         /// </summary>
-        public StoryAssetKind Kind { get; private set; }
+        public StoryAssetKind Kind { get; private set; } = kind;
     }
 
     public enum StoryAssetKind

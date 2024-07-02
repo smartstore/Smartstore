@@ -9,31 +9,20 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Rules
 {
-    public class CartRuleProvider : RuleProviderBase, ICartRuleProvider
+    public class CartRuleProvider(
+        IComponentContext componentContext,
+        IRuleService ruleService,
+        ICurrencyService currencyService,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IShoppingCartService shoppingCartService) : RuleProviderBase(RuleScope.Cart), ICartRuleProvider
     {
-        private readonly IComponentContext _componentContext;
-        private readonly IRuleService _ruleService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IShoppingCartService _shoppingCartService;
-
-        public CartRuleProvider(
-            IComponentContext componentContext,
-            IRuleService ruleService,
-            ICurrencyService currencyService,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IShoppingCartService shoppingCartService)
-            : base(RuleScope.Cart)
-        {
-            _componentContext = componentContext;
-            _ruleService = ruleService;
-            _currencyService = currencyService;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _shoppingCartService = shoppingCartService;
-        }
+        private readonly IComponentContext _componentContext = componentContext;
+        private readonly IRuleService _ruleService = ruleService;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IShoppingCartService _shoppingCartService = shoppingCartService;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -47,7 +36,7 @@ namespace Smartstore.Core.Checkout.Rules
                 throw new InvalidOperationException($"Missing cart rule descriptor for expression {expression.Id} ('{expression.RawValue.EmptyNull()}').");
             }
 
-            IRule< CartRuleContext> instance;
+            IRule<CartRuleContext> instance;
 
             if (group == null && descriptor.ProcessorType != typeof(CartCompositeRule))
             {
@@ -62,15 +51,14 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<RuleExpressionGroup> CreateExpressionGroupAsync(int ruleSetId)
-        {
-            return await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as RuleExpressionGroup;
-        }
+        public async Task<RuleExpressionGroup> CreateExpressionGroupAsync(int ruleSetId) =>
+            await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as RuleExpressionGroup;
 
         public override async Task<IRuleExpression> VisitRuleAsync(RuleEntity rule)
         {
             var expression = new RuleExpression();
             await base.ConvertRuleAsync(rule, expression);
+
             return expression;
         }
 
@@ -95,7 +83,7 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         public async Task<bool> RuleMatchesAsync(
-            int[] ruleSetIds, 
+            int[] ruleSetIds,
             LogicalRuleOperator logicalOperator,
             Action<CartRuleContext> contextAction = null)
         {
@@ -116,7 +104,7 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         public async Task<bool> RuleMatchesAsync(
-            IRulesContainer entity, 
+            IRulesContainer entity,
             LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or,
             Action<CartRuleContext> contextAction = null)
         {
@@ -143,7 +131,7 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         public async Task<bool> RuleMatchesAsync(
-            RuleExpression[] expressions, 
+            RuleExpression[] expressions,
             LogicalRuleOperator logicalOperator,
             Action<CartRuleContext> contextAction = null)
         {

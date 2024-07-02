@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Attributes
 {
     [Important]
-    internal class ProductVariantAttributeValueHook : AsyncDbSaveHook<ProductVariantAttributeValue>
+    internal class ProductVariantAttributeValueHook(SmartDbContext db) : AsyncDbSaveHook<ProductVariantAttributeValue>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductVariantAttributeValueHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         /// <summary>
         /// Sets all product variant attribute values to <see cref="ProductVariantAttributeValue.IsPreSelected"/> = false if the currently inserted entity is preselected.
@@ -19,6 +14,7 @@ namespace Smartstore.Core.Catalog.Attributes
         protected override async Task<HookResult> OnInsertingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
+
             return HookResult.Ok;
         }
 
@@ -28,6 +24,7 @@ namespace Smartstore.Core.Catalog.Attributes
         protected override async Task<HookResult> OnUpdatingAsync(ProductVariantAttributeValue entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await ResetPreselectedProductVariantAttributeValues(entity, cancelToken);
+
             return HookResult.Ok;
         }
 

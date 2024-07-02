@@ -3,16 +3,13 @@ using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public partial class PriceCalculatorFactory : IPriceCalculatorFactory
+    public partial class PriceCalculatorFactory(
+        IRequestCache requestCache,
+        IEnumerable<Lazy<IPriceCalculator,
+        PriceCalculatorMetadata>> calculators) : IPriceCalculatorFactory
     {
-        private readonly IRequestCache _requestCache;
-        private readonly IEnumerable<Lazy<IPriceCalculator, PriceCalculatorMetadata>> _lazyCalculators;
-
-        public PriceCalculatorFactory(IRequestCache requestCache, IEnumerable<Lazy<IPriceCalculator, PriceCalculatorMetadata>> calculators)
-        {
-            _requestCache = requestCache;
-            _lazyCalculators = calculators.OrderBy(x => x.Metadata.Order);
-        }
+        private readonly IRequestCache _requestCache = requestCache;
+        private readonly IEnumerable<Lazy<IPriceCalculator, PriceCalculatorMetadata>> _lazyCalculators = calculators.OrderBy(x => x.Metadata.Order);
 
         public IPriceCalculator[] GetCalculators(PriceCalculationContext context)
         {

@@ -11,8 +11,8 @@ namespace Smartstore.Core.Checkout.Shipping
 {
     internal class ShippingMethodMap : IEntityTypeConfiguration<ShippingMethod>
     {
-        public void Configure(EntityTypeBuilder<ShippingMethod> builder)
-        {
+        public void Configure(EntityTypeBuilder<ShippingMethod> builder)=>
+        
             builder
                 .HasMany(x => x.RuleSets)
                 .WithMany(x => x.ShippingMethods)
@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.Shipping
                         c.HasIndex("ShippingMethod_Id");
                         c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id");
                     });
-        }
+        
     }
 
     /// <summary>

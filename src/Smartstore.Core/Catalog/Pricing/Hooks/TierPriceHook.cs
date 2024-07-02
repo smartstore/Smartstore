@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Pricing
 {
     [Important]
-    internal class TierPriceHook : AsyncDbSaveHook<TierPrice>
+    internal class TierPriceHook(SmartDbContext db) : AsyncDbSaveHook<TierPrice>
     {
-        private readonly SmartDbContext _db;
-
-        public TierPriceHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override Task<HookResult> OnInsertedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

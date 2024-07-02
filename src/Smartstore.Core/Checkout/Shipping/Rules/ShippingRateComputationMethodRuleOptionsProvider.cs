@@ -5,16 +5,12 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Shipping.Rules
 {
-    public partial class ShippingRateComputationMethodRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ShippingRateComputationMethodRuleOptionsProvider(
+        IProviderManager providerManager, 
+        ILocalizationService localizationService) : IRuleOptionsProvider
     {
-        private readonly IProviderManager _providerManager;
-        private readonly ILocalizationService _localizationService;
-
-        public ShippingRateComputationMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
-        {
-            _providerManager = providerManager;
-            _localizationService = localizationService;
-        }
+        private readonly IProviderManager _providerManager = providerManager;
+        private readonly ILocalizationService _localizationService = localizationService;
 
         public int Order => 0;
 

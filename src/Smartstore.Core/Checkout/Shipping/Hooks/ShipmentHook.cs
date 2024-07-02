@@ -8,16 +8,10 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     /// Shipment hook
     /// </summary>
     [Important]
-    internal partial class ShipmentHook : AsyncDbSaveHook<Shipment>
+    internal partial class ShipmentHook(IEventPublisher eventPublisher, SmartDbContext db) : AsyncDbSaveHook<Shipment>
     {
-        private readonly IEventPublisher _eventPublisher;
-        private readonly SmartDbContext _db;
-
-        public ShipmentHook(IEventPublisher eventPublisher, SmartDbContext db)
-        {
-            _eventPublisher = eventPublisher;
-            _db = db;
-        }
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly SmartDbContext _db = db;
 
         public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
@@ -64,26 +58,22 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     /// Shipment item hook
     /// </summary>
     [Important]
-    internal partial class ShipmentItemHook : AsyncDbSaveHook<ShipmentItem>
+    internal partial class ShipmentItemHook(IEventPublisher eventPublisher, SmartDbContext db) : AsyncDbSaveHook<ShipmentItem>
     {
-        private readonly IEventPublisher _eventPublisher;
-        private readonly SmartDbContext _db;
-
-        public ShipmentItemHook(IEventPublisher eventPublisher, SmartDbContext db)
-        {
-            _eventPublisher = eventPublisher;
-            _db = db;
-        }
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly SmartDbContext _db = db;
 
         protected override async Task<HookResult> OnInsertingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await _eventPublisher.PublishOrderUpdatedAsync(entity.Shipment.Order);
+
             return HookResult.Ok;
         }
 
         protected override async Task<HookResult> OnUpdatingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             await _eventPublisher.PublishOrderUpdatedAsync(entity.Shipment.Order);
+
             return HookResult.Ok;
         }
 

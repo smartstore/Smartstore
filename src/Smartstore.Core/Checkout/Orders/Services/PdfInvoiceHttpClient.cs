@@ -12,19 +12,12 @@ namespace Smartstore.Core.Checkout.Orders
         public string FileName { get; init; }
     }
 
-    public class PdfInvoiceHttpClient
+    public class PdfInvoiceHttpClient(HttpClient httpClient, IUrlHelper urlHelper, Localizer localizer)
     {
-        private readonly HttpClient _httpClient;
-        private readonly IUrlHelper _urlHelper;
+        private readonly HttpClient _httpClient = httpClient;
+        private readonly IUrlHelper _urlHelper = urlHelper;
 
-        public PdfInvoiceHttpClient(HttpClient httpClient, IUrlHelper urlHelper, Localizer localizer)
-        {
-            _httpClient = httpClient;
-            _urlHelper = urlHelper;
-            T = localizer;
-        }
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
+        public Localizer T { get; set; } = localizer;
 
         public async Task<PdfInvoiceResult> GetPdfInvoiceAsync(int orderId, CancellationToken cancelToken = default)
         {

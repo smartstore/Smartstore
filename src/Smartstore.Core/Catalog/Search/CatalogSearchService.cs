@@ -11,24 +11,16 @@ using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Catalog.Search
 {
-    public partial class CatalogSearchService : SearchServiceBase, ICatalogSearchService, IXmlSitemapPublisher
+    public partial class CatalogSearchService(
+        SmartDbContext db,
+        ICommonServices services,
+        IIndexManager indexManager,
+        ICurrencyService currencyService) : SearchServiceBase, ICatalogSearchService, IXmlSitemapPublisher
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly IIndexManager _indexManager;
-        private readonly ICurrencyService _currencyService;
-
-        public CatalogSearchService(
-            SmartDbContext db,
-            ICommonServices services,
-            IIndexManager indexManager,
-            ICurrencyService currencyService)
-        {
-            _db = db;
-            _services = services;
-            _indexManager = indexManager;
-            _currencyService = currencyService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICommonServices _services = services;
+        private readonly IIndexManager _indexManager = indexManager;
+        private readonly ICurrencyService _currencyService = currencyService;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -38,6 +30,7 @@ namespace Smartstore.Core.Catalog.Search
         public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null)
         {
             var linqCatalogSearchService = _services.ResolveNamed<ICatalogSearchService>("linq");
+
             return linqCatalogSearchService.PrepareQuery(searchQuery, baseQuery);
         }
 
@@ -234,10 +227,7 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
-        protected virtual string FormatPrice(decimal price)
-        {
-            return _currencyService.ConvertToWorkingCurrency(price).ToString();
-        }
+        protected virtual string FormatPrice(decimal price) => _currencyService.ConvertToWorkingCurrency(price).ToString();
 
         #region XML Sitemap
 

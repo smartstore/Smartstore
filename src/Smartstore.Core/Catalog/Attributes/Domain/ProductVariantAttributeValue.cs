@@ -9,12 +9,10 @@ namespace Smartstore.Core.Catalog.Attributes
 {
     internal class ProductVariantAttributeValueMap : IEntityTypeConfiguration<ProductVariantAttributeValue>
     {
-        public void Configure(EntityTypeBuilder<ProductVariantAttributeValue> builder)
-        {
+        public void Configure(EntityTypeBuilder<ProductVariantAttributeValue> builder) => 
             builder.HasOne(c => c.ProductVariantAttribute)
-                .WithMany(c => c.ProductVariantAttributeValues)
-                .HasForeignKey(c => c.ProductVariantAttributeId);
-        }
+                   .WithMany(c => c.ProductVariantAttributeValues)
+                   .HasForeignKey(c => c.ProductVariantAttributeId);
     }
 
     /// <summary>
@@ -111,24 +109,21 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public int Quantity { get; set; }
 
-        public ProductVariantAttributeValue Clone()
+        public ProductVariantAttributeValue Clone() => new()
         {
-            return new()
-            {
-                ProductVariantAttributeId = ProductVariantAttributeId,
-                Name = Name,
-                Alias = Alias,
-                MediaFileId = MediaFileId,
-                Color = Color,
-                PriceAdjustment = PriceAdjustment,
-                WeightAdjustment = WeightAdjustment,
-                IsPreSelected = IsPreSelected,
-                DisplayOrder = DisplayOrder,
-                ValueTypeId = ValueTypeId,
-                LinkedProductId = LinkedProductId,
-                Quantity = Quantity
-            };
-        }
+            ProductVariantAttributeId = ProductVariantAttributeId,
+            Name = Name,
+            Alias = Alias,
+            MediaFileId = MediaFileId,
+            Color = Color,
+            PriceAdjustment = PriceAdjustment,
+            WeightAdjustment = WeightAdjustment,
+            IsPreSelected = IsPreSelected,
+            DisplayOrder = DisplayOrder,
+            ValueTypeId = ValueTypeId,
+            LinkedProductId = LinkedProductId,
+            Quantity = Quantity
+        };
 
         object ICloneable.Clone()
             => Clone();

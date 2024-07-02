@@ -4,10 +4,7 @@ namespace Smartstore.Core.Content.Media
 {
     public class MediaFolderNode : IKeyedNode
     {
-        object IKeyedNode.GetNodeKey()
-        {
-            return Id;
-        }
+        object IKeyedNode.GetNodeKey() => Id;
 
         /// <summary>
         /// Whether the folder is a root album node

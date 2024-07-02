@@ -16,18 +16,12 @@ namespace Smartstore.Core.Content.Media
         IMediaDupeDetector GetDetector(int folderId);
     }
 
-    public partial class MediaDupeDetectorFactory : IMediaDupeDetectorFactory
+    public partial class MediaDupeDetectorFactory(IMediaSearcher searcher, PerformanceSettings performanceSettings) : IMediaDupeDetectorFactory
     {
-        private readonly IMediaSearcher _searcher;
-        private readonly PerformanceSettings _performanceSettings;
+        private readonly IMediaSearcher _searcher = searcher;
+        private readonly PerformanceSettings _performanceSettings = performanceSettings;
 
         private readonly Dictionary<int, IMediaDupeDetector> _detectors = [];
-
-        public MediaDupeDetectorFactory(IMediaSearcher searcher, PerformanceSettings performanceSettings)
-        {
-            _searcher = searcher;
-            _performanceSettings = performanceSettings;
-        }
 
         public IMediaDupeDetector GetDetector(int folderId)
         {

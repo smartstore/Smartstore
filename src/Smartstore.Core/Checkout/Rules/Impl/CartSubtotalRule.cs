@@ -5,16 +5,10 @@ using Smartstore.Threading;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class CartSubtotalRule : IRule<CartRuleContext>
+    internal class CartSubtotalRule(IOrderCalculationService orderCalculationService, IRoundingHelper roundingHelper) : IRule<CartRuleContext>
     {
-        private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IRoundingHelper _roundingHelper;
-
-        public CartSubtotalRule(IOrderCalculationService orderCalculationService, IRoundingHelper roundingHelper)
-        {
-            _orderCalculationService = orderCalculationService;
-            _roundingHelper = roundingHelper;
-        }
+        private readonly IOrderCalculationService _orderCalculationService = orderCalculationService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

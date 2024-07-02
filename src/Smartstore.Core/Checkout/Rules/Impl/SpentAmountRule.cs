@@ -5,21 +5,14 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class SpentAmountRule : IRule<CartRuleContext>
+    internal class SpentAmountRule(
+        SmartDbContext db,
+        ICurrencyService currencyService,
+        IRoundingHelper roundingHelper) : IRule<CartRuleContext>
     {
-        private readonly SmartDbContext _db;
-        private readonly ICurrencyService _currencyService;
-        private readonly IRoundingHelper _roundingHelper;
-
-        public SpentAmountRule(
-            SmartDbContext db, 
-            ICurrencyService currencyService,
-            IRoundingHelper roundingHelper)
-        {
-            _db = db;
-            _currencyService = currencyService;
-            _roundingHelper = roundingHelper;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

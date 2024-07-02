@@ -7,16 +7,10 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders.Events
 {
-    internal class CreateAttachmentsConsumer : IConsumer
+    internal class CreateAttachmentsConsumer(PdfInvoiceHttpClient client, PdfSettings pdfSettings) : IConsumer
     {
-        private readonly PdfInvoiceHttpClient _client;
-        private readonly PdfSettings _pdfSettings;
-
-        public CreateAttachmentsConsumer(PdfInvoiceHttpClient client, PdfSettings pdfSettings)
-        {
-            _client = client;
-            _pdfSettings = pdfSettings;
-        }
+        private readonly PdfInvoiceHttpClient _client = client;
+        private readonly PdfSettings _pdfSettings = pdfSettings;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public Localizer T { get; set; } = NullLocalizer.Instance;

@@ -44,6 +44,7 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(context);
 
             var md = Handler.Metadata;
+
             return context.UrlHelper.Action(md.DefaultAction, md.Controller, md.Area.HasValue() ? new { area = md.Area } : null);
         }
     }

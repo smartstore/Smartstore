@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    public partial class MediaHelper
+    public partial class MediaHelper(IFolderService folderService)
     {
         #region Static
 
@@ -70,12 +70,7 @@
 
         #endregion
 
-        private readonly IFolderService _folderService;
-
-        public MediaHelper(IFolderService folderService)
-        {
-            _folderService = folderService;
-        }
+        private readonly IFolderService _folderService = folderService;
 
         public bool TokenizePath(string path, bool normalizeFileName, out MediaPathData data)
         {

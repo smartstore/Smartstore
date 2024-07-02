@@ -27,26 +27,17 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 		*	-	Variants & attributes
 	*/
 
-    public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
+    public partial class CatalogSearchQueryFactory(
+        IHttpContextAccessor httpContextAccessor,
+        ICommonServices services,
+        ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper,
+        CatalogSettings catalogSettings,
+        SearchSettings searchSettings) : SearchQueryFactoryBase(httpContextAccessor), ICatalogSearchQueryFactory
     {
-        protected readonly ICommonServices _services;
-        protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
-        protected readonly CatalogSettings _catalogSettings;
-        protected readonly SearchSettings _searchSettings;
-
-        public CatalogSearchQueryFactory(
-            IHttpContextAccessor httpContextAccessor,
-            ICommonServices services,
-            ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper,
-            CatalogSettings catalogSettings,
-            SearchSettings searchSettings)
-            : base(httpContextAccessor)
-        {
-            _services = services;
-            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-            _catalogSettings = catalogSettings;
-            _searchSettings = searchSettings;
-        }
+        protected readonly ICommonServices _services = services;
+        protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+        protected readonly CatalogSettings _catalogSettings = catalogSettings;
+        protected readonly SearchSettings _searchSettings = searchSettings;
 
         protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
 

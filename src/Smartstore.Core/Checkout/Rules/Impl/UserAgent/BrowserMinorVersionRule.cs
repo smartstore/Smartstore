@@ -3,14 +3,9 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class BrowserMinorVersionRule : IRule<CartRuleContext>
+    internal class BrowserMinorVersionRule(IUserAgent userAgent) : IRule<CartRuleContext>
     {
-        private readonly IUserAgent _userAgent;
-
-        public BrowserMinorVersionRule(IUserAgent userAgent)
-        {
-            _userAgent = userAgent;
-        }
+        private readonly IUserAgent _userAgent = userAgent;
 
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

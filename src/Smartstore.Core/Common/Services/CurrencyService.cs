@@ -10,40 +10,29 @@ using EState = Smartstore.Data.EntityState;
 namespace Smartstore.Core.Common.Services
 {
     [Important]
-    public partial class CurrencyService : AsyncDbSaveHook<Currency>, ICurrencyService
+    public partial class CurrencyService(
+        SmartDbContext db,
+        ICacheManager cache,
+        IProviderManager providerManager,
+        IWorkContext workContext,
+        CurrencySettings currencySettings,
+        ISettingFactory settingFactory,
+        IRoundingHelper roundingHelper) : AsyncDbSaveHook<Currency>, ICurrencyService
     {
         // 0 = exchange rate currency code.
         // 1 = provider system name.
         const string LiveCurrencyRatesKey = "live.currency.rates:{0}-{1}";
 
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-        private readonly IProviderManager _providerManager;
-        private readonly IWorkContext _workContext;
-        private readonly CurrencySettings _currencySettings;
-        private readonly ISettingFactory _settingFactory;
-        private readonly IRoundingHelper _roundingHelper;
+        private readonly SmartDbContext _db = db;
+        private readonly ICacheManager _cache = cache;
+        private readonly IProviderManager _providerManager = providerManager;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly CurrencySettings _currencySettings = currencySettings;
+        private readonly ISettingFactory _settingFactory = settingFactory;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
 
         private Currency _primaryCurrency;
         private Currency _primaryExchangeCurrency;
-
-        public CurrencyService(
-            SmartDbContext db,
-            ICacheManager cache,
-            IProviderManager providerManager,
-            IWorkContext workContext,
-            CurrencySettings currencySettings,
-            ISettingFactory settingFactory,
-            IRoundingHelper roundingHelper)
-        {
-            _db = db;
-            _cache = cache;
-            _providerManager = providerManager;
-            _workContext = workContext;
-            _currencySettings = currencySettings;
-            _settingFactory = settingFactory;
-            _roundingHelper = roundingHelper;
-        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

@@ -19,76 +19,50 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class OrderCalculationService : IOrderCalculationService
+    public partial class OrderCalculationService(
+        SmartDbContext db,
+        IPriceCalculationService priceCalculationService,
+        IProductService productService,
+        IDiscountService discountService,
+        IShippingService shippingService,
+        IGiftCardService giftCardService,
+        ICurrencyService currencyService,
+        IRoundingHelper roundingHelper,
+        IRequestCache requestCache,
+        IProviderManager providerManager,
+        ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        ITaxService taxService,
+        ITaxCalculator taxCalculator,
+        TaxSettings taxSettings,
+        RewardPointsSettings rewardPointsSettings,
+        PriceSettings priceSettings,
+        ShippingSettings shippingSettings) : IOrderCalculationService
     {
         const string CartTaxingInfoKey = "CartTaxingInfos";
 
-        private readonly SmartDbContext _db;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IProductService _productService;
-        private readonly IDiscountService _discountService;
-        private readonly IShippingService _shippingService;
-        private readonly IGiftCardService _giftCardService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IRequestCache _requestCache;
-        private readonly IProviderManager _providerManager;
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly ITaxService _taxService;
-        private readonly ITaxCalculator _taxCalculator;
-        private readonly TaxSettings _taxSettings;
-        private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly PriceSettings _priceSettings;
-        private readonly ShippingSettings _shippingSettings;
-        private readonly Currency _primaryCurrency;
-        private readonly Currency _workingCurrency;
-
-        public OrderCalculationService(
-            SmartDbContext db,
-            IPriceCalculationService priceCalculationService,
-            IProductService productService,
-            IDiscountService discountService,
-            IShippingService shippingService,
-            IGiftCardService giftCardService,
-            ICurrencyService currencyService,
-            IRoundingHelper roundingHelper,
-            IRequestCache requestCache,
-            IProviderManager providerManager,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            ITaxService taxService,
-            ITaxCalculator taxCalculator,
-            TaxSettings taxSettings,
-            RewardPointsSettings rewardPointsSettings,
-            PriceSettings priceSettings,
-            ShippingSettings shippingSettings)
-        {
-            _db = db;
-            _priceCalculationService = priceCalculationService;
-            _productService = productService;
-            _discountService = discountService;
-            _shippingService = shippingService;
-            _giftCardService = giftCardService;
-            _currencyService = currencyService;
-            _roundingHelper = roundingHelper;
-            _requestCache = requestCache;
-            _providerManager = providerManager;
-            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _taxService = taxService;
-            _taxCalculator = taxCalculator;
-            _taxSettings = taxSettings;
-            _rewardPointsSettings = rewardPointsSettings;
-            _priceSettings = priceSettings;
-            _shippingSettings = shippingSettings;
-
-            _primaryCurrency = currencyService.PrimaryCurrency;
-            _workingCurrency = workContext.WorkingCurrency;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IPriceCalculationService _priceCalculationService = priceCalculationService;
+        private readonly IProductService _productService = productService;
+        private readonly IDiscountService _discountService = discountService;
+        private readonly IShippingService _shippingService = shippingService;
+        private readonly IGiftCardService _giftCardService = giftCardService;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IRequestCache _requestCache = requestCache;
+        private readonly IProviderManager _providerManager = providerManager;
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly ITaxService _taxService = taxService;
+        private readonly ITaxCalculator _taxCalculator = taxCalculator;
+        private readonly TaxSettings _taxSettings = taxSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings = rewardPointsSettings;
+        private readonly PriceSettings _priceSettings = priceSettings;
+        private readonly ShippingSettings _shippingSettings = shippingSettings;
+        private readonly Currency _primaryCurrency = currencyService.PrimaryCurrency;
+        private readonly Currency _workingCurrency = workContext.WorkingCurrency;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

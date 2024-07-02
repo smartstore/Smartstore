@@ -76,7 +76,7 @@ namespace Smartstore.Core.Common
         /// </remarks>
         internal decimal RoundedAmount
         {
-            get => decimal.Round(Amount, DecimalDigits, 
+            get => decimal.Round(Amount, DecimalDigits,
                 Currency == null || Currency.MidpointRounding == CurrencyMidpointRounding.AwayFromZero ? MidpointRounding.AwayFromZero : MidpointRounding.ToEven);
         }
 
@@ -274,7 +274,7 @@ namespace Smartstore.Core.Common
         {
             if (Currency == null)
             {
-                return postFormat == null 
+                return postFormat == null
                     ? RoundedAmount.ToStringInvariant()
                     : string.Format(postFormat, RoundedAmount.ToStringInvariant());
             }
@@ -593,9 +593,7 @@ namespace Smartstore.Core.Common
         public override Money ReadJson(JsonReader reader, Type objectType, Money existingValue, bool hasExistingValue, JsonSerializer serializer)
             => throw new NotSupportedException();
 
-        public override void WriteJson(JsonWriter writer, Money value, JsonSerializer serializer)
-        {
+        public override void WriteJson(JsonWriter writer, Money value, JsonSerializer serializer) =>
             serializer.Serialize(writer, value.ToString());
-        }
     }
 }

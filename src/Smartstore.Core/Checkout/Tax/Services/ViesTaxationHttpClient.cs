@@ -4,14 +4,9 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Core.Checkout.Tax
 {
-    public class ViesTaxationHttpClient
+    public class ViesTaxationHttpClient(HttpClient httpClient)
     {
-        private readonly HttpClient _httpClient;
-
-        public ViesTaxationHttpClient(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<CheckVatNumberResponseMessage> CheckVatAsync(string vatNumber, string countryCode, CancellationToken cancelToken = default)
         {

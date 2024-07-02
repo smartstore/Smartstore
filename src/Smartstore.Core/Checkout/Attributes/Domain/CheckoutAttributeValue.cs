@@ -9,13 +9,11 @@ namespace Smartstore.Core.Checkout.Attributes
 {
     internal class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttributeValue>
     {
-        public void Configure(EntityTypeBuilder<CheckoutAttributeValue> builder)
-        {
+        public void Configure(EntityTypeBuilder<CheckoutAttributeValue> builder) => 
             builder.HasOne(x => x.MediaFile)
-                .WithMany()
-                .HasForeignKey(x => x.MediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
-        }
+                   .WithMany()
+                   .HasForeignKey(x => x.MediaFileId)
+                   .OnDelete(DeleteBehavior.SetNull);
     }
 
     /// <summary>

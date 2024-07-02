@@ -142,15 +142,9 @@ namespace Smartstore.Core.Catalog.Brands
         public DateTime UpdatedOnUtc { get; set; }
 
         /// <inheritdoc/>
-        public string GetDisplayName()
-        {
-            return Name;
-        }
+        public string GetDisplayName() => Name;
 
         /// <inheritdoc/>
-        public string[] GetDisplayNameMemberNames()
-        {
-            return new[] { nameof(Name) };
-        }
+        public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
     }
 }

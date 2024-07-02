@@ -7,27 +7,18 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Tax
 {
-    public class TaxCalculator : ITaxCalculator
+    public class TaxCalculator(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IRoundingHelper roundingHelper,
+        ITaxService taxService,
+        TaxSettings taxSettings) : ITaxCalculator
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly ITaxService _taxService;
-        private readonly TaxSettings _taxSettings;
-
-        public TaxCalculator(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IRoundingHelper roundingHelper,
-            ITaxService taxService,
-            TaxSettings taxSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _roundingHelper = roundingHelper;
-            _taxService = taxService;
-            _taxSettings = taxSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly ITaxService _taxService = taxService;
+        private readonly TaxSettings _taxSettings = taxSettings;
 
         public virtual Task<Tax> CalculateProductTaxAsync(
             Product product,

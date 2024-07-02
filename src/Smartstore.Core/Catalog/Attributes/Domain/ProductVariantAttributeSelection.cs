@@ -9,20 +9,16 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a product variant attribute selection.
     /// </summary>
     /// <remarks>This class can parse strings of XML or JSON format.</remarks>
-    public class ProductVariantAttributeSelection : AttributeSelection
+    /// <remarks>
+    /// Creates product variant attribute selection from string. 
+    /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
+    /// </remarks>
+    /// <remarks>Automatically differentiates between XML and JSON.</remarks>
+    /// <param name="rawAttributes">XML or JSON attributes string.</param>  
+    public class ProductVariantAttributeSelection(string rawAttributes) 
+        : AttributeSelection(rawAttributes, "ProductVariantAttribute")
     {
         const string GiftCardAttributeName = "GiftCardInfo";
-
-        /// <summary>
-        /// Creates product variant attribute selection from string. 
-        /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
-        /// </summary>
-        /// <remarks>Automatically differentiates between XML and JSON.</remarks>
-        /// <param name="rawAttributes">XML or JSON attributes string.</param>  
-        public ProductVariantAttributeSelection(string rawAttributes)
-            : base(rawAttributes, "ProductVariantAttribute")
-        {
-        }
 
         /// <summary>
         /// Gets the gift card information.
@@ -40,10 +36,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Adds gift card infomation to be taken into account when serializing attributes.
         /// </summary>
         /// <param name="giftCard">Gift card information.</param>
-        public void AddGiftCardInfo(GiftCardInfo giftCard)
-        {
-            AddCustomAttributeValue(GiftCardAttributeName, giftCard);
-        }
+        public void AddGiftCardInfo(GiftCardInfo giftCard) => AddCustomAttributeValue(GiftCardAttributeName, giftCard);
 
         protected override object ToCustomAttributeValue(string attributeName, object value)
         {

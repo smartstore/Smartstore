@@ -14,6 +14,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 .ToArray();
 
             var match = expression.HasListsMatch(productIds);
+
             return match;
         }
     }

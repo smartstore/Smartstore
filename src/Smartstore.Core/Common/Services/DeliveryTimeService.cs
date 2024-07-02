@@ -12,26 +12,18 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Common.Services
 {
     [Important]
-    public partial class DeliveryTimeService : AsyncDbSaveHook<DeliveryTime>, IDeliveryTimeService
+    public partial class DeliveryTimeService(
+        SmartDbContext db,
+        IDateTimeHelper dateTimeHelper,
+        ShippingSettings shippingSettings,
+        CatalogSettings catalogSettings) : AsyncDbSaveHook<DeliveryTime>, IDeliveryTimeService
     {
         private readonly static ConcurrentDictionary<string, string> _monthDayFormats = new(StringComparer.OrdinalIgnoreCase);
 
-        private readonly SmartDbContext _db;
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ShippingSettings _shippingSettings;
-        private readonly CatalogSettings _catalogSettings;
-
-        public DeliveryTimeService(
-            SmartDbContext db,
-            IDateTimeHelper dateTimeHelper,
-            ShippingSettings shippingSettings,
-            CatalogSettings catalogSettings)
-        {
-            _db = db;
-            _dateTimeHelper = dateTimeHelper;
-            _shippingSettings = shippingSettings;
-            _catalogSettings = catalogSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IDateTimeHelper _dateTimeHelper = dateTimeHelper;
+        private readonly ShippingSettings _shippingSettings = shippingSettings;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

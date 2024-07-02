@@ -18,51 +18,34 @@ namespace Smartstore.Core.Checkout.Cart
     /// <summary>
     /// Shopping cart validation methods.
     /// </summary>
-    public partial class ShoppingCartValidator : IShoppingCartValidator
+    public partial class ShoppingCartValidator(
+        SmartDbContext db,
+        IAclService aclService,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        ICurrencyService currencyService,
+        ShoppingCartSettings cartSettings,
+        IPermissionService permissionService,
+        IStoreMappingService storeMappingService,
+        ILocalizationService localizationService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+        IRuleProviderFactory ruleProviderFactory,
+        IEventPublisher eventPublisher) : IShoppingCartValidator
     {
-        private readonly SmartDbContext _db;
-        private readonly IAclService _aclService;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly ICurrencyService _currencyService;
-        private readonly ShoppingCartSettings _cartSettings;
-        private readonly IPermissionService _permissionService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly IRuleProviderFactory _ruleProviderFactory;
-        private readonly IEventPublisher _eventPublisher;
-
-        public ShoppingCartValidator(
-            SmartDbContext db,
-            IAclService aclService,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            ICurrencyService currencyService,
-            ShoppingCartSettings cartSettings,
-            IPermissionService permissionService,
-            IStoreMappingService storeMappingService,
-            ILocalizationService localizationService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            IRuleProviderFactory ruleProviderFactory,
-            IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _aclService = aclService;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _currencyService = currencyService;
-            _cartSettings = cartSettings;
-            _permissionService = permissionService;
-            _storeMappingService = storeMappingService;
-            _localizationService = localizationService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _ruleProviderFactory = ruleProviderFactory;
-            _eventPublisher = eventPublisher;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IAclService _aclService = aclService;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly ShoppingCartSettings _cartSettings = cartSettings;
+        private readonly IPermissionService _permissionService = permissionService;
+        private readonly IStoreMappingService _storeMappingService = storeMappingService;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+        private readonly IRuleProviderFactory _ruleProviderFactory = ruleProviderFactory;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

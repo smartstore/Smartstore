@@ -6,21 +6,14 @@ using Smartstore.Core.Checkout.Shipping;
 namespace Smartstore.Core.Checkout.Orders.Handlers
 {
     [CheckoutStep(30, CheckoutActionNames.ShippingMethod)]
-    public class ShippingMethodHandler : ICheckoutHandler
+    public class ShippingMethodHandler(
+        IShippingService shippingService,
+        ShippingSettings shippingSettings,
+        ShoppingCartSettings shoppingCartSettings) : ICheckoutHandler
     {
-        private readonly IShippingService _shippingService;
-        private readonly ShippingSettings _shippingSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-
-        public ShippingMethodHandler(
-            IShippingService shippingService,
-            ShippingSettings shippingSettings,
-            ShoppingCartSettings shoppingCartSettings)
-        {
-            _shippingService = shippingService;
-            _shippingSettings = shippingSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-        }
+        private readonly IShippingService _shippingService = shippingService;
+        private readonly ShippingSettings _shippingSettings = shippingSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
 
         public async Task<CheckoutResult> ProcessAsync(CheckoutContext context)
         {

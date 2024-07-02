@@ -11,6 +11,7 @@
             ITreeNode node)
         {
             Guard.NotNull(node);
+
             return query.ApplyDescendantsFilter(node.TreePath, false);
         }
 

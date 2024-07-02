@@ -8,27 +8,18 @@ using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class RecentlyViewedProductsService : IRecentlyViewedProductsService
+    public partial class RecentlyViewedProductsService(
+        SmartDbContext db,
+        IStoreContext storeContext,
+        IWorkContext workContext,
+        IHttpContextAccessor httpContextAccessor,
+        CatalogSettings catalogSettings) : IRecentlyViewedProductsService
     {
-        private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly CatalogSettings _catalogSettings;
-        
-        public RecentlyViewedProductsService(
-            SmartDbContext db,
-            IStoreContext storeContext,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
-            CatalogSettings catalogSettings)
-        {
-            _db = db;
-            _storeContext = storeContext;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
-            _catalogSettings = catalogSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
 
         public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(
             int count,

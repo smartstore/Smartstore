@@ -4,16 +4,10 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    internal class ReturnRequestHook : AsyncDbSaveHook<ReturnRequest>
+    internal class ReturnRequestHook(SmartDbContext db, IEventPublisher eventPublisher) : AsyncDbSaveHook<ReturnRequest>
     {
-        private readonly SmartDbContext _db;
-        private readonly IEventPublisher _eventPublisher;
-
-        public ReturnRequestHook(SmartDbContext db, IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _eventPublisher = eventPublisher;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         protected override Task<HookResult> OnDeletedAsync(ReturnRequest entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

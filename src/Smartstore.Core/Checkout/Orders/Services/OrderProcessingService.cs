@@ -23,107 +23,70 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class OrderProcessingService : IOrderProcessingService
+    public partial class OrderProcessingService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IWebHelper webHelper,
+        ILocalizationService localizationService,
+        ICurrencyService currencyService,
+        IRoundingHelper roundingHelper,
+        IPaymentService paymentService,
+        IProductService productService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IProductAttributeFormatter productAttributeFormatter,
+        IPriceCalculationService priceCalculationService,
+        IOrderCalculationService orderCalculationService,
+        ITaxCalculator taxCalculator,
+        IShoppingCartService shoppingCartService,
+        IShoppingCartValidator shoppingCartValidator,
+        IShippingService shippingService,
+        IGiftCardService giftCardService,
+        INewsletterSubscriptionService newsletterSubscriptionService,
+        ICheckoutAttributeFormatter checkoutAttributeFormatter,
+        IEncryptor encryptor,
+        IMessageFactory messageFactory,
+        IEventPublisher eventPublisher,
+        IActivityLogger activityLogger,
+        RewardPointsSettings rewardPointsSettings,
+        CatalogSettings catalogSettings,
+        OrderSettings orderSettings,
+        ShoppingCartSettings shoppingCartSettings,
+        LocalizationSettings localizationSettings,
+        TaxSettings taxSettings,
+        PaymentSettings paymentSettings) : IOrderProcessingService
     {
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IWebHelper _webHelper;
-        private readonly ILocalizationService _localizationService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IPaymentService _paymentService;
-        private readonly IProductService _productService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IOrderCalculationService _orderCalculationService;
-        private readonly ITaxCalculator _taxCalculator;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IShippingService _shippingService;
-        private readonly IGiftCardService _giftCardService;
-        private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
-        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
-        private readonly IEncryptor _encryptor;
-        private readonly IMessageFactory _messageFactory;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IActivityLogger _activityLogger;
-        private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly OrderSettings _orderSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly LocalizationSettings _localizationSettings;
-        private readonly TaxSettings _taxSettings;
-        private readonly PaymentSettings _paymentSettings;
-        private readonly Currency _primaryCurrency;
-        private readonly Currency _workingCurrency;
-
-        public OrderProcessingService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IWebHelper webHelper,
-            ILocalizationService localizationService,
-            ICurrencyService currencyService,
-            IRoundingHelper roundingHelper,
-            IPaymentService paymentService,
-            IProductService productService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IProductAttributeFormatter productAttributeFormatter,
-            IPriceCalculationService priceCalculationService,
-            IOrderCalculationService orderCalculationService,
-            ITaxCalculator taxCalculator,
-            IShoppingCartService shoppingCartService,
-            IShoppingCartValidator shoppingCartValidator,
-            IShippingService shippingService,
-            IGiftCardService giftCardService,
-            INewsletterSubscriptionService newsletterSubscriptionService,
-            ICheckoutAttributeFormatter checkoutAttributeFormatter,
-            IEncryptor encryptor,
-            IMessageFactory messageFactory,
-            IEventPublisher eventPublisher,
-            IActivityLogger activityLogger,
-            RewardPointsSettings rewardPointsSettings,
-            CatalogSettings catalogSettings,
-            OrderSettings orderSettings,
-            ShoppingCartSettings shoppingCartSettings,
-            LocalizationSettings localizationSettings,
-            TaxSettings taxSettings,
-            PaymentSettings paymentSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _webHelper = webHelper;
-            _localizationService = localizationService;
-            _currencyService = currencyService;
-            _roundingHelper = roundingHelper;
-            _paymentService = paymentService;
-            _productService = productService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _productAttributeFormatter = productAttributeFormatter;
-            _priceCalculationService = priceCalculationService;
-            _orderCalculationService = orderCalculationService;
-            _taxCalculator = taxCalculator;
-            _shoppingCartService = shoppingCartService;
-            _shoppingCartValidator = shoppingCartValidator;
-            _shippingService = shippingService;
-            _giftCardService = giftCardService;
-            _newsletterSubscriptionService = newsletterSubscriptionService;
-            _checkoutAttributeFormatter = checkoutAttributeFormatter;
-            _encryptor = encryptor;
-            _messageFactory = messageFactory;
-            _eventPublisher = eventPublisher;
-            _activityLogger = activityLogger;
-            _rewardPointsSettings = rewardPointsSettings;
-            _catalogSettings = catalogSettings;
-            _orderSettings = orderSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-            _localizationSettings = localizationSettings;
-            _taxSettings = taxSettings;
-            _paymentSettings = paymentSettings;
-
-            _primaryCurrency = currencyService.PrimaryCurrency;
-            _workingCurrency = workContext.WorkingCurrency;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IWebHelper _webHelper = webHelper;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IPaymentService _paymentService = paymentService;
+        private readonly IProductService _productService = productService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly IProductAttributeFormatter _productAttributeFormatter = productAttributeFormatter;
+        private readonly IPriceCalculationService _priceCalculationService = priceCalculationService;
+        private readonly IOrderCalculationService _orderCalculationService = orderCalculationService;
+        private readonly ITaxCalculator _taxCalculator = taxCalculator;
+        private readonly IShoppingCartService _shoppingCartService = shoppingCartService;
+        private readonly IShoppingCartValidator _shoppingCartValidator = shoppingCartValidator;
+        private readonly IShippingService _shippingService = shippingService;
+        private readonly IGiftCardService _giftCardService = giftCardService;
+        private readonly INewsletterSubscriptionService _newsletterSubscriptionService = newsletterSubscriptionService;
+        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter = checkoutAttributeFormatter;
+        private readonly IEncryptor _encryptor = encryptor;
+        private readonly IMessageFactory _messageFactory = messageFactory;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly IActivityLogger _activityLogger = activityLogger;
+        private readonly RewardPointsSettings _rewardPointsSettings = rewardPointsSettings;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
+        private readonly OrderSettings _orderSettings = orderSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
+        private readonly LocalizationSettings _localizationSettings = localizationSettings;
+        private readonly TaxSettings _taxSettings = taxSettings;
+        private readonly PaymentSettings _paymentSettings = paymentSettings;
+        private readonly Currency _primaryCurrency = currencyService.PrimaryCurrency;
+        private readonly Currency _workingCurrency = workContext.WorkingCurrency;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;

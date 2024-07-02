@@ -5,24 +5,16 @@ using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductCompareService : IProductCompareService
+    public partial class ProductCompareService(
+        SmartDbContext db,
+        IHttpContextAccessor httpContextAccessor,
+        CatalogSettings catalogSettings,
+        ICatalogSearchService catalogSearchService) : IProductCompareService
     {
-        private readonly SmartDbContext _db;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly ICatalogSearchService _catalogSearchService;
-
-        public ProductCompareService(
-            SmartDbContext db,
-            IHttpContextAccessor httpContextAccessor,
-            CatalogSettings catalogSettings,
-            ICatalogSearchService catalogSearchService)
-        {
-            _db = db;
-            _httpContextAccessor = httpContextAccessor;
-            _catalogSettings = catalogSettings;
-            _catalogSearchService = catalogSearchService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
+        private readonly ICatalogSearchService _catalogSearchService = catalogSearchService;
 
         public virtual async Task<int> CountComparedProductsAsync()
         {

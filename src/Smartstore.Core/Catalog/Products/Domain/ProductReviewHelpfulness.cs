@@ -7,13 +7,10 @@ namespace Smartstore.Core.Catalog.Products
 {
     internal class ProductReviewHelpfulnessMap : IEntityTypeConfiguration<ProductReviewHelpfulness>
     {
-        public void Configure(EntityTypeBuilder<ProductReviewHelpfulness> builder)
-        {
-            builder.HasOne(c => c.ProductReview)
+        public void Configure(EntityTypeBuilder<ProductReviewHelpfulness> builder) => builder.HasOne(c => c.ProductReview)
                 .WithMany(c => c.ProductReviewHelpfulnessEntries)
                 .HasForeignKey(c => c.ProductReviewId)
                 .OnDelete(DeleteBehavior.NoAction);
-        }
     }
 
     /// <summary>

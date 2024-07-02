@@ -78,10 +78,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <typeparam name="T">The type of the custom state object to remove.</typeparam>
         /// <returns><c>true</c> if the state object existed and was removed, <c>false</c> otherwise.</returns>
         public bool RemoveCustomState<T>()
-            where T : ObservableObject
-        {
-            return CustomProperties.Remove(typeof(T).Name);
-        }
+            where T : ObservableObject => CustomProperties.Remove(typeof(T).Name);
 
         /// <summary>
         /// Use this dictionary for any custom data required along checkout flow

@@ -7,27 +7,18 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class AddressService : AsyncDbSaveHook<Address>, IAddressService
+    public partial class AddressService(
+        SmartDbContext db,
+        ICommonServices services,
+        ITemplateEngine templateEngine,
+        IMessageModelProvider messageModelProvider,
+        AddressSettings addressSettings) : AsyncDbSaveHook<Address>, IAddressService
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ITemplateEngine _templateEngine;
-        private readonly IMessageModelProvider _messageModelProvider;
-        private readonly AddressSettings _addressSettings;
-
-        public AddressService(
-            SmartDbContext db,
-            ICommonServices services,
-            ITemplateEngine templateEngine,
-            IMessageModelProvider messageModelProvider,
-            AddressSettings addressSettings)
-        {
-            _db = db;
-            _services = services;
-            _addressSettings = addressSettings;
-            _templateEngine = templateEngine;
-            _messageModelProvider = messageModelProvider;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICommonServices _services = services;
+        private readonly ITemplateEngine _templateEngine = templateEngine;
+        private readonly IMessageModelProvider _messageModelProvider = messageModelProvider;
+        private readonly AddressSettings _addressSettings = addressSettings;
 
         #region Hook 
 

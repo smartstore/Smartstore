@@ -8,15 +8,10 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Common.Hooks
 {
     [Important]
-    internal class QuantityUnitHook : AsyncDbSaveHook<QuantityUnit>
+    internal class QuantityUnitHook(SmartDbContext db) : AsyncDbSaveHook<QuantityUnit>
     {
-        private readonly SmartDbContext _db;
+        private readonly SmartDbContext _db = db;
         private string _hookErrorMessage;
-
-        public QuantityUnitHook(SmartDbContext db)
-        {
-            _db = db;
-        }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

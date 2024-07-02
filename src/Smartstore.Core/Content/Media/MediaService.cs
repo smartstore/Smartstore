@@ -16,57 +16,38 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
-    public partial class MediaService : IMediaService
+    public partial class MediaService(
+        SmartDbContext db,
+        IFolderService folderService,
+        IMediaSearcher searcher,
+        IMediaTypeResolver typeResolver,
+        IMediaUrlGenerator urlGenerator,
+        IEventPublisher eventPublisher,
+        ILanguageService languageService,
+        ILocalizedEntityService localizedEntityService,
+        MediaSettings mediaSettings,
+        IImageProcessor imageProcessor,
+        IImageCache imageCache,
+        MediaExceptionFactory exceptionFactory,
+        IMediaDupeDetectorFactory dupeDetectorFactory,
+        Func<IMediaStorageProvider> storageProvider,
+        MediaHelper helper) : IMediaService
     {
-        private readonly SmartDbContext _db;
-        private readonly IFolderService _folderService;
-        private readonly IMediaSearcher _searcher;
-        private readonly IMediaTypeResolver _typeResolver;
-        private readonly IMediaUrlGenerator _urlGenerator;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly ILanguageService _languageService;
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly MediaSettings _mediaSettings;
-        private readonly IImageProcessor _imageProcessor;
-        private readonly IImageCache _imageCache;
-        private readonly MediaExceptionFactory _exceptionFactory;
-        private readonly IMediaDupeDetectorFactory _dupeDetectorFactory;
-        private readonly IMediaStorageProvider _storageProvider;
-        private readonly MediaHelper _helper;
-
-        public MediaService(
-            SmartDbContext db,
-            IFolderService folderService,
-            IMediaSearcher searcher,
-            IMediaTypeResolver typeResolver,
-            IMediaUrlGenerator urlGenerator,
-            IEventPublisher eventPublisher,
-            ILanguageService languageService,
-            ILocalizedEntityService localizedEntityService,
-            MediaSettings mediaSettings,
-            IImageProcessor imageProcessor,
-            IImageCache imageCache,
-            MediaExceptionFactory exceptionFactory,
-            IMediaDupeDetectorFactory dupeDetectorFactory,
-            Func<IMediaStorageProvider> storageProvider,
-            MediaHelper helper)
-        {
-            _db = db;
-            _folderService = folderService;
-            _searcher = searcher;
-            _typeResolver = typeResolver;
-            _urlGenerator = urlGenerator;
-            _eventPublisher = eventPublisher;
-            _languageService = languageService;
-            _localizedEntityService = localizedEntityService;
-            _mediaSettings = mediaSettings;
-            _imageProcessor = imageProcessor;
-            _imageCache = imageCache;
-            _exceptionFactory = exceptionFactory;
-            _dupeDetectorFactory = dupeDetectorFactory;
-            _storageProvider = storageProvider();
-            _helper = helper;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IFolderService _folderService = folderService;
+        private readonly IMediaSearcher _searcher = searcher;
+        private readonly IMediaTypeResolver _typeResolver = typeResolver;
+        private readonly IMediaUrlGenerator _urlGenerator = urlGenerator;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly ILanguageService _languageService = languageService;
+        private readonly ILocalizedEntityService _localizedEntityService = localizedEntityService;
+        private readonly MediaSettings _mediaSettings = mediaSettings;
+        private readonly IImageProcessor _imageProcessor = imageProcessor;
+        private readonly IImageCache _imageCache = imageCache;
+        private readonly MediaExceptionFactory _exceptionFactory = exceptionFactory;
+        private readonly IMediaDupeDetectorFactory _dupeDetectorFactory = dupeDetectorFactory;
+        private readonly IMediaStorageProvider _storageProvider = storageProvider();
+        private readonly MediaHelper _helper = helper;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;

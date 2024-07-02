@@ -6,32 +6,21 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public class PriceLabelService : IPriceLabelService
+    public class PriceLabelService(SmartDbContext db, PriceSettings priceSettings) : IPriceLabelService
     {
-        private readonly SmartDbContext _db;
-        private readonly PriceSettings _priceSettings;
+        private readonly SmartDbContext _db = db;
+        private readonly PriceSettings _priceSettings = priceSettings;
 
         private Dictionary<int, PriceLabel> _allPriceLabels;
         private PriceLabel _defaultComparePriceLabel;
         private PriceLabel _defaultRegularPriceLabel;
 
-        public PriceLabelService(SmartDbContext db, PriceSettings priceSettings)
-        {
-            _db = db;
-            _priceSettings = priceSettings;
-        }
-
         public Localizer T { get; set; } = NullLocalizer.Instance;
-        
-        public virtual PriceLabel GetDefaultComparePriceLabel()
-        {
-            return _defaultComparePriceLabel ??= GetPriceLabel(_priceSettings.DefaultComparePriceLabelId, true);
-        }
 
-        public virtual PriceLabel GetDefaultRegularPriceLabel()
-        {
-            return _defaultRegularPriceLabel ??= GetPriceLabel(_priceSettings.DefaultRegularPriceLabelId, false);
-        }
+        public virtual PriceLabel GetDefaultComparePriceLabel() => _defaultComparePriceLabel ??= GetPriceLabel(_priceSettings.DefaultComparePriceLabelId, true);
+
+        public virtual PriceLabel GetDefaultRegularPriceLabel() => 
+            _defaultRegularPriceLabel ??= GetPriceLabel(_priceSettings.DefaultRegularPriceLabelId, false);
 
         private PriceLabel GetPriceLabel(int? id, bool forComparePrice)
         {

@@ -9,27 +9,19 @@ namespace Smartstore.Core.Content.Menus
     /// <summary>
     /// Invalidates all menus that contain the <see cref="CatalogMenuProvider"/>
     /// </summary>
-    internal class CatalogMenuInvalidator : IConsumer
+    internal class CatalogMenuInvalidator(
+        IMenuService menuService,
+        CatalogSettings catalogSettings,
+        ICacheManager cache,
+        SmartDbContext db) : IConsumer
     {
-        private readonly IMenuService _menuService;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly ICacheManager _cache;
-        private readonly SmartDbContext _db;
+        private readonly IMenuService _menuService = menuService;
+        private readonly CatalogSettings _catalogSettings = catalogSettings;
+        private readonly ICacheManager _cache = cache;
+        private readonly SmartDbContext _db = db;
 
         private List<string> _invalidated = new();
         private List<string> _countsResetted = new();
-
-        public CatalogMenuInvalidator(
-            IMenuService menuService,
-            CatalogSettings catalogSettings,
-            ICacheManager cache,
-            SmartDbContext db)
-        {
-            _menuService = menuService;
-            _catalogSettings = catalogSettings;
-            _cache = cache;
-            _db = db;
-        }
 
         public async Task HandleAsync(CategoryTreeChangedEvent eventMessage)
         {

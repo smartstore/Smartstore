@@ -5,14 +5,9 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Checkout.Shipping.Rules
 {
-    public partial class ShippingMethodRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ShippingMethodRuleOptionsProvider(SmartDbContext db) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-
-        public ShippingMethodRuleOptionsProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public int Order => 0;
 

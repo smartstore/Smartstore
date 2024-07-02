@@ -1,21 +1,14 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    internal class DefaultMediaDupeDetector : MediaDupeDetectorBase
+    internal class DefaultMediaDupeDetector(IMediaSearcher searcher, int folderId, int fileCount) : MediaDupeDetectorBase
     {
         const int MaxCachedFileNames = 40000;
 
-        private readonly IMediaSearcher _searcher;
-        private readonly int _folderId;
-        private readonly int _fileCount;
+        private readonly IMediaSearcher _searcher = searcher;
+        private readonly int _folderId = folderId;
+        private readonly int _fileCount = fileCount;
 
         private HashSet<string> _cachedFileNames;
-
-        public DefaultMediaDupeDetector(IMediaSearcher searcher, int folderId, int fileCount)
-        {
-            _searcher = searcher;
-            _folderId = folderId;
-            _fileCount = fileCount;
-        }
 
         public override Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
         {

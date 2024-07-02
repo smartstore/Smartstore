@@ -36,9 +36,7 @@ namespace Smartstore.Core.Content.Media
 
     public static class IDownloadServiceExtensions
     {
-        public static bool IsLicenseDownloadAllowed(this IDownloadService service, OrderItem orderItem)
-        {
-            return service.IsDownloadAllowed(orderItem) && orderItem?.LicenseDownloadId > 0;
-        }
+        public static bool IsLicenseDownloadAllowed(this IDownloadService service, OrderItem orderItem) => 
+            service.IsDownloadAllowed(orderItem) && orderItem?.LicenseDownloadId > 0;
     }
 }
