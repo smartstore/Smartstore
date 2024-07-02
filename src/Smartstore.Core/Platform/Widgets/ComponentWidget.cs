@@ -53,7 +53,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="arguments">Arguments to pass to renderer.</param>
         public ComponentWidget(Type componentType, object? arguments)
         {
-            ComponentType = Guard.NotNull(componentType, nameof(componentType));
+            ComponentType = Guard.NotNull(componentType);
             Arguments = arguments;
         }
 

@@ -46,30 +46,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var zoneContent = await _widgetSelector.GetContentAsync(ZoneName, ViewContext);
-            if (zoneContent.IsEmptyOrWhiteSpace)
+            if (await _widgetSelector.HasContentAsync(ZoneName, ViewContext))
             {
                 // Zone is empty: suppress output!
                 output.SuppressOutput();
             }
-            else
-            {
-                // Zone is NOT empty: push generated content to context items
-                // so that the corresponding child zone can fetch and output
-                // the pre-generated content, otherwise we would render
-                // the zone twice, and we don't want that.
-                context.Items["zone-content-" + ZoneName] = zoneContent;
-            }
-        }
-
-        internal static ZoneHtmlContent GetZoneContent(TagHelperContext context, string zoneName)
-        {
-            if (context.Items.TryGetValue("zone-content-" + zoneName, out var content))
-            {
-                return content as ZoneHtmlContent;
-            }
-
-            return null;
         }
     }
 }

@@ -9,10 +9,22 @@ using Smartstore.DevTools.Components;
 
 namespace Smartstore.DevTools.Filters
 {
+    public class ZonePreviewWidget : ComponentWidget
+    {
+        public ZonePreviewWidget()
+            : base(typeof(WidgetZoneViewComponent))
+        {
+        }
+
+        public override bool IsValid(IWidgetZone zone)
+        {
+            return !(zone.PreviewDisabled || zone.ReplaceContent);
+        }
+    }
+    
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
-        private static readonly Regex _widgetZonePattern
-            = new(@"^(?!header$|footer$|stylesheets$|head_scripts$|head_canonical$|head_links$|head$)", RegexOptions.Compiled);
+        private static readonly Regex _widgetZonePattern = new(".*", RegexOptions.Compiled);
 
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
@@ -46,7 +58,9 @@ namespace Smartstore.DevTools.Filters
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
             if (!_profilerSettings.DisplayWidgetZones)
+            {
                 return;
+            }
 
             // should only run on a full view rendering result or HTML ContentResult
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
@@ -63,7 +77,7 @@ namespace Smartstore.DevTools.Filters
                 }
 
                 // INFO: Don't render in zones where replace-content is true & no <head> zones
-                _widgetProvider.RegisterViewComponent<WidgetZoneViewComponent>(_widgetZonePattern);
+                _widgetProvider.RegisterWidget(_widgetZonePattern, new ZonePreviewWidget());
             }
         }
 

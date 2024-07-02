@@ -32,7 +32,7 @@
     <div class="page-main">
         <header id="header">
             <zone name="header" replace-content="true">
-                <zone name="admin_navbar_before"></zone>
+                <zone name="admin_navbar_before" preview-class="position-absolute"></zone>
                 @await Component.InvokeAsync("AdminNavbar")
                 <zone name="admin_navbar_after"></zone>
             </zone>

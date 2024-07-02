@@ -1,18 +1,15 @@
-﻿@{
-    var zoneName = ViewData["widgetZone"] as string;
+﻿@using Smartstore.Core.Widgets
+
+@{
+    var zone = ViewData["widgetzone"] as IWidgetZone;
 }
 
-@if (WorkContext.IsAdminArea && "sidebar_left".Equals(zoneName))
-{
-    // Ignore, because it messes up the admin layout completely.
-}
-else
-{
-    <span class="badge badge-primary badge-subtle badge-ring widget-zone-info text-truncate" title="@zoneName">
-        <span class="text-truncate">@zoneName</span>
-        @* Maybe later *@
-        @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
-            <span><i class="far fa-paste"></i></span>
-        </a>*@
-    </span>
-}
+<span class="widget-zone-info badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name" 
+        attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
+        attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
+    <span class="text-truncate">@zone.Name</span>
+    @* Maybe later *@
+    @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
+        <span><i class="far fa-paste"></i></span>
+    </a>*@
+</span>

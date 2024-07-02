@@ -68,10 +68,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Obtain view model.
             var model = Model ?? ViewContext.ViewData.Model;
 
-            // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
-            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, Name);
-            // ...if not, generate it here.
-            zoneContent ??= await _widgetSelector.GetContentAsync(this, ViewContext, model);
+            // Generate zone content by iterating all widgets and invoking them.
+            var zoneContent = await _widgetSelector.GetContentAsync(this, ViewContext, model);
 
             // Publish event to give integrators a chance to inject custom content to the zone.
             var renderEvent = new ViewZoneRenderingEvent(this, zoneContent, ViewContext)
