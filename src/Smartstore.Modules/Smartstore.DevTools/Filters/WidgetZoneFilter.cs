@@ -76,7 +76,6 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
-                // INFO: Don't render in zones where replace-content is true & no <head> zones
                 _widgetProvider.RegisterWidget(_widgetZonePattern, new ZonePreviewWidget());
             }
         }
