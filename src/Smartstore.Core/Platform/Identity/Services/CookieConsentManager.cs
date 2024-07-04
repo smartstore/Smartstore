@@ -80,7 +80,7 @@ namespace Smartstore.Core.Identity
                     }
                     else if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.RequiredInEUCountriesOnly)
                     {
-                        return geoCountry.IsInEu; 
+                        return geoCountry.IsInEu || geoCountry.IsoCode == "CH"; 
                     }
                 }
             }
