@@ -470,6 +470,8 @@ namespace Smartstore.Core.Content.Media
                 Logger.Error(ex);
             }
 
+            // Refresh some cached metadata
+            fileInfo = ConvertMediaFile(file);
             return fileInfo;
         }
 
