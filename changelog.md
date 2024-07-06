@@ -155,6 +155,7 @@
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
 - PayPal: Fixed VAT exempt & currency conversion problems.
 - Files from subfolders must not be attached to an e-mail when deploying an export (can be thousands).
+- #1136 Datagrid Vue component throws when expanding child grid
 
 
 ## Smartstore 5.1.0
