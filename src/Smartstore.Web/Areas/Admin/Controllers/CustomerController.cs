@@ -777,7 +777,7 @@ namespace Smartstore.Admin.Controllers
                             ? RedirectToAction(nameof(Edit), customer.Id)
                             : RedirectToAction(nameof(List));
                     }
-                    else if (!model.IsGuest)
+                    else
                     {
                         AddModelErrors(updateResult, string.Empty);
                     }
