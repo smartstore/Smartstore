@@ -6,7 +6,7 @@ namespace Smartstore
 {
     public static class DateTimeExtensions
     {
-        public static readonly DateTime BeginOfEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static readonly DateTime BeginOfEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Converts a nullable date/time value to UTC.
