@@ -87,7 +87,7 @@ namespace Smartstore.Core.Widgets
             Guard.NotNull(viewContext);
 
             var result = new ZoneHtmlContent();
-            var widgets = await selector.GetWidgetsAsync(zone);
+            var widgets = await selector.GetWidgetsAsync(zone, model);
 
             if ((widgets.TryGetNonEnumeratedCount(out var count) && count > 0) || widgets.Any())
             {
