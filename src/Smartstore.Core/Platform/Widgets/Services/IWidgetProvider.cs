@@ -29,6 +29,13 @@ namespace Smartstore.Core.Widgets
         void RegisterWidget(Regex zonePattern, Widget widget);
 
         /// <summary>
+        /// Registers a custom widget for multiple widget zones by predicate.
+        /// </summary>
+        /// <param name="zonePredicate">The widget zone predicate to inject the HTML content to.</param>
+        /// <param name="widget">Widget to register</param>
+        void RegisterWidget(Func<string, bool> zonePredicate, Widget widget);
+
+        /// <summary>
         /// Checks whether a given zone contains at least one widget.
         /// </summary>
         /// <remarks>

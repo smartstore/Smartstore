@@ -1,8 +1,6 @@
 ﻿/// <reference path="../../../Smartstore.Web/wwwroot/shared/references.scss" />
 
-//TODO: (mh) (core) A better solution must be found. Maybe something with an absolute position popup which doesn't disturb the flow
-
-@mixin widget-zone-info() {
+@mixin widget-zone-preview() {
     position: relative;
     display: flex;
     align-items: center;

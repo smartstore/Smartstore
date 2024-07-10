@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
         private readonly IMemoryCache _memoryCache;
 
         private Multimap<string, Widget> _zoneWidgetsMap;
-        private Multimap<Regex, Widget> _zoneExpressionWidgetsMap;
+        private Multimap<object, Widget> _zoneExpressionWidgetsMap;
 
         public DefaultWidgetProvider(IHttpContextAccessor accessor, IApplicationContext appContext, IMemoryCache memoryCache)
         {
@@ -78,10 +78,7 @@ namespace Smartstore.Core.Widgets
                 return;
             }
 
-            if (_zoneWidgetsMap == null)
-            {
-                _zoneWidgetsMap = new Multimap<string, Widget>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<Widget>());
-            }
+            _zoneWidgetsMap ??= new Multimap<string, Widget>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<Widget>());
 
             foreach (var zone in zones)
             {
@@ -90,8 +87,14 @@ namespace Smartstore.Core.Widgets
         }
 
         public virtual void RegisterWidget(Regex zonePattern, Widget widget)
+            => RegisterWidgetByExpression(zonePattern, widget);
+
+        public virtual void RegisterWidget(Func<string, bool> zonePredicate, Widget widget)
+            => RegisterWidgetByExpression(zonePredicate, widget);
+
+        private void RegisterWidgetByExpression(object expression, Widget widget)
         {
-            Guard.NotNull(zonePattern);
+            Guard.NotNull(expression);
             Guard.NotNull(widget);
 
             if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
@@ -99,12 +102,8 @@ namespace Smartstore.Core.Widgets
                 return;
             }
 
-            if (_zoneExpressionWidgetsMap == null)
-            {
-                _zoneExpressionWidgetsMap = new Multimap<Regex, Widget>(invokers => []);
-            }
-
-            _zoneExpressionWidgetsMap.Add(zonePattern, widget);
+            _zoneExpressionWidgetsMap ??= new Multimap<object, Widget>(invokers => new HashSet<Widget>());
+            _zoneExpressionWidgetsMap.Add(expression, widget);
         }
 
         public bool HasWidgets(IWidgetZone zone)
@@ -136,8 +135,11 @@ namespace Smartstore.Core.Widgets
             {
                 foreach (var entry in _zoneExpressionWidgetsMap)
                 {
-                    var rg = entry.Key;
-                    if (rg.IsMatch(zone.Name))
+                    var isMatch = 
+                        (entry.Key is Regex rg && rg.IsMatch(zone.Name)) || 
+                        (entry.Key is Func<string, bool> fn && fn(zone.Name));
+                    
+                    if (isMatch)
                     {
                         foreach (var widget in entry.Value)
                         {

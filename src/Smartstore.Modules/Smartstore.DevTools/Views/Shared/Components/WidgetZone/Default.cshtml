@@ -4,7 +4,7 @@
     var zone = ViewData["widgetzone"] as IWidgetZone;
 }
 
-<span class="widget-zone-info badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name" 
+<span class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name" 
         attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
         attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
     <span class="text-truncate">@zone.Name</span>
