@@ -33,7 +33,7 @@
             else
             {
                 <span class="form-control-plaintext">
-                    @Model.Username
+                    @Model.Username.NaIfEmpty()
                 </span>
                 <input type="hidden" asp-for="Username" />
             }

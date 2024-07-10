@@ -29,10 +29,19 @@ namespace Smartstore.Core.Widgets
         public string? Key { get; set; }
 
         /// <summary>
+        /// Whether the widget is valid in the given <paramref name="zone"/>.
+        /// An invalid widget will not be listed in widget zone enumerations.
+        /// </summary>
+        /// <param name="zone">The widget zone</param>
+        public virtual bool IsValid(IWidgetZone zone) 
+            => true;
+
+        /// <summary>
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
-        public Task<IHtmlContent> InvokeAsync(ViewContext viewContext) => InvokeAsync(new WidgetContext(viewContext));
+        public Task<IHtmlContent> InvokeAsync(ViewContext viewContext) 
+            => InvokeAsync(new WidgetContext(viewContext));
 
         /// <summary>
         /// Invokes the widget and returns its content.

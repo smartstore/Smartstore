@@ -123,6 +123,12 @@ namespace Smartstore.Core.Content.Media
         [JsonProperty("comment", NullValueHandling = NullValueHandling.Ignore)]
         public string AdminComment => File.AdminComment;
 
+        /// <summary>
+        /// Gets <see cref="LastModified"/> as Unix time for cache busting purposes.
+        /// </summary>
+        [JsonProperty("version")]
+        public long Version => File.UpdatedOnUtc.ToUnixTime();
+
         #region Url
 
         private readonly Dictionary<(int size, string host), string> _cachedUrls = new();

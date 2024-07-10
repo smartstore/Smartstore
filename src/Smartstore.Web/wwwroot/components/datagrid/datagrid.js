@@ -391,7 +391,10 @@ Vue.component("sm-datagrid", {
 
         // Load user prefs
         this.originalState = this.getGridState();
-        this.originalDefaultRow = JSON.parse(JSON.stringify(this.options.defaultDataRow));
+
+        if (this.options.defaultDataRow) {
+            this.originalDefaultRow = JSON.parse(JSON.stringify(this.options.defaultDataRow));
+        } 
 
         if (this.options.preserveState) {
             const userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));

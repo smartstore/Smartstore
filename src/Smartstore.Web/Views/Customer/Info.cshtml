@@ -246,7 +246,7 @@
             </div>
         </div>
         <div sm-if="Model.FaxEnabled" class="form-group row">
-            <label asp-for="Fax" class="col-lg-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
+            <label asp-for="Fax" class="col-lg-3 col-form-label" attr-class='(Model.FaxRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="Fax" sm-required="Model.FaxRequired" />
                 <span asp-validation-for="Fax"></span>

@@ -24,6 +24,8 @@
 - **Grouped product enhancements**
   - Optional presentation of associated products as collapsible/expandable panels.
   - Added paging for associated products.
+- **Pixlr image editing** plugin (commercial)
+  - Create and edit images directly in the Media Manager.
 - Updated to **.NET 8**
   - Faster app startup
   - Increased overall performance
@@ -47,6 +49,7 @@
 - #858 Implemented Paypal package tracking
 - #997 Added setting to disable display of product tags on the product detail page  
 - #1100 Display customer generic attributes in backend
+- #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
 
 ### Improvements
 
@@ -152,6 +155,7 @@
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
 - PayPal: Fixed VAT exempt & currency conversion problems.
 - Files from subfolders must not be attached to an e-mail when deploying an export (can be thousands).
+- #1136 Datagrid Vue component throws when expanding child grid
 
 
 ## Smartstore 5.1.0

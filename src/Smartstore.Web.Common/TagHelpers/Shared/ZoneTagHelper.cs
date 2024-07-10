@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Events;
 using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [DebuggerDisplay("Zone: {Name}")]
     [HtmlTargetElement("zone", Attributes = NameAttributeName)]
     public class ZoneTagHelper : SmartTagHelper, IWidgetZone
     {
@@ -26,7 +28,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         [HtmlAttributeName(NameAttributeName)]
-        public virtual string ZoneName { get; set; }
+        public virtual string Name { get; set; }
 
         [HtmlAttributeName(ModelAttributeName)]
         public object Model { get; set; }
@@ -66,10 +68,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Obtain view model.
             var model = Model ?? ViewContext.ViewData.Model;
 
-            // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
-            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, ZoneName);
-            // ...if not, generate it here.
-            zoneContent ??= await _widgetSelector.GetContentAsync(ZoneName, ViewContext, model);
+            // Generate zone content by iterating all widgets and invoking them.
+            var zoneContent = await _widgetSelector.GetContentAsync(this, ViewContext, model);
 
             // Publish event to give integrators a chance to inject custom content to the zone.
             var renderEvent = new ViewZoneRenderingEvent(this, zoneContent, ViewContext)
@@ -128,10 +128,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         /// <inheritdoc/>
         [HtmlAttributeName(ZoneNameAttributeName)]
-        public override string ZoneName
+        public override string Name
         {
-            get => base.ZoneName;
-            set => base.ZoneName = value;
+            get => base.Name;
+            set => base.Name = value;
         }
     }
 }

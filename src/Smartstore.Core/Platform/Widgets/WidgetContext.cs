@@ -41,9 +41,9 @@ namespace Smartstore.Core.Widgets
         }
 
         /// <summary>
-        /// Gets or sets the name of the parent zone.
+        /// Gets or sets the parent zone.
         /// </summary>
-        public string? Zone { get; set; }
+        public IWidgetZone? Zone { get; set; }
 
         /// <summary>
         /// Gets or sets the call site model.

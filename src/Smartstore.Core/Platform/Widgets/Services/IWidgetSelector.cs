@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Widgets
+﻿#nullable enable
+
+namespace Smartstore.Core.Widgets
 {
     /// <summary>
     /// Resolves widgets for zones.
@@ -6,11 +8,11 @@
     public interface IWidgetSelector
     {
         /// <summary>
-        /// Resolves all widgets for the given zone.
+        /// Enumerates all widgets for the given zone, unsorted.
         /// </summary>
-        /// <param name="zone">Zone name to resolve widgets for.</param>
-        /// <param name="model">Optional view model</param>
-        /// <returns>A list of <see cref="Widget"/> instances that should be injected into the zone.</returns>
-        Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, object model = null);
+        /// <param name="zone">Zone to enumerate widgets for.</param>
+        /// <param name="model">Optional view model.</param>
+        /// <returns>An enumeration of <see cref="Widget"/> instances that should be injected into the zone.</returns>
+        IAsyncEnumerable<Widget> EnumerateWidgetsAsync(IWidgetZone zone, object? model = null);
     }
 }

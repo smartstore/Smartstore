@@ -32,10 +32,5 @@ namespace Smartstore.Web.Rendering.Events
         /// The view model.
         /// </summary>
         public object? Model { get; init; }
-
-        /// <summary>
-        /// Whether an event handler has generated some preview content.
-        /// </summary>
-        public bool HasPreview { get; set; }
     }
 }

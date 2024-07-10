@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
@@ -124,7 +125,7 @@ namespace Smartstore.Web.Models.Customers
 
     public class CustomerInfoValidator : SmartValidator<CustomerInfoModel>
     {
-        public CustomerInfoValidator(Localizer T, CustomerSettings customerSettings)
+        public CustomerInfoValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings)
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
 
@@ -163,6 +164,13 @@ namespace Smartstore.Web.Models.Customers
             {
                 RuleFor(x => x.City).NotEmpty();
             }
+            if (customerSettings.StateProvinceRequired && customerSettings.StateProvinceEnabled && customerSettings.CountryEnabled)
+            {
+                RuleFor(x => x.StateProvinceId)
+                    .NotNull()
+                    .NotEqual(0)
+                    .WithMessage(T("Address.Fields.StateProvince.Required"));
+            }
             if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
             {
                 RuleFor(x => x.Phone).NotEmpty();
@@ -170,6 +178,10 @@ namespace Smartstore.Web.Models.Customers
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
             {
                 RuleFor(x => x.Fax).NotEmpty();
+            }
+            if (taxSettings.EuVatEnabled && taxSettings.VatRequired)
+            {
+                RuleFor(x => x.VatNumber).NotEmpty();
             }
         }
     }
