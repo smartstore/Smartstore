@@ -23,7 +23,7 @@
     <partial name="ConditionalComments" />
     <partial name="_ClientRes" />
 
-    <zone name="stylesheets" preview-disabled="true">
+    <zone name="stylesheets" preview-tag="meta">
         <link rel="stylesheet" href="~/bundle/css/admin-common.css" />
         <link rel="stylesheet" href="~/bundle/css/admin-theme.css" />
         @if (WorkContext.WorkingLanguage.Rtl)
@@ -32,7 +32,7 @@
         }
     </zone>
 
-    <zone name="head_scripts" preview-disabled="true">
+    <zone name="head_scripts" preview-tag="meta">
         <script src="~/bundle/js/jquery.js"></script>
         <script src="~/bundle/js/vue.js"></script>
     </zone>
@@ -44,8 +44,8 @@
     <link as="font" rel="preload" href="~/lib/fa6/webfonts/fa-solid-900.woff2" crossorigin />
     <link as="font" rel="preload" href="~/lib/fa6/webfonts/fa-regular-400.woff2" crossorigin />
 
-    <zone name="head_links" preview-disabled="true"></zone>
-    <zone name="head" preview-disabled="true"></zone>
+    <zone name="head_links" preview-tag="meta"></zone>
+    <zone name="head" preview-tag="meta"></zone>
 
     <script src="~/js/smartstore.globalization.adapter.js"></script>
 </head>

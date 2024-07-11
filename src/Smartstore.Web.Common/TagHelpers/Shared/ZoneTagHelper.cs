@@ -17,6 +17,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string PreviewDisabledAttributeName = "preview-disabled";
         const string PreviewCssClassAttributeName = "preview-class";
         const string PreviewCssStyleAttributeName = "preview-style";
+        const string PreviewTagAttributeName = "preview-tag";
 
         private readonly IWidgetSelector _widgetSelector;
         private readonly IEventPublisher _eventPublisher;
@@ -52,6 +53,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <inheritdoc />
         [HtmlAttributeName(PreviewCssStyleAttributeName)]
         public string PreviewCssStyle { get; set; }
+
+        /// <inheritdoc />
+        [HtmlAttributeName(PreviewTagAttributeName)]
+        public string PreviewTagName { get; set; }
 
         protected override string GenerateTagId(TagHelperContext context) 
             => null;

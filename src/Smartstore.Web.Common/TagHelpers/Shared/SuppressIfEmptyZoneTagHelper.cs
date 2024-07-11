@@ -57,6 +57,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// Just to fuilfill the IWidgetZone contract.
         /// </summary>
         [HtmlAttributeNotBound]
+        public string PreviewTagName { get; }
+
+        /// <summary>
+        /// Just to fuilfill the IWidgetZone contract.
+        /// </summary>
+        [HtmlAttributeNotBound]
         public string PreviewCssClass { get; }
 
         /// <summary>

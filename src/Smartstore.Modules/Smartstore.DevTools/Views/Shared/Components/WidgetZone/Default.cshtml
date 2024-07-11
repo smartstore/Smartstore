@@ -4,12 +4,19 @@
     var zone = ViewData["widgetzone"] as IWidgetZone;
 }
 
-<span class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name" 
-        attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
-        attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
-    <span class="text-truncate">@zone.Name</span>
-    @* Maybe later *@
-    @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
-        <span><i class="far fa-paste"></i></span>
-    </a>*@
-</span>
+@if (zone.PreviewTagName == "meta")
+{
+    <meta name="widget-zone-name" class="wz-preview" content="@zone.Name" />
+}
+else
+{
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name"
+          attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
+          attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
+        <span class="text-truncate">@zone.Name</span>
+        @* Maybe later *@
+        @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
+            <span><i class="far fa-paste"></i></span>
+        </a>*@
+    </span>
+}

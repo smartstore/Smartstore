@@ -33,12 +33,17 @@ namespace Smartstore.Core.Widgets
         bool PreviewDisabled { get; }
 
         /// <summary>
-        /// The css class(es) to apply to the widget zone preview.
+        /// The tag name for the widget zone preview element. Default: span.
+        /// </summary>
+        string? PreviewTagName { get; }
+
+        /// <summary>
+        /// The CSS class(es) to apply to the widget zone preview.
         /// </summary>
         string? PreviewCssClass { get; }
 
         /// <summary>
-        /// The css style(s) to apply to the widget zone preview.
+        /// The CSS style(s) to apply to the widget zone preview.
         /// </summary>
         string? PreviewCssStyle { get; }
     }
@@ -60,6 +65,7 @@ namespace Smartstore.Core.Widgets
             ReplaceContent = zone.ReplaceContent;
             RemoveIfEmpty = zone.RemoveIfEmpty;
             PreviewDisabled = zone.PreviewDisabled;
+            PreviewTagName = zone.PreviewTagName;
             PreviewCssClass = zone.PreviewCssClass;
             PreviewCssStyle = zone.PreviewCssStyle;
         }
@@ -75,6 +81,9 @@ namespace Smartstore.Core.Widgets
 
         /// <inheritdoc />
         public bool PreviewDisabled { get; set; }
+
+        /// <inheritdoc />
+        public string? PreviewTagName { get; set; }
 
         /// <inheritdoc />
         public string? PreviewCssClass { get; set; }
