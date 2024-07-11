@@ -15,7 +15,7 @@
     </nav>
 
     <nav class="menubar-group ml-auto">
-        <zone name="header_menu_before"></zone>
+        <zone name="header_menu_before" preview-style="max-width: 100px"></zone>
 
         @if (Model.HasContactUsPage)
         {
@@ -37,8 +37,8 @@
         @* INFO: (mh) (core) header_menu_special will be used to render News, Blog, etc.
             ..._after is legacy. Normally one widget zone would be enough but ..._after without content doesn't feel right *@
 
-        <zone name="header_menu_special"></zone>
-        <zone name="header_menu_special_after"></zone>
+        <zone name="header_menu_special" preview-style="max-width: 100px"></zone>
+        <zone name="header_menu_special_after" preview-style="max-width: 100px"></zone>
     </nav>
 
     <nav id="menubar-my-account" class="menubar-group">
@@ -62,7 +62,7 @@
                 @await Component.InvokeAsync("AccountDropdown")
             }
         </div>
-        <zone name="header_menu_after"></zone>
+        <zone name="header_menu_after" preview-style="max-width: 100px"></zone>
     </nav>
 
     <nav sm-if="Model.DisplayAdminLink" class="menubar-group menubar-group--special d-none d-xl-block">
