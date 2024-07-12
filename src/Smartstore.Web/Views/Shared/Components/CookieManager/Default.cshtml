@@ -31,7 +31,7 @@
         <button sm-if="!Model.ModalCookieConsent" type="button" class="btn-close" data-dismiss="modal"></button>
     </modal-header>
     <modal-body>
-        <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" asp-antiforgery="false" method="post" sm-oncomplete="OnConsented">
+        <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" asp-antiforgery="false" method="post" sm-oncomplete="Smartstore.Cmp.onConsented">
             <input asp-for="AcceptAll" type="hidden" />
 
             <div id="cookie-manager">
@@ -197,7 +197,7 @@
 @*INFO: No sm-target-zone here, because this component is loaded via AJAX*@
 <script>
 	$(function () {
-        $('#cookie-manager-window').modal('show');
+        Smartstore.Cmp.showConsentDialog();
 
         $(".submit-consent").on("click", function () {
             var acceptAll = $(this).attr("id") == "accept-all";
@@ -206,25 +206,13 @@
 
             if (acceptAll) {
 				// Set all options of CookieManager view to true.
-                updateCheckboxUIState($("#@Html.IdFor(x => x.AnalyticsConsent)"));
-                updateCheckboxUIState($("#@Html.IdFor(x => x.ThirdPartyConsent)"));
-                updateCheckboxUIState($("#@Html.IdFor(x => x.AdUserDataConsent)"));
-                updateCheckboxUIState($("#@Html.IdFor(x => x.AdPersonalizationConsent)"));
+                Smartstore.Cmp.updateCheckboxUIState($("#@Html.IdFor(x => x.AnalyticsConsent)"));
+                Smartstore.Cmp.updateCheckboxUIState($("#@Html.IdFor(x => x.ThirdPartyConsent)"));
+                Smartstore.Cmp.updateCheckboxUIState($("#@Html.IdFor(x => x.AdUserDataConsent)"));
+                Smartstore.Cmp.updateCheckboxUIState($("#@Html.IdFor(x => x.AdPersonalizationConsent)"));
             }
 
-            $("#cookie-manager-consent").submit();
+            Smartstore.Cmp.Form.submit();
         });
     });
-
-    function OnConsented() {
-        $('#cookie-manager-window').modal('hide');
-    };
-
-    function updateCheckboxUIState (elem) {
-        var checked = elem.is(":checked");
-
-        if (!checked) {
-            elem.trigger("click");
-        }
-    }
 </script>

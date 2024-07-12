@@ -185,5 +185,6 @@ namespace Smartstore.Core.Content.Topics
         public string TitleTag { get; set; }
         public int Priority { get; set; }
         public CookieType? CookieType { get; set; }
+        public bool Consented { get; set; }
     }
 }

@@ -40,12 +40,6 @@ namespace Smartstore.Google.Analytics.Components
                 return Empty();
             }
 
-            // If user has not accepted the cookie consent don't render anything.
-            if (_settings.RenderWithUserConsentOnly && !await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics))
-            {
-                return Empty();
-            }
-
             var rootScript = string.Empty;
             var specificScript = string.Empty;
 
@@ -162,13 +156,21 @@ namespace Smartstore.Google.Analytics.Components
                 Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
+            // If user has not accepted the cookie consent modify script tags to include data-consent attribute.
+            var consented = _settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+            if (!consented)
+            {
+                rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
+                rootScript = rootScript.Replace("src=", "data-src=");
+            }
+
             if (_settings.MinifyScripts && rootScript.HasValue())
             {
                 rootScript = Minifier.Minify(rootScript);
             }
 
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-            rootScript = $"<script src='{path}'></script>\n{rootScript}";
+            rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
 
             return HtmlContent(rootScript);
         }

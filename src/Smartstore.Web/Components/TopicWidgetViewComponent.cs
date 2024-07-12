@@ -15,10 +15,7 @@ namespace Smartstore.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(TopicWidget model)
         {
             // Check for Cookie Consent
-            if (model.CookieType != null && !await _cookieManager.IsCookieAllowedAsync(model.CookieType.Value))
-            {
-                return Empty();
-            }
+            model.Consented = model.CookieType != null && await _cookieManager.IsCookieAllowedAsync(model.CookieType.Value);
 
             Services.DisplayControl.Announce(new Topic { Id = model.Id });
 

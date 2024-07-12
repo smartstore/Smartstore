@@ -62,23 +62,7 @@ namespace Smartstore.PayPal.Filters
                 PayPalConstants.PayLater,
                 PayPalConstants.Sepa);
 
-            if (isJsSDKMethodEnabled)
-            {
-                // INFO: Lets load the utility js regardsless of user consent. It doesn't set any cookies.
-                _pageAssetBuilder.AppendScriptFiles($"~/Modules/Smartstore.PayPal/js/paypal.utils.js?v={SmartstoreVersion.CurrentFullVersion}.1");
-            }
-
-            // TODO: (mh) Find a better (or safer) way to render this script.
-            // The following prevents any PayPal script from being rendered if RequiredCookies weren't accepted yet.
-            // It's a little bit problematic though for the case where a user accepts the cookies for the first time and directly adds a product to cart.
-            // In this case the PayPal buttons won't be rendered in OffCanvasCart (because ConsentManager and OffCanvasCart don't require a new pageload).
-            // But if the user then goes to the checkout page, the buttons will be rendered because its a new pageload.
-            // See https://github.com/smartstore/Smartstore/issues/762
-            if (!await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required))
-            {
-                await next();
-                return;
-            }
+            var consented = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required);
 
             if (isJsSDKMethodEnabled)
             {
@@ -88,6 +72,9 @@ namespace Smartstore.PayPal.Filters
                     await next();
                     return;
                 }
+
+                // INFO: Lets load the utility js regardless of user consent. It doesn't set any cookies.
+                _pageAssetBuilder.AppendScriptFiles($"~/Modules/Smartstore.PayPal/js/paypal.utils.js?v={SmartstoreVersion.CurrentFullVersion}.1");
 
                 var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
 
@@ -121,7 +108,9 @@ namespace Smartstore.PayPal.Filters
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;
 
-                _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>"));
+                var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
+
+                _widgetProvider.RegisterHtml("end", scriptIncludeTag);
             }
 
             if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))
@@ -149,7 +138,7 @@ namespace Smartstore.PayPal.Filters
             // INFO: Single quotes (') aren't allowed to delimit strings.
             sb.Append("{\"sandbox\":" + (_settings.UseSandbox ? "true" : "false") + ",\"f\":\"" + clientMetaId + "\",\"s\":\"" + sourceIdentifier + "\" }");
             sb.Append("</script>");
-            sb.Append("<script type='text/javascript' src='https://c.paypal.com/da/r/fb.js'></script>");
+            sb.Append($"<script type='text/javascript' {(consented ? string.Empty : "data-consent=\"required\" data-")}src='https://c.paypal.com/da/r/fb.js'></script>");
             sb.Append($"<noscript><img src='https://c.paypal.com/v1/r/d/b/ns?f={clientMetaId}&s={sourceIdentifier}&js=0&r=1' /></noscript>");
 
             _widgetProvider.RegisterHtml("end", new HtmlString(sb.ToString()));

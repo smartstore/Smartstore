@@ -102,6 +102,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.offcanvas.js",
                 js + "smartstore.parallax.js",
                 js + "smartstore.media.js",
+                js + "smartstore.cmp.js",
                 // Shop
                 js + "public.common.js",
                 js + "public.search.js",

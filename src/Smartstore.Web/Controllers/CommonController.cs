@@ -258,6 +258,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [DisallowRobot]
+        [HttpPost]
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]
         public IActionResult CookieManager()
         {
@@ -269,13 +270,14 @@ namespace Smartstore.Web.Controllers
         {
             if (model.AcceptAll)
             {
+                model.RequiredConsent = true;
                 model.AnalyticsConsent = true;
                 model.ThirdPartyConsent = true;
                 model.AdUserDataConsent = true;
                 model.AdPersonalizationConsent = true;
             }
 
-            _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
+            _cookieConsentManager.SetConsentCookie(model.RequiredConsent, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
 
             if (!HttpContext.Request.IsAjax())
             {

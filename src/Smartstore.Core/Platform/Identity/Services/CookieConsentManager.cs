@@ -6,7 +6,6 @@ using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Net;
 
@@ -151,13 +150,28 @@ namespace Smartstore.Core.Identity
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<ConsentCookie>(value);
+                        var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
+
+                        // If date is not set it's a cookie that was set pre 5.2.0 and thus is HttpOnly
+                        // we must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
+                        if (consentCookie.ConsentedOn == null)
+                        {
+                            SetConsentCookie(
+                                consentCookie.AllowRequired,
+                                consentCookie.AllowAnalytics, 
+                                consentCookie.AllowThirdParty, 
+                                consentCookie.AdUserDataConsent, 
+                                consentCookie.AdPersonalizationConsent);
+                        }
+
+                        return consentCookie;
                     }
                     catch
                     {
                         // Let's be tolerant in case of error.
                         return new ConsentCookie 
                         {
+                            AllowRequired = true,
                             AllowAnalytics = true,
                             AllowThirdParty = true,
                             AdPersonalizationConsent = true,
@@ -169,6 +183,7 @@ namespace Smartstore.Core.Identity
                 // There is no cookie consent cookie.
                 return new ConsentCookie
                 {
+                    AllowRequired = false,
                     AllowAnalytics = false,
                     AllowThirdParty = false,
                     AdPersonalizationConsent = false,
@@ -176,15 +191,16 @@ namespace Smartstore.Core.Identity
                 };
             });
 
-            // Initialise allowedTypes with the required value, as this is always permitted.
-            CookieType allowedTypes = CookieType.Required;
+            // Initialise allowedTypes with the CookieType.None which means no cookie is set yet and not even required cookies are allowed.
+            CookieType allowedTypes = CookieType.None;
 
+            if (consentCookie.AllowRequired) allowedTypes |= CookieType.Required;
             if (consentCookie.AllowAnalytics) allowedTypes |= CookieType.Analytics;
             if (consentCookie.AllowThirdParty) allowedTypes |= CookieType.ThirdParty;
             if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
             if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
 
-            return allowedTypes.HasFlag(cookieType);
+            return allowedTypes.HasFlag(cookieType); 
         }
 
         public virtual ConsentCookie GetCookieData()
@@ -218,6 +234,7 @@ namespace Smartstore.Core.Identity
         }
 
         public virtual void SetConsentCookie(
+            bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false,
             bool adUserDataConsent = false,
@@ -228,10 +245,12 @@ namespace Smartstore.Core.Identity
             {
                 var cookieData = new ConsentCookie
                 {
+                    AllowRequired = allowRequired,
                     AllowAnalytics = allowAnalytics,
                     AllowThirdParty = allowThirdParty,
                     AdUserDataConsent = adUserDataConsent,
-                    AdPersonalizationConsent = adPersonalizationConsent
+                    AdPersonalizationConsent = adPersonalizationConsent,
+                    ConsentedOn = DateTime.UtcNow
                 };
 
                 var cookies = context.Response.Cookies;
@@ -240,7 +259,7 @@ namespace Smartstore.Core.Identity
                 var options = new CookieOptions
                 {
                     Expires = DateTime.UtcNow.AddDays(365),
-                    HttpOnly = true,
+                    HttpOnly = false,
                     IsEssential = true,
                     Secure = _webHelper.IsCurrentConnectionSecured()
                 };
@@ -287,6 +306,11 @@ namespace Smartstore.Core.Identity
     public class ConsentCookie
     {
         /// <summary>
+        /// A value indicating whether required cookies are allowed to be set.
+        /// </summary>
+        public bool AllowRequired { get; set; }
+
+        /// <summary>
         /// A value indicating whether analytical cookies are allowed to be set.
         /// </summary>
         public bool AllowAnalytics { get; set; }
@@ -305,5 +329,10 @@ namespace Smartstore.Core.Identity
         /// A value indicating whether personalization is allowed.
         /// </summary>
         public bool AdPersonalizationConsent { get; set; }
+
+        /// <summary>
+        /// A value indicating when the consent was given.
+        /// </summary>
+        public DateTime? ConsentedOn { get; set; } = null;
     }
 }

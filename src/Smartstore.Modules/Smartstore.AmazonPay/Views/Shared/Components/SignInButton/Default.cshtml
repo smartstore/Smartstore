@@ -2,7 +2,7 @@
 
 <div id="amazonpay-signin-button" class="btn-extauth"></div>
 
-<script data-origin="amazonpay-signin-button">
+<script sm-consent-type="Required" data-origin="amazonpay-signin-button">
     loadAmazonPayScript(function () {
         var amazonPaySignInButton = amazon.Pay.renderButton('#amazonpay-signin-button', {
             merchantId: '@Html.Raw(Model.SellerId)',

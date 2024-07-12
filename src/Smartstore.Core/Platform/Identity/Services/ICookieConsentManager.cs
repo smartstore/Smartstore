@@ -38,11 +38,13 @@
         /// <summary>
         /// Sets the consent cookie.
         /// </summary>
+        /// <param name="allowRequired">A value indicating whether required cookies are allowed to be set.</param>
         /// <param name="allowAnalytics">A value indicating whether analytical cookies are allowed to be set.</param>
         /// <param name="allowThirdParty">A value indicating whether third party cookies are allowed to be set.</param>
         /// <param name="adUserDataConsent">A value indicating whether sending of user data is allowed.</param>
         /// <param name="adPersonalizationConsent">A value indicating whether personalization is allowed.</param>
         void SetConsentCookie(
+            bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false, 
             bool adUserDataConsent = false, 
