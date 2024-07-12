@@ -50,7 +50,7 @@
 - #997 Added setting to disable display of product tags on the product detail page  
 - #1100 Display customer generic attributes in backend
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
-- #762 CookieManager: Scripts are loaded now directly after consent without page refresh 
+- #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page.  
 
 ### Improvements
 
@@ -89,6 +89,7 @@
 - #1020 Prevent creation of unnecessary Stripe "payment intent".
 - Added deletion of selected rows to the data grid of manufacturers, discounts, menus and topics.
 - ActivityLogger: don't log activities from system accounts (bots, scheduler, etc.).
+- Added specific browser automplete hints to some common forms 
 - Identity: Moved `ClientIdent` and `LastViditedPage` from `GenericAttribute` to `Customer` table (for performance reasons and to distress GenericAttribute table)
 - Enable tokens (e.g. current date and time) for email subject in email export deployments.
 
