@@ -186,8 +186,9 @@ jQuery(function () {
     })();
 
 
+    // .dropdown-group (nested dropdowns) && .dropdown-hoverdrop (hover dropdowns)
     (function () {
-        var currentDrop,
+        let currentDrop,
             currentSubGroup,
             closeTimeout,
             closeTimeoutSub;
@@ -225,15 +226,15 @@ jQuery(function () {
             if (_.isFunction(fn)) fn();
         }
 
-        // drop dropdown menus on hover
+        // Drop dropdown menus on hover
         $(document).on('mouseenter mouseleave', '.dropdown-hoverdrop', function (e) {
-            var li = $(this),
-                a = $('> .dropdown-toggle', this);
+            const li = $(this);
+            const a = $('> .dropdown-toggle', this);
 
             if (a.data("toggle") === 'dropdown')
                 return;
 
-            var afterClose = function () { currentDrop = null; };
+            const afterClose = () => currentDrop = null;
 
             if (e.type == 'mouseenter') {
                 if (currentDrop) {
@@ -257,7 +258,7 @@ jQuery(function () {
 
             if (e.type === 'click') {
                 let item = $(e.target).closest('.dropdown-item');
-                if (item.length && item.parent().get(0) == this) {
+                if (item.length && item.parent()[0] == this) {
                     type = $(this).is('.show') ? 'leave' : 'enter';
                     leaveDelay = 0;
                     item.trigger("blur");
@@ -270,16 +271,18 @@ jQuery(function () {
 
             if (type == 'enter') {
                 if (currentSubGroup) {
-                    clearTimeout(closeTimeoutSub);
-                    closeDrop(currentSubGroup);
+                    if (group.parent().parent()[0] != currentSubGroup[0]) {
+                        clearTimeout(closeTimeoutSub);
+                        closeDrop(currentSubGroup);
+                    }
                 }
 
                 showDrop(group);
                 currentSubGroup = group;
             }
-            else {
+            else { // leave
                 group.removeClass('show');
-                closeTimeoutSub = window.setTimeout(function () { closeDrop(group); }, leaveDelay);
+                closeTimeoutSub = window.setTimeout(() => closeDrop(group), leaveDelay);
             }
         });
     })();

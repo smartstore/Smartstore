@@ -462,10 +462,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
         margin-top: -1px;
         --dropdown-min-width: 250px;
         --dropdown-zindex: #{$megamenu-zindex-base + 1};
-		transform: translateX($grid-gutter-width/2);
-		&.ar {
-			transform: translateX(-($grid-gutter-width/2));
-		}
     }
 
     .nav-item.active:before {

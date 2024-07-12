@@ -53,10 +53,14 @@
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
 
-            <div id="dropdown-item-@item.Id" data-id="@item.Id">
+            <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")'>
                 <a href="@itemUrl" attrs="@attrs">
                     <span sm-language-attributes-for="item">@item.Text</span>
                 </a>
+                @if (node.HasChildren)
+                {
+                    await CreateDrilldownMenuAsync(node.Children, node.HasChildren);
+                }
             </div>
         }
 
