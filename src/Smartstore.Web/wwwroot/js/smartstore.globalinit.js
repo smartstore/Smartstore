@@ -4,7 +4,7 @@ jQuery(function () {
         win = $(window),
         body = $(document.body);
 
-    // Adjust initPNotify global defaults
+    // Adjust PNotify global defaults
     if (typeof PNotify !== 'undefined') {
         var stack = {
             dir1: "up",
