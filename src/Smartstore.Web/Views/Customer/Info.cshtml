@@ -43,21 +43,21 @@
         <div sm-if="Model.TitleEnabled" class="form-group row">
             <label asp-for="Title" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <input asp-for="Title" />
+                <input asp-for="Title" autocomplete="organization-title" />
                 <span asp-validation-for="Title"></span>
             </div>
         </div>
         <div class="form-group row">
             <label asp-for="FirstName" class="col-lg-3 col-form-label" attr-class='(Model.FirstNameRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="FirstName" sm-required="Model.FirstNameRequired" />
+                <input asp-for="FirstName" sm-required="Model.FirstNameRequired" autocomplete="given-name" />
                 <span asp-validation-for="FirstName"></span>
             </div>
         </div>
         <div class="form-group row">
             <label asp-for="LastName" class="col-lg-3 col-form-label" attr-class='(Model.LastNameRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="LastName" sm-required="Model.LastNameRequired" />
+                <input asp-for="LastName" sm-required="Model.LastNameRequired" autocomplete="family-name" />
                 <span asp-validation-for="LastName"></span>
             </div>
         </div>
@@ -69,6 +69,7 @@
             <div class="col-lg-9">
                 <input type="date" asp-for="DateOfBirth"
                        class="native-validation"
+                       autocomplete="bday"
                        max="@DateTime.Now.ToString("yyyy-MM-dd")"
                        min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
             </div>
@@ -77,7 +78,7 @@
         <div class="form-group row">
             <label asp-for="Email" class="col-lg-3 col-form-label required"></label>
             <div class="col-lg-9">
-                <input asp-for="Email" sm-required="true" />
+                <input asp-for="Email" sm-required="true" autocomplete="email" />
                 <span asp-validation-for="Email"></span>
             </div>
         </div>
@@ -90,13 +91,13 @@
                     @if (Model.CheckUsernameAvailabilityEnabled)
                     {
                         <div class="input-group">
-                            <input asp-for="Username" sm-required="true" />
+                            <input asp-for="Username" sm-required="true" autocomplete="username" />
                             <partial name="_CheckUsernameAvailability" />
                         </div>
                     }
                     else
                     {
-                        <input asp-for="Username" sm-required="true" />
+                        <input asp-for="Username" sm-required="true" autocomplete="username" />
                     }
                     <span asp-validation-for="Username"></span>
                 </div>
@@ -156,7 +157,7 @@
         <div sm-if="Model.CompanyEnabled" class="form-group row">
             <label asp-for="Company" class="col-lg-3 col-form-label" attr-class='(Model.CompanyRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="Company" sm-required="Model.CompanyRequired" />
+                <input asp-for="Company" sm-required="Model.CompanyRequired" autocomplete="organization" />
                 <span asp-validation-for="Company"></span>
             </div>
         </div>
@@ -178,28 +179,28 @@
         <div sm-if="Model.StreetAddressEnabled" class="form-group row">
             <label asp-for="StreetAddress" class="col-lg-3 col-form-label" attr-class='(Model.StreetAddressRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" />
+                <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" autocomplete="address-line1" />
                 <span asp-validation-for="StreetAddress"></span>
             </div>
         </div>
         <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
             <label asp-for="StreetAddress2" class="col-lg-3 col-form-label" attr-class='(Model.StreetAddress2Required, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" />
+                <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" autocomplete="address-line2" />
                 <span asp-validation-for="StreetAddress2"></span>
             </div>
         </div>
         <div sm-if="Model.ZipPostalCodeEnabled" class="form-group row">
             <label asp-for="ZipPostalCode" class="col-lg-3 col-form-label" attr-class='(Model.ZipPostalCodeRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" />
+                <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" autocomplete="postal-code" />
                 <span asp-validation-for="ZipPostalCode"></span>
             </div>
         </div>
         <div sm-if="Model.CityEnabled" class="form-group row">
             <label asp-for="City" class="col-lg-3 col-form-label" attr-class='(Model.CityRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="City" sm-required="Model.CityRequired" />
+                <input asp-for="City" sm-required="Model.CityRequired" autocomplete="address-level2" />
                 <span asp-validation-for="City"></span>
             </div>
         </div>
@@ -241,7 +242,7 @@
         <div sm-if="Model.PhoneEnabled" class="form-group row">
             <label asp-for="Phone" class="col-lg-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="Phone" sm-required="Model.PhoneRequired" />
+                <input asp-for="Phone" sm-required="Model.PhoneRequired" autocomplete="tel" />
                 <span asp-validation-for="Phone"></span>
             </div>
         </div>

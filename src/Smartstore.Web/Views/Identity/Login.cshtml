@@ -32,7 +32,7 @@
             @if (Model.CustomerLoginType == CustomerLoginType.Username)
             {
                 <div class="form-floating mb-3">
-                    <input asp-for="Username" class="username" autofocus="autofocus" placeholder="@Html.DisplayNameFor(x => x.Username)" />
+                    <input asp-for="Username" class="username" autofocus="autofocus" autocomplete="username" placeholder="@Html.DisplayNameFor(x => x.Username)" />
                     <label asp-for="Username"></label>
                     <span asp-validation-for="Username"></span>
                 </div>
@@ -40,7 +40,7 @@
             else if (Model.CustomerLoginType == CustomerLoginType.Email)
             {
                 <div class="form-floating mb-3">
-                    <input asp-for="Email" class="email" autofocus="autofocus" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                    <input asp-for="Email" class="email" autofocus="autofocus" autocomplete="email" placeholder="@Html.DisplayNameFor(x => x.Email)" />
                     <label asp-for="Email"></label>
                     <span asp-validation-for="Email"></span>
                 </div>
@@ -48,14 +48,14 @@
             else
             {
                 <div class="form-floating mb-3">
-                    <input asp-for="UsernameOrEmail" class="username" autofocus="autofocus" placeholder="@Html.DisplayNameFor(x => x.UsernameOrEmail)" />
+                    <input asp-for="UsernameOrEmail" class="username" autofocus="autofocus" autocomplete="email username" placeholder="@Html.DisplayNameFor(x => x.UsernameOrEmail)" />
                     <label asp-for="UsernameOrEmail"></label>
                     <span asp-validation-for="UsernameOrEmail"></span>
                 </div>
             }
 
             <div class="form-floating mb-3">
-                <input asp-for="Password" sm-enable-visibility-toggle="false" class="password" autocomplete="off" placeholder="@Html.DisplayNameFor(x => x.Password)" />
+                <input asp-for="Password" sm-enable-visibility-toggle="false" class="password" autocomplete="current-password" placeholder="@Html.DisplayNameFor(x => x.Password)" />
                 <button type="button" class="btn-toggle-pwd">
                     <i class="far fa-fw fa-eye-slash"></i>
                 </button>
