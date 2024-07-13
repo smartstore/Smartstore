@@ -25,7 +25,7 @@ namespace Smartstore.Core.Identity
             => nameof(CookieInfo);
 
         string[] IDisplayedEntity.GetDisplayNameMemberNames()
-            => new[] { nameof(Name) };
+            => [nameof(Name)];
 
         string IDisplayedEntity.GetDisplayName()
             => Name;

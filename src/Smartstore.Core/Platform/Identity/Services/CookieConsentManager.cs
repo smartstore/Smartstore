@@ -152,22 +152,20 @@ namespace Smartstore.Core.Identity
                     {
                         var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
 
-                        // If date is not set it's a cookie that was set pre 5.2.0 and thus is HttpOnly
-                        // we must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
+                        // If date is not set it's a cookie that was saved pre 5.2.0 and thus is HttpOnly.
+                        // We must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
                         if (consentCookie.ConsentedOn == null)
                         {
-                            SetConsentCookie(
-                                consentCookie.AllowRequired,
-                                consentCookie.AllowAnalytics, 
-                                consentCookie.AllowThirdParty, 
-                                consentCookie.AdUserDataConsent, 
-                                consentCookie.AdPersonalizationConsent);
+                            // TODO: (mh) Check whether it is ok to return the consent date. It was null before and felt wrong?!
+                            consentCookie.ConsentedOn = DateTime.UtcNow;
+                            SetConsentCookieCore(consentCookie);
                         }
 
                         return consentCookie;
                     }
                     catch
                     {
+                        // TODO: (mh) No date. Is that ok?
                         // Let's be tolerant in case of error.
                         return new ConsentCookie 
                         {
@@ -180,6 +178,7 @@ namespace Smartstore.Core.Identity
                     }
                 }
 
+                // TODO: (mh) No date. Is that ok?
                 // There is no cookie consent cookie.
                 return new ConsentCookie
                 {
@@ -233,26 +232,33 @@ namespace Smartstore.Core.Identity
             return null;
         }
 
-        public virtual void SetConsentCookie(
+        public void SetConsentCookie(
             bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false,
             bool adUserDataConsent = false,
             bool adPersonalizationConsent = false)
         {
+            var cookieData = new ConsentCookie
+            {
+                AllowRequired = allowRequired,
+                AllowAnalytics = allowAnalytics,
+                AllowThirdParty = allowThirdParty,
+                AdUserDataConsent = adUserDataConsent,
+                AdPersonalizationConsent = adPersonalizationConsent,
+                ConsentedOn = DateTime.UtcNow
+            };
+
+            SetConsentCookieCore(cookieData);
+        }
+
+        protected virtual void SetConsentCookieCore(ConsentCookie cookieData)
+        {
+            Guard.NotNull(cookieData);
+            
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
             {
-                var cookieData = new ConsentCookie
-                {
-                    AllowRequired = allowRequired,
-                    AllowAnalytics = allowAnalytics,
-                    AllowThirdParty = allowThirdParty,
-                    AdUserDataConsent = adUserDataConsent,
-                    AdPersonalizationConsent = adPersonalizationConsent,
-                    ConsentedOn = DateTime.UtcNow
-                };
-
                 var cookies = context.Response.Cookies;
                 var cookieName = CookieNames.CookieConsent;
 

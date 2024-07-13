@@ -9,7 +9,7 @@
 function ConsentManagementPlatform() {
     // Private methods
 
-    // Scripts which require consent are included with the data-src attribute if no consentt is given yet.
+    // Scripts that require consent are included with the data-src attribute if no consent is given yet.
     // If consent is given, we replace the data-src attribute with the src attribute.
     function loadScriptFromUrl(script) {
         const src = script.getAttribute('data-src');
@@ -20,7 +20,7 @@ function ConsentManagementPlatform() {
             script.removeAttribute('data-src');
         }
     }
-    // We assume scripts which require specific consent are included with the type attribute text/plain.
+    // We assume scripts that require specific consent are included with the type attribute text/plain.
     // Thus they won't be executed until we inject them into the DOM.
     // If consent is given, we replace the script tag with a new script tag that contains the actual script code.
     function loadInlineScript(script) {
@@ -30,8 +30,8 @@ function ConsentManagementPlatform() {
         //document.body.appendChild(newScript);
     }
 
-    // Topics which depend on cookie consent before they can be loaded are wrapped in template tags. 
-    // If consent is given, we replace the template tags with the actual content.
+    // Topics that depend on cookie consent before they can be loaded are wrapped in template tags. 
+    // If consent is given, we unwrap the template tags with the actual content.
     function loadTemplateContent(template) {
         var clone = template.content.cloneNode(true);
         template.parentNode.replaceChild(clone, template);
@@ -58,7 +58,7 @@ function ConsentManagementPlatform() {
 
     // Public methods
     this.init = function () {
-        var self = this;
+        const self = this;
 
         self.initCookieData();
         self.loadScripts();
@@ -66,52 +66,51 @@ function ConsentManagementPlatform() {
         // Open consent dialog when user clicks on cookie manager link.
         $(document).on("click", ".cookie-manager", function (e) {
             e.preventDefault();
-
             self.showConsentDialog($(this).attr("href"));
         });
     }
-    this.initCookieData = function () {
-        var self = this;
-        self.ConsentCookie = getCookie('.Smart.CookieConsent');
 
-        if (self.ConsentCookie) {
-            self.ConsentData = JSON.parse(decodeURIComponent(self.ConsentCookie));
-        }
-        else {
-            return;
+    this.initCookieData = function () {
+        this.ConsentCookie = getCookie('.Smart.CookieConsent');
+
+        if (this.ConsentCookie) {
+            // TODO: (mh) Error handling is missing.
+            this.ConsentData = JSON.parse(decodeURIComponent(this.ConsentCookie));
         }
     }
+
     this.loadScripts = function () {
-        var self = this;
-
-        for (let prop in self.ConsentType) {
+        for (let prop in this.ConsentType) {
             // Check to make sure the property is not from the prototype chain
-            if (self.ConsentType.hasOwnProperty(prop)) {
+            if (this.ConsentType.hasOwnProperty(prop)) {
 
-                //console.log("Check for prop " + prop + ". Type:" + this.ConsentType[prop] + ". Result:" + self.checkConsent(this.ConsentType[prop]));
+                //console.log("Check for prop " + prop + ". Type:" + this.ConsentType[prop] + ". Result:" + this.checkConsent(this.ConsentType[prop]));
 
-                if (self.checkConsent(self.ConsentType[prop])) {
+                // TODO: (mh) (perf) Instead of querying all scripts repetitively, we should query all scripts with data-consent attribute once and then filter them by data-consent attribute value.
+
+                if (this.checkConsent(this.ConsentType[prop])) {
                     // Load scripts included via URL.
-                    var scripts = document.querySelectorAll('script[data-consent="' + self.ConsentType[prop] + '"][data-src]');
-                    scripts.forEach(function (script) {
+                    var scripts = document.querySelectorAll('script[data-consent="' + this.ConsentType[prop] + '"][data-src]');
+                    scripts.forEach((script) => {
                         loadScriptFromUrl(script);
                     });
 
                     // Load scripts included via inline code.
-                    var inlineScripts = document.querySelectorAll('script[data-consent="' + self.ConsentType[prop] + '"][type="text/plain"]');
-                    inlineScripts.forEach(function (script) {
+                    var inlineScripts = document.querySelectorAll('script[data-consent="' + this.ConsentType[prop] + '"][type="text/plain"]');
+                    inlineScripts.forEach((script) => {
                         loadInlineScript(script);
                     });
 
                     // Inject HTML from template tags into DOM.
-                    var templates = document.querySelectorAll('template[data-consent="' + self.ConsentType[prop] + '"]');
-                    templates.forEach(function (template) {
+                    var templates = document.querySelectorAll('template[data-consent="' + this.ConsentType[prop] + '"]');
+                    templates.forEach((template) => {
                         loadTemplateContent(template);
                     });
                 }
             }
         }
     }
+
     this.checkConsent = function (consentType) {
         // If cookie is not set, user has not given his consent. So nothing is allowed.
         if (!this.ConsentData) {
@@ -136,25 +135,27 @@ function ConsentManagementPlatform() {
 
     // Used by CookieManager Dialog to update the UI state of a checkbox.
     this.updateCheckboxUIState = function (elem) {
-        var checked = elem.is(":checked");
+        const checked = elem.is(":checked");
 
         if (!checked) {
             elem.trigger("click");
         }
     }
+
     // Is called when user clicks on the "Save" button in the cookie manager dialog.
     this.onConsented = function () {
-        var self = Smartstore.Cmp;
+        const cmp = Smartstore.Cmp;
 
         // Update cookie data & load all scripts according to the new consent.
-        self.initCookieData();
-        self.loadScripts();
+        cmp.initCookieData();
+        cmp.loadScripts();
 
-        self.hideConsentDialog();
+        cmp.hideConsentDialog();
     }
+
     // Is called when user clicks on a cookie manager link.
-    this.showConsentDialog = function (loadDialogAjaxLink) {
-        var self = Smartstore.Cmp;
+    this.showConsentDialog = function (dialogAjaxUrl) {
+        var cmp = Smartstore.Cmp;
         var dialog = $("#cookie-manager-window");
 
         if (dialog.length > 0) {
@@ -166,7 +167,7 @@ function ConsentManagementPlatform() {
             $.ajax({
                 cache: false,
                 type: "POST",
-                url: loadDialogAjaxLink,
+                url: dialogAjaxUrl,
                 data: {},
                 success: function (data) {
                     $("body").append(data);
@@ -175,11 +176,12 @@ function ConsentManagementPlatform() {
             });
         }
         function initAndShowConsentDialog(dialog) {
-            self.CookieManagerDialog = dialog;
-            self.Form = dialog.find("#cookie-manager-consent");
-            self.CookieManagerDialog.modal('show');
+            cmp.CookieManagerDialog = dialog;
+            cmp.Form = dialog.find("#cookie-manager-consent");
+            cmp.CookieManagerDialog.modal('show');
         }
     }
+
     this.hideConsentDialog = function () {
         this.CookieManagerDialog.modal('hide');
     }

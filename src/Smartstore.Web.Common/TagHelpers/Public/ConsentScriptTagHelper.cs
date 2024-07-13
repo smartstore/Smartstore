@@ -34,19 +34,21 @@ namespace Smartstore.Web.TagHelpers.Public
             {
                 if (Src.HasValue())
                 {
-                    output.Attributes.SetAttribute("data-scr", Src);
-                    output.Attributes.RemoveAll("scr");
+                    output.Attributes.SetAttribute("data-src", Src);
+                    output.Attributes.RemoveAll("src");
                 }
                 else
                 {
                     output.Attributes.SetAttribute("type", "text/plain");
                 }
 
+                // TODO: (mh) Save dasherized, not just lower case.
                 output.Attributes.Add("data-consent", ConsentType.ToString().ToLower());
             }
             else if (Src.HasValue())
             {
-                output.Attributes.SetAttribute("scr", Src);
+                // TODO: (mh) The attribute is already set. Maybe you should remove the 'Src' property from this class and rely on the 'src' attribute only.
+                output.Attributes.SetAttribute("src", Src);
             }
         }
     }
