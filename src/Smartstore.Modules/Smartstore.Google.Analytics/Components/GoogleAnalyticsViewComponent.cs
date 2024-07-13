@@ -168,7 +168,7 @@ namespace Smartstore.Google.Analytics.Components
             {
                 rootScript = Minifier.Minify(rootScript);
             }
-
+            
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
             rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
 
