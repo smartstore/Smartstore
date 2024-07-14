@@ -15,18 +15,13 @@ namespace Smartstore.Core.Content.Media.Icons
         IEnumerable<IconDescription> FindIcons(string searchTerm, bool relaxed = false);
     }
 
-    public class IconExplorer : IIconExplorer
+    public class IconExplorer(IApplicationContext appContext) : IIconExplorer
     {
         private IDictionary<string, IconDescription> _icons;
         private readonly Multimap<string, string> _searchMap = new(StringComparer.OrdinalIgnoreCase, x => new HashSet<string>(x));
         private readonly object _lock = new();
 
-        private readonly IApplicationContext _appContext;
-
-        public IconExplorer(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
+        private readonly IApplicationContext _appContext = appContext;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

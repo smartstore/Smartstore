@@ -8,21 +8,14 @@ namespace Smartstore.Core.Common.Tasks
     /// <summary>
     /// A task that periodically updates exchange rates.
     /// </summary>
-    public partial class UpdateExchangeRateTask : ITask
+    public partial class UpdateExchangeRateTask(
+        SmartDbContext db,
+        ICurrencyService currencyService,
+        CurrencySettings currencySettings) : ITask
     {
-        private readonly SmartDbContext _db;
-        private readonly ICurrencyService _currencyService;
-        private readonly CurrencySettings _currencySettings;
-
-        public UpdateExchangeRateTask(
-            SmartDbContext db,
-            ICurrencyService currencyService,
-            CurrencySettings currencySettings)
-        {
-            _db = db;
-            _currencyService = currencyService;
-            _currencySettings = currencySettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly CurrencySettings _currencySettings = currencySettings;
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {

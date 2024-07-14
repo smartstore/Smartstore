@@ -132,14 +132,9 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// This class is needed for <see cref="GiftCardCouponCodeConverter"/> to explicitly define converter from 
     /// <see cref="List{GiftCardCouponCode}"/> to string and vice versa.
     /// </summary>
-    public class GiftCardCouponCode
+    public class GiftCardCouponCode(string value)
     {
-        public GiftCardCouponCode(string value)
-        {
-            Value = value;
-        }
-
-        public string Value { get; init; }
+        public string Value { get; init; } = value;
 
         public static explicit operator string(GiftCardCouponCode code) => code.Value;
         public static explicit operator GiftCardCouponCode(string code) => new(code);

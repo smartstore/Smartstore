@@ -6,16 +6,10 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
-    public partial class GiftCardService : IGiftCardService
+    public partial class GiftCardService(SmartDbContext db, ICurrencyService currencyService) : IGiftCardService
     {
-        private readonly SmartDbContext _db;
-        private readonly Currency _primaryCurrency;
-
-        public GiftCardService(SmartDbContext db, ICurrencyService currencyService)
-        {
-            _db = db;
-            _primaryCurrency = currencyService.PrimaryCurrency;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly Currency _primaryCurrency = currencyService.PrimaryCurrency;
 
         public virtual async Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)
         {

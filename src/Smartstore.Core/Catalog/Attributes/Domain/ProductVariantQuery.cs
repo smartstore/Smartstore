@@ -38,24 +38,17 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        public void AddGiftCard(GiftCardQueryItem item)
-        {
-            _giftCards.Add(item);
-        }
+        public void AddGiftCard(GiftCardQueryItem item) => _giftCards.Add(item);
 
-        public void AddCheckoutAttribute(CheckoutAttributeQueryItem item)
-        {
-            _checkoutAttributes.Add(item);
-        }
+        public void AddCheckoutAttribute(CheckoutAttributeQueryItem item) => _checkoutAttributes.Add(item);
 
-        public string GetGiftCardValue(int productId, int bundleItemId, string name)
-        {
-            return _giftCards.FirstOrDefault(x =>
-                x.ProductId == productId &&
-                x.BundleItemId == bundleItemId &&
-                x.Name.EqualsNoCase(name))
-                ?.Value;
-        }
+        public string GetGiftCardValue(int productId, int bundleItemId, string name) =>
+             _giftCards.FirstOrDefault(x =>
+                                       x.ProductId == productId &&
+                                       x.BundleItemId == bundleItemId &&
+                                       x.Name.EqualsNoCase(name))
+                                       ?.Value;
+
 
         public GiftCardInfo GetGiftCardInfo(int productId, int bundleItemId)
         {

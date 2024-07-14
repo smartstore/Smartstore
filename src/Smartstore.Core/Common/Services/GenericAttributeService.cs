@@ -6,21 +6,14 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class GenericAttributeService : AsyncDbSaveHook<GenericAttribute>, IGenericAttributeService
+    public partial class GenericAttributeService(SmartDbContext db, IStoreContext storeContext, IEventPublisher eventPublisher) : AsyncDbSaveHook<GenericAttribute>, IGenericAttributeService
     {
-        private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly SmartDbContext _db = db;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         // Key = (EntityName, EntityId)
         private readonly Dictionary<(string, int), GenericAttributeCollection> _collectionCache = new();
-
-        public GenericAttributeService(SmartDbContext db, IStoreContext storeContext, IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _storeContext = storeContext;
-            _eventPublisher = eventPublisher;
-        }
 
         #region Hook
 

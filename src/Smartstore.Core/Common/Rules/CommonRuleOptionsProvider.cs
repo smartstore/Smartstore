@@ -5,14 +5,9 @@ using Smartstore.Core.Rules.Rendering;
 
 namespace Smartstore.Core.Common.Rules
 {
-    public partial class CommonRuleOptionsProvider : IRuleOptionsProvider
+    public partial class CommonRuleOptionsProvider(SmartDbContext db) : IRuleOptionsProvider
     {
-        private readonly SmartDbContext _db;
-
-        public CommonRuleOptionsProvider(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public int Order => 0;
 

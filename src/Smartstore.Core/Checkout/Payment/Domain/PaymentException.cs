@@ -28,10 +28,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="message">The message that describes the error.</param>
         /// <param name="provider">Payment provider that caused the exception.</param>
         public PaymentException(string? message, string? provider)
-            : base(message)
-        {
-            Provider = provider;
-        }
+            : base(message) => Provider = provider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PaymentException"/> class.
@@ -40,10 +37,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="provider">Payment provider that caused the exception.</param>
         public PaymentException(string? message, Exception? innerException, string? provider)
-            : base(message, innerException)
-        {
-            Provider = provider;
-        }
+            : base(message, innerException) => Provider = provider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PaymentException"/> class.

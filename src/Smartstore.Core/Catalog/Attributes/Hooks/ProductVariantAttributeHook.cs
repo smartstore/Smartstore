@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Attributes
 {
     [Important]
-    internal class ProductVariantAttributeHook : AsyncDbSaveHook<ProductVariantAttribute>
+    internal class ProductVariantAttributeHook(SmartDbContext db) : AsyncDbSaveHook<ProductVariantAttribute>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductVariantAttributeHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override Task<HookResult> OnDeletedAsync(ProductVariantAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

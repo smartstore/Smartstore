@@ -6,24 +6,16 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart
 {
-    internal class ValidatingCartEventConsumer : IConsumer
+    internal class ValidatingCartEventConsumer(
+        IOrderProcessingService orderProcessingService,
+        ILocalizationService localizationService,
+        ICurrencyService currencyService,
+        IWorkContext workContext) : IConsumer
     {
-        private readonly IOrderProcessingService _orderProcessingService;
-        private readonly ILocalizationService _localizationService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IWorkContext _workContext;
-
-        public ValidatingCartEventConsumer(
-            IOrderProcessingService orderProcessingService,
-            ILocalizationService localizationService,
-            ICurrencyService currencyService,
-            IWorkContext workContext)
-        {
-            _orderProcessingService = orderProcessingService;
-            _localizationService = localizationService;
-            _currencyService = currencyService;
-            _workContext = workContext;
-        }
+        private readonly IOrderProcessingService _orderProcessingService = orderProcessingService;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly ICurrencyService _currencyService = currencyService;
+        private readonly IWorkContext _workContext = workContext;
 
         public async Task HandleEventAsync(ValidatingCartEvent message)
         {

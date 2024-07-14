@@ -31,9 +31,6 @@
             return uniqueName;
         }
 
-        public void Dispose()
-        {
-            _checkedNames.Clear();
-        }
+        public void Dispose() => _checkedNames.Clear();
     }
 }

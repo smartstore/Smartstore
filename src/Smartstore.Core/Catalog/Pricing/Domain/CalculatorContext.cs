@@ -9,15 +9,12 @@ namespace Smartstore.Core.Catalog.Pricing
     /// All monetary amounts are in the primary store currency, without any tax calculation applied.
     /// The calculated price is always the unit price of the product.
     /// </summary>
-    public class CalculatorContext : PriceCalculationContext
+    public class CalculatorContext(
+        PriceCalculationContext context,
+        decimal finalPrice,
+        PricingType pricingType = PricingType.Calculated) 
+        : PriceCalculationContext(context)
     {
-        public CalculatorContext(PriceCalculationContext context, decimal finalPrice, PricingType pricingType = PricingType.Calculated)
-            : base(context)
-        {
-            PricingType = pricingType;
-            FinalPrice = finalPrice;
-            RegularPrice = context.Product.Price;
-        }
 
         /// <summary>
         /// List of discount entities that have been applied during calculation.
@@ -41,18 +38,18 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public TierPrice AppliedTierPrice { get; set; }
 
-        public PricingType PricingType { get; set; }
+        public PricingType PricingType { get; set; } = pricingType;
 
         /// <summary>
         /// The final price of the product. A calculator should set this property if any adjustment has been made to the price.
         /// </summary>
-        public decimal FinalPrice { get; set; }
+        public decimal FinalPrice { get; set; } = finalPrice;
 
         /// <summary>
         /// Pipeline emitted candidate for the regular price (unit price).
         /// The actual regular price is determined later in <see cref="PriceCalculationService.GetRegularPrice(CalculatorContext)"/>.
         /// </summary>
-        public decimal RegularPrice { get; set; }
+        public decimal RegularPrice { get; set; } = context.Product.Price;
 
         /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price

@@ -11,9 +11,8 @@ namespace Smartstore.Core.Bootstrapping
         /// data is committed (but only if state was loaded and changed during the request).
         /// Should be registered right after the session middleware.
         /// </summary>
-        public static IApplicationBuilder UseCheckoutState(this IApplicationBuilder app)
-        {
-            return app.Use(async (context, next) =>
+        public static IApplicationBuilder UseCheckoutState(this IApplicationBuilder app) =>
+             app.Use(async (context, next) =>
             {
                 var accessor = context.RequestServices.GetService<ICheckoutStateAccessor>();
 
@@ -29,6 +28,6 @@ namespace Smartstore.Core.Bootstrapping
                     }
                 }
             });
-        }
+
     }
 }

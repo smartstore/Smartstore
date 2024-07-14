@@ -8,27 +8,20 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes.Modelling
 {
-    public partial class ProductVariantQueryFactory : IProductVariantQueryFactory
+    public partial class ProductVariantQueryFactory(
+            IHttpContextAccessor httpContextAccessor,
+            IWorkContext workContext,
+            ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper) : IProductVariantQueryFactory
     {
         internal static readonly Regex IsVariantKey = IsVariantKeyRegex();
         internal static readonly Regex IsVariantAliasKey = IsVariantAliasKeyRegex();
         internal static readonly Regex IsGiftCardKey = IsGiftCardKeyRegex();
         internal static readonly Regex IsCheckoutAttributeKey = IsCheckoutAttributeKeyRegex();
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IWorkContext _workContext;
-        private readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
         private Multimap<string, string> _queryItems;
-
-        public ProductVariantQueryFactory(
-            IHttpContextAccessor httpContextAccessor,
-            IWorkContext workContext,
-            ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _workContext = workContext;
-            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-        }
 
         protected Multimap<string, string> QueryItems
         {

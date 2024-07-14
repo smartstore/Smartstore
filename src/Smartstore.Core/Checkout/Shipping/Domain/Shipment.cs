@@ -7,13 +7,11 @@ namespace Smartstore.Core.Checkout.Shipping
 {
     internal class ShipmentMap : IEntityTypeConfiguration<Shipment>
     {
-        public void Configure(EntityTypeBuilder<Shipment> builder)
-        {
+        public void Configure(EntityTypeBuilder<Shipment> builder) => 
             builder.HasOne(x => x.Order)
-                .WithMany(x => x.Shipments)
-                .HasForeignKey(x => x.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+                   .WithMany(x => x.Shipments)
+                   .HasForeignKey(x => x.OrderId)
+                   .OnDelete(DeleteBehavior.Cascade);
     }
 
     /// <summary>

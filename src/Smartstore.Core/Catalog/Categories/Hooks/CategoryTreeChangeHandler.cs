@@ -22,17 +22,15 @@ namespace Smartstore.Core.Catalog.Categories
         Hierarchy
     }
 
-    public class CategoryTreeChangedEvent
+    public class CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
     {
-        public CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
-        {
-            Reason = reason;
-        }
-
-        public CategoryTreeChangeReason Reason { get; private set; }
+        public CategoryTreeChangeReason Reason { get; private set; } = reason;
     }
 
-    internal class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
+    internal class CategoryTreeChangeHook(
+        SmartDbContext db,
+        ICacheManager cache,
+        IEventPublisher eventPublisher) : AsyncDbSaveHook<BaseEntity>, IConsumer
     {
         #region static
 
@@ -65,22 +63,12 @@ namespace Smartstore.Core.Catalog.Categories
 
         #endregion
 
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly SmartDbContext _db = db;
+        private readonly ICacheManager _cache = cache;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         private readonly bool[] _handledReasons = new bool[(int)CategoryTreeChangeReason.Hierarchy + 1];
         private bool _invalidated;
-
-        public CategoryTreeChangeHook(
-            SmartDbContext db,
-            ICacheManager cache,
-            IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _cache = cache;
-            _eventPublisher = eventPublisher;
-        }
 
         public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
@@ -301,9 +289,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private static string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*")
-        {
-            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
-        }
+        private static string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*") 
+            => CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
     }
 }

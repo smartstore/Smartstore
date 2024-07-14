@@ -11,14 +11,9 @@ namespace Smartstore.Core.Common.Services
     [SystemName("CurrencyExchange.ECB")]
     [FriendlyName("ECB currency exchange rate provider")]
     [Order(0)]
-    internal class EcbExchangeRateProvider : IExchangeRateProvider
+    internal class EcbExchangeRateProvider(IHttpClientFactory httpClientFactory) : IExchangeRateProvider
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public EcbExchangeRateProvider(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {

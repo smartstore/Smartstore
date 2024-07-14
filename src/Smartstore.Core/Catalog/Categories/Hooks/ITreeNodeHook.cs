@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Categories
 {
     [Important(HookImportance.Essential)]
-    internal class TreeNodeHook : AsyncDbSaveHook<ITreeNode>
+    internal class TreeNodeHook(SmartDbContext db) : AsyncDbSaveHook<ITreeNode>
     {
-        private readonly SmartDbContext _db;
-
-        public TreeNodeHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override async Task<HookResult> OnUpdatingAsync(ITreeNode entity, IHookedEntity entry, CancellationToken cancelToken)
         {

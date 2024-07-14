@@ -7,12 +7,12 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
-    public partial class MediaTypeResolver : AsyncDbSaveHook<Setting>, IMediaTypeResolver
+    public partial class MediaTypeResolver(ICacheManager cache, MediaSettings mediaSettings) : AsyncDbSaveHook<Setting>, IMediaTypeResolver
     {
         const string MapCacheKey = "media:exttypemap";
 
-        private readonly ICacheManager _cache;
-        private readonly MediaSettings _mediaSettings;
+        private readonly ICacheManager _cache = cache;
+        private readonly MediaSettings _mediaSettings = mediaSettings;
 
         private static readonly HashSet<string> _mapInvalidatorSettingKeys = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -23,12 +23,6 @@ namespace Smartstore.Core.Content.Media
             TypeHelper.NameOf<MediaSettings>(x => x.TextTypes, true),
             TypeHelper.NameOf<MediaSettings>(x => x.BinTypes, true)
         };
-
-        public MediaTypeResolver(ICacheManager cache, MediaSettings mediaSettings)
-        {
-            _cache = cache;
-            _mediaSettings = mediaSettings;
-        }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

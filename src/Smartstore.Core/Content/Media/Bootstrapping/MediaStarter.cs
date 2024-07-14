@@ -15,10 +15,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class MediaStarter : StarterBase
     {
-        public MediaStarter()
-        {
-            RunAfter<TaskSchedulerStarter>();
-        }
+        public MediaStarter() => RunAfter<TaskSchedulerStarter>();
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {

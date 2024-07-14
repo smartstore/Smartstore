@@ -105,6 +105,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.Register<Func<Type, ICheckoutHandler>>(c =>
             {
                 var cc = c.Resolve<IComponentContext>();
+
                 return key => cc.ResolveKeyed<ICheckoutHandler>(key);
             });
         }

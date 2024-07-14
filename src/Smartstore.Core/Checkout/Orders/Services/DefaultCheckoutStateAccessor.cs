@@ -4,19 +4,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public class DefaultCheckoutStateAccessor : ICheckoutStateAccessor
+    public class DefaultCheckoutStateAccessor(IHttpContextAccessor httpContextAccessor) : ICheckoutStateAccessor
     {
         const string CheckoutStateSessionKey = ".Smart.CheckoutState";
 
         private CheckoutState _state;
         private bool _dirty;
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public DefaultCheckoutStateAccessor(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

@@ -14,6 +14,7 @@ namespace Smartstore
                 return false;
 
             var endings = currency.DomainEndings.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
             return endings.Any(x => domain.EndsWith(x, StringComparison.InvariantCultureIgnoreCase));
         }
 

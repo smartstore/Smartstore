@@ -3,21 +3,14 @@ using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
-    public class ImageCache : IImageCache
+    public class ImageCache(MediaSettings mediaSettings, IMediaFileSystem fileSystem) : IImageCache
     {
         public const string IdFormatString = "0000000";
         internal const int MaxDirLength = 4;
 
-        private readonly MediaSettings _mediaSettings;
-        private readonly IMediaFileSystem _fileSystem;
-        private readonly string _thumbsRootDir;
-
-        public ImageCache(MediaSettings mediaSettings, IMediaFileSystem fileSystem)
-        {
-            _mediaSettings = mediaSettings;
-            _fileSystem = fileSystem;
-            _thumbsRootDir = "Thumbs/";
-        }
+        private readonly MediaSettings _mediaSettings = mediaSettings;
+        private readonly IMediaFileSystem _fileSystem = fileSystem;
+        private readonly string _thumbsRootDir = "Thumbs/";
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

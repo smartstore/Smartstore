@@ -7,10 +7,8 @@ namespace Smartstore.Core.Common
 {
     internal class MeasureDimensionMap : IEntityTypeConfiguration<MeasureDimension>
     {
-        public void Configure(EntityTypeBuilder<MeasureDimension> builder)
-        {
+        public void Configure(EntityTypeBuilder<MeasureDimension> builder) =>
             builder.Property(c => c.Ratio).HasPrecision(18, 8);
-        }
     }
 
     /// <summary>

@@ -3,14 +3,9 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class ProductFromCategoryInCartRule : IRule<CartRuleContext>
+    internal class ProductFromCategoryInCartRule(SmartDbContext db) : IRule<CartRuleContext>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductFromCategoryInCartRule(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
@@ -29,6 +24,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             }
 
             var match = expression.HasListsMatch(categoryIds.Distinct());
+
             return match;
         }
     }

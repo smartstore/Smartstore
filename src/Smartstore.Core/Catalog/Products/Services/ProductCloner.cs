@@ -14,33 +14,22 @@ using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductCloner : IProductCloner
+    public partial class ProductCloner(
+        SmartDbContext db,
+        IChronometer chronometer,
+        ILanguageService languageService,
+        IStoreMappingService storeMappingService,
+        ILocalizedEntityService localizedEntityService,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        IUrlService urlService) : IProductCloner
     {
-        private readonly SmartDbContext _db;
-        private readonly IChronometer _chronometer;
-        private readonly ILanguageService _languageService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IUrlService _urlService;
-
-        public ProductCloner(
-            SmartDbContext db,
-            IChronometer chronometer,
-            ILanguageService languageService,
-            IStoreMappingService storeMappingService,
-            ILocalizedEntityService localizedEntityService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IUrlService urlService)
-        {
-            _db = db;
-            _chronometer = chronometer;
-            _languageService = languageService;
-            _storeMappingService = storeMappingService;
-            _localizedEntityService = localizedEntityService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _urlService = urlService;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IChronometer _chronometer = chronometer;
+        private readonly ILanguageService _languageService = languageService;
+        private readonly IStoreMappingService _storeMappingService = storeMappingService;
+        private readonly ILocalizedEntityService _localizedEntityService = localizedEntityService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly IUrlService _urlService = urlService;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

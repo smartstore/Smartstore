@@ -75,14 +75,9 @@ namespace Smartstore.Core.Catalog.Products
         {
         }
 
-        private static string Serialize(GroupedProductConfiguration obj)
-        {
-            return obj.ToJson();
-        }
+        private static string Serialize(GroupedProductConfiguration obj) => obj.ToJson();
 
-        private static GroupedProductConfiguration Deserialize(string json)
-        {
-            return CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(json));
-        }
+        private static GroupedProductConfiguration Deserialize(string json) => 
+            CommonHelper.TryAction(() => JsonConvert.DeserializeObject<GroupedProductConfiguration>(json));
     }
 }

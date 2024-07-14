@@ -9,7 +9,14 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public partial class ProductAttributeMaterializer : IProductAttributeMaterializer
+    public partial class ProductAttributeMaterializer(
+        SmartDbContext db,
+        IHttpContextAccessor httpContextAccessor,
+        IRequestCache requestCache,
+        ICacheManager cache,
+        Lazy<IDownloadService> downloadService,
+        Lazy<CatalogSettings> catalogSettings,
+        PerformanceSettings performanceSettings) : IProductAttributeMaterializer
     {
         // 0 = Attribute IDs
         const string AttributesByIdsKey = "materialized-attributes:{0}";
@@ -27,31 +34,13 @@ namespace Smartstore.Core.Catalog.Attributes
         internal const string UnavailableCombinationsKey = "attributecombination:unavailable-{0}";
         internal const string UanavailableCombinationsPatternKey = "attributecombination:unavailable-*";
 
-        private readonly SmartDbContext _db;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IRequestCache _requestCache;
-        private readonly ICacheManager _cache;
-        private readonly Lazy<IDownloadService> _downloadService;
-        private readonly Lazy<CatalogSettings> _catalogSettings;
-        private readonly PerformanceSettings _performanceSettings;
-
-        public ProductAttributeMaterializer(
-            SmartDbContext db,
-            IHttpContextAccessor httpContextAccessor,
-            IRequestCache requestCache,
-            ICacheManager cache,
-            Lazy<IDownloadService> downloadService,
-            Lazy<CatalogSettings> catalogSettings,
-            PerformanceSettings performanceSettings)
-        {
-            _db = db;
-            _httpContextAccessor = httpContextAccessor;
-            _requestCache = requestCache;
-            _cache = cache;
-            _downloadService = downloadService;
-            _catalogSettings = catalogSettings;
-            _performanceSettings = performanceSettings;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IRequestCache _requestCache = requestCache;
+        private readonly ICacheManager _cache = cache;
+        private readonly Lazy<IDownloadService> _downloadService = downloadService;
+        private readonly Lazy<CatalogSettings> _catalogSettings = catalogSettings;
+        private readonly PerformanceSettings _performanceSettings = performanceSettings;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 

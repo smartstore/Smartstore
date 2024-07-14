@@ -617,22 +617,18 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
-        private static IQueryable<Product> ApplyCategoriesFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly)
-        {
-            return
+        private static IQueryable<Product> ApplyCategoriesFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly) =>
                 from p in query
                 from pc in p.ProductCategories.Where(pc => ids.Contains(pc.CategoryId))
                 where !featuredOnly.HasValue || featuredOnly.Value == pc.IsFeaturedProduct
                 select p;
-        }
 
-        private static IQueryable<Product> ApplyManufacturersFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly)
-        {
-            return
+
+        private static IQueryable<Product> ApplyManufacturersFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly) =>
                 from p in query
                 from pm in p.ProductManufacturers.Where(pm => ids.Contains(pm.ManufacturerId))
                 where !featuredOnly.HasValue || featuredOnly.Value == pm.IsFeaturedProduct
                 select p;
-        }
+
     }
 }

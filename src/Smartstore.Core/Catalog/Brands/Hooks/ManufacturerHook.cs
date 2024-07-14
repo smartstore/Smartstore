@@ -4,14 +4,9 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Brands
 {
     [Important]
-    internal class ManufacturerHook : AsyncDbSaveHook<Manufacturer>
+    internal class ManufacturerHook(SmartDbContext db) : AsyncDbSaveHook<Manufacturer>
     {
-        private readonly SmartDbContext _db;
-
-        public ManufacturerHook(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         protected override Task<HookResult> OnInsertedAsync(Manufacturer entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

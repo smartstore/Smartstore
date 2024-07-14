@@ -10,15 +10,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// Also applies attributes preselected by merchant if <see cref="PriceCalculationOptions.ApplyPreselectedAttributes"/> is <c>true</c>.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
-    public class AttributePriceCalculator : PriceCalculator
+    public class AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db)
+        : PriceCalculator(calculatorFactory)
     {
-        private readonly SmartDbContext _db;
-
-        public AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db)
-            : base(calculatorFactory)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

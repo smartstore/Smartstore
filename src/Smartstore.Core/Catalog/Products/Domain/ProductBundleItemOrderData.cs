@@ -63,25 +63,13 @@ namespace Smartstore.Core.Catalog.Products
         }
     }
 
-    public class ProductBundleItemOrderDataConverter : DefaultTypeConverter
+    public class ProductBundleItemOrderDataConverter(bool forList) : DefaultTypeConverter(typeof(object))
     {
-        private readonly bool _forList;
+        private readonly bool _forList = forList;
 
-        public ProductBundleItemOrderDataConverter(bool forList)
-            : base(typeof(object))
-        {
-            _forList = forList;
-        }
+        public override bool CanConvertFrom(Type type) => type == typeof(string);
 
-        public override bool CanConvertFrom(Type type)
-        {
-            return type == typeof(string);
-        }
-
-        public override bool CanConvertTo(Type type)
-        {
-            return type == typeof(string);
-        }
+        public override bool CanConvertTo(Type type) => type == typeof(string);
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {

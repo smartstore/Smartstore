@@ -32,23 +32,18 @@
     /// <see cref="IPriceCalculator"/> can be annoated with this attribue.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public sealed class CalculatorUsageAttribute : Attribute
+    public sealed class CalculatorUsageAttribute(CalculatorTargets validTargets, int order) : Attribute
     {
-        public CalculatorUsageAttribute(CalculatorTargets validTargets, int order)
-        {
-            ValidTargets = validTargets;
-            Order = order;
-        }
 
         /// <summary>
         /// The valid targets for the annotated calculator. The calculator will be excluded from the pipeline
         /// if the product for which a price is calculated does not match.
         /// </summary>
-        public CalculatorTargets ValidTargets { get; }
+        public CalculatorTargets ValidTargets { get; } = validTargets;
 
         /// <summary>
         /// The order of the calculator within the pipeline. See <see cref="CalculatorOrdering"/>.
         /// </summary>
-        public int Order { get; }
+        public int Order { get; } = order;
     }
 }

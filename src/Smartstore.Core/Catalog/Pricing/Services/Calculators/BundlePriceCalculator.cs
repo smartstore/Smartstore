@@ -7,15 +7,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// then the price for each bundle item is calculated and multiplied by <see cref="ProductBundleItem.Quantity"/>.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Bundle, CalculatorOrdering.Early)]
-    public class BundlePriceCalculator : PriceCalculator
+    public class BundlePriceCalculator(
+        IPriceCalculatorFactory calculatorFactory, 
+        IProductService productService) : PriceCalculator(calculatorFactory)
     {
-        private readonly IProductService _productService;
-
-        public BundlePriceCalculator(IPriceCalculatorFactory calculatorFactory, IProductService productService)
-            : base(calculatorFactory)
-        {
-            _productService = productService;
-        }
+        private readonly IProductService _productService = productService;
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {

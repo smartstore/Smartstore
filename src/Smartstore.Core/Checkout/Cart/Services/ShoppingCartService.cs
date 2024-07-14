@@ -18,56 +18,38 @@ namespace Smartstore.Core.Checkout.Cart
     /// <summary>
     /// Shopping cart service methods.
     /// </summary>
-    public partial class ShoppingCartService : IShoppingCartService
+    public partial class ShoppingCartService(
+        SmartDbContext db,
+        IWorkContext workContext,
+        IStoreContext storeContext,
+        IRequestCache requestCache,
+        IEventPublisher eventPublisher,
+        IShoppingCartValidator cartValidator,
+        IRoundingHelper roundingHelper,
+        IProductAttributeMaterializer productAttributeMaterializer,
+        ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+        Lazy<ICheckoutFactory> checkoutFactory,
+        ICurrencyService currencyService,
+        RewardPointsSettings rewardPointsSettings,
+        ShoppingCartSettings shoppingCartSettings) : IShoppingCartService
     {
         // 0 = CustomerId, 1 = CartType, 2 = StoreId, 3 = Active.
         const string CartItemsKey = "shoppingcartitems:{0}-{1}-{2}-{3}";
         const string CartItemsPatternKey = "shoppingcartitems:*";
 
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
-        private readonly IRequestCache _requestCache;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IShoppingCartValidator _cartValidator;
-        private readonly IRoundingHelper _roundingHelper;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly Lazy<ICheckoutFactory> _checkoutFactory;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly Currency _primaryCurrency;
-
-        public ShoppingCartService(
-            SmartDbContext db,
-            IWorkContext workContext,
-            IStoreContext storeContext,
-            IRequestCache requestCache,
-            IEventPublisher eventPublisher,
-            IShoppingCartValidator cartValidator,
-            IRoundingHelper roundingHelper,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            Lazy<ICheckoutFactory> checkoutFactory,
-            ICurrencyService currencyService,
-            RewardPointsSettings rewardPointsSettings,
-            ShoppingCartSettings shoppingCartSettings)
-        {
-            _db = db;
-            _workContext = workContext;
-            _storeContext = storeContext;
-            _requestCache = requestCache;
-            _eventPublisher = eventPublisher;
-            _cartValidator = cartValidator;
-            _roundingHelper = roundingHelper;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _checkoutFactory = checkoutFactory;
-            _rewardPointsSettings = rewardPointsSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-
-            _primaryCurrency = currencyService.PrimaryCurrency;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly IStoreContext _storeContext = storeContext;
+        private readonly IRequestCache _requestCache = requestCache;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly IShoppingCartValidator _cartValidator = cartValidator;
+        private readonly IRoundingHelper _roundingHelper = roundingHelper;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer = productAttributeMaterializer;
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+        private readonly Lazy<ICheckoutFactory> _checkoutFactory = checkoutFactory;
+        private readonly ShoppingCartSettings _shoppingCartSettings = shoppingCartSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings = rewardPointsSettings;
+        private readonly Currency _primaryCurrency = currencyService.PrimaryCurrency;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -104,7 +86,7 @@ namespace Smartstore.Core.Checkout.Cart
             // This is called when customer adds a product to cart
             ctx.Customer ??= _workContext.CurrentCustomer;
             ctx.StoreId ??= _storeContext.CurrentStore.Id;
-            
+
             if (ctx.Customer.IsBot())
             {
                 ctx.Warnings.Add(T("Common.Error.BotsNotPermitted"));
@@ -377,7 +359,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual Task<ShoppingCart> GetCartAsync(
             Customer customer = null,
-            ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
             int storeId = 0,
             bool? activeOnly = true)
         {
@@ -494,9 +476,9 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         public virtual async Task<IList<string>> UpdateCartItemAsync(
-            Customer customer, 
+            Customer customer,
             int cartItemId,
-            int? quantity, 
+            int? quantity,
             bool? active,
             bool resetCheckoutData = false)
         {
@@ -795,14 +777,13 @@ namespace Smartstore.Core.Checkout.Cart
             }
         }
 
-        private async Task LoadCartItemCollection(Customer customer, bool force = false)
-        {
+        private async Task LoadCartItemCollection(Customer customer, bool force = false) =>
             await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, force, x =>
             {
                 return x.Include(y => y.Product)
                     .ThenInclude(y => y.ProductVariantAttributes);
             });
-        }
+
 
         private OrganizedShoppingCartItem CreateOrganizedCartItem(ShoppingCartItem item)
             => new(item, !_shoppingCartSettings.AllowActivatableCartItems || item.Active);

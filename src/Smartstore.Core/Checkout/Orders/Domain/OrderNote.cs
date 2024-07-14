@@ -6,13 +6,11 @@ namespace Smartstore.Core.Checkout.Orders
 {
     internal class OrderNoteMap : IEntityTypeConfiguration<OrderNote>
     {
-        public void Configure(EntityTypeBuilder<OrderNote> builder)
-        {
+        public void Configure(EntityTypeBuilder<OrderNote> builder) =>
             builder.HasOne(x => x.Order)
-                .WithMany(x => x.OrderNotes)
-                .HasForeignKey(x => x.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+                   .WithMany(x => x.OrderNotes)
+                   .HasForeignKey(x => x.OrderId)
+                   .OnDelete(DeleteBehavior.Cascade);
     }
 
     /// <summary>

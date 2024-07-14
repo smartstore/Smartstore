@@ -7,23 +7,19 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
-    public class DefaultImageProcessor : IImageProcessor
+    public class DefaultImageProcessor(
+        IImageFactory imageFactory,
+        IEventPublisher eventPublisher, 
+        MediaSettings mediaSettings) : IImageProcessor
     {
         private static long _totalProcessingTime;
 
-        private readonly IEventPublisher _eventPublisher;
-        private readonly MediaSettings _mediaSettings;
-
-        public DefaultImageProcessor(IImageFactory imageFactory, IEventPublisher eventPublisher, MediaSettings mediaSettings)
-        {
-            Factory = imageFactory;
-            _eventPublisher = eventPublisher;
-            _mediaSettings = mediaSettings;
-        }
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
+        private readonly MediaSettings _mediaSettings = mediaSettings;
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public IImageFactory Factory { get; }
+        public IImageFactory Factory { get; } = imageFactory;
 
         public async Task<ProcessImageResult> ProcessImageAsync(ProcessImageQuery query, bool disposeOutput = true)
         {

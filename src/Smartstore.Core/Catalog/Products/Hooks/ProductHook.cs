@@ -6,26 +6,19 @@ using EState = Smartstore.Data.EntityState;
 namespace Smartstore.Core.Catalog.Products
 {
     [Important]
-    internal class ProductHook : AsyncDbSaveHook<Product>
+    internal class ProductHook(
+        SmartDbContext db,
+        Lazy<IStockSubscriptionService> stockSubscriptionService,
+        Lazy<IProductService> productService) : AsyncDbSaveHook<Product>
     {
-        private readonly SmartDbContext _db;
-        private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService;
-        private readonly Lazy<IProductService> _productService;
+        private readonly SmartDbContext _db = db;
+        private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService = stockSubscriptionService;
+        private readonly Lazy<IProductService> _productService = productService;
 
         private readonly HashSet<BaseEntity> _toSendStockNotification = new();
         private readonly HashSet<BaseEntity> _toAdjustInventory = new();
         private readonly HashSet<int> _oldSampleDownloadIds = new();
         private string _hookErrorMessage;
-
-        public ProductHook(
-            SmartDbContext db,
-            Lazy<IStockSubscriptionService> stockSubscriptionService,
-            Lazy<IProductService> productService)
-        {
-            _db = db;
-            _stockSubscriptionService = stockSubscriptionService;
-            _productService = productService;
-        }
 
         protected override Task<HookResult> OnInsertedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

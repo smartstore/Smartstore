@@ -30,9 +30,6 @@ namespace Smartstore.Core.Catalog.Rules
 
         public Func<SearchFilterContext, TValue, CatalogSearchQuery> Filter { get; protected set; }
 
-        public override CatalogSearchQuery ApplyFilter(SearchFilterContext ctx)
-        {
-            return Filter(ctx, ctx.Expression.Value.Convert<TValue>());
-        }
+        public override CatalogSearchQuery ApplyFilter(SearchFilterContext ctx) => Filter(ctx, ctx.Expression.Value.Convert<TValue>());
     }
 }

@@ -4,16 +4,10 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Payment.Hooks
 {
-    internal class RecurringPaymentHook : AsyncDbSaveHook<RecurringPayment>
+    internal class RecurringPaymentHook(SmartDbContext db, IEventPublisher eventPublisher) : AsyncDbSaveHook<RecurringPayment>
     {
-        private readonly SmartDbContext _db;
-        private readonly IEventPublisher _eventPublisher;
-
-        public RecurringPaymentHook(SmartDbContext db, IEventPublisher eventPublisher)
-        {
-            _db = db;
-            _eventPublisher = eventPublisher;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IEventPublisher _eventPublisher = eventPublisher;
 
         protected override Task<HookResult> OnInsertedAsync(RecurringPayment entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

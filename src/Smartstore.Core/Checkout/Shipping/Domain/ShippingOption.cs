@@ -63,15 +63,9 @@ namespace Smartstore.Core.Checkout.Shipping
         }
     }
 
-    public class ShippingOptionConverter : DefaultTypeConverter
+    public class ShippingOptionConverter(bool forList) : DefaultTypeConverter(typeof(object))
     {
-        private readonly bool _forList;
-
-        public ShippingOptionConverter(bool forList)
-            : base(typeof(object))
-        {
-            _forList = forList;
-        }
+        private readonly bool _forList = forList;
 
         public override bool CanConvertFrom(Type type)
             => type == typeof(string);

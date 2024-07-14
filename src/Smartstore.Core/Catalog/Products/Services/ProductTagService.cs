@@ -6,22 +6,15 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductTagService : AsyncDbSaveHook<ProductTag>, IProductTagService
+    public partial class ProductTagService(SmartDbContext db, IWorkContext workContext, ICacheManager cache) : AsyncDbSaveHook<ProductTag>, IProductTagService
     {
         // {0} : include hidden, {1} : store ID, {2} : customer roles IDs.
         const string ProductTagCountKey = "producttag:count-{0}-{1}-{2}";
         const string ProductTagPatternKey = "producttag:*";
 
-        private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
-        private readonly ICacheManager _cache;
-
-        public ProductTagService(SmartDbContext db, IWorkContext workContext, ICacheManager cache)
-        {
-            _db = db;
-            _workContext = workContext;
-            _cache = cache;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IWorkContext _workContext = workContext;
+        private readonly ICacheManager _cache = cache;
 
         #region Hook
 
@@ -194,10 +187,7 @@ namespace Smartstore.Core.Catalog.Products
             return result;
         }
 
-        public virtual Task ClearCacheAsync()
-        {
-            return _cache.RemoveByPatternAsync(ProductTagPatternKey);
-        }
+        public virtual Task ClearCacheAsync() => _cache.RemoveByPatternAsync(ProductTagPatternKey);
 
         private class ProductsPerTag
         {

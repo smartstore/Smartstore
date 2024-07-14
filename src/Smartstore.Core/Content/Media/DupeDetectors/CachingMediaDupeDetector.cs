@@ -1,17 +1,11 @@
 ﻿namespace Smartstore.Core.Content.Media
 {
-    internal class CachingMediaDupeDetector : MediaDupeDetectorBase
+    internal class CachingMediaDupeDetector(IMediaSearcher searcher, int folderId) : MediaDupeDetectorBase
     {
-        private readonly IMediaSearcher _searcher;
-        private readonly int _folderId;
+        private readonly IMediaSearcher _searcher = searcher;
+        private readonly int _folderId = folderId;
 
         private Dictionary<string, MediaFile> _cachedFiles;
-
-        public CachingMediaDupeDetector(IMediaSearcher searcher, int folderId)
-        {
-            _searcher = searcher;
-            _folderId = folderId;
-        }
 
         public override async Task<MediaFile> DetectFileAsync(string fileName, CancellationToken cancelToken = default)
         {
@@ -21,6 +15,7 @@
             }
 
             var files = await GetFiles(cancelToken);
+
             return files.Get(fileName);
         }
 

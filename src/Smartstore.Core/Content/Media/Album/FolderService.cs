@@ -6,22 +6,15 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Content.Media
 {
     [Important(HookImportance.Essential)]
-    public partial class FolderService : AsyncDbSaveHook<MediaFolder>, IFolderService
+    public partial class FolderService(IAlbumRegistry albumRegistry, SmartDbContext db, ICacheManager cache) : AsyncDbSaveHook<MediaFolder>, IFolderService
     {
         internal static TimeSpan FolderTreeCacheDuration = TimeSpan.FromHours(3);
 
         internal const string FolderTreeKey = "mediafolder:tree";
 
-        private readonly IAlbumRegistry _albumRegistry;
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-
-        public FolderService(IAlbumRegistry albumRegistry, SmartDbContext db, ICacheManager cache)
-        {
-            _albumRegistry = albumRegistry;
-            _db = db;
-            _cache = cache;
-        }
+        private readonly IAlbumRegistry _albumRegistry = albumRegistry;
+        private readonly SmartDbContext _db = db;
+        private readonly ICacheManager _cache = cache;
 
         #region Invalidation Hook
 

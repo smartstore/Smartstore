@@ -10,21 +10,16 @@ namespace Smartstore.Core.Content.Media.Imaging
     /// An instance of this object is always returned, even when
     /// the requested image does not physically exists in the storage.
     /// </remarks>
-    public class CachedImage
+    public class CachedImage(IFile file)
     {
         private bool? _exists;
         private string _mimeType;
         private Size? _size;
 
-        public CachedImage(IFile file)
-        {
-            File = Guard.NotNull(file, nameof(file));
-        }
-
         /// <summary>
         /// The abstracted file object
         /// </summary>
-        public IFile File { get; internal set; }
+        public IFile File { get; internal set; } = Guard.NotNull(file, nameof(file));
 
         /// <summary>
         /// <c>true</c> when the image exists in the cache, <c>false</c> otherwise.

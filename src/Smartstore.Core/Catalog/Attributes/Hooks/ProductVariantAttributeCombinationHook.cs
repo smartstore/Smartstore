@@ -5,16 +5,11 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Attributes
 {
     [Important]
-    internal class ProductVariantAttributeCombinationHook : AsyncDbSaveHook<ProductVariantAttributeCombination>
+    internal class ProductVariantAttributeCombinationHook(SmartDbContext db, IRequestCache requestCache) 
+        : AsyncDbSaveHook<ProductVariantAttributeCombination>
     {
-        private readonly SmartDbContext _db;
-        private readonly IRequestCache _requestCache;
-
-        public ProductVariantAttributeCombinationHook(SmartDbContext db, IRequestCache requestCache)
-        {
-            _db = db;
-            _requestCache = requestCache;
-        }
+        private readonly SmartDbContext _db = db;
+        private readonly IRequestCache _requestCache = requestCache;
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
