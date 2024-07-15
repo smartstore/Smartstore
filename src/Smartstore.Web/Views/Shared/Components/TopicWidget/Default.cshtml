@@ -4,7 +4,7 @@
 
 @if (!Model.WrapContent)
 {
-    @if (Model.Consented)
+    @if (Model.Consented || Model.CookieType == null)
     {
         @Html.Raw(Model.Body)
     }
