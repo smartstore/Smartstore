@@ -35,48 +35,6 @@ namespace Smartstore.Web.Rendering
         {
         }
 
-        #region Static helpers
-
-        public static TagBuilder GenerateConsentableScript(bool consented, CookieType consentType, string src)
-        {
-            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
-            Guard.NotEmpty(src);
-
-            var script = new TagBuilder("script");
-            if (consented)
-            {
-                script.Attributes["src"] = src;
-            }
-            else
-            {
-                script.Attributes["data-src"] = src;
-                // TODO: (mh) Check casing/dasherization
-                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
-            }
-
-            return script;
-        }
-
-        public static TagBuilder GenerateConsentableInlineScript(bool consented, CookieType consentType, string code)
-        {
-            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
-            Guard.NotEmpty(code);
-
-            var script = new TagBuilder("script");
-            script.InnerHtml.AppendHtml(code);
-
-            if (!consented)
-            {
-                script.Attributes["type"] = "text/plain";
-                // TODO: (mh) Check casing/dasherization
-                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
-            }
-
-            return script;
-        }
-
-        #endregion
-
         public override TagBuilder GenerateTextArea(
             ViewContext viewContext,
             ModelExplorer modelExplorer,

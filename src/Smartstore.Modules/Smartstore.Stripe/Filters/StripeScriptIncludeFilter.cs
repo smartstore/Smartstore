@@ -17,7 +17,11 @@ namespace Smartstore.StripeElements.Filters
         private readonly StripeHelper _stripeHelper;
         private readonly ICookieConsentManager _cookieConsentManager;
 
-        public StripeScriptIncludeFilter(ICookieConsentManager cookieConsentManager, StripeSettings settings, IWidgetProvider widgetProvider, StripeHelper stripeHelper)
+        public StripeScriptIncludeFilter(
+            ICookieConsentManager cookieConsentManager, 
+            StripeSettings settings, 
+            IWidgetProvider widgetProvider, 
+            StripeHelper stripeHelper)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
@@ -40,8 +44,11 @@ namespace Smartstore.StripeElements.Filters
                 return;
             }
 
-            var consented = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required);
-            var scriptIncludeTag = new HtmlString($"<script id=\"stripe-js\" {(consented ? string.Empty : "data-consent=\"required\" data-")}src=\"https://js.stripe.com/v3/\" async></script>");
+            // TODO: (mh) Continue refactoring in other places.
+            //var scriptIncludeTag = new HtmlString($"<script id=\"stripe-js\" {(consented ? string.Empty : "data-consent=\"required\" data-")}src=\""https://js.stripe.com/v3/\"" async></script>");
+            var scriptIncludeTag = await _cookieConsentManager.GenerateScriptAsync(CookieType.Required, "https://js.stripe.com/v3/");
+            scriptIncludeTag.Attributes["id"] = "stripe-js";
+            scriptIncludeTag.Attributes["async"] = "async";
 
             _widgetProvider.RegisterHtml("scripts", new HtmlString("<script src=\"/Modules/Smartstore.Stripe/smartstore.stripe.js\"></script>"));
             _widgetProvider.RegisterHtml("head", scriptIncludeTag);

@@ -111,7 +111,7 @@ namespace Smartstore.PayPal.Filters
 
                 // TODO: (mh) Continue refactoring in other places.
                 //var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
-                var scriptIncludeTag = SmartHtmlGenerator.GenerateConsentableScript(consented, CookieType.Required, scriptUrl);
+                var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, scriptUrl);
                 scriptIncludeTag.Attributes["id"] = "paypal-js";
                 scriptIncludeTag.Attributes["data-partner-attribution-id"] = "SmartStore_Cart_PPCP";
                 scriptIncludeTag.Attributes["data-client-token"] = clientToken;

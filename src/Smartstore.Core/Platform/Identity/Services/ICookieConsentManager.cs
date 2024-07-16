@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Identity
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Smartstore.Core.Identity
 {
     public partial interface ICookieConsentManager
     {
@@ -28,6 +30,26 @@
         /// <param name="cookieType">Type of the cookie.</param>
         /// <returns>A value indicating whether it is allowed to set a cookie of a certain type.</returns>
         Task<bool> IsCookieAllowedAsync(CookieType cookieType);
+
+        /// <summary>
+        /// Generates a script tag with the given src attribute. If the user has not consented to the given consent type, 
+        /// the src attribute is moved to a data-src attribute and a data-consent attribute is added.
+        /// </summary>
+        /// <param name="consented">True if the user has consented to the given consent type, false otherwise.</param>
+        /// <param name="consentType">The type of consent required to load the script.</param>
+        /// <param name="src">The URL of the script to load.</param>
+        /// <returns>The generated script tag.</returns>
+        TagBuilder GenerateScript(bool consented, CookieType consentType, string src);
+
+        /// <summary>
+        /// Generates an inline script tag with the given code. If the user has not consented to the given consent type,
+        /// the script's type will be <c>text/plain</c>.
+        /// </summary>
+        /// <param name="consented">True if the user has consented to the given consent type, false otherwise.</param>
+        /// <param name="consentType">The type of consent required to load the script.</param>
+        /// <param name="code">The code to be executed by the script. This should be a valid JavaScript code block.</param>
+        /// <returns>The generated script tag.</returns>
+        TagBuilder GenerateInlineScript(bool consented, CookieType consentType, string code);
 
         /// <summary>
         /// Gets cookie consent data.

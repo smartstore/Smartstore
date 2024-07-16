@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
@@ -230,6 +231,45 @@ namespace Smartstore.Core.Identity
             }
 
             return null;
+        }
+
+
+        public virtual TagBuilder GenerateScript(bool consented, CookieType consentType, string src)
+        {
+            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
+            Guard.NotEmpty(src);
+
+            var script = new TagBuilder("script");
+            if (consented)
+            {
+                script.Attributes["src"] = src;
+            }
+            else
+            {
+                script.Attributes["data-src"] = src;
+                // TODO: (mh) Check casing/dasherization
+                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
+            }
+
+            return script;
+        }
+
+        public virtual TagBuilder GenerateInlineScript(bool consented, CookieType consentType, string code)
+        {
+            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
+            Guard.NotEmpty(code);
+
+            var script = new TagBuilder("script");
+            script.InnerHtml.AppendHtml(code);
+
+            if (!consented)
+            {
+                script.Attributes["type"] = "text/plain";
+                // TODO: (mh) Check casing/dasherization
+                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
+            }
+
+            return script;
         }
 
         public void SetConsentCookie(
