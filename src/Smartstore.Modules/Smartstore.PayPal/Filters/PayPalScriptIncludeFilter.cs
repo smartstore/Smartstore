@@ -12,6 +12,7 @@ using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -108,7 +109,13 @@ namespace Smartstore.PayPal.Filters
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;
 
-                var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
+                // TODO: (mh) Continue refactoring in other places.
+                //var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
+                var scriptIncludeTag = SmartHtmlGenerator.GenerateConsentableScript(consented, CookieType.Required, scriptUrl);
+                scriptIncludeTag.Attributes["id"] = "paypal-js";
+                scriptIncludeTag.Attributes["data-partner-attribution-id"] = "SmartStore_Cart_PPCP";
+                scriptIncludeTag.Attributes["data-client-token"] = clientToken;
+                scriptIncludeTag.Attributes["async"] = "async";
 
                 _widgetProvider.RegisterHtml("end", scriptIncludeTag);
             }
