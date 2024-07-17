@@ -123,7 +123,7 @@
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
 - #960 Setting `ManufacturerItemsToDisplayInOffcanvasMenu` cannot be changed in backend.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
-- Page Builder
+- Page Builder:
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
   - #991 topic target *homepage* was not imported correctly.
@@ -150,8 +150,9 @@
 - Google Analytics: Fixed problem with single quotation mark in category name.
 - #983 Uploaded product variant file is lost after selecting any other variant option (in product details).
 - Fixed missing line breaks for product attributes in the print/PDF view of orders.
-- SEO: Marked product list filter option links as nofollow.
-- SEO: fixed redirection error for TrailingSlashRule setting redirect.
+- SEO:
+  - Marked product list filter option links as `nofollow`.
+  - fixed redirection error for TrailingSlashRule setting redirect.
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
