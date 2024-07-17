@@ -187,22 +187,22 @@ $mixed-megamenu-bg:             $megamenu-bg;
         width: 40px;
         height: 98%;
         box-shadow: none !important;
-    }
 
-    i {
-        font-size: 32px;
-        transition: all .2s ease-in-out;
-        height: 58px;
-        line-height: 58px;
-        vertical-align: middle;
-        text-align: center;
-        padding: 0;
-        margin: 0;
-        display: inline-block;
-        opacity: 0.6;
+        > i {
+            font-size: 32px;
+            transition: all .2s ease-in-out;
+            height: 58px;
+            line-height: 58px;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+            opacity: 0.6;
 
-        &:hover { opacity: 0.85; }
-        &:active { opacity: 1; }
+            &:hover { opacity: 0.85; }
+            &:active { opacity: 1; }
+        }
     }
 }
 .megamenu.megamenu-blend--next .megamenu-nav--next,
@@ -218,18 +218,18 @@ $mixed-megamenu-bg:             $megamenu-bg;
     background-image: linear-gradient(to right, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%) !important;
 }
 
-.touchevents .megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn i,
-.touchevents .megamenu-section .megamenu-nav-btn i,
+.touchevents .megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn > i,
+.touchevents .megamenu-section .megamenu-nav-btn > i,
 .megamenu .megamenu-nav i {
     color: $header-color;
     display: none;
 }
-.touchevents .megamenu-section .navbar-inverse.navbar:hover .show-scroll-buttons .megamenu-nav-btn i,
-.touchevents .megamenu-section .navbar-inverse .megamenu-nav-btn i,
+.touchevents .megamenu-section .navbar-inverse.navbar:hover .show-scroll-buttons .megamenu-nav-btn > i,
+.touchevents .megamenu-section .navbar-inverse .megamenu-nav-btn > i,
 .navbar-inverse .megamenu .megamenu-nav i {
     color: $header-inverse-color;
 }
-.megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn i {
+.megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn > i {
     display: block;
 }
 
@@ -260,7 +260,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
             margin-bottom: -1rem !important;
         }
 
-        .megamenu-cat-img img {
+        .megamenu-cat-img > img {
             max-width: 100%;
             max-height: 100%;
             padding: 20px;
