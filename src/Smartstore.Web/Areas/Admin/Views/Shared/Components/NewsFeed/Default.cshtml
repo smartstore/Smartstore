@@ -42,17 +42,21 @@
                 <div id="pnl-@(i)" class="collapse row g-0 g-sm-3 g-lg-0 p-0 p-sm-3 p-lg-0" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
                     @foreach (var item in channel.NewsFeedItems)
                     {
-                        if(item.ViewType == "hidden")
+                        if (item.ViewType == "hidden")
                         {
                             continue;
                         }
+
+                        var showPicture = item.ViewType == "full";
+                        var showDescription = item.ViewType != "minimized";
+
                         <div class="col-12 col-sm-6 col-lg-12">
                             <div class="cnt-newsfeed-item">
-                                <figure sm-if='item.ThumbnailUrl.HasValue() && item.ViewType == "full"' class="newsfeed-thumbnail">
+                                <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "d-lg-none")'>
                                     <img class="file-img" src="@item.ThumbnailUrl" />
                                 </figure>
-                                <div class="newsfeed-item py-3 h-100" attr-class='(item.IsPinned, "pinned")'>
-                                    <div class="newsfeed-item-title">
+                                <div class="newsfeed-item h-100 py-3 py-lg-@(showDescription ? "3" : "2")" attr-class='(item.IsPinned, "pinned")'>
+                                    <div class="newsfeed-item-title" attr-class='(!showDescription, "mb-0")'>
                                         @if (item.Link.HasValue())
                                         {
                                             <a href="@item.Link" target="NewsfeedWindow">@item.Title</a>
@@ -62,7 +66,7 @@
                                             @item.Title
                                         }
                                     </div>
-                                    <div sm-if='item.ViewType != "minimized"' class="newsfeed-item-body small">
+                                    <div class="newsfeed-item-body small" attr-class='(!showDescription, "d-lg-none")'>
                                         <div sm-if="item.PublishDate > DateTime.Now.AddMonths(-3)" class="newsfeed-item-date muted">@item.PublishDate.ToHumanizedString()</div>
                                         <div>
                                             @Html.Raw(item.Short)

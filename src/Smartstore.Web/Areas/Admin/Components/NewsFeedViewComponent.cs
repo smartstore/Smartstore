@@ -48,28 +48,30 @@ namespace Smartstore.Admin.Components
 
                     var channels = await response.Content.ReadFromJsonAsync<List<NewsFeedChannelModel>>();
 
-                    // Decide how many news feed items to show
+                    // Decide to what extent to show news items in each channel
                     foreach (var channel in channels)
                     {
                         var (full, partial, minimized) = GetNewsFeedViewTypes(channel.NewsFeedItems.Count);
+                        var items = channel.NewsFeedItems;
                         var i = 0;
+
                         foreach (var item in channel.NewsFeedItems)
                         {
                             if (i < full)
                             {
-                                channel.NewsFeedItems[i].ViewType = "full";
+                                items[i].ViewType = "full";
                             }
                             else if (i < full + partial)
                             {
-                                channel.NewsFeedItems[i].ViewType = "partial";
+                                items[i].ViewType = "partial";
                             }
                             else if (i < full + partial + minimized)
                             {
-                                channel.NewsFeedItems[i].ViewType = "minimized";
+                                items[i].ViewType = "minimized";
                             }
                             else
                             {
-                                channel.NewsFeedItems[i].ViewType = "hidden";
+                                items[i].ViewType = "hidden";
                             }
 
                             i++;
@@ -96,10 +98,10 @@ namespace Smartstore.Admin.Components
         }
 
         // This method takes the number of news feed items and decides how many items to show:
-        // - fully (picture, title, description)
+        // - full (picture, title, description)
         // - partially (title, description)
         // - minimized (title only)
-        public static (int full, int partial, int minimized) GetNewsFeedViewTypes(int totalItems)
+        private static (int full, int partial, int minimized) GetNewsFeedViewTypes(int totalItems)
         {
             switch (totalItems)
             {
