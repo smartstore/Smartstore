@@ -26,5 +26,6 @@
         public string ThumbnailUrl { get; set; }
         public DateTime PublishDate { get; set; }
         public bool IsPinned { get; set; }
+        public string ViewType { get; set; }
     }
 }

@@ -42,9 +42,13 @@
                 <div id="pnl-@(i)" class="collapse row g-0 g-sm-3 g-lg-0 p-0 p-sm-3 p-lg-0" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
                     @foreach (var item in channel.NewsFeedItems)
                     {
+                        if(item.ViewType == "hidden")
+                        {
+                            continue;
+                        }
                         <div class="col-12 col-sm-6 col-lg-12">
                             <div class="cnt-newsfeed-item">
-                                <figure sm-if="item.ThumbnailUrl.HasValue()" class="newsfeed-thumbnail">
+                                <figure sm-if='item.ThumbnailUrl.HasValue() && item.ViewType == "full"' class="newsfeed-thumbnail">
                                     <img class="file-img" src="@item.ThumbnailUrl" />
                                 </figure>
                                 <div class="newsfeed-item py-3 h-100" attr-class='(item.IsPinned, "pinned")'>
@@ -58,7 +62,7 @@
                                             @item.Title
                                         }
                                     </div>
-                                    <div class="newsfeed-item-body small">
+                                    <div sm-if='item.ViewType != "minimized"' class="newsfeed-item-body small">
                                         <div sm-if="item.PublishDate > DateTime.Now.AddMonths(-3)" class="newsfeed-item-date muted">@item.PublishDate.ToHumanizedString()</div>
                                         <div>
                                             @Html.Raw(item.Short)
