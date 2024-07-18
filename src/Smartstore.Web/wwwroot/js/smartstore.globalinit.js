@@ -199,10 +199,21 @@ jQuery(function () {
                 let popper = new Popper(group[0], menu[0], {
                     placement: (rtl ? 'left' : 'right') + '-start',
                     modifiers: {
-                        computeStyle: { gpuAcceleration: false },
+                        computeStyle: {
+                            gpuAcceleration: false,
+                            //fn: (data) =>
+                            //{
+                            //    return data;
+                            //}
+                        },
+                        //applyStyle: {
+                        //    fn: function(data) {
+                        //        return data;
+                        //    }
+                        //},
                     },
                     preventOverflow: {
-                        boundariesElement: window
+                        boundariesElement: 'viewport'
                     }
                 });
 
@@ -269,7 +280,8 @@ jQuery(function () {
                 
             type = type || (e.type == 'mouseenter' ? 'enter' : 'leave');
 
-            if (type == 'enter') {
+            if (type === 'enter') {
+                //console.log('enter', group[0]);
                 if (currentSubGroup) {
                     if (group.parent().parent()[0] != currentSubGroup[0]) {
                         clearTimeout(closeTimeoutSub);
@@ -281,10 +293,28 @@ jQuery(function () {
                 currentSubGroup = group;
             }
             else { // leave
+                //console.log('leave', group[0]);
                 group.removeClass('show');
                 closeTimeoutSub = window.setTimeout(() => closeDrop(group), leaveDelay);
             }
         });
+
+        function isChildOf(parent, child) {
+            while (child && child !== parent) {
+                child = child.parentNode;
+            }
+
+            return child === parent;
+        }
+
+        function traverseDropdownGroup(group, fn) {
+            const parentGroup = group.parent().parent();
+            if (parentGroup.is('.dropdown-group')) {
+                traverseDropdownGroup(parentGroup, fn);
+            }
+
+            fn(group);
+        }
     })();
 
     // HTML text collapser
