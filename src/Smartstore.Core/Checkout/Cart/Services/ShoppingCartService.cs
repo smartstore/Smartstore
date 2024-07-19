@@ -735,7 +735,8 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             var missingProductIds = productIds.Except(cart.Items.Select(x => x.Item.ProductId));
-            var missingProducts = await _db.Products.GetManyAsync(missingProductIds, false);
+            // INFO: must be tracked otherwise an InvalidOperationException message may occur.
+            var missingProducts = await _db.Products.GetManyAsync(missingProductIds, true);
             var items = new List<OrganizedShoppingCartItem>(cart.Items);
             var newItems = new List<OrganizedShoppingCartItem>();
 
