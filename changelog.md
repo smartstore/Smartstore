@@ -105,6 +105,7 @@
 - Required products:
   - #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
   - Fixed `InvalidOperationException` when adding a required product to cart that is already on the wishlist.
+  - Fixed the validation of required products was missing if they were not automatically added to the shopping cart.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed the discount amount of an order can have an incorrect value if a discount rule was applied during the subtotal calculation.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
