@@ -391,6 +391,14 @@ namespace Smartstore.Core.Data.Migrations
                 "ID of export profil;Folder name of export profil;SEO name of export profil;Store ID;SEO name of store;One based file index;Random number;UTC timestamp;Date and time",
                 "ID des Exportprofils;Ordername des Exportprofils;SEO Name des Exportprofils;Shop ID;SEO Name des Shops;Mit 1 beginnender Dateiindex;Zufallszahl;UTC Zeitstempel;Datum und Uhrzeit");
 
+            builder.AddOrUpdate("Admin.Orders.List.GoDirectlyToNumber",
+                "Search by order number or order reference number",
+                "Nach Auftrags- oder Bestellreferenznummer suchen");
+
+            builder.AddOrUpdate("ShoppingCart.RequiredProductWarning",
+                "This product requires that the following product is also ordered: <a href=\"{1}\" class=\"alert-link\">{0}</a>.",
+                "Dieses Produkt erfordert, dass das folgende Produkt auch bestellt wird: <a href=\"{1}\" class=\"alert-link\">{0}</a>.");
+
             AddAIResources(builder);
         }
 
@@ -553,10 +561,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
                 "Be an expert for the product: '{0}'.",
                 "Sei ein Experte für das Produkt: '{0}'.");
-
-            builder.AddOrUpdate("Admin.Orders.List.GoDirectlyToNumber",
-                "Search by order number or order reference number",
-                "Nach Auftrags- oder Bestellreferenznummer suchen");
         }
     }
 }

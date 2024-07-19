@@ -174,19 +174,15 @@ namespace Smartstore.Web.Models.Cart
 
             // Warnings.
             var itemWarnings = new List<string>();
-            if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, null, itemWarnings))
-            {
-                to.Warnings.AddRange(itemWarnings);
-            }
+            await ShoppingCartValidator.ValidateProductAsync(from.Item, null, itemWarnings);
 
             if (parameters?.Cart is ShoppingCart cart)
             {
-                var attributeWarnings = new List<string>();
-                if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attributeWarnings))
-                {
-                    to.Warnings.AddRange(attributeWarnings);
-                }
+                await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, itemWarnings);
+                await ShoppingCartValidator.ValidateRequiredProductsAsync(product, cart.Items, itemWarnings);
             }
+
+            to.Warnings.AddRange(itemWarnings);
         }
 
         protected async Task MapPriceAsync(OrganizedShoppingCartItem from, TModel to, dynamic parameters = null)

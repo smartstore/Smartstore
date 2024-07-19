@@ -33,10 +33,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             var ctx = new PlaceOrderContext
             {
-                InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId),
+                InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId, true, cancelToken),
                 Customer = await _db.Customers
                     .IncludeCustomerRoles()
-                    .FindByIdAsync(paymentRequest.CustomerId),
+                    .FindByIdAsync(paymentRequest.CustomerId, true, cancelToken),
                 ExtraData = extraData,
                 PaymentRequest = paymentRequest
             };
@@ -186,7 +186,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return (warnings, cart);
                 }
 
-                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
+                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, true);
                 if (warnings.Count > 0)
                 {
                     return (warnings, cart);

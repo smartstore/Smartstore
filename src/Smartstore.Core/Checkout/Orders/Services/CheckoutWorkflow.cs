@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Orders
                 cart.Customer.ShippingAddress = null;
             }
 
-            if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
+            if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, true))
             {
                 var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
                 await _eventPublisher.PublishAsync(validatingCartEvent);

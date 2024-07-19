@@ -134,8 +134,8 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            var validateCheckoutAttributes = (TempData["ValidateCheckoutAttributes"] as bool?) ?? false;
-            var model = await cart.MapAsync(validateCheckoutAttributes: validateCheckoutAttributes);
+            var isShoppingCartInvalid = (TempData["IsShoppingCartInvalid"] as bool?) ?? false;
+            var model = await cart.MapAsync(validateCheckoutAttributes: isShoppingCartInvalid, validateRequiredProducts: isShoppingCartInvalid);
 
             ViewBag.CartItemSelectionLink = GetCartItemSelectionLink(cart);
 
@@ -183,7 +183,7 @@ namespace Smartstore.Web.Controllers
             // Save data entered on cart page.
             if (!await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false))
             {
-                TempData["ValidateCheckoutAttributes"] = true;
+                TempData["IsShoppingCartInvalid"] = true;
 
                 return RedirectToRoute("ShoppingCart");
             }

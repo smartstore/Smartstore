@@ -28,6 +28,7 @@ namespace Smartstore.Web.Models.Cart
         public static async Task<ShoppingCartModel> MapAsync(this ShoppingCart cart,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false,
             bool prepareEstimateShippingIfEnabled = true,
             bool setEstimateShippingDefaultAddress = true)
         {
@@ -36,6 +37,7 @@ namespace Smartstore.Web.Models.Cart
             await cart.MapAsync(model,
                 isEditable,
                 validateCheckoutAttributes,
+                validateRequiredProducts,
                 prepareEstimateShippingIfEnabled,
                 setEstimateShippingDefaultAddress);
 
@@ -46,12 +48,14 @@ namespace Smartstore.Web.Models.Cart
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false,
             bool prepareEstimateShippingIfEnabled = true,
             bool setEstimateShippingDefaultAddress = true)
         {
             dynamic parameters = new GracefulDynamicObject();
             parameters.IsEditable = isEditable;
             parameters.ValidateCheckoutAttributes = validateCheckoutAttributes;
+            parameters.ValidateRequiredProducts = validateRequiredProducts;
             parameters.PrepareEstimateShippingIfEnabled = prepareEstimateShippingIfEnabled;
             parameters.SetEstimateShippingDefaultAddress = setEstimateShippingDefaultAddress;
 
@@ -135,6 +139,7 @@ namespace Smartstore.Web.Models.Cart
             var isBillingAddresRequired = from.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
             var isPaymentRequired = from.Requirements.HasFlag(CheckoutRequirements.Payment);
             var validateCheckoutAttributes = parameters?.ValidateCheckoutAttributes == true;
+            var validateRequiredProducts = parameters?.ValidateRequiredProducts == true;
             var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
             var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
 
@@ -184,7 +189,7 @@ namespace Smartstore.Web.Models.Cart
             }
 
             // Cart warnings.
-            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes);
+            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes, validateRequiredProducts);
 
             to.CheckoutNotAllowedWarning = T(_shoppingCartSettings.AllowActivatableCartItems ? "ShoppingCart.SelectAtLeastOneProduct" : "ShoppingCart.CartIsEmpty");
 

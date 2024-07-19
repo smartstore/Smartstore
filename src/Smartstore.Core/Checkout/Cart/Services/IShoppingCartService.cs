@@ -130,6 +130,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="useRewardPoints">A value indicating whether to use reward points during checkout. <c>null</c> to ignore.</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
         /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes.</param>
+        /// <param name="validateRequiredProducts">A value indicating whether to validate required products.</param>
         /// <returns><c>True</c> when the shopping cart is valid, otherwise <c>false</c>.</returns>
         Task<bool> SaveCartDataAsync(
             ShoppingCart cart,
@@ -137,7 +138,8 @@ namespace Smartstore.Core.Checkout.Cart
             ProductVariantQuery query,
             bool? useRewardPoints = null,
             bool resetCheckoutData = true,
-            bool validateCheckoutAttributes = true);
+            bool validateCheckoutAttributes = true,
+            bool validateRequiredProducts = true);
 
         /// <summary>
         /// Finds a cart item in a shopping cart.

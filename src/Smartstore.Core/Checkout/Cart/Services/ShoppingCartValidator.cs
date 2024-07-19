@@ -32,6 +32,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly IRuleProviderFactory _ruleProviderFactory;
+        private readonly ProductUrlHelper _productUrlHelper;
         private readonly IEventPublisher _eventPublisher;
 
         public ShoppingCartValidator(
@@ -47,6 +48,7 @@ namespace Smartstore.Core.Checkout.Cart
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             IRuleProviderFactory ruleProviderFactory,
+            ProductUrlHelper productUrlHelper,
             IEventPublisher eventPublisher)
         {
             _db = db;
@@ -61,6 +63,7 @@ namespace Smartstore.Core.Checkout.Cart
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _ruleProviderFactory = ruleProviderFactory;
+            _productUrlHelper = productUrlHelper;
             _eventPublisher = eventPublisher;
         }
 
@@ -126,14 +129,18 @@ namespace Smartstore.Core.Checkout.Cart
             return currentWarnings.Count == 0;
         }
 
-        public virtual async Task<bool> ValidateCartAsync(ShoppingCart cart, IList<string> warnings, bool validateCheckoutAttributes = false)
+        public virtual async Task<bool> ValidateCartAsync(
+            ShoppingCart cart, 
+            IList<string> warnings,
+            bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false)
         {
             Guard.NotNull(cart);
             Guard.NotNull(warnings);
 
             var currentWarnings = new List<string>();
 
-            var missingProduct = cart.Items.Where(x => x.Item.Product is null).FirstOrDefault();
+            var missingProduct = cart.Items.FirstOrDefault(x => x.Item.Product is null);
             if (missingProduct != null)
             {
                 currentWarnings.Add(T("ShoppingCart.CannotLoadProduct", missingProduct.Item.ProductId));
@@ -183,6 +190,19 @@ namespace Smartstore.Core.Checkout.Cart
                             attribute.AttributeControlType,
                             attribute.GetLocalized(x => x.TextPrompt).Value.NullEmpty() ?? attribute.GetLocalized(x => x.Name)));
                     }
+                }
+            }
+
+            if (validateRequiredProducts)
+            {
+                var requiredProductsToValidate = cart.Items
+                    .Select(x => x.Item.Product)
+                    .Where(x => x.RequireOtherProducts)
+                    .ToList();
+
+                foreach (var product in requiredProductsToValidate)
+                {
+                    await ValidateRequiredProductsAsync(product, cart.Items, currentWarnings);
                 }
             }
 
@@ -641,28 +661,33 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(product);
 
             if (!product.RequireOtherProducts)
+            {
                 return true;
+            }
 
             var requiredProductIds = product.ParseRequiredProductIds();
             if (requiredProductIds.Length == 0)
+            {
                 return true;
+            }
 
-            var cartProductIds = cartItems.Select(x => x.Item.Product.Id);
-
-            var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
+            var missingRequiredProductIds = requiredProductIds.Except(cartItems.Select(x => x.Item.Product.Id));
             if (!missingRequiredProductIds.Any())
+            {
                 return true;
+            }
 
-            var isValid = true;
-            var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds);
+            var missingRequiredProducts = await _db.Products
+                .SelectSummary()
+                .GetManyAsync(missingRequiredProductIds);
 
             foreach (var requiredProduct in missingRequiredProducts)
             {
-                isValid = false;
-                warnings.Add(T("ShoppingCart.RequiredProductWarning", requiredProduct.GetLocalized(x => x.Name)));
+                var productUrl = await _productUrlHelper.GetProductUrlAsync(requiredProduct);
+                warnings.Add(T("ShoppingCart.RequiredProductWarning", requiredProduct.GetLocalized(x => x.Name), productUrl));
             }
 
-            return isValid;
+            return missingRequiredProducts.Count == 0;
         }
 
         private string GetAttributeRequiredWarning(AttributeControlType type, string textPrompt)

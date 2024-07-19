@@ -560,7 +560,8 @@ namespace Smartstore.Core.Checkout.Cart
             ProductVariantQuery query,
             bool? useRewardPoints = null,
             bool resetCheckoutData = true,
-            bool validateCheckoutAttributes = true)
+            bool validateCheckoutAttributes = true,
+            bool validateRequiredProducts = true)
         {
             cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
 
@@ -586,7 +587,7 @@ namespace Smartstore.Core.Checkout.Cart
             // INFO: we must save before validating the cart.
             await _db.SaveChangesAsync();
 
-            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
+            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes, validateRequiredProducts);
         }
 
         public virtual OrganizedShoppingCartItem FindItemInCart(
