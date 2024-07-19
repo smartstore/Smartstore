@@ -102,7 +102,9 @@
 - #996 Limited to customer roles is not working for topics that are displayed as widgets.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
-- #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
+- Required products:
+  - #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
+  - Fixed `InvalidOperationException` when adding a required product to cart that is already on the wishlist.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed the discount amount of an order can have an incorrect value if a discount rule was applied during the subtotal calculation.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
@@ -144,7 +146,9 @@
 - #1001 MediaManager: fix *moov atom not found* ffmpeg issue in `VideoHandler`.
 - Fixed the e-mail subject was not transferred when sending an e-mail from customer edit page.
 - Fixed offcanvas problem whith mega sized page builder stories.
-- PayPal: Fixed payment discount problem (discount from a formerly choosen payment method was applied).
+- PayPal:
+  - Fixed payment discount problem (discount from a formerly choosen payment method was applied).
+  - Fixed VAT exempt & currency conversion problems.
 - #1042 Fixed broken roxy file manager.
 - #969 Promo badges are not rendered in frontend due to type mismatch.
 - Google Analytics: Fixed problem with single quotation mark in category name.
@@ -156,7 +160,6 @@
 - Hide the cookie manager for topics that need to be fully visible without being overlayed by the cookie manager dialog.
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
-- PayPal: Fixed VAT exempt & currency conversion problems.
 - Files from subfolders must not be attached to an e-mail when deploying an export (can be thousands).
 - #1136 Datagrid Vue component throws when expanding child grid
 
