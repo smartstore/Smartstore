@@ -107,7 +107,7 @@ jQuery(function () {
     });
 
     // Hacky fix for select2 not focusing search field on container open
-    $(document).on('select2:open', function() {
+    $(document).on('select2:open', function () {
         document.querySelector('.select2-container--open .select2-search__field').focus();
     });
 
@@ -199,18 +199,7 @@ jQuery(function () {
                 let popper = new Popper(group[0], menu[0], {
                     placement: (rtl ? 'left' : 'right') + '-start',
                     modifiers: {
-                        computeStyle: {
-                            gpuAcceleration: false,
-                            //fn: (data) =>
-                            //{
-                            //    return data;
-                            //}
-                        },
-                        //applyStyle: {
-                        //    fn: function(data) {
-                        //        return data;
-                        //    }
-                        //},
+                        computeStyle: { gpuAcceleration: false },
                     },
                     preventOverflow: {
                         boundariesElement: 'viewport'
@@ -222,19 +211,55 @@ jQuery(function () {
                 group.addClass('show');
                 menu.addClass('show');
 
+                // Show any parent groups
+                group.parents('.dropdown-group, .dropdown-group > .dropdown-menu').addClass('show');
+
                 if (_.isFunction(fn)) fn();
             }
         }
 
         function closeDrop(group, fn) {
-            let popper = group.data('popper');
-            if (popper) {
-                popper.destroy();
-                group.removeData('popper');
-            }
+            group.find('.dropdown-group, .dropdown-menu').addBack().each(function () {
+                const el = $(this);
+                el.removeClass('show');
 
-            group.removeClass('show').find('> .dropdown-menu').removeClass('show');
+                if (el.is('.dropdown-group')) {
+                    // Destroy and remove Popper instance
+                    let popper = el.data('popper');
+                    if (popper) {
+                        popper.destroy();
+                        el.removeData('popper');
+                    }
+                }
+            });
+
             if (_.isFunction(fn)) fn();
+        }
+
+        function handleEnter(group) {
+            clearTimeout(group.data('closeTimeout'));
+
+            // Close all open dropdowns that are not ancestors or descendants
+            $('.dropdown-group.show').each(function () {
+                let openGroup = $(this);
+                if (!$.contains(openGroup[0], group[0]) && !$.contains(group[0], openGroup[0])) {
+                    closeDrop(openGroup);
+                }
+            });
+
+            showDrop(group);
+            currentSubGroup = group;
+        }
+
+        function handleLeave(group, leaveDelay) {
+            let closeTimeout = setTimeout(() => {
+                closeDrop(group);
+                // Ensure child dropdowns are also closed
+                group.find('.dropdown-group.show').each(function () {
+                    closeDrop($(this));
+                });
+            }, leaveDelay);
+            group.data('closeTimeout', closeTimeout);
         }
 
         // Drop dropdown menus on hover
@@ -277,44 +302,34 @@ jQuery(function () {
                     e.stopPropagation();
                 }
             }
-                
+
             type = type || (e.type == 'mouseenter' ? 'enter' : 'leave');
 
             if (type === 'enter') {
-                //console.log('enter', group[0]);
-                if (currentSubGroup) {
-                    if (group.parent().parent()[0] != currentSubGroup[0]) {
-                        clearTimeout(closeTimeoutSub);
-                        closeDrop(currentSubGroup);
-                    }
-                }
+                handleEnter(group);
+            } else {
+                // Ensure immediate feedback
+                //group.removeClass('show');
+                // But close drop delayed to allow for mouse re-entry
+                handleLeave(group, leaveDelay);
+            }
 
-                showDrop(group);
-                currentSubGroup = group;
-            }
-            else { // leave
-                //console.log('leave', group[0]);
-                group.removeClass('show');
-                closeTimeoutSub = window.setTimeout(() => closeDrop(group), leaveDelay);
-            }
+            //if (type === 'enter') {
+            //    if (currentSubGroup) {
+            //        if (group.parent().parent()[0] != currentSubGroup[0]) {
+            //            clearTimeout(closeTimeoutSub);
+            //            closeDrop(currentSubGroup);
+            //        }
+            //    }
+
+            //    showDrop(group);
+            //    currentSubGroup = group;
+            //}
+            //else { // leave
+            //    group.removeClass('show');
+            //    closeTimeoutSub = window.setTimeout(() => closeDrop(group), leaveDelay);
+            //}
         });
-
-        function isChildOf(parent, child) {
-            while (child && child !== parent) {
-                child = child.parentNode;
-            }
-
-            return child === parent;
-        }
-
-        function traverseDropdownGroup(group, fn) {
-            const parentGroup = group.parent().parent();
-            if (parentGroup.is('.dropdown-group')) {
-                traverseDropdownGroup(parentGroup, fn);
-            }
-
-            fn(group);
-        }
     })();
 
     // HTML text collapser
@@ -326,7 +341,7 @@ jQuery(function () {
     $(document).on('mouseup', '.btn-group-toggle.unselectable > .btn', function (e) {
         let btn = $(this);
         let radio = btn.find('input:radio');
-            
+
         if (radio.length && radio.prop('checked')) {
             e.preventDefault();
             e.stopPropagation();
