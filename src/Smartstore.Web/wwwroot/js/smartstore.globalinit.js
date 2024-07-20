@@ -31,7 +31,7 @@ jQuery(function () {
     }
 
     // Adjust datetimepicker global defaults
-    var dtp = $.fn.datetimepicker;
+    const dtp = $.fn.datetimepicker;
     if (typeof dtp !== 'undefined' && dtp.Constructor && dtp.Constructor.Default) {
         dtp.Constructor.Default = $.extend({}, dtp.Constructor.Default, {
             locale: 'glob',
@@ -65,7 +65,7 @@ jQuery(function () {
 
     // Confirm
     $(document).on('click', '.confirm', function (e) {
-        var msg = $(this).data("confirm-message") || window.Res["Admin.Common.AskToProceed"];
+        const msg = $(this).data("confirm-message") || window.Res["Admin.Common.AskToProceed"];
         return confirm(msg);
     });
 
@@ -188,10 +188,7 @@ jQuery(function () {
 
     // .dropdown-group (nested dropdowns) && .dropdown-hoverdrop (hover dropdowns)
     (function () {
-        let currentDrop,
-            currentSubGroup,
-            closeTimeout,
-            closeTimeoutSub;
+        let currentDrop, closeTimeout;
 
         function showDrop(group, fn) {
             let menu = group.find('> .dropdown-menu');
@@ -253,12 +250,12 @@ jQuery(function () {
 
         function handleLeave(group, leaveDelay) {
             let closeTimeout = setTimeout(() => {
-                closeDrop(group);
                 // Ensure child dropdowns are also closed
-                group.find('.dropdown-group.show').each(function () {
+                group.find('.dropdown-group.show').addBack().each(function () {
                     closeDrop($(this));
                 });
             }, leaveDelay);
+
             group.data('closeTimeout', closeTimeout);
         }
 
@@ -282,7 +279,7 @@ jQuery(function () {
             }
             else {
                 li.removeClass('show');
-                closeTimeout = window.setTimeout(function () { closeDrop(li, afterClose); }, 250);
+                closeTimeout = setTimeout(() => closeDrop(li, afterClose), 250);
             }
         });
 
@@ -308,27 +305,9 @@ jQuery(function () {
             if (type === 'enter') {
                 handleEnter(group);
             } else {
-                // Ensure immediate feedback
-                //group.removeClass('show');
-                // But close drop delayed to allow for mouse re-entry
+                // Close drop delayed to allow for mouse re-entry
                 handleLeave(group, leaveDelay);
             }
-
-            //if (type === 'enter') {
-            //    if (currentSubGroup) {
-            //        if (group.parent().parent()[0] != currentSubGroup[0]) {
-            //            clearTimeout(closeTimeoutSub);
-            //            closeDrop(currentSubGroup);
-            //        }
-            //    }
-
-            //    showDrop(group);
-            //    currentSubGroup = group;
-            //}
-            //else { // leave
-            //    group.removeClass('show');
-            //    closeTimeoutSub = window.setTimeout(() => closeDrop(group), leaveDelay);
-            //}
         });
     })();
 
