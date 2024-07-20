@@ -59,6 +59,7 @@
 - Theming
   - Revamped SignIn / Register page
   - Revamped dashboard stats
+  - Multi-level dropdown groups
   - Activate .spa-layout only on screen height > 600px (DataGrid is unusable in mobile landscape mode otherwise)
 - Page Builder
   - Fixed *boxed titles* spacing and line-height issues
