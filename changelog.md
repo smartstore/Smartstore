@@ -93,6 +93,7 @@
 - Added specific browser automplete hints to some common forms 
 - Identity: Moved `ClientIdent` and `LastViditedPage` from `GenericAttribute` to `Customer` table (for performance reasons and to distress GenericAttribute table)
 - Enable tokens (e.g. current date and time) for email subject in email export deployments.
+- PostFinance: added an order note with the selected payment method.
 
 ### Bugfixes
 
