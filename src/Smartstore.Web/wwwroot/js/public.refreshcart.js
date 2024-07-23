@@ -113,6 +113,7 @@ $(function () {
 
                     $('#SelectAllCartItems').html(response.itemSelectionHtml);
                     $('#cart-warnings').html(response.warningsHtml);
+                    $('#cart-payment-buttons').html(response.paymentButtonsHtml);
 
                     const displayCheckoutButtons = response.displayCheckoutButtons !== false;
                     $('#start-checkout-buttons').toggleClass('d-none', !displayCheckoutButtons);
