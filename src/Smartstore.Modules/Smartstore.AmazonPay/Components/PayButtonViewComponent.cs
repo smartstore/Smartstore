@@ -4,7 +4,6 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
-using Smartstore.Core.Identity;
 using Smartstore.Web.Components;
 
 namespace Smartstore.AmazonPay.Components
@@ -17,7 +16,6 @@ namespace Smartstore.AmazonPay.Components
         private readonly IPaymentService _paymentService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly Lazy<IOrderCalculationService> _orderCalculationService;
-        private readonly Lazy<ICookieConsentManager> _cookieConsentManager;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
@@ -25,14 +23,12 @@ namespace Smartstore.AmazonPay.Components
             IPaymentService paymentService,
             IShoppingCartService shoppingCartService,
             Lazy<IOrderCalculationService> orderCalculationService,
-            Lazy<ICookieConsentManager> cookieConsentManager,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings)
         {
             _paymentService = paymentService;
             _shoppingCartService = shoppingCartService;
             _orderCalculationService = orderCalculationService;
-            _cookieConsentManager = cookieConsentManager;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
         }
@@ -59,11 +55,6 @@ namespace Smartstore.AmazonPay.Components
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
             if (!cart.HasItems || !await _paymentService.IsPaymentProviderActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
-            {
-                return Empty();
-            }
-
-            if (!await _cookieConsentManager.Value.IsCookieAllowedAsync(CookieType.Required))
             {
                 return Empty();
             }
