@@ -598,7 +598,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         height: 100%;
         margin: 0;
         box-shadow: none;
-        outline: 1px solid rgba(#000, 0.15);
+        outline: 1px solid rgba($black, .15);
     }
 }
 
@@ -612,12 +612,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-assoc-header {
-    background-color: rgba($black, 0.05);
+    background-color: rgba($black, .05);
     border-radius: var(--border-radius-md);
     transition: background-color 0.1s ease;
 
     &:hover {
-        background-color: rgba($black, 0.1);
+        background-color: rgba($black, .1);
     }
 
     &.collapsed .collapse-chevron {

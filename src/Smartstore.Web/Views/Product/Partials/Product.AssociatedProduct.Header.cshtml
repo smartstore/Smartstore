@@ -57,8 +57,8 @@
      role="button"
      data-target="#@id"
      aria-controls="@id">
-    <div class="col-auto d-flex">
-        <div sm-if="@HasHeader(AssociatedProductHeader.Image)" class="pd-assoc-img">
+    <div class="col-auto d-flex" sm-if="@HasHeader(AssociatedProductHeader.Image)">
+        <div class="pd-assoc-img">
             @if (img != null)
             {
                 <img class="@imgClass" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
@@ -70,7 +70,7 @@
         </div>
     </div>
     <div class="col">
-        <div class="row xs-gutters">
+        <div class="row sm-gutters">
             <div class="col-12 col-md-4 d-flex align-items-center">
                 <div class="pd-assoc-name text-truncate" title="@Model.Name">
                     @Html.Raw(Model.Name)

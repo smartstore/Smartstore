@@ -6,7 +6,7 @@
 @inject CatalogSettings CatalogSettings
 
 <div sm-if="Model.Products.TotalCount >= (Model.Configuration.SearchMinAssociatedCount ?? CatalogSettings.SearchMinAssociatedProductsCount)" 
-     class="instasearch-form has-icon col-4 mb-2">
+     class="instasearch-form has-icon col-12 col-lg-6 col-xxl-4 mb-2">
     <input type="text"
            class="instasearch-term form-control skip-pd-ajax-update"
            name="associatedProductsSearchTerm"
