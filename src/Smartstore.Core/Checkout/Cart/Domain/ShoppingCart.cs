@@ -18,6 +18,12 @@ namespace Smartstore.Core.Checkout.Cart
             StoreId = storeId;
         }
 
+        /// <summary>
+        /// Constructor that applies the properties of another <see cref="ShoppingCart"/> instance.
+        /// </summary>
+        /// <param name="other">Other instance whose properties are applied.</param>
+        /// <param name="items">Items to apply. If <c>null</c> items of <paramref name="other"/> are applied.</param>
+        /// <example>new ShoppingCart(otherCart, otherCart.Items.Where(x => x.Active))</example>
         public ShoppingCart(ShoppingCart other, IEnumerable<OrganizedShoppingCartItem> items = null)
         {
             Guard.NotNull(other);
@@ -65,6 +71,12 @@ namespace Smartstore.Core.Checkout.Cart
         /// Checkout requirements.
         /// </summary>
         public CheckoutRequirements Requirements { get; init; } = CheckoutRequirements.All;
+
+        /// <summary>
+        /// Returns a cart that only contains active items of this cart.
+        /// </summary>
+        public ShoppingCart ActiveItemsOnly()
+            => Items.Any(x => !x.Active) ? new(this, Items.Where(x => x.Active)) : this;
 
         #region Compare
 

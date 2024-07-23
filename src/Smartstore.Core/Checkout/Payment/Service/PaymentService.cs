@@ -209,14 +209,14 @@ namespace Smartstore.Core.Checkout.Payment
                 // Rule matching
                 if (allMethods.TryGetValue(sysName, out var method))
                 {
-                    var contextAction = (CartRuleContext context) =>
+                    void contextAction(CartRuleContext context)
                     {
-                        context.ShoppingCart = cart;
+                        context.ShoppingCart = cart?.ActiveItemsOnly();
                         if (storeId > 0 && storeId != context.Store.Id)
                         {
                             context.Store = _storeContext.GetStoreById(storeId);
                         }
-                    };
+                    }
 
                     if (!await _cartRuleProvider.RuleMatchesAsync(method, contextAction: contextAction))
                     {
@@ -275,7 +275,7 @@ namespace Smartstore.Core.Checkout.Payment
                 .WhereAwait(x => GetActiveStateAsync(x, storeId, cart, allPaymentMethods, allFilters))
                 .ToListAsync();
 
-            if (!activeProviders.Any() && provideFallbackMethod)
+            if (activeProviders.Count == 0 && provideFallbackMethod)
             {
                 var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentProviderEnabled(_paymentSettings))
                     ?? allProviders.FirstOrDefault(x => x.Metadata?.ModuleDescriptor?.SystemName?.EqualsNoCase("Smartstore.OfflinePayment") ?? false)
@@ -283,7 +283,7 @@ namespace Smartstore.Core.Checkout.Payment
 
                 if (fallbackMethod != null)
                 {
-                    return new Provider<IPaymentMethod>[] { fallbackMethod };
+                    return [fallbackMethod];
                 }
 
                 if (DataSettings.DatabaseIsInstalled())

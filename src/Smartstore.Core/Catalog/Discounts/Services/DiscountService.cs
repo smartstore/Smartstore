@@ -234,17 +234,17 @@ namespace Smartstore.Core.Catalog.Discounts
                 return Cached(false);
             }
 
-            ShoppingCart cart = null;
+            var checkGiftCard = flags.HasFlag(DiscountValidationFlags.GiftCards) &&
+                (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal);
 
-            // Do not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
-            if (flags.HasFlag(DiscountValidationFlags.GiftCards) &&
-                (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal))
+            var cart = checkGiftCard || flags.HasFlag(DiscountValidationFlags.CartRules)
+                ? await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id)
+                : null;
+
+            // Do not to apply discounts if there are gift cards in the cart because the customer could "earn" money through that.
+            if (checkGiftCard && cart.Items.Any(x => x.Item?.Product?.IsGiftCard ?? false))
             {
-                cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                if (cart.Items.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
-                {
-                    return Cached(false);
-                }
+                return Cached(false);
             }
 
             // Rules.
@@ -252,14 +252,14 @@ namespace Smartstore.Core.Catalog.Discounts
             {
                 await _db.LoadCollectionAsync(discount, x => x.RuleSets);
 
-                var contextAction = (CartRuleContext context) =>
+                void contextAction(CartRuleContext context)
                 {
                     context.Customer = customer;
                     context.Store = store;
                     context.ShoppingCart = cart;
-                };
+                }
 
-                if (!await _cartRuleProvider.RuleMatchesAsync(discount))
+                if (!await _cartRuleProvider.RuleMatchesAsync(discount, contextAction: contextAction))
                 {
                     return Cached(false);
                 }
