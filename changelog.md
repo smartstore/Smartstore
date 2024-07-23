@@ -164,7 +164,8 @@
 - #1091 Allow recursive cache access in `AlbumRegistry.GetAlbumDictionary()`
 - #1088 Special characters (like Umlaut) are not displayed correctly in client-side messages.
 - Files from subfolders must not be attached to an e-mail when deploying an export (can be thousands).
-- #1136 Datagrid Vue component throws when expanding child grid
+- #1136 Datagrid Vue component throws when expanding child grid.
+- #1125 Buttons for payment methods that are restricted by cart rule to the subtotal amount are not shown/hidden when the item quantity is updated on the cart page.
 
 
 ## Smartstore 5.1.0
