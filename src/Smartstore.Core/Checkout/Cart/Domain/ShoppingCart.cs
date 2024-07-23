@@ -75,7 +75,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Returns a cart that only contains active items of this cart.
         /// </summary>
-        public ShoppingCart ActiveItemsOnly()
+        public ShoppingCart WithActiveItemsOnly()
             => Items.Any(x => !x.Active) ? new(this, Items.Where(x => x.Active)) : this;
 
         #region Compare

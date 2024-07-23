@@ -308,7 +308,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (activeOnly)
             {
-                cart = cart.ActiveItemsOnly();
+                cart = cart.WithActiveItemsOnly();
             }
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";

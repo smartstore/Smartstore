@@ -211,7 +211,7 @@ namespace Smartstore.Core.Checkout.Payment
                 {
                     void contextAction(CartRuleContext context)
                     {
-                        context.ShoppingCart = cart?.ActiveItemsOnly();
+                        context.ShoppingCart = cart?.WithActiveItemsOnly();
                         if (storeId > 0 && storeId != context.Store.Id)
                         {
                             context.Store = _storeContext.GetStoreById(storeId);
