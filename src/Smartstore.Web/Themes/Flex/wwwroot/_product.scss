@@ -673,10 +673,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-assoc-attr {
     @extend .text-truncate;
-    width: 100%;
+    font-size: $font-size-sm;
+    //width: 100%;
 }
 
 .pd-assoc-price {
     font-weight: $font-weight-medium;
     color: $pd-price-color;
+    font-size: $font-size-base;
 }

@@ -13,11 +13,21 @@
     var gallery = Model.MediaGalleryModel;
     var img = gallery?.Files?.FirstOrDefault();
     var imgClass = "rounded-sm border border-translucent shadow-xs";
-    var nameColSize = GetNameColSize();
+
+    var hasImageHeader = HasHeader(AssociatedProductHeader.Image);
+    var hasSkuHeader = HasHeader(AssociatedProductHeader.Sku);
+    var hasDimensionsHeader = HasHeader(AssociatedProductHeader.Dimensions);
+    var hasWeightHeader = HasHeader(AssociatedProductHeader.Weight);
+    var hasPriceHeader = HasHeader(AssociatedProductHeader.Price);
+    var hasDataCol = hasImageHeader || hasSkuHeader || hasDimensionsHeader || hasWeightHeader || hasPriceHeader;
+
+    var colSizeName = 5; //GetNameColSize();
+    var colSizeData = 5; // 12 - colSizeName;
+    var colSizeCart = 2;
 
     int GetNameColSize()
     {
-        var len = config.HeaderFields?.Length ?? 0;
+        var len = HeaderFields().Length;
         if (len < 2)
             return 8;
         if (len < 4)
@@ -46,18 +56,87 @@
         return T("Products.DimensionsValue.Short").Value.FormatInvariant(wStr, hStr, lStr);
     }
 
+    string[] HeaderFields()
+    {
+        return config.HeaderFields ?? CatalogSettings.CollapsibleAssociatedProductsHeaders ?? Array.Empty<string>();
+    }
+
     bool HasHeader(string name)
     {
-        return (config.HeaderFields ?? CatalogSettings.CollapsibleAssociatedProductsHeaders)?.Any(x => x.EqualsNoCase(name)) ?? false;
+        return HeaderFields().Any(x => x.EqualsNoCase(name));
     }
 }
 
-<div class="pd-assoc-title card-title row no-gutters"
+<div class="pd-assoc-title card-title row no-gutters align-items-center"
      aria-expanded="false"
      role="button"
      data-target="#@id"
      aria-controls="@id">
-    <div class="col-auto d-flex" sm-if="@HasHeader(AssociatedProductHeader.Image)">
+
+     @* Image / Name *@
+     <div class="col-@colSizeName">
+         <div class="row no-gutters flex-nowrap">
+            <div class="col-auto d-flex" sm-if="@hasImageHeader">
+                <div class="pd-assoc-img">
+                    @if (img != null)
+                    {
+                        <img class="@imgClass" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
+                    }
+                    else if (gallery.ThumbFallbackUrl.HasValue())
+                    {
+                        <img class="@imgClass" src="@gallery.ThumbFallbackUrl" alt="@gallery.DefaultAlt" />
+                    }
+                </div>
+            </div>
+            <div class="col d-flex align-items-center">
+                <div class="pd-assoc-name text-truncate" title="@Model.Name">
+                    @Html.Raw(Model.Name)
+                </div>
+            </div>
+         </div>
+     </div>
+
+    @* Data *@
+    <div class="col-@colSizeData" sm-if="@hasDataCol">
+        <div class="row flex-nowrap align-items-center">
+            <div sm-if="@hasSkuHeader" class="col pd-assoc-attr" title="@Model.Sku">
+                @Model.Sku
+            </div>
+            <div sm-if="@hasDimensionsHeader" class="col pd-assoc-attr" title="@GetFormattedDimensions(true)">
+                @GetFormattedDimensions(false)
+            </div>
+            <div sm-if="@hasWeightHeader" class="col pd-assoc-attr" title="@Model.Weight">
+                @Model.Weight
+            </div>
+            <div sm-if="@hasPriceHeader" class="col pd-assoc-attr pd-assoc-price">
+                @Html.Raw(Model.Price.FinalPrice)
+            </div>
+        </div>
+    </div>
+
+    @* Cart *@
+    <div class="col-@colSizeCart d-flex align-items-center">
+        <div class="pd-assoc-actions">
+            <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
+                @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Medium })
+            </div>
+            <a class="pd-interaction btn btn-primary btn-icon btn-add-to-cart ajax-cart-link ml-1"
+               href="javascript:;"
+               rel="nofollow"
+               data-href="@Url.Action("AddProduct", "ShoppingCart", new { productId = Model.AddToCart.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })"
+               data-form-selector="#pd-form"
+               data-type="cart"
+               data-action="add"
+               data-toggle="offcanvas"
+               data-target="#offcanvas-cart"
+               title="@T(Model.AddToCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")">
+                <i class="fa fa-cart-arrow-down"></i>
+            </a>
+        </div>
+        <i class="fas fa-angle-up collapse-chevron m-0 ml-2"></i>
+    </div>
+
+    <div class="col-auto xd-flex d-none" sm-if="@HasHeader(AssociatedProductHeader.Image)">
         <div class="pd-assoc-img">
             @if (img != null)
             {
@@ -69,7 +148,7 @@
             }
         </div>
     </div>
-    <div class="col">
+    <div class="col d-none">
         <div class="row sm-gutters">
             <div class="col-12 col-md-4 d-flex align-items-center">
                 <div class="pd-assoc-name text-truncate" title="@Model.Name">
