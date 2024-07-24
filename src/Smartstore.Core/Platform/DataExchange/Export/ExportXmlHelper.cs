@@ -515,6 +515,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Customer.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
             _writer.WriteElementString(nameof(Customer.LastLoginDateUtc), entity.LastLoginDateUtc?.ToString(_culture) ?? string.Empty);
             _writer.WriteElementString(nameof(Customer.LastActivityDateUtc), entity.LastActivityDateUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Category.LimitedToStores), entity.LimitedToStores.ToString());
             _writer.WriteElementString(nameof(Customer.Salutation), entity.Salutation);
             _writer.WriteElementString(nameof(Customer.Title), entity.Title);
             _writer.WriteElementString(nameof(Customer.FirstName), entity.FirstName);
