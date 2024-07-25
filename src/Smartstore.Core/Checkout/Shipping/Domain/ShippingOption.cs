@@ -20,6 +20,12 @@ namespace Smartstore.Core.Checkout.Shipping
         public int ShippingMethodId { get; set; }
 
         /// <summary>
+        /// Gets or sets the display order.
+        /// </summary>
+        [JsonProperty("order")]
+        public int DisplayOrder { get; set; }
+
+        /// <summary>
         /// Gets or sets the system name of shipping rate computation method
         /// </summary>
         [JsonProperty("systemName")]

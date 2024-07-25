@@ -189,6 +189,7 @@ namespace Smartstore.Shipping
             var cart = new ShoppingCart(request.Customer, request.StoreId, request.Items);
             var weight = await _shippingService.GetCartTotalWeightAsync(cart, _shippingByWeightSettings.IncludeWeightOfFreeShippingProducts);
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
+            var taxFormat = _taxService.GetTaxFormat();
 
             currentSubTotal = _workContext.TaxDisplayType == TaxDisplayType.ExcludingTax
                 ? subTotalExclTax
@@ -216,12 +217,12 @@ namespace Smartstore.Shipping
                     var shippingOption = new ShippingOption
                     {
                         ShippingMethodId = shippingMethod.Id,
+                        DisplayOrder = shippingMethod.DisplayOrder,
                         Name = shippingMethod.GetLocalized(x => x.Name)
                     };
 
                     if (record != null && record.SmallQuantityThreshold > currentSubTotal)
                     {
-                        var taxFormat = _taxService.GetTaxFormat();
                         string surchargeHint = T("Plugins.Shipping.ByWeight.SmallQuantitySurchargeNotReached",
                             _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, taxFormat),
                             _currencyService.ConvertToWorkingCurrency(record.SmallQuantityThreshold).ToString(true, false, taxFormat));

@@ -203,15 +203,14 @@ namespace Smartstore.Shipping
                         rate += sqSurcharge;
                     }
 
-                    var shippingOption = new ShippingOption
+                    response.ShippingOptions.Add(new()
                     {
                         ShippingMethodId = shippingMethod.Id,
+                        DisplayOrder = shippingMethod.DisplayOrder,
                         Name = shippingMethod.GetLocalized(x => x.Name),
                         Description = shippingMethod.GetLocalized(x => x.Description),
                         Rate = rate.Value
-                    };
-
-                    response.ShippingOptions.Add(shippingOption);
+                    });
                 }
             }
 

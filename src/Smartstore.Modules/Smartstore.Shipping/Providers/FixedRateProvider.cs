@@ -45,14 +45,14 @@ namespace Smartstore.Shipping
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId, request.MatchRules);
             foreach (var shippingMethod in shippingMethods)
             {
-                var shippingOption = new ShippingOption
+                response.ShippingOptions.Add(new()
                 {
                     ShippingMethodId = shippingMethod.Id,
+                    DisplayOrder = shippingMethod.DisplayOrder,
                     Name = shippingMethod.GetLocalized(x => x.Name),
                     Description = shippingMethod.GetLocalized(x => x.Description),
                     Rate = GetRate(shippingMethod.Id)
-                };
-                response.ShippingOptions.Add(shippingOption);
+                });
             }
 
             return response;

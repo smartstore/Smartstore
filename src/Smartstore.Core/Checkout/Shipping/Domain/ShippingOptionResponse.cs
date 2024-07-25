@@ -8,12 +8,12 @@
         /// <summary>
         /// Gets shipping options
         /// </summary>
-        public List<ShippingOption> ShippingOptions { get; init; } = new();
+        public List<ShippingOption> ShippingOptions { get; set; } = [];
 
         /// <summary>
         /// Gets or sets errors
         /// </summary>
-        public List<string> Errors { get; set; } = new();
+        public List<string> Errors { get; set; } = [];
 
         /// <summary>
         /// Gets a value indicating whether the response is successful
