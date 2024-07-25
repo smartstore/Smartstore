@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Discounts
             Store store = null,
             DiscountValidationFlags flags = DiscountValidationFlags.All)
         {
-            Guard.NotNull(discountService, nameof(discountService));
+            Guard.NotNull(discountService);
 
             var couponCodeToValidate = customer?.GenericAttributes?.DiscountCouponCode ?? string.Empty;
 
