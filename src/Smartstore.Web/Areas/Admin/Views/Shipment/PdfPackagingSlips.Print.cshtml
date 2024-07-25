@@ -88,6 +88,10 @@
                             <td class="label">@T("PDFPackagingSlip.ShippingMethod"):</td>
                             <td class="value">@shipment.ShippingMethod</td>
                         </tr>
+                        <tr sm-if="shipment.Carrier.HasValue() && !shipment.Carrier.EqualsNoCase(shipment.ShippingMethod)">
+                            <td class="label">@T("Admin.Orders.Shipments.Carrier"):</td>
+                            <td class="value">@shipment.Carrier</td>
+                        </tr>
                     </table>
 
                     <zone name="shipmentdetails_orderinfotable_after" model="@shipment"></zone>

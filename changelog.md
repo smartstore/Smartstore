@@ -50,7 +50,8 @@
 - #997 Added setting to disable display of product tags on the product detail page  
 - #1100 Display customer generic attributes in backend
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
-- #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page.  
+- #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page. 
+- #783 Add a field to shipment entity for the name of the cargo company.
 
 ### Improvements
 

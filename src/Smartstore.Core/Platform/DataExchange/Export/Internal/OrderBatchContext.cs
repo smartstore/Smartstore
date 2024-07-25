@@ -46,38 +46,32 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         public LazyMultimap<Customer> Customers
         {
-            get => _customers ??=
-                new LazyMultimap<Customer>(LoadCustomers, _customerIds);
+            get => _customers ??= new LazyMultimap<Customer>(LoadCustomers, _customerIds);
         }
 
         public LazyMultimap<GenericAttribute> CustomerGenericAttributes
         {
-            get => _customerGenericAttributes ??=
-                new LazyMultimap<GenericAttribute>(LoadCustomerGenericAttributes, _customerIds);
+            get => _customerGenericAttributes ??= new LazyMultimap<GenericAttribute>(LoadCustomerGenericAttributes, _customerIds);
         }
 
         public LazyMultimap<RewardPointsHistory> RewardPointsHistories
         {
-            get => _rewardPointsHistories ??=
-                new LazyMultimap<RewardPointsHistory>(LoadRewardPointsHistories, _customerIds);
+            get => _rewardPointsHistories ??= new LazyMultimap<RewardPointsHistory>(LoadRewardPointsHistories, _customerIds);
         }
 
         public LazyMultimap<Address> Addresses
         {
-            get => _addresses ??=
-                new LazyMultimap<Address>(LoadAddresses, _addressIds);
+            get => _addresses ??= new LazyMultimap<Address>(LoadAddresses, _addressIds);
         }
 
         public LazyMultimap<OrderItem> OrderItems
         {
-            get => _orderItems ??=
-                new LazyMultimap<OrderItem>(LoadOrderItems, _orderIds);
+            get => _orderItems ??= new LazyMultimap<OrderItem>(LoadOrderItems, _orderIds);
         }
 
         public LazyMultimap<Shipment> Shipments
         {
-            get => _shipments ??=
-                new LazyMultimap<Shipment>(LoadShipments, _orderIds);
+            get => _shipments ??= new LazyMultimap<Shipment>(LoadShipments, _orderIds);
         }
 
         public virtual void Clear()

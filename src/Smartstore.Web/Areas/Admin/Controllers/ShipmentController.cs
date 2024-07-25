@@ -200,7 +200,7 @@ namespace Smartstore.Admin.Controllers
                     }
                 }
 
-                var shipment = await _orderProcessingService.AddShipmentAsync(order, model.TrackingNumber, model.TrackingUrl, quantities);
+                var shipment = await _orderProcessingService.AddShipmentAsync(order, model.Carrier, model.TrackingNumber, model.TrackingUrl, quantities);
                 if (shipment != null)
                 {
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
@@ -259,6 +259,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                shipment.GenericAttributes.Set("Carrier", model.Carrier);
                 shipment.TrackingNumber = model.TrackingNumber;
                 shipment.TrackingUrl = model.TrackingUrl;
                 shipment.TotalWeight = model.TotalWeight;
@@ -455,6 +456,7 @@ namespace Smartstore.Admin.Controllers
             model.ShippingMethod = order.ShippingMethod;
             model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
+            model.Carrier = shipment.GenericAttributes.Get<string>("Carrier");
 
             model.CanShip = !shipment.ShippedDateUtc.HasValue;
             model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
@@ -482,7 +484,7 @@ namespace Smartstore.Admin.Controllers
 
                 // Shipment items.
                 var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);
-                if (orderItemIds.Any())
+                if (orderItemIds.Length > 0)
                 {
                     var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
 

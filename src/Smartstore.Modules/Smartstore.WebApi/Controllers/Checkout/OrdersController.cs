@@ -559,6 +559,7 @@ namespace Smartstore.Web.Api.Controllers
         /// <summary>
         /// Adds a shipment to an order.
         /// </summary>
+        /// <param name="carrier">Name of the carrier if any.</param>
         /// <param name="trackingNumber">Tracking number if any.</param>
         /// <param name="trackingUrl">Tracking URL if any.</param>
         /// <param name="isShipped">A value indicating whether to mark the shipment as shipped.</param>
@@ -571,6 +572,7 @@ namespace Smartstore.Web.Api.Controllers
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> AddShipment(int key,
+            [FromODataBody] string carrier,
             [FromODataBody] string trackingNumber,
             [FromODataBody] string trackingUrl,
             [FromODataBody] bool isShipped = false,
@@ -579,7 +581,7 @@ namespace Smartstore.Web.Api.Controllers
             try
             {
                 var entity = await GetRequiredById(key);
-                var shipment = await _orderProcessingService.Value.AddShipmentAsync(entity, trackingNumber, trackingUrl, null);
+                var shipment = await _orderProcessingService.Value.AddShipmentAsync(entity, carrier, trackingNumber, trackingUrl, null);
                 if (shipment != null && isShipped)
                 {
                     await _orderProcessingService.Value.ShipAsync(shipment, notifyCustomer);

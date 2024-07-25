@@ -3,7 +3,8 @@
 	<To>{{ Customer.FullName }} &lt;{{ Customer.Email }}&gt;</To>
 	<Subject>{{ Store.Name }}. Your shipment has been sent.</Subject>
 	<ModelTypes>Shipment, Shipment.Order, Shipment.Customer</ModelTypes>
-	<Body><![CDATA[{% extends 'master' %}
+	<Body>
+    <![CDATA[{% extends 'master' %}
 
 {% block 'body' %}
 <h1>
@@ -12,6 +13,9 @@
 
 <p>
   your shipment with the Id <b>{{ Shipment.Id }}</b> has been sent.
+  {% if Shipment.Carrier %}
+  Shipping is carried out by {{ Shipment.Carrier }}.
+  {% endif %}  
 </p>
 
 {% if Shipment.TrackingUrl %}

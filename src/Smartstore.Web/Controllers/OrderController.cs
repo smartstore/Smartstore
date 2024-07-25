@@ -259,8 +259,9 @@ namespace Smartstore.Web.Controllers
             var model = new ShipmentDetailsModel
             {
                 Id = shipment.Id,
+                Carrier = shipment.GenericAttributes.Get<string>("Carrier"),
                 TrackingNumber = shipment.TrackingNumber,
-                TrackingNumberUrl = shipment.TrackingUrl
+                TrackingUrl = shipment.TrackingUrl
             };
 
             if (shipment.ShippedDateUtc.HasValue)
@@ -281,9 +282,9 @@ namespace Smartstore.Web.Controllers
                 if (shipmentTracker != null)
                 {
                     // The URL entered by the merchant takes precedence over an automatically generated URL.
-                    if (model.TrackingNumberUrl.IsEmpty())
+                    if (model.TrackingUrl.IsEmpty())
                     {
-                        model.TrackingNumberUrl = shipmentTracker.GetUrl(shipment.TrackingNumber);
+                        model.TrackingUrl = shipmentTracker.GetUrl(shipment.TrackingNumber);
                     }
 
                     if (shippingSettings.DisplayShipmentEventsToCustomers)

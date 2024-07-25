@@ -12,8 +12,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 {
     internal class DataExporterContext
     {
-        private readonly static string[] _globalTranslationEntities = new[]
-        {
+        private readonly static string[] _globalTranslationEntities =
+        [
             nameof(Currency),
             nameof(Country),
             nameof(StateProvince),
@@ -21,13 +21,13 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             nameof(QuantityUnit),
             nameof(Manufacturer),
             nameof(Category),
-        };
+        ];
 
-        private readonly static string[] _globalSlugEntities = new[]
-        {
+        private readonly static string[] _globalSlugEntities =
+        [
             nameof(Category),
             nameof(Manufacturer)
-        };
+        ];
 
         public bool IsPreview { get; init; }
         public DataExportRequest Request { get; init; }
@@ -43,17 +43,17 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// <summary>
         /// All entity identifiers per export.
         /// </summary>
-        public List<int> EntityIdsLoaded { get; set; } = new();
+        public List<int> EntityIdsLoaded { get; set; } = [];
 
         /// <summary>
         /// All entity identifiers per segment (used to avoid exporting products multiple times).
         /// </summary>
-        public HashSet<int> EntityIdsPerSegment { get; set; } = new();
+        public HashSet<int> EntityIdsPerSegment { get; set; } = [];
         public int LastId { get; set; }
 
         public string ProgressInfo { get; set; }
         public int RecordCount { get; set; }
-        public Dictionary<int, ShopMetadata> ShopMetadata { get; set; } = new();
+        public Dictionary<int, ShopMetadata> ShopMetadata { get; set; } = [];
 
         public ExportFilter Filter { get; init; }
         public Store Store { get; set; }
@@ -65,22 +65,22 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         #region Data loaded once per export
 
-        public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; } = new();
-        public Dictionary<int, QuantityUnit> QuantityUnits { get; set; } = new();
-        public Dictionary<int, PriceLabel> PriceLabels { get; set; } = new();
-        public Dictionary<int, Store> Stores { get; set; } = new();
-        public Dictionary<int, Language> Languages { get; set; } = new();
-        public Dictionary<int, Country> Countries { get; set; } = new();
-        public Dictionary<int, StateProvince> StateProvinces { get; set; } = new();
-        public Dictionary<int, string> ProductTemplates { get; set; } = new();
-        public Dictionary<int, string> CategoryTemplates { get; set; } = new();
-        public HashSet<string> NewsletterSubscriptions { get; set; } = new();
+        public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; } = [];
+        public Dictionary<int, QuantityUnit> QuantityUnits { get; set; } = [];
+        public Dictionary<int, PriceLabel> PriceLabels { get; set; } = [];
+        public Dictionary<int, Store> Stores { get; set; } = [];
+        public Dictionary<int, Language> Languages { get; set; } = [];
+        public Dictionary<int, Country> Countries { get; set; } = [];
+        public Dictionary<int, StateProvince> StateProvinces { get; set; } = [];
+        public Dictionary<int, string> ProductTemplates { get; set; } = [];
+        public Dictionary<int, string> CategoryTemplates { get; set; } = [];
+        public HashSet<string> NewsletterSubscriptions { get; set; } = [];
 
         /// <summary>
         /// All translations for global scopes (like Category, Manufacturer etc.)
         /// </summary>
-        public Dictionary<string, LocalizedPropertyCollection> Translations { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> UrlRecords { get; set; } = new();
+        public Dictionary<string, LocalizedPropertyCollection> Translations { get; set; } = [];
+        public Dictionary<string, UrlRecordCollection> UrlRecords { get; set; } = [];
 
         #endregion
 
@@ -96,8 +96,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// <summary>
         /// All per page translations (like ProductVariantAttributeValue etc.)
         /// </summary>
-        public Dictionary<string, LocalizedPropertyCollection> TranslationsPerPage { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> UrlRecordsPerPage { get; set; } = new();
+        public Dictionary<string, LocalizedPropertyCollection> TranslationsPerPage { get; set; } = [];
+        public Dictionary<string, UrlRecordCollection> UrlRecordsPerPage { get; set; } = [];
 
         #endregion
 

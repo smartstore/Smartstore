@@ -399,6 +399,12 @@ namespace Smartstore.Core.Data.Migrations
                 "This product requires that the following product is also ordered: <a href=\"{1}\" class=\"alert-link\">{0}</a>.",
                 "Dieses Produkt erfordert, dass das folgende Produkt auch bestellt wird: <a href=\"{1}\" class=\"alert-link\">{0}</a>.");
 
+            builder.AddOrUpdate("Admin.Orders.Shipments.Carrier",
+                "Shipping is carried out by",
+                "Versand erfolgt über",
+                "Specifies the name of the carrier, e.g. DHL, Fedex, UPS or USPS.",
+                "Legt den Namen des Transportunternehmens fest, z.B. DHL, Hermes, DPD oder UPS.");
+
             AddAIResources(builder);
         }
 

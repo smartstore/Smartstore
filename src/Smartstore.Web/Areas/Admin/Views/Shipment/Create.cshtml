@@ -34,6 +34,15 @@
     <div class="adminContent mb-5">
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="Carrier" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Carrier" />
+                <span asp-validation-for="Carrier"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="TrackingNumber" />
             </div>
             <div class="adminData">

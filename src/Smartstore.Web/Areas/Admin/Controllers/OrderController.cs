@@ -445,7 +445,7 @@ namespace Smartstore.Admin.Controllers
                                             quantities.Add(orderItem.Id, orderItem.Quantity);
                                         }
 
-                                        var shipment = await _orderProcessingService.AddShipmentAsync(o, string.Empty, string.Empty, quantities);
+                                        var shipment = await _orderProcessingService.AddShipmentAsync(o, null, null, null, quantities);
                                         if (shipment != null)
                                         {
                                             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), o.GetOrderNumber());

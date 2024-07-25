@@ -122,11 +122,17 @@ namespace Smartstore.Core.Checkout.Orders
         /// Adds a shipment to an order.
         /// </summary>
         /// <param name="order">Order.</param>
+        /// <param name="carrier">Name of the carrier.</param>
         /// <param name="trackingNumber">Tracking number.</param>
         /// <param name="trackingUrl">Tracking URL.</param>
         /// <param name="quantities">Quantities by order item identifiers. <c>null</c> to use the remaining total number of products for each order item.</param>
         /// <returns>New shipment, <c>null</c> if no shipment was added.</returns>
-        Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
+        Task<Shipment> AddShipmentAsync(
+            Order order,
+            string carrier,
+            string trackingNumber, 
+            string trackingUrl, 
+            Dictionary<int, int> quantities);
 
         /// <summary>
         /// Update order details like order item quantity, stock quantity or order total 

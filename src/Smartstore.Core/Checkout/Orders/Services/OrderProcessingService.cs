@@ -526,7 +526,12 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        public virtual async Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities)
+        public virtual async Task<Shipment> AddShipmentAsync(
+            Order order, 
+            string carrier,
+            string trackingNumber, 
+            string trackingUrl, 
+            Dictionary<int, int> quantities)
         {
             Guard.NotNull(order);
 
@@ -547,13 +552,13 @@ namespace Smartstore.Core.Checkout.Orders
 
                 var qtyToAdd = 0;
 
-                if (quantities != null && quantities.ContainsKey(orderItem.Id))
-                {
-                    qtyToAdd = quantities[orderItem.Id];
-                }
-                else if (quantities == null)
+                if (quantities == null)
                 {
                     qtyToAdd = maxQtyToAdd;
+                }
+                else
+                {
+                    quantities.TryGetValue(orderItem.Id, out qtyToAdd);
                 }
 
                 if (qtyToAdd <= 0)
@@ -565,21 +570,19 @@ namespace Smartstore.Core.Checkout.Orders
                 var orderItemTotalWeight = orderItem.ItemWeight.HasValue ? orderItem.ItemWeight * qtyToAdd : null;
                 if (orderItemTotalWeight.HasValue)
                 {
-                    if (!totalWeight.HasValue)
-                        totalWeight = 0;
-
+                    totalWeight ??= 0;
                     totalWeight += orderItemTotalWeight.Value;
                 }
 
                 if (shipment == null)
                 {
-                    shipment = new Shipment
+                    shipment = new()
                     {
                         OrderId = order.Id,
                         // Otherwise order updated event would not be fired during InsertShipment:
                         Order = order,
-                        TrackingNumber = trackingNumber,
-                        TrackingUrl = trackingUrl,
+                        TrackingNumber = trackingNumber.NullEmpty(),
+                        TrackingUrl = trackingUrl.NullEmpty(),
                         TotalWeight = null,
                         ShippedDateUtc = null,
                         DeliveryDateUtc = null,
@@ -587,19 +590,25 @@ namespace Smartstore.Core.Checkout.Orders
                     };
                 }
 
-                shipment.ShipmentItems.Add(new ShipmentItem
+                shipment.ShipmentItems.Add(new()
                 {
                     OrderItemId = orderItem.Id,
                     Quantity = qtyToAdd
                 });
             }
 
-            if (shipment?.ShipmentItems?.Any() ?? false)
+            if (!(shipment?.ShipmentItems.IsNullOrEmpty() ?? true))
             {
                 shipment.TotalWeight = totalWeight;
 
                 _db.Shipments.Add(shipment);
                 await _db.SaveChangesAsync();
+
+                if (carrier.HasValue())
+                {
+                    shipment.GenericAttributes.Set("Carrier", carrier);
+                    await _db.SaveChangesAsync();
+                }
 
                 return shipment;
             }
