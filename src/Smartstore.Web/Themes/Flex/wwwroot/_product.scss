@@ -674,6 +674,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-assoc-attr {
     @extend .text-truncate;
     font-size: $font-size-sm;
+    text-align: center;
     //width: 100%;
 }
 

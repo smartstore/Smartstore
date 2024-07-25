@@ -19,23 +19,25 @@
     var hasDimensionsHeader = HasHeader(AssociatedProductHeader.Dimensions);
     var hasWeightHeader = HasHeader(AssociatedProductHeader.Weight);
     var hasPriceHeader = HasHeader(AssociatedProductHeader.Price);
-    var hasDataCol = hasImageHeader || hasSkuHeader || hasDimensionsHeader || hasWeightHeader || hasPriceHeader;
+    var hasDataCol = hasSkuHeader || hasDimensionsHeader || hasWeightHeader || hasPriceHeader;
 
+    // 0: xs-md, 1: lg, 2: xl
     var colSizeName = 5; //GetNameColSize();
     var colSizeData = 5; // 12 - colSizeName;
     var colSizeCart = 2;
 
-    int GetNameColSize()
-    {
-        var len = HeaderFields().Length;
-        if (len < 2)
-            return 8;
-        if (len < 4)
-            return 6;
-        if (len < 6)
-            return 4;
-        return 2;
-    }
+    // int[] GetNameColSizes()
+    // {
+    //     // 0: xs-md, 1: lg, 2: xl
+    //     var len = HeaderFields().Length;
+    //     if (len < 2)
+    //         return [8, 8, 8];
+    //     if (len < 4)
+    //         return [6, 6, 6];
+    //     if (len < 6)
+    //         return [5, 5, 5];
+    //     return [2];
+    // }
 
     string GetFormattedDimensions(bool full)
     {
@@ -67,15 +69,15 @@
     }
 }
 
-<div class="pd-assoc-title card-title row no-gutters align-items-center"
+<div class="pd-assoc-title card-title row gx-0 gy-2 align-items-center"
      aria-expanded="false"
      role="button"
      data-target="#@id"
      aria-controls="@id">
 
      @* Image / Name *@
-     <div class="col-@colSizeName">
-         <div class="row no-gutters flex-nowrap">
+     <div class="col-12 col-lg-@colSizeName">
+         <div class="row gx-0 flex-nowrap">
             <div class="col-auto d-flex" sm-if="@hasImageHeader">
                 <div class="pd-assoc-img">
                     @if (img != null)
@@ -88,7 +90,7 @@
                     }
                 </div>
             </div>
-            <div class="col d-flex align-items-center">
+            <div class="col d-flex align-items-center text-truncate">
                 <div class="pd-assoc-name text-truncate" title="@Model.Name">
                     @Html.Raw(Model.Name)
                 </div>
@@ -97,8 +99,8 @@
      </div>
 
     @* Data *@
-    <div class="col-@colSizeData" sm-if="@hasDataCol">
-        <div class="row flex-nowrap align-items-center">
+    <div class="col-7 col-sm-8 col-lg-@colSizeData" sm-if="@hasDataCol">
+        <div class="row w-100 flex-nowrap align-items-center">
             <div sm-if="@hasSkuHeader" class="col pd-assoc-attr" title="@Model.Sku">
                 @Model.Sku
             </div>
@@ -115,7 +117,7 @@
     </div>
 
     @* Cart *@
-    <div class="col-@colSizeCart d-flex align-items-center">
+    <div class="col-5 col-sm-4 col-lg-@colSizeCart d-flex align-items-center">
         <div class="pd-assoc-actions">
             <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                 @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Medium })
