@@ -376,7 +376,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Einstellungen für Gruppenprodukte können beim jeweiligen Produkt überschrieben werden.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
-                "List title of associated products list", 
+                "Title of associated products list", 
                 "Listentitel der verknüpften Produkte");
             // ----- Revamp grouped products (end)
 
