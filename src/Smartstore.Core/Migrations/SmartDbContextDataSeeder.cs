@@ -411,7 +411,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("RewardPoints.Message.RewardPointsForProductReview",
                 "You will reward {0} points worth {1} for your rating.",
-                "Sie erhalten {0} Bonuspunkte im Wert von {1} für Ihre Bewertung.");
+                "Sie erhalten <strong>{0}</strong> Bonuspunkte im Wert von <strong>{1}</strong> für Ihre Bewertung.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowRewardPointsInProductDetail",
                 "Show reward points for a product review",

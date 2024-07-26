@@ -166,9 +166,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-review-summary {
     line-height: $pd-line-height;
     > * { display: inline-block; }
+
     .pd-rating-box .rating {
         vertical-align: sub;
     }
+
     .pd-review-link {
         position: relative;
         font-weight: $font-weight-medium;
@@ -179,6 +181,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
             color: $text-muted;
         }
     }
+}
+
+.pd-review-amount {
+    // Award icon (.fa-award)
+    --alert-icon-content: '\f559';
 }
 
 
