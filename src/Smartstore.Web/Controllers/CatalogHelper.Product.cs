@@ -17,7 +17,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
-using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
@@ -241,10 +240,21 @@ namespace Smartstore.Web.Controllers
 
                 #region Review overview
 
-                model.ReviewOverview.ProductId = product.Id;
-                model.ReviewOverview.RatingSum = product.ApprovedRatingSum;
-                model.ReviewOverview.TotalReviews = product.ApprovedTotalReviews;
-                model.ReviewOverview.AllowCustomerReviews = product.AllowCustomerReviews;
+                var review = model.ReviewOverview;
+                review.ProductId = product.Id;
+                review.RatingSum = product.ApprovedRatingSum;
+                review.TotalReviews = product.ApprovedTotalReviews;
+                review.AllowCustomerReviews = product.AllowCustomerReviews;
+
+                if (product.AllowCustomerReviews 
+                    && _catalogSettings.ShowRewardPointsInProductDetail
+                    && _rewardPointsSettings.Enabled 
+                    && _rewardPointsSettings.PointsForProductReview > 0)
+                {
+                    var rewardPointsAmountBase = _orderCalculationService.Value.ConvertRewardPointsToAmount(_rewardPointsSettings.PointsForProductReview);
+                    review.RewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, _services.WorkContext.WorkingCurrency);
+                    review.RewardPoints = _rewardPointsSettings.PointsForProductReview;
+                }
 
                 #endregion
 

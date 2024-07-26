@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -44,6 +45,7 @@ namespace Smartstore.Web.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
+        private readonly Lazy<IOrderCalculationService> _orderCalculationService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IPriceLabelService _priceLabelService;
         private readonly IStockSubscriptionService _stockSubscriptionService;
@@ -67,6 +69,7 @@ namespace Smartstore.Web.Controllers
         private readonly ILinkResolver _linkResolver;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly IProductTagService _productTagService;
+        private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly bool _isMultiLanguageEnvironment;
 
         public CatalogHelper(
@@ -82,6 +85,7 @@ namespace Smartstore.Web.Controllers
             ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
             IMediaService mediaService,
+            Lazy<IOrderCalculationService> orderCalculationService,
             IPriceCalculationService priceCalculationService,
             IPriceLabelService priceLabelService,
             IStockSubscriptionService stockSubscriptionService,
@@ -104,7 +108,8 @@ namespace Smartstore.Web.Controllers
             ILinkResolver linkResolver,
             ContactDataSettings contactDataSettings,
             IProductTagService productTagService,
-            ILanguageService languageService)
+            ILanguageService languageService,
+            RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _services = services;
@@ -119,6 +124,7 @@ namespace Smartstore.Web.Controllers
             _taxService = taxService;
             _taxCalculator = taxCalculator;
             _currencyService = currencyService;
+            _orderCalculationService = orderCalculationService;
             _mediaService = mediaService;
             _localizationService = _services.Localization;
             _priceCalculationService = priceCalculationService;
@@ -144,6 +150,8 @@ namespace Smartstore.Web.Controllers
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
             _contactDataSettings = contactDataSettings;
             _productTagService = productTagService;
+            _rewardPointsSettings = rewardPointsSettings;
+
             _isMultiLanguageEnvironment = languageService.IsMultiLanguageEnvironment();
         }
 

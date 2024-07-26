@@ -405,6 +405,16 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies the name of the carrier, e.g. DHL, Fedex, UPS or USPS.",
                 "Legt den Namen des Transportunternehmens fest, z.B. DHL, Hermes, DPD oder UPS.");
 
+            builder.AddOrUpdate("RewardPoints.Message.RewardPointsForProductReview",
+                "You will reward {0} points worth {1} for your rating.",
+                "Sie erhalten {0} Bonuspunkte im Wert von {1} für Ihre Bewertung.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowRewardPointsInProductDetail",
+                "Show reward points for a product review",
+                "Bonuspunkte für eine Produkt-Bewertung anzeigen",
+                "Specifies whether the reward points awarded for a product review, including the corresponding amount, should be displayed on the product detail page.",
+                "Legt fest, ob die für eine Produkt-Bewertung gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
+
             AddAIResources(builder);
         }
 

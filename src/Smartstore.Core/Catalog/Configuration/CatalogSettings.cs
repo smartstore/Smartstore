@@ -73,6 +73,11 @@ namespace Smartstore.Core.Catalog
         public bool ShowProductTags { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to display the reward points (including amount) to receive for a product review in product detail pages.
+        /// </summary>
+        public bool ShowRewardPointsInProductDetail { get; set; }
+
+        /// <summary>
 		/// Gets or sets a value indicating how many menu items will be displayed
 		/// </summary>
         public int? MaxItemsToDisplayInCatalogMenu { get; set; }

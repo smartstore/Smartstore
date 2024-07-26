@@ -42,4 +42,7 @@
             <a href="@reviewPageUrl" class="link-dnu">@T("Reviews.Overview.First")</a>
         }
     </span>
+    <span sm-if="Model.RewardPointsAmount != null" class="pd-review-amount pd-muted mt-1">
+        @T("RewardPoints.Message.RewardPointsForProductReview", Model.RewardPoints, Model.RewardPointsAmount.ToString())
+    </span>
 </div>
