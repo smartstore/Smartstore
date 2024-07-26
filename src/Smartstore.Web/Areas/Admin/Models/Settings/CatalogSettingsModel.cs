@@ -187,6 +187,10 @@ namespace Smartstore.Admin.Models
 
         #region Grouped product configuration
 
+        // TODO: (mg) make localizable
+        [LocalizedDisplay("Admin.Catalog.Products.GroupedProductConfiguration.Title")]
+        public string AssociatedProductsTitle { get; set; }
+
         [LocalizedDisplay("*AssociatedProductsPageSize")]
         public int AssociatedProductsPageSize { get; set; }
 

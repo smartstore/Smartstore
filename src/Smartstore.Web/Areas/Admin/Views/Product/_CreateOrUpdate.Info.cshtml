@@ -154,6 +154,15 @@
     <div id="grouped-product-config">
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="GroupedProductConfiguration.Title" />
+            </div>
+            <div class="adminData">
+                <input asp-for="GroupedProductConfiguration.Title" placeholder="@CatalogSettings.AssociatedProductsTitle" />
+                <span asp-validation-for="GroupedProductConfiguration.Title"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="GroupedProductConfiguration.PageSize" />
             </div>
             <div class="adminData">

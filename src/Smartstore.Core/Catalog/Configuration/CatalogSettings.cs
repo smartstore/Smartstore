@@ -428,6 +428,11 @@ namespace Smartstore.Core.Catalog
         #region Grouped product configuration
 
         /// <summary>
+        /// Gets or sets a title for the associated products list.
+        /// </summary>
+        public string AssociatedProductsTitle { get; set; }
+
+        /// <summary>
         /// Gets or sets the number of associated products per page.
         /// The default value is 20.
         /// </summary>

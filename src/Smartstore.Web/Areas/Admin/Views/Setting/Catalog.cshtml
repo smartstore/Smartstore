@@ -668,6 +668,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="AssociatedProductsTitle" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AssociatedProductsTitle"></setting-editor>
+                        <span asp-validation-for="AssociatedProductsTitle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="AssociatedProductsPageSize" />
                     </div>
                     <div class="adminData">

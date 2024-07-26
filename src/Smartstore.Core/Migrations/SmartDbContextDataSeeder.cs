@@ -349,7 +349,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AssociatedProductsPageSize",
                 "Page size of associated products list",
-                "Listengröße von verknüpften Produkten",
+                "Listengröße der verknüpften Produkten",
                 "Specifies the number of associated products per page for grouped products.",
                 "Legt die Anzahl verknüpfter Produkte pro Seite für Gruppenprodukte fest.");
 
@@ -374,6 +374,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.GroupedProductConfiguration.Note",
                 "Settings for grouped products can be overwritten at product level.",
                 "Einstellungen für Gruppenprodukte können beim jeweiligen Produkt überschrieben werden.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
+                "List title of associated products list", 
+                "Listentitel der verknüpften Produkte");
             // ----- Revamp grouped products (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines",

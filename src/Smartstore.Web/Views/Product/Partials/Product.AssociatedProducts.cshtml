@@ -17,13 +17,7 @@
 }
 
 <div id="associated-products">
-    @if (Model.Products.Count == 0)
-    {
-        <div class="alert alert-info">
-            @T("Common.NoProductsFound")
-        </div>
-    }
-    else if (Model.Configuration.Collapsible ?? CatalogSettings.CollapsibleAssociatedProducts)
+    @if (Model.Configuration.Collapsible ?? CatalogSettings.CollapsibleAssociatedProducts)
     {
         <div class="pd-assoc-list accordion">
             @foreach (var product in Model.Products)

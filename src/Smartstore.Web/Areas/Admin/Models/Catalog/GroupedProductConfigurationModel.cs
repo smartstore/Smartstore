@@ -3,6 +3,10 @@
     [LocalizedDisplay("Admin.Catalog.Products.GroupedProductConfiguration.")]
     public class GroupedProductConfigurationModel
     {
+        // TODO: (mg) make localizable
+        [LocalizedDisplay("*Title")]
+        public string Title { get; set; }
+
         [LocalizedDisplay("*PageSize")]
         public int? PageSize { get; set; }
 

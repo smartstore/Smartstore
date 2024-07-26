@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -470,6 +471,7 @@ namespace Smartstore.Web.Controllers
             return new()
             {
                 Id = product.Id,
+                AssociatedProductsTitle = ctx.GroupedProductConfiguration.Title ?? _catalogSettings.AssociatedProductsTitle,
                 Configuration = ctx.GroupedProductConfiguration,
                 Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount)
             };
