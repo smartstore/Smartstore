@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media
         public int ProductThumbPictureSizeOnProductDetailsPage { get; set; } = ThumbnailSizeXs;
         public int MessageProductThumbPictureSize { get; set; } = ThumbnailSizeXs;
         public int AssociatedProductPictureSize { get; set; } = ThumbnailSizeXl;
-        public int AssociatedProductHeaderThumbSize { get; set; } = ThumbnailSizeXxs;
+        public int AssociatedProductHeaderThumbSize { get; set; } = ThumbnailSizeXs;
         public int BundledProductPictureSize { get; set; } = ThumbnailSizeXs;
         public int CategoryThumbPictureSize { get; set; } = ThumbnailSizeMd;
         public int ManufacturerThumbPictureSize { get; set; } = ThumbnailSizeMd;

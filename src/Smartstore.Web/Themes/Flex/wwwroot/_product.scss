@@ -635,22 +635,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-assoc-title {
     padding: 0.75rem;
 
-    > .col:not(:last-child) {
-        display: flex;
-        padding: 0.3rem 0.5rem;
-        align-items: center;
-    }
-
     .pd-qty-input-container {
         width: inherit;
         cursor: default;
     }
-
-/*    .numberinput:not(:hover, :active, :focus), 
-    .btn-secondary:not(:hover, :active, :focus) {
-        border-color: transparent;
-        box-shadow: none;
-    }*/
 
     .collapse-chevron {
         height: max-content;
@@ -665,6 +653,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     width: 100%;
     min-width: 100px;
     padding: 0;
+
+    .numberinput-group {
+        overflow: initial;
+    }
+
+    .numberinput,
+    .qty-input-dropdown {
+        box-shadow: var(--box-shadow-xs);
+    }
 }
 
 .pd-assoc-name {
@@ -672,17 +669,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-assoc-img {
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
     align-self: center;
+    width: 42px;
+    margin-inline-end: 12px;
 }
 
 .pd-assoc-attr {
     @extend .text-truncate;
     font-size: $font-size-sm;
     text-align: center;
-    //width: 100%;
 }
 
 .pd-assoc-price {

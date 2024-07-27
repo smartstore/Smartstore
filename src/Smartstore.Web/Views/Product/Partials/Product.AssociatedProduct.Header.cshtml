@@ -12,7 +12,7 @@
     var id = $"associated-product{Model.Id}";
     var gallery = Model.MediaGalleryModel;
     var img = gallery?.Files?.FirstOrDefault();
-    var imgClass = "rounded-sm border border-translucent shadow-xs";
+    var imgClass = "img-fluid rounded-sm border border-translucent shadow-xs";
 
     var hasImageHeader = HasHeader(AssociatedProductHeader.Image);
     var hasSkuHeader = HasHeader(AssociatedProductHeader.Sku);
@@ -154,7 +154,7 @@
         </div>
 
         @* Cart *@
-        <div class="col-6 col-sm-@colSmSizeCart col-md-@colMdSizeCart col-lg-@colLgSizeCart col-xl-@colXlSizeCart d-flex align-items-center">
+        <div class="col-@(hasDataCol ? 6 : 12) col-sm-@colSmSizeCart col-md-@colMdSizeCart col-lg-@colLgSizeCart col-xl-@colXlSizeCart d-flex align-items-center">
             <div class="pd-assoc-actions">
                 <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                     @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Medium })
