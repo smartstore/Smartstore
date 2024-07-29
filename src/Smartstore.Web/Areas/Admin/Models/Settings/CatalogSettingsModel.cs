@@ -293,9 +293,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowProductTags")]
         public bool ShowProductTags { get; set; }
 
-        [LocalizedDisplay("*ShowRewardPointsInProductDetail")]
-        public bool ShowRewardPointsInProductDetail { get; set; }
-
         #endregion
 
         public PriceSettingsModel PriceSettings { get; set; } = new();

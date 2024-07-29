@@ -22,6 +22,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool ShowRetailPriceSaving { get; set; }
 
         public List<ProductBadgeModel> Badges { get; } = [];
+        public RewardModel Reward { get; set; }
 
         public bool HasDiscount
         {
@@ -66,5 +67,11 @@ namespace Smartstore.Web.Models.Catalog
     {
         public int Quantity { get; set; }
         public Money Price { get; set; }
+    }
+
+    public class RewardModel
+    {
+        public int Points { get; set; }
+        public Money Amount { get; set; }
     }
 }

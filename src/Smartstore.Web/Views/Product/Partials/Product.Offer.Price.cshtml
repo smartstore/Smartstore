@@ -112,5 +112,10 @@
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>
+        <div sm-if="priceModel.Reward != null" class="pd-group">
+            <div class="pd-review-amount alert alert-success fs-sm py-2 w-100">
+                @Html.Raw(T("RewardPoints.Message.RewardPointsForProductPurchase", priceModel.Reward.Points, priceModel.Reward.Amount.ToString()))
+            </div>
+        </div>
     }
 </div>

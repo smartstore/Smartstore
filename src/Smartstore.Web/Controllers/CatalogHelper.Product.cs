@@ -248,13 +248,17 @@ namespace Smartstore.Web.Controllers
                 review.AllowCustomerReviews = product.AllowCustomerReviews;
 
                 if (product.AllowCustomerReviews 
-                    && _catalogSettings.ShowRewardPointsInProductDetail
-                    && _rewardPointsSettings.Enabled 
+                    && _rewardPointsSettings.Enabled
+                    && _rewardPointsSettings.ShowPointsForProductReview
                     && _rewardPointsSettings.PointsForProductReview > 0)
                 {
-                    var rewardPointsAmountBase = _orderCalculationService.Value.ConvertRewardPointsToAmount(_rewardPointsSettings.PointsForProductReview);
-                    review.RewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, _services.WorkContext.WorkingCurrency);
-                    review.RewardPoints = _rewardPointsSettings.PointsForProductReview;
+                    var rewardAmountBase = _orderCalculationService.Value.ConvertRewardPointsToAmount(_rewardPointsSettings.PointsForProductReview);
+
+                    review.Reward = new()
+                    {
+                        Points = _rewardPointsSettings.PointsForProductReview,
+                        Amount = _currencyService.ConvertFromPrimaryCurrency(rewardAmountBase.Amount, _services.WorkContext.WorkingCurrency)
+                    };
                 }
 
                 #endregion

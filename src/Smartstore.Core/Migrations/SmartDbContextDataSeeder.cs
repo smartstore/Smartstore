@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
@@ -410,14 +409,24 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt den Namen des Transportunternehmens fest, z.B. DHL, Hermes, DPD oder UPS.");
 
             builder.AddOrUpdate("RewardPoints.Message.RewardPointsForProductReview",
-                "You will reward {0} points worth {1} for your rating.",
+                "You will receive <strong>{0}</strong> reward points worth <strong>{1}</strong> for your rating.",
                 "Sie erhalten <strong>{0}</strong> Bonuspunkte im Wert von <strong>{1}</strong> für Ihre Bewertung.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowRewardPointsInProductDetail",
-                "Show reward points for a product review",
-                "Bonuspunkte für eine Produkt-Bewertung anzeigen",
+            builder.AddOrUpdate("RewardPoints.Message.RewardPointsForProductPurchase",
+                "You will receive <strong>{0}</strong> reward points worth <strong>{1}</strong> for this purchase.",
+                "Sie erhalten <strong>{0}</strong> Bonuspunkte im Wert von <strong>{1}</strong> für diesen Einkauf.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.RewardPoints.ShowPointsForProductReview",
+                "Show points for a product review",
+                "Punkte für eine Produkt-Rezension anzeigen",
                 "Specifies whether the reward points awarded for a product review, including the corresponding amount, should be displayed on the product detail page.",
-                "Legt fest, ob die für eine Produkt-Bewertung gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
+                "Legt fest, ob die für eine Produkt-Rezension gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.RewardPoints.ShowPointsForProductPurchase",
+                "Show points for the purchase of a product",
+                "Punkte für den Kauf eines Produktes anzeigen",
+                "Specifies whether the reward points awarded for purchasing a product, including the corresponding amount, should be displayed on the product detail page.",
+                "Legt fest, ob die für den Kauf eines Produktes gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
 
             AddAIResources(builder);
         }

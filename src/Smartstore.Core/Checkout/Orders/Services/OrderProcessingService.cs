@@ -741,25 +741,22 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Applies reward points. The caller is responsible for database commit.
         /// </summary>
-        protected virtual void ApplyRewardPoints(Order order, bool reduce, decimal? amount = null)
+        protected virtual void ApplyRewardPoints(Order order, bool decrease, decimal? amount = null)
         {
             if (!_rewardPointsSettings.Enabled ||
                 _rewardPointsSettings.PointsForPurchases_Amount <= decimal.Zero ||
-                (!reduce && order.RewardPointsWereAdded) || 
-                (reduce && !order.RewardPointsWereAdded) ||
+                (!decrease && order.RewardPointsWereAdded) || 
+                (decrease && !order.RewardPointsWereAdded) ||
                 order.Customer == null ||
                 order.Customer.IsGuest())
             {
                 return;
             }
 
-            var rewardAmount = (amount ?? order.OrderTotal) / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+            var points = _orderCalculationService.GetRewardPointsForPurchase(amount ?? order.OrderTotal, decrease);
 
-            if (reduce)
+            if (decrease)
             {
-                // We use IRoundingHelper here because Truncate increases the risk of inaccuracy of rounding.
-                var points = (int)_roundingHelper.Round(rewardAmount, 0, _primaryCurrency.MidpointRounding);
-
                 if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
                 {
                     points = order.RewardPointsRemaining.Value;
@@ -771,22 +768,16 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (!order.RewardPointsRemaining.HasValue)
                     {
-                        var remainingPoints = order.OrderTotal / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
-                        order.RewardPointsRemaining = (int)_roundingHelper.Round(remainingPoints, 0, _primaryCurrency.MidpointRounding);
+                        order.RewardPointsRemaining = _orderCalculationService.GetRewardPointsForPurchase(order.OrderTotal, true);
                     }
 
                     order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
                 }
             }
-            else
+            else if (points != 0)
             {
-                // Truncate same as Floor for positive amounts.
-                var points = (int)Math.Truncate(rewardAmount);
-                if (points != 0)
-                {
-                    order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
-                    order.RewardPointsWereAdded = true;
-                }
+                order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
+                order.RewardPointsWereAdded = true;
             }
         }
 

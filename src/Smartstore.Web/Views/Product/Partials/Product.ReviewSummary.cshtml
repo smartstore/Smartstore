@@ -42,7 +42,7 @@
             <a href="@reviewPageUrl" class="link-dnu">@T("Reviews.Overview.First")</a>
         }
     </div>
-    <div sm-if="Model.RewardPointsAmount != null" class="pd-review-amount alert alert-success mt-1 fs-sm py-2 w-100">
-        @Html.Raw(T("RewardPoints.Message.RewardPointsForProductReview", Model.RewardPoints, Model.RewardPointsAmount.ToString()))
+    <div sm-if="Model.Reward != null" class="pd-review-amount alert alert-success mt-1 fs-sm py-2 w-100">
+        @Html.Raw(T("RewardPoints.Message.RewardPointsForProductReview", Model.Reward.Points, Model.Reward.Amount.ToString()))
     </div>
 </div>

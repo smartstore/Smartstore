@@ -9,8 +9,7 @@ namespace Smartstore.Web.Models.Catalog
         public int RatingSum { get; set; }
         public int TotalReviews { get; set; }
         public bool AllowCustomerReviews { get; set; }
-        public int RewardPoints { get; set; }
-        public Money? RewardPointsAmount { get; set; }
+        public RewardModel Reward { get; set; }
     }
 
     [LocalizedDisplay("Reviews.Fields.")]
