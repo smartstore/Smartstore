@@ -1,7 +1,10 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
-    var zone = ViewData["widgetzone"] as IWidgetZone;
+    if (ViewData["widgetzone"] is not IWidgetZone zone)
+    {
+        return;
+    }
 }
 
 @if (zone.PreviewTagName == "meta")
