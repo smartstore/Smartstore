@@ -26,7 +26,7 @@ namespace Smartstore.Web.Controllers
             var isBundle = product.ProductType == ProductType.BundledProduct;
             var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
             var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
-            var getRewardAmount = _rewardPointsSettings.Enabled
+            var computeRewardAmount = _rewardPointsSettings.Enabled
                 && _rewardPointsSettings.ShowPointsForProductPurchase
                 && _rewardPointsSettings.PointsForPurchases_Amount > decimal.Zero 
                 && !customer.IsGuest();
@@ -85,7 +85,7 @@ namespace Smartstore.Web.Controllers
             }
 
             CalculatedPrice unitPrice, subtotal;
-            if (selectedQuantity > 1 && getRewardAmount)
+            if (selectedQuantity > 1 && computeRewardAmount)
             {
                 (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
             }
@@ -94,7 +94,7 @@ namespace Smartstore.Web.Controllers
                 unitPrice = subtotal = await _priceCalculationService.CalculatePriceAsync(calculationContext);
             }
 
-            if (getRewardAmount)
+            if (computeRewardAmount)
             {
                 var rewardPoints = _orderCalculationService.Value.GetRewardPointsForPurchase(subtotal.FinalPrice.Amount);
                 if (rewardPoints != 0)

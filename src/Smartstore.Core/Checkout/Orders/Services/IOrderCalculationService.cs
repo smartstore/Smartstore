@@ -133,11 +133,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="amount">
         /// The purchase amount to return reward points for.
         /// </param>
-        /// <param name="toDecreasePointsBalanceHistory">
+        /// <param name="decreasePointsBalanceHistory">
         /// A value indicating whether the returned points will be used to decrease the points balance history.
         /// <c>true</c> to decrease the points balance history, otherwise <c>false</c> (default).
         /// </param>
-        int GetRewardPointsForPurchase(decimal amount, bool toDecreasePointsBalanceHistory = false);
+        int GetRewardPointsForPurchase(decimal amount, bool decreasePointsBalanceHistory = false);
 
         /// <summary>
         /// Converts reward points to an amount in the primary currency.
