@@ -398,6 +398,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
+            await MapperFactory.MapAsync(catalogSettings, model.GroupedProductSettings);
             await MapperFactory.MapAsync(priceSettings, model.PriceSettings);
 
             await PrepareCatalogConfigurationModelAsync(model, catalogSettings);
@@ -408,12 +409,22 @@ namespace Smartstore.Admin.Controllers
                 locale.LimitedOfferBadgeLabel = priceSettings.GetLocalizedSetting(x => x.LimitedOfferBadgeLabel, languageId, storeScope, false, false);
             });
 
+            AddLocales(model.GroupedProductSettings.Locales, (locale, languageId) =>
+            {
+                locale.AssociatedProductsTitle = catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle, languageId, storeScope, false, false);
+            });
+
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
+        public async Task<IActionResult> Catalog(
+            int storeScope,
+            CatalogSettingsModel model,
+            CatalogSettings catalogSettings, 
+            PriceSettings priceSettings,
+            GroupedProductSettingsModel groupedProductSettings)
         {
             if (!ModelState.IsValid)
             {
@@ -431,12 +442,18 @@ namespace Smartstore.Admin.Controllers
             }
 
             await MapperFactory.MapAsync(model, catalogSettings);
+            await MapperFactory.MapAsync(groupedProductSettings, catalogSettings);
             await MapperFactory.MapAsync(model.PriceSettings, priceSettings);
 
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.OfferBadgeLabel, localized.OfferBadgeLabel, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.LimitedOfferBadgeLabel, localized.LimitedOfferBadgeLabel, localized.LanguageId, storeScope);
+            }
+
+            foreach (var localized in groupedProductSettings.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(catalogSettings, x => x.AssociatedProductsTitle, localized.AssociatedProductsTitle, localized.LanguageId, storeScope);
             }
 
             return NotifyAndRedirect(nameof(Catalog));
@@ -1555,8 +1572,8 @@ namespace Smartstore.Admin.Controllers
         {
             ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
             {
-                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
-                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+                new() { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new() { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
             };
 
             var priceLabels = await _db.PriceLabels
@@ -1592,7 +1609,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var value in Enum.GetNames(typeof(BadgeStyle)))
                 {
-                    items.Add(new SelectListItem { Value = value.ToLower(), Text = value, Selected = selectedValue.EqualsNoCase(value) });
+                    items.Add(new() { Value = value.ToLower(), Text = value, Selected = selectedValue.EqualsNoCase(value) });
                 }
 
                 return items;

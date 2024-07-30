@@ -1,6 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog
 {
@@ -425,6 +426,7 @@ namespace Smartstore.Core.Catalog
         /// <summary>
         /// Gets or sets a title for the associated products list.
         /// </summary>
+        [LocalizedProperty]
         public string AssociatedProductsTitle { get; set; }
 
         /// <summary>

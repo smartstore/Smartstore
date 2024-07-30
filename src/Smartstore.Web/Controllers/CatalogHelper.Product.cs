@@ -442,6 +442,7 @@ namespace Smartstore.Web.Controllers
 
             pageIndex = Math.Max(0, pageIndex - 1);
 
+            //var language = _workContext.WorkingLanguage;
             var product = ctx.Product;
             var batchContext = ctx.BatchContext;
             var pageSize = ctx.GroupedProductConfiguration.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
@@ -472,10 +473,13 @@ namespace Smartstore.Web.Controllers
                 }))
                 .AsyncToList();
 
+            //var title = ctx.GroupedProductConfiguration.Titles.Get(language.LanguageCulture).NullEmpty() ?? _catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle);
+            var title = ctx.GroupedProductConfiguration.Title ?? _catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle);
+
             return new()
             {
                 Id = product.Id,
-                AssociatedProductsTitle = ctx.GroupedProductConfiguration.Title ?? _catalogSettings.AssociatedProductsTitle,
+                AssociatedProductsTitle = title,
                 Configuration = ctx.GroupedProductConfiguration,
                 Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount)
             };

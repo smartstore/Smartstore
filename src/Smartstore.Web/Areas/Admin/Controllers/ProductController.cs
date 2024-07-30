@@ -46,6 +46,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ILanguageService _languageService;
         private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
         private readonly IPriceLabelService _priceLabelService;
@@ -81,6 +82,7 @@ namespace Smartstore.Admin.Controllers
             IAclService aclService,
             IStoreMappingService storeMappingService,
             IDateTimeHelper dateTimeHelper,
+            ILanguageService languageService,
             ICurrencyService currencyService,
             IDiscountService discountService,
             IPriceLabelService priceLabelService,
@@ -118,6 +120,7 @@ namespace Smartstore.Admin.Controllers
             _aclService = aclService;
             _storeMappingService = storeMappingService;
             _dateTimeHelper = dateTimeHelper;
+            _languageService = languageService;
             _currencyService = currencyService;
             _discountService = discountService;
             _priceLabelService = priceLabelService;
@@ -269,6 +272,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(List));
             }
 
+            //var allLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToDictionary(x => x.Id);
             var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
             await PrepareProductModelAsync(model, product, false, false);
 
@@ -283,6 +287,14 @@ namespace Smartstore.Admin.Controllers
                 locale.SeName = await product.GetActiveSlugAsync(languageId, false, false);
                 locale.BundleTitleText = product.GetLocalized(x => x.BundleTitleText, languageId, false, false);
             });
+
+            //AddLocales(model.GroupedProductConfiguration.Locales, (locale, languageId) =>
+            //{
+            //    if (product.ProductType == ProductType.GroupedProduct && product.GroupedProductConfiguration != null)
+            //    {
+            //        locale.Title = product.GroupedProductConfiguration.Titles.Get(allLanguages.Get(languageId)?.LanguageCulture?.NullEmpty() ?? string.Empty);
+            //    }
+            //});
 
             return View(model);
         }
