@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq.Dynamic.Core;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
@@ -272,7 +273,6 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(List));
             }
 
-            //var allLanguages = (await _languageService.GetAllLanguagesAsync(true)).ToDictionary(x => x.Id);
             var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
             await PrepareProductModelAsync(model, product, false, false);
 
@@ -287,14 +287,6 @@ namespace Smartstore.Admin.Controllers
                 locale.SeName = await product.GetActiveSlugAsync(languageId, false, false);
                 locale.BundleTitleText = product.GetLocalized(x => x.BundleTitleText, languageId, false, false);
             });
-
-            //AddLocales(model.GroupedProductConfiguration.Locales, (locale, languageId) =>
-            //{
-            //    if (product.ProductType == ProductType.GroupedProduct && product.GroupedProductConfiguration != null)
-            //    {
-            //        locale.Title = product.GroupedProductConfiguration.Titles.Get(allLanguages.Get(languageId)?.LanguageCulture?.NullEmpty() ?? string.Empty);
-            //    }
-            //});
 
             return View(model);
         }
@@ -590,12 +582,16 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> GetBasePrice(int productId, string basePriceMeasureUnit, decimal basePriceAmount, int basePriceBaseAmount)
         {
-            var product = await _db.Products.FindByIdAsync(productId);
-            string basePrice = string.Empty;
+            var basePrice = string.Empty;
 
             if (basePriceAmount != decimal.Zero)
             {
-                var basePriceValue = Convert.ToDecimal(product.Price / basePriceAmount * basePriceBaseAmount);
+                var price = await _db.Products
+                    .Where(x => x.Id == productId)
+                    .Select(x => x.Price)
+                    .FirstOrDefaultAsync();
+
+                var basePriceValue = Convert.ToDecimal(price / basePriceAmount * basePriceBaseAmount);
                 var basePriceFormatted = _currencyService.ConvertFromPrimaryCurrency(basePriceValue, _workContext.WorkingCurrency).ToString();
                 var unit = $"{basePriceBaseAmount} {basePriceMeasureUnit}";
 
@@ -603,6 +599,116 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Result = true, BasePrice = basePrice });
+        }
+
+        #endregion
+
+        #region Grouped product configuration
+
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> EditGroupedProductConfiguration(int id, string formId)
+        {
+            var product = await _db.Products.FindByIdAsync(id, false);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            if (product.ProductType != ProductType.GroupedProduct)
+            {
+                return BadRequest($"Product #{product.Id} must be a grouped product.");
+            }
+
+            var allLanguages = await _languageService.GetAllLanguagesAsync(true);
+            var languageMap = allLanguages.ToDictionary(x => x.Id);
+
+            // TODO: (mg) use a mapper GroupedProductConfiguration -> GroupedProductConfigurationModel
+            var model = new GroupedProductConfigurationModel
+            {
+                Id = id
+            };
+
+            if (product.GroupedProductConfiguration != null)
+            {
+                MiniMapper.Map(product.GroupedProductConfiguration, model);
+            }
+
+            var titles = product.GroupedProductConfiguration?.Titles;
+            if (!titles.IsNullOrEmpty())
+            {
+                AddLocales(model.Locales, (locale, languageId) =>
+                {
+                    locale.Title = titles.Get(languageMap.Get(languageId).LanguageCulture);
+                });
+
+                model.Title = titles.Get(allLanguages.First().LanguageCulture);
+            }
+
+            var defaultAssociatedHeaders = _catalogSettings.CollapsibleAssociatedProductsHeaders
+                .Select(x =>
+                {
+                    switch (x)
+                    {
+                        case AssociatedProductHeader.Image:
+                            return T("Common.Image");
+                        case AssociatedProductHeader.Sku:
+                            return T("Admin.Catalog.Products.Fields.Sku");
+                        case AssociatedProductHeader.Price:
+                            return T("Admin.Catalog.Products.Fields.Price");
+                        case AssociatedProductHeader.Weight:
+                            return T("Admin.Catalog.Products.Fields.Weight");
+                        case AssociatedProductHeader.Dimensions:
+                            return T("Admin.Configuration.Measures.Dimensions");
+                        default:
+                            return null;
+                    };
+                })
+                .Where(x => x != null);
+
+            ViewBag.DefaultAssociatedProductsHeaderFields = string.Join(", ", defaultAssociatedHeaders);
+            ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(model?.HeaderFields ?? [], T, true);
+            ViewBag.FormId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Update)]
+        public async Task<IActionResult> EditGroupedProductConfiguration(string formId, GroupedProductConfigurationModel model)
+        {
+            var product = await _db.Products.FindByIdAsync(model.Id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            if (product.ProductType != ProductType.GroupedProduct)
+            {
+                return BadRequest($"Product #{product.Id} must be a grouped product.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                // TODO: (mg) use a mapper GroupedProductConfigurationModel -> GroupedProductConfiguration
+                product.GroupedProductConfiguration = MiniMapper.Map<GroupedProductConfigurationModel, GroupedProductConfiguration>(model);
+
+                var allLanguages = await _languageService.GetAllLanguagesAsync(true);
+                var languageMap = allLanguages.ToDictionary(x => x.Id);
+                var titles = product.GroupedProductConfiguration.Titles = [];
+
+                foreach (var localized in model.Locales)
+                {
+                    titles[languageMap.Get(localized.LanguageId).LanguageCulture] = localized.Title;
+                }
+
+                titles[allLanguages.First().LanguageCulture] = model.Title;
+
+                await _db.SaveChangesAsync();
+                NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
+                ViewBag.RefreshPage = true;
+                ViewBag.FormId = formId;
+            }
+
+            return View(model);
         }
 
         #endregion
@@ -1672,13 +1778,6 @@ namespace Smartstore.Admin.Controllers
 
                 model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
 
-                // Instance always required because of validation.
-                model.GroupedProductConfiguration ??= new();
-                if (product.ProductType == ProductType.GroupedProduct && product.GroupedProductConfiguration != null)
-                {
-                    MiniMapper.Map(product.GroupedProductConfiguration, model.GroupedProductConfiguration);
-                }
-
                 ViewBag.SelectedProductTags = model.ProductTagNames
                     .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
                     .ToList();
@@ -1831,30 +1930,6 @@ namespace Smartstore.Admin.Controllers
             ViewBag.CartQuantityInfo = T("Admin.Catalog.Products.CartQuantity.Info",
                 _shoppingCartSettings.MaxQuantityInputDropdownItems.ToString("N0"),
                 Url.Action("ShoppingCart", "Setting"));
-
-            var defaultAssociatedHeaders = _catalogSettings.CollapsibleAssociatedProductsHeaders
-                .Select(x =>
-                {
-                    switch (x)
-                    {
-                        case AssociatedProductHeader.Image:
-                            return T("Common.Image");
-                        case AssociatedProductHeader.Sku:
-                            return T("Admin.Catalog.Products.Fields.Sku");
-                        case AssociatedProductHeader.Price:
-                            return T("Admin.Catalog.Products.Fields.Price");
-                        case AssociatedProductHeader.Weight:
-                            return T("Admin.Catalog.Products.Fields.Weight");
-                        case AssociatedProductHeader.Dimensions:
-                            return T("Admin.Configuration.Measures.Dimensions");
-                        default:
-                            return null;
-                    };
-                })
-                .Where(x => x != null);
-
-            ViewBag.DefaultAssociatedProductsHeaderFields = string.Join(", ", defaultAssociatedHeaders);
-            ViewBag.AssociatedProductsHeaderFields = CreateAssociatedProductsHeaderFieldsList(model.GroupedProductConfiguration?.HeaderFields ?? [], T, true);
 
             if (setPredefinedValues)
             {
@@ -2054,7 +2129,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (model.LoadedTabs == null || model.LoadedTabs.Length == 0)
             {
-                model.LoadedTabs = new string[] { "Info" };
+                model.LoadedTabs = ["Info"];
             }
 
             foreach (var tab in model.LoadedTabs)
@@ -2147,12 +2222,6 @@ namespace Smartstore.Admin.Controllers
             p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc.HasValue
                 ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableEndDateTimeUtc.Value)
                 : null;
-
-            if (p.ProductType == ProductType.GroupedProduct)
-            {
-                var config = MiniMapper.Map<GroupedProductConfigurationModel, GroupedProductConfiguration>(model.GroupedProductConfiguration);
-                p.GroupedProductConfiguration = config;
-            }
         }
 
         private async Task UpdateProductDownloadsAsync(Product product, ProductModel model)

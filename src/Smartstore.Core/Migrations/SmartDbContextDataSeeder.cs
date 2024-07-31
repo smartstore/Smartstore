@@ -377,6 +377,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
                 "Title of associated products list", 
                 "Listentitel der verknüpften Produkte");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration", "Edit grouped product", "Gruppenprodukt bearbeiten");
             // ----- Revamp grouped products (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayAdditionalLines",

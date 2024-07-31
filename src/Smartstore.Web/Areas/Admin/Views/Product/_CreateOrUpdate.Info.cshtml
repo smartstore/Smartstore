@@ -1,21 +1,53 @@
-﻿@using Smartstore.Core.Catalog
-@using Smartstore.Core.Catalog.Products
+﻿@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Checkout.GiftCards
 
 @inject ILanguageService languageService
-@inject CatalogSettings CatalogSettings
 
 @model ProductModel
 
 <script sm-target-zone="Scripts" data-origin="product-info">
 	$(function () {
-		$("#@Html.IdFor(model => model.ProductTypeId)").change(toggleProductType);
-		toggleProductType();
+        $('#@Html.IdFor(model => model.ProductTypeId)').on('change', function () {
+            var selectedProductTypeId = $(this).val();
+            if (selectedProductTypeId == '@((int)ProductType.SimpleProduct)') {
+                $('#btn-edit-product-type').hide();
+                $('#group-required-other-products').show();
+                $('#group-giftcard').show();
+                $('#group-downloads').show();
+                $('#group-recurring').show();
+                $('#group-shipping').show();
+                $('#group-tax').show();
+                $('#group-inventory').show();
+                $('a[href="#tab-inventory"]').parent().removeClass("hide"); // specified in _CreateOrUpdate.cshtml
+            }
+            else if (selectedProductTypeId == '@((int)ProductType.GroupedProduct)') {
+                $('#btn-edit-product-type').show();
+                $('#group-required-other-products').hide();
+                $('#group-giftcard').hide();
+                $('#group-downloads').hide();
+                $('#group-recurring').hide();
+                $('#group-shipping').hide();
+                $('#group-tax').hide();
+                $('#group-inventory').hide();
+                $('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
+            }
+            else if (selectedProductTypeId == '@((int)ProductType.BundledProduct)') {
+                $('#btn-edit-product-type').hide();
+        	    //$('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
+            }
+        })
+        .trigger('change');
 
-		// reset required-productids
+		// Reset required product ids.
 		$("#reset-required-productids").on("click", function (e) {
 			e.preventDefault();
 			$("#@Html.IdFor(model => model.RequiredProductIds)").val("");
+        });
+
+        $('#btn-edit-product-type').on('click', function (e) {
+            e.preventDefault();
+            openPopup('@(Url.Action("EditGroupedProductConfiguration", new { id = Model.Id }))?formId=grouped-product-config-form');
+            return false;
         });
 
         $('#@Html.IdFor(model => model.ProductTagNames)').selectWrapper({
@@ -43,36 +75,6 @@
             }
         });
 	});
-
-    function toggleProductType() {
-        var selectedProductTypeId = $("#@Html.IdFor(model => model.ProductTypeId)").val();
-        if (selectedProductTypeId == '@((int)ProductType.SimpleProduct)') {
-            $('#grouped-product-config').hide();
-            $('#group-required-other-products').show();
-            $('#group-giftcard').show();
-            $('#group-downloads').show();
-            $('#group-recurring').show();
-            $('#group-shipping').show();
-            $('#group-tax').show();
-            $('#group-inventory').show();
-            $('a[href="#tab-inventory"]').parent().removeClass("hide"); // specified in _CreateOrUpdate.cshtml
-        }
-        else if (selectedProductTypeId == '@((int)ProductType.GroupedProduct)') {
-            $('#grouped-product-config').show();
-            $('#group-required-other-products').hide();
-            $('#group-giftcard').hide();
-            $('#group-downloads').hide();
-            $('#group-recurring').hide();
-            $('#group-shipping').hide();
-            $('#group-tax').hide();
-            $('#group-inventory').hide();
-            $('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
-        }
-        else if (selectedProductTypeId == '@((int)ProductType.BundledProduct)') {
-            $('#grouped-product-config').hide();
-        	//$('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
-        }
-	}
 </script>
 
 <div class="adminContent mb-2">
@@ -147,65 +149,20 @@
             <smart-label asp-for="ProductTypeId" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))"></select>
+            <div class="row flex-nowrap xs-gutters">
+                <div class="col">
+                    <select asp-for="ProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))"></select>
+                </div>
+                <div class="col-auto">
+                    <button id="btn-edit-product-type" type="button" class="btn btn-secondary">
+                        <i class="far fa-edit"></i>
+                        <span>@T("Admin.Common.Edit")&hellip;</span>
+                    </button>
+                </div>
+            </div>
             <span asp-validation-for="ProductTypeId"></span>
         </div>
     </div>
-
-    @*<partial name="GroupedProductConfiguration" model="Model.GroupedProductConfiguration" />*@
-
-    <div id="grouped-product-config">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="GroupedProductConfiguration.Title" />
-            </div>
-            <div class="adminData">
-                <input asp-for="GroupedProductConfiguration.Title" placeholder="@CatalogSettings.AssociatedProductsTitle" />
-                <span asp-validation-for="GroupedProductConfiguration.Title"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="GroupedProductConfiguration.PageSize" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="GroupedProductConfiguration.PageSize" placeholder="@CatalogSettings.AssociatedProductsPageSize" />
-                <span asp-validation-for="GroupedProductConfiguration.PageSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="GroupedProductConfiguration.SearchMinAssociatedCount" placeholder="@CatalogSettings.SearchMinAssociatedProductsCount" />
-                <span asp-validation-for="GroupedProductConfiguration.SearchMinAssociatedCount"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="GroupedProductConfiguration.Collapsible" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="GroupedProductConfiguration.Collapsible" placeholder="@T(CatalogSettings.CollapsibleAssociatedProducts ? "Common.Yes" : "Common.No")" />
-                <span asp-validation-for="GroupedProductConfiguration.Collapsible"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="GroupedProductConfiguration.HeaderFields" />
-            </div>
-            <div class="adminData">
-                <select asp-for="GroupedProductConfiguration.HeaderFields"
-                        asp-items="ViewBag.AssociatedProductsHeaderFields"
-                        placeholder="@ViewBag.DefaultAssociatedProductsHeaderFields"
-                        multiple="multiple"
-                        data-tags="true"></select>
-                <span asp-validation-for="GroupedProductConfiguration.HeaderFields"></span>
-            </div>
-        </div>
-    </div>
-
     <div sm-if="Model.Id > 0 && Model.AssociatedToProductId > 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="AssociatedToProductName" />

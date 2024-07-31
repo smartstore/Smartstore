@@ -22,17 +22,11 @@ namespace Smartstore.Core.Catalog.Products
     public partial class GroupedProductConfiguration
     {
         /// <summary>
-        /// The title for the associated products list.
-        /// </summary>
-        [JsonProperty("title", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Title { get; set; }
-
-        /// <summary>
         /// The localized title for the associated products list.
         /// The key is the language culture and the value is the localized title.
         /// </summary>
-        //[JsonProperty("titles", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        //public Dictionary<string, string>? Titles { get; set; }
+        [JsonProperty("titles", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Dictionary<string, string>? Titles { get; set; }
 
         /// <summary>
         /// The number of associated products per page.
@@ -74,7 +68,13 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         private bool IsDefault()
-            => PageSize == null && SearchMinAssociatedCount == null && Collapsible == null && Title == null /*&& Titles.IsNullOrEmpty()*/ && HeaderFields.IsNullOrEmpty();
+        {
+            return PageSize == null
+                && SearchMinAssociatedCount == null
+                && Collapsible == null
+                && HeaderFields.IsNullOrEmpty()
+                && (Titles?.Values?.All(x => x.IsEmpty()) ?? true);
+        }
     }
 
 #nullable disable

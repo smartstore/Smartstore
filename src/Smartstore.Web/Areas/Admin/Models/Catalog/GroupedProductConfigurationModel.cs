@@ -1,27 +1,9 @@
-﻿namespace Smartstore.Admin.Models.Catalog
+﻿using FluentValidation;
+
+namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.GroupedProductConfiguration.")]
-    public class GroupedProductConfigurationModel
-    {
-        // TODO: (mg) make localizable
-        [LocalizedDisplay("*Title")]
-        public string Title { get; set; }
-
-        [LocalizedDisplay("*PageSize")]
-        public int? PageSize { get; set; }
-
-        [LocalizedDisplay("*SearchMinAssociatedCount")]
-        public int? SearchMinAssociatedCount { get; set; }
-
-        [LocalizedDisplay("*Collapsible")]
-        public bool? Collapsible { get; set; }
-
-        [LocalizedDisplay("*HeaderFields")]
-        public string[] HeaderFields { get; set; }
-    }
-
-    [LocalizedDisplay("Admin.Catalog.Products.GroupedProductConfiguration.")]
-    public class GroupedProductConfigurationModel2 : ILocalizedModel<GroupedProductConfigurationLocalizedModel>
+    public class GroupedProductConfigurationModel : EntityModelBase, ILocalizedModel<GroupedProductConfigurationLocalizedModel>
     {
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
@@ -48,5 +30,19 @@
 
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
+    }
+
+    public partial class GroupedProductConfigurationModelValidator : SmartValidator<GroupedProductConfigurationModel>
+    {
+        public GroupedProductConfigurationModelValidator()
+        {
+            RuleFor(x => x.PageSize)
+                .GreaterThan(0)
+                .When(x => x.PageSize != null);
+
+            RuleFor(x => x.SearchMinAssociatedCount)
+                .GreaterThanOrEqualTo(0)
+                .When(x => x.SearchMinAssociatedCount != null);
+        }
     }
 }
