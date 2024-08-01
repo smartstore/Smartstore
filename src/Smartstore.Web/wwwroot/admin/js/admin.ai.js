@@ -1,11 +1,11 @@
 (function ($, window, document, undefined) {
     $(function () {
         // Images
-        $(document).on('click', '.ai-provider-cnt .ai-image-creation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-image-creation', function (e) {
             e.preventDefault();
 
             var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            var cnt = el.closest(".ai-provider-tool");
 
             // Set the title used for the modal dialog title. 
             // For direct openers the title is set else we take the text of the dropdown item.
@@ -31,12 +31,12 @@
             e.preventDefault();
 
             var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            var cnt = el.closest(".ai-provider-tool");
             var isRichtext = cnt.data('is-rich-text');
 
             if (!isRichtext) {
                 // Get choosen provider cnt.
-                cnt = el.closest(".cnt-ai-dialog-opener").find("button.active");
+                cnt = el.closest(".ai-dialog-opener-root").find("button.active");
             }
 
             var params = {
@@ -85,11 +85,11 @@
         });
 
         // Translation
-        $(document).on('click', '.ai-provider-cnt .ai-translation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-translation', function (e) {
             e.preventDefault();
 
             var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            var cnt = el.closest(".ai-provider-tool");
 
             var params = {
                 providerSystemname: cnt.data('provider-systemname'),
@@ -103,11 +103,11 @@
         });
 
         // Suggestion
-        $(document).on('click', '.ai-provider-cnt .ai-suggestion', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-suggestion', function (e) {
             e.preventDefault();
 
             var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            var cnt = el.closest(".ai-provider-tool");
 
             var params = {
                 providerSystemname: cnt.data('provider-systemname'),
@@ -122,7 +122,7 @@
         });
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
-        $('.cnt-ai-dialog-opener').each(function () {
+        $('.ai-dialog-opener-root').each(function () {
             var textarea = $(this).find('textarea');
             if (textarea.length > 0 && textarea[0].scrollHeight > textarea.innerHeight() && textarea.innerHeight() > 0) {
                 $(this).addClass('has-scrollbar');

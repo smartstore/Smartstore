@@ -63,6 +63,7 @@ namespace Smartstore.Web.Rendering
 
                 // Add attributes from tag helper properties.
                 var route = provider.Value.GetDialogRoute(AIDialogType.Translation);
+                // TODO: (mc) (ai) Make extension method for RouteInfo type.
                 var routeUrl = _urlHelper.RouteUrl(route);
 
                 var dropdownLiTitle = T("Admin.AI.TranslateTextWith", friendlyName).ToString();
@@ -373,7 +374,7 @@ namespace Smartstore.Web.Rendering
         {
             var inputGroupColDiv = new TagBuilder("div");
             // TODO: (mh) (ai) Bad CSS class naming (*-cnt). TBD with MC.
-            inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right cnt-ai-dialog-opener " + (isDropdown ? "dropdown" : "ai-provider-cnt");
+            inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root " + (isDropdown ? "dropdown" : "ai-provider-tool");
 
             var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
 
@@ -439,7 +440,7 @@ namespace Smartstore.Web.Rendering
             string additionalClasses = "")
         {
             var dropdownLi = new TagBuilder("li");
-            dropdownLi.Attributes["class"] = isProviderCnt ? "ai-provider-cnt" : string.Empty;
+            dropdownLi.Attributes["class"] = isProviderCnt ? "ai-provider-tool" : string.Empty;
 
             var dropdownA = new TagBuilder("a");
             dropdownA.Attributes["href"] = "#";
