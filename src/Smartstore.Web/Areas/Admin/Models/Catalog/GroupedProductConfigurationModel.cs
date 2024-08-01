@@ -7,6 +7,7 @@ namespace Smartstore.Admin.Models.Catalog
     {
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
+        public string DefaultTitle { get; set; }
 
         [LocalizedDisplay("*PageSize")]
         public int? PageSize { get; set; }
@@ -30,6 +31,7 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
+        public string DefaultTitle { get; set; }
     }
 
     public partial class GroupedProductConfigurationModelValidator : SmartValidator<GroupedProductConfigurationModel>

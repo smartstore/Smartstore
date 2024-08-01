@@ -96,7 +96,9 @@
 
     string[] HeaderFields()
     {
-        return config.HeaderFields ?? CatalogSettings.CollapsibleAssociatedProductsHeaders ?? Array.Empty<string>();
+        return (config.HeaderFields ?? CatalogSettings.CollapsibleAssociatedProductsHeaders ?? Array.Empty<string>())
+            .Where(x => x != AssociatedProductHeader.Name)
+            .ToArray();
     }
 
     bool HasHeader(string name)

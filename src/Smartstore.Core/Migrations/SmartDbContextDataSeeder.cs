@@ -374,6 +374,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Settings for grouped products can be overwritten at product level.",
                 "Einstellungen für Gruppenprodukte können beim jeweiligen Produkt überschrieben werden.");
 
+            builder.AddOrUpdate("Admin.Catalog.GroupedProductConfiguration.SaveToContinue",
+                "To edit, please first save the product as a grouped product.",
+                "Zur Bearbeitung bitte zunächst das Produkt als Gruppenprodukt speichern.");
+
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
                 "Title of associated products list", 
                 "Listentitel der verknüpften Produkte");

@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -445,7 +444,8 @@ namespace Smartstore.Web.Controllers
             var language = _workContext.WorkingLanguage;
             var product = ctx.Product;
             var batchContext = ctx.BatchContext;
-            var pageSize = ctx.GroupedProductConfiguration.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
+            var config = ctx.GroupedProductConfiguration;
+            var pageSize = config.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
             var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength 
                 ? _searchSettings.GetSearchFields(true).ToArray()
                 : null;
@@ -473,14 +473,14 @@ namespace Smartstore.Web.Controllers
                 }))
                 .AsyncToList();
 
-            var title = ctx.GroupedProductConfiguration.Titles.Get(language.LanguageCulture).NullEmpty() ?? _catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle);
-
             return new()
             {
                 Id = product.Id,
-                AssociatedProductsTitle = title,
-                Configuration = ctx.GroupedProductConfiguration,
-                Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount)
+                Configuration = config,
+                Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount),
+                AssociatedProductsTitle = config.Titles?.Get(language.LanguageCulture).NullEmpty()
+                    ?? config.Titles?.Get(string.Empty).NullEmpty()
+                    ?? _catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle),
             };
         }
 

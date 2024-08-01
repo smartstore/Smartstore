@@ -64,6 +64,13 @@ namespace Smartstore.Core.Catalog.Products
                 HeaderFields = null;
             }
 
+            Titles = Titles?.Where(x => x.Value.HasValue())?.ToDictionary(x => x.Key, x => x.Value);
+
+            if (Titles.IsNullOrEmpty())
+            {
+                Titles = null;
+            }
+
             return JsonConvert.SerializeObject(this);
         }
 

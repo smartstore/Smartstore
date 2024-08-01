@@ -10,7 +10,7 @@
         $('#@Html.IdFor(model => model.ProductTypeId)').on('change', function () {
             var selectedProductTypeId = $(this).val();
             if (selectedProductTypeId == '@((int)ProductType.SimpleProduct)') {
-                $('#btn-edit-product-type').hide();
+                $('#product-type-config').hide();
                 $('#group-required-other-products').show();
                 $('#group-giftcard').show();
                 $('#group-downloads').show();
@@ -21,7 +21,7 @@
                 $('a[href="#tab-inventory"]').parent().removeClass("hide"); // specified in _CreateOrUpdate.cshtml
             }
             else if (selectedProductTypeId == '@((int)ProductType.GroupedProduct)') {
-                $('#btn-edit-product-type').show();
+                $('#product-type-config').show();
                 $('#group-required-other-products').hide();
                 $('#group-giftcard').hide();
                 $('#group-downloads').hide();
@@ -32,7 +32,7 @@
                 $('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
             }
             else if (selectedProductTypeId == '@((int)ProductType.BundledProduct)') {
-                $('#btn-edit-product-type').hide();
+                $('#product-type-config').hide();
         	    //$('a[href="#tab-inventory"]').parent().addClass("hide"); // specified in _CreateOrUpdate.cshtml
             }
         })
@@ -46,7 +46,13 @@
 
         $('#btn-edit-product-type').on('click', function (e) {
             e.preventDefault();
-            openPopup('@(Url.Action("EditGroupedProductConfiguration", new { id = Model.Id }))?formId=grouped-product-config-form');
+            const isGroupedProduct = @((Model.ProductTypeId == (int)ProductType.GroupedProduct).ToString().ToLower());
+            if (isGroupedProduct) {
+                openPopup('@(Url.Action("EditGroupedProductConfiguration", new { id = Model.Id }))?formId=grouped-product-config-form');
+            }
+            else {
+                displayNotification(@T("Admin.Catalog.GroupedProductConfiguration.SaveToContinue").JsValue, 'error');
+            }
             return false;
         });
 
@@ -140,11 +146,6 @@
         </div>
     </div>
     <div class="adminRow">
-        <div class="adminSeparator">
-            <hr />
-        </div>
-    </div>
-    <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="ProductTypeId" />
         </div>
@@ -153,7 +154,7 @@
                 <div class="col">
                     <select asp-for="ProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))"></select>
                 </div>
-                <div class="col-auto">
+                <div id="product-type-config" class="col-auto">
                     <button id="btn-edit-product-type" type="button" class="btn btn-secondary">
                         <i class="far fa-edit"></i>
                         <span>@T("Admin.Common.Edit")&hellip;</span>

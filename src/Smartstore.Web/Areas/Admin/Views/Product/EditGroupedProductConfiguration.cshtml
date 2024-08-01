@@ -34,7 +34,9 @@
                     @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language*@
                     <input type="hidden" asp-for="Locales[item].LanguageId" />
 
-                    <setting-editor asp-for="Locales[item].Title"></setting-editor>
+                    <setting-editor asp-for="Locales[item].Title">
+                        <input asp-for="Locales[item].Title" placeholder="@Model.Locales[item].DefaultTitle" />
+                    </setting-editor>
                     <span asp-validation-for="Locales[item].Title"></span>
                 </div>
 			</div>
@@ -46,7 +48,9 @@
 					<smart-label asp-for="Title" />
 				</div>
                 <div class="adminData">
-                    <setting-editor asp-for="Title"></setting-editor>
+                    <setting-editor asp-for="Title">
+                        <input asp-for="Title" placeholder="@Model.DefaultTitle" />
+                    </setting-editor>
                     <span asp-validation-for="Title"></span>
                 </div>
 			</div>

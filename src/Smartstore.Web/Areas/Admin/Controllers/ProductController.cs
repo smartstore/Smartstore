@@ -47,7 +47,6 @@ namespace Smartstore.Admin.Controllers
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ILanguageService _languageService;
         private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
         private readonly IPriceLabelService _priceLabelService;
@@ -83,7 +82,6 @@ namespace Smartstore.Admin.Controllers
             IAclService aclService,
             IStoreMappingService storeMappingService,
             IDateTimeHelper dateTimeHelper,
-            ILanguageService languageService,
             ICurrencyService currencyService,
             IDiscountService discountService,
             IPriceLabelService priceLabelService,
@@ -121,7 +119,6 @@ namespace Smartstore.Admin.Controllers
             _aclService = aclService;
             _storeMappingService = storeMappingService;
             _dateTimeHelper = dateTimeHelper;
-            _languageService = languageService;
             _currencyService = currencyService;
             _discountService = discountService;
             _priceLabelService = priceLabelService;
@@ -618,30 +615,8 @@ namespace Smartstore.Admin.Controllers
                 return BadRequest($"Product #{product.Id} must be a grouped product.");
             }
 
-            var allLanguages = await _languageService.GetAllLanguagesAsync(true);
-            var languageMap = allLanguages.ToDictionary(x => x.Id);
-
-            // TODO: (mg) use a mapper GroupedProductConfiguration -> GroupedProductConfigurationModel
-            var model = new GroupedProductConfigurationModel
-            {
-                Id = id
-            };
-
-            if (product.GroupedProductConfiguration != null)
-            {
-                MiniMapper.Map(product.GroupedProductConfiguration, model);
-            }
-
-            var titles = product.GroupedProductConfiguration?.Titles;
-            if (!titles.IsNullOrEmpty())
-            {
-                AddLocales(model.Locales, (locale, languageId) =>
-                {
-                    locale.Title = titles.Get(languageMap.Get(languageId).LanguageCulture);
-                });
-
-                model.Title = titles.Get(allLanguages.First().LanguageCulture);
-            }
+            var model = new GroupedProductConfigurationModel();
+            await product.MapAsync(model);
 
             var defaultAssociatedHeaders = _catalogSettings.CollapsibleAssociatedProductsHeaders
                 .Select(x =>
@@ -687,19 +662,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // TODO: (mg) use a mapper GroupedProductConfigurationModel -> GroupedProductConfiguration
-                product.GroupedProductConfiguration = MiniMapper.Map<GroupedProductConfigurationModel, GroupedProductConfiguration>(model);
-
-                var allLanguages = await _languageService.GetAllLanguagesAsync(true);
-                var languageMap = allLanguages.ToDictionary(x => x.Id);
-                var titles = product.GroupedProductConfiguration.Titles = [];
-
-                foreach (var localized in model.Locales)
-                {
-                    titles[languageMap.Get(localized.LanguageId).LanguageCulture] = localized.Title;
-                }
-
-                titles[allLanguages.First().LanguageCulture] = model.Title;
+                product.GroupedProductConfiguration = await model.MapAsync();
 
                 await _db.SaveChangesAsync();
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -1969,7 +1932,7 @@ namespace Smartstore.Admin.Controllers
                 fields.Insert(0, new()
                 {
                     Value = AssociatedProductHeader.Name,
-                    Text = T("Admin.Catalog.ProductReviews.List.ProductName"), 
+                    Text = T("Admin.Catalog.ProductReviews.List.ProductName"),
                     Selected = headerFields.Contains(AssociatedProductHeader.Name)
                 });
             }
