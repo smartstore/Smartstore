@@ -1,7 +1,7 @@
 (function ($, window, document, undefined) {
     $(function () {
         // Images
-        $(document).on('click', '.ai-provider-tool .ai-image-creation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-image-composer', function (e) {
             e.preventDefault();
 
             var el = $(this);
@@ -27,7 +27,7 @@
         });
 
         // Text creation
-        $(document).on('click', '.ai-text-creation', function (e) {
+        $(document).on('click', '.ai-text-composer', function (e) {
             e.preventDefault();
 
             var el = $(this);
@@ -85,7 +85,7 @@
         });
 
         // Translation
-        $(document).on('click', '.ai-provider-tool .ai-translation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-translator', function (e) {
             e.preventDefault();
 
             var el = $(this);

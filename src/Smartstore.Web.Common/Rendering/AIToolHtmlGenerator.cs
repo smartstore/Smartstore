@@ -77,7 +77,7 @@ namespace Smartstore.Web.Rendering
                     var label = prop.Item2;
                     var hasValue = prop.Item3;
 
-                    var dropdownLi = CreateDropdownItem(label, isProviderCnt: true, additionalClasses: "ai-translation" + (!hasValue ? " disabled" : ""));
+                    var dropdownLi = CreateDropdownItem(label, isProviderCnt: true, additionalClasses: "ai-translator" + (!hasValue ? " disabled" : ""));
 
                     dropdownLi.Attributes["data-provider-systemname"] = provider.Metadata.SystemName;
                     dropdownLi.Attributes["data-modal-url"] = routeUrl;
@@ -160,11 +160,11 @@ namespace Smartstore.Web.Rendering
         private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder dropdownUl)
         {
             // Create new always is enabled.
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", additionalClasses: "ai-text-creation"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", additionalClasses: "ai-text-creation"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", additionalClasses: "ai-text-creation"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", additionalClasses: "ai-text-creation"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", additionalClasses: "ai-text-creation"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", additionalClasses: "ai-text-composer"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", additionalClasses: "ai-text-composer"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", additionalClasses: "ai-text-composer"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", additionalClasses: "ai-text-composer"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", additionalClasses: "ai-text-composer"));
 
             // Add "Change style" & "Change tone" options from module settings.
             AddMenuItemsFromSetting(dropdownUl, hasContent, "change-style");
@@ -195,7 +195,7 @@ namespace Smartstore.Web.Rendering
 
                 foreach (var option in options)
                 {
-                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, additionalClasses: "ai-text-creation"));
+                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, additionalClasses: "ai-text-composer"));
                 }
 
                 providerDropdownItemLi.InnerHtml.AppendHtml(settingsUl);
@@ -329,11 +329,11 @@ namespace Smartstore.Web.Rendering
             {
                 case AIDialogType.Text:
                 case AIDialogType.RichText:
-                    return "ai-text-creation";
+                    return "ai-text-composer";
                 case AIDialogType.Image:
-                    return "ai-image-creation";
+                    return "ai-image-composer";
                 case AIDialogType.Translation:
-                    return "ai-translation";
+                    return "ai-translator";
                 case AIDialogType.Suggestion:
                     return "ai-suggestion";
                 default:
