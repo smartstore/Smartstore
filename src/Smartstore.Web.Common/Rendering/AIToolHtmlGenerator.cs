@@ -63,8 +63,7 @@ namespace Smartstore.Web.Rendering
 
                 // Add attributes from tag helper properties.
                 var route = provider.Value.GetDialogRoute(AIDialogType.Translation);
-                // TODO: (mc) (ai) Make extension method for RouteInfo type.
-                var routeUrl = _urlHelper.RouteUrl(route);
+                var routeUrl = _urlHelper.Action(route.Action, route.Controller, route.RouteValues);
 
                 var dropdownLiTitle = T("Admin.AI.TranslateTextWith", friendlyName).ToString();
                 var headingLi = new TagBuilder("li");
