@@ -157,7 +157,7 @@ namespace Smartstore.Google.Analytics.Components
             }
 
             // If user has not accepted the cookie consent modify script tags to include data-consent attribute.
-            var consented = _settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+            var consented = !_settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
             if (!consented)
             {
                 rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
@@ -168,7 +168,7 @@ namespace Smartstore.Google.Analytics.Components
             {
                 rootScript = Minifier.Minify(rootScript);
             }
-            
+
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
             rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
 
