@@ -277,7 +277,7 @@ namespace Smartstore.Web.Rendering
             // If there is only one provider, render a simple button, render a dropdown otherwise.
             if (providers.Count == 1)
             {
-                var provider = providers.First();
+                var provider = providers[0];
                 var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                 var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
                 var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
