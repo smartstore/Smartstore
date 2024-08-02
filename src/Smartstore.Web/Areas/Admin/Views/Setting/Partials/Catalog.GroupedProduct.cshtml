@@ -3,11 +3,11 @@
 <div class="adminContent">
     <div class="adminRow">
         <div class="admin-config-group">
-            <div class="title mb-0">@T("Enums.ProductType.GroupedProduct")</div>
+            <div class="title">@T("Enums.ProductType.GroupedProduct")</div>
+            <div class="text-muted">
+                @T("Admin.Catalog.GroupedProductConfiguration.Note")
+            </div>
         </div>
-    </div>
-    <div class="adminRow text-muted">
-        @T("Admin.Catalog.GroupedProductConfiguration.Note")
     </div>
 
     @(Html.LocalizedEditor<GroupedProductSettingsModel, GroupedProductSettingsLocalizedModel>("grouped-product-settings-localized",
