@@ -48,7 +48,7 @@ namespace Smartstore.Threading
             TaskScheduler scheduler = null,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(action);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -58,7 +58,7 @@ namespace Smartstore.Threading
                 action(scope, cancelToken);
             }, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -70,8 +70,8 @@ namespace Smartstore.Threading
             TaskScheduler scheduler = null,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(state, nameof(state));
-            Guard.NotNull(action, nameof(action));
+            Guard.NotNull(state);
+            Guard.NotNull(action);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -81,7 +81,7 @@ namespace Smartstore.Threading
                 action(scope, cancelToken, o);
             }, state, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -92,7 +92,7 @@ namespace Smartstore.Threading
             TaskScheduler scheduler = null,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(function, nameof(function));
+            Guard.NotNull(function);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -102,7 +102,7 @@ namespace Smartstore.Threading
                 return function(scope, cancelToken);
             }, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -114,8 +114,8 @@ namespace Smartstore.Threading
             TaskScheduler scheduler = null,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(state, nameof(state));
-            Guard.NotNull(function, nameof(function));
+            Guard.NotNull(state);
+            Guard.NotNull(function);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -125,7 +125,7 @@ namespace Smartstore.Threading
                 return function(scope, cancelToken, o);
             }, state, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -134,7 +134,7 @@ namespace Smartstore.Threading
             Func<ILifetimeScope, CancellationToken, Task> function,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(function, nameof(function));
+            Guard.NotNull(function);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -144,7 +144,7 @@ namespace Smartstore.Threading
                 await function(scope, cancelToken);
             }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -153,7 +153,7 @@ namespace Smartstore.Threading
             Func<ILifetimeScope, CancellationToken, Task<TResult>> function,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(function, nameof(function));
+            Guard.NotNull(function);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -163,7 +163,7 @@ namespace Smartstore.Threading
                 return await function(scope, cancelToken);
             }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }
@@ -173,8 +173,8 @@ namespace Smartstore.Threading
             object state,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(function, nameof(function));
-            Guard.NotNull(state, nameof(state));
+            Guard.NotNull(function);
+            Guard.NotNull(state);
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
 
@@ -184,7 +184,7 @@ namespace Smartstore.Threading
                 await function(scope, cancelToken, o);
             }, state, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
-            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+            t.ContinueWith(TaskContinuation, cancelToken);
 
             return t;
         }

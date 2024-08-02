@@ -5,8 +5,8 @@ namespace Smartstore.Core.Platform.AI
 {
     public partial interface IAIProvider : IProvider
     {
-        // TODO: (mh) 
-        
+        // TODO: (mh) (ai) Bad API design. Make the enum the core "support" method. TBD with MC.
+
         /// <summary>
         /// Defines whether the provider can create text.
         /// </summary>

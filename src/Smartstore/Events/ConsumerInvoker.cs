@@ -48,7 +48,7 @@ namespace Smartstore.Events
                 // Sync or Async without await. Needs new dependency scope.
                 task = d.IsAsync
                     ? _asyncRunner.RunTask((scope, ct) => ((Task)InvokeCore(scope, ct)))
-                    : _asyncRunner.Run((scope, ct) => InvokeCore(scope, ct));
+                    : _asyncRunner.Run(InvokeCore);
                 task.ConfigureAwait(false);
             }
             else
