@@ -38,6 +38,7 @@
 - MegaSearch
   - Setting to place the search hits of unavailable products further back in the search list.
   - Added product meta keywords to the search index.
+  - Added price calculation options for the price to be indexed.
 - Affiliates
   - #896 Added a cart rule for affiliates.
   - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
