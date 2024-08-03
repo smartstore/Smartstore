@@ -8,11 +8,9 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
-    [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("ai-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AITextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
-        const string EditorTagName = "ai-text";
-
         const string DisplayWordLimitAttributeName = "display-word-limit";
         const string DisplayStyleAttributeName = "display-style";
         const string DisplayToneAttributeName = "display-tone";
@@ -76,6 +74,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         private static async Task<bool> HasValueAsync(TagHelperOutput output)
         {
+            // TODO: (mh) (ai) Extremely bad API decision. This is a hack. We should not rely on the rendered HTML to determine whether a field has content. TBD with MC.
             var hasContent = false;
             var content = (await output.GetChildContentAsync()).GetContent();
             
@@ -84,46 +83,44 @@ namespace Smartstore.Web.TagHelpers.Admin
             var document = await context.OpenAsync(req => req.Content(content));
 
             var inputs = document.QuerySelectorAll("input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio'])");
-            var textareas = document.QuerySelectorAll("textarea");
-
+            
             // Check whether any input or textarea has content
             foreach (var input in inputs)
             {
                 if (input.GetAttribute("value").HasValue())
                 {
                     hasContent = true;
+                    break;
                 }
             }
 
-            foreach (var textarea in textareas)
+            if (!hasContent)
             {
-                if (textarea.TextContent.HasValue())
+                var textareas = document.QuerySelectorAll("textarea");
+                foreach (var textarea in textareas)
                 {
-                    hasContent = true;
+                    if (textarea.TextContent.HasValue())
+                    {
+                        hasContent = true;
+                        break;
+                    }
                 }
             }
 
             return hasContent;
         }
 
-        private AttributeDictionary GetTagHelperAttributes()
+        protected override AttributeDictionary GetTagHelperAttributes()
         {
-            var attributes = new AttributeDictionary
-            {
-                // INFO: We can't just use For.Name here, because the target property might be a nested property.
-                //["data-target-property"] = For.Name,
-                ["data-target-property"] = GetHtmlId(),
-                ["data-entity-name"] = EntityName.UrlEncode(),
+            var attrs = base.GetTagHelperAttributes();
 
-                ["data-entity-type"] = EntityType,
-                ["data-display-word-limit"] = DisplayWordLimit.ToString().ToLower(),
-                ["data-display-style"] = DisplayStyle.ToString().ToLower(),
-                ["data-display-tone"] = DisplayTone.ToString().ToLower(),
-                ["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower(),
-                ["data-is-rich-text"] = "false"
-            };
+            attrs["data-display-word-limit"] = DisplayWordLimit.ToString().ToLower();
+            attrs["data-display-style"] = DisplayStyle.ToString().ToLower();
+            attrs["data-display-tone"] = DisplayTone.ToString().ToLower();
+            attrs["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower();
+            attrs["data-is-rich-text"] = "false";
 
-            return attributes;
+            return attrs;
         }
     }
 }

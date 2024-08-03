@@ -5,13 +5,12 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Web.TagHelpers.Admin
 {
     /// <summary>
-    /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for Html text creation.
+    /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for HTML rich text creation.
     /// </summary>
-    [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("ai-rich-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AIRichTextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
-        const string EditorTagName = "ai-rich-text";
-
+        // TODO: (mh) (ai) Bad naming. More specific please.
         const string DisplayAdditionalContentOptionsAttributeName = "display-additional-content-options";
         const string DisplayLinkOptionsAttributeName = "display-link-options";
         const string DisplayStructureOptionsAttributeName = "display-structure-options";
@@ -20,25 +19,25 @@ namespace Smartstore.Web.TagHelpers.Admin
         private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
-        /// Defines whether the additional content options should be displayed in the text creation dialog.
+        /// Defines whether the additional content options should be displayed in the rich text creation dialog.
         /// </summary>
         [HtmlAttributeName(DisplayAdditionalContentOptionsAttributeName)]
         public bool DisplayAdditionalContentOptions { get; set; }
 
         /// <summary>
-        /// Defines whether the link options should be displayed in the text creation dialog.
+        /// Defines whether the link options should be displayed in the rich text creation dialog.
         /// </summary>
         [HtmlAttributeName(DisplayLinkOptionsAttributeName)]
         public bool DisplayLinkOptions { get; set; }
 
         /// <summary>
-        /// Defines whether the structure options should be displayed in the text creation dialog.
+        /// Defines whether the structure options should be displayed in the rich text creation dialog.
         /// </summary>
         [HtmlAttributeName(DisplayStructureOptionsAttributeName)]
         public bool DisplayStructureOptions { get; set; } = true;
 
         /// <summary>
-        /// Defines whether the image options should be displayed in the text creation dialog.
+        /// Defines whether the image options should be displayed in the rich text creation dialog.
         /// </summary>
         [HtmlAttributeName(DisplayImageOptionsAttributeName)]
         public bool DisplayImageOptions { get; set; } = true;
@@ -48,7 +47,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
-            var attributes = GetTaghelperAttributes();
+            var attributes = GetTagHelperAttributes();
             var tool = _aiToolHtmlGenerator.GenerateRichTextTool(attributes);
             if (tool == null)
             {
@@ -58,24 +57,17 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.WrapContentWith(tool);
         }
 
-        private AttributeDictionary GetTaghelperAttributes()
+        protected override AttributeDictionary GetTagHelperAttributes()
         {
-            var attributes = new AttributeDictionary
-            {
-                // INFO: We can't just use For.Name here, because the target property might be a nested property.
-                //["data-target-property"] = For.Name,
-                ["data-target-property"] = GetHtmlId(),
-                ["data-entity-name"] = EntityName,
-                ["data-entity-type"] = EntityType,
-                ["data-entity-id"] = EntityId,
-                ["data-is-rich-text"] = "true",
-                ["data-display-additional-content-options"] = DisplayAdditionalContentOptions.ToString().ToLower(),
-                ["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower(),
-                ["data-display-image-options"] = DisplayImageOptions.ToString().ToLower(),
-                ["data-display-structure-options"] = DisplayStructureOptions.ToString().ToLower()
-            };
+            var attrs = base.GetTagHelperAttributes();
 
-            return attributes;
+            attrs["data-display-additional-content-options"] = DisplayAdditionalContentOptions.ToString().ToLower();
+            attrs["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower();
+            attrs["data-display-image-options"] = DisplayImageOptions.ToString().ToLower();
+            attrs["data-display-structure-options"] = DisplayStructureOptions.ToString().ToLower();
+            attrs["data-is-rich-text"] = "true";
+
+            return attrs;
         }
     }
 }
