@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Smartstore.Web.TagHelpers.Admin
 {
     /// <summary>
-    /// The base implementation for AI tag helpers.
+    /// The base implementation for AI Tag Helpers.
     /// </summary>
     public class AITagHelperBase : BaseFormTagHelper
     {

@@ -41,6 +41,13 @@ namespace Smartstore.Web.Rendering
         /// <returns>The icon button inclusive dropdown to choose the target property to be translated.</returns>
         public TagBuilder GenerateTranslationTool(string localizedContent)
         {
+            // TODO: (mh) (ai) Implement IAIProviderFactory with methods:
+            // - GetAllProviders()
+            // - GetProviders(AIProviderFeatures)
+            // - GetFirstProvider(AIProviderFeatures)
+            // - GetProviderBySystemName(string)
+            // - * ???
+            // Call them in all relevant places.
             var providers = _providerManager.GetAllProviders<IAIProvider>()
                 .Where(x => x.Value.SupportsTextTranslation)
                 .ToList();
@@ -55,7 +62,7 @@ namespace Smartstore.Web.Rendering
             dropdownUl.Attributes["class"] = "dropdown-menu";
 
             // TODO: (mh) (ai) Dangerous! TBD with MC.
-            var properties = ExtractLabelsAndIdsAsync(localizedContent).GetAwaiter().GetResult();
+            var properties = ExtractLabelsAndIdsAsync(localizedContent).Await();
 
             foreach (var provider in providers)
             {
@@ -77,12 +84,13 @@ namespace Smartstore.Web.Rendering
                     var label = prop.Item2;
                     var hasValue = prop.Item3;
 
-                    var dropdownLi = CreateDropdownItem(label, isProviderCnt: true, additionalClasses: "ai-translator" + (!hasValue ? " disabled" : ""));
+                    var dropdownLi = CreateDropdownItem(label, isProviderTool: true, additionalClasses: "ai-translator" + (!hasValue ? " disabled" : ""));
+                    var attrs = dropdownLi.Attributes;
 
-                    dropdownLi.Attributes["data-provider-systemname"] = provider.Metadata.SystemName;
-                    dropdownLi.Attributes["data-modal-url"] = routeUrl;
-                    dropdownLi.Attributes["data-target-property"] = elementId;
-                    dropdownLi.Attributes["data-modal-title"] = dropdownLiTitle + ": " + label;
+                    attrs["data-provider-systemname"] = provider.Metadata.SystemName;
+                    attrs["data-modal-url"] = routeUrl;
+                    attrs["data-target-property"] = elementId;
+                    attrs["data-modal-title"] = dropdownLiTitle + ": " + label;
 
                     dropdownUl.InnerHtml.AppendHtml(dropdownLi);
                 }
@@ -96,16 +104,21 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Creates the icon button to open the simple text creation dialog.
         /// </summary>
-        /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <param name="hasContent">Indicates whether the target property already has content. If it has we can offer options like: summarize, optimize etc.</param>
+        /// <param name="attributes">The attributes of the TagHelper.</param>
+        /// <param name="hasContent">Indicates whether the target property already has content. If it has, we can offer options like: summarize, optimize etc.</param>
         /// <returns>The icon button inclusive dropdown to choose a rewrite command from.</returns>
         public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool hasContent, string entityName)
         {
+            if (!entityName.HasValue())
+            {
+                return null;
+            }
+
             var providers = _providerManager.GetAllProviders<IAIProvider>()
                 .Where(x => x.Value.SupportsTextTranslation)
                 .ToList();
 
-            if (providers.Count == 0 || !entityName.HasValue())
+            if (providers.Count == 0)
             {
                 return null;
             }
@@ -116,8 +129,8 @@ namespace Smartstore.Web.Rendering
             dropdownUl.Attributes["class"] = "dropdown-menu";
 
             // Create a button group for the providers. If there is only one provider, hide the button group.
-            // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases
-            // as the button contains all the necessary data attributes.
+            // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases,
+            // because the button contains all the necessary data attributes.
             var btnGroupLi = new TagBuilder("li");
             btnGroupLi.Attributes["class"] = "dropdown-group";
 
@@ -160,11 +173,12 @@ namespace Smartstore.Web.Rendering
         private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder dropdownUl)
         {
             // Create new always is enabled.
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", additionalClasses: "ai-text-composer"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", additionalClasses: "ai-text-composer"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", additionalClasses: "ai-text-composer"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", additionalClasses: "ai-text-composer"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", additionalClasses: "ai-text-composer"));
+            var builder = dropdownUl.InnerHtml;
+            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", additionalClasses: "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", additionalClasses: "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", additionalClasses: "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", additionalClasses: "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", additionalClasses: "ai-text-composer"));
 
             // Add "Change style" & "Change tone" options from module settings.
             AddMenuItemsFromSetting(dropdownUl, hasContent, "change-style");
@@ -179,8 +193,8 @@ namespace Smartstore.Web.Rendering
         /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
         private void AddMenuItemsFromSetting(TagBuilder dropdownUl, bool hasContent, string command)
         {
-            string settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
-            string title = command == "change-style" ? T("Admin.AI.MenuItemTitle.ChangeStyle").Value : T("Admin.AI.MenuItemTitle.ChangeTone").Value;
+            var settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
+            var title = command == "change-style" ? T("Admin.AI.MenuItemTitle.ChangeStyle").Value : T("Admin.AI.MenuItemTitle.ChangeTone").Value;
 
             var setting = _db.Settings.FirstOrDefault(x => x.Name == settingName);
             if (setting != null && setting.Value.HasValue())
@@ -296,7 +310,7 @@ namespace Smartstore.Web.Rendering
                 {
                     var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                     var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
-                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, isProviderCnt: true, additionalClasses: additionalClasses);
+                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, isProviderTool: true, additionalClasses: additionalClasses);
 
                     AddTagHelperProperties(dropdownLi, provider, attributes, dialogType);
 
@@ -372,7 +386,6 @@ namespace Smartstore.Web.Rendering
         private static TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
         {
             var inputGroupColDiv = new TagBuilder("div");
-            // TODO: (mh) (ai) Bad CSS class naming (*-cnt). TBD with MC.
             inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root " + (isDropdown ? "dropdown" : "ai-provider-tool");
 
             var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
@@ -392,7 +405,7 @@ namespace Smartstore.Web.Rendering
         private static TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
             var iconA = new TagBuilder("a");
-            iconA.Attributes["href"] = "javascript:void(0)";
+            iconA.Attributes["href"] = "javascript:;";
 
             var btnClasses = "btn btn-icon btn-flat btn-sm rounded-circle btn-outline-secondary input-group-icon ai-dialog-opener no-chevron ";
 
@@ -407,6 +420,7 @@ namespace Smartstore.Web.Rendering
                 iconA.Attributes["title"] = title;
             }
 
+            // TODO: (mh) (ai) Use HtmlHelper.BootstrapIcon extension. Don't reinvent the wheel.
             var iconSvg = new TagBuilder("svg");
             iconSvg.Attributes["class"] = "dropdown-icon bi-fw bi";
             iconSvg.Attributes["fill"] = "currentColor";
@@ -428,23 +442,27 @@ namespace Smartstore.Web.Rendering
         /// <param name="menuText">The text for the menu item.</param>
         /// <param name="enabled">Defines whether the menu item is enabled.</param>
         /// <param name="command">The command of the menu item (needed for optimize commands for simple text creation)</param>
-        /// <param name="isProviderCnt">Defines whether the item is a provider container.</param>
+        /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
         /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
         /// <returns>A LI tag representing the menu item.</returns>
         private static TagBuilder CreateDropdownItem(
             string menuText,
             bool enabled = true,
             string command = "",
-            bool isProviderCnt = false,
+            bool isProviderTool = false,
             string additionalClasses = "")
         {
             var dropdownLi = new TagBuilder("li");
-            dropdownLi.Attributes["class"] = isProviderCnt ? "ai-provider-tool" : string.Empty;
+            if (isProviderTool)
+            {
+                dropdownLi.Attributes["class"] = "ai-provider-tool";
+            }
 
             var dropdownA = new TagBuilder("a");
             dropdownA.Attributes["href"] = "#";
+            // TODO: (mh) (ai) Use TagBuilder.AppendCssClass() extension method to add classes in a more clear way. Do it also in other places.
             dropdownA.Attributes["class"] = "dropdown-item" + (!enabled ? " disabled" : string.Empty) + (additionalClasses.HasValue() ? " " + additionalClasses : string.Empty);
-
+            
             if (command.HasValue())
             {
                 dropdownA.Attributes["data-command"] = command;
@@ -452,6 +470,7 @@ namespace Smartstore.Web.Rendering
 
             dropdownA.InnerHtml.AppendHtml(menuText);
             dropdownLi.InnerHtml.AppendHtml(dropdownA);
+
             return dropdownLi;
         }
 
