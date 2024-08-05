@@ -4,12 +4,25 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Platform.AI.Prompting
 {
-    public partial class PromptBuilder(SmartDbContext db, PromptResources promptResources, ILinkResolver linkResolver)
+    public partial class PromptBuilder
     {
-        private readonly SmartDbContext _db = db;
-        private readonly ILinkResolver _linkResolver = linkResolver;
+        private readonly SmartDbContext _db;
+        private readonly ILinkResolver _linkResolver;
 
-        public PromptResources Resources = promptResources;
+        public PromptBuilder(
+            SmartDbContext db,
+            ILinkResolver linkResolver,
+            ILocalizationService localizationService,
+            PromptResources promptResources)
+        {
+            _db = db;
+            _linkResolver = linkResolver;
+            Localization = localizationService;
+            Resources = promptResources;
+        }
+
+        public PromptResources Resources { get; }
+        public ILocalizationService Localization { get; }
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         /// <summary>
@@ -38,7 +51,6 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 promptParts.Add(Resources.LanguageStyle(model.Style));
             }
         }
-
 
         /// <summary>
         /// Adds prompt parts with general instructions for rich text creation. 
