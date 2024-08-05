@@ -126,7 +126,11 @@
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
         $('.ai-dialog-opener-root').each(function () {
-            let textarea = $(this).find('textarea');
+            if ($(this).parent().hasClass('locale-editor')) {
+                return;
+            }
+
+            let textarea = $(this).find('> textarea');
             let innerHeight = textarea.innerHeight();
             if (textarea.length && innerHeight && textarea[0].scrollHeight > innerHeight) {
                 $(this).addClass('has-scrollbar');
@@ -143,7 +147,7 @@
     });
 
     function getDialogUrl(baseUrl, params) {
-        let queryString = Object.entries(params).map((key, value) => {
+        let queryString = _.map(params, (value, key) => {
             return encodeURIComponent(key) + "=" + encodeURIComponent(value);
         }).join("&");
 

@@ -330,7 +330,7 @@ namespace Smartstore.Web.Rendering
         {
             var route = provider.Value.GetDialogRoute(dialogType);
             ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
-            ctrl.MergeAttribute("data-modal-url", _urlHelper.RouteUrl(route));
+            ctrl.MergeAttribute("data-modal-url", _urlHelper.Action(route.Action, route.Controller, route.RouteValues));
             ctrl.MergeAttributes(attributes);
         }
 
