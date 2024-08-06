@@ -3,18 +3,6 @@ using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
-    [Flags]
-    public enum AIProviderFeatures
-    {
-        None = 0,
-        TextCreation = 1 << 0,
-        TextTranslation = 1 << 1,
-        ImageCreation = 1 << 2,
-        ImageAnalysis = 1 << 3,
-        ThemeVarCreation = 1 << 4,
-        Assistence = 1 << 5
-    }
-
     /// <summary>
     /// Base class to implement AI providers.
     /// </summary>
@@ -67,7 +55,9 @@ namespace Smartstore.Core.Platform.AI
 
         #endregion
 
-        /// <inheritdoc/>
+        public bool Supports(AIProviderFeatures feature)
+            => Features.HasFlag(feature);
+
         public abstract RouteInfo GetDialogRoute(AIDialogType modalDialogType);
     }
 }

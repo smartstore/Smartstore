@@ -15,18 +15,18 @@ namespace Smartstore.Web.Rendering
     public class AIToolHtmlGenerator
     {
         private readonly SmartDbContext _db;
-        private readonly IProviderManager _providerManager;
+        private readonly IAIProviderFactory _aiProviderFactory;
         private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
 
         public AIToolHtmlGenerator(
             SmartDbContext db,
-            IProviderManager providerManager,
+            IAIProviderFactory aiProviderFactory,
             ModuleManager moduleManager, 
             IUrlHelper urlHelper)
         {
             _db = db;
-            _providerManager = providerManager;
+            _aiProviderFactory = aiProviderFactory;
             _moduleManager = moduleManager;
             _urlHelper = urlHelper;
         }
@@ -41,17 +41,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The icon button inclusive dropdown to choose the target property to be translated.</returns>
         public TagBuilder GenerateTranslationTool(string localizedContent)
         {
-            // TODO: (mh) (ai) Implement IAIProviderFactory with methods:
-            // - GetAllProviders()
-            // - GetProviders(AIProviderFeatures)
-            // - GetFirstProvider(AIProviderFeatures)
-            // - GetProviderBySystemName(string)
-            // - * ???
-            // Call them in all relevant places.
-            var providers = _providerManager.GetAllProviders<IAIProvider>()
-                .Where(x => x.Value.SupportsTextTranslation)
-                .ToList();
-
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
             if (providers.Count == 0)
             {
                 return null;
@@ -114,10 +104,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            var providers = _providerManager.GetAllProviders<IAIProvider>()
-                .Where(x => x.Value.SupportsTextTranslation)
-                .ToList();
-
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
             if (providers.Count == 0)
             {
                 return null;
@@ -224,10 +211,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The icon button to open the suggestion dialog.</returns>
         public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
         {
-            var providers = _providerManager.GetAllProviders<IAIProvider>()
-                .Where(x => x.Value.SupportsTextCreation)
-                .ToList();
-
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
             if (providers.Count == 0)
             {
                 return null;
@@ -243,10 +227,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The icon button to open the image creation dialog.</returns>
         public TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
         {
-            var providers = _providerManager.GetAllProviders<IAIProvider>()
-                .Where(x => x.Value.SupportsImageCreation)
-                .ToList();
-
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.ImageCreation);
             if (providers.Count == 0)
             {
                 return null;
@@ -262,10 +243,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The icon button to open the rich text creation dialog.</returns>
         public TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
         {
-            var providers = _providerManager.GetAllProviders<IAIProvider>()
-                .Where(x => x.Value.SupportsTextCreation)
-                .ToList();
-
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
             if (providers.Count == 0)
             {
                 return null;
@@ -284,7 +262,7 @@ namespace Smartstore.Web.Rendering
         /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
         /// containing all the metadata needed to open the dialog.
         /// </returns>
-        private TagBuilder GenerateOutput(List<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
+        private TagBuilder GenerateOutput(IList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
         {
             var additionalClasses = GetDialogIdentifierClass(dialogType);
 

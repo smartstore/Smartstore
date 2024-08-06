@@ -37,6 +37,12 @@ namespace Smartstore.Core.Platform.AI
         /// </summary>
         bool SupportsAssistence { get; }
 
+
+        /// <summary>
+        /// Gets a value indicating whether the provider supports <paramref name="feature"/>.
+        /// </summary>
+        bool Supports(AIProviderFeatures feature);
+
         /// <summary>
         /// Gets a route for the given modal dialog type.
         /// </summary>

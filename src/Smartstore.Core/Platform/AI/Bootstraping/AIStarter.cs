@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Smartstore.Core.Platform.AI;
 using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Builders;
 
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Bootstrapping
 
                 builder.RegisterType<PromptBuilder>().AsSelf().InstancePerLifetimeScope();
                 builder.RegisterType<PromptResources>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<AIProviderFactory>().As<IAIProviderFactory>().InstancePerLifetimeScope();
             }
         }
     }
