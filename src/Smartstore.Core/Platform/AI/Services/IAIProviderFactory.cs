@@ -10,14 +10,14 @@ namespace Smartstore.Core.Platform.AI
     public partial interface IAIProviderFactory
     {
         /// <summary>
-        /// Gets a list of all <see cref="IAIProvider"/>.
+        /// Gets a list of all registered <see cref="IAIProvider"/> implementations.
         /// </summary>
-        IList<Provider<IAIProvider>> GetAllProviders();
+        IReadOnlyList<Provider<IAIProvider>> GetAllProviders();
 
         /// <summary>
-        /// Gets a list of <see cref="IAIProvider"/> that supports <paramref name="feature"/>.
+        /// Gets a list of <see cref="IAIProvider"/> implementations that support the given <paramref name="feature"/>.
         /// </summary>
-        IList<Provider<IAIProvider>> GetProviders(AIProviderFeatures feature);
+        IReadOnlyList<Provider<IAIProvider>> GetProviders(AIProviderFeatures feature);
 
         /// <summary>
         /// Gets the first <see cref="IAIProvider"/> that supports <paramref name="feature"/>.
@@ -25,7 +25,7 @@ namespace Smartstore.Core.Platform.AI
         Provider<IAIProvider>? GetFirstProvider(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="IAIProvider"/> by its systemname.
+        /// Gets <see cref="IAIProvider"/> by its system name.
         /// </summary>
         Provider<IAIProvider>? GetProviderBySystemName(string systemName);
     }

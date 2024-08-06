@@ -39,7 +39,7 @@ namespace Smartstore.Core.Platform.AI
 
 
         /// <summary>
-        /// Gets a value indicating whether the provider supports <paramref name="feature"/>.
+        /// Gets a value indicating whether the provider supports the given <paramref name="feature"/>.
         /// </summary>
         bool Supports(AIProviderFeatures feature);
 

@@ -262,7 +262,7 @@ namespace Smartstore.Web.Rendering
         /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
         /// containing all the metadata needed to open the dialog.
         /// </returns>
-        private TagBuilder GenerateOutput(IList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
+        private TagBuilder GenerateOutput(IReadOnlyList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
         {
             var additionalClasses = GetDialogIdentifierClass(dialogType);
 

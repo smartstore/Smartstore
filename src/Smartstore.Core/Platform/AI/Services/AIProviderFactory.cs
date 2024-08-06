@@ -19,10 +19,10 @@ namespace Smartstore.Core.Platform.AI
             }, false);
         }
 
-        public IList<Provider<IAIProvider>> GetAllProviders()
+        public IReadOnlyList<Provider<IAIProvider>> GetAllProviders()
             => _providers.Value;
 
-        public IList<Provider<IAIProvider>> GetProviders(AIProviderFeatures feature)
+        public IReadOnlyList<Provider<IAIProvider>> GetProviders(AIProviderFeatures feature)
             => _providers.Value.Where(x => x.Value.Supports(feature)).ToList();
 
         public Provider<IAIProvider> GetFirstProvider(AIProviderFeatures feature)
