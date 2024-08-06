@@ -160,7 +160,20 @@ namespace Smartstore.Core.Identity
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<ConsentCookie>(value);
+                        var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
+
+                        // If date is not set it's a cookie that is HttpOnly
+                        // we must remove it and set a new one with HttpOnly = false because we need to read it in JS.
+                        if (consentCookie.ConsentedDate == null)
+                        {
+                            SetConsentCookie(
+                                consentCookie.AllowAnalytics,
+                                consentCookie.AllowThirdParty,
+                                consentCookie.AdUserDataConsent,
+                                consentCookie.AdPersonalizationConsent);
+                        }
+
+                        return consentCookie;
                     }
                     catch
                     {
@@ -239,7 +252,8 @@ namespace Smartstore.Core.Identity
                     AllowAnalytics = allowAnalytics,
                     AllowThirdParty = allowThirdParty,
                     AdUserDataConsent = adUserDataConsent,
-                    AdPersonalizationConsent = adPersonalizationConsent
+                    AdPersonalizationConsent = adPersonalizationConsent,
+                    ConsentedDate = DateTime.UtcNow
                 };
 
                 var cookies = context.Response.Cookies;
@@ -248,7 +262,7 @@ namespace Smartstore.Core.Identity
                 var options = new CookieOptions
                 {
                     Expires = DateTime.UtcNow.AddDays(365),
-                    HttpOnly = true,
+                    HttpOnly = false,
                     IsEssential = true,
                     Secure = _webHelper.IsCurrentConnectionSecured()
                 };
@@ -315,5 +329,10 @@ namespace Smartstore.Core.Identity
         /// A value indicating whether personalization is allowed.
         /// </summary>
         public bool AdPersonalizationConsent { get; set; }
+
+        /// <summary>
+        /// A value indicating when the consent was given. (Temporary for 5.1.0)
+        /// </summary>
+        public DateTime? ConsentedDate { get; set; } = null;
     }
 }
