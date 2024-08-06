@@ -274,7 +274,14 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where TSetting : class, ISettings
         {
-            return GetLocalizedSetting(settings, keySelector, null, storeId, returnDefaultValue, ensureTwoPublishedLanguages, detectEmptyHtml);
+            return GetLocalizedSettingInternal(
+                settings,
+                keySelector,
+                null,
+                storeId,
+                returnDefaultValue,
+                ensureTwoPublishedLanguages,
+                detectEmptyHtml);
         }
 
         /// <summary>
@@ -288,6 +295,7 @@ namespace Smartstore.Core.Localization
         /// <param name="ensureTwoPublishedLanguages">A value indicating whether to ensure that we have at least two published languages. Otherwise, load only default value.</param>
         /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
         /// <returns>Localized value.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LocalizedValue<string> GetLocalizedSetting<TSetting>(this TSetting settings,
             Expression<Func<TSetting, string>> keySelector,
             object requestLanguageIdOrObj, // Id or Language
@@ -297,7 +305,8 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where TSetting : class, ISettings
         {
-            return settings.GetLocalizedSettingInternal(
+            return GetLocalizedSettingInternal(
+                settings,
                 keySelector,
                 requestLanguageIdOrObj,
                 storeId,
@@ -317,6 +326,7 @@ namespace Smartstore.Core.Localization
         /// <param name="ensureTwoPublishedLanguages">A value indicating whether to ensure that we have at least two published languages. Otherwise, load only default value.</param>
         /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
         /// <returns>Localized value.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LocalizedValue<string[]> GetLocalizedSetting<TSetting>(this TSetting settings,
             Expression<Func<TSetting, string[]>> keySelector,
             object requestLanguageIdOrObj, // Id or Language
@@ -326,7 +336,8 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where TSetting : class, ISettings
         {
-            return settings.GetLocalizedSettingInternal(
+            return GetLocalizedSettingInternal(
+                settings,
                 keySelector,
                 requestLanguageIdOrObj,
                 storeId,
