@@ -1,14 +1,17 @@
-﻿using Smartstore.Engine.Modularity;
+﻿using Smartstore.Core.Platform.AI.Prompting;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
+    /// <summary>
+    /// Represents an AI provider like ChatGPT.
+    /// </summary>
     public partial interface IAIProvider : IProvider
     {
         /// <summary>
         /// Gets a value indicating whether the provider is configured.
         /// </summary>
-        /// <returns></returns>
         bool IsConfigured();
 
         /// <summary>
@@ -17,14 +20,43 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given modal dialog type.
+        /// Gets <see cref="RouteInfo"/> for the given <paramref name="modalDialogType"/>.
         /// </summary>
         RouteInfo GetDialogRoute(AIDialogType modalDialogType);
 
+        /// <summary>
+        /// Gets the answer for the given <paramref name="prompt"/>.
+        /// </summary>
+        /// <param name="prompt">The AI prompt. It contains all descriptions and instructions on which the AI system generates a suitable answer.</param>
+        /// <exception cref="AIException"></exception>
         Task<string> GetAnswerAsync(string prompt);
 
+        /// <summary>
+        /// Gets the answer stream for the given <paramref name="prompt"/>.
+        /// </summary>
+        /// <param name="prompt">The AI prompt. It contains all descriptions and instructions on which the AI system generates a suitable answer.</param>
+        /// <exception cref="AIException"></exception>
         IAsyncEnumerable<string> GetAnswerStreamAsync(string prompt);
 
-        Task<List<string>> GetImageUrlsAsync(string prompt, int numberOfImages);
+        /// <summary>
+        /// Get the URL(s) of AI generated image(s).
+        /// </summary>
+        /// <param name="prompt">
+        /// The AI prompt. It contains all descriptions and instructions on which the AI system generates a suitable answer.
+        /// It contains additional instructions for image creation.
+        /// </param>
+        /// <param name="numberOfImages">
+        /// The number of images to be generated. Please note that many AI systems such as ChatGPT only generate one image per request.
+        /// </param>
+        /// <exception cref="AIException"></exception>
+        Task<IList<string>> GetImageUrlsAsync(IImageGenerationPrompt prompt, int numberOfImages = 1);
+
+        /// <summary>
+        /// Analyzes an image based on an AI prompt.
+        /// </summary>
+        /// <param name="url">The image URL.</param>
+        /// <param name="prompt">The AI prompt. It contains all descriptions and instructions on which the AI system generates a suitable answer.</param>
+        /// <exception cref="AIException"></exception>
+        Task<string> AnalyzeImageAsync(string url, string prompt);
     }
 }

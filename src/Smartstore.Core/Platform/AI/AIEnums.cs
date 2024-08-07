@@ -53,6 +53,12 @@
         Square
     }
 
+    public enum ImageCreationStyle
+    {
+        Vivid,
+        Natural
+    }
+
     /// <summary>
     /// Represents the AI role.
     /// </summary>
