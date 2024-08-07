@@ -290,13 +290,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
             => P(ResNamespace + "CreatePicture", topic);
 
         /// <summary>
-        /// Adds a instruction for the AI to act in a specific role.
+        /// Adds an instruction for the AI to act in a specific role.
         /// </summary>
         /// <param name="role">The <see cref="AIRole"/></param>
-        /// <param name="entityName">The name of the entity. Currently only used to fill a placeholder for the productname when the role is <see cref="AIRole.ProductExpert"/></param>
+        /// <param name="entityName">
+        /// The name of the entity. Currently only used to fill a placeholder for the product name 
+        /// when the role is <see cref="AIRole.ProductExpert"/>.</param>
         /// <returns>AI Instruction: e.g.: Be a SEO expert.</returns>
         public virtual string Role(AIRole role, string entityName = "")
-            => P(ResNamespace + $"Role.{Enum.GetName(typeof(AIRole), role)}");
+            => P(ResNamespace + $"Role.{Enum.GetName(typeof(AIRole), role)}", entityName);
 
         /// <summary>
         /// Shortcut to get a resource string without NewLine breaks.
