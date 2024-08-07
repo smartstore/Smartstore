@@ -268,7 +268,7 @@
 
 <script sm-target-zone="scripts" data-origin="register">
     $(function () {
-        setRememberedFormFields("registerVals");
+        restoreRememberedFormFields("registerVals");
 
         _.delay(function () {
             $(".country-selector").trigger("change");

@@ -398,7 +398,7 @@
         localStorage.setItem(storageId, JSON.stringify(values));
     };
 
-    window.setRememberedFormFields = function (storageId) {
+    window.restoreRememberedFormFields = function (storageId) {
         var values = localStorage.getItem(storageId);
         if (values) {
             values = JSON.parse(values);
