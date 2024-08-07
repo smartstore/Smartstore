@@ -4,6 +4,8 @@ using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
+    // TODO: (mg) add an abstract base class again (the provider may only want to implement a part of it) and enable nullable.
+
     /// <summary>
     /// Represents an AI provider like ChatGPT.
     /// </summary>
