@@ -5,38 +5,11 @@ namespace Smartstore.Core.Platform.AI
 {
     public partial interface IAIProvider : IProvider
     {
-        // TODO: (mh) (ai) Bad API design. Make the enum the core "support" method. TBD with MC.
-
         /// <summary>
-        /// Defines whether the provider can create text.
+        /// Gets a value indicating whether the provider is configured.
         /// </summary>
-        bool SupportsTextCreation { get; }
-
-        /// <summary>
-        /// Defines whether the provider can translate text.
-        /// </summary>
-        bool SupportsTextTranslation { get; }
-
-        /// <summary>
-        /// Defines whether the provider can create images.
-        /// </summary>
-        bool SupportsImageCreation { get; }
-
-        /// <summary>
-        /// Defines whether the provider can analyse images.
-        /// </summary>
-        bool SupportsImageAnalysis { get; }
-
-        /// <summary>
-        /// Defines whether the provider can create theme vars.
-        /// </summary>
-        bool SuportsThemeVarCreation { get; }
-
-        /// <summary>
-        /// Defines whether the provider provides an assistent.
-        /// </summary>
-        bool SupportsAssistence { get; }
-
+        /// <returns></returns>
+        bool IsConfigured();
 
         /// <summary>
         /// Gets a value indicating whether the provider supports the given <paramref name="feature"/>.
@@ -44,9 +17,14 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets a route for the given modal dialog type.
+        /// Gets <see cref="RouteInfo"/> for the given modal dialog type.
         /// </summary>
-        /// <returns>RouteInfo for the modal dialog.</returns>
         RouteInfo GetDialogRoute(AIDialogType modalDialogType);
+
+        Task<string> GetAnswerAsync(string prompt);
+
+        IAsyncEnumerable<string> GetAnswerStreamAsync(string prompt);
+
+        Task<List<string>> GetImageUrlsAsync(string prompt, int numberOfImages);
     }
 }
