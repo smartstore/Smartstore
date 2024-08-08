@@ -8,15 +8,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
     public interface IPromptGenerator
     {
         /// <summary>
-        /// Should return <see langword="true"/> if the implementation handles 
-        /// prompt generation for given <paramref name="type"/>.
-        /// </summary>
-        bool Match(string type);
-
-        /// <summary>
         /// Gets or sets the priority of the prompt generator.
         /// </summary>
         int Priority { get; }
+
+        /// <summary>
+        /// Should return <see langword="true"/> if the implementation handles 
+        /// prompt generation for given <paramref name="type"/>.
+        /// </summary>
+        bool CanHandle(string type);
 
         /// <summary>
         /// Builds the prompt for given <see cref="ITextGenerationPrompt"/> model.

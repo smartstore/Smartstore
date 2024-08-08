@@ -13,7 +13,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
         public virtual int Priority => 0;
 
-        public virtual bool Match(string type)
+        public virtual bool CanHandle(string type)
             => type == Type;
 
         public virtual Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt)
