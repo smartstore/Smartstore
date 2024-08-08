@@ -11,8 +11,6 @@
         ILinkGenerationPrompt,
         IIncludeImagesGenerationPrompt
     {
-        // TODO: (mh) (ai) Move all prompt related infrastructure (and helpers) to "Prompting" or "Prompts" (?) namespace. TBD with MC.
-        // TODO: (mh) (ai) Chunk/granularize this interface into smaller parts. TBD with MC.
         int? TargetEntityId { get; set; }
         string EntityName { get; set; }
         string TargetProperty { get; set; }
