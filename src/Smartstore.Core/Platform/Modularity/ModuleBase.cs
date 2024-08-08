@@ -4,15 +4,13 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Engine.Modularity
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="IModule" />
     public abstract class ModuleBase : IModule
     {
-        /// <inheritdoc />
         public virtual IModuleDescriptor Descriptor { get; set; }
 
         protected internal ICommonServices Services { get; set; }
 
-        /// <inheritdoc />
         public virtual Task InstallAsync(ModuleInstallationContext context)
         {
             ModularState.Instance.InstalledModules.Add(Descriptor.SystemName);
@@ -22,7 +20,6 @@ namespace Smartstore.Engine.Modularity
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc />
         public virtual Task UninstallAsync()
         {
             ModularState.Instance.InstalledModules.Remove(Descriptor.SystemName);
@@ -57,7 +54,7 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         protected Task DeleteLanguageResourcesAsync(string rootKey)
         {
-            Guard.NotEmpty(rootKey, nameof(rootKey));
+            Guard.NotEmpty(rootKey);
             return Services.Localization.DeleteLocaleStringResourcesAsync(rootKey);
         }
 
@@ -102,7 +99,8 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <summary>
-        /// Deletes all properties from <typeparamref name="T"/> settings from the database.
+        /// Deletes all properties from <typeparamref name="T"/> settings from the database
+        /// including related <see cref="LocalizedProperty"/> if any.
         /// </summary>
         /// <returns>The number of deleted setting properties.</returns>
         protected async Task<int> DeleteSettingsAsync<T>()
@@ -110,6 +108,12 @@ namespace Smartstore.Engine.Modularity
         {
             var numDeleted = await Services.Settings.RemoveSettingsAsync<T>();
             await Services.DbContext.SaveChangesAsync();
+
+            var entityName = typeof(T).Name;
+            await Services.DbContext.LocalizedProperties
+                .Where(x => x.LocaleKeyGroup == entityName)
+                .ExecuteDeleteAsync();
+
             return numDeleted;
         }
 
