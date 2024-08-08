@@ -8,90 +8,57 @@
 @functions {
     private bool TransientUpload
     {
-        get
-        {
-            return GetMetadata<bool>("transientUpload");
-        }
+        get => GetMetadata<bool>("transientUpload");
     }
 
     private bool ShowBrowseMedia
     {
-        get
-        {
-            return GetMetadata<bool>("showBrowseMedia", true);
-        }
+        get => GetMetadata<bool>("showBrowseMedia", true);
     }
 
     private string MediaPath
     {
-        get
-        {
-            return GetMetadata<string>("path") ?? GetMetadata<string>("album");
-        }
+        get => GetMetadata<string>("path") ?? GetMetadata<string>("album");
     }
 
     private string TypeFilter
     {
-        get
-        {
-            return GetMetadata<string>("typeFilter", "image");
-        }
+        get => GetMetadata<string>("typeFilter", "image");
     }
 
     private int EntityId
     {
-        get
-        {
-            return GetMetadata<int>("entityId");
-        }
+        get => GetMetadata<int>("entityId");
     }
 
     private string EntityType
     {
-        get
-        {
-            return GetMetadata<string>("entityType");
-        }
+        get => GetMetadata<string>("entityType");
     }
 
     private string DeleteUrl
     {
-        get
-        {
-            return GetMetadata<string>("deleteUrl");
-        }
+        get => GetMetadata<string>("deleteUrl");
     }
 
     private string SortUrl
     {
-        get
-        {
-            return GetMetadata<string>("sortUrl");
-        }
+        get => GetMetadata<string>("sortUrl");
     }
 
     private string EntityAssignmentUrl
     {
-        get
-        {
-            return GetMetadata<string>("entityAssignmentUrl");
-        }
+        get => GetMetadata<string>("entityAssignmentUrl");
     }
 
     private bool MultiFile
     {
-        get
-        {
-            return GetMetadata<bool>("multifile");
-        }
+        get => GetMetadata<bool>("multifile");
     }
 
     private IEnumerable<IMediaFile> UploadedFiles
     {
-        get
-        {
-            return GetMetadata<IEnumerable<IMediaFile>>("uploadedFiles");
-        }
+        get => GetMetadata<IEnumerable<IMediaFile>>("uploadedFiles");
     }
 }
 
