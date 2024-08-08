@@ -1,13 +1,11 @@
-﻿using Smartstore.Core.Platform.AI.Prompting;
+﻿#nullable enable
+
+using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
-    // TODO: (mg) add an abstract base class again (the provider may only want to implement a part of it).
-    // TODO: (mg) Add the Supports* methods to the base class again.
-    // TODO: (mg) enable nullable.
-
     /// <summary>
     /// Represents an AI provider like ChatGPT.
     /// </summary>
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Platform.AI
         /// </param>
         /// <returns>The URL(s) of the generated image(s).</returns>
         /// <exception cref="AIException"></exception>
-        Task<string[]> CreateImagesAsync(IImageGenerationPrompt prompt, int numImages = 1, CancellationToken cancelToken = default);
+        Task<string[]?> CreateImagesAsync(IImageGenerationPrompt prompt, int numImages = 1, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Analyzes an image based on an AI prompt.
