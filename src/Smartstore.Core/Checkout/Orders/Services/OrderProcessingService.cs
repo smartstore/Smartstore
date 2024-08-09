@@ -242,7 +242,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
 
-            AddOrderNote(order, T("Admin.OrderNotice.OrderCancelled"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderCancelled"));
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
@@ -424,7 +424,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, notes);
+            AddOrderNotes(order, [.. notes]);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -457,7 +457,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, notes);
+            AddOrderNotes(order, [.. notes]);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -875,7 +875,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, notes);
+            AddOrderNotes(order, [.. notes]);
 
             // Reward points.
             var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
@@ -984,7 +984,7 @@ namespace Smartstore.Core.Checkout.Orders
             });
         }
 
-        private void AddOrderNotes(Order order, IEnumerable<string> notes)
+        private void AddOrderNotes(Order order, params string[] notes)
         {
             var now = DateTime.UtcNow;
 
@@ -994,16 +994,6 @@ namespace Smartstore.Core.Checkout.Orders
                 Note = note,
                 CreatedOnUtc = now
             }));
-        }
-
-        private void AddOrderNote(Order order, string note)
-        {
-            _db.OrderNotes.Add(new()
-            {
-                OrderId = order.Id,
-                Note = note,
-                CreatedOnUtc = DateTime.UtcNow
-            });
         }
 
         #endregion
