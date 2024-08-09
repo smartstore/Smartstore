@@ -998,12 +998,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
-            {
-                OrderId = order.Id,
-                Note = note,
-                CreatedOnUtc = DateTime.UtcNow
-            }));
+            AddOrderNotes(order, notes);
 
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)
