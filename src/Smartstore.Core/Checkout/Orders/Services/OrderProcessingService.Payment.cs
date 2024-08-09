@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             order.PaymentStatusId = (int)PaymentStatus.Authorized;
 
-            AddOrderNote(order, T("Admin.OrderNotice.OrderMarkedAsAuthorized"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsAuthorized"));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -30,7 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
             order.PaymentStatusId = (int)PaymentStatus.Paid;
             order.PaidDateUtc = DateTime.UtcNow;
 
-            AddOrderNote(order, T("Admin.OrderNotice.OrderMarkedAsPaid"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPaid"));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.PaymentStatus = result.NewPaymentStatus;
                 order.PaidDateUtc = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
 
-                AddOrderNote(order, T("Admin.OrderNotice.OrderCaptured"));
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptured"));
 
                 // INFO: CheckOrderStatus performs commit.
                 await CheckOrderStatusAsync(order);
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
             catch (Exception ex)
             {
-                AddOrderNote(order, T("Admin.OrderNotice.OrderCaptureError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderCaptureError", order.GetOrderNumber()).ToString() + " " + ex.Message);
                 await _db.SaveChangesAsync();
                 ex.ReThrow();
             }
@@ -138,14 +138,14 @@ namespace Smartstore.Core.Checkout.Orders
                 order.RefundedAmount = totalAmountRefunded;
                 order.PaymentStatus = result.NewPaymentStatus;
 
-                AddOrderNote(order, T("Admin.OrderNotice.OrderRefunded", request.AmountToRefund.ToString(true)));
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderRefunded", request.AmountToRefund.ToString(true)));
 
                 // INFO: CheckOrderStatus performs commit.
                 await CheckOrderStatusAsync(order);
             }
             catch (Exception ex)
             {
-                AddOrderNote(order, T("Admin.OrderNotice.OrderRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
                 await _db.SaveChangesAsync();
                 ex.ReThrow();
             }
@@ -166,7 +166,7 @@ namespace Smartstore.Core.Checkout.Orders
             order.RefundedAmount = totalAmountRefunded;
             order.PaymentStatus = PaymentStatus.Refunded;
 
-            AddOrderNote(order, T("Admin.OrderNotice.OrderMarkedAsRefunded", amountToRefund.ToString(true)));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsRefunded", amountToRefund.ToString(true)));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -221,14 +221,14 @@ namespace Smartstore.Core.Checkout.Orders
                 order.RefundedAmount = totalAmountRefunded;
                 order.PaymentStatus = result.NewPaymentStatus;
 
-                AddOrderNote(order, T("Admin.OrderNotice.OrderPartiallyRefunded", request.AmountToRefund.ToString(true)));
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefunded", request.AmountToRefund.ToString(true)));
 
                 // INFO: CheckOrderStatus performs commit.
                 await CheckOrderStatusAsync(order);
             }
             catch (Exception ex)
             {
-                AddOrderNote(order, T("Admin.OrderNotice.OrderPartiallyRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderPartiallyRefundError", order.GetOrderNumber()).ToString() + " " + ex.Message);
                 await _db.SaveChangesAsync();
                 ex.ReThrow();
             }
@@ -248,7 +248,7 @@ namespace Smartstore.Core.Checkout.Orders
             order.PaymentStatus = PaymentStatus.PartiallyRefunded;
 
             var formattedAmount = new Money(amountToRefund, _primaryCurrency).ToString(true);
-            AddOrderNote(order, T("Admin.OrderNotice.OrderMarkedAsPartiallyRefunded", formattedAmount));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsPartiallyRefunded", formattedAmount));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -288,14 +288,14 @@ namespace Smartstore.Core.Checkout.Orders
                 });
 
                 order.PaymentStatus = result.NewPaymentStatus;
-                AddOrderNote(order, T("Admin.OrderNotice.OrderVoided"));
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderVoided"));
 
                 // INFO: CheckOrderStatus performs commit.
                 await CheckOrderStatusAsync(order);
             }
             catch (Exception ex)
             {
-                AddOrderNote(order, T("Admin.OrderNotice.OrderVoidError", order.GetOrderNumber()).ToString() + " " + ex.Message);
+                AddOrderNotes(order, T("Admin.OrderNotice.OrderVoidError", order.GetOrderNumber()).ToString() + " " + ex.Message);
                 await _db.SaveChangesAsync();
                 ex.ReThrow();
             }
@@ -311,7 +311,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             order.PaymentStatusId = (int)PaymentStatus.Voided;
-            AddOrderNote(order, T("Admin.OrderNotice.OrderMarkedAsVoided"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderMarkedAsVoided"));
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -358,14 +358,14 @@ namespace Smartstore.Core.Checkout.Orders
                 });
 
                 recurringPayment.IsActive = false;
-                AddOrderNote(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancelled"));
+                AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancelled"));
 
                 await _db.SaveChangesAsync();
                 await _messageFactory.SendRecurringPaymentCancelledStoreOwnerNotificationAsync(recurringPayment, _localizationSettings.DefaultAdminLanguageId);
             }
             catch (Exception ex)
             {
-                AddOrderNote(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancellationError", initialOrder.GetOrderNumber()).ToString() + " " + ex.Message);
+                AddOrderNotes(initialOrder, T("Admin.OrderNotice.RecurringPaymentCancellationError", initialOrder.GetOrderNumber()).ToString() + " " + ex.Message);
                 await _db.SaveChangesAsync();
                 ex.ReThrow();
             }
