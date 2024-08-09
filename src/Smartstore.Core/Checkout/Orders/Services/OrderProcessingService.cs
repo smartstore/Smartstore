@@ -242,7 +242,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
 
-            order.AddOrderNote(T("Admin.OrderNotice.OrderCancelled"));
+            AddOrderNote(order, T("Admin.OrderNotice.OrderCancelled"));
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
@@ -413,16 +413,18 @@ namespace Smartstore.Core.Checkout.Orders
                 ? (int)ShippingStatus.PartiallyShipped
                 : (int)ShippingStatus.Shipped;
 
-            order.AddOrderNote(T("Admin.OrderNotice.ShipmentSent", shipment.Id));
+            var notes = new List<string> { T("Admin.OrderNotice.ShipmentSent", shipment.Id) };
 
             if (notifyCustomer)
             {
                 var msg = await _messageFactory.SendShipmentSentCustomerNotificationAsync(shipment, order.CustomerLanguageId);
                 if (msg?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, notes);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -444,16 +446,18 @@ namespace Smartstore.Core.Checkout.Orders
                 order.ShippingStatusId = (int)ShippingStatus.Delivered;
             }
 
-            order.AddOrderNote(T("Admin.OrderNotice.ShipmentDelivered", shipment.Id));
+            var notes = new List<string> { T("Admin.OrderNotice.ShipmentDelivered", shipment.Id) };
 
             if (notifyCustomer)
             {
                 var msg = await _messageFactory.SendShipmentDeliveredCustomerNotificationAsync(shipment, order.CustomerLanguageId);
                 if (msg?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, notes);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -797,7 +801,7 @@ namespace Smartstore.Core.Checkout.Orders
             var giftCards = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                 .ThenInclude(x => x.Order)
-                .ApplyOrderFilter(new[] { order.Id })
+                .ApplyOrderFilter([order.Id])
                 .ToListAsync();
 
             if (giftCards.Count == 0)
@@ -851,14 +855,14 @@ namespace Smartstore.Core.Checkout.Orders
             // Save new order status.
             await _db.SaveChangesAsync();
 
-            order.AddOrderNote(T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)));
+            var notes = new List<string> { T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)) };
 
             if (prevOrderStatus != OrderStatus.Complete && status == OrderStatus.Complete && notifyCustomer)
             {
                 var msgResult = await _messageFactory.SendOrderCompletedCustomerNotificationAsync(order, order.CustomerLanguageId);
                 if (msgResult?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
                 }
             }
 
@@ -867,9 +871,11 @@ namespace Smartstore.Core.Checkout.Orders
                 var msgResult = await _messageFactory.SendOrderCancelledCustomerNotificationAsync(order, order.CustomerLanguageId);
                 if (msgResult?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, notes);
 
             // Reward points.
             var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
@@ -975,6 +981,28 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 return q;
+            });
+        }
+
+        private void AddOrderNotes(Order order, IEnumerable<string> notes)
+        {
+            var now = DateTime.UtcNow;
+
+            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
+            {
+                OrderId = order.Id,
+                Note = note,
+                CreatedOnUtc = now
+            }));
+        }
+
+        private void AddOrderNote(Order order, string note)
+        {
+            _db.OrderNotes.Add(new()
+            {
+                OrderId = order.Id,
+                Note = note,
+                CreatedOnUtc = DateTime.UtcNow
             });
         }
 
