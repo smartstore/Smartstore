@@ -145,6 +145,18 @@ $btn-wide-padding-x-sm: 1.2rem;
 }
 
 
+// Toggle button with animated chevron
+// --------------------------------------------------
+
+.btn[data-toggle="button"] > .fa-chevron-up {
+    transition: transform 0.35s ease;
+}
+
+.btn.active[data-toggle="button"] > .fa-chevron-up {
+    transform: rotate(180deg);
+}
+
+
 // Social buttons
 // --------------------------------------------------
 
