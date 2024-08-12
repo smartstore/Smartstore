@@ -40,7 +40,7 @@ namespace Smartstore
         private static partial Regex IsIbanRegex();
 
         [GeneratedRegex(@"^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$", RegexOptions.Compiled | RegexOptions.Singleline)]
-        private static partial Regex IsEanRegex();
+        private static partial Regex IsGtinRegex();
 
         [GeneratedRegex("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)", RegexOptions.Compiled | RegexOptions.Singleline)]
         private static partial Regex IsBicRegex();
@@ -77,7 +77,7 @@ namespace Smartstore
         public static readonly Regex IsCultureCode = IsCultureCodeRegex();
         public static readonly Regex IsYearRange = IsYearRangeRegex();
         public static readonly Regex IsIban = IsIbanRegex();
-        public static readonly Regex IsEan = IsEanRegex();
+        public static readonly Regex IsGtin = IsGtinRegex();
         public static readonly Regex IsBic = IsBicRegex();
         public static readonly Regex IsMinFile = IsMinFileRegex();
         public static readonly Regex IsCvv = IsCvvRegex();

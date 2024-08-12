@@ -12,9 +12,9 @@ namespace Smartstore.Tests.Common
         [TestCase("0123456789012345", false)]
         [TestCase("123456789", false)]
         [TestCase("01234x6789123", false)]
-        public void Can_validate_EAN(string ean, bool result)
-        {            
-            var isMatch = RegularExpressions.IsEan.IsMatch(ean);
+        public void Can_validate_GTIN(string ean, bool result)
+        {
+            var isMatch = RegularExpressions.IsGtin.IsMatch(ean);
             isMatch.ShouldEqual(result);
         }
     }
