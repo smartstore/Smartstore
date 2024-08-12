@@ -8,11 +8,11 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text suggestions.
     /// </summary>
     [HtmlTargetElement("ai-suggestion", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AISuggestionTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
+    public class AISuggestionTagHelper(IAIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string MandatoryEntityFieldsAttributeName = "mandatory-entity-fields";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        private readonly IAIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// List of comma separated mandatory fields of the target entity.

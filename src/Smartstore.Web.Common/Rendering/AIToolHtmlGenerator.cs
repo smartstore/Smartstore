@@ -8,11 +8,10 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Rendering
 {
-    // TODO: (mh) (ai) Make interface for this class
     /// <summary>
     /// Helper class to be used in AI TagHelpers to generate the HTML for the AI dialog openers.
     /// </summary>
-    public class AIToolHtmlGenerator
+    public class AIToolHtmlGenerator : IAIToolHtmlGenerator
     {
         private readonly SmartDbContext _db;
         private readonly IAIProviderFactory _aiProviderFactory;
@@ -34,11 +33,6 @@ namespace Smartstore.Web.Rendering
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // TODO: (mh) (ai) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
-        /// <summary>
-        /// Creates the button to open the translation dialog.
-        /// </summary>
-        /// <param name="localizedContent">The HTML content of the localized editor.</param>
-        /// <returns>The icon button inclusive dropdown to choose the target property to be translated.</returns>
         public TagBuilder GenerateTranslationTool(string localizedContent)
         {
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
@@ -91,19 +85,8 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        /// <summary>
-        /// Creates the icon button to open the simple text creation dialog.
-        /// </summary>
-        /// <param name="attributes">The attributes of the TagHelper.</param>
-        /// <param name="hasContent">Indicates whether the target property already has content. If it has, we can offer options like: summarize, optimize etc.</param>
-        /// <returns>The icon button inclusive dropdown to choose a rewrite command from.</returns>
-        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool hasContent, string entityName)
+        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool hasContent)
         {
-            if (!entityName.HasValue())
-            {
-                return null;
-            }
-
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
             if (providers.Count == 0)
             {
@@ -204,11 +187,6 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        /// <summary>
-        /// Creates the icon button to open the suggestion dialog.
-        /// </summary>
-        /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <returns>The icon button to open the suggestion dialog.</returns>
         public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
         {
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
@@ -220,11 +198,6 @@ namespace Smartstore.Web.Rendering
             return GenerateOutput(providers, attributes, AIDialogType.Suggestion);
         }
 
-        /// <summary>
-        /// Creates the icon button to open the image creation dialog.
-        /// </summary>
-        /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <returns>The icon button to open the image creation dialog.</returns>
         public TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
         {
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.ImageCreation);
@@ -236,11 +209,6 @@ namespace Smartstore.Web.Rendering
             return GenerateOutput(providers, attributes, AIDialogType.Image);
         }
 
-        /// <summary>
-        /// Creates the icon button to open the rich text creation dialog.
-        /// </summary>
-        /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <returns>The icon button to open the rich text creation dialog.</returns>
         public TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
         {
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);

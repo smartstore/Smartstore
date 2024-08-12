@@ -9,7 +9,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
     [HtmlTargetElement("ai-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AITextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
+    public class AITextTagHelper(IAIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string DisplayWordLimitAttributeName = "display-word-limit";
         const string DisplayStyleAttributeName = "display-style";
@@ -17,7 +17,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayOptimizationOptionsAttributeName = "display-optimization-options";
         const string WordCountAttributeName = "word-count";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        private readonly IAIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.
@@ -63,7 +63,13 @@ namespace Smartstore.Web.TagHelpers.Admin
             // INFO: Has content has to be checked to determine whether the optimization options should be enabled.
             var hasContent = await HasValueAsync(output);
             var attributes = GetTagHelperAttributes();
-            var tool = _aiToolHtmlGenerator.GenerateTextCreationTool(attributes, hasContent, EntityName);
+
+            if (EntityName.IsEmpty())
+            {
+                return;
+            }
+
+            var tool = _aiToolHtmlGenerator.GenerateTextCreationTool(attributes, hasContent);
             if (tool == null)
             {
                 return;

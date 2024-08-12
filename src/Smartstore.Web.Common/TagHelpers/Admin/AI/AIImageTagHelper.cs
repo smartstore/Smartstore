@@ -9,12 +9,12 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for image creation.
     /// </summary>
     [HtmlTargetElement("ai-image", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AIImageTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
+    public class AIImageTagHelper(IAIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         const string FormatAttributeName = "format";
         const string MediaFolderAttributeName = "media-folder";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        private readonly IAIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Used to be passed to AI provider to define the format of the picture about to be created.

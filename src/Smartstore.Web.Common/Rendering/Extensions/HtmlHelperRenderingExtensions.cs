@@ -643,7 +643,7 @@ namespace Smartstore.Web.Rendering
                 // BEGIN: AI
                 if (helper.ViewData.Model is EntityModelBase { EntityId: > 0 } || (helper.ViewData.Model is ILocalizedModel && helper.ViewData.Model is IBlock))
                 {
-                    var aiToolHtmlGenerator = services.GetRequiredService<AIToolHtmlGenerator>();
+                    var aiToolHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
                     var translationDropdown = aiToolHtmlGenerator.GenerateTranslationTool(tabs.FirstOrDefault().Content.ToString());
 
                     wrapper.InnerHtml.AppendHtml(translationDropdown);

@@ -8,7 +8,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for HTML rich text creation.
     /// </summary>
     [HtmlTargetElement("ai-rich-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AIRichTextTagHelper(AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
+    public class AIRichTextTagHelper(IAIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase()
     {
         // TODO: (mh) (ai) Bad naming. More specific please.
         const string DisplayAdditionalContentOptionsAttributeName = "display-additional-content-options";
@@ -16,7 +16,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayStructureOptionsAttributeName = "display-structure-options";
         const string DisplayImageOptionsAttributeName = "display-image-options";
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        private readonly IAIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
 
         /// <summary>
         /// Defines whether the additional content options should be displayed in the rich text creation dialog.
