@@ -85,7 +85,7 @@ namespace Smartstore.Core.Checkout.Payment
         }
     }
 
-    public class PaymentValidationFailure
+    public record PaymentValidationFailure
     {
         public PaymentValidationFailure()
         {

@@ -287,40 +287,18 @@ namespace Smartstore.ComponentModel
 
         #region Internal nested classes
 
-        class MapperKey : Tuple<Type, Type, string?>
-        {
-            public MapperKey(Type fromType, Type toType, string? name)
-                : base(fromType, toType, name)
-            {
-            }
+        record MapperKey(Type FromType, Type ToType, string? Name);
 
-            public Type FromType { get => Item1; }
-            public Type ToType { get => Item2; }
-            public string? Name { get => Item3; }
+        readonly struct MapperType(Type type, int order)
+        {
+            public Type Type { get; } = type;
+            public int Order { get; } = order;
         }
 
-        readonly struct MapperType
+        readonly struct MapperRegistration(Type[] implTypes, MapperLifetime lifetime)
         {
-            public MapperType(Type type, int order)
-            {
-                Type = type; 
-                Order = order;
-            }
-
-            public Type Type { get; }
-            public int Order { get; }
-        }
-
-        readonly struct MapperRegistration
-        {
-            public MapperRegistration(Type[] implTypes, MapperLifetime lifetime)
-            {
-                ImplTypes = implTypes;
-                Lifetime = lifetime;
-            }
-
-            public Type[] ImplTypes { get; }
-            public MapperLifetime Lifetime { get; }
+            public Type[] ImplTypes { get; } = implTypes;
+            public MapperLifetime Lifetime { get; } = lifetime;
         }
 
         abstract class MapperLifetime

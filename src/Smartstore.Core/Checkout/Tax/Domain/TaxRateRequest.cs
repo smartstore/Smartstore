@@ -6,7 +6,7 @@ namespace Smartstore.Core.Checkout.Tax
     /// <summary>
     /// Represents a request for a tax rate.
     /// </summary>
-    public partial class TaxRateRequest
+    public partial record TaxRateRequest
     {
         /// <summary>
         /// Gets or sets a customer

@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the result of an order total validation.
     /// </summary>
-    public partial class OrderTotalValidationResult
+    public partial record OrderTotalValidationResult
     {
         /// <summary>
         /// Minimum allowed order total.

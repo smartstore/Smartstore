@@ -38,16 +38,7 @@
         }
     }
 
-    public class ImportRowInfo : Tuple<int, string>
-    {
-        public ImportRowInfo(int position, string entityName)
-            : base(position, entityName)
-        {
-        }
-
-        public int Position => Item1;
-        public string EntityName => Item2;
-    }
+    public record ImportRowInfo(int Position, string EntityName);
 
     public enum ImportMessageType
     {

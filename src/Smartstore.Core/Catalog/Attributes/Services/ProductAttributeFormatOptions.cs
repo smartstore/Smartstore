@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public class ProductAttributeFormatOptions
+    public record ProductAttributeFormatOptions
     {
         const string DefaultFormatTemplate = "{0}: {1}";
         const string DefaultPriceFormatTemplate = " ({0})";

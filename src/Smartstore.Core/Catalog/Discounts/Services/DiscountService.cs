@@ -350,12 +350,6 @@ namespace Smartstore.Core.Catalog.Discounts
             }
         }
 
-        class DiscountKey : Tuple<Discount, Customer, string, Store, DiscountValidationFlags>
-        {
-            public DiscountKey(Discount discount, Customer customer, string customerCouponCode, Store store, DiscountValidationFlags flags)
-                : base(discount, customer, customerCouponCode, store, flags)
-            {
-            }
-        }
+        record DiscountKey(Discount Discount, Customer Customer, string CustomerCouponCode, Store Store, DiscountValidationFlags Flags);
     }
 }
