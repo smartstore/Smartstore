@@ -125,12 +125,19 @@ namespace Smartstore.Domain
 
         public static bool operator ==(BaseEntity x, BaseEntity y)
         {
-            return Equals(x, y);
+            if (Equals(x, null))
+            {
+                return Equals(y, null);
+            }
+            else
+            {
+                return x.Equals(y);
+            }
         }
 
         public static bool operator !=(BaseEntity x, BaseEntity y)
         {
-            return !Equals(x, y);
+            return !(x == y);
         }
 
         private bool HasSameNonDefaultIds(BaseEntity other)
