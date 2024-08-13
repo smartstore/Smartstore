@@ -5,15 +5,85 @@
     {
         return;
     }
+
+    // Check if the visibility cookie is set.
+    var visibilityCookie = Request.Cookies[".Smart.WZVisibility"];
+    var visibility = visibilityCookie != "hidden";
+
+    if(zone.Name == "start")
+    {
+            <style>
+                span.wz-preview {
+                    transition: 1s;
+                }
+
+                #devtools-widget-zone-menu.see-through {
+                    opacity: 50%;
+                }
+
+                .wz-preview.widget-zone-highlight {
+                    font-size: 1.5em;
+                    font-weight: bold;
+                }
+
+                .wz-preview.widget-zone-highlight.d-none {
+                    display: flex !important;
+                }
+            </style>
+
+            <div id="devtools-widget-zone-menu" class="d-none">
+            <button class="persistent-toggle btn btn-dark btn-outline-light">Persistent toggle<i class="fa-solid fa-cookie-bite"></i></button>
+                <div class="zone-list d-flex flex-column flex-grow-1 overflow-auto custom-scrollbar"></div>
+                <button class="temporary-toggle btn btn-dark btn-outline-light">Toggle<span class="small text-muted">Ctrl + Alt + B</span></button>
+            </div>
+
+            <script>
+                // Add widget zone area containers.
+                let areas = @Html.Raw(Json.Serialize(ViewBag.WidgetZoneAreas));
+
+                // Add a meta and default area for user-defined zones.
+                areas.unshift({
+                    name: 'Meta',
+                    zones: [],
+                });
+                areas.push({
+                    name: @T("Admin.WidgetZones.UserDefined").JsValue,
+                    zones: []
+                });
+
+                let zoneList = document.querySelector('#devtools-widget-zone-menu .zone-list');
+
+                // Add div's to '#devtools-widget-zone-menu .zone-list' for each element in areas.
+                areas.forEach(area => {
+                    let areaContainer = document.createElement('div');
+                    areaContainer.classList.add('zone-area', 'd-flex', 'flex-column', 'mb-2', 'd-none');
+                    areaContainer.setAttribute('data-area', area.name);
+                    areaContainer.setAttribute('data-zones', area.zones.join(' '));
+                    areaContainer.innerHTML = `<h6 class="text-muted">${area.name}</h6>`;
+                    zoneList.appendChild(areaContainer);
+                });
+
+                // Make sure the end tag is rendered.
+                $(function () {
+                    // Register zone with widgetZone-Overlord.
+                    Smartstore.DevTools.registerWidgetZone({
+                        name: 'end',
+                        previewTagName: ''
+                    });
+                });
+            </script>
+
+            <script type="text/javascript" src="@Url.Content("~/Modules/Smartstore.DevTools/js/smartstore.devtools.js")" sm-target-zone="scripts"></script>
+    }
 }
 
 @if (zone.PreviewTagName == "meta")
 {
-    <meta name="widget-zone-name" class="wz-preview" content="@zone.Name" />
+    <meta name="widget-zone-name" class="wz-preview @(visibility ? "" : "d-none")" content="@zone.Name" />
 }
 else
 {
-    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name"
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview @(visibility ? "" : "d-none") badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name"
           attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
           attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
         <span class="text-truncate">@zone.Name</span>
@@ -23,3 +93,13 @@ else
         </a>*@
     </span>
 }
+
+<script sm-target-zone="end">
+    $(function(){
+        // Register the widget zone.
+        Smartstore.DevTools.registerWidgetZone({
+            name: '@zone.Name',
+            previewTagName: '@zone.PreviewTagName'
+        });
+    });
+</script>
