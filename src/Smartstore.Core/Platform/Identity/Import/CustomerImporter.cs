@@ -490,12 +490,6 @@ namespace Smartstore.Core.DataExchange.Import
             ImportExecuteContext context,
             ImporterCargoData cargo)
         {
-            // Last name is mandatory for an address to be imported or updated.
-            if (!row.HasDataValue(fieldPrefix + "LastName"))
-            {
-                return;
-            }
-
             Address address = null;
 
             if (fieldPrefix == "BillingAddress.")
