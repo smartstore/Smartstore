@@ -86,7 +86,7 @@ Smartstore.DevTools = (function () {
             _widgetzones.push(widgetZone);
 
             let areaName = Smartstore.DevTools.getWidgetZoneArea(widgetZone.name);
-            console.log(widgetZone.name);
+            
             // Place the widget zone in the correct area and make sure the area is visible.
             $(_widgetZoneMenuId + ' .zone-area[data-area="' + areaName + '"]')
                 .append('<div class="d-flex p-2 gap-2"><a href="#" class="zone-pointer flex-grow-1 text-light text-decoration-none text-break">' + widgetZone.name
