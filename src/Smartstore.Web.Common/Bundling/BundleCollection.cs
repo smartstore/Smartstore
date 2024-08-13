@@ -68,7 +68,7 @@ namespace Smartstore.Web.Bundling
 
         public Bundle GetBundleFor(string route)
         {
-            Guard.NotEmpty(route, nameof(route));
+            Guard.NotEmpty(route);
 
             route = Bundle.NormalizeRoute(route);
 
