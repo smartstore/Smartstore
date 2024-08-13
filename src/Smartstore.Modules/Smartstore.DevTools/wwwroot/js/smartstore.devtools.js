@@ -1,20 +1,18 @@
 Smartstore.DevTools = (function () {
-
-    let _widgetZoneMenuId = '#devtools-widget-zone-menu';
-    let _widgetzones;
-    let _zIndex = 1000;
+    const widgetZoneMenuId = '#devtools-widget-zone-menu';
+    let widgetZones;
+    const zIndex = 1000;
     
     return {
         // Initialize the DevTools widget functionality: Create the widget zone menu and set up event listeners.
         init: function () {
-            _widgetzones = [];
-            _duplicateCounter = [];
+            widgetZones = [];
 
             $(function () {
-                createSideMenu(_widgetZoneMenuId, _zIndex);
+                createSideMenu(widgetZoneMenuId, zIndex);
 
                 // Jump to the zone.
-                $(_widgetZoneMenuId).on("click", ".zone-pointer", function (e) {
+                $(widgetZoneMenuId).on("click", ".zone-pointer", function (e) {
                     e.preventDefault();
 
                     let wzName = $(this).text();
@@ -27,7 +25,7 @@ Smartstore.DevTools = (function () {
 
                             // If multiple widget zones with the same name exist, we scroll to the first one.
                             if (index == 0) {
-                                let wZMenu = $(_widgetZoneMenuId);
+                                let wZMenu = $(widgetZoneMenuId);
 
                                 // Make menu see-through, so the user can see covered widget zones.
                                 wZMenu.addClass('see-through');
@@ -48,15 +46,15 @@ Smartstore.DevTools = (function () {
                 });
                 
                 // Add toggle buttons to widget zone menu.
-                $(_widgetZoneMenuId).on("click", ".persistent-toggle", function (e) {
+                $(widgetZoneMenuId).on("click", ".persistent-toggle", function (e) {
                     Smartstore.DevTools.toggleAllZones(true);
                 });
-                $(_widgetZoneMenuId).on("click", ".temporary-toggle", function (e) {
+                $(widgetZoneMenuId).on("click", ".temporary-toggle", function (e) {
                     Smartstore.DevTools.toggleAllZones();
                 });
 
                 // Add event listener to copy widget zone name to clipboard.
-                $(_widgetZoneMenuId).on("click", ".copy-to-clipboard", function (e) {
+                $(widgetZoneMenuId).on("click", ".copy-to-clipboard", function (e) {
                     e.preventDefault();
                     window.copyTextToClipboard($(e.currentTarget).data('value'));
                     return false;
@@ -70,40 +68,36 @@ Smartstore.DevTools = (function () {
                 });
             });
         },
+
         // Register a widget zone and add it to the zone list.
         registerWidgetZone: function (widgetZone) {
-            let duplicate = false;
-            _widgetzones.forEach(wz => {
-                if (wz.name === widgetZone.name) {
-                    duplicate = true;
-                    return false;
-                }
-            });
-
             // If the widget zone is already registered, we skip it.
-            if (duplicate) { return; }
+            if (widgetZones.findIndex(wz => wz.name === widgetZone.name) === -1) {
+                return;
+            };
             
-            _widgetzones.push(widgetZone);
+            widgetZones.push(widgetZone);
 
             let areaName = Smartstore.DevTools.getWidgetZoneArea(widgetZone.name);
             
             // Place the widget zone in the correct area and make sure the area is visible.
-            $(_widgetZoneMenuId + ' .zone-area[data-area="' + areaName + '"]')
+            $(widgetZoneMenuId + ' .zone-area[data-area="' + areaName + '"]')
                 .append('<div class="d-flex p-2 gap-2"><a href="#" class="zone-pointer flex-grow-1 text-light text-decoration-none text-break">' + widgetZone.name
                 + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + widgetZone.name + '"><i class="fa-solid fa-copy"></i><a></div>')
                 .removeClass('d-none');
         },
+
         // Returns the area the widget zone should be placed in, using .zone-area[data-zones="..."].
         getWidgetZoneArea: function (widgetZoneName) {
-            let areas = $(_widgetZoneMenuId + ' .zone-area');
+            let areas = $(widgetZoneMenuId + ' .zone-area');
             let area = areas.filter(function () {
                 return $(this).data('zones').split(' ').includes(widgetZoneName);
             });
 
             // If no area was found, use the last one (custom).
-            if (area.length === 0) {
+            if (!area.length) {
                 // Check if the widget zone has a meta preview tag.
-                let wz = _widgetzones.find(wz => wz.name === widgetZoneName);
+                let wz = widgetZones.find(wz => wz.name === widgetZoneName);
                 if (wz.previewTagName == 'meta') {
                     return 'Meta';
                 }
@@ -113,13 +107,15 @@ Smartstore.DevTools = (function () {
 
             return area.data('area');
         },
+
         // Toggles the visibility of all widget zones. If saveInCookie is true, the state will be saved in a cookie.
         toggleAllZones: function (saveInCookie = false) {
-            $(document).find('.wz-preview').toggleClass('d-none');
+            const zonePreviews = $(document).find('.wz-preview');
+            zonePreviews.toggleClass('d-none');
 
             // Save state in a cookie if requested.
             if (saveInCookie) {
-                let wzState = $(document).find('.wz-preview').hasClass('d-none') ? 'hidden' : 'visible';
+                let wzState = zonePreviews.hasClass('d-none') ? 'hidden' : 'visible';
                 document.cookie = '.Smart.WZVisibility=' + wzState + '; path=/; max-age=31536000';
             }
         }
@@ -129,7 +125,6 @@ Smartstore.DevTools = (function () {
 // This function turns an element into a sidebar menu.
 window.createSideMenu = function (selector, zIndex) {
     let menuWidth = '250'; // in px
-
     let menu = $(selector);
 
     menu.addClass("sidebar-menu position-fixed top-0 p-1 d-flex flex-column justify-content-center gap-1 bg-dark overflow-hidden")
