@@ -22,15 +22,15 @@ namespace Smartstore.Core.Messaging
     {
         const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
-        private static readonly string[] _verifyOrderAgeTemplateNames = new[]
-        {
+        private static readonly string[] _verifyOrderAgeTemplateNames =
+        [
             MessageTemplateNames.ShipmentSentCustomer,
             MessageTemplateNames.ShipmentDeliveredCustomer,
             MessageTemplateNames.OrderCompletedCustomer,
             MessageTemplateNames.OrderCancelledCustomer,
             MessageTemplateNames.OrderNoteAddedCustomer,
             MessageTemplateNames.ReturnRequestStatusChangedCustomer
-        };
+        ];
 
         private Dictionary<string, Func<Task<object>>> _testModelFactories;
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Messaging
         {
             Guard.NotNull(messageContext);
 
-            modelParts ??= Array.Empty<object>();
+            modelParts ??= [];
 
             // Handle TestMode
             if (messageContext.TestMode && modelParts.Length == 0)
@@ -96,7 +96,7 @@ namespace Smartstore.Core.Messaging
                 modelParts = await GetTestModelsAsync(messageContext);
             }
 
-            ValidateMessageContext(messageContext, ref modelParts);
+            modelParts = await ValidateMessageContext(messageContext, modelParts);
 
             // Create and assign model.
             var model = messageContext.Model = new TemplateModel();
@@ -327,7 +327,7 @@ namespace Smartstore.Core.Messaging
             }
         }
 
-        private void ValidateMessageContext(MessageContext ctx, ref object[] modelParts)
+        private async Task<object[]> ValidateMessageContext(MessageContext ctx, object[] modelParts)
         {
             var t = ctx.MessageTemplate;
             if (t != null)
@@ -360,14 +360,14 @@ namespace Smartstore.Core.Messaging
             }
             else
             {
-                ctx.Language = _db.Languages
+                ctx.Language = await _db.Languages
                     .AsNoTracking()
-                    .FirstOrDefault(x => x.Id == ctx.LanguageId.Value);
+                    .FirstOrDefaultAsync(x => x.Id == ctx.LanguageId.Value);
             }
 
-            EnsureLanguageIsActive(ctx);
+            await EnsureLanguageIsActive(ctx);
 
-            var parts = modelParts?.AsEnumerable() ?? Enumerable.Empty<object>();
+            var parts = modelParts?.AsEnumerable() ?? [];
 
             if (ctx.Customer == null)
             {
@@ -397,10 +397,10 @@ namespace Smartstore.Core.Messaging
                 if (CreateMessage(ctx, parts))
                 {
                     // INFO: tracked because entity is updated in CreateMessageAsync.
-                    ctx.MessageTemplate = _db.MessageTemplates
+                    ctx.MessageTemplate = await _db.MessageTemplates
                         .Where(x => x.Name == ctx.MessageTemplateName)
                         .ApplyStoreFilter(ctx.Store.Id)
-                        .FirstOrDefault();
+                        .FirstOrDefaultAsync();
 
                     if (!ctx.TestMode && ctx.MessageTemplate != null && !ctx.MessageTemplate.IsActive)
                     {
@@ -411,7 +411,7 @@ namespace Smartstore.Core.Messaging
 
             if (ctx.EmailAccount == null && ctx.MessageTemplate != null)
             {
-                ctx.EmailAccount = GetEmailAccountOfMessageTemplate(ctx.MessageTemplate, ctx.Language.Id);
+                ctx.EmailAccount = await GetEmailAccountOfMessageTemplate(ctx.MessageTemplate, ctx.Language.Id);
             }
 
             // Sort parts: "IModelPart" instances must come first
@@ -421,7 +421,7 @@ namespace Smartstore.Core.Messaging
                 parts = bagParts.Concat(parts.Except(bagParts));
             }
 
-            modelParts = parts.Where(x => x != null).ToArray();
+            return parts.Where(x => x != null).ToArray();
         }
 
         protected virtual bool CreateMessage(MessageContext ctx, IEnumerable<object> parts)
@@ -446,33 +446,36 @@ namespace Smartstore.Core.Messaging
             return true;
         }
 
-        protected EmailAccount GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, int languageId)
+        protected async Task<EmailAccount> GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, int languageId)
         {
             // Note that the email account to be used can be specified separately for each language, that's why we use GetLocalized here.
             var accountId = messageTemplate.GetLocalized(x => x.EmailAccountId, languageId);
-            var account = (_db.EmailAccounts.FindById(accountId, false) 
-                ?? _emailAccountService.GetDefaultEmailAccount()) 
+            var account = (await _db.EmailAccounts.FindByIdAsync(accountId, false))
+                ?? _emailAccountService.GetDefaultEmailAccount()
                 ?? throw new Exception(T("Common.Error.NoEmailAccount"));
 
             return account;
         }
 
-        private void EnsureLanguageIsActive(MessageContext ctx)
+        private async Task EnsureLanguageIsActive(MessageContext ctx)
         {
             var language = ctx.Language;
 
             if (language == null || !language.Published)
             {
-                // Load any language from the specified store.
-                language = _db.Languages
+                // Load master language.
+                language = await _db.Languages
                     .AsNoTracking()
-                    .FirstOrDefault(x => x.Id == _languageService.GetMasterLanguageId(ctx.StoreId.Value));
+                    .FirstOrDefaultAsync(x => x.Id == _languageService.GetMasterLanguageId(ctx.StoreId.Value));
             }
 
             if (language == null || !language.Published)
             {
                 // Load any language.
-                language = _languageService.GetAllLanguages().FirstOrDefault();
+                language = await _db.Languages
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, ctx.StoreId ?? 0)
+                    .FirstOrDefaultAsync();
             }
 
             ctx.Language = language ?? throw new Exception(T("Common.Error.NoActiveLanguage"));
