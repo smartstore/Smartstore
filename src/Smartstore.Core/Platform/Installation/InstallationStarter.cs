@@ -45,13 +45,9 @@ namespace Smartstore.Core.Installation
             {
                 app.Use(async (context, next) =>
                 {
-                    if (!context.Request.Path.StartsWithSegments(InstallPath))
+                    var path = context.Request.Path;
+                    if (!path.StartsWithSegments(InstallPath) && !path.StartsWithSegments("/Error"))
                     {
-                        if (context.Request.Path.StartsWithSegments("/Error"))
-                        {
-                            await next();
-                            return;
-                        }
                         context.Response.Redirect(context.Request.PathBase.Value + InstallPath);
                         return;
                     }
