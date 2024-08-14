@@ -6,7 +6,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     /// <summary>
     /// The base implementation for AI Tag Helpers.
     /// </summary>
-    public class AITagHelperBase : BaseFormTagHelper
+    public abstract class AITagHelperBase : BaseFormTagHelper
     {
         const string EntityIdAttributeName = "entity-id";
         const string EntityNameAttributeName = "entity-name";

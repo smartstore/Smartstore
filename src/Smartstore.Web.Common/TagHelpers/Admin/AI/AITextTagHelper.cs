@@ -56,6 +56,8 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            _aiToolHtmlGenerator.Contextualize(HtmlHelper.ViewContext);
+
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
