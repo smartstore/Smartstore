@@ -47,6 +47,11 @@ namespace Smartstore.Core.Installation
                 {
                     if (!context.Request.Path.StartsWithSegments(InstallPath))
                     {
+                        if (context.Request.Path.StartsWithSegments("/Error"))
+                        {
+                            await next();
+                            return;
+                        }
                         context.Response.Redirect(context.Request.PathBase.Value + InstallPath);
                         return;
                     }
