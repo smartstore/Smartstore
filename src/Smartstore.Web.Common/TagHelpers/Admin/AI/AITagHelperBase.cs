@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Autofac;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -11,6 +13,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string EntityIdAttributeName = "entity-id";
         const string EntityNameAttributeName = "entity-name";
         const string EntityTypeAttributeName = "entity-type";
+
+        private IAIToolHtmlGenerator _aiToolHtmlGenerator;
 
         /// <summary>
         /// Used to determine which prompt should be used to create the text.
@@ -29,6 +33,21 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(EntityNameAttributeName)]
         public string EntityName { get; set; }
+
+        [HtmlAttributeNotBound]
+        protected IAIToolHtmlGenerator AIToolHtmlGenerator 
+        {
+            get
+            {
+                if (_aiToolHtmlGenerator == null)
+                {
+                    _aiToolHtmlGenerator = ViewContext.HttpContext.GetServiceScope().Resolve<IAIToolHtmlGenerator>();
+                    _aiToolHtmlGenerator.Contextualize(ViewContext);
+                }
+
+                return _aiToolHtmlGenerator;
+            }
+        }
 
         protected virtual AttributeDictionary GetTagHelperAttributes()
         {

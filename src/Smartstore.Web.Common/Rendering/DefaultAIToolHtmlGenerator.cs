@@ -1,5 +1,6 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
+using Autofac;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Localization;
@@ -8,39 +9,51 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Rendering
 {
-    public class AIToolHtmlGenerator : IAIToolHtmlGenerator
+    public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
     {
         private readonly SmartDbContext _db;
         private readonly IAIProviderFactory _aiProviderFactory;
         private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
-        private readonly IHtmlHelper _htmlHelper;
-        private bool _contextualized;
+        private IHtmlHelper _htmlHelper;
+        private ViewContext _viewContext;
 
-        public AIToolHtmlGenerator(
+        public DefaultAIToolHtmlGenerator(
             SmartDbContext db,
             IAIProviderFactory aiProviderFactory,
             ModuleManager moduleManager, 
-            IUrlHelper urlHelper,
-            IHtmlHelper htmlHelper)
+            IUrlHelper urlHelper)
         {
             _db = db;
             _aiProviderFactory = aiProviderFactory;
             _moduleManager = moduleManager;
             _urlHelper = urlHelper;
-            _htmlHelper = htmlHelper;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public void Contextualize(ViewContext viewContext)
         {
-            if (_htmlHelper is IViewContextAware contextAware)
-            {
-                contextAware.Contextualize(viewContext);
-            }
+            _viewContext = Guard.NotNull(viewContext);
+        }
 
-            _contextualized = true;
+        protected internal IHtmlHelper HtmlHelper
+        {
+            get
+            {
+                CheckContextualized();
+                
+                if (_htmlHelper == null)
+                {
+                    _htmlHelper = _viewContext.HttpContext.GetServiceScope().Resolve<IHtmlHelper>();
+                    if (_htmlHelper is IViewContextAware contextAware)
+                    {
+                        contextAware.Contextualize(_viewContext);
+                    }
+                }
+
+                return _htmlHelper;
+            }
         }
 
         // TODO: (mh) (ai) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
@@ -377,7 +390,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener icon.</returns>
         private TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            var icon = (TagBuilder)_htmlHelper.BootstrapIcon("magic", false, htmlAttributes: new Dictionary<string, object>
+            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", false, htmlAttributes: new Dictionary<string, object>
             {
                 ["class"] = "dropdown-icon bi-fw bi"
             });
@@ -496,7 +509,7 @@ namespace Smartstore.Web.Rendering
 
         private void CheckContextualized()
         {
-            if (!_contextualized)
+            if (_viewContext == null)
             {
                 throw new InvalidOperationException($"Call '{nameof(Contextualize)}' before calling any {nameof(IAIToolHtmlGenerator)} method.");
             }

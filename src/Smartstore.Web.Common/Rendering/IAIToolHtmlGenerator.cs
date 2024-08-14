@@ -10,11 +10,7 @@ namespace Smartstore.Web.Rendering
     /// <summary>
     /// Represents a generator for creating the HTML for AI dialog openers.
     /// </summary>
-    public interface IAIToolHtmlGenerator : IAIHtmlGenerator, IViewContextAware
-    {
-    }
-
-    public partial interface IAIHtmlGenerator
+    public partial interface IAIToolHtmlGenerator : IViewContextAware
     {
         /// <summary>
         /// Creates the button to open the translation dialog.

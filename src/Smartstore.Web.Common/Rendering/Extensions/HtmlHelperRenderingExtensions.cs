@@ -363,7 +363,7 @@ namespace Smartstore.Web.Rendering
             {
                 div.InnerHtml.AppendHtml(helper.Label(expression, labelText, htmlAttributes));
             }
-
+            
             if (hint.HasValue())
             {
                 div.InnerHtml.AppendHtml(helper.HintTooltip(hint));

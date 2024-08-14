@@ -184,7 +184,7 @@ namespace Smartstore.Web
             if (appContext.IsInstalled)
             {
                 builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
-                builder.RegisterType<AIToolHtmlGenerator>().As<IAIToolHtmlGenerator>().InstancePerDependency();
+                builder.RegisterType<DefaultAIToolHtmlGenerator>().As<IAIToolHtmlGenerator>().InstancePerDependency();
             }
         }
 
