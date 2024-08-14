@@ -24,8 +24,6 @@ namespace Smartstore.DevTools.Filters
     
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
-        private static readonly Regex _widgetZonePattern = new(".*", RegexOptions.Compiled);
-
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ProfilerSettings _profilerSettings;
@@ -76,7 +74,7 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
-                _widgetProvider.RegisterWidget(_widgetZonePattern, new ZonePreviewWidget());
+                _widgetProvider.RegisterWidget(_ => true, new ZonePreviewWidget());
             }
         }
 

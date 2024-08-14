@@ -9,6 +9,7 @@
     margin-block: 3px;
     text-align: start;
     box-shadow: none !important;
+    transition: 1s;
 
     > .btn-clipboard {
         position: absolute;
@@ -20,5 +21,12 @@
 
     &:hover > .btn-clipboard {
         opacity: 1;
+    }
+
+    &.wz-highlight {
+        font-size: 1.5em;
+        font-weight: $font-weight-bold;
+        // Overwrite .d-none
+        display: flex !important;
     }
 }
