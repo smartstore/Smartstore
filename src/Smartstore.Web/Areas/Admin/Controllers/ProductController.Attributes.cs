@@ -129,9 +129,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductSpecificationAttributes.GetManyAsync(ids);
+                var toDelete = await _db.ProductSpecificationAttributes.GetManyAsync(ids, true);
                 _db.ProductSpecificationAttributes.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -288,9 +289,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributes.GetManyAsync(ids);
+                var toDelete = await _db.ProductVariantAttributes.GetManyAsync(ids, true);
                 _db.ProductVariantAttributes.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -680,9 +682,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributeValues.GetManyAsync(ids);
+                var toDelete = await _db.ProductVariantAttributeValues.GetManyAsync(ids, true);
                 _db.ProductVariantAttributeValues.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -767,9 +770,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributeCombinations.GetManyAsync(ids);
+                var toDelete = await _db.ProductVariantAttributeCombinations.GetManyAsync(ids, true);
                 _db.ProductVariantAttributeCombinations.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
