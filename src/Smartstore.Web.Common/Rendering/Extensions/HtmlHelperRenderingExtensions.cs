@@ -595,7 +595,7 @@ namespace Smartstore.Web.Rendering
                 }
 
                 // Create TagHelperContext for tabstrip.
-                var stripContext = new TagHelperContext("tabstrip", new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
+                var stripContext = new TagHelperContext("tabstrip", [], new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
 
                 // Must init tabstrip, otherwise "Parent" is null inside tab helpers.
                 strip.Init(stripContext);
@@ -644,8 +644,11 @@ namespace Smartstore.Web.Rendering
                 var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
                 aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-                var translationTool = aiHtmlGenerator.GenerateTranslationTool();
-                wrapper.InnerHtml.AppendHtml(translationTool);
+                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model);
+                if (translationTool != null)
+                {
+                    wrapper.InnerHtml.AppendHtml(translationTool);
+                }
                 // END: AI
 
                 return stripOutput.WrapElementWith(wrapper);

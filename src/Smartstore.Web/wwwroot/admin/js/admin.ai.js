@@ -127,14 +127,14 @@
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
         $('.ai-dialog-opener-root').each(function () {
             const root = $(this);
-            const parent = root.parent();
+            const localeEditor = root.parent();
 
-            if (parent.hasClass('locale-editor')) {
+            if (localeEditor.hasClass('locale-editor')) {
                 // Removing translator menu items that have no according input element in the localized editor.
                 root.find('.ai-translator-menu .ai-provider-tool').each(function () {
                     const tool = $(this);
                     const propName = tool.data('target-property');
-                    if (!_.isEmpty(propName) && parent.find(':input[id="' + propName + '"]').length == 0) {
+                    if (!_.isEmpty(propName) && localeEditor.find('#' + propName).length == 0) {
                         tool[0].remove();
                     }
                 });

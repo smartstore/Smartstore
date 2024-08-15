@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Platform.AI;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering
 {
@@ -15,11 +16,12 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Creates the button to open the translation dialog.
         /// </summary>
+        /// <param name="model">The localized model to be translated.</param>
         /// <returns>
         /// The icon button inclusive dropdown to choose the target property to be translated.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
-        TagBuilder? GenerateTranslationTool();
+        TagBuilder? GenerateTranslationTool(ILocalizedModel model);
 
         /// <summary>
         /// Creates the icon button to open the simple text creation dialog.

@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Platform.AI;
 using Smartstore.Engine.Modularity;
@@ -56,42 +57,43 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        public TagBuilder GenerateTranslationTool()
+        public TagBuilder GenerateTranslationTool(ILocalizedModel model)
         {
+            Guard.NotNull(model);
+
             CheckContextualized();
 
-            var model = HtmlHelper.ViewData.Model;
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
-
-            if (providers.Count == 0
-                || model == null
-                || model is not ILocalizedModel
-                || (model is EntityModelBase entityModel && entityModel.EntityId == 0))
+            if (providers.Count == 0)
             {
                 return null;
             }
 
+            // Model must implement ILocalizedModel<T> where T : ILocalizedLocaleModel
             var modelType = model.GetType();
-            var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
-
-            if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
-                //|| localesProperty.GetValue(model) is not IEnumerable<ILocalizedLocaleModel> allLocales
-                //|| !allLocales.Any())
+            if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>), out var localeModelType))
             {
                 return null;
             }
 
-            var propertyNames = localeModelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => !x.Name.EqualsNoCase(nameof(ILocalizedLocaleModel.LanguageId)))
-                .Select(x => x.Name)
+            // Entity model must not be transient
+            if (model is EntityModelBase entityModel && entityModel.EntityId == 0)
+            {
+                return null;
+            }
+
+            var propertyNames = FastProperty.GetProperties(localeModelType)
+                .Where(x => x.Value.Property.PropertyType == typeof(string))
+                .Select(x => x.Key)
                 .ToList();
 
-            var propertyInfoMap = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => propertyNames.Contains(x.Name))
+            var propertyInfoMap = FastProperty.GetProperties(modelType)
+                .Where(x => propertyNames.Contains(x.Key))
+                .Select(x => x.Value.Property)
                 .Select(x => new AILocalizedPropertyInfo
                 {
                     Prop = x,
-                    HasValue = x.GetValue(model)?.ToString()?.HasValue() ?? false
+                    HasValue = x.GetValue(model)?.ToString()?.HasValue() == true
                 })
                 .ToDictionarySafe(x => x.Prop.Name);
 
@@ -193,7 +195,7 @@ namespace Smartstore.Web.Rendering
                 }
 
                 btn.InnerHtml.AppendHtml(_moduleManager.GetLocalizedFriendlyName(provider.Metadata));
-                AddTagHelperProperties(btn, provider, attributes, AIDialogType.Text);
+                MergeDataAttributes(btn, provider, attributes, AIDialogType.Text);
 
                 btnGroupDiv.InnerHtml.AppendHtml(btn);
                 isFirstProvider = false;
@@ -319,7 +321,7 @@ namespace Smartstore.Web.Rendering
                 var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
                 var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
 
-                AddTagHelperProperties(openerDiv, provider, attributes, dialogType);
+                MergeDataAttributes(openerDiv, provider, attributes, dialogType);
 
                 return openerDiv;
             }
@@ -335,7 +337,7 @@ namespace Smartstore.Web.Rendering
                     var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
                     var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, true, additionalClasses);
 
-                    AddTagHelperProperties(dropdownLi, provider, attributes, dialogType);
+                    MergeDataAttributes(dropdownLi, provider, attributes, dialogType);
 
                     dropdownUl.InnerHtml.AppendHtml(dropdownLi);
                 }
@@ -349,7 +351,7 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Adds the necessary data attributes to the given control.
         /// </summary>
-        private void AddTagHelperProperties(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIDialogType dialogType)
+        private void MergeDataAttributes(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIDialogType dialogType)
         {
             var route = provider.Value.GetDialogRoute(dialogType);
             ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
