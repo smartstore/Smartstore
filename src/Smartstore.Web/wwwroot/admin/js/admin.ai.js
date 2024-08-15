@@ -126,20 +126,31 @@
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
         $('.ai-dialog-opener-root').each(function () {
-            if ($(this).parent().hasClass('locale-editor')) {
+            const root = $(this);
+            const parent = root.parent();
+
+            if (parent.hasClass('locale-editor')) {
+                // Removing translator menu items that have no according input element in the localized editor.
+                root.find('.ai-translator-menu .ai-provider-tool').each(function () {
+                    const tool = $(this);
+                    const propName = tool.data('target-property');
+                    if (!_.isEmpty(propName) && parent.find(':input[id="' + propName + '"]').length == 0) {
+                        tool[0].remove();
+                    }
+                });
                 return;
             }
 
-            let textarea = $(this).find('> textarea');
+            let textarea = root.find('> textarea');
             let innerHeight = textarea.innerHeight();
             if (textarea.length && innerHeight && textarea[0].scrollHeight > innerHeight) {
-                $(this).addClass('has-scrollbar');
+                root.addClass('has-scrollbar');
             }
 
-            let summernote = $(this).find('.note-editor-preview');
+            let summernote = root.find('.note-editor-preview');
             innerHeight = summernote.innerHeight();
             if (summernote.length && innerHeight && summernote[0].scrollHeight > innerHeight) {
-                $(this).addClass('has-scrollbar');
+                root.addClass('has-scrollbar');
             }
 
             // TODO: On summernote init shift ai-opener below toolbar.

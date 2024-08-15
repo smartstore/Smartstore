@@ -1,11 +1,11 @@
-﻿using AngleSharp;
-using AngleSharp.Html.Dom;
+﻿using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Platform.AI;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering
 {
@@ -56,24 +56,56 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        // TODO: (mh) (ai) Very bad decision to pass and scrape the generated output HTML! TBD with MC.
-        public TagBuilder GenerateTranslationTool(string localizedContent)
+        public TagBuilder GenerateTranslationTool()
         {
             CheckContextualized();
 
+            var model = HtmlHelper.ViewData.Model;
             var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
-            if (providers.Count == 0)
+
+            if (providers.Count == 0
+                || model == null
+                || model is not ILocalizedModel
+                || (model is EntityModelBase entityModel && entityModel.EntityId == 0))
             {
+                return null;
+            }
+
+            var modelType = model.GetType();
+            var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
+
+            if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
+                //|| localesProperty.GetValue(model) is not IEnumerable<ILocalizedLocaleModel> allLocales
+                //|| !allLocales.Any())
+            {
+                return null;
+            }
+
+            var propertyNames = localeModelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => !x.Name.EqualsNoCase(nameof(ILocalizedLocaleModel.LanguageId)))
+                .Select(x => x.Name)
+                .ToList();
+
+            var propertyInfoMap = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => propertyNames.Contains(x.Name))
+                .Select(x => new AILocalizedPropertyInfo
+                {
+                    Prop = x,
+                    HasValue = x.GetValue(model)?.ToString()?.HasValue() ?? false
+                })
+                .ToDictionarySafe(x => x.Prop.Name);
+
+            if (propertyInfoMap.Count == 0 || propertyInfoMap.Values.All(x => !x.HasValue))
+            {
+                // Nothing to translate.
                 return null;
             }
 
             string[] additionalItemClasses = ["ai-translator"];
             var inputGroupColDiv = CreateDialogOpener(true);
-            var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu";
 
-            // TODO: (mh) (ai) Dangerous! TBD with MC.
-            var properties = ExtractLabelsAndIdsAsync(localizedContent).Await();
+            var dropdownUl = new TagBuilder("ul");
+            dropdownUl.Attributes["class"] = "dropdown-menu ai-translator-menu";
 
             foreach (var provider in providers)
             {
@@ -83,25 +115,31 @@ namespace Smartstore.Web.Rendering
 
                 var dropdownLiTitle = T("Admin.AI.TranslateTextWith", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
                 var headingLi = new TagBuilder("li");
-                headingLi.Attributes["class"] = "dropdown-header";
+                headingLi.Attributes["class"] = "dropdown-header h6";
                 headingLi.InnerHtml.AppendHtml(dropdownLiTitle);
                 dropdownUl.InnerHtml.AppendHtml(headingLi);
 
-                foreach (var prop in properties)
+                // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
+                // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
+                // We do not have this information here. Solution: we put all properties in the menu and later remove those that are not included using JavaScript.
+                foreach (var name in propertyNames)
                 {
-                    var elementId = prop.Item1;
-                    var label = prop.Item2;
-                    var hasValue = prop.Item3;
+                    var id = HtmlHelper.Id(name);
+                    var displayName = HtmlHelper.DisplayName(name);
+                    var info = propertyInfoMap.Get(name) ?? new();
+                    //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
 
-                    var additionalClasses = hasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
-                    var dropdownLi = CreateDropdownItem(label, true, string.Empty, true, additionalClasses);
+                    var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
+                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, true, additionalClasses);
 
                     var attrs = dropdownLi.Attributes;
                     attrs["data-provider-systemname"] = provider.Metadata.SystemName;
                     attrs["data-modal-url"] = routeUrl;
-                    attrs["data-target-property"] = elementId;
-                    attrs["data-modal-title"] = dropdownLiTitle + ": " + label;
+                    attrs["data-target-property"] = id;
+                    attrs["data-modal-title"] = dropdownLiTitle + ": " + displayName;
 
+                    // INFO: there is no explicit item order. To put the menu items in the same order as the HTML elements,
+                    // the properties of the ILocalizedLocaleModel must be ordered accordingly.
                     dropdownUl.InnerHtml.AppendHtml(dropdownLi);
                 }
             }
@@ -198,11 +236,10 @@ namespace Smartstore.Web.Rendering
         private void AddMenuItemsFromSetting(TagBuilder dropdownUl, bool hasContent, string command)
         {
             var settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
-            var title = command == "change-style" ? T("Admin.AI.MenuItemTitle.ChangeStyle").Value : T("Admin.AI.MenuItemTitle.ChangeTone").Value;
-
             var setting = _db.Settings.FirstOrDefault(x => x.Name == settingName);
             if (setting != null && setting.Value.HasValue())
             {
+                var title = T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone");
                 var providerDropdownItemLi = CreateDropdownItem(title);
                 providerDropdownItemLi.Attributes["class"] = "dropdown-group";
 
@@ -466,47 +503,6 @@ namespace Smartstore.Web.Rendering
             return listItem;
         }
 
-        /// <summary>
-        /// Extracts labels and ids from the given html content which is the inner html of a localized editor.
-        /// Only needed for translation tool to determine the properties to be translated.
-        /// </summary>
-        /// <param name="htmlContent">Inner html of a localized editor.</param>
-        /// <returns>
-        /// List<(string, string, bool)> 
-        /// where the first string is the element id, the second the label of the form element and the bool indicates whether the element contains a value.
-        /// </returns>
-        private static async Task<List<(string, string, bool)>> ExtractLabelsAndIdsAsync(string htmlContent)
-        {
-            // TODO: (mh) (ai) VERY BAD decision to implement a scraper. TBD with MC.
-            var context = BrowsingContext.New(Configuration.Default);
-            var document = await context.OpenAsync(req => req.Content(htmlContent));
-            var elements = document.QuerySelectorAll("input[id], textarea[id]").OfType<IHtmlElement>();
-
-            var list = new List<(string, string, bool)>();
-
-            foreach (var element in elements)
-            {
-                string value = null;
-
-                if (element is IHtmlInputElement inputElement)
-                {
-                    value = inputElement.Value;
-                }
-                else if (element is IHtmlTextAreaElement textAreaElement)
-                {
-                    value = textAreaElement.Value;
-                }
-
-                var label = document.QuerySelector($"label[for='{element.Id}']")?.TextContent.Trim();
-                if (label != null)
-                {
-                    list.Add((element.Id, label, value.HasValue()));
-                }
-            }
-
-            return list;
-        }
-
         private void CheckContextualized()
         {
             if (_viewContext == null)
@@ -514,5 +510,11 @@ namespace Smartstore.Web.Rendering
                 throw new InvalidOperationException($"Call '{nameof(Contextualize)}' before calling any {nameof(IAIToolHtmlGenerator)} method.");
             }
         }
+    }
+
+    internal class AILocalizedPropertyInfo
+    {
+        public PropertyInfo Prop { get; set; }
+        public bool HasValue { get; set; }
     }
 }

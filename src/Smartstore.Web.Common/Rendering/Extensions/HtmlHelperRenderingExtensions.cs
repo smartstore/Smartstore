@@ -641,14 +641,11 @@ namespace Smartstore.Web.Rendering
                 wrapper.Attributes.Add("style", $"--tab-caption-display-{size}: inline");
 
                 // BEGIN: AI
-                if (helper.ViewData.Model is EntityModelBase { EntityId: > 0 } || (helper.ViewData.Model is ILocalizedModel && helper.ViewData.Model is IBlock))
-                {
-                    var aiToolHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
-                    aiToolHtmlGenerator.Contextualize(helper.ViewContext);
+                var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
+                aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-                    var translationDropdown = aiToolHtmlGenerator.GenerateTranslationTool(tabs.FirstOrDefault().Content.ToString());
-                    wrapper.InnerHtml.AppendHtml(translationDropdown);
-                }
+                var translationTool = aiHtmlGenerator.GenerateTranslationTool();
+                wrapper.InnerHtml.AppendHtml(translationTool);
                 // END: AI
 
                 return stripOutput.WrapElementWith(wrapper);

@@ -15,12 +15,11 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Creates the button to open the translation dialog.
         /// </summary>
-        /// <param name="localizedContent">The HTML content of the localized editor.</param>
         /// <returns>
         /// The icon button inclusive dropdown to choose the target property to be translated.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
-        TagBuilder? GenerateTranslationTool(string localizedContent);
+        TagBuilder? GenerateTranslationTool();
 
         /// <summary>
         /// Creates the icon button to open the simple text creation dialog.
