@@ -112,6 +112,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mg) What about DeleteAll (_queuedEmailService.DeleteAllQueuedMailsAsync())?
                 var toDelete = await _db.QueuedEmails.GetManyAsync(ids, true);
                 _db.QueuedEmails.RemoveRange(toDelete);
                 await _db.SaveChangesAsync();
