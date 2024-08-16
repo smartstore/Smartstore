@@ -12,7 +12,7 @@
             => DisplayName;
 
         public string[] GetDisplayNameMemberNames()
-            => new[] { nameof(DisplayName) };
+            => [nameof(DisplayName)];
 
         public override string GetEntityName()
             => EntityName;

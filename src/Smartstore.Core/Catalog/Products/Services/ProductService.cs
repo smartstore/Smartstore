@@ -808,15 +808,15 @@ namespace Smartstore.Core.Catalog.Products
                 .Select(x => x.Id);
 
             await _db.MediaTracks
-                .Where(x => productMediaFileIdsQuery.Contains(x.EntityId) && x.EntityName == nameof(ProductMediaFile))
+                .Where(x => productMediaFileIdsQuery.Contains(x.EntityId) && x.EntityName == NamedEntity.GetEntityName<ProductMediaFile>())
                 .ExecuteDeleteAsync(cancelToken);
 
             var attributeValuesIdsQuery = _db.ProductVariantAttributeValues
                 .Where(x => productIds.Contains(x.ProductVariantAttribute.ProductId))
                 .Select(x => x.Id);
-
+            
             await _db.MediaTracks
-                .Where(x => attributeValuesIdsQuery.Contains(x.EntityId) && x.EntityName == nameof(ProductVariantAttributeValue))
+                .Where(x => attributeValuesIdsQuery.Contains(x.EntityId) && x.EntityName == NamedEntity.GetEntityName<ProductVariantAttributeValue>())
                 .ExecuteDeleteAsync(cancelToken);
 
             // ----- Finally delete products.

@@ -480,12 +480,13 @@ namespace Smartstore.Web.Rendering
 
                 if (kvp.Key.Group.HasValue())
                 {
-                    if (!groupList.ContainsKey(kvp.Key.Group))
+                    if (!groupList.TryGetValue(kvp.Key.Group, out SelectListGroup value))
                     {
-                        groupList[kvp.Key.Group] = new SelectListGroup { Name = kvp.Key.Group };
+                        value = new SelectListGroup { Name = kvp.Key.Group };
+                        groupList[kvp.Key.Group] = value;
                     }
 
-                    selectListItem.Group = groupList[kvp.Key.Group];
+                    selectListItem.Group = value;
                 }
 
                 selectList.Add(selectListItem);
