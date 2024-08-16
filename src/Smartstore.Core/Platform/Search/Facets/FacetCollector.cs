@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Search.Facets
+﻿using System.Collections.Frozen;
+
+namespace Smartstore.Core.Search.Facets
 {
     /// <summary>
     /// Helper to speed up collecting facets.
@@ -8,13 +10,13 @@
     {
         private readonly int _maxChoicesCount;
         private int _uncalculatedSelectedCount;
-        private readonly HashSet<FacetValue> _selectedValues;
+        private readonly FrozenSet<FacetValue> _selectedValues;
         private readonly List<Facet> _selectedFacets = [];
         private readonly List<Facet> _nonSelectedFacets = [];
 
         public FacetCollector(IEnumerable<FacetValue> selectedValues, int maxChoicesCount)
         {
-            _selectedValues = new HashSet<FacetValue>(selectedValues);
+            _selectedValues = selectedValues.ToFrozenSet();
             _uncalculatedSelectedCount = _selectedValues.Count;
             _maxChoicesCount = maxChoicesCount;
         }

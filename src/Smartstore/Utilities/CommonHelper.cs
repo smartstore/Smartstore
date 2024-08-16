@@ -139,15 +139,6 @@ namespace Smartstore.Utilities
         #endregion
 
         #region Randomizer
-
-        [ThreadStatic]
-        private static Random _random;
-
-        private static Random GetRandomizer()
-        {
-            return _random ??= new Random();
-        }
-
         /// <summary>
         /// Generate random digit code
         /// </summary>
@@ -158,7 +149,7 @@ namespace Smartstore.Utilities
             var buffer = new byte[length];
             for (int i = 0; i < length; ++i)
             {
-                buffer[i] = (byte)GetRandomizer().Next(10);
+                buffer[i] = (byte)Random.Shared.Next(10);
             }
 
             return string.Join(string.Empty, buffer);
@@ -172,8 +163,7 @@ namespace Smartstore.Utilities
         /// <returns>Random integer number.</returns>
         public static int GenerateRandomInteger(int min = 0, int max = int.MaxValue)
         {
-            using var random = new NumberRandomizer();
-            return random.Next(min, max);
+            return Random.Shared.Next(min, max);
         }
 
         #endregion

@@ -49,7 +49,7 @@ namespace Smartstore.Engine.Modularity
 
         private ModulesHasher _hasher;
         private static ModularState _instance;
-        private readonly static object _lock = new();
+        private readonly static Lock _lock = new();
 
         public static ModularState Instance
         {

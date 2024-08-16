@@ -6,6 +6,7 @@
 		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 		<RazorCompileOnPublish>true</RazorCompileOnPublish>
+        <LangVersion>preview</LangVersion>
 	
 		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
 		<!--
