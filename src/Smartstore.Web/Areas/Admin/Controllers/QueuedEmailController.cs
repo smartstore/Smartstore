@@ -107,13 +107,15 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Message.Delete)]
         public async Task<IActionResult> QueuedEmailDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds().ToList();
+            var ids = selection.GetEntityIds();
             var numDeleted = 0;
-            if (ids.Count > 0)
+
+            if (ids.Any())
             {
-                numDeleted = await _db.QueuedEmails
-                    .Where(x => ids.Contains(x.Id))
-                    .ExecuteDeleteAsync();
+                var toDelete = await _db.QueuedEmails.GetManyAsync(ids, true);
+                _db.QueuedEmails.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new
