@@ -12,7 +12,7 @@ export class DevTools {
         this.createSideMenu(widgetZoneMenuId, zIndex);
 
         // Jump to the zone.
-        $(widgetZoneMenuId).on("click", ".zone-pointer", function (e) {
+        $(widgetZoneMenuId).on("click", ".wz-zone-pointer", function (e) {
             e.preventDefault();
 
             let wzName = $(this).text();
@@ -46,11 +46,8 @@ export class DevTools {
         });
 
         // Add toggle buttons to widget zone menu.
-        $(widgetZoneMenuId).on("click", ".persistent-toggle", (e) => {
-            this.toggleAllZones(true);
-        });
-        $(widgetZoneMenuId).on("click", ".temporary-toggle", (e) => {
-            this.toggleAllZones();
+        $(widgetZoneMenuId).on("click", ".wz-toggle", (e) => {
+            this.toggleAllZones($(e.currentTarget).data('persistent'));
         });
 
         // Add event listener to copy widget zone name to clipboard.
@@ -71,44 +68,44 @@ export class DevTools {
     /**
      * Register a widget zone and add it to the zone list.
      */
-    registerWidgetZone(widgetZone) {
+    registerWidgetZone(zone) {
         // If the widget zone is already registered, we skip it.
-        if (widgetZones.findIndex(wz => wz.name === widgetZone.name) !== -1) {
+        if (widgetZones.findIndex(wz => wz.name === zone.name) !== -1) {
             return;
         };
 
-        widgetZones.push(widgetZone);
+        widgetZones.push(zone);
 
-        let areaName = this.getWidgetZoneArea(widgetZone.name);
+        let groupName = this.getWidgetZoneGroup(zone.name);
 
-        // Place the widget zone in the correct area and make sure the area is visible.
-        $(widgetZoneMenuId + ' .zone-area[data-area="' + areaName + '"]')
-            .append('<div class="d-flex p-2 gap-2"><a href="#" class="zone-pointer flex-grow-1 text-light text-decoration-none text-break">' + widgetZone.name
-                + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + widgetZone.name + '"><i class="fa-solid fa-copy"></i><a></div>')
+        // Place the widget zone in the correct group and make sure the group is visible.
+        $('.wz-zone-group[data-group="' + groupName + '"]')
+            .append('<div class="d-flex p-2 gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-light text-decoration-none text-break">' + zone.name
+            + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
 
     /**
-     * Returns the area the widget zone should be placed in, using .zone-area[data-zones="..."].
+     * Returns the group the widget zone should be placed in, using .wz-zone-group[data-zones="..."].
      */
-    getWidgetZoneArea(widgetZoneName) {
-        let areas = $(widgetZoneMenuId + ' .zone-area');
-        let area = areas.filter(function () {
-            return $(this).data('zones').split(' ').includes(widgetZoneName);
+    getWidgetZoneGroup(zoneName) {
+        let groups = $('.wz-zone-group');
+        let group = groups.filter(function () {
+            return $(this).data('groups').split(' ').includes(zoneName);
         });
 
-        // If no area was found, use the last one (custom).
-        if (!area.length) {
+        // If no group was found, use the last one (custom).
+        if (!group.length) {
             // Check if the widget zone has a meta preview tag.
-            let wz = widgetZones.find(wz => wz.name === widgetZoneName);
+            let wz = widgetZones.find(wz => wz.name === zoneName);
             if (wz.previewTagName == 'meta') {
                 return 'Meta';
             }
 
-            area = areas.last();
+            group = groups.last();
         }
 
-        return area.data('area');
+        return group.data('group');
     }
 
     /**
@@ -132,25 +129,26 @@ export class DevTools {
         let menuWidth = '250'; // in px
         let menu = $(selector);
 
-        menu.addClass("sidebar-menu position-fixed top-0 p-1 d-flex flex-column justify-content-center gap-1 bg-dark overflow-hidden")
+        menu.addClass("wz-sidebar position-fixed top-0 p-2 d-flex flex-column justify-content-center gap-1 bg-dark overflow-hidden")
             .removeClass("d-none")
             .width(menuWidth)
             .css({
                 'height': '100%',
                 'left': '-' + menuWidth * 1.2 + 'px',
                 'z-index': zIndex + 1,
-                'transition': '0.5s'
+                'transition': '0.35s ease-in-out'
             });
 
         // Add close button to menu.
-        menu.prepend('<button class="sidebar-close btn btn-dark btn-outline-light"><i class="fa fa-times"></i></button>')
-            .find(".sidebar-close").on("click", function (e) {
+        menu.prepend('<button class="wz-sidebar-close btn btn-dark btn-outline-light"><i class="fa fa-times"></i></button>')
+            .find(".wz-sidebar-close").on("click", () => {
                 menu.css('left', '-' + menuWidth * 1.2 + 'px');
             });
 
         // Add toggle button outside the menu.
-        menu.after('<button class="sidebar-menu-toggle position-fixed top-0 start-0 m-2 btn btn-dark text-white"><i class="fa fa-bars"></i></button>')
-            .next().on("click", function (e) {
+        // TODO: (mw) (dt) Button misses an explanatory tooltip.
+        menu.after('<button class="wz-sidebar-toggle position-fixed top-0 start-0 m-2 mt-6 btn btn-dark"><i class="far fa-layer-group"></i></button>')
+            .next().on("click", () => {
                 menu.css('left', 0);
             }).css('z-index', zIndex);
     }

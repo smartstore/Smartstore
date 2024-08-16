@@ -1,6 +1,17 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
+    // INFO: (mw) (dt) Please analyze all review commits carefully! Try to adopt best-practices, code style and conventions the next time.
+    // TODO: (mw) (dt) Offcanvas: Don't reinvent the wheel. Use our custom Offcanvas menu. TBD with MH.
+    // TODO: (mw) (dt) Offcanvas: The closer should not be a visual button, what the fuck?! See below.
+    // TODO: (mw) (dt) Offcanvas: The toggler buttons are a MESS!! See below.
+    // TODO: (mw) (dt) Offcanvas: Use smaller font-size for clickable items.
+    // TODO: (mw) (dt) Offcanvas: Use bg color for hover & active for clickable items.
+    // TODO: (mw) (dt) Offcanvas: Visualy justify clickable items and titles/groups on the left. No indent please.
+    // TODO: (mw) (dt) CTRL+ALT+B. What about MAC?
+    // TODO: (mw) (dt) Don't place the hamburger button on top left. It overlays MiniProfiler. Place it on top right, but further down.
+    // TODO: (mw) (dt) Shitty highlight animation. Use CSS animations AFTER scroll end. "Blink" a few times, don't resize. Be creative!
+    
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
         return;
@@ -14,9 +25,13 @@
     {
         // Add the offcanvas zone preview menu
         <div id="wz-menu" class="d-none">
-            <button class="persistent-toggle btn btn-dark btn-outline-light">Persistent toggle<i class="fa-solid fa-cookie-bite"></i></button>
+            @* TODO: (mw) (dt) Localization!!!!!!!!!!!!!!!!!! *@
+            <button class="wz-toggle btn btn-dark btn-outline-light" data-persistent="true"><i class="far fa-eye"></i><span>Persistent toggle</span></button>
             <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto custom-scrollbar custom-scrollbar-invert"></div>
-            <button class="temporary-toggle btn btn-dark btn-outline-light">Toggle<span class="small text-muted">Ctrl + Alt + B</span></button>
+            <button class="wz-toggle btn btn-dark btn-outline-light">Toggle<span class="small text-muted">Ctrl + Alt + B</span></button>
+
+            @* TODO: (mw) (dt) Put a sticky buttonbar to the bottom with 3 justified items (equal width and height, similar to the product list item action bar): Persistent toggle, Temp toggle, Close offcanvas. Remove the 3 shitty buttons. *@
+            @* TODO: (mw) (dt) The eye symbol of any toggler must reflect the current toggle state (eye vs eye-slash) *@
         </div>
     }
 }
@@ -41,15 +56,15 @@ else
 <script sm-if='zone.Name == "end"' type="module">
     import { DevTools } from "@(Url.Content("~/Modules/Smartstore.DevTools/js/smartstore.devtools.js"))";
 
-    // Add widget zone area containers.
-    let areas = @Html.Raw(Json.Serialize(ViewBag.WidgetZoneAreas));
+    // Add widget zone group containers.
+    let groups = @Html.Raw(Json.Serialize(ViewBag.WidgetZoneGroups));
 
-    // Add a meta and default area for user-defined zones.
-    areas.unshift({
+    // Add a meta and default group for user-defined zones.
+    groups.unshift({
         name: 'Meta',
         zones: [],
     });
-    areas.push({
+    groups.push({
         name: @T("Admin.WidgetZones.UserDefined").JsValue,
         zones: []
     });
@@ -58,14 +73,16 @@ else
     $(function () {
         const zoneList = document.querySelector('.wz-zone-list');
 
-        // Add div's to '#wz-menu .wz-zone-list' for each element in areas.
-        areas.forEach(area => {
-            let areaContainer = document.createElement('div');
-            areaContainer.classList.add('zone-area', 'd-flex', 'flex-column', 'mb-2', 'd-none');
-            areaContainer.setAttribute('data-area', area.name);
-            areaContainer.setAttribute('data-zones', area.zones.join(' '));
-            areaContainer.innerHTML = `<h6 class="text-muted">${area.name}</h6>`;
-            zoneList.appendChild(areaContainer);
+        // Add div's to '#wz-menu .wz-zone-list' for each element in groups.
+        groups.forEach(group => {
+            // TODO: (mw) (dt) Use jQuery. It is MUCH shorter in this scenario.
+            let groupContainer = document.createElement('div');
+            groupContainer.classList.add('wz-zone-group', 'd-flex', 'flex-column', 'mb-2', 'd-none');
+            groupContainer.setAttribute('data-group', group.name);
+            // TODO: (mw) (dt) WTF!? Add as array to jQuery's data("groups"), so that it does not pullute the DOM.
+            groupContainer.setAttribute('data-groups', group.zones.join(' '));
+            groupContainer.innerHTML = `<h6 class="text-muted">${group.name}</h6>`;
+            zoneList.appendChild(groupContainer);
         });
 
         const devTools = new DevTools();

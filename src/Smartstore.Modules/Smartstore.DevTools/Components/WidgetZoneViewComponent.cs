@@ -19,20 +19,20 @@ namespace Smartstore.DevTools.Components
             // Get widget zone areas.
             var jsonZones = (JObject)(await _widgetProvider.GetAllKnownWidgetZonesAsync());
 
-            var areas =
+            var groups =
                 from p in jsonZones["WidgetZonesAreas"]
                 select p;
 
             // Localize widget zone areas.
-            foreach (var area in areas)
+            foreach (var group in groups)
             {
-                var areaRessource = area["name"].ToString();
+                var areaRessource = group["name"].ToString();
                 var areaName = T(areaRessource);
 
-                area["name"] = areaName.Value;
+                group["name"] = areaName.Value;
             }
 
-            ViewBag.WidgetZoneAreas = areas;
+            ViewBag.WidgetZoneGroups = groups;
 
             return View();
         }
