@@ -7,13 +7,18 @@
     --overflow-x: hidden;
     --overflow-y: auto;
     --scrollbar-size: 18px;
-    --scrollbar-track-color: rgba(0,0,0, 0);
-    --scrollbar-track-hover-color: rgba(0,0,0, 0.025);
-    --scrollbar-thumb-color: rgba(0,0,0, 0.3);
-    --scrollbar-thumb-hover-color: rgba(0,0,0, 0.5);
-    --scrollbar-thumb-active-color: rgba(0,0,0, 0.6);
+    --scrollbar-base-color-rgb: 0, 0, 0;
+    --scrollbar-track-color: rgba(var(--scrollbar-base-color-rgb), 0);
+    --scrollbar-track-hover-color: rgba(var(--scrollbar-base-color-rgb), 0.025);
+    --scrollbar-thumb-color: rgba(var(--scrollbar-base-color-rgb), 0.3);
+    --scrollbar-thumb-hover-color: rgba(var(--scrollbar-base-color-rgb), 0.5);
+    --scrollbar-thumb-active-color: rgba(var(--scrollbar-base-color-rgb), 0.6);
     overflow-x: var(--overflow-x, hidden) !important;
     overflow-y: var(--overflow-y, auto) !important;
+
+    &.custom-scrollbar-invert {
+        --scrollbar-base-color-rgb: 255, 255, 255;
+    }
 
     // For Firefox
     .moz & {

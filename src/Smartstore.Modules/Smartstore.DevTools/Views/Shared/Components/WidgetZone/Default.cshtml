@@ -15,7 +15,7 @@
         // Add the offcanvas zone preview menu
         <div id="wz-menu" class="d-none">
             <button class="persistent-toggle btn btn-dark btn-outline-light">Persistent toggle<i class="fa-solid fa-cookie-bite"></i></button>
-            <div class="zone-list d-flex flex-column flex-grow-1 overflow-auto custom-scrollbar"></div>
+            <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto custom-scrollbar custom-scrollbar-invert"></div>
             <button class="temporary-toggle btn btn-dark btn-outline-light">Toggle<span class="small text-muted">Ctrl + Alt + B</span></button>
         </div>
     }
@@ -56,9 +56,9 @@ else
 
     // Make sure the end tag is rendered.
     $(function () {
-        const zoneList = document.querySelector('#wz-menu .zone-list');
+        const zoneList = document.querySelector('.wz-zone-list');
 
-        // Add div's to '#wz-menu .zone-list' for each element in areas.
+        // Add div's to '#wz-menu .wz-zone-list' for each element in areas.
         areas.forEach(area => {
             let areaContainer = document.createElement('div');
             areaContainer.classList.add('zone-area', 'd-flex', 'flex-column', 'mb-2', 'd-none');
