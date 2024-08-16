@@ -71,13 +71,19 @@ namespace Smartstore.Web.Rendering
 
             // Model must implement ILocalizedModel<T> where T : ILocalizedLocaleModel
             var modelType = model.GetType();
-            if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>), out var localeModelType))
+            if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>)))
             {
                 return null;
             }
 
             // Entity model must not be transient
             if (model is EntityModelBase entityModel && entityModel.EntityId == 0)
+            {
+                return null;
+            }
+
+            var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
+            if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
             {
                 return null;
             }
