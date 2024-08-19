@@ -63,9 +63,10 @@ namespace Smartstore.PayPal
             // INFO: We can load the utility js regardless of user consent. It doesn't set any cookies.
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
+                // (perf PageSpeed) Get the frontend script bundle and include the utility script
                 var bundleCollection = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IBundleCollection>();
                 var bundle = bundleCollection.GetBundleFor("/bundle/js/site.js");
-                bundle?.Include($"/Modules/Smartstore.PayPal/js/paypal.utils.js?v={SmartstoreVersion.CurrentFullVersion}.0");
+                bundle?.Include("/Modules/Smartstore.PayPal/js/paypal.utils.js");
             });
         }
     }
