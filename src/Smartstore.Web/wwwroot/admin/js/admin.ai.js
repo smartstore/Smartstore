@@ -21,9 +21,7 @@
                 mediaFolder: tool.data('media-folder')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Text creation
@@ -68,9 +66,7 @@
                 });
             }
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: isRichText, flex: true, url: url });
+            openDialog(tool, params, isRichText);
         });
 
         // Prevent dropdown from closing when a provider is choosen.
@@ -100,9 +96,7 @@
                 ModalTitle: tool.data('modal-title')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: true, flex: true, url: url });
+            openDialog(tool, params, true);
         });
 
         // Suggestion
@@ -119,9 +113,7 @@
                 mandatoryEntityFields: tool.data('mandatory-entity-fields')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
@@ -156,6 +148,16 @@
             // TODO: On summernote init shift ai-opener below toolbar.
         });
     });
+
+    function openDialog(opener, params, large) {
+        openPopup({
+            url: getDialogUrl(opener.data('modal-url'), params),
+            large: large,
+            flex: true,
+            backdrop: 'static',
+            scrollable: false
+        });
+    }
 
     function getDialogUrl(baseUrl, params) {
         let queryString = _.map(params, (value, key) => {
