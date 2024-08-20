@@ -15,7 +15,7 @@ namespace Smartstore.Core.Messaging
         private readonly SmartDbContext _db;
         private readonly IMailService _mailService;
         private readonly IMediaService _mediaService;
-        internal readonly EmailAccountSettings _emailAccountSettings;
+        private readonly EmailAccountSettings _emailAccountSettings;
 
         private bool? _shouldSaveToDisk;
 

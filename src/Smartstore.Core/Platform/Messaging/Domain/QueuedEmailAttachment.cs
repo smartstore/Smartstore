@@ -15,6 +15,9 @@ namespace Smartstore.Core.Messaging
                 .HasForeignKey(c => c.MediaFileId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // INFO: cascade delete do not work for this one-to-one relationship because the model is wrong.
+            // The foreign key must be on the other side (MediaStorage.QueuedEmailAttachmentId) but because of IMediaAware
+            // we leave as it is and delete MediaStorage manually when QueuedEmailAttachment is deleted.
             builder.HasOne(c => c.MediaStorage)
                 .WithMany()
                 .HasForeignKey(c => c.MediaStorageId)
