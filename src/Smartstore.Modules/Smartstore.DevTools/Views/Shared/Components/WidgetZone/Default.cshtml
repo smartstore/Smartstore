@@ -48,7 +48,7 @@
 }
 else
 {
-    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" attr-class='(!isVisible, "d-none")' title="@zone.Name"
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate@(!isVisible ? " d-none" : "")" title="@zone.Name"
           attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
           attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
         <span class="text-truncate">@zone.Name</span>
