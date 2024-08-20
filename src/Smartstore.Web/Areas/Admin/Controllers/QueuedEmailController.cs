@@ -144,6 +144,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Message.Delete)]
         public IActionResult Cleanup(int take = 5000)
         {
+            // TODO: (mg) Bad decision: user gets no feedback about number of deleted items.
             _ = _asyncRunner.RunTask((scope, ct, state) => CleanupInternal(scope, (int)state, ct), take);
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
@@ -190,6 +191,7 @@ namespace Smartstore.Admin.Controllers
                         break;
                     }
 
+                    // TODO: (mg) This is a very inefficient way to delete a large number of records. 5000 is way too large for an IN() operation. Use chunks of 128.
                     var numDeleted = await db.MediaStorage
                         .Where(x => ids.Contains(x.Id))
                         .ExecuteDeleteAsync(cancelToken);
@@ -202,7 +204,7 @@ namespace Smartstore.Admin.Controllers
                     numberOfDeletedMediaStorages += numDeleted;
                 }
 
-                if (numberOfDeletedMediaStorages > 10000 && !cancelToken.IsCancellationRequested && db.DataProvider.CanOptimizeTable)
+                if (numberOfDeletedMediaStorages > 500 && !cancelToken.IsCancellationRequested && db.DataProvider.CanOptimizeTable)
                 {
                     var tableName = db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
                     await CommonHelper.TryAction(() => db.DataProvider.OptimizeTableAsync(tableName, cancelToken));

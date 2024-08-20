@@ -154,7 +154,7 @@ namespace Smartstore.Core.Common.Hooks
             MediaStorage = 1 << 2,
         }
 
-        class AssignedItem
+        record AssignedItem
         {
             /// <summary>
             /// The assigned entities to delete.
