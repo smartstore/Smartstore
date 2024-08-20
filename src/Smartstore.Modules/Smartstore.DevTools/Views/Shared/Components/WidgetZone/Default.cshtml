@@ -2,15 +2,8 @@
 
 @{
     // INFO: (mw) (dt) Please analyze all review commits carefully! Try to adopt best-practices, code style and conventions the next time.
-    // TODO: (mw) (dt) Offcanvas: Don't reinvent the wheel. Use our custom Offcanvas menu. TBD with MH.
-    // TODO: (mw) (dt) Offcanvas: The closer should not be a visual button, what the fuck?! See below.
-    // TODO: (mw) (dt) Offcanvas: The toggler buttons are a MESS!! See below.
     // TODO: (mw) (dt) Offcanvas: Use smaller font-size for clickable items.
     // TODO: (mw) (dt) Offcanvas: Use bg color for hover & active for clickable items.
-    // TODO: (mw) (dt) Offcanvas: Visualy justify clickable items and titles/groups on the left. No indent please.
-    // TODO: (mw) (dt) CTRL+ALT+B. What about MAC?
-    // TODO: (mw) (dt) Don't place the hamburger button on top left. It overlays MiniProfiler. Place it on top right, but further down.
-    // TODO: (mw) (dt) Shitty highlight animation. Use CSS animations AFTER scroll end. "Blink" a few times, don't resize. Be creative!
     
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
@@ -24,25 +17,38 @@
     if (zone.Name == "start")
     {
         // Add the offcanvas zone preview menu
-        <div id="wz-menu" class="d-none">
-            @* TODO: (mw) (dt) Localization!!!!!!!!!!!!!!!!!! *@
-            <button class="wz-toggle btn btn-dark btn-outline-light" data-persistent="true"><i class="far fa-eye"></i><span>Persistent toggle</span></button>
-            <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto mr-n2 custom-scrollbar custom-scrollbar-invert"></div>
-            <button class="wz-toggle btn btn-dark btn-outline-light">Toggle<span class="small text-muted">Ctrl + Alt + B</span></button>
+        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas" data-autohide="true" data-blocker="true" data-placement="start" data-fullscreen="false" data-target="#wz-menu">
+            <i class="far fa-layer-group"></i>
+        </a>
+        <aside id="wz-menu" class="offcanvas offcanvas-shadow">
+            <div class="offcanvas-content custom-scrollbar custom-scrollbar-invert">
+                <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto p-2 mr-n2"></div>
 
-            @* TODO: (mw) (dt) Put a sticky buttonbar to the bottom with 3 justified items (equal width and height, similar to the product list item action bar): Persistent toggle, Temp toggle, Close offcanvas. Remove the 3 shitty buttons. *@
-            @* TODO: (mw) (dt) The eye symbol of any toggler must reflect the current toggle state (eye vs eye-slash) *@
-        </div>
+                <div class="sticky-bottom p-3">
+                    <div class="btn-group w-100 rounded-1" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
+                        <a class="wz-toggle btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
+                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
+                        </a>
+                        <a class="wz-toggle btn btn-secondary" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
+                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
+                        </a>
+                        <a class="wz-sidebar-close btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
     }
 }
 
 @if (zone.PreviewTagName == "meta")
 {
-    <meta name="widget-zone-name" class="wz-preview@(isVisible ? "" : " d-none")" content="@zone.Name" />
+    <meta name="widget-zone-name" class="wz-preview" attr-class='(!isVisible, "d-none")' content="@zone.Name" />
 }
 else
 {
-    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate@(isVisible ? "" : " d-none")" title="@zone.Name"
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" attr-class='(!isVisible, "d-none")' title="@zone.Name"
           attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
           attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
         <span class="text-truncate">@zone.Name</span>
@@ -69,20 +75,14 @@ else
         zones: []
     });
 
-    // Make sure the end tag is rendered.
     $(function () {
         const zoneList = document.querySelector('.wz-zone-list');
 
         // Add div's to '#wz-menu .wz-zone-list' for each element in groups.
         groups.forEach(group => {
-            // TODO: (mw) (dt) Use jQuery. It is MUCH shorter in this scenario.
-            let groupContainer = document.createElement('div');
-            groupContainer.classList.add('wz-zone-group', 'd-flex', 'flex-column', 'mb-2', 'd-none');
-            groupContainer.setAttribute('data-group', group.name);
-            // TODO: (mw) (dt) WTF!? Add as array to jQuery's data("groups"), so that it does not pullute the DOM.
-            groupContainer.setAttribute('data-groups', group.zones.join(' '));
-            groupContainer.innerHTML = `<h6 class="text-muted">${group.name}</h6>`;
-            zoneList.appendChild(groupContainer);
+            let groupContainer = $(`<div class="wz-zone-group d-flex flex-column mb-2 d-none" data-group="${group.name}"><h6 class="text-muted">${group.name}</h6></div>`);
+            groupContainer.data('groups', group.zones.join(' '))
+            $(zoneList).append(groupContainer);
         });
 
         const devTools = new DevTools();
@@ -106,3 +106,5 @@ else
         });
     });
 </script>
+
+<script src="~/js/smartstore.offcanvas.js" sm-target-zone="scripts"></script>

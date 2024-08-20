@@ -30,6 +30,26 @@
     <LocaleResource Name="DisplayWidgetZones.Hint">
         <Value>Injects tooltips into every widget zone, which includes the name of the current widget zone. The display of these tooltips is limited to admintrators.</Value>
     </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Children>
+            <LocaleResource Name="Toolbar">
+                <Value>Toolbar</Value>
+            </LocaleResource>
+            <LocaleResource Name="Toggle">
+                <Value>
+                    <![CDATA[
+                        Temporary toggle (Alt&nbsp;+&nbsp;K)
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PersistentToggle">
+                <Value>Persistent toggle (store in cookie)</Value>
+            </LocaleResource>
+            <LocaleResource Name="CloseButton">
+                <Value>Close menu</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
     <LocaleResource Name="DisplayMachineName">
         <Value>Display machine name</Value>
     </LocaleResource>

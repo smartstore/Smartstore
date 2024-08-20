@@ -23,9 +23,22 @@
         opacity: 1;
     }
 
+    @keyframes pulse-highlight {
+        0% {
+            background-color: var(--badge-bg);
+        }
+
+        50% {
+            background-color: yellow;
+        }
+
+        100% {
+            background-color: var(--badge-bg);
+        }
+    }
+
     &.wz-highlight {
-        font-size: 1.5em;
-        font-weight: $font-weight-bold;
+        animation: pulse-highlight 1s ease-in-out 3;
         // Overwrite .d-none
         display: flex !important;
     }

@@ -1,18 +1,39 @@
 const widgetZoneMenuId = '#wz-menu';
 let widgetZones;
 const zIndex = 1000;
+const animationDuration = 3000;
 
 export class DevTools {
     /**
      * Initialize the DevTools widget functionality: Create the widget zone menu and set up event listeners.
      */
-    initialize() {
+    initialize(translations) {
         widgetZones = [];
+        let wzMenu = $(widgetZoneMenuId);
 
-        this.createSideMenu(widgetZoneMenuId, zIndex);
+        let wzMenuToggle = $('#wz-menu-toggle');
+        wzMenuToggle.css('z-index', zIndex);
+
+        console.log($(".sticky-bottom").length);
+
+        applyCommonPlugins($(".sticky-bottom"));
+
+        // Add widget zone menu close button.
+        wzMenu.on('clicK', '.wz-sidebar-close', (e) => {
+            e.preventDefault();
+            wzMenuToggle.click();
+            return false;
+        });
+
+        // Add event listener to copy widget zone name to clipboard.
+        wzMenu.on("click", ".copy-to-clipboard", (e) => {
+            e.preventDefault();
+            window.copyTextToClipboard($(e.currentTarget).data('value'));
+            return false;
+        });
 
         // Jump to the zone.
-        $(widgetZoneMenuId).on("click", ".wz-zone-pointer", function (e) {
+        wzMenu.on("click", ".wz-zone-pointer", function (e) {
             e.preventDefault();
 
             let wzName = $(this).text();
@@ -21,46 +42,68 @@ export class DevTools {
             if (widetzones) {
                 widetzones.forEach((wz, index) => {
                     let wzPreview = $(wz);
-                    wzPreview.addClass('wz-highlight');
+                    let wzIsHidden = wzPreview.hasClass('d-none');
 
                     // If multiple widget zones with the same name exist, we scroll to the first one.
                     if (index == 0) {
-                        let wZMenu = $(widgetZoneMenuId);
+                        wzMenu.css('opacity', 0.5);
 
-                        // Make menu see-through, so the user can see covered widget zones.
-                        wZMenu.addClass('see-through');
-
+                        if (wzIsHidden) {
+                            // Must be visible to scroll to it.
+                            wzPreview.removeClass('d-none');
+                        }
                         // Scroll to widget zone.
                         wz.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
 
                         setTimeout(() => {
-                            wZMenu.removeClass('see-through');
-                        }, 2000);
+                            wzMenu.css('opacity', 1);
+                        }, animationDuration);
                     }
+
+                    wzPreview.addClass('wz-highlight');
 
                     setTimeout(() => {
                         wzPreview.removeClass('wz-highlight');
-                    }, 2000);
+                    }, animationDuration);
+
+                    if (wzIsHidden) {
+                        wzPreview.addClass('d-none');
+                    }
                 });
             }
         });
 
         // Add toggle buttons to widget zone menu.
-        $(widgetZoneMenuId).on("click", ".wz-toggle", (e) => {
-            this.toggleAllZones($(e.currentTarget).data('persistent'));
+        wzMenu.on("click", ".wz-toggle", (e) => {
+            e.preventDefault();
+
+            let wzToggleButton = $(e.currentTarget);
+            let isPersistent = wzToggleButton.data('persistent');
+
+            if (isPersistent) {
+                // Set both buttons to the same state.
+                let isVisible = !wzToggleButton.find('i').hasClass('fa-eye');
+                wzMenu.find('.wz-toggle i').removeClass('fa-eye fa-eye-slash').addClass('fa-eye' + (isVisible ? '' : '-slash'));
+            }
+            else
+            {
+                wzToggleButton.find('i').toggleClass('fa-eye fa-eye-slash');
+            }
+
+            this.toggleAllZones(isPersistent);
         });
 
         // Add event listener to copy widget zone name to clipboard.
-        $(widgetZoneMenuId).on("click", ".copy-to-clipboard", (e) => {
+        wzMenu.on("click", ".copy-to-clipboard", (e) => {
             e.preventDefault();
             window.copyTextToClipboard($(e.currentTarget).data('value'));
             return false;
         });
 
-        // When the user presses "Strg + Alt + B" the widget zones will be toggled.
+        // When the user presses "Alt + K" the widget zones will be toggled.
         $(document).on("keydown", (e) => {
-            if (e.ctrlKey && e.altKey && e.key === 'b') {
-                this.toggleAllZones();
+            if (e.altKey && e.key === 'k') {
+                wzMenu.find('.wz-toggle:not([data-persistent])').first().click();
             }
         });
     }
@@ -80,7 +123,7 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="d-flex p-2 gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-light text-decoration-none text-break">' + zone.name
+            .append('<div class="d-flex pt-2 gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-primary text-decoration-none text-break">' + zone.name
             + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
@@ -120,36 +163,5 @@ export class DevTools {
             let wzState = zonePreviews.hasClass('d-none') ? 'hidden' : 'visible';
             document.cookie = '.Smart.WZVisibility=' + wzState + '; path=/; max-age=31536000';
         }
-    }
-
-    /**
-     * Turns an element into a sidebar menu.
-     */
-    createSideMenu(selector, zIndex) {
-        let menuWidth = '250'; // in px
-        let menu = $(selector);
-
-        menu.addClass("wz-sidebar position-fixed top-0 p-2 d-flex flex-column justify-content-center gap-1 bg-dark overflow-hidden")
-            .removeClass("d-none")
-            .width(menuWidth)
-            .css({
-                'height': '100%',
-                'left': '-' + menuWidth * 1.2 + 'px',
-                'z-index': zIndex + 1,
-                'transition': '0.35s ease-in-out'
-            });
-
-        // Add close button to menu.
-        menu.prepend('<button class="wz-sidebar-close btn btn-dark btn-outline-light"><i class="fa fa-times"></i></button>')
-            .find(".wz-sidebar-close").on("click", () => {
-                menu.css('left', '-' + menuWidth * 1.2 + 'px');
-            });
-
-        // Add toggle button outside the menu.
-        // TODO: (mw) (dt) Button misses an explanatory tooltip.
-        menu.after('<button class="wz-sidebar-toggle position-fixed top-0 start-0 m-2 mt-6 btn btn-dark"><i class="far fa-layer-group"></i></button>')
-            .next().on("click", () => {
-                menu.css('left', 0);
-            }).css('z-index', zIndex);
     }
 }
