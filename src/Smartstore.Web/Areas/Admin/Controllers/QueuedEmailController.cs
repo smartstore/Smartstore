@@ -142,9 +142,8 @@ namespace Smartstore.Admin.Controllers
 
         [MaintenanceAction]
         [Permission(Permissions.System.Message.Delete)]
-        public IActionResult Cleanup(int take = 5000)
+        public IActionResult Cleanup(int take = 128)
         {
-            // TODO: (mg) Bad decision: user gets no feedback about number of deleted items.
             _ = _asyncRunner.RunTask((scope, ct, state) => CleanupInternal(scope, (int)state, ct), take);
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
@@ -161,13 +160,12 @@ namespace Smartstore.Admin.Controllers
         /// </remarks>
         private static async Task CleanupInternal(ILifetimeScope scope, int take, CancellationToken cancelToken)
         {
+            var numberOfDeletedMediaStorages = 0;
             var db = scope.Resolve<SmartDbContext>();
             var logger = scope.Resolve<ILogger>();
 
             try
             {
-                var numberOfDeletedMediaStorages = 0;
-
                 // MediaStorages that are neither referenced by MediaFiles nor by QueuedEmailAttachments.
                 var query = (
                     from ms in db.MediaStorage
@@ -191,7 +189,6 @@ namespace Smartstore.Admin.Controllers
                         break;
                     }
 
-                    // TODO: (mg) This is a very inefficient way to delete a large number of records. 5000 is way too large for an IN() operation. Use chunks of 128.
                     var numDeleted = await db.MediaStorage
                         .Where(x => ids.Contains(x.Id))
                         .ExecuteDeleteAsync(cancelToken);
@@ -209,12 +206,14 @@ namespace Smartstore.Admin.Controllers
                     var tableName = db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
                     await CommonHelper.TryAction(() => db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
                 }
-                
-                logger.Debug($"Deleted {numberOfDeletedMediaStorages} media storages.");
             }
             catch (Exception ex)
             {
                 logger.Error(ex);
+            }
+            finally
+            {
+                logger.Info($"Deleted {numberOfDeletedMediaStorages:N0} orphaned MediaStorage entities.");
             }
         }
 
