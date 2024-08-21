@@ -156,7 +156,7 @@ namespace Smartstore.Admin.Controllers
         /// Deletes orphaned data caused by the deletion of <see cref="QueuedEmail"/> entities.
         /// </summary>
         /// <remarks>
-        /// Should only be executed once, as no new orphaned data can be created after deletion.
+        /// Should only be executed once, as no more new orphaned data will be created after deletion.
         /// That is why we do not have a service method for this.
         /// </remarks>
         private static async Task CleanupInternal(ILifetimeScope scope, int take, CancellationToken cancelToken)

@@ -40,9 +40,9 @@
                     if (selectedFirst)
                         return source
                             .OrderByDescending(x => x.Value.IsSelected)
-                            .ThenBy(x => x.Value.Label);
+                            .ThenNaturalBy(x => x.Value.Label);
                     else
-                        return source.OrderBy(x => x.Value.Label);
+                        return source.OrderNaturalBy(x => x.Value.Label);
 
                 case FacetSorting.DisplayOrder:
                     if (selectedFirst)
@@ -57,11 +57,11 @@
                         return source
                             .OrderByDescending(x => x.Value.IsSelected)
                             .ThenByDescending(x => x.HitCount)
-                            .ThenBy(x => x.Value.Label);
+                            .ThenNaturalBy(x => x.Value.Label);
                     else
                         return source
                             .OrderByDescending(x => x.HitCount)
-                            .ThenBy(x => x.Value.Label);
+                            .ThenNaturalBy(x => x.Value.Label);
             }
         }
 

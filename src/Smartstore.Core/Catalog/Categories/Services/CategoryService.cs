@@ -298,7 +298,7 @@ namespace Smartstore.Core.Catalog.Categories
         {
             if (parentCategoryId == 0)
             {
-                return new List<Category>();
+                return [];
             }
 
             var storeId = _storeContext.CurrentStore.Id;
@@ -326,7 +326,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             if (productIds.Length == 0)
             {
-                return new List<ProductCategory>();
+                return [];
             }
 
             var storeId = includeHidden ? 0 : _storeContext.CurrentStore.Id;
@@ -526,7 +526,7 @@ namespace Smartstore.Core.Catalog.Categories
             return root;
         }
 
-        private void AddChildTreeNodes(TreeNode<ICategoryNode> parentNode, int parentItemId, Multimap<int, CategoryNode> nodeMap)
+        private static void AddChildTreeNodes(TreeNode<ICategoryNode> parentNode, int parentItemId, Multimap<int, CategoryNode> nodeMap)
         {
             if (parentNode == null)
             {
@@ -534,7 +534,9 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var nodes = nodeMap.ContainsKey(parentItemId)
-                ? nodeMap[parentItemId].OrderBy(x => x.DisplayOrder)
+                ? nodeMap[parentItemId]
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenNaturalBy(x => x.Name)
                 : Enumerable.Empty<CategoryNode>();
 
             foreach (var node in nodes)
