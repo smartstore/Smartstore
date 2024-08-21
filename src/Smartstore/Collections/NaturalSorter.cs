@@ -72,7 +72,7 @@ namespace Smartstore.Collections
     /// <summary>
     /// Source: https://github.com/tompazourek/NaturalSort.Extension
     /// </summary>
-    public class NaturalSorter : IComparer<string>
+    internal class NaturalSorter : IComparer<string>
     {
         // Token values (not an enum as a performance micro-optimization)
         const byte TokenNone = 0;

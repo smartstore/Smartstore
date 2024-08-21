@@ -31,18 +31,16 @@ namespace Smartstore.Collections
             return sortedList.ToArray();
         }
 
-        private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items)
-        {
-            return SortIndexesTopological(items, null);
-        }
+        private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items) 
+            => SortIndexesTopological(items, null);
 
         private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items, IEqualityComparer<T> comparer)
         {
-            Guard.NotNull(items, nameof(items));
+            Guard.NotNull(items);
 
             if (items.Length == 0)
             {
-                return Array.Empty<int>();
+                return [];
             }
 
             if (comparer == null)
