@@ -534,10 +534,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var nodes = nodeMap.ContainsKey(parentItemId)
-                ? nodeMap[parentItemId]
-                    .OrderBy(x => x.DisplayOrder)
-                    // TODO: (mg) Really? This is a big change. We sorted by Id before. Should be discussed.
-                    .ThenNaturalBy(x => x.Name)
+                ? nodeMap[parentItemId].OrderBy(x => x.DisplayOrder)
                 : Enumerable.Empty<CategoryNode>();
 
             foreach (var node in nodes)
