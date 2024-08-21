@@ -1026,7 +1026,8 @@ namespace Smartstore.Admin.Controllers
             await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
-            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
+
+            TempData[UpdateOrderDetailsContext.InfoKey] = await InvokePartialViewAsync("OrderItemUpdateInfo", context);
 
             return RedirectToAction(nameof(Edit), new { id = orderItem.OrderId });
         }
@@ -1070,7 +1071,8 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
-            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
+
+            TempData[UpdateOrderDetailsContext.InfoKey] = await InvokePartialViewAsync("OrderItemUpdateInfo", context);
 
             return RedirectToAction(nameof(Edit), new { id = orderId });
         }
@@ -1650,7 +1652,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
-                TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
+                TempData[UpdateOrderDetailsContext.InfoKey] = await InvokePartialViewAsync("OrderItemUpdateInfo", context);
             }
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());

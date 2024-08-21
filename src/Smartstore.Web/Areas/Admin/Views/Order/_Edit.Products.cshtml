@@ -20,7 +20,9 @@
 
 <div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="alert alert-info alert-dismissible">
     <button type="button" class="btn-close" data-dismiss="alert"></button>
-    @Html.Raw(Model.UpdateOrderItemInfo)
+    <div class="w-25">
+        @Html.Raw(Model.UpdateOrderItemInfo)
+    </div>
 </div>
 
 <div>

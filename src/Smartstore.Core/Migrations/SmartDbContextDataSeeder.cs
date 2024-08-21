@@ -271,7 +271,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout.TermsOfService.Read",
                 "Checkout.TermsOfService",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
-                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint");
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint",
+                "Admin.Orders.OrderItem.Update.Info");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
@@ -433,6 +434,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Punkte für den Kauf eines Produktes anzeigen",
                 "Specifies whether the reward points awarded for purchasing a product, including the corresponding amount, should be displayed on the product detail page.",
                 "Legt fest, ob die für den Kauf eines Produktes gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
+
+            builder.AddOrUpdate("Common.Old", "Old", "Alt");
 
             AddAIResources(builder);
         }
