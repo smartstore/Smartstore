@@ -1,25 +1,27 @@
 const widgetZoneMenuId = '#wz-menu';
 let widgetZones;
 const zIndex = 1000;
-const animationDuration = 3000;
 
 export class DevTools {
+    Res = {};
+
     /**
      * Initialize the DevTools widget functionality: Create the widget zone menu and set up event listeners.
      */
-    initialize(translations) {
+    initialize() {
         widgetZones = [];
         let wzMenu = $(widgetZoneMenuId);
 
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
-        console.log($(".sticky-bottom").length);
-
-        applyCommonPlugins($(".sticky-bottom"));
+        $('#wz-toolbar [data-toggle="tooltip"]').tooltip({
+            placement: 'top', // Testweise eine feste Platzierung setzen
+            container: '#wz-toolbar'
+        });
 
         // Add widget zone menu close button.
-        wzMenu.on('clicK', '.wz-sidebar-close', (e) => {
+        wzMenu.on('click', '.wz-sidebar-close', (e) => {
             e.preventDefault();
             wzMenuToggle.click();
             return false;
@@ -46,25 +48,21 @@ export class DevTools {
 
                     // If multiple widget zones with the same name exist, we scroll to the first one.
                     if (index == 0) {
-                        wzMenu.css('opacity', 0.5);
 
                         if (wzIsHidden) {
                             // Must be visible to scroll to it.
                             wzPreview.removeClass('d-none');
                         }
+
                         // Scroll to widget zone.
                         wz.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
 
-                        setTimeout(() => {
-                            wzMenu.css('opacity', 1);
-                        }, animationDuration);
+                        wzPreview.addClass('wz-highlight');
                     }
-
-                    wzPreview.addClass('wz-highlight');
 
                     setTimeout(() => {
                         wzPreview.removeClass('wz-highlight');
-                    }, animationDuration);
+                    }, 2000);
 
                     if (wzIsHidden) {
                         wzPreview.addClass('d-none');
@@ -82,8 +80,8 @@ export class DevTools {
 
             if (isPersistent) {
                 // Set both buttons to the same state.
-                let isVisible = !wzToggleButton.find('i').hasClass('fa-eye');
-                wzMenu.find('.wz-toggle i').removeClass('fa-eye fa-eye-slash').addClass('fa-eye' + (isVisible ? '' : '-slash'));
+                let isVisible = wzToggleButton.find('i').hasClass('fa-eye');
+                wzMenu.find('.wz-toggle i').removeClass('fa-eye fa-eye-slash').addClass('fa-eye' + (isVisible ? '-slash' : ''));
             }
             else
             {
@@ -123,8 +121,9 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="d-flex pt-2 gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-primary text-decoration-none text-break">' + zone.name
-            + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '"><i class="far fa-copy"></i><a></div>')
+            .append('<div class="d-flex gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-decoration-none text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
+                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="" data-toggle="tooltip" data-placement="top" data-original-title="' +
+                this.Res['Common.CopyToClipboard'] + '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
 

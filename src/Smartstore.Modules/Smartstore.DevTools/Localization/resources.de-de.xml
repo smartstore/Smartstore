@@ -33,20 +33,20 @@
     <LocaleResource Name="WidgetZoneMenu">
         <Children>
             <LocaleResource Name="Toolbar">
-                <Value>Werkzeugleiste</Value>
+                <Value>Widget-Zonen Werkzeugleiste</Value>
             </LocaleResource>
             <LocaleResource Name="Toggle">
                 <Value>
                     <![CDATA[
-                        Temporär Umschalten (Alt&nbsp;+&nbsp;K)
+                        Widget-Zonen anzeigen (Alt&nbsp;+&nbsp;K)
                     ]]>
                 </Value>
             </LocaleResource>
             <LocaleResource Name="PersistentToggle">
-                <Value>Dauerhaft Umschalten (in Cookie speichern)</Value>
+                <Value>Widget-Zonen immer anzeigen</Value>
             </LocaleResource>
             <LocaleResource Name="CloseButton">
-                <Value>Menü schließen</Value>
+                <Value>Widget-Zonen-Menü schließen</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

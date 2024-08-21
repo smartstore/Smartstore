@@ -33,20 +33,20 @@
     <LocaleResource Name="WidgetZoneMenu">
         <Children>
             <LocaleResource Name="Toolbar">
-                <Value>Toolbar</Value>
+                <Value>Widget zone toolbar</Value>
             </LocaleResource>
             <LocaleResource Name="Toggle">
                 <Value>
                     <![CDATA[
-                        Temporary toggle (Alt&nbsp;+&nbsp;K)
+                        Toggle widget zones (Alt&nbsp;+&nbsp;K)
                     ]]>
                 </Value>
             </LocaleResource>
             <LocaleResource Name="PersistentToggle">
-                <Value>Persistent toggle (store in cookie)</Value>
+                <Value>Always show widget zones</Value>
             </LocaleResource>
             <LocaleResource Name="CloseButton">
-                <Value>Close menu</Value>
+                <Value>Close widget zone menu</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

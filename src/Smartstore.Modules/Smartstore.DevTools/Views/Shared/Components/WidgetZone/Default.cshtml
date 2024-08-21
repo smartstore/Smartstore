@@ -17,26 +17,39 @@
     if (zone.Name == "start")
     {
         // Add the offcanvas zone preview menu
-        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas" data-autohide="true" data-blocker="true" data-placement="start" data-fullscreen="false" data-target="#wz-menu">
+        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas" 
+            data-autohide="true" data-blocker="false" data-placement="end" data-fullscreen="false" data-target="#wz-menu">
             <i class="far fa-layer-group"></i>
         </a>
-        <aside id="wz-menu" class="offcanvas offcanvas-shadow">
-            <div class="offcanvas-content custom-scrollbar custom-scrollbar-invert">
-                <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto p-2 mr-n2"></div>
+        <aside id="wz-menu" class="offcanvas offcanvas-end offcanvas-shadow">
+            <div class="offcanvas-content bg-dark d-flex flex-column">
+                <div class="wz-zone-list flex-grow-1 overflow-scroll p-3 pt-0 pr-1 custom-scrollbar custom-scrollbar-invert"></div>
 
-                <div class="sticky-bottom p-3">
-                    <div class="btn-group w-100 rounded-1" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
-                        <a class="wz-toggle btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
-                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
+                <div class="p-3 bg-dark">
+                    <div id="wz-toolbar" class="btn-group w-100 rounded-1" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
+                        <a class="wz-toggle btn btn-outline-primary btn-icon" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
+                            <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
                         </a>
-                        <a class="wz-toggle btn btn-secondary" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
-                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
+                        <a class="wz-toggle btn btn-outline-primary btn-icon" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
+                            <i class="far fa-floppy-disk"></i>
                         </a>
-                        <a class="wz-sidebar-close btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
+                        <a class="wz-sidebar-close btn btn-outline-primary btn-icon" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
                             <i class="fa fa-times"></i>
                         </a>
                     </div>
                 </div>
+
+                @*<div id="wz-toolbar" class="d-flex" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
+                    <a class="wz-toggle" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
+                        <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
+                    </a>
+                    <a class="wz-toggle" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
+                        <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
+                    </a>
+                    <a class="wz-sidebar-close" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>*@
             </div>
         </aside>
     }
@@ -60,6 +73,13 @@ else
 }
 
 <script sm-if='zone.Name == "end"' type="module">
+    @{
+        var translationKeys = new[]
+        {
+            "Common.CopyToClipboard"
+        };
+    }
+
     import { DevTools } from "@(Url.Content("~/Modules/Smartstore.DevTools/js/smartstore.devtools.js"))";
 
     // Add widget zone group containers.
@@ -80,13 +100,21 @@ else
 
         // Add div's to '#wz-menu .wz-zone-list' for each element in groups.
         groups.forEach(group => {
-            let groupContainer = $(`<div class="wz-zone-group d-flex flex-column mb-2 d-none" data-group="${group.name}"><h6 class="text-muted">${group.name}</h6></div>`);
+            let groupContainer = $(`<div class="wz-zone-group d-flex flex-column mt-2 d-none" data-group="${group.name}"><h6 class="text-white my-2">${group.name}</h6></div>`);
             groupContainer.data('groups', group.zones.join(' '))
             $(zoneList).append(groupContainer);
         });
 
         const devTools = new DevTools();
         devTools.initialize();
+
+        // Add translations
+        devTools.Res = {
+            @foreach (var key in translationKeys)
+            {
+                <text>"@(Html.Raw(key))": @(T(key).JsValue), </text>
+            }
+        };
 
         const zones = $('.wz-preview');
         zones.each(function() {

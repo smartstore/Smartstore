@@ -29,7 +29,7 @@
         }
 
         50% {
-            background-color: yellow;
+            background-color: darkblue;
         }
 
         100% {
@@ -38,8 +38,20 @@
     }
 
     &.wz-highlight {
-        animation: pulse-highlight 1s ease-in-out 3;
+        animation: pulse-highlight 0.5s ease-in-out 3;
         // Overwrite .d-none
         display: flex !important;
     }
+}
+
+.wz-zone-pointer {
+    color: lightskyblue;
+    font-size: 0.8rem;
+
+    &:hover {
+        color: white;
+    }
+}
+.copy-to-clipboard.text-secondary:hover {
+    color: white !important;
 }
