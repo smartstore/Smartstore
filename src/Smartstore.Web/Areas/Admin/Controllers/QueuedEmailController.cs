@@ -140,17 +140,6 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        [MaintenanceAction]
-        [Permission(Permissions.System.Message.Delete)]
-        public IActionResult Cleanup(int take = 128)
-        {
-            _ = _asyncRunner.RunTask((scope, ct, state) => CleanupInternal(scope, (int)state, ct), take);
-
-            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
-
-            return RedirectToAction(nameof(List));
-        }
-
         /// <summary>
         /// Deletes orphaned data caused by the deletion of <see cref="QueuedEmail"/> entities.
         /// </summary>
@@ -158,20 +147,20 @@ namespace Smartstore.Admin.Controllers
         /// Should only be executed once, as no more new orphaned data will be created after deletion.
         /// That is why we do not have a service method for this.
         /// </remarks>
-        private static async Task CleanupInternal(ILifetimeScope scope, int take, CancellationToken cancelToken)
+        [MaintenanceAction]
+        [Permission(Permissions.System.Message.Delete)]
+        public async Task<IActionResult> Cleanup(int take = 128)
         {
             var numberOfDeletedMediaStorages = 0;
-            var db = scope.Resolve<SmartDbContext>();
-            var logger = scope.Resolve<ILogger>();
 
             try
             {
                 // MediaStorages that are neither referenced by MediaFiles nor by QueuedEmailAttachments.
                 var query = (
-                    from ms in db.MediaStorage
-                    join mf in db.MediaFiles on ms.Id equals mf.MediaStorageId into smf
+                    from ms in _db.MediaStorage
+                    join mf in _db.MediaFiles on ms.Id equals mf.MediaStorageId into smf
                     from mf in smf.DefaultIfEmpty()
-                    join ea in db.QueuedEmailAttachments on ms.Id equals ea.MediaStorageId into sea
+                    join ea in _db.QueuedEmailAttachments on ms.Id equals ea.MediaStorageId into sea
                     from ea in sea.DefaultIfEmpty()
                     where mf == null && ea == null
                     select ms)
@@ -181,17 +170,15 @@ namespace Smartstore.Admin.Controllers
 
                 while (true)
                 {
-                    cancelToken.ThrowIfCancellationRequested();
-
-                    var ids = await query.ToListAsync(cancelToken);
+                    var ids = await query.ToListAsync();
                     if (ids.Count == 0)
                     {
                         break;
                     }
 
-                    var numDeleted = await db.MediaStorage
+                    var numDeleted = await _db.MediaStorage
                         .Where(x => ids.Contains(x.Id))
-                        .ExecuteDeleteAsync(cancelToken);
+                        .ExecuteDeleteAsync();
 
                     if (numDeleted == 0)
                     {
@@ -201,20 +188,23 @@ namespace Smartstore.Admin.Controllers
                     numberOfDeletedMediaStorages += numDeleted;
                 }
 
-                if (numberOfDeletedMediaStorages > 500 && !cancelToken.IsCancellationRequested && db.DataProvider.CanOptimizeTable)
+                if (numberOfDeletedMediaStorages > 500 && _db.DataProvider.CanOptimizeTable)
                 {
-                    var tableName = db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
-                    await CommonHelper.TryAction(() => db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+                    var tableName = _db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
+                    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
                 }
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                Logger.Error(ex);
+                NotifyError(ex);
             }
             finally
             {
-                logger.Info($"Deleted {numberOfDeletedMediaStorages:N0} orphaned MediaStorage entities.");
+                NotifyInfo(T("Admin.System.Maintenance.CleanupOrphanedRecords", numberOfDeletedMediaStorages.ToString("N0"), nameof(MediaStorage)));
             }
+
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Message.Read)]

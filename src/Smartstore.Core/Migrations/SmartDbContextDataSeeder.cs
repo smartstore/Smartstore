@@ -437,6 +437,10 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Common.Old", "Old", "Alt");
 
+            builder.AddOrUpdate("Admin.System.Maintenance.CleanupOrphanedRecords",
+                "There were <b>{0}</b> orphaned data records of type <b>{1}</b> deleted.",
+                "Es wurden <b>{0}</b> verwaiste Datensätze vom Typ <b>{1}</b> gelöscht.");
+
             AddAIResources(builder);
         }
 

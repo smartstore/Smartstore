@@ -15,7 +15,7 @@ namespace Smartstore.Core.Common.Hooks
     [Important]
     internal class AssignedEntitiesHook(SmartDbContext db) : AsyncDbSaveHook<BaseEntity>
     {
-        const int BatchSize = 200;
+        const int BatchSize = 128;
 
         private static readonly FrozenSet<Type> _candidateTypes = new Type[]
         {
