@@ -315,27 +315,21 @@ namespace Smartstore.Web.Api.Controllers
         {
             if (entity != null && entity.IsSystemAccount)
             {
-                throw new ODataErrorException(new ODataError
-                {
-                    ErrorCode = Status403Forbidden.ToString(),
-                    Message = "Modifying or deleting a system customer account is not allowed."
-                });
+                throw new ODataErrorException(ODataHelper.CreateError("Modifying or deleting a system customer account is not allowed.", Status403Forbidden));
             }
         }
 
         private static ODataError CreateError(IdentityResult result)
         {
-            return new()
-            {
-                ErrorCode = Status422UnprocessableEntity.ToString(),
-                Message = result.ToString(),
-                Details = result.Errors.Select(x => new ODataErrorDetail
+            var details = result.Errors
+                .Select(x => new ODataErrorDetail
                 {
-                    ErrorCode = x.Code,
+                    Code = x.Code,
                     Message = x.Description
                 })
-                .ToList()
-            };
+                .ToList();
+
+            return ODataHelper.CreateError(result.ToString(), Status422UnprocessableEntity, null, details);
         }
     }
 }

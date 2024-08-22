@@ -146,15 +146,9 @@ namespace Smartstore.Web.Api.Security
                 Response.Headers.WWWAuthenticate = AuthenticateHeader;
             }
 
-            var odataError = new ODataError
-            {
-                ErrorCode = statusCode.ToString(),
-                Message = message,
-                InnerError = ex != null ? new ODataInnerError(ex) : null
-            };
-
-            var odataEx = new ODataErrorException(message, ex, odataError);
-            odataEx.Data["JsonContent"] = odataError.ToString();
+            var error = ODataHelper.CreateError(message, statusCode, ex);
+            var odataEx = new ODataErrorException(message, ex, error);
+            odataEx.Data["JsonContent"] = error.ToString();
 
             // Let the ErrorController handle ODataErrorException.
             Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new ODataExceptionHandlerPathFeature(odataEx, Request));
