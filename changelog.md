@@ -24,6 +24,7 @@
 - **Grouped product enhancements**
   - Optional presentation of associated products as collapsible/expandable panels.
   - Added paging for associated products.
+- **MailChimp** plugin (commercial)
 - **Pixlr image editing** plugin (commercial)
   - Create and edit images directly in the Media Manager.
 - Updated to **.NET 8**
