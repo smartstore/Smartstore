@@ -29,7 +29,7 @@
         }
 
         50% {
-            background-color: darkblue;
+            background-color: var(--indigo);
         }
 
         100% {
@@ -44,14 +44,84 @@
     }
 }
 
-.wz-zone-pointer {
-    color: lightskyblue;
-    font-size: 0.8rem;
-
-    &:hover {
-        color: white;
+#wz-menu {
+    .wz-zone-list {
+        filter: grayscale(1);
     }
-}
-.copy-to-clipboard.text-secondary:hover {
-    color: white !important;
+
+    .wz-zone-group > * {
+        padding-left: 1rem;
+    }
+
+    .wz-zone-pointer-container {
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .wz-zone-pointer {
+            color: var(--primary-border-subtle);
+            font-size: 0.8rem;
+            transition: 0.3s;
+
+            &:hover {
+                color: var(--white);
+            }
+        }
+    }
+
+    .copy-to-clipboard.text-secondary:hover {
+        color: var(--white) !important;
+    }
+
+    #wz-toolbar {
+        // INFO: Use indigo, when grayscale effect is used on #wz-menu.
+        /*background-color: var(--indigo);*/
+        background-color: var(--gray-700);
+        // TODO: Let content determine height
+        height: 4rem;
+
+        .wz-tool {
+            color: var(--gray-300) !important;
+            font-size: 1.375rem;
+
+            &:not(.disabled):hover {
+                text-decoration: none;
+                background-color: rgba(255, 255, 255, 0.15);
+                color: var(--white) !important;
+            }
+
+            &[data-persistent=true] {
+                color: var(--green) !important;
+
+                > svg {
+                    filter: drop-shadow(0 0 2px var(--green));
+                }
+            }
+
+            &[data-persistent=false] {
+                color: var(--red) !important;
+
+                > svg {
+                    filter: drop-shadow(0 0 2px var(--red));
+                }
+            }
+
+            &:not([data-persistent]).disabled > svg {
+                opacity: 0.3;
+            }
+        }
+
+        .tool-divider {
+            position: relative;
+            top: 20%;
+            width: 1px;
+            height: 60%;
+            background-color: var(--gray-650);
+            transition: 0.1s;
+        }
+
+        &:hover .tool-divider{
+            opacity: 0;
+        }
+    }
 }

@@ -76,19 +76,40 @@ export class DevTools {
             e.preventDefault();
 
             let wzToggleButton = $(e.currentTarget);
-            let isPersistent = wzToggleButton.data('persistent');
+            let isPersistentToggleButton = wzToggleButton.attr('data-persistent') !== undefined;
 
-            if (isPersistent) {
+            let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
+            let tempToggle = wzMenu.find('.wz-toggle:not([data-persistent])').first();
+            const showZoneClass = 'show-wz';
+
+            let canToggleVisibility = persistentToggleButton.attr('data-persistent') === 'true';
+
+            // TODO: (mw) (dt) Separate toggles into two different classes?
+
+            if (isPersistentToggleButton) {
+                canToggleVisibility = !canToggleVisibility;
+                // TODO: (mw) (dt) Check why data.('persistent') doesn't work. Using attr temporarily.
+                //wzToggleButton.data('persistent', canToggleVisibility);
+                wzToggleButton.attr('data-persistent', canToggleVisibility);
+
+                // Save state in a cookie if requested.
+                document.cookie = '.Smart.WZVisibility=' + canToggleVisibility + '; path=/; max-age=31536000';
+
                 // Set both buttons to the same state.
-                let isVisible = wzToggleButton.find('i').hasClass('fa-eye');
-                wzMenu.find('.wz-toggle i').removeClass('fa-eye fa-eye-slash').addClass('fa-eye' + (isVisible ? '-slash' : ''));
+                if (canToggleVisibility) {
+                    tempToggle.removeClass('disabled').addClass(showZoneClass);
+                } else {
+                    tempToggle.addClass('disabled').removeClass(showZoneClass);
+                }
             }
             else
             {
-                wzToggleButton.find('i').toggleClass('fa-eye fa-eye-slash');
+                if (canToggleVisibility) {
+                    wzToggleButton.toggleClass(showZoneClass);
+                }
             }
 
-            this.toggleAllZones(isPersistent);
+            this.setVisibilityForAllZones(tempToggle.hasClass(showZoneClass));
         });
 
         // Add event listener to copy widget zone name to clipboard.
@@ -121,7 +142,7 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="d-flex gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-decoration-none text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
+            .append('<div class="wz-zone-pointer-container d-flex gap-2 py-1"><a href="#" class="wz-zone-pointer flex-grow-1 text-decoration-none text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
                 '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="" data-toggle="tooltip" data-placement="top" data-original-title="' +
                 this.Res['Common.CopyToClipboard'] + '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
@@ -151,16 +172,21 @@ export class DevTools {
     }
 
     /**
-     * Toggles the visibility of all widget zones. If saveInCookie is true, the state will be saved in a cookie.
+     * Sets the visibility of all widget zones.
      */
-    toggleAllZones(saveInCookie = false) {
+    setVisibilityForAllZones(showZones) {
         const zonePreviews = $(document).find('.wz-preview');
-        zonePreviews.toggleClass('d-none');
 
-        // Save state in a cookie if requested.
-        if (saveInCookie) {
-            let wzState = zonePreviews.hasClass('d-none') ? 'hidden' : 'visible';
-            document.cookie = '.Smart.WZVisibility=' + wzState + '; path=/; max-age=31536000';
+        if (showZones) {
+            zonePreviews.removeClass('d-none');
+            $('#wz-toolbar .wz-visible').addClass('d-none');
+            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+        }
+        else
+        {
+            zonePreviews.addClass('d-none');
+            $('#wz-toolbar .wz-visible').removeClass('d-none');
+            $('#wz-toolbar .wz-invisible').addClass('d-none');
         }
     }
 }

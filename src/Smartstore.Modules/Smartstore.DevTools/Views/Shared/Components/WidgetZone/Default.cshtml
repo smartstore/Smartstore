@@ -4,6 +4,9 @@
     // INFO: (mw) (dt) Please analyze all review commits carefully! Try to adopt best-practices, code style and conventions the next time.
     // TODO: (mw) (dt) Offcanvas: Use smaller font-size for clickable items.
     // TODO: (mw) (dt) Offcanvas: Use bg color for hover & active for clickable items.
+
+    // TODO: (mw) (dt) Offcanvas: Add active state to the toggle button.
+    // TODO: (mw) (dt) Offcanvas: Check alternative to native JS scrollIntoView for smooth scrolling in x- and y-direction, but with callback functionality.
     
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
@@ -12,7 +15,7 @@
 
     // Check if the visibility cookie is set.
     var visibilityCookie = Request.Cookies[".Smart.WZVisibility"];
-    var isVisible = visibilityCookie != "hidden";
+    var isVisible = visibilityCookie != "false";
 
     if (zone.Name == "start")
     {
@@ -22,34 +25,26 @@
             <i class="far fa-layer-group"></i>
         </a>
         <aside id="wz-menu" class="offcanvas offcanvas-end offcanvas-shadow">
-            <div class="offcanvas-content bg-dark d-flex flex-column">
-                <div class="wz-zone-list flex-grow-1 overflow-scroll p-3 pt-0 pr-1 custom-scrollbar custom-scrollbar-invert"></div>
+            <div class="offcanvas-content d-flex flex-column">
+                <div class="wz-zone-list bg-dark flex-grow-1 overflow-scroll p-0 pb-3 custom-scrollbar custom-scrollbar-invert"></div>
 
-                <div class="p-3 bg-dark">
-                    <div id="wz-toolbar" class="btn-group w-100 rounded-1" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
-                        <a class="wz-toggle btn btn-outline-primary btn-icon" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
-                            <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
-                        </a>
-                        <a class="wz-toggle btn btn-outline-primary btn-icon" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
-                            <i class="far fa-floppy-disk"></i>
-                        </a>
-                        <a class="wz-sidebar-close btn btn-outline-primary btn-icon" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
-                            <i class="fa fa-times"></i>
-                        </a>
-                    </div>
+                <div id="wz-toolbar" class="d-flex align-items-stretch">
+                    <a class="wz-tool wz-toggle flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(isVisible ? " show-wz" : "")" attr-class='(!isVisible, "disabled")'
+                        href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
+                        <bootstrap-icon name="eye" class="wz-visible bi-fw" attr-class='(isVisible, "d-none")' />
+                        <bootstrap-icon name="eye-slash" class="wz-invisible bi-fw" attr-class='(!isVisible, "d-none")' />
+                    </a>
+                    <span class="tool-divider"></span>
+                    <a class="wz-tool wz-toggle flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none" data-persistent="@(isVisible ? "true" : "false")"
+                        href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
+                        <bootstrap-icon name="power" class="bi-fw" />
+                    </a>
+                    <span class="tool-divider"></span>
+                    <a class="wz-tool wz-sidebar-close flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none"
+                        href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
+                        <bootstrap-icon name="x-lg" class="bi-fw" />
+                    </a>
                 </div>
-
-                @*<div id="wz-toolbar" class="d-flex" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
-                    <a class="wz-toggle" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
-                        <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
-                    </a>
-                    <a class="wz-toggle" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
-                        <i class="far fa-eye@(isVisible ? "-slash" : "")"></i>
-                    </a>
-                    <a class="wz-sidebar-close" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
-                        <i class="fa fa-times"></i>
-                    </a>
-                </div>*@
             </div>
         </aside>
     }
