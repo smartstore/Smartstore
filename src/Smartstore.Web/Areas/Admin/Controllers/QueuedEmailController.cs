@@ -149,9 +149,9 @@ namespace Smartstore.Admin.Controllers
         /// </remarks>
         [MaintenanceAction]
         [Permission(Permissions.System.Message.Delete)]
-        public async Task<IActionResult> Cleanup(int take = 128)
+        public async Task<IActionResult> Cleanup(int batchSize = 128)
         {
-            var numberOfDeletedMediaStorages = 0;
+            var numTotalDeleted = 0;
 
             try
             {
@@ -166,7 +166,7 @@ namespace Smartstore.Admin.Controllers
                     select ms)
                     .OrderBy(x => x.Id)
                     .Select(x => x.Id)
-                    .Take(take);
+                    .Take(batchSize);
 
                 while (true)
                 {
@@ -185,10 +185,10 @@ namespace Smartstore.Admin.Controllers
                         break;
                     }
 
-                    numberOfDeletedMediaStorages += numDeleted;
+                    numTotalDeleted += numDeleted;
                 }
 
-                if (numberOfDeletedMediaStorages > 500 && _db.DataProvider.CanOptimizeTable)
+                if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
                 {
                     var tableName = _db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
                     await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
@@ -197,14 +197,10 @@ namespace Smartstore.Admin.Controllers
             catch (Exception ex)
             {
                 Logger.Error(ex);
-                NotifyError(ex);
-            }
-            finally
-            {
-                NotifyInfo(T("Admin.System.Maintenance.CleanupOrphanedRecords", numberOfDeletedMediaStorages.ToString("N0"), nameof(MediaStorage)));
+                return Content($"ERROR: {ex.Message}");
             }
 
-            return RedirectToAction(nameof(List));
+            return Content(T("Admin.System.Maintenance.CleanupOrphanedRecords", numTotalDeleted.ToString("N0"), nameof(MediaStorage)));
         }
 
         [Permission(Permissions.System.Message.Read)]
