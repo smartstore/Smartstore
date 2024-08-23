@@ -515,9 +515,9 @@ namespace Smartstore.Google.Analytics.Services
                 return string.Empty;
             }
 
-            if (text.Contains('\''))
+            if (text.Contains('\'') || text.Contains(Environment.NewLine))
             {
-                return text.Replace("'", "\\'") ?? string.Empty;
+                return text.Replace("'", "\\'").Replace(Environment.NewLine, "") ?? string.Empty;
             }
 
             return text;
