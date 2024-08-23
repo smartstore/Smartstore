@@ -508,16 +508,21 @@ namespace Smartstore.Google.Analytics.Services
 
         private static string FixIllegalJavaScriptChars(string text)
         {
-            //replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
+            // Replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
 
             if (string.IsNullOrEmpty(text))
             {
                 return string.Empty;
             }
 
-            if (text.Contains('\'') || text.Contains(Environment.NewLine))
+            if (text.Contains('\''))
             {
-                return text.Replace("'", "\\'").Replace(Environment.NewLine, "") ?? string.Empty;
+                text = text.Replace("'", "\\'");
+            }
+
+            if (text.Contains(Environment.NewLine))
+            {
+                text = text.StripLineBreaks();
             }
 
             return text;
