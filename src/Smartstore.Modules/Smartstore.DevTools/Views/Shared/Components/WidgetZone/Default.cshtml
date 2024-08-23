@@ -1,13 +1,8 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
-    // INFO: (mw) (dt) Please analyze all review commits carefully! Try to adopt best-practices, code style and conventions the next time.
-    // TODO: (mw) (dt) Offcanvas: Use smaller font-size for clickable items.
-    // TODO: (mw) (dt) Offcanvas: Use bg color for hover & active for clickable items.
+    // TODO: (mw) (dt) Offcanvas: Use active for clickable items.
 
-    // TODO: (mw) (dt) Offcanvas: Add active state to the toggle button.
-    // TODO: (mw) (dt) Offcanvas: Check alternative to native JS scrollIntoView for smooth scrolling in x- and y-direction, but with callback functionality.
-    
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
         return;
@@ -16,6 +11,8 @@
     // Check if the visibility cookie is set.
     var visibilityCookie = Request.Cookies[".Smart.WZVisibility"];
     var isVisible = visibilityCookie != "false";
+    var zonePreviewClass = isVisible ? "" : " d-none";
+    var wzToolClass = isVisible ? " show-wz" : "";
 
     if (zone.Name == "start")
     {
@@ -29,18 +26,18 @@
                 <div class="wz-zone-list bg-dark flex-grow-1 overflow-scroll p-0 pb-3 custom-scrollbar custom-scrollbar-invert"></div>
 
                 <div id="wz-toolbar" class="d-flex align-items-stretch">
-                    <a class="wz-tool wz-toggle flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(isVisible ? " show-wz" : "")" attr-class='(!isVisible, "disabled")'
+                    <a class="wz-tool wz-toggle p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(wzToolClass)" attr-class='(!isVisible, "disabled")'
                         href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
                         <bootstrap-icon name="eye" class="wz-visible bi-fw" attr-class='(isVisible, "d-none")' />
                         <bootstrap-icon name="eye-slash" class="wz-invisible bi-fw" attr-class='(!isVisible, "d-none")' />
                     </a>
                     <span class="tool-divider"></span>
-                    <a class="wz-tool wz-toggle flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none" data-persistent="@(isVisible ? "true" : "false")"
+                    <a class="wz-tool wz-toggle p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(wzToolClass)" data-persistent="true"
                         href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
                         <bootstrap-icon name="power" class="bi-fw" />
                     </a>
                     <span class="tool-divider"></span>
-                    <a class="wz-tool wz-sidebar-close flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none"
+                    <a class="wz-tool wz-sidebar-close p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none"
                         href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
                         <bootstrap-icon name="x-lg" class="bi-fw" />
                     </a>
@@ -52,18 +49,14 @@
 
 @if (zone.PreviewTagName == "meta")
 {
-    <meta name="widget-zone-name" class="wz-preview" attr-class='(!isVisible, "d-none")' content="@zone.Name" />
+    <meta name="widget-zone-name" class="wz-preview@(zonePreviewClass)" content="@zone.Name" />
 }
 else
 {
-    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate@(!isVisible ? " d-none" : "")" title="@zone.Name"
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate@(zonePreviewClass)" title="@zone.Name"
           attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
           attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
         <span class="text-truncate">@zone.Name</span>
-        @* Maybe later *@
-        @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
-            <span><i class="far fa-paste"></i></span>
-        </a>*@
     </span>
 }
 
@@ -101,7 +94,7 @@ else
         });
 
         const devTools = new DevTools();
-        devTools.initialize();
+        devTools.initialize(@(isVisible ? "true" : "false"));
 
         // Add translations
         devTools.Res = {

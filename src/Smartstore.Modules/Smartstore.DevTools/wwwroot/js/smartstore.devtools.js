@@ -1,6 +1,7 @@
 const widgetZoneMenuId = '#wz-menu';
 let widgetZones;
 const zIndex = 1000;
+const showZoneClass = 'show-wz';
 
 export class DevTools {
     Res = {};
@@ -8,15 +9,20 @@ export class DevTools {
     /**
      * Initialize the DevTools widget functionality: Create the widget zone menu and set up event listeners.
      */
-    initialize() {
+    initialize(canToggleVisibilityInitially) {
         widgetZones = [];
         let wzMenu = $(widgetZoneMenuId);
 
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
+        let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
+        let temporaryToggleButton = wzMenu.find('.wz-toggle:not([data-persistent])').first();
+        persistentToggleButton.data('persistent', canToggleVisibilityInitially);
+
+        // Make sure tooltips are displayed on offcanvas.
         $('#wz-toolbar [data-toggle="tooltip"]').tooltip({
-            placement: 'top', // Testweise eine feste Platzierung setzen
+            placement: 'top',
             container: '#wz-toolbar'
         });
 
@@ -35,81 +41,72 @@ export class DevTools {
         });
 
         // Jump to the zone.
-        wzMenu.on("click", ".wz-zone-pointer", function (e) {
+        wzMenu.on("click", ".wz-zone-pointer", (e) => {
             e.preventDefault();
 
-            let wzName = $(this).text();
-            let widetzones = document.querySelectorAll('span[title="' + wzName + '"]');
+            let wzName = $(e.currentTarget).text();
+            let widetzones = $('span[title="' + wzName + '"]');
 
-            if (widetzones) {
-                widetzones.forEach((wz, index) => {
-                    let wzPreview = $(wz);
-                    let wzIsHidden = wzPreview.hasClass('d-none');
+            if (widetzones.length > 0) {
+                let wzFirstPreview = widetzones.first();
+                let wzIsHidden = wzFirstPreview.hasClass('d-none');
 
-                    // If multiple widget zones with the same name exist, we scroll to the first one.
-                    if (index == 0) {
+                if (wzIsHidden) {
+                    // Must be visible to scroll to it.
+                    widetzones.removeClass('d-none');
+                }
+
+                // Scroll to widget zone and add highlight.
+                this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
+                    widetzones.addClass('wz-highlight');
+                    console.log('highlighted');
+                    setTimeout(() => {
+                        widetzones.removeClass('wz-highlight');
+                        console.log('removed');
 
                         if (wzIsHidden) {
-                            // Must be visible to scroll to it.
-                            wzPreview.removeClass('d-none');
+                            wzFirstPreview.addClass('d-none');
                         }
-
-                        // Scroll to widget zone.
-                        wz.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-
-                        wzPreview.addClass('wz-highlight');
-                    }
-
-                    setTimeout(() => {
-                        wzPreview.removeClass('wz-highlight');
-                    }, 2000);
-
-                    if (wzIsHidden) {
-                        wzPreview.addClass('d-none');
-                    }
+                    }, 1200);
                 });
             }
         });
 
         // Add toggle buttons to widget zone menu.
-        wzMenu.on("click", ".wz-toggle", (e) => {
+        // Persistent toggle button.
+        wzMenu.on("click", ".wz-toggle[data-persistent]", (e) => {
             e.preventDefault();
 
             let wzToggleButton = $(e.currentTarget);
-            let isPersistentToggleButton = wzToggleButton.attr('data-persistent') !== undefined;
+            let canToggleVisibility = persistentToggleButton.data('persistent');
 
-            let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
-            let tempToggle = wzMenu.find('.wz-toggle:not([data-persistent])').first();
-            const showZoneClass = 'show-wz';
+            canToggleVisibility = !canToggleVisibility;
+            wzToggleButton.data('persistent', canToggleVisibility);
 
-            let canToggleVisibility = persistentToggleButton.attr('data-persistent') === 'true';
+            // Save state in a cookie if requested.
+            document.cookie = '.Smart.WZVisibility=' + canToggleVisibility + '; path=/; max-age=31536000; SameSite=Lax';
 
-            // TODO: (mw) (dt) Separate toggles into two different classes?
-
-            if (isPersistentToggleButton) {
-                canToggleVisibility = !canToggleVisibility;
-                // TODO: (mw) (dt) Check why data.('persistent') doesn't work. Using attr temporarily.
-                //wzToggleButton.data('persistent', canToggleVisibility);
-                wzToggleButton.attr('data-persistent', canToggleVisibility);
-
-                // Save state in a cookie if requested.
-                document.cookie = '.Smart.WZVisibility=' + canToggleVisibility + '; path=/; max-age=31536000';
-
-                // Set both buttons to the same state.
-                if (canToggleVisibility) {
-                    tempToggle.removeClass('disabled').addClass(showZoneClass);
-                } else {
-                    tempToggle.addClass('disabled').removeClass(showZoneClass);
-                }
-            }
-            else
-            {
-                if (canToggleVisibility) {
-                    wzToggleButton.toggleClass(showZoneClass);
-                }
+            // Set both buttons to the same state.
+            if (canToggleVisibility) {
+                temporaryToggleButton.removeClass('disabled').addClass(showZoneClass);
+                persistentToggleButton.addClass(showZoneClass);
+            } else {
+                temporaryToggleButton.addClass('disabled').removeClass(showZoneClass);
+                persistentToggleButton.removeClass(showZoneClass);
             }
 
-            this.setVisibilityForAllZones(tempToggle.hasClass(showZoneClass));
+            this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
+        });
+
+        // Temporary toggle button.
+        wzMenu.on("click", ".wz-toggle:not([data-persistent])", (e) => {
+            e.preventDefault();
+
+            if (persistentToggleButton.data('persistent')) {
+                $(e.currentTarget).toggleClass(showZoneClass);
+            }
+
+            this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
         });
 
         // Add event listener to copy widget zone name to clipboard.
@@ -188,5 +185,43 @@ export class DevTools {
             $('#wz-toolbar .wz-visible').removeClass('d-none');
             $('#wz-toolbar .wz-invisible').addClass('d-none');
         }
+    }
+
+    /**
+     * Returns a promise to smoothly scroll to an element and resolve.
+     * @param {number} [timeDelay=100] Set the number of milliseconds between the last scroll and resolution.
+     */
+    scrollToElementAndThen(element, timeDelay = 50) {
+        return new Promise((resolve) => {
+
+            // Check whether scrolling is necessary or not.
+            const rect = element.getBoundingClientRect();
+            const isInViewport = (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+
+            if (isInViewport) {
+                resolve();
+            } else {
+                element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+
+                let isScrolling;
+
+                function onScroll() {
+                    window.clearTimeout(isScrolling);
+
+                    // Set a timeout to run after scrolling ends
+                    isScrolling = setTimeout(() => {
+                        window.removeEventListener('scroll', onScroll);
+                        resolve();
+                    }, timeDelay);
+                }
+
+                window.addEventListener('scroll', onScroll);
+            }
+        });
     }
 }

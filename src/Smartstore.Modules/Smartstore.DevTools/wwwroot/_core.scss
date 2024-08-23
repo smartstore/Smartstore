@@ -9,19 +9,7 @@
     margin-block: 3px;
     text-align: start;
     box-shadow: none !important;
-    transition: 1s;
-
-    > .btn-clipboard {
-        position: absolute;
-        inset-inline-end: 0;
-        opacity: 0;
-        font-size: $font-size-base;
-        background-color: var(--badge-bg);
-    }
-
-    &:hover > .btn-clipboard {
-        opacity: 1;
-    }
+    transition: 1s 0s border-color;
 
     @keyframes pulse-highlight {
         0% {
@@ -29,7 +17,7 @@
         }
 
         50% {
-            background-color: var(--indigo);
+            background-color: var(--warning);
         }
 
         100% {
@@ -38,9 +26,11 @@
     }
 
     &.wz-highlight {
-        animation: pulse-highlight 0.5s ease-in-out 3;
+        border-color: var(--warning) !important;
+        animation: pulse-highlight 0.4s ease-in-out 3;
         // Overwrite .d-none
         display: flex !important;
+        z-index: 999;
     }
 }
 
@@ -54,7 +44,7 @@
     }
 
     .wz-zone-pointer-container {
-        &:hover {
+        &:hover, &:active {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -77,8 +67,6 @@
         // INFO: Use indigo, when grayscale effect is used on #wz-menu.
         /*background-color: var(--indigo);*/
         background-color: var(--gray-700);
-        // TODO: Let content determine height
-        height: 4rem;
 
         .wz-tool {
             color: var(--gray-300) !important;
@@ -90,19 +78,19 @@
                 color: var(--white) !important;
             }
 
-            &[data-persistent=true] {
-                color: var(--green) !important;
-
-                > svg {
-                    filter: drop-shadow(0 0 2px var(--green));
-                }
-            }
-
-            &[data-persistent=false] {
+            &[data-persistent] {
                 color: var(--red) !important;
 
                 > svg {
                     filter: drop-shadow(0 0 2px var(--red));
+                }
+            }
+
+            &.show-wz[data-persistent] {
+                color: var(--green) !important;
+
+                > svg {
+                    filter: drop-shadow(0 0 2px var(--green));
                 }
             }
 
@@ -120,7 +108,7 @@
             transition: 0.1s;
         }
 
-        &:hover .tool-divider{
+        &:hover .tool-divider {
             opacity: 0;
         }
     }
