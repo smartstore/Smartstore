@@ -13,7 +13,7 @@
     <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="DotLiquid" Version="2.2.692" />
-        <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+        <PackageReference Include="ExcelDataReader" Version="3.7.0" />
         <PackageReference Include="FluentFTP" Version="50.0.1" />
         <PackageReference Include="FluentMigrator" Version="5.2.0" />
         <PackageReference Include="FluentMigrator.Runner" Version="5.2.0" />
