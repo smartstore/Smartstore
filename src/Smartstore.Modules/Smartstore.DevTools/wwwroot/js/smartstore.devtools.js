@@ -16,6 +16,7 @@ export class DevTools {
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
+        let toolDividers = wzMenu.find('.tool-divider');
         let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
         let temporaryToggleButton = wzMenu.find('.wz-toggle:not([data-persistent])').first();
         persistentToggleButton.data('persistent', canToggleVisibilityInitially);
@@ -44,6 +45,9 @@ export class DevTools {
         wzMenu.on("click", ".wz-zone-pointer", (e) => {
             e.preventDefault();
 
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
+            $(e.currentTarget).parent().addClass('active');
+
             let wzName = $(e.currentTarget).text();
             let widetzones = $('span[title="' + wzName + '"]');
 
@@ -59,10 +63,9 @@ export class DevTools {
                 // Scroll to widget zone and add highlight.
                 this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
                     widetzones.addClass('wz-highlight');
-                    console.log('highlighted');
+                    
                     setTimeout(() => {
                         widetzones.removeClass('wz-highlight');
-                        console.log('removed');
 
                         if (wzIsHidden) {
                             wzFirstPreview.addClass('d-none');
@@ -107,6 +110,22 @@ export class DevTools {
             }
 
             this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
+        });
+
+        // Animate dividers.
+        wzMenu.on('mouseover', '.wz-tool:not(.disabled)', function (e) {
+            if (e.currentTarget == temporaryToggleButton[0]) {
+                toolDividers.eq(0).css('opacity', '0');
+            }
+            else if (e.currentTarget !== persistentToggleButton[0]) {
+                toolDividers.eq(1).css('opacity', '0');
+            }
+            else {
+                toolDividers.css('opacity', '0');
+            }
+        });
+        wzMenu.on('mouseout', '.wz-tool', function () {
+            toolDividers.css('opacity', '1');
         });
 
         // Add event listener to copy widget zone name to clipboard.

@@ -1,7 +1,9 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
-    // TODO: (mw) (dt) Offcanvas: Use active for clickable items.
+    // TODO: (mw) (dt) Remove .active from .wz-zone-pointer-container on offcanvas close.
+    // TODO: (mw) (dt) Fix tooltip not disappearing when the button is clicked.
+    // TODO: (mw) (dt) Swap to actual colors, if greyscale is accepted.
 
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
@@ -17,11 +19,11 @@
     if (zone.Name == "start")
     {
         // Add the offcanvas zone preview menu
-        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas"
+        <a id="wz-menu-toggle" class="d-none d-lg-block position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas"
            data-autohide="true" data-blocker="false" data-placement="end" data-fullscreen="false" data-slide="false" data-target="#wz-menu">
             <i class="far fa-layer-group"></i>
         </a>
-        <aside id="wz-menu" class="offcanvas offcanvas-end offcanvas-shadow">
+        <aside id="wz-menu" class="d-none d-lg-block offcanvas offcanvas-end offcanvas-shadow">
             <div class="offcanvas-content d-flex flex-column">
                 <div class="wz-zone-list bg-dark flex-grow-1 overflow-scroll p-0 pb-3 custom-scrollbar custom-scrollbar-invert"></div>
 
