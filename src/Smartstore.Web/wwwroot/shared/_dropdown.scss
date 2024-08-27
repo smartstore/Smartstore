@@ -1,4 +1,4 @@
-/// <reference path="references.scss" />
+﻿/// <reference path="references.scss" />
 
 // Add nested dropdown support to Bootstrap
 // ==============================================================
@@ -160,4 +160,32 @@
 
 .navbar.navbar-slide .dropdown-menu {
 	@include sliding-dropdown-menu();
+}
+
+
+// Dropdowns with check icons
+// ==============================================================
+
+.dropdown-menu-check {
+    .dropdown-item {
+        padding-inline-start: 30px;
+    }
+
+    .dropdown-item.checked {
+        font-weight: $font-weight-medium;
+    }
+
+    .dropdown-item.active:not(:active, :hover) {
+        //background-color: transparent;
+    }
+
+    .dropdown-item.checked:after {
+        position: absolute;
+        inset-inline-start: 8px;
+        display: inline-block;
+        @include fontawesome("\f00c"); // check
+        color: var(--success);
+        text-align: start;
+        line-height: $line-height-base;
+    }
 }
