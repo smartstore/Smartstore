@@ -31,6 +31,7 @@ export class DevTools {
         wzMenu.on('click', '.wz-sidebar-close', (e) => {
             e.preventDefault();
             wzMenuToggle.click();
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
             return false;
         });
 
@@ -70,7 +71,7 @@ export class DevTools {
                         if (wzIsHidden) {
                             wzFirstPreview.addClass('d-none');
                         }
-                    }, 1200);
+                    }, 2400);
                 });
             }
         });
@@ -158,9 +159,9 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="wz-zone-pointer-container d-flex gap-2 py-1"><a href="#" class="wz-zone-pointer flex-grow-1 text-decoration-none text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
-                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="" data-toggle="tooltip" data-placement="top" data-original-title="' +
-                this.Res['Common.CopyToClipboard'] + '"><i class="far fa-copy"></i><a></div>')
+            .append('<div class="wz-zone-pointer-container"><a href="#" class="wz-zone-pointer text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
+                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
+                '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
 
@@ -195,14 +196,14 @@ export class DevTools {
 
         if (showZones) {
             zonePreviews.removeClass('d-none');
-            $('#wz-toolbar .wz-visible').addClass('d-none');
-            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+            $('#wz-toolbar .wz-invisible').addClass('d-none');
+            $('#wz-toolbar .wz-visible').removeClass('d-none');
         }
         else
         {
             zonePreviews.addClass('d-none');
-            $('#wz-toolbar .wz-visible').removeClass('d-none');
-            $('#wz-toolbar .wz-invisible').addClass('d-none');
+            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+            $('#wz-toolbar .wz-visible').addClass('d-none');
         }
     }
 
