@@ -175,10 +175,6 @@
         font-weight: $font-weight-medium;
     }
 
-    .dropdown-item.active:not(:active, :hover) {
-        //background-color: transparent;
-    }
-
     .dropdown-item.checked:after {
         position: absolute;
         inset-inline-start: 8px;
