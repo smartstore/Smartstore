@@ -32,7 +32,6 @@
     </LocaleResource>
     <LocaleResource Name="WidgetZoneMenu">
         <Value>Show widget zone menu</Value>
-        <Value>Widget-Zonen-Menü anzeigen</Value>
         <Children>
             <LocaleResource Name="Toolbar">
                 <Value>Widget zone toolbar</Value>
