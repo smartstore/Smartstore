@@ -44,7 +44,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// Used to specify the maximum word count for the text about to be created. Default = 50.
         /// </summary>
         [HtmlAttributeName(WordCountAttributeName)]
-        public int WordCount { get; set; } = 50;
+        public int WordCount { get; set; } = 50;    // TODO: (mh) (ai) this is not used anywhere (?)
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {

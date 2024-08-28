@@ -29,7 +29,10 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Gets a simple default prompt.
         /// </summary>
         /// <param name="key">The string resource key.</param>
-        /// <param name="value">The value to get prompt for.</param>
+        /// <param name="value">The value/topic to get prompt for.</param>
+        /// <remarks>
+        /// Note that the AI may provide an inaccurate answer for a default prompt.
+        /// </remarks>
         protected virtual string GetDefaultPrompt(string key, string? value)
         {
             var localizedValue = _promptBuilder.Localization.GetResource(key, returnEmptyIfNotFound: true);
