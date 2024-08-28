@@ -20,7 +20,6 @@
 
     window.dataLayer = window.dataLayer || [];
     function gtag(){window.dataLayer.push(arguments);}
-    gtag('js', new Date());
 
     gtag('consent', 'default', {
       'ad_storage': '{STORAGETYPE}',
@@ -28,6 +27,8 @@
       'ad_user_data': '{ADUSERDATA}',
       'ad_personalization': '{ADPERSONALIZATION}',
     });
+
+    gtag('js', new Date());
 
     gtag('config', '{GOOGLEID}', { 'anonymize_ip': true });
 
