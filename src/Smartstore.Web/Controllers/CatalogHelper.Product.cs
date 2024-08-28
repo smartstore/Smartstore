@@ -630,7 +630,8 @@ namespace Smartstore.Web.Controllers
                                 Name = val.GetLocalized(x => x.Name),
                                 Alias = val.Alias,
                                 Color = val.Color, // Used with "Boxes" attribute type.
-                                IsPreSelected = val.IsPreSelected
+                                IsPreSelected = val.IsPreSelected,
+                                DisplayOrder = val.DisplayOrder,
                             };
 
                             if (val.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
