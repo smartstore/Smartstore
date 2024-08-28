@@ -1,7 +1,14 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
-    // TODO: (mw) (dt) Offcanvas: Use active for clickable items.
+    // TODO: (mw) (dt) Fix tooltip not disappearing when the button is clicked.
+    // TODO: (mw) (dt) Closer icon should be an arrow pointing to the right. RTL support?
+    // TODO: (mw) (dt) Opener should slide out and in, when the visibility is toggled.
+    // TODO: (mw) (dt) Bug? Scrolljump when closing the offcanvas menu after auto scroll.
+    // TODO: (mw) (dt) Power button should refresh the page: Detect the cookie state in the filter and show empty zone list with hint to power on, when off. -> Separate component for menu?
+
+    // QUESTION: (mc) (dt) To optimize the performance, should we use the bootstrap icon's SVG-code directly instead of the bootstrap-icon tag helper?
+    //      RE: (MC) Yes, good idea!
 
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
@@ -17,29 +24,29 @@
     if (zone.Name == "start")
     {
         // Add the offcanvas zone preview menu
-        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas"
-           data-autohide="true" data-blocker="false" data-placement="end" data-fullscreen="false" data-slide="false" data-target="#wz-menu">
+        <a id="wz-menu-toggle" class="d-none d-lg-block btn btn-dark" href="#" data-toggle="offcanvas"
+           data-autohide="false" data-blocker="false" data-placement="end" data-fullscreen="false" data-slide="false" data-target="#wz-menu" title="@T("Plugins.Developer.DevTools.WidgetZoneMenu")">
             <i class="far fa-layer-group"></i>
         </a>
-        <aside id="wz-menu" class="offcanvas offcanvas-end offcanvas-shadow">
+        <aside id="wz-menu" class="d-none d-lg-block bg-dark offcanvas offcanvas-end offcanvas-shadow">
             <div class="offcanvas-content d-flex flex-column">
-                <div class="wz-zone-list bg-dark flex-grow-1 overflow-scroll p-0 pb-3 custom-scrollbar custom-scrollbar-invert"></div>
+                <div class="wz-zone-list custom-scrollbar custom-scrollbar-invert"></div>
 
-                <div id="wz-toolbar" class="d-flex align-items-stretch">
-                    <a class="wz-tool wz-toggle p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(wzToolClass)" attr-class='(!isVisible, "disabled")'
-                        href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
-                        <bootstrap-icon name="eye" class="wz-visible bi-fw" attr-class='(isVisible, "d-none")' />
-                        <bootstrap-icon name="eye-slash" class="wz-invisible bi-fw" attr-class='(!isVisible, "d-none")' />
-                    </a>
-                    <span class="tool-divider"></span>
-                    <a class="wz-tool wz-toggle p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none@(wzToolClass)" data-persistent="true"
+                <div id="wz-toolbar">
+                    <a class="wz-tool wz-toggle@(wzToolClass)" data-persistent="true"
                         href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
                         <bootstrap-icon name="power" class="bi-fw" />
                     </a>
-                    <span class="tool-divider"></span>
-                    <a class="wz-tool wz-sidebar-close p-3 flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none"
+                    <span class="vr"></span>
+                    <a class="wz-tool wz-toggle@(wzToolClass)" attr-class='(!isVisible, "disabled")'
+                        href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
+                        <bootstrap-icon name="eye" class="wz-visible bi-fw" attr-class='(!isVisible, "d-none")' />
+                        <bootstrap-icon name="eye-slash" class="wz-invisible bi-fw" attr-class='(isVisible, "d-none")' />
+                    </a>
+                    <span class="vr"></span>
+                    <a class="wz-tool wz-sidebar-close"
                         href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
-                        <bootstrap-icon name="x-lg" class="bi-fw" />
+                        <bootstrap-icon name="box-arrow-right" class="bi-fw" />
                     </a>
                 </div>
             </div>
@@ -88,7 +95,7 @@ else
 
         // Add div's to '#wz-menu .wz-zone-list' for each element in groups.
         groups.forEach(group => {
-            let groupContainer = $(`<div class="wz-zone-group d-flex flex-column mt-2 d-none" data-group="${group.name}"><h6 class="text-white my-2">${group.name}</h6></div>`);
+            let groupContainer = $(`<div class="wz-zone-group d-none" data-group="${group.name}"><h6 class="text-white">${group.name}</h6></div>`);
             groupContainer.data('groups', group.zones.join(' '))
             $(zoneList).append(groupContainer);
         });

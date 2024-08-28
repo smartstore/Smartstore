@@ -31,6 +31,7 @@
         <Value>Injiziert Tooltips in jede Widget-Zone, die den Namen der jeweiligen Widget-Zone enthalten. Die Anzeige ist auf angemeldete Administratoren beschränkt.</Value>
     </LocaleResource>
     <LocaleResource Name="WidgetZoneMenu">
+        <Value>Widget-Zonen-Menü anzeigen</Value>
         <Children>
             <LocaleResource Name="Toolbar">
                 <Value>Widget-Zonen Werkzeugleiste</Value>

@@ -31,6 +31,7 @@
         <Value>Injects tooltips into every widget zone, which includes the name of the current widget zone. The display of these tooltips is limited to admintrators.</Value>
     </LocaleResource>
     <LocaleResource Name="WidgetZoneMenu">
+        <Value>Show widget zone menu</Value>
         <Children>
             <LocaleResource Name="Toolbar">
                 <Value>Widget zone toolbar</Value>

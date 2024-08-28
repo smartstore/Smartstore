@@ -20,7 +20,7 @@ namespace Smartstore.DevTools.Filters
             return !(zone.PreviewDisabled || zone.ReplaceContent);
         }
     }
-    
+
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
         private readonly ICommonServices _services;
@@ -72,6 +72,8 @@ namespace Smartstore.DevTools.Filters
                 {
                     return;
                 }
+
+                // TODO: Add widget zone cookie detection. If the cookie is not set, only render the widget zone menu. This way the page layout stays intact.
 
                 _widgetProvider.RegisterWidget(_ => true, new ZonePreviewWidget());
             }

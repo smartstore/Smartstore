@@ -1482,7 +1482,8 @@ a.editable {
     flex-wrap: nowrap;
 }
 
-.mapping-edit .mapping-list-item {
+.mapping-edit .mapping-list-item,
+.column-mapping-new .mapping-list-item {
     display: contents;
 }
 

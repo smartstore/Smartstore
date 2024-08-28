@@ -16,6 +16,7 @@ export class DevTools {
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
+        let toolDividers = wzMenu.find('.tool-divider');
         let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
         let temporaryToggleButton = wzMenu.find('.wz-toggle:not([data-persistent])').first();
         persistentToggleButton.data('persistent', canToggleVisibilityInitially);
@@ -30,6 +31,7 @@ export class DevTools {
         wzMenu.on('click', '.wz-sidebar-close', (e) => {
             e.preventDefault();
             wzMenuToggle.click();
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
             return false;
         });
 
@@ -43,6 +45,9 @@ export class DevTools {
         // Jump to the zone.
         wzMenu.on("click", ".wz-zone-pointer", (e) => {
             e.preventDefault();
+
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
+            $(e.currentTarget).parent().addClass('active');
 
             let wzName = $(e.currentTarget).text();
             let widetzones = $('span[title="' + wzName + '"]');
@@ -59,15 +64,14 @@ export class DevTools {
                 // Scroll to widget zone and add highlight.
                 this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
                     widetzones.addClass('wz-highlight');
-                    console.log('highlighted');
+                    
                     setTimeout(() => {
                         widetzones.removeClass('wz-highlight');
-                        console.log('removed');
 
                         if (wzIsHidden) {
                             wzFirstPreview.addClass('d-none');
                         }
-                    }, 1200);
+                    }, 2400);
                 });
             }
         });
@@ -109,6 +113,22 @@ export class DevTools {
             this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
         });
 
+        // Animate dividers.
+        wzMenu.on('mouseover', '.wz-tool:not(.disabled)', function (e) {
+            if (e.currentTarget == temporaryToggleButton[0]) {
+                toolDividers.eq(0).css('opacity', '0');
+            }
+            else if (e.currentTarget !== persistentToggleButton[0]) {
+                toolDividers.eq(1).css('opacity', '0');
+            }
+            else {
+                toolDividers.css('opacity', '0');
+            }
+        });
+        wzMenu.on('mouseout', '.wz-tool', function () {
+            toolDividers.css('opacity', '1');
+        });
+
         // Add event listener to copy widget zone name to clipboard.
         wzMenu.on("click", ".copy-to-clipboard", (e) => {
             e.preventDefault();
@@ -139,9 +159,9 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="wz-zone-pointer-container d-flex gap-2 py-1"><a href="#" class="wz-zone-pointer flex-grow-1 text-decoration-none text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
-                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="" data-toggle="tooltip" data-placement="top" data-original-title="' +
-                this.Res['Common.CopyToClipboard'] + '"><i class="far fa-copy"></i><a></div>')
+            .append('<div class="wz-zone-pointer-container"><a href="#" class="wz-zone-pointer text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
+                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
+                '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
 
@@ -176,14 +196,14 @@ export class DevTools {
 
         if (showZones) {
             zonePreviews.removeClass('d-none');
-            $('#wz-toolbar .wz-visible').addClass('d-none');
-            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+            $('#wz-toolbar .wz-invisible').addClass('d-none');
+            $('#wz-toolbar .wz-visible').removeClass('d-none');
         }
         else
         {
             zonePreviews.addClass('d-none');
-            $('#wz-toolbar .wz-visible').removeClass('d-none');
-            $('#wz-toolbar .wz-invisible').addClass('d-none');
+            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+            $('#wz-toolbar .wz-visible').addClass('d-none');
         }
     }
 
