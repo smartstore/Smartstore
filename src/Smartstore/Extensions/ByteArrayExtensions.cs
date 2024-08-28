@@ -26,7 +26,7 @@ namespace Smartstore
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength), "maxLength must be greater than 1.");
             }
-
+            
             var sb = new StringBuilder(value.Length * 2);
             var format = toUpperCase ? "X2" : "x2";
 

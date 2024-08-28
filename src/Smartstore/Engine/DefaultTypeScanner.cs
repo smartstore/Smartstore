@@ -8,7 +8,7 @@ namespace Smartstore.Engine
     /// <inheritdoc/>
     public class DefaultTypeScanner : ITypeScanner
     {
-        private HashSet<Assembly> _activeAssemblies = new();
+        private readonly HashSet<Assembly> _activeAssemblies = [];
 
         public DefaultTypeScanner(params Assembly[] assemblies)
         {
@@ -20,9 +20,9 @@ namespace Smartstore.Engine
 
         public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
         {
-            Guard.NotNull(coreAssemblies, nameof(coreAssemblies));
-            Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
-            Guard.NotNull(logger, nameof(logger));
+            Guard.NotNull(coreAssemblies);
+            Guard.NotNull(moduleCatalog);
+            Guard.NotNull(logger);
 
             Logger = logger;
 
@@ -43,7 +43,7 @@ namespace Smartstore.Engine
         /// <inheritdoc/>
         public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
         {
-            Guard.NotNull(baseType, nameof(baseType));
+            Guard.NotNull(baseType);
 
             return FindTypes(baseType, Assemblies, concreteTypesOnly);
         }
@@ -51,7 +51,7 @@ namespace Smartstore.Engine
         /// <inheritdoc/>
         public IEnumerable<Type> FindTypes(Type baseType, IEnumerable<Assembly> assemblies, bool concreteTypesOnly = true)
         {
-            Guard.NotNull(baseType, nameof(baseType));
+            Guard.NotNull(baseType);
 
             var isOpenGeneric = baseType.IsGenericTypeDefinition;
 
