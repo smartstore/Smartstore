@@ -153,10 +153,3 @@
         }
     }
 }
-
-/* Keep the widget zone menu from showing up in dialogs */
-body.popup {
-    #wz-menu, #wz-menu-toggle {
-        display: none !important;
-    }
-}
