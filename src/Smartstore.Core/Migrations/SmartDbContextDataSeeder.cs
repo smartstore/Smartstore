@@ -470,8 +470,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeStyle", "Change style", "Sprachstil ändern");
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Change tone", "Ton ändern");
 
-            builder.AddOrUpdate("Admin.AI.SpecifyTopic", "Please enter a topic", "Bitte geben Sie ein Thema an");
-
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes",
                 "Do not enclose the text in quotation marks.",
                 "Schließe den Text nicht in Anführungszeichen ein.");
