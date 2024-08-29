@@ -101,7 +101,7 @@
 #wz-toolbar {
     display: flex;
     align-items: stretch;
-    background-color: #00000040;
+    background-color: rgba($white, .06);
 
     .wz-tool {
         display: flex;
