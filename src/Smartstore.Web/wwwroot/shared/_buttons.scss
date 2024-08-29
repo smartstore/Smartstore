@@ -258,9 +258,10 @@ $btn-wide-padding-x-sm: 1.2rem;
     --btn-active-border-color: #{rgba(#fff, 0.4)};
     --btn-active-shadow: #{$btn-active-box-shadow};
 
-    &:focus:not(:active):not(.active):not(:focus-visible) {
-        box-shadow: 0 0 4px rgba(#fff, 0.7);
-    }
+    // INFO: Seems to be a bad idea somehow.
+    //&:focus:not(:active):not(.active):not(:focus-visible) {
+    //    box-shadow: 0 0 4px rgba(#fff, 0.7);
+    //}
 }
 
 .btn-clear-dark {
@@ -274,16 +275,17 @@ $btn-wide-padding-x-sm: 1.2rem;
     --btn-disabled-border-color: var(--btn-border-color);
     --btn-hover-color: #{darken($yiq-text-dark, 8%)};
     --btn-hover-bg: #{rgba(#000, 0.06)};
-    --btn-hover-border-color: #{rgba(#000, 0.2)};
+    --btn-hover-border-color: #{rgba(#000, 0.1)};
     --btn-hover-shadow: none;
     --btn-active-color: var(--btn-hover-color);
     --btn-active-bg: #{rgba(#000, 0.08)};
-    --btn-active-border-color: var(--btn-hover-border-color);
+    --btn-active-border-color: #{rgba(#000, 0.15)};
     --btn-active-shadow: #{$btn-active-box-shadow};
 
-    &:focus:not(:active):not(.active):not(:focus-visible) {
-        box-shadow: 0 0 4px rgba(#000, 0.125);
-    }
+    // INFO: Seems to be a bad idea somehow.
+    //&:focus:not(:active):not(.active):not(:focus-visible) {
+    //    box-shadow: 0 0 4px rgba(#000, 0.125);
+    //}
 }
 
 

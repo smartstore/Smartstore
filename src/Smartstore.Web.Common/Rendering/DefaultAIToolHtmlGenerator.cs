@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Autofac;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
@@ -113,7 +114,7 @@ namespace Smartstore.Web.Rendering
             var inputGroupColDiv = CreateDialogOpener(true);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu ai-translator-menu";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
 
             foreach (var provider in providers)
             {
@@ -138,7 +139,7 @@ namespace Smartstore.Web.Rendering
                     //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
 
                     var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
-                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, true, additionalClasses);
+                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
 
                     var attrs = dropdownLi.Attributes;
                     attrs["data-provider-systemname"] = provider.Metadata.SystemName;
@@ -170,7 +171,7 @@ namespace Smartstore.Web.Rendering
             var inputGroupColDiv = CreateDialogOpener(true);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
             // Create a button group for the providers. If there is only one provider, hide the button group.
             // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases,
@@ -215,33 +216,47 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
+        public IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
+        {
+            var builder = new HtmlContentBuilder();
+            var resRoot = "Admin.AI.TextCreation.";
+
+            if (!forChatDialog)
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, "ai-text-composer"));
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            }
+
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, "ai-text-composer"));
+
+            return builder;
+        }
+
         /// <summary>
         /// Adds simple text creation option menu items to the dropdown.
         /// </summary>
-        /// <param name="hasContent">Indicates whether the target property already has content. If it has we can offer options like: summarize, optimize etc.</param>
-        /// <param name="dropdownUl">The UL tag to which the items are  appended.</param>
-        private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder dropdownUl)
+        /// <param name="hasContent">Indicates whether the target property already has content. If it has, we can offer options like summarize, optimize etc.</param>
+        /// <param name="root">The dropdown root tag (.dropdown-menu) to which the items are appended.</param>
+        private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder root)
         {
-            // Create new always is enabled.
-            var builder = dropdownUl.InnerHtml;
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", false, "ai-text-composer"));
+            // Generate commands as dropdown items.
+            root.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, hasContent));
 
             // Add "Change style" & "Change tone" options from module settings.
-            AddMenuItemsFromSetting(dropdownUl, hasContent, "change-style");
-            AddMenuItemsFromSetting(dropdownUl, hasContent, "change-tone");
+            AddMenuItemsFromSetting(root, hasContent, "change-style");
+            AddMenuItemsFromSetting(root, hasContent, "change-tone");
         }
 
         /// <summary>
         /// Adds menu items from module settings to the dropdown.
         /// </summary>
-        /// <param name="dropdownUl">The dropdown to append items to.</param>
+        /// <param name="root">The root dropdown (.dropdown-menu) to append items to.</param>
         /// <param name="hasContent">Defines whether the target field has a value. If there is no value to manipulate the items will be displayed disabled.</param>
         /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
-        private void AddMenuItemsFromSetting(TagBuilder dropdownUl, bool hasContent, string command)
+        private void AddMenuItemsFromSetting(TagBuilder root, bool hasContent, string command)
         {
             var settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
             var setting = _db.Settings.FirstOrDefault(x => x.Name == settingName);
@@ -252,17 +267,17 @@ namespace Smartstore.Web.Rendering
                 providerDropdownItemLi.Attributes["class"] = "dropdown-group";
 
                 var settingsUl = new TagBuilder("ul");
-                settingsUl.Attributes["class"] = "dropdown-menu";
+                settingsUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
                 
                 var options = setting?.Value?.Split([','], StringSplitOptions.RemoveEmptyEntries) ?? [];
 
                 foreach (var option in options)
                 {
-                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, false, "ai-text-composer"));
+                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, null, false, "ai-text-composer"));
                 }
 
                 providerDropdownItemLi.InnerHtml.AppendHtml(settingsUl);
-                dropdownUl.InnerHtml.AppendHtml(providerDropdownItemLi);
+                root.InnerHtml.AppendHtml(providerDropdownItemLi);
             }
         }
 
@@ -335,13 +350,13 @@ namespace Smartstore.Web.Rendering
             {
                 var inputGroupColDiv = CreateDialogOpener(true);
                 var dropdownUl = new TagBuilder("ul");
-                dropdownUl.Attributes["class"] = "dropdown-menu";
+                dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
                 foreach (var provider in providers)
                 {
                     var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                     var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
-                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, true, additionalClasses);
+                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, null, true, additionalClasses);
 
                     MergeDataAttributes(dropdownLi, provider, attributes, dialogType);
 
@@ -435,14 +450,14 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener icon.</returns>
         private TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", false, htmlAttributes: new Dictionary<string, object>
+            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", htmlAttributes: new Dictionary<string, object>
             {
                 ["class"] = "dropdown-icon bi-fw bi"
             });
 
             var btnTag = new TagBuilder("a");
             btnTag.Attributes["href"] = "javascript:;";
-            btnTag.Attributes["class"] = "btn btn-icon btn-flat btn-sm rounded-circle btn-outline-secondary input-group-icon ai-dialog-opener no-chevron";
+            btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron";
             btnTag.AppendCssClass(isDropdown ? "dropdown-toggle" : additionalClasses);
 
             if (isDropdown)
@@ -464,8 +479,8 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="menuText">The text for the menu item.</param>
         /// <returns>A LI tag representing the menu item.</returns>
-        private static TagBuilder CreateDropdownItem(string menuText)
-            => CreateDropdownItem(menuText, true, string.Empty, false);
+        private TagBuilder CreateDropdownItem(string menuText)
+            => CreateDropdownItem(menuText, true, string.Empty, null, false);
 
         /// <summary>
         /// Creates a dropdown item.
@@ -473,42 +488,51 @@ namespace Smartstore.Web.Rendering
         /// <param name="menuText">The text for the menu item.</param>
         /// <param name="enabled">Defines whether the menu item is enabled.</param>
         /// <param name="command">The command of the menu item (needed for optimize commands for simple text creation)</param>
+        /// <param name="iconName">The optional name of a Bootstrap SVG icon. Can be null.</param>
         /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
         /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
-        /// <returns>A LI tag representing the menu item.</returns>
-        private static TagBuilder CreateDropdownItem(
+        /// <returns>An LI tag representing the menu item.</returns>
+        private TagBuilder CreateDropdownItem(
             string menuText,
             bool enabled,
             string command,
+            string iconName,
             bool isProviderTool,
             params string[] additionalClasses)
         {
-            var listItem = new TagBuilder("li");
+            var li = new TagBuilder("li");
             if (isProviderTool)
             {
-                listItem.Attributes["class"] = "ai-provider-tool";
+                li.Attributes["class"] = "ai-provider-tool";
             }
 
-            var dropdownItem = new TagBuilder("a");
-            dropdownItem.Attributes["href"] = "#";
-            dropdownItem.Attributes["class"] = "dropdown-item";
+            var a = new TagBuilder("a");
+            a.Attributes["href"] = "#";
+            a.Attributes["class"] = "dropdown-item";
 
             if (!enabled)
             {
-                dropdownItem.AppendCssClass("disabled");
+                a.AppendCssClass("disabled");
             }
 
-            additionalClasses.Each(dropdownItem.AppendCssClass);
+            additionalClasses.Each(x => a.AppendCssClass(x));
 
             if (command.HasValue())
             {
-                dropdownItem.Attributes["data-command"] = command;
+                a.Attributes["data-command"] = command;
             }
 
-            dropdownItem.InnerHtml.AppendHtml(menuText);
-            listItem.InnerHtml.AppendHtml(dropdownItem);
+            if (iconName.HasValue())
+            {
+                var svg = HtmlHelper.BootstrapIcon(iconName, htmlAttributes: new { @class = "bi-fw" });
+                a.InnerHtml.AppendHtml(svg);
+            }
 
-            return listItem;
+            a.InnerHtml.AppendHtml(menuText);
+
+            li.InnerHtml.AppendHtml(a);
+
+            return li;
         }
 
         private void CheckContextualized()

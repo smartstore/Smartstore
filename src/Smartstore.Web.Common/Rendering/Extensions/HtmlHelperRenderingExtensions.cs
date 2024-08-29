@@ -707,7 +707,7 @@ namespace Smartstore.Web.Rendering
             string transforms = null,
             object htmlAttributes = null)
         {
-            return helper.BootstrapIcon(
+            return helper.BootstrapIconInternal(
                 name,
                 false,
                 fill,
@@ -717,7 +717,7 @@ namespace Smartstore.Web.Rendering
                 htmlAttributes);
         }
 
-        internal static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
+        internal static IHtmlContent BootstrapIconInternal(this IHtmlHelper helper,
             string name,
             bool isStackItem = false,
             string fill = null,

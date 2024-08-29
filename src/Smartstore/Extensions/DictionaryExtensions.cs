@@ -285,11 +285,11 @@ namespace Smartstore
                 {
                     var currentValues = manyCurrentValues
                         ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        : new[] { currentValue };
+                        : [currentValue];
 
                     var attemptedValues = manyValues
                         ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        : new[] { value };
+                        : [value];
 
                     var isDirty = false;
 

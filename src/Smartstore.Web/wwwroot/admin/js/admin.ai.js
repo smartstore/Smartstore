@@ -30,11 +30,16 @@
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
+
             let isRichText = tool.data('is-rich-text');
 
             if (!isRichText) {
                 // Get chosen provider tool.
                 tool = el.closest(".ai-dialog-opener-root").find("button.active");
+            }
+
+            if (tool.length === 0) {
+                return;
             }
 
             let params = {
@@ -66,6 +71,7 @@
                 });
             }
 
+            console.log(tool, params, isRichText);
             openDialog(tool, params, isRichText);
         });
 
