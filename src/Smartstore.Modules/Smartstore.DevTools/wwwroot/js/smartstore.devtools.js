@@ -23,14 +23,20 @@ export class DevTools {
 
         // Make sure tooltips are displayed on offcanvas.
         $('#wz-toolbar [data-toggle="tooltip"]').tooltip({
+            trigger: 'hover',
             placement: 'top',
             container: '#wz-toolbar'
+        });
+
+        // Hide menu toggle button to show the menu.
+        wzMenuToggle.on('click', (e) => {
+            wzMenuToggle.addClass('hide');
         });
 
         // Add widget zone menu close button.
         wzMenu.on('click', '.wz-sidebar-close', (e) => {
             e.preventDefault();
-            wzMenuToggle.click();
+            wzMenuToggle.click().removeClass('hide');
             wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
             return false;
         });

@@ -24,10 +24,17 @@
     }
 
     &.wz-highlight {
+        /* Info: Animation length: 6 * 0.4s = 2400ms */
         animation: pulse-highlight 0.4s ease-in-out 6;
         // Overwrite .d-none
         display: flex !important;
         z-index: 999;
+    }
+
+    @media (prefers-reduced-motion) {
+        &.wz-highlight {
+            animation: pulse-highlight 1.2s ease-in-out 2;
+        }
     }
 }
 
@@ -36,6 +43,11 @@
     top: 35%;
     inset-inline-end: 0;
     margin: 0.5rem;
+    transition: 0.5s inset-inline-end;
+
+    &.hide {
+        inset-inline-end: -20%;
+    }
 }
 
 #wz-menu {
@@ -101,6 +113,10 @@
         font-size: 1.375rem;
         text-decoration: none;
 
+        > svg {
+            width: 1em;
+            height: 1em;
+        }
 
         &:not(.disabled):hover {
             text-decoration: none;
@@ -135,5 +151,12 @@
                 opacity: 0.3;
             }
         }
+    }
+}
+
+/* Keep the widget zone menu from showing up in dialogs */
+body.popup {
+    #wz-menu, #wz-menu-toggle {
+        display: none !important;
     }
 }
