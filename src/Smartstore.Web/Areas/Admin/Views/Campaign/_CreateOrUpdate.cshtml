@@ -26,7 +26,7 @@
                     <smart-label asp-for="Subject"/>
                 </div>
                 <div class="adminData">
-                    @if (!Model.Subject.HasValue())
+                    @if (Model.Subject.IsEmpty())
                     {
                         <ai-suggestion asp-for="Subject" entity-type="Campaign" mandatory-entity-fields="Body,Name">
                             <input asp-for="Subject" />

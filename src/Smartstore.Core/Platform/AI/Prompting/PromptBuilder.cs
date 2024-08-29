@@ -346,6 +346,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
             promptParts.Add(Resources.DontNumberSuggestions());
         }
 
+        /// <summary>
+        /// Gets a resource string value for the given <paramref name="key"/>.
+        /// </summary>
+        public virtual string GetResource(string key, params object[] args)
+        {
+            var localizedValue = Localization.GetResource(key, returnEmptyIfNotFound: true);
+
+            if (!args.IsNullOrEmpty())
+            {
+                localizedValue = localizedValue.FormatInvariant(args);
+            }
+
+            return localizedValue.EmptyNull().Trim();
+        }
+
         #endregion
     }
 }
