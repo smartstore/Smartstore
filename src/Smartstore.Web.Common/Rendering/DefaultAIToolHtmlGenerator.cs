@@ -17,6 +17,7 @@ namespace Smartstore.Web.Rendering
         private readonly IAIProviderFactory _aiProviderFactory;
         private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
+        private readonly IWorkContext _workContext;
         private IHtmlHelper _htmlHelper;
         private ViewContext _viewContext;
 
@@ -24,12 +25,14 @@ namespace Smartstore.Web.Rendering
             SmartDbContext db,
             IAIProviderFactory aiProviderFactory,
             ModuleManager moduleManager, 
-            IUrlHelper urlHelper)
+            IUrlHelper urlHelper,
+            IWorkContext workContext)
         {
             _db = db;
             _aiProviderFactory = aiProviderFactory;
             _moduleManager = moduleManager;
             _urlHelper = urlHelper;
+            _workContext = workContext;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -247,39 +250,60 @@ namespace Smartstore.Web.Rendering
             root.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, hasContent));
 
             // Add "Change style" & "Change tone" options from module settings.
-            AddMenuItemsFromSetting(root, hasContent, "change-style");
-            AddMenuItemsFromSetting(root, hasContent, "change-tone");
+            var styleDropdown = AddMenuItemsFromSetting(hasContent, "change-style");
+            var toneDropdown = AddMenuItemsFromSetting(hasContent, "change-tone");
+
+            if (styleDropdown != null || toneDropdown != null)
+            {
+                root.InnerHtml.AppendHtml("<div class=\"dropdown-divider\"></div>");
+                root.InnerHtml.AppendHtml(styleDropdown);
+                root.InnerHtml.AppendHtml(toneDropdown);
+            }
         }
 
         /// <summary>
-        /// Adds menu items from module settings to the dropdown.
+        /// Creates a sub-dropdown for text creation styles an tones.
         /// </summary>
-        /// <param name="root">The root dropdown (.dropdown-menu) to append items to.</param>
-        /// <param name="hasContent">Defines whether the target field has a value. If there is no value to manipulate the items will be displayed disabled.</param>
+        /// <param name="hasContent">
+        /// Specifies whether the target field has a value.
+        /// If there is no value to manipulate the items will be displayed disabled.
+        /// </param>
         /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
-        private void AddMenuItemsFromSetting(TagBuilder root, bool hasContent, string command)
+        private TagBuilder AddMenuItemsFromSetting(bool hasContent, string command, string iconName = null)
         {
-            var settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
-            var setting = _db.Settings.FirstOrDefault(x => x.Name == settingName);
-            if (setting != null && setting.Value.HasValue())
+            const string keyGroup = "AISettings";
+            var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
+
+            // INFO: these settings are not store-dependent (storeId is always 0).
+            var settingValue = _db.LocalizedProperties
+                .Where(x => x.LanguageId == _workContext.WorkingLanguage.Id && x.LocaleKeyGroup == keyGroup && x.LocaleKey == settingName)
+                .Select(x => x.LocaleValue)
+                .FirstOrDefault();
+
+            settingValue ??= _db.Settings
+                .Where(x => x.Name == keyGroup + '.' + settingName)
+                .Select(x => x.Value)
+                .FirstOrDefault();
+
+            var options = settingValue.SplitSafe(',').ToArray();
+            if (options.IsNullOrEmpty())
             {
-                var title = T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone");
-                var providerDropdownItemLi = CreateDropdownItem(title);
-                providerDropdownItemLi.Attributes["class"] = "dropdown-group";
-
-                var settingsUl = new TagBuilder("ul");
-                settingsUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
-                
-                var options = setting?.Value?.Split([','], StringSplitOptions.RemoveEmptyEntries) ?? [];
-
-                foreach (var option in options)
-                {
-                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, null, false, "ai-text-composer"));
-                }
-
-                providerDropdownItemLi.InnerHtml.AppendHtml(settingsUl);
-                root.InnerHtml.AppendHtml(providerDropdownItemLi);
+                return null;
             }
+
+            var optionsList = new TagBuilder("ul");
+            optionsList.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+
+            foreach (var option in options)
+            {
+                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, iconName, false, "ai-text-composer"));
+            }
+
+            var subDropdown = CreateDropdownItem(T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"));
+            subDropdown.Attributes["class"] = "dropdown-group";
+            subDropdown.InnerHtml.AppendHtml(optionsList);
+
+            return subDropdown;
         }
 
         public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
