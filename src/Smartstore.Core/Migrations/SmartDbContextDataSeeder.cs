@@ -491,9 +491,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
                 "Do not use the name of the website as this will be added later. Reserve 5 words for this.",
                 "Verwende dabei nicht den Namen der Website, da dieser später hinzugefügt wird. Reserviere dafür 5 Wörter.");
-            builder.AddOrUpdate("Smartstore.AI.Prompts.CreatePicture",
-                "Generate an image for the topic '{0}'.",
-                "Generiere ein Bild zum Thema '{0}'.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.AddCallToAction",
                 "Finally, insert a link with the text '{0}' that refers to '{1}'. The link is given the CSS classes 'btn btn-primary'",
                 "Füge abschließend einen Link mit dem Text '{0}' ein, der auf '{1}' verweist. Der Link erhält die CSS-Klassen 'btn btn-primary'");

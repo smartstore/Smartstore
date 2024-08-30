@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Platform.AI.Prompting
 {
@@ -12,43 +11,39 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public PromptBuilder(
             SmartDbContext db,
             ILinkResolver linkResolver,
-            ILocalizationService localizationService,
             PromptResources promptResources)
         {
             _db = db;
             _linkResolver = linkResolver;
-            Localization = localizationService;
             Resources = promptResources;
         }
 
         public PromptResources Resources { get; }
-        public ILocalizationService Localization { get; }
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         /// <summary>
         /// Adds prompt parts with general instructions for simple text creation. 
         /// Wordlimit, Tone and Style are the only properties that are considered.
         /// </summary>
         /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildSimpleTextPrompt(ITextGenerationPrompt model, List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual void BuildSimpleTextPrompt(ITextGenerationPrompt model, List<string> parts)
         {
             // Append phrase for wordcount from model.
             if (model.WordLimit > 0)
             {
-                promptParts.Add(Resources.WordLimit(model.WordLimit));
+                parts.Add(Resources.WordLimit(model.WordLimit));
             }
 
             // Append phrase for tone from model.
             if (model.Tone.HasValue())
             {
-                promptParts.Add(Resources.LanguageTone(model.Tone));
+                parts.Add(Resources.LanguageTone(model.Tone));
             }
 
             // Append phrase for style from model.
             if (model.Style.HasValue())
             {
-                promptParts.Add(Resources.LanguageStyle(model.Style));
+                parts.Add(Resources.LanguageStyle(model.Style));
             }
         }
 
@@ -56,14 +51,14 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds prompt parts with general instructions for rich text creation. 
         /// </summary>
         /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual async Task BuildRichTextPromptAsync(ITextGenerationPrompt model, List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual async Task BuildRichTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
         {
             // TODO: (mh) (ai) Does it make sense to have own methods for every single part?
             // So it can be overwritten granularly.
 
             // General instructions
-            promptParts.AddRange(
+            parts.AddRange(
             [
                 Resources.CreateHtml(),
                 Resources.JustHtml(),
@@ -74,70 +69,70 @@ namespace Smartstore.Core.Platform.AI.Prompting
             if (model.LanguageId > 0)
             {
                 var language = await _db.Languages.FindByIdAsync(model.LanguageId);
-                promptParts.Add(Resources.Language(language.Name.ToLower()));
+                parts.Add(Resources.Language(language.Name.ToLower()));
             }
 
             // Append phrase for tone from model
             if (model.Tone.HasValue())
             {
-                promptParts.Add(Resources.LanguageTone(model.Tone));
+                parts.Add(Resources.LanguageTone(model.Tone));
             }
 
             // Append phrase for style from model
             if (model.Style.HasValue())
             {
-                promptParts.Add(Resources.LanguageStyle(model.Style));
+                parts.Add(Resources.LanguageStyle(model.Style));
             }
 
-            BuildStructurePrompt(model, promptParts);
-            BuildKeywordsPrompt(model, promptParts);
-            BuildIncludeImagesPrompt(model, promptParts, model.IncludeIntro, model.IncludeConclusion);
+            BuildStructurePrompt(model, parts);
+            BuildKeywordsPrompt(model, parts);
+            BuildIncludeImagesPrompt(model, parts, model.IncludeIntro, model.IncludeConclusion);
             
             if (model.AddToc)
             {
-                promptParts.Add(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag));
+                parts.Add(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag));
             }
 
-            await BuildLinkPromptAsync(model, promptParts);
+            await BuildLinkPromptAsync(model, parts);
         }
 
         /// <summary>
         /// Adds prompt parts for creating HTML structure instructions for rich text creation. 
         /// </summary>
         /// <param name="model">The <see cref="IStructureGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildStructurePrompt(IStructureGenerationPrompt model, List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual void BuildStructurePrompt(IStructureGenerationPrompt model, List<string> parts)
         {
             if (model.IncludeIntro)
             {
-                promptParts.Add(Resources.IncludeIntro());
+                parts.Add(Resources.IncludeIntro());
             }
 
             if (model.MainHeadingTag.HasValue())
             {
-                promptParts.Add(Resources.MainHeadingTag(model.MainHeadingTag));
+                parts.Add(Resources.MainHeadingTag(model.MainHeadingTag));
             }
 
             if (model.ParagraphCount > 0)
             {
-                promptParts.Add(Resources.ParagraphCount(model.ParagraphCount));
+                parts.Add(Resources.ParagraphCount(model.ParagraphCount));
 
                 if (model.ParagraphWordCount > 0)
                 {
-                    promptParts.Add(Resources.ParagraphWordCount(model.ParagraphWordCount));
+                    parts.Add(Resources.ParagraphWordCount(model.ParagraphWordCount));
                 }
 
-                promptParts.Add(Resources.WriteCompleteParagraphs());
+                parts.Add(Resources.WriteCompleteParagraphs());
             }
 
             if (model.ParagraphHeadingTag.HasValue())
             {
-                promptParts.Add(Resources.ParagraphHeadingTag(model.ParagraphHeadingTag));
+                parts.Add(Resources.ParagraphHeadingTag(model.ParagraphHeadingTag));
             }
 
             if (model.IncludeConclusion)
             {
-                promptParts.Add(Resources.IncludeConclusion());
+                parts.Add(Resources.IncludeConclusion());
             }
         }
 
@@ -145,21 +140,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds prompt parts for keyword generation instructions for rich text creation. 
         /// </summary>
         /// <param name="model">The <see cref="IKeywordGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildKeywordsPrompt(IKeywordGenerationPrompt model, List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual void BuildKeywordsPrompt(IKeywordGenerationPrompt model, List<string> parts)
         {
             if (model.Keywords.HasValue())
             {
-                promptParts.Add(Resources.UseKeywords(model.Keywords));
+                parts.Add(Resources.UseKeywords(model.Keywords));
                 if (model.MakeKeywordsBold)
                 {
-                    promptParts.Add(Resources.MakeKeywordsBold());
+                    parts.Add(Resources.MakeKeywordsBold());
                 }
             }
 
             if (model.KeywordsToAvoid.HasValue())
             {
-                promptParts.Add(Resources.KeywordsToAvoid(model.KeywordsToAvoid));
+                parts.Add(Resources.KeywordsToAvoid(model.KeywordsToAvoid));
             }
         }
 
@@ -167,22 +162,25 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds prompt parts for image creation instructions for rich text creation. 
         /// </summary>
         /// <param name="model">The <see cref="IIncludeImagesGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildIncludeImagesPrompt(IIncludeImagesGenerationPrompt model, List<string> promptParts, 
-            bool includeIntro, bool includeConclusion)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual void BuildIncludeImagesPrompt(
+            IIncludeImagesGenerationPrompt model, 
+            List<string> parts, 
+            bool includeIntro, 
+            bool includeConclusion)
         {
             if (model.IncludeImages)
             {
-                promptParts.Add(Resources.IncludeImages());
+                parts.Add(Resources.IncludeImages());
 
                 if (includeIntro)
                 {
-                    promptParts.Add(Resources.NoIntroImage());
+                    parts.Add(Resources.NoIntroImage());
                 }
 
                 if (includeConclusion)
                 {
-                    promptParts.Add(Resources.NoConclusionImage());
+                    parts.Add(Resources.NoConclusionImage());
                 }
             }
         }
@@ -191,8 +189,8 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds prompt parts for link generation instructions for rich text creation. 
         /// </summary>
         /// <param name="model">The <see cref="ILinkGenerationPrompt"/> model</param>
-        /// <param name="promptParts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual async Task BuildLinkPromptAsync(ILinkGenerationPrompt model, List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        public virtual async Task BuildLinkPromptAsync(ILinkGenerationPrompt model, List<string> parts)
         {
             if (model.AnchorLink.HasValue())
             {
@@ -204,36 +202,26 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 {
                     if (model.AnchorText.HasValue())
                     {
-                        promptParts.Add(Resources.AddNamedLink(model.AnchorText, link));
+                        parts.Add(Resources.AddNamedLink(model.AnchorText, link));
                     }
                     else
                     {
-                        promptParts.Add(Resources.AddLink(link));
+                        parts.Add(Resources.AddLink(link));
                     }
 
                     if (model.AddCallToAction && model.CallToActionText.HasValue())
                     {
-                        promptParts.Add(Resources.AddCallToAction(model.CallToActionText, link));
+                        parts.Add(Resources.AddCallToAction(model.CallToActionText, link));
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Creates a prompt to generate pictures based on the given topic.
-        /// </summary>
-        /// <param name="topic">The topic for which to create the picture.</param>
-        /// <returns>The generated prompt part.</returns>
-        public virtual void BuildImageBasePrompt(string topic, List<string> promptParts)
-        {
-            promptParts.Add(Resources.CreatePicture(topic));
-        }
-
-        /// <summary>
         /// Adds prompt part with specific parameters for image creation.
         /// </summary>
         /// <param name="model">The <see cref="IImageGenerationPrompt"/> model</param>
-        public virtual void BuildImagePrompt(IImageGenerationPrompt model, List<string> promptParts)
+        public virtual void BuildImagePrompt(IImageGenerationPrompt model, List<string> parts)
         {
             var prompt = string.Empty;
 
@@ -267,58 +255,58 @@ namespace Smartstore.Core.Platform.AI.Prompting
                 prompt += model.Composition;
             }
 
-            promptParts.Add(prompt);
+            parts.Add(prompt);
         }
 
         /// <summary>
         /// Creates a prompt for the meta title.
         /// </summary>
         /// <param name="forPromptPart">The part where we tell the AI what to generate.</param>
-        public virtual void BuildMetaTitlePrompt(string forPromptPart, List<string> promptParts)
+        public virtual void BuildMetaTitlePrompt(string forPromptPart, List<string> parts)
         {
             // INFO: No need for word limit in SEO properties. Because we advised the KI to be a SEO expert, it already knows the correct limits.
-            BuildRolePromptPart(AIRole.SEOExpert, promptParts);
+            BuildRolePromptPart(AIRole.SEOExpert, parts);
 
-            promptParts.Add(forPromptPart);
+            parts.Add(forPromptPart);
 
             // TODO: (mh) (ai) Längsten Shopnamen ermitteln und Zeichenlänge in die Anweisung einfügen.
             // INFO: Der Name des Shops wird von Smartstore automatisch dem Title zugefügt. 
             // TODO: (mh) (ai) Ausfürlich mit allen Entitäten testen.
             // Das Original mit dem auf der Produktdetailseite getestet wurde war:
             //forPromptPart += " Verwende dabei nicht den Namen des Shops. Der wird von der Webseite automatisch zugefügt. Reserviere dafür 5 Worte.";
-            promptParts.Add(Resources.ReserveSpaceForShopName());
+            parts.Add(Resources.ReserveSpaceForShopName());
 
             // INFO: Smartstore automatically adds inverted commas to the title.
-            promptParts.Add(Resources.DontUseQuotes());
+            parts.Add(Resources.DontUseQuotes());
         }
 
         /// <summary>
         /// Creates a prompt for the meta description..
         /// </summary>
         /// <param name="forPromptPart">The part where we tell the AI what to generate.</param>
-        public virtual void BuildMetaDescriptionPrompt(string forPromptPart, List<string> promptParts)
+        public virtual void BuildMetaDescriptionPrompt(string forPromptPart, List<string> parts)
         {
             // INFO: No need for word limit in SEO properties. Because we advised the AI to be a SEO expert, it already knows the correct limits.
-            BuildRolePromptPart(AIRole.SEOExpert, promptParts);
+            BuildRolePromptPart(AIRole.SEOExpert, parts);
 
-            promptParts.Add(forPromptPart);
-            promptParts.Add(Resources.DontUseQuotes());
+            parts.Add(forPromptPart);
+            parts.Add(Resources.DontUseQuotes());
         }
 
         /// <summary>
         /// Creates a prompt for the meta description..
         /// </summary>
         /// <param name="forPromptPart">The part where we tell the AI what to generate.</param>
-        public virtual void BuildMetaKeywordsPrompt(string forPromptPart, List<string> promptParts)
+        public virtual void BuildMetaKeywordsPrompt(string forPromptPart, List<string> parts)
         {
             // INFO: No need for word limit in SEO properties. Because we advised the KI to be a SEO expert, it already knows the correct limits.
-            BuildRolePromptPart(AIRole.SEOExpert, promptParts);
+            BuildRolePromptPart(AIRole.SEOExpert, parts);
 
-            promptParts.Add(forPromptPart);
-            promptParts.Add(Resources.SeparateListWithComma());
+            parts.Add(forPromptPart);
+            parts.Add(Resources.SeparateListWithComma());
 
             // Respect Smartstore database scheme limitation. Limit is 400.
-            promptParts.Add(Resources.CharLimit(400));
+            parts.Add(Resources.CharLimit(400));
         }
 
         #region Helper methods
@@ -327,38 +315,23 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds a instruction for the AI to act in a specific role.
         /// </summary>
         /// <param name="role">The <see cref="AIRole"/></param>
-        /// <param name="promptParts">The list of prompt parts to add AI instruction to.</param>
+        /// <param name="parts">The list of prompt parts to add AI instruction to.</param>
         /// <param name="entityName">The name of the entity. Currently only used to fill a placeholder for the productname when the role is <see cref="AIRole.ProductExpert"/></param>
         /// <returns>AI Instruction: e.g.: Be a SEO expert.</returns>
-        public virtual void BuildRolePromptPart(AIRole role, List<string> promptParts, string entityName = "")
+        public virtual void BuildRolePromptPart(AIRole role, List<string> parts, string entityName = "")
         {
-            promptParts.Add(Resources.Role(role, entityName));
+            parts.Add(Resources.Role(role, entityName));
         }
 
         /// <summary>
         /// Adds general instructions for AI suggestions.
         /// </summary>
-        /// <param name="promptParts">The list of prompt parts to add AI instruction to.</param>
-        public virtual void BuildInternalSuggestionPromptPart(List<string> promptParts)
+        /// <param name="parts">The list of prompt parts to add AI instruction to.</param>
+        public virtual void BuildInternalSuggestionPromptPart(List<string> parts)
         {
-            promptParts.Add(Resources.DontUseQuotes());
-            promptParts.Add(Resources.SeparateWithNumberSign());
-            promptParts.Add(Resources.DontNumberSuggestions());
-        }
-
-        /// <summary>
-        /// Gets a resource string value for the given <paramref name="key"/>.
-        /// </summary>
-        public virtual string GetResource(string key, params object[] args)
-        {
-            var localizedValue = Localization.GetResource(key, returnEmptyIfNotFound: true);
-
-            if (!args.IsNullOrEmpty())
-            {
-                localizedValue = localizedValue.FormatInvariant(args);
-            }
-
-            return localizedValue.EmptyNull().Trim();
+            parts.Add(Resources.DontUseQuotes());
+            parts.Add(Resources.SeparateWithNumberSign());
+            parts.Add(Resources.DontNumberSuggestions());
         }
 
         #endregion
