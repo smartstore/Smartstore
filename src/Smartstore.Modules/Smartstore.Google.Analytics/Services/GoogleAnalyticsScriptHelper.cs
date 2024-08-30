@@ -78,6 +78,7 @@ namespace Smartstore.Google.Analytics.Services
                 ["GOOGLEID"] = () => _settings.GoogleId,
                 ["OPTOUTCOOKIE"] = GetOptOutCookieScript,
 
+                // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove this in the future.
                 // If no consent to third party cookies was given, set storage type to denied.
                 ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
                 ["USERID"] = _workContext.CurrentCustomer.CustomerGuid.ToString,

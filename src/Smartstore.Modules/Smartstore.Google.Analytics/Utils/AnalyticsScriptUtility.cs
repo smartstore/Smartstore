@@ -22,10 +22,10 @@
     function gtag(){window.dataLayer.push(arguments);}
 
     gtag('consent', 'default', {
-      'ad_storage': '{STORAGETYPE}',
-      'analytics_storage': '{STORAGETYPE}',
-      'ad_user_data': '{ADUSERDATA}',
-      'ad_personalization': '{ADPERSONALIZATION}',
+      'ad_storage': 'denied',
+      'analytics_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
     });
 
     gtag('js', new Date());

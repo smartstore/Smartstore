@@ -144,6 +144,7 @@ namespace Smartstore.Google.Analytics.Components
                     }
                 }
 
+                // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove these parameters in the future.
                 var cookiesAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
                 var adUserDataAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdUserData);
                 var adPersonalizationAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdPersonalization);

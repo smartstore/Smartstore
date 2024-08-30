@@ -76,6 +76,12 @@ function ConsentManagementPlatform() {
         if (this.ConsentCookie) {
             try {
                 this.ConsentData = JSON.parse(decodeURIComponent(this.ConsentCookie));
+
+                // Fire initialized event after document ready.
+                $(function () {
+                    // INFO: Object is referenced by full name because 'this.' points to the document ready event.
+                    $(document).trigger("cmpOnInitialized", [Smartstore.Cmp.ConsentData]);
+                });
             } catch (error) {
                 console.error("Error parsing the consent cookie:", error);
 
