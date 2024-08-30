@@ -24,8 +24,9 @@
         </a>
         <aside id="wz-menu" class="d-none d-lg-block bg-dark offcanvas offcanvas-end offcanvas-shadow dispensable">
             <div class="offcanvas-content d-flex flex-column">
-                <div class="wz-zone-list custom-scrollbar custom-scrollbar-invert">
-                    <div sm-if="!isVisible" class=" instruction text-light p-3">@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.ActivateZones"))</div>
+                <div class="wz-zone-list custom-scrollbar custom-scrollbar-invert" attr-class='(!isVisible, "d-flex")'>
+                    @* INFO: (mw) Please STOP using unprefixed, generic CSS class names for specific modules. Pay more attention to the review commits! *@
+                    <div sm-if="!isVisible" class="text-white-50 text-center align-self-center p-3">@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.ActivateZones"))</div>
                 </div>
 
                 <div id="wz-toolbar">
