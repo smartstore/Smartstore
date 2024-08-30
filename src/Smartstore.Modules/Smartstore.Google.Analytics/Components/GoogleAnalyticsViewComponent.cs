@@ -170,7 +170,14 @@ namespace Smartstore.Google.Analytics.Components
             }
 
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-            rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
+            //rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
+            var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Analytics, path);
+
+            using (var writer = new StringWriter())
+            {
+                scriptIncludeTag.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+                rootScript = $"{writer}\n{rootScript}";
+            }
 
             return HtmlContent(rootScript);
         }

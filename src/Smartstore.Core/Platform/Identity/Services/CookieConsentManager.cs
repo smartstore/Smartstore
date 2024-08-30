@@ -157,7 +157,6 @@ namespace Smartstore.Core.Identity
                         // We must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
                         if (consentCookie.ConsentedOn == null)
                         {
-                            // TODO: (mh) Check whether it is ok to return the consent date. It was null before and felt wrong?!
                             consentCookie.ConsentedOn = DateTime.UtcNow;
                             SetConsentCookieCore(consentCookie);
                         }
@@ -166,7 +165,6 @@ namespace Smartstore.Core.Identity
                     }
                     catch
                     {
-                        // TODO: (mh) No date. Is that ok?
                         // Let's be tolerant in case of error.
                         return new ConsentCookie 
                         {
@@ -179,7 +177,6 @@ namespace Smartstore.Core.Identity
                     }
                 }
 
-                // TODO: (mh) No date. Is that ok?
                 // There is no cookie consent cookie.
                 return new ConsentCookie
                 {
@@ -233,10 +230,8 @@ namespace Smartstore.Core.Identity
             return null;
         }
 
-
         public virtual TagBuilder GenerateScript(bool consented, CookieType consentType, string src)
         {
-            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
             Guard.NotEmpty(src);
 
             var script = new TagBuilder("script");
@@ -247,7 +242,6 @@ namespace Smartstore.Core.Identity
             else
             {
                 script.Attributes["data-src"] = src;
-                // TODO: (mh) Check casing/dasherization
                 script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
             }
 
@@ -256,7 +250,6 @@ namespace Smartstore.Core.Identity
 
         public virtual TagBuilder GenerateInlineScript(bool consented, CookieType consentType, string code)
         {
-            // TODO: (mh) Call this method where applicable (instead of the ugly string concat mess)
             Guard.NotEmpty(code);
 
             var script = new TagBuilder("script");
@@ -265,7 +258,6 @@ namespace Smartstore.Core.Identity
             if (!consented)
             {
                 script.Attributes["type"] = "text/plain";
-                // TODO: (mh) Check casing/dasherization
                 script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
             }
 

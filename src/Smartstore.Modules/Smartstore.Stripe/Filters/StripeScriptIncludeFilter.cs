@@ -44,7 +44,6 @@ namespace Smartstore.StripeElements.Filters
                 return;
             }
 
-            // TODO: (mh) Continue refactoring in other places.
             //var scriptIncludeTag = new HtmlString($"<script id=\"stripe-js\" {(consented ? string.Empty : "data-consent=\"required\" data-")}src=\""https://js.stripe.com/v3/\"" async></script>");
             var scriptIncludeTag = await _cookieConsentManager.GenerateScriptAsync(CookieType.Required, "https://js.stripe.com/v3/");
             scriptIncludeTag.Attributes["id"] = "stripe-js";

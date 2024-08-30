@@ -74,42 +74,45 @@ function ConsentManagementPlatform() {
         this.ConsentCookie = getCookie('.Smart.CookieConsent');
 
         if (this.ConsentCookie) {
-            // TODO: (mh) Error handling is missing.
-            this.ConsentData = JSON.parse(decodeURIComponent(this.ConsentCookie));
-        }
-    }
+            try {
+                this.ConsentData = JSON.parse(decodeURIComponent(this.ConsentCookie));
+            } catch (error) {
+                console.error("Error parsing the consent cookie:", error);
 
-    this.loadScripts = function () {
-        for (let prop in this.ConsentType) {
-            // Check to make sure the property is not from the prototype chain
-            if (this.ConsentType.hasOwnProperty(prop)) {
-
-                //console.log("Check for prop " + prop + ". Type:" + this.ConsentType[prop] + ". Result:" + this.checkConsent(this.ConsentType[prop]));
-
-                // TODO: (mh) (perf) Instead of querying all scripts repetitively, we should query all scripts with data-consent attribute once and then filter them by data-consent attribute value.
-
-                if (this.checkConsent(this.ConsentType[prop])) {
-                    // Load scripts included via URL.
-                    var scripts = document.querySelectorAll('script[data-consent="' + this.ConsentType[prop] + '"][data-src]');
-                    scripts.forEach((script) => {
-                        loadScriptFromUrl(script);
-                    });
-
-                    // Load scripts included via inline code.
-                    var inlineScripts = document.querySelectorAll('script[data-consent="' + this.ConsentType[prop] + '"][type="text/plain"]');
-                    inlineScripts.forEach((script) => {
-                        loadInlineScript(script);
-                    });
-
-                    // Inject HTML from template tags into DOM.
-                    var templates = document.querySelectorAll('template[data-consent="' + this.ConsentType[prop] + '"]');
-                    templates.forEach((template) => {
-                        loadTemplateContent(template);
-                    });
+                this.ConsentData = { 
+                    "AllowRequired": true,
+                    "AllowAnalytics": false,
+                    "AllowThirdParty": false,
+                    "AdUserDataConsent": false,
+                    "AdPersonalizationConsent": false
                 }
             }
         }
     }
+    this.loadScripts = function () {
+        const allElements = document.querySelectorAll('[data-consent]');
+
+        for (let prop in this.ConsentType) {
+            if (this.ConsentType.hasOwnProperty(prop) && this.checkConsent(this.ConsentType[prop])) {
+                const consentType = this.ConsentType[prop];
+
+                allElements.forEach((element) => {
+                    if (element.getAttribute('data-consent') === consentType) {
+                        if (element.tagName.toLowerCase() === 'script' && element.hasAttribute('data-src')) {
+                            // Load scripts included via URL.
+                            loadScriptFromUrl(element);
+                        } else if (element.tagName.toLowerCase() === 'script' && element.getAttribute('type') === 'text/plain') {
+                            // Load scripts included via inline code.
+                            loadInlineScript(element);
+                        } else if (element.tagName.toLowerCase() === 'template') {
+                            // Inject HTML from template tags into DOM.
+                            loadTemplateContent(element);
+                        }
+                    }
+                });
+            }
+        }
+    };
 
     this.checkConsent = function (consentType) {
         // If cookie is not set, user has not given his consent. So nothing is allowed.
@@ -151,6 +154,9 @@ function ConsentManagementPlatform() {
         cmp.loadScripts();
 
         cmp.hideConsentDialog();
+
+        // Fire event to inform 3rd party scripts that consent has been given.
+        $(document).trigger("cmpOnConsented", [cmp.ConsentData]);
     }
 
     // Is called when user clicks on a cookie manager link.
@@ -191,4 +197,7 @@ function ConsentManagementPlatform() {
 
 (function ($, window, document, undefined) {
     Smartstore.Cmp = new ConsentManagementPlatform();
+    $(document).ready(function () {
+        Smartstore.Cmp.loadScripts();
+    });
 } (jQuery, this, document));
