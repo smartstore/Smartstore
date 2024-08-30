@@ -219,18 +219,19 @@ namespace Smartstore.Web.Rendering
         public IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
         {
             var builder = new HtmlContentBuilder();
+            var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
             if (!forChatDialog)
             {
-                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, "ai-text-composer"));
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
                 builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
             }
 
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, "ai-text-composer"));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
             return builder;
         }

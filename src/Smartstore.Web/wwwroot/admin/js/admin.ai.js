@@ -71,7 +71,6 @@
                 });
             }
 
-            console.log(tool, params, isRichText);
             openDialog(tool, params, isRichText);
         });
 
