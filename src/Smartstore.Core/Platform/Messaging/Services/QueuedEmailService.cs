@@ -212,7 +212,7 @@ namespace Smartstore.Core.Messaging
         {
             var msg = new MailMessage(
                 qe.To,
-                qe.Subject.Replace(Environment.NewLine, string.Empty),
+                qe.Subject.StripLineBreaks(),
                 qe.Body,
                 qe.From);
 

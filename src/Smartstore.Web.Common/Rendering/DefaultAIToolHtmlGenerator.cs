@@ -274,9 +274,10 @@ namespace Smartstore.Web.Rendering
             const string keyGroup = "AISettings";
             var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
 
-            // INFO: these settings are not store-dependent (storeId is always 0).
+            // INFO: These settings are not store-dependent (storeId is always 0).
             var settingValue = _db.LocalizedProperties
-                .Where(x => x.LanguageId == _workContext.WorkingLanguage.Id && x.LocaleKeyGroup == keyGroup && x.LocaleKey == settingName)
+                // INFO: (mg) Always maintain index column order in predicates
+                .Where(x => x.LocaleKey == settingName && x.LocaleKeyGroup == keyGroup && x.LanguageId == _workContext.WorkingLanguage.Id)
                 .Select(x => x.LocaleValue)
                 .FirstOrDefault();
 
