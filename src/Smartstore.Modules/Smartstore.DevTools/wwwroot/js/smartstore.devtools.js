@@ -16,7 +16,6 @@ export class DevTools {
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
-        let toolDividers = wzMenu.find('.tool-divider');
         let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
         let temporaryToggleButton = wzMenu.find('.wz-toggle:not([data-persistent])').first();
         persistentToggleButton.data('persistent', canToggleVisibilityInitially);
@@ -67,6 +66,10 @@ export class DevTools {
                     widetzones.removeClass('d-none');
                 }
 
+                // Save scroll position.
+                // let scrollTop = $(window).scrollTop();
+                // let scrollLeft = $(window).scrollLeft();
+
                 // Scroll to widget zone and add highlight.
                 this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
                     widetzones.addClass('wz-highlight');
@@ -77,6 +80,9 @@ export class DevTools {
                         if (wzIsHidden) {
                             wzFirstPreview.addClass('d-none');
                         }
+
+                        // Restore scroll position.
+                        // window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "smooth" });
                     }, 2400);
                 });
             }
@@ -87,25 +93,13 @@ export class DevTools {
         wzMenu.on("click", ".wz-toggle[data-persistent]", (e) => {
             e.preventDefault();
 
-            let wzToggleButton = $(e.currentTarget);
-            let canToggleVisibility = persistentToggleButton.data('persistent');
-
-            canToggleVisibility = !canToggleVisibility;
-            wzToggleButton.data('persistent', canToggleVisibility);
+            let canToggleVisibility = !persistentToggleButton.data('persistent');
 
             // Save state in a cookie if requested.
             document.cookie = '.Smart.WZVisibility=' + canToggleVisibility + '; path=/; max-age=31536000; SameSite=Lax';
 
-            // Set both buttons to the same state.
-            if (canToggleVisibility) {
-                temporaryToggleButton.removeClass('disabled').addClass(showZoneClass);
-                persistentToggleButton.addClass(showZoneClass);
-            } else {
-                temporaryToggleButton.addClass('disabled').removeClass(showZoneClass);
-                persistentToggleButton.removeClass(showZoneClass);
-            }
-
-            this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
+            // Refresh page.
+            window.location.reload();
         });
 
         // Temporary toggle button.
@@ -117,22 +111,6 @@ export class DevTools {
             }
 
             this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
-        });
-
-        // Animate dividers.
-        wzMenu.on('mouseover', '.wz-tool:not(.disabled)', function (e) {
-            if (e.currentTarget == temporaryToggleButton[0]) {
-                toolDividers.eq(0).css('opacity', '0');
-            }
-            else if (e.currentTarget !== persistentToggleButton[0]) {
-                toolDividers.eq(1).css('opacity', '0');
-            }
-            else {
-                toolDividers.css('opacity', '0');
-            }
-        });
-        wzMenu.on('mouseout', '.wz-tool', function () {
-            toolDividers.css('opacity', '1');
         });
 
         // Add event listener to copy widget zone name to clipboard.

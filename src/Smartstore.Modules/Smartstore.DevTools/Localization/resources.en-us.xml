@@ -33,6 +33,14 @@
     <LocaleResource Name="WidgetZoneMenu">
         <Value>Show widget zone menu</Value>
         <Children>
+            <LocaleResource Name="ActivateZones">
+                <Value>
+                    <![CDATA[
+                        No widget zones are currently enabled.
+                        By clicking the <i class="fa fa-power-off px-1"></i> icon, you can activate the widget zones.
+                    ]]>
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="Toolbar">
                 <Value>Widget zone toolbar</Value>
             </LocaleResource>

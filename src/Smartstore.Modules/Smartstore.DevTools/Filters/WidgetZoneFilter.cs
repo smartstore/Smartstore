@@ -73,8 +73,18 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
-                // TODO: Add widget zone cookie detection. If the cookie is not set, only render the widget zone menu. This way the page layout stays intact.
+                // Display the widget zone menu.
+                _widgetProvider.RegisterWidget(
+                    new[] { "start", "end" },
+                    new ComponentWidget(typeof(WidgetZoneMenuViewComponent)));
 
+                // Check, whether the cookie '.Smart.WZVisibility' set and if it's value is 'false'. If so, don't render the widget zones.
+                if (filterContext.HttpContext.Request.Cookies.TryGetValue(".Smart.WZVisibility", out var wzVisibility) && wzVisibility == "false")
+                {
+                    return;
+                }
+
+                // Render the widget zones.
                 _widgetProvider.RegisterWidget(_ => true, new ZonePreviewWidget());
             }
         }

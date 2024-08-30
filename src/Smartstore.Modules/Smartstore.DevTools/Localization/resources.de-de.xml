@@ -33,6 +33,14 @@
     <LocaleResource Name="WidgetZoneMenu">
         <Value>Widget-Zonen-Menü anzeigen</Value>
         <Children>
+            <LocaleResource Name="ActivateZones">
+                <Value>
+                    <![CDATA[
+                        Momentan sind keine Widget-Zonen eingeschaltet.
+                        Mit Klick auf das <i class="fa fa-power-off px-1"></i> Symbol können Sie die Widget-Zonen aktivieren.
+                    ]]>
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="Toolbar">
                 <Value>Widget-Zonen Werkzeugleiste</Value>
             </LocaleResource>
