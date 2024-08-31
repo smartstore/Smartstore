@@ -102,17 +102,17 @@ function ConsentManagementPlatform() {
             if (this.ConsentType.hasOwnProperty(prop) && this.checkConsent(this.ConsentType[prop])) {
                 const consentType = this.ConsentType[prop];
 
-                allElements.forEach((element) => {
-                    if (element.getAttribute('data-consent') === consentType) {
-                        if (element.tagName.toLowerCase() === 'script' && element.hasAttribute('data-src')) {
+                allElements.forEach(el => {
+                    if (el.getAttribute('data-consent') === consentType) {
+                        if (el.tagName.toLowerCase() === 'script' && el.hasAttribute('data-src')) {
                             // Load scripts included via URL.
-                            loadScriptFromUrl(element);
-                        } else if (element.tagName.toLowerCase() === 'script' && element.getAttribute('type') === 'text/plain') {
+                            loadScriptFromUrl(el);
+                        } else if (el.tagName.toLowerCase() === 'script' && el.getAttribute('type') === 'text/plain') {
                             // Load scripts included via inline code.
-                            loadInlineScript(element);
-                        } else if (element.tagName.toLowerCase() === 'template') {
+                            loadInlineScript(el);
+                        } else if (el.tagName.toLowerCase() === 'template') {
                             // Inject HTML from template tags into DOM.
-                            loadTemplateContent(element);
+                            loadTemplateContent(el);
                         }
                     }
                 });

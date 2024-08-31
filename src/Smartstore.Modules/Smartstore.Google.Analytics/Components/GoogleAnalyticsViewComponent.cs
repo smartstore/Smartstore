@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Widgets;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Web.Components;
 using Smartstore.Web.Models.Search;
@@ -173,12 +174,7 @@ namespace Smartstore.Google.Analytics.Components
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
             //rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
             var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Analytics, path);
-
-            using (var writer = new StringWriter())
-            {
-                scriptIncludeTag.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
-                rootScript = $"{writer}\n{rootScript}";
-            }
+            rootScript = $"{scriptIncludeTag.ToHtmlString()}\n{rootScript}";
 
             return HtmlContent(rootScript);
         }

@@ -145,11 +145,7 @@ namespace Smartstore.PayPal.Filters
 
             //sb.Append($"<script type='text/javascript' {(consented ? string.Empty : "data-consent=\"required\" data-")}src='https://c.paypal.com/da/r/fb.js'></script>");
             var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, "https://c.paypal.com/da/r/fb.js");
-
-            using (var writer = new StringWriter(sb))
-            {
-                scriptIncludeTag.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
-            }
+            sb.Append(scriptIncludeTag.ToHtmlString());
 
             sb.Append($"<noscript><img src='https://c.paypal.com/v1/r/d/b/ns?f={clientMetaId}&s={sourceIdentifier}&js=0&r=1' /></noscript>");
 
