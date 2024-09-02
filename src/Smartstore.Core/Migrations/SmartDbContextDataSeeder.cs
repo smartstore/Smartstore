@@ -473,12 +473,15 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes",
                 "Do not enclose the text in quotation marks.",
                 "Schließe den Text nicht in Anführungszeichen ein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdown",
+                "Do not use markdown formatting.",
+                "Verwende keine Markdown-Formatierungen.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontNumberSuggestions",
                 "Do not number the suggestions.",
                 "Nummeriere die Vorschläge nicht.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign",
-                "Separate each suggestion with the # sign.",
-                "Trenne jeden Vorschlag mit dem #-Zeichen.");
+                "Always separate each suggestion with the # sign.",
+                "Trenne jeden Vorschlag zwingend mit dem #-Zeichen.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimit",
                 "Limit your answer to {0} characters!",
                 "Begrenze deine Antwort auf {0} Zeichen!");

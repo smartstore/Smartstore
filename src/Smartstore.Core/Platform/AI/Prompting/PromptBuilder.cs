@@ -21,13 +21,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public PromptResources Resources { get; }
 
         /// <summary>
-        /// Adds prompt parts with general instructions for simple text creation. 
-        /// Wordlimit, Tone and Style are the only properties that are considered.
+        /// Adds prompt parts with general instructions for simple text creation, e.g. not do use markdown. 
+        /// Wordlimit, Tone and Style are properties of <paramref name="model"/> that are also considered.
         /// </summary>
         /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
         public virtual void BuildSimpleTextPrompt(ITextGenerationPrompt model, List<string> parts)
         {
+            parts.Add(Resources.DontUseMarkdown());
+
             // Append phrase for wordcount from model.
             if (model.WordLimit > 0)
             {
@@ -327,11 +329,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds general instructions for AI suggestions.
         /// </summary>
         /// <param name="parts">The list of prompt parts to add AI instruction to.</param>
-        public virtual void BuildInternalSuggestionPromptPart(List<string> parts)
+        public virtual void BuildSuggestionPromptPart(List<string> parts)
         {
             parts.Add(Resources.DontUseQuotes());
-            parts.Add(Resources.SeparateWithNumberSign());
+
+            // We can assume that suggestions are only to be created for simple text.
+            parts.Add(Resources.DontUseMarkdown());
+
             parts.Add(Resources.DontNumberSuggestions());
+            parts.Add(Resources.SeparateWithNumberSign());
         }
 
         #endregion

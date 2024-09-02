@@ -15,12 +15,14 @@
         string EntityName { get; set; }
         string TargetProperty { get; set; }
 
+        int WordLimit { get; set; }
+        bool IsSimpleText { get; }
+
         string Style { get; set; }
         string Tone { get; set; }
         
-        int WordLimit { get; set; }
+        string TextToOptimize { get; set; }
         string OptimizationCommand { get; set; }
         string ChangeParameter { get; set; }
-        string TextToOptimize { get; set; }
     }
 }
