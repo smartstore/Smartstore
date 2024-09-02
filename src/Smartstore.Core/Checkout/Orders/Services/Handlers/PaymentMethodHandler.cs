@@ -2,7 +2,6 @@
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
-using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders.Handlers
@@ -10,7 +9,6 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
     [CheckoutStep(40, CheckoutActionNames.PaymentMethod)]
     public class PaymentMethodHandler : ICheckoutHandler
     {
-        private readonly SmartDbContext _db;
         private readonly IPaymentService _paymentService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
@@ -18,14 +16,12 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public PaymentMethodHandler(
-            SmartDbContext db,
             IPaymentService paymentService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
             PaymentSettings paymentSettings,
             ShoppingCartSettings shoppingCartSettings)
         {
-            _db = db;
             _paymentService = paymentService;
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
