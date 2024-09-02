@@ -161,7 +161,7 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool hasContent)
+        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled)
         {
             CheckContextualized();
 
@@ -213,7 +213,7 @@ namespace Smartstore.Web.Rendering
 
             btnGroupLi.InnerHtml.AppendHtml(btnGroupDiv);
             dropdownUl.InnerHtml.AppendHtml(btnGroupLi);
-            CreateTextCreationOptionsDropdown(hasContent, dropdownUl);
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
@@ -236,47 +236,31 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds simple text creation option menu items to the dropdown.
-        /// </summary>
-        /// <param name="hasContent">Indicates whether the target property already has content. If it has, we can offer options like summarize, optimize etc.</param>
-        /// <param name="root">The dropdown root tag (.dropdown-menu) to which the items are appended.</param>
-        private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder root)
-        {
-            // Generate commands as dropdown items.
-            root.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, hasContent));
-
             // Add "Change style" & "Change tone" options from module settings.
-            var styleDropdown = AddMenuItemsFromSetting(hasContent, "change-style");
-            var toneDropdown = AddMenuItemsFromSetting(hasContent, "change-tone");
+            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
+            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
 
             if (styleDropdown != null || toneDropdown != null)
             {
-                root.InnerHtml.AppendHtml("<div class=\"dropdown-divider\"></div>");
-                root.InnerHtml.AppendHtml(styleDropdown);
-                root.InnerHtml.AppendHtml(toneDropdown);
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+                builder.AppendHtml(styleDropdown);
+                builder.AppendHtml(toneDropdown);
             }
+
+            return builder;
         }
 
         /// <summary>
         /// Creates a sub-dropdown for text creation styles an tones.
         /// </summary>
-        /// <param name="hasContent">
-        /// Specifies whether the target field has a value.
-        /// If there is no value to manipulate the items will be displayed disabled.
-        /// </param>
         /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
-        private TagBuilder AddMenuItemsFromSetting(bool hasContent, string command, string iconName = null)
+        private TagBuilder AddMenuItemsFromSetting(bool enabled, string command, string additionalClasses, string iconName = null)
         {
             const string keyGroup = "AISettings";
             var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
 
             // INFO: These settings are not store-dependent (storeId is always 0).
             var settingValue = _db.LocalizedProperties
-                // INFO: (mg) Always maintain index column order in predicates
                 .Where(x => x.LocaleKey == settingName && x.LocaleKeyGroup == keyGroup && x.LanguageId == _workContext.WorkingLanguage.Id)
                 .Select(x => x.LocaleValue)
                 .FirstOrDefault();
@@ -297,7 +281,7 @@ namespace Smartstore.Web.Rendering
 
             foreach (var option in options)
             {
-                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, iconName, false, "ai-text-composer"));
+                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, iconName, false, additionalClasses));
             }
 
             var subDropdown = CreateDropdownItem(T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"));
