@@ -22,18 +22,18 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Builds the prompt for given <see cref="ITextGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt);
+        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt model);
 
         /// <summary>
         /// Builds the prompt for given <see cref="IImageGenerationPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt);
+        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt model);
 
         /// <summary>
         /// Builds the prompt for given <see cref="ISuggestionPrompt"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt);
+        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt model);
     }
 }

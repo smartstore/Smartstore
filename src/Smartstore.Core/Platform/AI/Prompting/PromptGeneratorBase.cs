@@ -16,21 +16,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public virtual bool CanHandle(string type)
             => type == Type;
 
-        public virtual Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt)
-            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", prompt?.EntityName));
+        public virtual Task<string> GenerateTextPromptAsync(ITextGenerationPrompt model)
+            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName));
 
-        public virtual Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt)
-            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", prompt?.Input));
+        public virtual Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt model)
+            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input));
 
-        public virtual Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt)
+        public virtual Task<string> GenerateImagePromptAsync(IImageGenerationPrompt model)
         {
             var parts = new List<string>
             {
-                _promptBuilder.Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", prompt?.EntityName)
+                _promptBuilder.Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", model?.EntityName)
             };
 
             // Enhance prompt for image creation from model.
-            _promptBuilder.BuildImagePrompt(prompt, parts);
+            _promptBuilder.BuildImagePrompt(model, parts);
 
             return Task.FromResult(string.Join(" ", parts));
         }
