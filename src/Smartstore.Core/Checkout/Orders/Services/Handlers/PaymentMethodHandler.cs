@@ -114,14 +114,20 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             else
             {
                 state.IsPaymentSelectionSkipped = true;
+
+                if (ga.SelectedPaymentMethod.HasValue())
+                {
+                    ga.SelectedPaymentMethod = null;
+                    await ga.SaveChangesAsync();
+                }
+
+                return new(true, null, true);
             }
 
             // INFO: "skip" is only set to "true" if the payment selection is always skipped without any exception.
             var skip = state.IsPaymentSelectionSkipped;
 
-            if (_shoppingCartSettings.QuickCheckoutEnabled 
-                && state.IsPaymentRequired
-                && ga.SelectedPaymentMethod.IsEmpty())
+            if (_shoppingCartSettings.QuickCheckoutEnabled && ga.SelectedPaymentMethod.IsEmpty())
             {
                 providers ??= await GetPaymentMethods(cart);
 
