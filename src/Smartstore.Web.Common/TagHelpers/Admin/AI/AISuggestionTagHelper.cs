@@ -10,6 +10,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     public class AISuggestionTagHelper() : AITagHelperBase()
     {
         const string MandatoryEntityFieldsAttributeName = "mandatory-entity-fields";
+        const string CharLimitAttributeName = "char-limit";
 
         /// <summary>
         /// List of comma separated mandatory fields of the target entity.
@@ -18,6 +19,14 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(MandatoryEntityFieldsAttributeName)]
         public string MandatoryEntityFields { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum number of characters that an AI response may have.
+        /// Typically, this is the length of the associated database field.
+        /// 0 (default) to not limit the length of the answer.
+        /// </summary>
+        [HtmlAttributeName(CharLimitAttributeName)]
+        public int CharLimit { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -38,6 +47,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attrs = base.GetTagHelperAttributes();
             attrs["data-mandatory-entity-fields"] = MandatoryEntityFields;
+            attrs["data-char-limit"] = CharLimit.ToStringInvariant();
+
             return attrs;
         }
     }

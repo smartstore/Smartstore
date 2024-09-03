@@ -39,6 +39,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
             => P("DontNumberSuggestions");
 
         /// <summary>
+        /// Instructs the AI to limit suggestions to a maximum number of characters.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Maximum <paramref name="charLimit"/> characters per suggestion.
+        /// </returns>
+        public virtual string CharLimitSuggestions(int charLimit)
+            => P("CharLimitSuggestions", charLimit);
+
+        /// <summary>
         /// Instructs the AI to write text that does not exceed a defined number of words.
         /// </summary>
         /// <returns>

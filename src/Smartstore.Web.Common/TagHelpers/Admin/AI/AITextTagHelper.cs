@@ -15,12 +15,13 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string DisplayToneAttributeName = "display-tone";
         const string DisplayOptimizationOptionsAttributeName = "display-optimization-options";
         const string WordCountAttributeName = "word-count";
+        const string CharLimitAttributeName = "char-limit";
 
         /// <summary>
         /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.
         /// </summary>
         [HtmlAttributeName(DisplayWordLimitAttributeName)]
-        public bool DisplayWordLimit { get; set; } = true;
+        public bool DisplayWordLimit { get; set; } = true;  // TODO: (mh) (ai) commented-out in view. obsolete?
 
         /// <summary>
         /// Used to specify whether the style option should be displayed in the text creation dialog. Default = true.
@@ -41,10 +42,19 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool DisplayOptimizationOptions { get; set; } = true;
 
         /// <summary>
-        /// Used to specify the maximum word count for the text about to be created. Default = 50.
+        /// Specifies the maximum number of characters that an AI response may have.
+        /// Typically, this is the length of the associated database field.
+        /// 0 (default) to not limit the length of the answer.
+        /// </summary>
+        [HtmlAttributeName(CharLimitAttributeName)]
+        public int CharLimit { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum number of words that an AI response may have.
+        /// 0 (default) to not limit the length of the answer.
         /// </summary>
         [HtmlAttributeName(WordCountAttributeName)]
-        public int WordCount { get; set; } = 50;    // TODO: (mh) (ai) this is not used anywhere (?)
+        public int WordCount { get; set; }    // TODO: (mh) (ai) this is not used anywhere (?)
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -121,6 +131,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             attrs["data-display-style"] = DisplayStyle.ToString().ToLower();
             attrs["data-display-tone"] = DisplayTone.ToString().ToLower();
             attrs["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower();
+            attrs["data-char-limit"] = CharLimit.ToStringInvariant();
             attrs["data-is-rich-text"] = "false";
 
             return attrs;

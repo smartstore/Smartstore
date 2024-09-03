@@ -32,7 +32,10 @@ namespace Smartstore.Core.Platform.AI.Prompting
             // Enhance prompt for image creation from model.
             _promptBuilder.BuildImagePrompt(model, parts);
 
-            return Task.FromResult(string.Join(" ", parts));
+            return Task.FromResult(Join(parts));
         }
+
+        protected virtual string Join(IEnumerable<string> parts)
+            => string.Join(" ", parts.Where(x => x.HasValue()));
     }
 }

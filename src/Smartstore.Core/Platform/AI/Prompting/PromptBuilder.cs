@@ -30,19 +30,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
         {
             parts.Add(Resources.DontUseMarkdown());
 
-            // Append phrase for wordcount from model.
+            if (model.CharLimit > 0)
+            {
+                parts.Add(Resources.CharLimit(model.CharLimit));
+            }
+
             if (model.WordLimit > 0)
             {
                 parts.Add(Resources.WordLimit(model.WordLimit));
             }
 
-            // Append phrase for tone from model.
             if (model.Tone.HasValue())
             {
                 parts.Add(Resources.LanguageTone(model.Tone));
             }
 
-            // Append phrase for style from model.
             if (model.Style.HasValue())
             {
                 parts.Add(Resources.LanguageStyle(model.Style));
@@ -280,6 +282,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             // INFO: Smartstore automatically adds inverted commas to the title.
             parts.Add(Resources.DontUseQuotes());
+            parts.Add(Resources.CharLimit(400));
         }
 
         /// <summary>
@@ -293,6 +296,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             parts.Add(forPromptPart);
             parts.Add(Resources.DontUseQuotes());
+            parts.Add(Resources.CharLimit(4000));
         }
 
         /// <summary>
@@ -329,7 +333,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds general instructions for AI suggestions.
         /// </summary>
         /// <param name="parts">The list of prompt parts to add AI instruction to.</param>
-        public virtual void BuildSuggestionPromptPart(List<string> parts)
+        public virtual void BuildSuggestionPromptPart(ISuggestionPrompt model, List<string> parts)
         {
             parts.Add(Resources.DontUseQuotes());
 
@@ -338,6 +342,11 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             parts.Add(Resources.DontNumberSuggestions());
             parts.Add(Resources.SeparateWithNumberSign());
+
+            if (model.CharLimit > 0)
+            {
+                parts.Add(Resources.CharLimitSuggestions(model.CharLimit));
+            }
         }
 
         #endregion

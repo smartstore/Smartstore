@@ -30,7 +30,6 @@
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
-
             let isRichText = tool.data('is-rich-text');
 
             if (!isRichText) {
@@ -46,7 +45,8 @@
                 providerSystemName: tool.data('provider-systemname'),
                 entityName: tool.data('entity-name'),
                 Type: tool.data('entity-type'),
-                targetProperty: tool.data('target-property')
+                targetProperty: tool.data('target-property'),
+                charLimit: tool.data('char-limit')
             };
 
             if (!isRichText) {
@@ -115,7 +115,8 @@
                 providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 type: tool.data('entity-type'),
-                mandatoryEntityFields: tool.data('mandatory-entity-fields')
+                mandatoryEntityFields: tool.data('mandatory-entity-fields'),
+                charLimit: tool.data('char-limit')
             };
 
             openDialog(tool, params, false);

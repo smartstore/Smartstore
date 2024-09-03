@@ -479,6 +479,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontNumberSuggestions",
                 "Do not number the suggestions.",
                 "Nummeriere die Vorschläge nicht.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimitSuggestions",
+                "Maximum {0} characters per suggestion.", 
+                "Maximal {0} Zeichen pro Vorschlag.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign",
                 "Always separate each suggestion with the # sign.",
                 "Trenne jeden Vorschlag zwingend mit dem #-Zeichen.");

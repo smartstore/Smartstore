@@ -28,7 +28,10 @@
                 <div class="adminData">
                     @if (Model.Subject.IsEmpty())
                     {
-                        <ai-suggestion asp-for="Subject" entity-type="Campaign" mandatory-entity-fields="Body,Name">
+                        <ai-suggestion asp-for="Subject" 
+                                       entity-type="Campaign" 
+                                       mandatory-entity-fields="Body,Name"
+                                       char-limit="450">
                             <input asp-for="Subject" />
                         </ai-suggestion>
                     }
@@ -37,7 +40,8 @@
                         <ai-text asp-for="Subject"
                                  entity-name="@Model.Name"
                                  entity-type="Campaign"
-                                 word-count="50">
+                                 word-count="50"
+                                 char-limit="450">
                             <input asp-for="Subject" />
                         </ai-text>
                     }

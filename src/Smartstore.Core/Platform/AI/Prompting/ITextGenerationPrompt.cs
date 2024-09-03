@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Platform.AI.Prompting
+﻿#nullable enable
+
+namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
     /// Interface to be implemented by all text generation prompts.
@@ -11,18 +13,19 @@
         ILinkGenerationPrompt,
         IIncludeImagesGenerationPrompt
     {
-        int? TargetEntityId { get; set; }
-        string EntityName { get; set; }
-        string TargetProperty { get; set; }
+        int? TargetEntityId { get; }
+        string EntityName { get; }
+        string TargetProperty { get; }
 
-        int WordLimit { get; set; }
+        int WordLimit { get; }
+        int CharLimit { get; }
         bool IsSimpleText { get; }
 
-        string Style { get; set; }
-        string Tone { get; set; }
+        string Style { get; }
+        string Tone { get; }
         
-        string TextToOptimize { get; set; }
-        string OptimizationCommand { get; set; }
-        string ChangeParameter { get; set; }
+        string TextToOptimize { get; }
+        string OptimizationCommand { get; }
+        string ChangeParameter { get; }
     }
 }
