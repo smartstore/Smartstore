@@ -282,7 +282,6 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             // INFO: Smartstore automatically adds inverted commas to the title.
             parts.Add(Resources.DontUseQuotes());
-            parts.Add(Resources.CharLimit(400));
         }
 
         /// <summary>
@@ -296,7 +295,6 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             parts.Add(forPromptPart);
             parts.Add(Resources.DontUseQuotes());
-            parts.Add(Resources.CharLimit(4000));
         }
 
         /// <summary>
@@ -310,9 +308,6 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             parts.Add(forPromptPart);
             parts.Add(Resources.SeparateListWithComma());
-
-            // Respect Smartstore database scheme limitation. Limit is 400.
-            parts.Add(Resources.CharLimit(400));
         }
 
         #region Helper methods
