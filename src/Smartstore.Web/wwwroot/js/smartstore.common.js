@@ -297,7 +297,9 @@
     };
 
     window.connectCopyToClipboard = function (selector) {
-        $(selector).tooltip({
+        const btn = $(selector);
+
+        btn.tooltip({
             boundary: 'window',
             placement: "top",
             trigger: 'hover',
@@ -317,7 +319,7 @@
                             text = copyFrom.val();
                         }
                         else {
-                            text = copyFrom.text();
+                            text = copyFrom.html();
                         }
                     }
                 }
@@ -335,7 +337,7 @@
             }
 
             return false;
-        });
+        }).data('copy-connected', true);
     };
 
     window.getImageSize = function (url, callback) {
