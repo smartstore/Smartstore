@@ -161,7 +161,7 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled)
+        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
         {
             CheckContextualized();
 
