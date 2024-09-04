@@ -178,10 +178,10 @@ namespace Smartstore.Admin.Controllers
                 ? null
                 : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
-            // Create order query.
             var orderQuery = _db.Orders
                 .Include(x => x.OrderItems)
                 .Include(x => x.BillingAddress)
+                .IncludeShippingAddress()
                 .IncludeCustomer()
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
