@@ -152,28 +152,30 @@ namespace Smartstore.Web.Controllers
             MediaSettings mediaSettings,
             Currency? customerCurrency)
         {
+            var product = orderItem.Product;
             var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(orderItem.ProductId, orderItem.AttributeSelection);
             if (attributeCombination != null)
             {
-                orderItem.Product.MergeWithCombination(attributeCombination);
+                product.MergeWithCombination(attributeCombination);
             }
 
             var model = new OrderDetailsModel.OrderItemModel
             {
                 Id = orderItem.Id,
-                Sku = orderItem.Sku.NullEmpty() ?? orderItem.Product.Sku,
-                ProductId = orderItem.Product.Id,
-                ProductName = orderItem.Product.GetLocalized(x => x.Name),
-                ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
-                ProductType = orderItem.Product.ProductType,
+                Sku = orderItem.Sku.NullEmpty() ?? product.Sku,
+                ProductId = product.Id,
+                IsProductSoftDeleted = product.Deleted,
+                ProductName = product.GetLocalized(x => x.Name),
+                ProductSeName = await product.GetActiveSlugAsync(),
+                ProductType = product.ProductType,
                 Quantity = orderItem.Quantity,
                 AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(orderItem.AttributeDescription))
             };
 
-            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(orderItem.Product.QuantityUnitId ?? 0, false);
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(product.QuantityUnitId ?? 0, false);
             model.QuantityUnit = quantityUnit == null ? string.Empty : quantityUnit.GetLocalized(x => x.Name);
 
-            if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
+            if (product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
             {
                 var bundleData = orderItem.GetBundleData();
                 var bundleItems = new Dictionary<int, ProductBundleItem>();
@@ -183,13 +185,13 @@ namespace Smartstore.Web.Controllers
                     var bundleProducts = await _db.ProductBundleItem
                         .AsNoTracking()
                         .Include(x => x.Product)
-                        .ApplyBundledProductsFilter(new[] { orderItem.ProductId })
+                        .ApplyBundledProductsFilter([orderItem.ProductId])
                         .ToListAsync();
 
                     bundleItems = bundleProducts.ToDictionarySafe(x => x.ProductId);
                 }
 
-                model.BundlePerItemPricing = orderItem.Product.BundlePerItemPricing;
+                model.BundlePerItemPricing = product.BundlePerItemPricing;
                 model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
 
                 foreach (var bid in bundleData)
@@ -247,12 +249,15 @@ namespace Smartstore.Web.Controllers
                 break;
             }
 
-            model.ProductUrl = await _productUrlHelper.GetProductPathAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
+            if (!product.Deleted)
+            {
+                model.ProductUrl = await _productUrlHelper.GetProductPathAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
+            }
 
             if (shoppingCartSettings.ShowProductImagesOnShoppingCart)
             {
                 model.Image = await PrepareOrderItemImageModelAsync(
-                    orderItem.Product,
+                    product,
                     mediaSettings.CartThumbPictureSize,
                     model.ProductName!,
                     orderItem.AttributeSelection,

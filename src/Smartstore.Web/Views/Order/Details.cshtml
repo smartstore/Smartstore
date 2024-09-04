@@ -42,7 +42,14 @@
                     @* Title *@
                     <div class="cart-item-group">
                         <div class="cart-item-title">
-                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            @if (item.ProductUrl.HasValue())
+                            {
+                                <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            }
+                            else
+                            {
+                                <span sm-language-attributes-for="item.ProductName">@item.ProductName</span>
+                            }
                         </div>
                     </div>
 

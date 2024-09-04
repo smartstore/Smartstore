@@ -217,6 +217,7 @@ namespace Smartstore.Admin.Models.Orders
         public class OrderItemModel : EntityModelBase
         {
             public int ProductId { get; set; }
+            public bool IsProductSoftDeleted { get; set; }
             public string ProductName { get; set; }
             public string Sku { get; set; }
             public ProductType ProductType { get; set; }
@@ -256,12 +257,12 @@ namespace Smartstore.Admin.Models.Orders
             public bool BundlePerItemPricing { get; set; }
             public bool BundlePerItemShoppingCart { get; set; }
 
-            public List<BundleItemModel> BundleItems { get; set; } = new();
-            public List<ReturnRequestModel> ReturnRequests { get; set; } = new();
-            public List<int> PurchasedGiftCardIds { get; set; } = new();
+            public List<BundleItemModel> BundleItems { get; set; } = [];
+            public List<ReturnRequestModel> ReturnRequests { get; set; } = [];
+            public List<int> PurchasedGiftCardIds { get; set; } = [];
 
             public bool IsReturnRequestPossible
-                => !(ReturnRequests?.Any() ?? false) || ReturnRequests.Sum(x => x.Quantity) < Quantity;
+                => ReturnRequests.IsNullOrEmpty() || ReturnRequests.Sum(x => x.Quantity) < Quantity;
         }
 
         #endregion

@@ -860,13 +860,15 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> Edit(int id)
         {
+            // Include deleted products but do not load a deleted order.
             var order = await _db.Orders
+                .IgnoreQueryFilters()
                 .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
                 .IncludeGiftCardHistory()
                 .IncludeBillingAddress()
-                .FindByIdAsync(id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
 
             if (order == null)
             {
@@ -2156,6 +2158,7 @@ namespace Smartstore.Admin.Controllers
                 await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
                 var model = MiniMapper.Map<OrderItem, OrderModel.OrderItemModel>(item);
+                model.IsProductSoftDeleted = product.Deleted;
                 model.ProductName = product.GetLocalized(x => x.Name);
                 model.Sku = item.Sku.NullEmpty() ?? product.Sku;
                 model.ProductType = product.ProductType;
