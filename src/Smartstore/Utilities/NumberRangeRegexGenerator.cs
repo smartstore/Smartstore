@@ -20,8 +20,8 @@ namespace Smartstore.Utilities
         /// </summary>
         public static string Generate(string min, string max)
         {
-            Guard.NotEmpty(min, nameof(min));
-            Guard.NotEmpty(max, nameof(max));
+            Guard.NotEmpty(min);
+            Guard.NotEmpty(max);
 
             return Generate(min.ToInt(), max.ToInt(), min.Length);
         }

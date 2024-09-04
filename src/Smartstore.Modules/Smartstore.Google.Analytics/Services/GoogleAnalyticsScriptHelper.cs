@@ -266,7 +266,7 @@ namespace Smartstore.Google.Analytics.Services
             {
                 if (!node.IsRoot && ++i != 5)
                 {
-                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{FixIllegalJavaScriptChars(node.Value.Name)}',";
+                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{node.Value.Name.EncodeJsStringUnquoted()}',";
                 }
             }
 
@@ -283,7 +283,7 @@ namespace Smartstore.Google.Analytics.Services
         /// <returns>Script part to fire GA event view_item_list</returns>
         public async Task<string> GetListScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
         {
-            listName = FixIllegalJavaScriptChars(listName);
+            listName = listName.EncodeJsStringUnquoted();
             return @$"
                 let eventData{listName} = {{
                     item_list_name: '{listName}',
@@ -346,15 +346,15 @@ namespace Smartstore.Google.Analytics.Services
         {
             var itemScript = @$"{{
               entity_id: {entityId},
-              item_id: '{FixIllegalJavaScriptChars(sku)}',
-              item_name: '{FixIllegalJavaScriptChars(productName)}',
+              item_id: '{sku.EncodeJsStringUnquoted()}',
+              item_name: '{productName.EncodeJsStringUnquoted()}',
               currency: '{_workContext.WorkingCurrency.CurrencyCode}',
               discount: {discount},
               index: {index},
               {categories}
               price: {price},
               {(!string.IsNullOrEmpty(listName) ? $"item_list_name: '{listName}'," : string.Empty)}
-              {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{FixIllegalJavaScriptChars(brandName)}'," : string.Empty)}
+              {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{brandName.EncodeJsStringUnquoted()}'," : string.Empty)}
             }}";
 
             if (addComma)
@@ -416,9 +416,9 @@ namespace Smartstore.Google.Analytics.Services
                         var itemTokens = new Dictionary<string, Func<string>>
                         {
                             ["ORDERID"] = order.GetOrderNumber,
-                            ["PRODUCTSKU"] = () => FixIllegalJavaScriptChars(sku),
-                            ["PRODUCTNAME"] = () => FixIllegalJavaScriptChars(item.Product.Name),
-                            ["CATEGORYNAME"] = () => FixIllegalJavaScriptChars(categoryName),
+                            ["PRODUCTSKU"] = () => sku.EncodeJsStringUnquoted(),
+                            ["PRODUCTNAME"] = () => item.Product.Name.EncodeJsStringUnquoted(),
+                            ["CATEGORYNAME"] = () => categoryName.EncodeJsStringUnquoted(),
                             ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
                             ["QUANTITY"] = item.Quantity.ToString
                         };
@@ -436,13 +436,13 @@ namespace Smartstore.Google.Analytics.Services
                     ["CURRENCY"] = () => order.CustomerCurrencyCode,
                     ["CITY"] = () => order.BillingAddress == null 
                         ? string.Empty 
-                        : FixIllegalJavaScriptChars(order.BillingAddress.City),
+                        : order.BillingAddress.City.EncodeJsStringUnquoted(),
                     ["STATEPROVINCE"] = () => order.BillingAddress?.StateProvince == null
                         ? string.Empty
-                        : FixIllegalJavaScriptChars(order.BillingAddress.StateProvince.Name),
+                        : order.BillingAddress.StateProvince.Name.EncodeJsStringUnquoted(),
                     ["COUNTRY"] = () => order.BillingAddress?.Country == null
                         ? string.Empty
-                        : FixIllegalJavaScriptChars(order.BillingAddress.Country.Name),
+                        : order.BillingAddress.Country.Name.EncodeJsStringUnquoted(),
                     ["DETAILS"] = () => ecDetailScript
                 };
 
@@ -505,28 +505,6 @@ namespace Smartstore.Google.Analytics.Services
                 .FirstOrDefaultAsync();
 
             return order;
-        }
-
-        private static string FixIllegalJavaScriptChars(string text)
-        {
-            // Replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
-
-            if (string.IsNullOrEmpty(text))
-            {
-                return string.Empty;
-            }
-
-            if (text.Contains('\''))
-            {
-                text = text.Replace("'", "\\'");
-            }
-
-            if (text.Contains(Environment.NewLine))
-            {
-                text = text.StripLineBreaks();
-            }
-
-            return text;
         }
     }
 }
