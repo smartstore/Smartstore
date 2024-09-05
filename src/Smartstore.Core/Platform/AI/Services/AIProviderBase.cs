@@ -30,15 +30,15 @@ namespace Smartstore.Core.Platform.AI
         public bool SupportsAssistence
             => Supports(AIProviderFeatures.Assistence);
 
-        public abstract RouteInfo GetDialogRoute(AIDialogType modalDialogType);
+        public abstract RouteInfo GetDialogRoute(AIDialogType dialogType);
 
         public virtual Task<string[]> CreateImagesAsync(IImageGenerationPrompt prompt, int numImages = 1, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual Task<string> ChatAsync(string prompt, CancellationToken cancelToken = default)
+        public virtual Task<string> ChatAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(string prompt, CancellationToken cancelToken = default)
+        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         public virtual Task<string> AnalyzeImageAsync(string url, string prompt, CancellationToken cancelToken = default)

@@ -22,29 +22,29 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given <paramref name="modalDialogType"/>.
+        /// Gets <see cref="RouteInfo"/> for the given <paramref name="dialogType"/>.
         /// </summary>
-        RouteInfo GetDialogRoute(AIDialogType modalDialogType);
+        RouteInfo GetDialogRoute(AIDialogType dialogType);
 
         /// <summary>
-        /// Gets the answer for the given <paramref name="prompt"/>.
+        /// Starts or continues an AI conversation.
         /// </summary>
-        /// <param name="prompt">The AI prompt. It contains all the descriptions and instructions for the AI system to generate an appropriate response.</param>
+        /// <param name="messages">The conversation history.</param>
         /// <exception cref="AIException"></exception>
-        Task<string> ChatAsync(string prompt, CancellationToken cancelToken = default);
+        Task<string> ChatAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Gets the answer stream for the given <paramref name="prompt"/>.
+        /// Starts or continues an AI conversation.
         /// </summary>
-        /// <param name="prompt">The AI prompt. It contains all the descriptions and instructions for the AI system to generate an appropriate response.</param>
+        /// <param name="messages">The conversation history.</param>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string> ChatAsStreamAsync(string prompt, CancellationToken cancelToken = default);
+        IAsyncEnumerable<string> ChatAsStreamAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).
         /// </summary>
-        /// <param name="prompt">
-        /// The AI prompt. It contains all the descriptions and instructions for the AI system to generate an appropriate response.
+        /// <param name="model">
+        /// The AI prompt model contains all the descriptions and instructions for the AI system to generate an appropriate response.
         /// It also contains additional instructions for image creation.
         /// </param>
         /// <param name="numImages">
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Platform.AI
         /// </param>
         /// <returns>The URL(s) of the generated image(s).</returns>
         /// <exception cref="AIException"></exception>
-        Task<string[]?> CreateImagesAsync(IImageGenerationPrompt prompt, int numImages = 1, CancellationToken cancelToken = default);
+        Task<string[]?> CreateImagesAsync(IImageGenerationPrompt model, int numImages = 1, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Analyzes an image based on an AI prompt.
