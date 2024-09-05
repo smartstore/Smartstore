@@ -61,7 +61,8 @@
                     displayTone: tool.data('display-tone'),
                     displayOptimizationOptions: tool.data('display-optimization-options')
                 });
-            } else {
+            }
+            else {
                 Object.assign(params, {
                     entityId: tool.data('entity-id'),
                     displayAdditionalContentOptions: tool.data('display-additional-content-options'),
