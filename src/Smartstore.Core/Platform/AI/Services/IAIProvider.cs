@@ -28,17 +28,19 @@ namespace Smartstore.Core.Platform.AI
 
         /// <summary>
         /// Starts or continues an AI conversation.
+        /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <param name="messages">The conversation history.</param>
+        /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
-        Task<string> ChatAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default);
+        Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Starts or continues an AI conversation.
+        /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <param name="messages">The conversation history.</param>
+        /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string> ChatAsStreamAsync(IEnumerable<AIChatMessage> messages, CancellationToken cancelToken = default);
+        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).
