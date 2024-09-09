@@ -104,6 +104,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.ProductDescriptionPriority" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.ProductDescriptionPriority"></setting-editor>
+                        <span asp-validation-for="SeoSettings.ProductDescriptionPriority"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="SeoSettings.CanonicalUrlsEnabled" />
                     </div>
                     <div class="adminData">

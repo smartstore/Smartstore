@@ -155,8 +155,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Regel hinzufügen.");
 
             builder.AddOrUpdate("Admin.Rules.AddCondition", "Add rule", "Regel hinzufügen");
-            builder.AddOrUpdate("Admin.Rules.AllConditions", 
-                "<span>If</span> {0} <span>of the following rules are true.</span>", 
+            builder.AddOrUpdate("Admin.Rules.AllConditions",
+                "<span>If</span> {0} <span>of the following rules are true.</span>",
                 "<span>Wenn</span> {0} <span>der folgenden Regeln erfüllt sind.</span>");
 
             builder.AddOrUpdate("Admin.Rules.OneCondition",
@@ -169,7 +169,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Regeln können erst nach einem Speichern festgelegt werden.");
 
             builder.AddOrUpdate("Admin.Rules.TestConditions").Value("de", "Regeln {0} Testen {1}");
-            
+
             builder.AddOrUpdate("Admin.Rules.EditRuleSet", "Edit rule set", "Regelsatz bearbeiten");
             builder.AddOrUpdate("Admin.Rules.OpenRuleSet", "Open rule set", "Regelsatz öffnen");
             builder.Delete(
@@ -286,7 +286,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
 
             builder.Delete("Admin.ContentManagement.Topics.Validation.NoWhiteSpace");
-            
+
             builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
                 "Spaces are invalid for the HTML attribute 'id'.",
                 "Leerzeichen sind für das HTML-Attribut 'id' ungültig.");
@@ -340,7 +340,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Minimale Produktanzahl für Suche",
                 "Specifies the minimum number of associated products from which the search field is displayed.",
                 "Legt die Mindestanzahl verknüpfter Produkte fest, ab denen das Suchfeld angezeigt wird.");
-            
+
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                  "Collapsible associated products",
                  "Aufklappbare verknüpfte Produkte",
@@ -379,8 +379,8 @@ namespace Smartstore.Core.Data.Migrations
                 "To edit, please first save the product as a grouped product.",
                 "Zur Bearbeitung bitte zunächst das Produkt als Gruppenprodukt speichern.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
-                "Title of associated products list", 
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title",
+                "Title of associated products list",
                 "Listentitel der verknüpften Produkte");
 
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration", "Edit grouped product", "Gruppenprodukt bearbeiten");
@@ -441,6 +441,24 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} orphaned data records of type {1} were deleted.",
                 "Es wurden {0} verwaiste Datensätze vom Typ {1} gelöscht.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ProductDescriptionPriority",
+                "Priority of product descriptions",
+                "Vorrang von Produktbeschreibungen",
+                "Determines which product description has priority for search engines that index your store's pages.",
+                "Legt fest, welche Produktbeschreibung für Suchmaschinen, die die Seiten Ihres Shops indizieren, Vorrang hat.");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.FullDescription",
+                "Full description",
+                "Langtext");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.ShortDescription",
+                "Short description",
+                "Kurzbeschreibung");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.Both",
+                "Full and short description",
+                "Langtext und Kurzbeschreibung");
+
             AddAIResources(builder);
         }
 
@@ -480,7 +498,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Do not number the suggestions.",
                 "Nummeriere die Vorschläge nicht.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimitSuggestions",
-                "Maximum {0} characters per suggestion.", 
+                "Maximum {0} characters per suggestion.",
                 "Maximal {0} Zeichen pro Vorschlag.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign",
                 "Always separate each suggestion with the # sign.",

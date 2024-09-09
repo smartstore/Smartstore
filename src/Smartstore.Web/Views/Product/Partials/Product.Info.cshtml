@@ -43,7 +43,7 @@
     <!-- Short description -->
     @if (Model.ShortDescription.Value.HasValue())
     {
-        <div sm-language-attributes-for="Model.ShortDescription" class="pd-description" itemprop="description">
+        <div sm-language-attributes-for="Model.ShortDescription" class="pd-description" attr-itemprop='(Model.HasShortDescriptionSchemaProperty, "description")'>
             @Html.Raw(Model.ShortDescription)
         </div>
     }
