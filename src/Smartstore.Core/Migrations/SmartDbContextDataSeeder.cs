@@ -441,6 +441,18 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} orphaned data records of type {1} were deleted.",
                 "Es wurden {0} verwaiste Datensätze vom Typ {1} gelöscht.");
 
+            builder.AddOrUpdate("Admin.Configuration.Countries.Fields.TwoLetterIsoCode",
+                "Country code (2 characters)",
+                "Länderkürzel (2 Zeichen)",
+                "Two-letter country code according to ISO 3166.",
+                "Zweibuchstabiges Länderkürzel nach ISO 3166.");
+
+            builder.AddOrUpdate("Admin.Configuration.Countries.Fields.ThreeLetterIsoCode",
+                "Country code (3 characters)",
+                "Länderkürzel (3 Zeichen)",
+                "Three-letter country code according to ISO 3166.",
+                "Dreibuchstabiges Länderkürzel nach ISO 3166.");
+
             AddAIResources(builder);
         }
 
