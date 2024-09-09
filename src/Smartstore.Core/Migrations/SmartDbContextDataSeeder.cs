@@ -444,8 +444,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ProductDescriptionPriority",
                 "Priority of product descriptions",
                 "Vorrang von Produktbeschreibungen",
-                "Determines which product description has priority for search engines that index your store's pages.",
-                "Legt fest, welche Produktbeschreibung für Suchmaschinen, die die Seiten Ihres Shops indizieren, Vorrang hat.");
+                "Specifies which 'description' is read by search engines as description content for rich snippets. " +
+                "If the description selected here is not stored in the product, the other one is automatically marked as 'description', if available.",
+                "Bestimmt, welche Beschreibung von Suchmaschinen als 'description'-Inhalt für Rich Snippets ausgelesen wird. " +
+                "Wenn die hier gewählte Beschreibung nicht im Produkt hinterlegt ist, wird automatisch die andere als 'description' gekennzeichnet, sofern vorhanden.");
 
             builder.AddOrUpdate("Enums.ProductDescriptionPriority.FullDescription",
                 "Full description",
