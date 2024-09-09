@@ -56,6 +56,7 @@
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
 - #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page. 
 - #783 Add a field to shipment entity for the name of the cargo company.
+- #1176 Avoid duplicate assignment of description on the product page
 
 ### Improvements
 

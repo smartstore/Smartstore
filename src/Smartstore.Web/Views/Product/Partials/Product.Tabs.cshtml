@@ -11,7 +11,7 @@
     {
         var summary = Model.FullDescription.Value.RemoveHtml().Truncate(300, "...");
         <tab sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-selected="true">
-            <div sm-language-attributes-for="Model.FullDescription" itemprop="description" class="long-text html-editor-content">
+            <div sm-language-attributes-for="Model.FullDescription" attr-itemprop='(Model.HasFullDescriptionSchemaProperty, "description")' class="long-text html-editor-content">
                 <collapsed-content>
                     @Html.Raw(Model.FullDescription)
                 </collapsed-content>
