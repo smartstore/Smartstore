@@ -436,6 +436,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob die für den Kauf eines Produktes gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
 
             builder.AddOrUpdate("Common.Old", "Old", "Alt");
+            builder.AddOrUpdate("Common.Keywords", "Keywords", "Keywords");
 
             builder.AddOrUpdate("Admin.System.Maintenance.CleanupOrphanedRecords",
                 "{0} orphaned data records of type {1} were deleted.",

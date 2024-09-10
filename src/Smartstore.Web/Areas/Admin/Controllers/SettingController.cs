@@ -1625,39 +1625,39 @@ namespace Smartstore.Admin.Controllers
             {
                 model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
 
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                ]);
 
                 availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
             }
             else
             {
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-                    new SelectListItem { Text = T("Admin.Configuration.Seo.MetaKeywords"), Value = "keyword" },
-                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+                    new() { Text = T("Common.Keywords"), Value = "keyword" },
+                    new() { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+                    new() { Text = T("Admin.Catalog.Categories"), Value = "category" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+                ]);
 
                 if (megaSearchPlusDescriptor != null)
                 {
-                    availableSearchFields.AddRange(new[]
-                    {
-                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
-                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
-                    });
+                    availableSearchFields.AddRange(
+                    [
+                        new() { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new() { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    ]);
                 }
 
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+                availableSearchModes = [.. searchSettings.SearchMode.ToSelectList()];
             }
 
             ViewBag.AvailableSearchFields = availableSearchFields;
