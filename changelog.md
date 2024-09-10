@@ -38,7 +38,7 @@
 - #909 Allow to control the product availability based on the existence of an attribute combination.
 - MegaSearch
   - Setting to place the search hits of unavailable products further back in the search list.
-  - Added product meta keywords to the search index.
+  - Finding products by keywords (e.g. product compatibility list). Also added product meta keywords to the search index.
   - Added price calculation options for the price to be indexed.
 - Affiliates
   - #896 Added a cart rule for affiliates.
