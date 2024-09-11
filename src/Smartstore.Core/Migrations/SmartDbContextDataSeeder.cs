@@ -474,6 +474,26 @@ namespace Smartstore.Core.Data.Migrations
                 "Full and short description",
                 "Langtext und Kurzbeschreibung");
 
+            builder.AddOrUpdate("PageDescription.Manufacturers",
+                "Discover all manufacturers in the {0} online shop.",
+                "Entdecken Sie alle Hersteller im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.AllProductTags",
+                "Discover all product tags in the {0} online shop.",
+                "Entdecken Sie alle Produkt Tags im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.RecentlyAddedProducts",
+                "Discover all recently added product in the {0} online shop.",
+                "Entdecken Sie alle zuletzt hinzugefügten Produkte im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.RecentlyViewedProducts",
+                "Discover all recently viewed products in the {0} online shop.",
+                "Entdecken Sie alle zuletzt angesehenen Produkte im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.CompareProducts",
+                "Compare products in the {0} online shop.",
+                "Vergleichen Sie Produkte im {0} Online-Shop.");
+
             AddAIResources(builder);
         }
 

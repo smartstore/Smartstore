@@ -4,6 +4,7 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Manufacturers"));
+    Assets.AppendMetaDescriptionParts(T("PageDescription.Manufacturers", CommonServices.StoreContext.CurrentStore.Name));
 
     var numericList = Model.Where(x => Char.IsNumber(x.Name.Value[0])).OrderBy(x => x.Name).ToArray();
     var alphabeticalList = Model.Except(numericList).Where(x => x.Name.HasValue()).OrderBy(x => x.Name).ToArray();
