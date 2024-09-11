@@ -179,6 +179,9 @@ namespace Smartstore.Admin.Controllers
 
             var categories = await query
                 .ApplyStandardFilter(true, null, model.SearchStoreId)
+                .ApplyCustomerStoreFilter(
+                    await _storeMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Category), [.. query.Select(x => x.Id)]))
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();

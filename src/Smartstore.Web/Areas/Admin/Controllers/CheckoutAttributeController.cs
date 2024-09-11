@@ -59,6 +59,9 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<CheckoutAttributeModel>();
 
             var checkoutAttributes = await _db.CheckoutAttributes
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(CheckoutAttribute), [.. _db.CheckoutAttributes.Select(x => x.Id)]))
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ApplyGridCommand(command)
