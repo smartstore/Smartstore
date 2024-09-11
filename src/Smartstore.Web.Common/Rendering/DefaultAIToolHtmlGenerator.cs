@@ -1,0 +1,562 @@
+﻿using System.Reflection;
+using Autofac;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Platform.AI;
+using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling;
+
+namespace Smartstore.Web.Rendering
+{
+    public class DefaultAIToolHtmlGenerator : IAIToolHtmlGenerator
+    {
+        private readonly SmartDbContext _db;
+        private readonly IAIProviderFactory _aiProviderFactory;
+        private readonly ModuleManager _moduleManager;
+        private readonly IUrlHelper _urlHelper;
+        private readonly IWorkContext _workContext;
+        private IHtmlHelper _htmlHelper;
+        private ViewContext _viewContext;
+
+        public DefaultAIToolHtmlGenerator(
+            SmartDbContext db,
+            IAIProviderFactory aiProviderFactory,
+            ModuleManager moduleManager, 
+            IUrlHelper urlHelper,
+            IWorkContext workContext)
+        {
+            _db = db;
+            _aiProviderFactory = aiProviderFactory;
+            _moduleManager = moduleManager;
+            _urlHelper = urlHelper;
+            _workContext = workContext;
+        }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        public void Contextualize(ViewContext viewContext)
+        {
+            _viewContext = Guard.NotNull(viewContext);
+        }
+
+        protected internal IHtmlHelper HtmlHelper
+        {
+            get
+            {
+                CheckContextualized();
+                
+                if (_htmlHelper == null)
+                {
+                    _htmlHelper = _viewContext.HttpContext.GetServiceScope().Resolve<IHtmlHelper>();
+                    if (_htmlHelper is IViewContextAware contextAware)
+                    {
+                        contextAware.Contextualize(_viewContext);
+                    }
+                }
+
+                return _htmlHelper;
+            }
+        }
+
+        public TagBuilder GenerateTranslationTool(ILocalizedModel model)
+        {
+            Guard.NotNull(model);
+
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+
+            // Model must implement ILocalizedModel<T> where T : ILocalizedLocaleModel
+            var modelType = model.GetType();
+            if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>)))
+            {
+                return null;
+            }
+
+            // Entity model must not be transient
+            if (model is EntityModelBase entityModel && entityModel.EntityId == 0)
+            {
+                return null;
+            }
+
+            var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
+            if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
+            {
+                return null;
+            }
+
+            var propertyNames = FastProperty.GetProperties(localeModelType)
+                .Where(x => x.Value.Property.PropertyType == typeof(string))
+                .Select(x => x.Key)
+                .ToList();
+
+            var propertyInfoMap = FastProperty.GetProperties(modelType)
+                .Where(x => propertyNames.Contains(x.Key))
+                .Select(x => x.Value.Property)
+                .Select(x => new AILocalizedPropertyInfo
+                {
+                    Prop = x,
+                    HasValue = x.GetValue(model)?.ToString()?.HasValue() == true
+                })
+                .ToDictionarySafe(x => x.Prop.Name);
+
+            if (propertyInfoMap.Count == 0 || propertyInfoMap.Values.All(x => !x.HasValue))
+            {
+                // Nothing to translate.
+                return null;
+            }
+
+            string[] additionalItemClasses = ["ai-translator"];
+            var inputGroupColDiv = CreateDialogOpener(true);
+
+            var dropdownUl = new TagBuilder("ul");
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
+
+            foreach (var provider in providers)
+            {
+                // Add attributes from tag helper properties.
+                var route = provider.Value.GetDialogRoute(AIDialogType.Translation);
+                var routeUrl = _urlHelper.Action(route.Action, route.Controller, route.RouteValues);
+
+                var dropdownLiTitle = T("Admin.AI.TranslateTextWith", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
+                var headingLi = new TagBuilder("li");
+                headingLi.Attributes["class"] = "dropdown-header h6";
+                headingLi.InnerHtml.AppendHtml(dropdownLiTitle);
+                dropdownUl.InnerHtml.AppendHtml(headingLi);
+
+                // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
+                // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
+                // We do not have this information here. Solution: we put all properties in the menu and later remove those that are not included using JavaScript.
+                foreach (var name in propertyNames)
+                {
+                    var id = HtmlHelper.Id(name);
+                    var displayName = HtmlHelper.DisplayName(name);
+                    var info = propertyInfoMap.Get(name) ?? new();
+                    //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
+
+                    var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
+                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
+
+                    var attrs = dropdownLi.Attributes;
+                    attrs["data-provider-systemname"] = provider.Metadata.SystemName;
+                    attrs["data-modal-url"] = routeUrl;
+                    attrs["data-target-property"] = id;
+                    attrs["data-modal-title"] = dropdownLiTitle + ": " + displayName;
+
+                    // INFO: there is no explicit item order. To put the menu items in the same order as the HTML elements,
+                    // the properties of the ILocalizedLocaleModel must be ordered accordingly.
+                    dropdownUl.InnerHtml.AppendHtml(dropdownLi);
+                }
+            }
+
+            inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
+
+            return inputGroupColDiv;
+        }
+
+        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
+        {
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+            
+            var inputGroupColDiv = CreateDialogOpener(true);
+
+            var dropdownUl = new TagBuilder("ul");
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+
+            // Create a button group for the providers. If there is only one provider, hide the button group.
+            // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases,
+            // because the button contains all the necessary data attributes.
+            var btnGroupLi = new TagBuilder("li");
+            btnGroupLi.Attributes["class"] = "dropdown-group";
+
+            var btnGroupDiv = new TagBuilder("div");
+            btnGroupDiv.Attributes["class"] = "btn-group mb-2";
+
+            if (providers.Count == 1)
+            {
+                btnGroupDiv.AppendCssClass("d-none");
+            }
+
+            var isFirstProvider = true;
+            foreach (var provider in providers)
+            {
+                var btn = new TagBuilder("button");
+                btn.Attributes["type"] = "button";
+                btn.Attributes["class"] = "btn-ai-provider-chooser btn btn-secondary btn-sm";
+                btn.Attributes["aria-haspopup"] = "true";
+                btn.Attributes["aria-expanded"] = "false";
+
+                if (isFirstProvider)
+                {
+                    btn.AppendCssClass("active");
+                }
+
+                btn.InnerHtml.AppendHtml(_moduleManager.GetLocalizedFriendlyName(provider.Metadata));
+                MergeDataAttributes(btn, provider, attributes, AIDialogType.Text);
+
+                btnGroupDiv.InnerHtml.AppendHtml(btn);
+                isFirstProvider = false;
+            }
+
+            btnGroupLi.InnerHtml.AppendHtml(btnGroupDiv);
+            dropdownUl.InnerHtml.AppendHtml(btnGroupLi);
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, enabled));
+            inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
+
+            return inputGroupColDiv;
+        }
+
+        public IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
+        {
+            var builder = new HtmlContentBuilder();
+            var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
+            var resRoot = "Admin.AI.TextCreation.";
+
+            if (!forChatDialog)
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            }
+
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
+
+            // Add "Change style" & "Change tone" options from module settings.
+            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
+            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
+
+            if (styleDropdown != null || toneDropdown != null)
+            {
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+                builder.AppendHtml(styleDropdown);
+                builder.AppendHtml(toneDropdown);
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Creates a sub-dropdown for text creation styles an tones.
+        /// </summary>
+        /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
+        private TagBuilder AddMenuItemsFromSetting(bool enabled, string command, string additionalClasses, string iconName = null)
+        {
+            const string keyGroup = "AISettings";
+            var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
+
+            // INFO: These settings are not store-dependent (storeId is always 0).
+            var settingValue = _db.LocalizedProperties
+                .Where(x => x.LocaleKey == settingName && x.LocaleKeyGroup == keyGroup && x.LanguageId == _workContext.WorkingLanguage.Id)
+                .Select(x => x.LocaleValue)
+                .FirstOrDefault();
+
+            settingValue ??= _db.Settings
+                .Where(x => x.Name == keyGroup + '.' + settingName)
+                .Select(x => x.Value)
+                .FirstOrDefault();
+
+            var options = settingValue.SplitSafe(',').ToArray();
+            if (options.IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            var optionsList = new TagBuilder("ul");
+            optionsList.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+
+            foreach (var option in options)
+            {
+                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, iconName, false, additionalClasses));
+            }
+
+            var subDropdown = CreateDropdownItem(T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"));
+            subDropdown.Attributes["class"] = "dropdown-group";
+            subDropdown.InnerHtml.AppendHtml(optionsList);
+
+            return subDropdown;
+        }
+
+        public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
+        {
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+
+            return GenerateOutput(providers, attributes, AIDialogType.Suggestion);
+        }
+
+        public TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
+        {
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.ImageCreation);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+
+            return GenerateOutput(providers, attributes, AIDialogType.Image);
+        }
+
+        public TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
+        {
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+
+            return GenerateOutput(providers, attributes, AIDialogType.RichText);
+        }
+
+        /// <summary>
+        /// Generates the output for the AI dialog openers.
+        /// </summary>
+        /// <param name="providers">List of providers to generate dropdown items for.</param>
+        /// <param name="attributes">The attributes of the taghelper.</param>
+        /// <param name="dialogType">The type of dialog to be opened <see cref="AIDialogType"/></param>
+        /// <returns>
+        /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
+        /// containing all the metadata needed to open the dialog.
+        /// </returns>
+        private TagBuilder GenerateOutput(IReadOnlyList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
+        {
+            var additionalClasses = GetDialogIdentifierClass(dialogType);
+
+            // If there is only one provider, render a simple button, render a dropdown otherwise.
+            if (providers.Count == 1)
+            {
+                var provider = providers[0];
+                var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
+                var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
+                var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
+
+                MergeDataAttributes(openerDiv, provider, attributes, dialogType);
+
+                return openerDiv;
+            }
+            else
+            {
+                var inputGroupColDiv = CreateDialogOpener(true);
+                var dropdownUl = new TagBuilder("ul");
+                dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+
+                foreach (var provider in providers)
+                {
+                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
+                    var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
+                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, null, true, additionalClasses);
+
+                    MergeDataAttributes(dropdownLi, provider, attributes, dialogType);
+
+                    dropdownUl.InnerHtml.AppendHtml(dropdownLi);
+                }
+
+                inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
+
+                return inputGroupColDiv;
+            }
+        }
+
+        /// <summary>
+        /// Adds the necessary data attributes to the given control.
+        /// </summary>
+        private void MergeDataAttributes(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIDialogType dialogType)
+        {
+            var route = provider.Value.GetDialogRoute(dialogType);
+            ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
+            ctrl.MergeAttribute("data-modal-url", _urlHelper.Action(route.Action, route.Controller, route.RouteValues));
+            ctrl.MergeAttributes(attributes);
+        }
+
+        /// <summary>
+        /// Gets the class name used as the dialog identifier.
+        /// </summary>
+        private static string GetDialogIdentifierClass(AIDialogType dialogType)
+        {
+            switch (dialogType)
+            {
+                case AIDialogType.Text:
+                case AIDialogType.RichText:
+                    return "ai-text-composer";
+                case AIDialogType.Image:
+                    return "ai-image-composer";
+                case AIDialogType.Translation:
+                    return "ai-translator";
+                case AIDialogType.Suggestion:
+                    return "ai-suggestion";
+                default:
+                    throw new Exception("Unknown modal dialog type");
+            }
+        }
+
+        /// <summary>
+        /// Gets the title of a dropdown item that opens an AI dialog.
+        /// </summary>
+        private string GetDialogOpenerText(AIDialogType dialogType, string providerName)
+        {
+            switch (dialogType)
+            {
+                case AIDialogType.Text:
+                case AIDialogType.RichText:
+                    return T("Admin.AI.CreateTextWith", providerName);
+                case AIDialogType.Image:
+                    return T("Admin.AI.CreateImageWith", providerName);
+                case AIDialogType.Translation:
+                    return T("Admin.AI.TranslateTextWith", providerName);
+                case AIDialogType.Suggestion:
+                    return T("Admin.AI.MakeSuggestionWith", providerName);
+                default:
+                    throw new Exception("Unknown modal dialog type");
+            }
+        }
+
+        /// <summary>
+        /// Creates the element to open the dialog.
+        /// </summary>
+        /// <param name="isDropdown">Defines whether the opener is a dropdown.</param>
+        /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
+        /// <param name="title">The title of the opener.</param>
+        /// <returns>The dialog opener.</returns>
+        private TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
+        {
+            var inputGroupColDiv = new TagBuilder("div");
+            inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root";
+            inputGroupColDiv.AppendCssClass(isDropdown ? "dropdown" : "ai-provider-tool");
+
+            var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
+            inputGroupColDiv.InnerHtml.AppendHtml(iconA);
+
+            return inputGroupColDiv;
+        }
+
+        /// <summary>
+        /// Creates the icon button to open the dialog.
+        /// </summary>
+        /// <param name="isDropdown">Defines whether the opener is a dropdown.</param>
+        /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
+        /// <param name="title">The title of the opener.</param>
+        /// <returns>The dialog opener icon.</returns>
+        private TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
+        {
+            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", htmlAttributes: new Dictionary<string, object>
+            {
+                ["class"] = "dropdown-icon bi-fw bi"
+            });
+
+            var btnTag = new TagBuilder("a");
+            btnTag.Attributes["href"] = "javascript:;";
+            btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron";
+            btnTag.AppendCssClass(isDropdown ? "dropdown-toggle" : additionalClasses);
+
+            if (isDropdown)
+            {
+                btnTag.Attributes["data-toggle"] = "dropdown";
+            }
+            else
+            {
+                btnTag.Attributes["title"] = title;
+            }
+
+            btnTag.InnerHtml.AppendHtml(icon);
+
+            return btnTag;
+        }
+
+        /// <summary>
+        /// Creates a dropdown item.
+        /// </summary>
+        /// <param name="menuText">The text for the menu item.</param>
+        /// <returns>A LI tag representing the menu item.</returns>
+        private TagBuilder CreateDropdownItem(string menuText)
+            => CreateDropdownItem(menuText, true, string.Empty, null, false);
+
+        /// <summary>
+        /// Creates a dropdown item.
+        /// </summary>
+        /// <param name="menuText">The text for the menu item.</param>
+        /// <param name="enabled">Defines whether the menu item is enabled.</param>
+        /// <param name="command">The command of the menu item (needed for optimize commands for simple text creation)</param>
+        /// <param name="iconName">The optional name of a Bootstrap SVG icon. Can be null.</param>
+        /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
+        /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
+        /// <returns>An LI tag representing the menu item.</returns>
+        private TagBuilder CreateDropdownItem(
+            string menuText,
+            bool enabled,
+            string command,
+            string iconName,
+            bool isProviderTool,
+            params string[] additionalClasses)
+        {
+            var li = new TagBuilder("li");
+            if (isProviderTool)
+            {
+                li.Attributes["class"] = "ai-provider-tool";
+            }
+
+            var a = new TagBuilder("a");
+            a.Attributes["href"] = "#";
+            a.Attributes["class"] = "dropdown-item";
+
+            if (!enabled)
+            {
+                a.AppendCssClass("disabled");
+            }
+
+            additionalClasses.Each(x => a.AppendCssClass(x));
+
+            if (command.HasValue())
+            {
+                a.Attributes["data-command"] = command;
+            }
+
+            if (iconName.HasValue())
+            {
+                var svg = HtmlHelper.BootstrapIcon(iconName, htmlAttributes: new { @class = "bi-fw" });
+                a.InnerHtml.AppendHtml(svg);
+            }
+
+            a.InnerHtml.AppendHtml(menuText);
+
+            li.InnerHtml.AppendHtml(a);
+
+            return li;
+        }
+
+        private void CheckContextualized()
+        {
+            if (_viewContext == null)
+            {
+                throw new InvalidOperationException($"Call '{nameof(Contextualize)}' before calling any {nameof(IAIToolHtmlGenerator)} method.");
+            }
+        }
+    }
+
+    internal class AILocalizedPropertyInfo
+    {
+        public PropertyInfo Prop { get; set; }
+        public bool HasValue { get; set; }
+    }
+}

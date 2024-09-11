@@ -363,7 +363,7 @@ namespace Smartstore.Web.Rendering
             {
                 div.InnerHtml.AppendHtml(helper.Label(expression, labelText, htmlAttributes));
             }
-
+            
             if (hint.HasValue())
             {
                 div.InnerHtml.AppendHtml(helper.HintTooltip(hint));
@@ -480,12 +480,13 @@ namespace Smartstore.Web.Rendering
 
                 if (kvp.Key.Group.HasValue())
                 {
-                    if (!groupList.ContainsKey(kvp.Key.Group))
+                    if (!groupList.TryGetValue(kvp.Key.Group, out SelectListGroup value))
                     {
-                        groupList[kvp.Key.Group] = new SelectListGroup { Name = kvp.Key.Group };
+                        value = new SelectListGroup { Name = kvp.Key.Group };
+                        groupList[kvp.Key.Group] = value;
                     }
 
-                    selectListItem.Group = groupList[kvp.Key.Group];
+                    selectListItem.Group = value;
                 }
 
                 selectList.Add(selectListItem);
@@ -595,7 +596,7 @@ namespace Smartstore.Web.Rendering
                 }
 
                 // Create TagHelperContext for tabstrip.
-                var stripContext = new TagHelperContext("tabstrip", new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
+                var stripContext = new TagHelperContext("tabstrip", [], new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
 
                 // Must init tabstrip, otherwise "Parent" is null inside tab helpers.
                 strip.Init(stripContext);
@@ -641,12 +642,13 @@ namespace Smartstore.Web.Rendering
                 wrapper.Attributes.Add("style", $"--tab-caption-display-{size}: inline");
 
                 // BEGIN: AI
-                if (helper.ViewData.Model is EntityModelBase { EntityId: > 0 } || (helper.ViewData.Model is ILocalizedModel && helper.ViewData.Model is IBlock))
-                {
-                    var aiToolHtmlGenerator = services.GetRequiredService<AIToolHtmlGenerator>();
-                    var translationDropdown = aiToolHtmlGenerator.GenerateTranslationTool(tabs.FirstOrDefault().Content.ToString());
+                var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
+                aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-                    wrapper.InnerHtml.AppendHtml(translationDropdown);
+                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model);
+                if (translationTool != null)
+                {
+                    wrapper.InnerHtml.AppendHtml(translationTool);
                 }
                 // END: AI
 
@@ -705,7 +707,7 @@ namespace Smartstore.Web.Rendering
             string transforms = null,
             object htmlAttributes = null)
         {
-            return helper.BootstrapIcon(
+            return helper.BootstrapIconInternal(
                 name,
                 false,
                 fill,
@@ -715,7 +717,7 @@ namespace Smartstore.Web.Rendering
                 htmlAttributes);
         }
 
-        internal static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
+        internal static IHtmlContent BootstrapIconInternal(this IHtmlHelper helper,
             string name,
             bool isStackItem = false,
             string fill = null,
@@ -814,7 +816,7 @@ namespace Smartstore.Web.Rendering
 
             var viewContext = helper.ViewContext;
             var widgetSelector = viewContext.HttpContext.RequestServices.GetRequiredService<IWidgetSelector>();
-            var content = await widgetSelector.GetContentAsync(zoneName, viewContext, model);
+            var content = await widgetSelector.GetContentAsync(new PlainWidgetZone(zoneName), viewContext, model);
 
             return content;
         }

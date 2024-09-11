@@ -39,7 +39,7 @@ namespace Smartstore.Web.Rendering.Events
         /// <remarks>Should only be called for admin tabstrips.</remarks>
         public void AddWidget(Widget widget)
         {
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(widget);
 
             (Widgets ??= []).Add(widget);
         }

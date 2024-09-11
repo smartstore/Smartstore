@@ -1,18 +1,22 @@
 ﻿namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
-    /// Interface to be implemented by all image generation prompts.
+    /// Represents an image generation prompt.
     /// </summary>
     public interface IImageGenerationPrompt
     {
-        string EntityName { get; set; }
-        string TargetProperty { get; set; }
+        string Prompt { get; }
+        string EntityName { get; }
+        string TargetProperty { get; }
 
-        string Medium { get; set; }
-        string Environment { get; set; }
-        string Lighting { get; set; }
-        string Color { get; set; }
-        string Mood { get; set; }
-        string Composition { get; set; }
+        string Medium { get; }
+        string Environment { get; }
+        string Lighting { get; }
+        string Color { get; }
+        string Mood { get; }
+        string Composition { get; }
+
+        public AIImageFormat Format { get; }
+        public ImageCreationStyle Style { get; }
     }
 }

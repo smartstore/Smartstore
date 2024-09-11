@@ -60,6 +60,11 @@ namespace Smartstore.Web.Api.Models.Checkout
             public int ProductId { get; set; }
 
             /// <summary>
+            /// Gets a value indicating whether the product is soft-deleted.
+            /// </summary>
+            public bool IsProductSoftDeleted { get; set; }
+
+            /// <summary>
             /// Gets the product variant SKU if a product variant was ordered, otherwise the product SKU.
             /// </summary>
             public string Sku { get; set; }

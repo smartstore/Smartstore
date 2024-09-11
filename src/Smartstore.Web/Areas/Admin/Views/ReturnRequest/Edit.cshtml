@@ -50,7 +50,9 @@
     <div asp-validation-summary="All"></div>
 
     <div sm-if="Model.ReturnRequestInfo.HasValue()" class="alert alert-info alert-dismissible">
-        @Html.Raw(Model.ReturnRequestInfo)
+        <div class="w-25">
+            @Html.Raw(Model.ReturnRequestInfo)
+        </div>
         <button type="button" class="btn-close" data-dismiss="alert"></button>
     </div>
 

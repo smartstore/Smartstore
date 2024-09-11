@@ -111,8 +111,8 @@ namespace Smartstore.Core.Widgets
 
         public virtual void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false)
         {
-            Guard.NotEmpty(targetZone, nameof(targetZone));
-            Guard.NotNull(content, nameof(content));
+            Guard.NotEmpty(targetZone);
+            Guard.NotNull(content);
 
             if (key.HasValue() && WidgetProvider.ContainsWidget(targetZone, key))
             {

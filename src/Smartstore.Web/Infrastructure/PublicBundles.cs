@@ -9,13 +9,13 @@ namespace Smartstore.Web.Infrastructure
         private static IEnumerable<string> ResolveThemeSourceFiles(DynamicBundleContext context)
         {
             var theme = context.RouteValues["theme"] as string;
-            return new[] { $"/Themes/{theme}/theme.scss" };
+            return [$"/Themes/{theme}/theme.scss"];
         }
 
         private static IEnumerable<string> ResolveRtlThemeSourceFiles(DynamicBundleContext context)
         {
             var theme = context.RouteValues["theme"] as string;
-            return new[] { $"/Themes/{theme}/theme-rtl.scss" };
+            return [$"/Themes/{theme}/theme-rtl.scss"];
         }
 
         private static bool IsValidTheme(DynamicBundleContext context)
@@ -102,6 +102,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.offcanvas.js",
                 js + "smartstore.parallax.js",
                 js + "smartstore.media.js",
+                js + "smartstore.cmp.js",
                 // Shop
                 js + "public.common.js",
                 js + "public.search.js",

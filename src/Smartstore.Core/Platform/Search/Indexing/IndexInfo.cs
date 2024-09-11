@@ -15,7 +15,7 @@ namespace Smartstore.Core.Search.Indexing
     {
         public IndexInfo(string scope)
         {
-            Guard.NotEmpty(scope, nameof(scope));
+            Guard.NotEmpty(scope);
 
             Scope = scope;
         }

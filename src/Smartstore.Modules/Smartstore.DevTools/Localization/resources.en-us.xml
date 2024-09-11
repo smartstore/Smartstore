@@ -30,6 +30,35 @@
     <LocaleResource Name="DisplayWidgetZones.Hint">
         <Value>Injects tooltips into every widget zone, which includes the name of the current widget zone. The display of these tooltips is limited to admintrators.</Value>
     </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Value>Show widget zone menu</Value>
+        <Children>
+            <LocaleResource Name="ActivateZones">
+                <Value>
+                    <![CDATA[
+                        No widget zones are currently enabled.
+                        By clicking the <i class="fa fa-power-off px-1"></i> icon, you can activate the widget zones.
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="Toolbar">
+                <Value>Widget zone toolbar</Value>
+            </LocaleResource>
+            <LocaleResource Name="Toggle">
+                <Value>
+                    <![CDATA[
+                        Toggle widget zones (Alt&nbsp;+&nbsp;K)
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PersistentToggle">
+                <Value>Always show widget zones</Value>
+            </LocaleResource>
+            <LocaleResource Name="CloseButton">
+                <Value>Close widget zone menu</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
     <LocaleResource Name="DisplayMachineName">
         <Value>Display machine name</Value>
     </LocaleResource>

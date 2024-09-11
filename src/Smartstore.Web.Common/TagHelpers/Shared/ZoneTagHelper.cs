@@ -1,43 +1,62 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Events;
+using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [DebuggerDisplay("Zone: {Name}")]
     [HtmlTargetElement("zone", Attributes = NameAttributeName)]
-    public class ZoneTagHelper : SmartTagHelper
+    public class ZoneTagHelper : SmartTagHelper, IWidgetZone
     {
         const string NameAttributeName = "name";
         const string ModelAttributeName = "model";
         const string ReplaceContentAttributeName = "replace-content";
         const string RemoveIfEmptyAttributeName = "remove-if-empty";
+        const string PreviewDisabledAttributeName = "preview-disabled";
+        const string PreviewCssClassAttributeName = "preview-class";
+        const string PreviewCssStyleAttributeName = "preview-style";
+        const string PreviewTagAttributeName = "preview-tag";
 
         private readonly IWidgetSelector _widgetSelector;
+        private readonly IEventPublisher _eventPublisher;
 
-        public ZoneTagHelper(IWidgetSelector widgetSelector)
+        public ZoneTagHelper(IWidgetSelector widgetSelector, IEventPublisher eventPublisher)
         {
             _widgetSelector = widgetSelector;
+            _eventPublisher = eventPublisher;
         }
 
         [HtmlAttributeName(NameAttributeName)]
-        public virtual string ZoneName { get; set; }
+        public virtual string Name { get; set; }
 
         [HtmlAttributeName(ModelAttributeName)]
         public object Model { get; set; }
 
-        /// <summary>
-        /// Specifies whether any default zone content should be removed if at least one 
-        /// widget is rendered in the zone.
-        /// </summary>
+        /// <inheritdoc />
         [HtmlAttributeName(ReplaceContentAttributeName)]
         public bool ReplaceContent { get; set; }
 
-        /// <summary>
-        /// Whether to remove the root zone tag when it has no content. 
-        /// Only applies to HTML tags like div, span, section etc..
-        /// <c>zone</c> tags are always removed. Default: false.
-        /// </summary>
+        /// <inheritdoc />
         [HtmlAttributeName(RemoveIfEmptyAttributeName)]
         public bool RemoveIfEmpty { get; set; }
+
+        /// <inheritdoc />
+        [HtmlAttributeName(PreviewDisabledAttributeName)]
+        public bool PreviewDisabled { get; set; }
+
+        /// <inheritdoc />
+        [HtmlAttributeName(PreviewCssClassAttributeName)]
+        public string PreviewCssClass { get; set; }
+
+        /// <inheritdoc />
+        [HtmlAttributeName(PreviewCssStyleAttributeName)]
+        public string PreviewCssStyle { get; set; }
+
+        /// <inheritdoc />
+        [HtmlAttributeName(PreviewTagAttributeName)]
+        public string PreviewTagName { get; set; }
 
         protected override string GenerateTagId(TagHelperContext context) 
             => null;
@@ -51,10 +70,18 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.TagName = null;
             }
 
-            // First check if any parent sm-suppress-if-empty-zone TagHelper already generated the content...
-            var zoneContent = SuppressIfEmptyZoneTagHelper.GetZoneContent(context, ZoneName);
-            // ...if not, generate it here.
-            zoneContent ??= await _widgetSelector.GetContentAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
+            // Obtain view model.
+            var model = Model ?? ViewContext.ViewData.Model;
+
+            // Generate zone content by iterating all widgets and invoking them.
+            var zoneContent = await _widgetSelector.GetContentAsync(this, ViewContext, model);
+
+            // Publish event to give integrators a chance to inject custom content to the zone.
+            var renderEvent = new ViewZoneRenderingEvent(this, zoneContent, ViewContext)
+            {
+                Model = model
+            };
+            await _eventPublisher.PublishAsync(renderEvent);
 
             if (zoneContent.IsEmptyOrWhiteSpace)
             {
@@ -99,17 +126,17 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ZoneNameAttributeName = "zone-name";
 
-        public HtmlZoneTagHelper(IWidgetSelector widgetSelector)
-            : base(widgetSelector)
+        public HtmlZoneTagHelper(IWidgetSelector widgetSelector, IEventPublisher eventPublisher)
+            : base(widgetSelector, eventPublisher)
         {
         }
 
         /// <inheritdoc/>
         [HtmlAttributeName(ZoneNameAttributeName)]
-        public override string ZoneName
+        public override string Name
         {
-            get => base.ZoneName;
-            set => base.ZoneName = value;
+            get => base.Name;
+            set => base.Name = value;
         }
     }
 }

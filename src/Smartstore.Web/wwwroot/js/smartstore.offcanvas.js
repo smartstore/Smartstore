@@ -73,7 +73,7 @@
         }
 
         if (this.options.autohide) {
-            $('body, .canvas-blocker').on('click', $.proxy(this.autohide, this));
+            $('body, .canvas-blocker').on('click', (e) => this.autohide(e));
         }
                 
         $(window).on('popstate', function (event) {
@@ -113,6 +113,7 @@
         placement: { xs: 'start' },
         fullscreen: false,
         overlay: false,
+        slide: true,
         autohide: true,
         hideonresize: false,
         disableScrolling: false,
@@ -325,14 +326,18 @@
             body.addClass('canvas-overlay');
         }
 
+        if (this.options.slide) {
+            body.addClass('canvas-sliding canvas-sliding-' + this.currentPlacement);
+        }
+
+        if (this.options.fullscreen) {
+            body.addClass('canvas-fullscreen');
+        }
+
         body.one("tapend", "[data-dismiss=offcanvas]", function (e) {
             e.preventDefault();
             self.hide();
         });
-
-        body.addClass('canvas-sliding canvas-sliding-'
-            + (this.currentPlacement)
-            + (this.options.fullscreen ? ' canvas-fullscreen' : ''));
 
         this.el.addClass("show").one(Prefixer.event.transitionEnd, function (e) {
             if (self.state !== 'slide-in') return;

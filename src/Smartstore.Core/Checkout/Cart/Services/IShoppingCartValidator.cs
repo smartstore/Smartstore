@@ -33,8 +33,13 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="cart">Shopping cart.</param>
         /// <param name="warnings">List of returned warnings.</param>
         /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes of <see cref="ShoppingCart.Customer"/>.</param>
+        /// <param name="validateRequiredProducts">A value indicating whether to validate required products.</param>
         /// <returns><c>True</c> when all items as well as the <see cref="CheckoutAttributeSelection"/> are valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateCartAsync(ShoppingCart cart, IList<string> warnings, bool validateCheckoutAttributes = false);
+        Task<bool> ValidateCartAsync(
+            ShoppingCart cart,
+            IList<string> warnings,
+            bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false);
 
         /// <summary>
         /// Validates add to cart item for product errors, attribute selection errors, gift card info errors, missing required products, bundle item and child items errors.

@@ -157,7 +157,7 @@ namespace Smartstore.Web.Bundling
         /// <summary>
         /// The list of processor for the bundle.
         /// </summary>
-        public IList<IBundleProcessor> Processors { get; } = new List<IBundleProcessor>();
+        public IList<IBundleProcessor> Processors { get; } = [];
 
         #endregion
 
@@ -191,8 +191,8 @@ namespace Smartstore.Web.Bundling
         /// </summary>
         public Bundle ReplaceProcessor(string processorCode, IBundleProcessor replaceWith)
         {
-            Guard.NotEmpty(processorCode, nameof(processorCode));
-            Guard.NotNull(replaceWith, nameof(replaceWith));
+            Guard.NotEmpty(processorCode);
+            Guard.NotNull(replaceWith);
 
             var processor = Processors.FirstOrDefault(x => x.Code == processorCode);
 

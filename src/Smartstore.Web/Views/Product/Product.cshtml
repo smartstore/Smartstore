@@ -93,7 +93,23 @@
                 <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
                     @if (Model.GroupedProduct?.Products?.Count > 0)
                     {
-                        <partial name="Product.AssociatedProducts.Search" model="Model.GroupedProduct" />
+                        <div class="row mb-2 row-gap-2 align-items-center">
+                            @if (Model.GroupedProduct.AssociatedProductsTitle.HasValue())
+                            {
+                                <div class="col-12 col-lg-6">
+                                    <h3 class="pd-assoc-list-title mb-0">@Model.GroupedProduct.AssociatedProductsTitle</h3>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <partial name="Product.AssociatedProducts.Search" model="Model.GroupedProduct" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12 col-lg-6 col-xxl-4">
+                                    <partial name="Product.AssociatedProducts.Search" model="Model.GroupedProduct" />
+                                </div>
+                            }
+                        </div>
                         <partial name="Product.AssociatedProducts" model="Model.GroupedProduct" />
                     }
                     else

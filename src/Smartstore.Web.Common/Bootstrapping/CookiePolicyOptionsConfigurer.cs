@@ -18,6 +18,7 @@ namespace Smartstore.Web.Bootstrapping
             //options.CheckConsentNeeded = context => false;
             options.HttpOnly = HttpOnlyPolicy.None;
             options.ConsentCookie.Name = CookieNames.CookieConsent;
+            options.ConsentCookie.HttpOnly = false;
             options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
 
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected

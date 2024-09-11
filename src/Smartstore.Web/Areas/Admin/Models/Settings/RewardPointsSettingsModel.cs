@@ -23,12 +23,18 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*PointsForProductReview")]
         public int PointsForProductReview { get; set; }
 
+        [LocalizedDisplay("*ShowPointsForProductReview")]
+        public bool ShowPointsForProductReview { get; set; }
+
         [LocalizedDisplay("*PointsForPurchases_Amount")]
         public int PointsForPurchases_Points { get; set; }
 
         [AdditionalMetadata("min", 0)]
         [LocalizedDisplay("*PointsForPurchases_Amount")]
         public decimal PointsForPurchases_Amount { get; set; }
+
+        [LocalizedDisplay("*ShowPointsForProductPurchase")]
+        public bool ShowPointsForProductPurchase { get; set; }
 
         [LocalizedDisplay("*PointsForPurchases_Awarded")]
         public OrderStatus PointsForPurchases_Awarded { get; set; }

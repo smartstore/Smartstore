@@ -1,0 +1,102 @@
+﻿@using Smartstore.Utilities
+
+@model ResolveTokensExampleModel
+
+@{
+    var descriptions = T("Admin.DataExchange.Export.FileNamePatternDescriptions").Value.SplitSafe(';').ToArray();
+    var rnd = CommonHelper.GenerateRandomInteger().ToStringInvariant();
+    var containerId = "resolve-tokens-container" + rnd;
+    var descriptionsId = "resolve-tokens-descriptions" + rnd;
+}
+
+<div id="@containerId">
+    <div style="width: max-content;">
+        <button type="button"
+                class="btn btn-outline-light btn-sm font-weight-normal"
+                data-toggle="collapse"
+                data-target="#@(descriptionsId)"
+                role="button"
+                aria-expanded="false"
+                aria-controls="@descriptionsId">
+            <span>@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")</span>
+            <i class="fa fa-chevron-down"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-secondary btn-resolve-tokens mr-2" title="@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")">
+            <i class="fa fa-sync"></i>
+        </button>
+        <span class="resolve-tokens-example">@Model.ResolvedExample</span>
+    </div>
+    <div id="@descriptionsId" class="collapse mt-2">
+        <div class="table-responsive">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th>@T("Admin.Common.Placeholder")</th>
+                        <th>@T("Common.Description")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>%Profile.Id%</td>
+                        <td>@descriptions.ElementAtOrDefault(0)</td>
+                    </tr>
+                    <tr>
+                        <td>%Profile.FolderName%</td>
+                        <td>@descriptions.ElementAtOrDefault(1)</td>
+                    </tr>
+                    <tr>
+                        <td>%Profile.SeoName%</td>
+                        <td>@descriptions.ElementAtOrDefault(2)</td>
+                    </tr>
+                    <tr>
+                        <td>%Store.Id%</td>
+                        <td>@descriptions.ElementAtOrDefault(3)</td>
+                    </tr>
+                    <tr>
+                        <td>%Store.SeoName%</td>
+                        <td>@descriptions.ElementAtOrDefault(4)</td>
+                    </tr>
+                    <tr sm-if="Model.SupportsFileTokens">
+                        <td>%File.Index%</td>
+                        <td>@descriptions.ElementAtOrDefault(5)</td>
+                    </tr>
+                    <tr>
+                        <td>%Random.Number%</td>
+                        <td>@descriptions.ElementAtOrDefault(6)</td>
+                    </tr>
+                    <tr>
+                        <td>%Timestamp%</td>
+                        <td>@descriptions.ElementAtOrDefault(7)</td>
+                    </tr>
+                    <tr>
+                        <td>%DateTime%</td>
+                        <td>@descriptions.ElementAtOrDefault(8)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="resolve-tokens-example">
+    $(function () {
+        const container = $('#@containerId');
+        const elInput = $('#@(Model.PatternInputId)');
+
+        container.on('click', '.btn-resolve-tokens', function () {
+            const queryString = '?pattern=' + encodeURIComponent(elInput.val()) + '@Html.Raw(Model.SupportsFileTokens ? "&fileIndex=1" : string.Empty)';
+
+            $(this).ajax({
+				type: 'GET',
+                url: '@Url.Action("ResolveTokens", "Export", new { id = Model.Id })' + queryString,
+                success: function (response) {
+                    container.find('.resolve-tokens-example').text(response);
+				}
+			});
+        });
+
+        elInput.on('change', function () {
+            container.find('.btn-resolve-tokens, .resolve-tokens-example').toggle(elInput.val().length > 0);
+        }).trigger('change');
+	});
+</script>

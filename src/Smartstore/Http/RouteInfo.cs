@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace Smartstore.Http
@@ -9,7 +11,6 @@ namespace Smartstore.Http
         public RouteInfo(RouteInfo cloneFrom)
             : this(cloneFrom.Action, cloneFrom.Controller, new RouteValueDictionary(cloneFrom.RouteValues))
         {
-            Guard.NotNull(cloneFrom, nameof(cloneFrom));
         }
 
         public RouteInfo(string action, object routeValues)
@@ -17,17 +18,17 @@ namespace Smartstore.Http
         {
         }
 
-        public RouteInfo(string action, string controller, object routeValues)
+        public RouteInfo(string action, string? controller, object? routeValues)
             : this(action, controller, new RouteValueDictionary(routeValues))
         {
         }
 
-        public RouteInfo(string action, IDictionary<string, object> routeValues)
+        public RouteInfo(string action, IDictionary<string, object?> routeValues)
             : this(action, null, routeValues)
         {
         }
 
-        public RouteInfo(string action, string controller, IDictionary<string, object> routeValues)
+        public RouteInfo(string action, string? controller, IDictionary<string, object?> routeValues)
             : this(action, controller, new RouteValueDictionary(routeValues))
         {
             Guard.NotNull(routeValues);
@@ -39,7 +40,7 @@ namespace Smartstore.Http
         }
 
         [JsonConstructor]
-        public RouteInfo(string action, string controller, RouteValueDictionary routeValues)
+        public RouteInfo(string action, string? controller, RouteValueDictionary routeValues)
         {
             Guard.NotEmpty(action);
             Guard.NotNull(routeValues);
@@ -49,23 +50,9 @@ namespace Smartstore.Http
             RouteValues = routeValues;
         }
 
-        public string Action
-        {
-            get;
-            private set;
-        }
-
-        public string Controller
-        {
-            get;
-            private set;
-        }
-
-        public RouteValueDictionary RouteValues
-        {
-            get;
-            private set;
-        }
+        public string Action { get; }
+        public string? Controller { get; }
+        public RouteValueDictionary RouteValues { get; }
     }
 
     #region JsonConverter
@@ -75,16 +62,16 @@ namespace Smartstore.Http
         public override bool CanWrite
             => false;
 
-        public override RouteInfo ReadJson(JsonReader reader, Type objectType, RouteInfo existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override RouteInfo? ReadJson(JsonReader reader, Type objectType, RouteInfo? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            string action = null;
-            string controller = null;
-            RouteValueDictionary routeValues = null;
+            string? action = null;
+            string? controller = null;
+            RouteValueDictionary? routeValues = null;
 
             reader.Read();
             while (reader.TokenType == JsonToken.PropertyName)
             {
-                string a = reader.Value.ToString();
+                string? a = reader.Value?.ToString();
                 if (string.Equals(a, "Action", StringComparison.OrdinalIgnoreCase))
                 {
                     reader.Read();
@@ -108,14 +95,14 @@ namespace Smartstore.Http
                 reader.Read();
             }
 
-            var routeInfo = Activator.CreateInstance(objectType, new object[] { action, controller, routeValues });
+            var routeInfo = Activator.CreateInstance(objectType, [action, controller, routeValues]);
 
-            return (RouteInfo)routeInfo;
+            return (RouteInfo?)routeInfo;
         }
 
-        public override void WriteJson(JsonWriter writer, RouteInfo value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, RouteInfo? value, JsonSerializer serializer)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
     }
 

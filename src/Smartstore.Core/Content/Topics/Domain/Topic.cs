@@ -80,18 +80,21 @@ namespace Smartstore.Core.Content.Topics
         /// <summary>
         /// Gets or sets the meta keywords.
         /// </summary>
+        [StringLength(400)]
         [LocalizedProperty]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
+        [StringLength(4000)]
         [LocalizedProperty]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
+        [StringLength(400)]
         [LocalizedProperty]
         public string MetaTitle { get; set; }
 

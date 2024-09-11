@@ -2,6 +2,7 @@
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data.Providers;
@@ -135,6 +136,12 @@ namespace Smartstore.Data.SqlServer
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
                 }
+
+                builder.ConfigureWarnings(w =>
+                {
+                    // EF throws when placing an order because a transaction is used.
+                    w.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS);
+                });
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
         }

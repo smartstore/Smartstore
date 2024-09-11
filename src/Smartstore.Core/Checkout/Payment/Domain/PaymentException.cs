@@ -67,7 +67,7 @@ namespace Smartstore.Core.Checkout.Payment
         public PaymentException(string? message, PaymentResponse response, Exception? innerException, string? provider)
             : base(message, innerException)
         {
-            Guard.NotNull(response, nameof(response));
+            Guard.NotNull(response);
 
             Provider = provider;
             Response = response;

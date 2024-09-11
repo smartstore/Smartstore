@@ -85,6 +85,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.tree.js",
                 js + "smartstore.media.js",
                 js + "smartstore.editortemplates.js",
+                js + "smartstore.offcanvas.js",
                 // Admin
                 adminJs + "admin.common.js",
                 adminJs + "admin.media.js",

@@ -170,6 +170,23 @@ namespace Smartstore.Web.Controllers
                 model.CanonicalUrl = Url.RouteUrl("Product", new { model.SeName }, Request.Scheme);
             }
 
+            // Determine which description to add the itemprop="description" attribute to, using Model.DescriptionPriority.
+            switch (_seoSettings.ProductDescriptionPriority)
+            {
+                case ProductDescriptionPriority.FullDescription:
+                    model.HasFullDescriptionSchemaProperty = model.FullDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.FullDescription;
+                    model.HasShortDescriptionSchemaProperty = !model.HasFullDescriptionSchemaProperty;
+                    break;
+                case ProductDescriptionPriority.ShortDescription:
+                    model.HasShortDescriptionSchemaProperty = model.ShortDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.ShortDescription;
+                    model.HasFullDescriptionSchemaProperty = !model.HasShortDescriptionSchemaProperty;
+                    break;
+                case ProductDescriptionPriority.Both:
+                    model.HasFullDescriptionSchemaProperty = true;
+                    model.HasShortDescriptionSchemaProperty = true;
+                    break;
+            }
+
             model.MetaProperties = await model.MapMetaPropertiesAsync();
 
             // Save as recently viewed
@@ -217,7 +234,7 @@ namespace Smartstore.Web.Controllers
             if (_paymentSettings.ProductDetailPaymentMethodSystemNames.IsNullOrEmpty())
             {
                 return;
-            } 
+            }
 
             // Store obtained data in memory cache
             var cacheKey = PaymentService.ProductDetailPaymentIcons.FormatInvariant(Services.StoreContext.CurrentStore.Id);
@@ -225,7 +242,7 @@ namespace Smartstore.Web.Controllers
             {
                 // INFO: No Dictonary<string, string> here because key are not unique in the case a provider has multiple icons.
                 var paymentMethods = new List<(string FriendlyName, string Url)>();
-                    
+
                 // Get all providers.
                 var providers = _providerManager.Value.GetAllProviders<IPaymentMethod>();
 
@@ -354,9 +371,9 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProductDetails(
             string itemType,
-            int productId, 
+            int productId,
             int? parentProductId,
-            int bundleItemId, 
+            int bundleItemId,
             ProductVariantQuery query)
         {
             // TODO: (core) UpdateProductDetails action needs some decent refactoring.

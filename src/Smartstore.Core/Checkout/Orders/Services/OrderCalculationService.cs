@@ -306,9 +306,9 @@ namespace Smartstore.Core.Checkout.Orders
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-            if (activeOnly && cart.Items.Any(x => !x.Active))
+            if (activeOnly)
             {
-                cart = new(cart, cart.Items.Where(x => x.Active));
+                cart = cart.WithActiveItemsOnly();
             }
 
             var cacheKey = $"ordercalculation:cartsubtotal:{cart.GetHashCode()}-{includeTax}";
@@ -543,6 +543,29 @@ namespace Smartstore.Core.Checkout.Orders
             discountAmount = _roundingHelper.RoundIfEnabledFor(discountAmount);
 
             return (new(discountAmount, _primaryCurrency), appliedDiscount);
+        }
+
+        public virtual int GetRewardPointsForPurchase(decimal amount, bool toDecreasePointsBalanceHistory = false)
+        {
+            if (amount != 0m
+                && _rewardPointsSettings.PointsForPurchases_Amount > 0
+                && _rewardPointsSettings.PointsForPurchases_Points != 0)
+            {
+                var rewardAmount = amount / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+
+                if (toDecreasePointsBalanceHistory)
+                {
+                    // We use IRoundingHelper here because "Truncate" increases the risk of inaccuracy of rounding.
+                    return (int)_roundingHelper.Round(rewardAmount, 0, _primaryCurrency.MidpointRounding);
+                }
+                else
+                {
+                    // INFO: "Truncate" returns the same as "Floor" for positive amounts.
+                    return (int)Math.Truncate(rewardAmount);
+                }
+            }
+
+            return 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

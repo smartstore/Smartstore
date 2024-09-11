@@ -26,7 +26,7 @@
     <ItemGroup>
         <PackageReference Include="AngleSharp" Version="0.17.1" />
         <PackageReference Include="AngleSharp.Css" Version="0.17.0" />
-        <PackageReference Include="AsyncKeyedLock" Version="6.3.4" />
+        <PackageReference Include="AsyncKeyedLock" Version="7.0.1" />
         <PackageReference Include="Autofac" Version="8.0.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Barcoder" Version="1.1.1" />

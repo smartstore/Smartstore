@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
         private readonly IMemoryCache _memoryCache;
 
         private Multimap<string, Widget> _zoneWidgetsMap;
-        private Multimap<Regex, Widget> _zoneExpressionWidgetsMap;
+        private Multimap<object, Widget> _zoneExpressionWidgetsMap;
 
         public DefaultWidgetProvider(IHttpContextAccessor accessor, IApplicationContext appContext, IMemoryCache memoryCache)
         {
@@ -26,92 +26,12 @@ namespace Smartstore.Core.Widgets
 
         int IWidgetSource.Order { get; } = 1000;
 
-        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(string zone, bool isPublicArea, object model)
+        Task<IEnumerable<Widget>> IWidgetSource.GetWidgetsAsync(IWidgetZone zone, bool isPublicArea, object model)
         {
             return Task.FromResult(GetWidgets(zone));
         }
 
         #endregion
-
-        public virtual void RegisterWidget(string[] zones, Widget widget)
-        {
-            Guard.NotNull(zones);
-            Guard.NotNull(widget);
-
-            if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
-            {
-                return;
-            }
-
-            if (_zoneWidgetsMap == null)
-            {
-                _zoneWidgetsMap = new Multimap<string, Widget>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<Widget>());
-            }
-
-            foreach (var zone in zones)
-            {
-                _zoneWidgetsMap.Add(zone, widget);
-            }
-        }
-
-        public virtual void RegisterWidget(Regex zonePattern, Widget widget)
-        {
-            Guard.NotNull(zonePattern);
-            Guard.NotNull(widget);
-
-            if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
-            {
-                return;
-            }
-
-            if (_zoneExpressionWidgetsMap == null)
-            {
-                _zoneExpressionWidgetsMap = new Multimap<Regex, Widget>(invokers => new HashSet<Widget>());
-            }
-
-            _zoneExpressionWidgetsMap.Add(zonePattern, widget);
-        }
-
-        public IEnumerable<Widget> GetWidgets(string zone)
-        {
-            if (zone.IsEmpty())
-            {
-                yield break;
-            }
-
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
-            {
-                foreach (var widget in widgets)
-                {
-                    yield return widget;
-                }
-            }
-
-            if (_zoneExpressionWidgetsMap != null)
-            {
-                foreach (var entry in _zoneExpressionWidgetsMap)
-                {
-                    var rg = entry.Key;
-                    if (rg.IsMatch(zone))
-                    {
-                        foreach (var widget in entry.Value)
-                        {
-                            yield return widget;
-                        }
-                    }
-                }
-            }
-        }
-
-        public bool HasWidgets(string zone)
-        {
-            return GetWidgets(zone).Any();
-        }
-
-        public bool ContainsWidget(string zone, string widgetKey)
-        {
-            return GetWidgets(zone).Any(x => x.Key == widgetKey);
-        }
 
         public async Task<dynamic> GetAllKnownWidgetZonesAsync()
         {
@@ -146,6 +66,88 @@ namespace Smartstore.Core.Widgets
             }
 
             return null;
+        }
+
+        public virtual void RegisterWidget(string[] zones, Widget widget)
+        {
+            Guard.NotNull(zones);
+            Guard.NotNull(widget);
+
+            if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
+            {
+                return;
+            }
+
+            _zoneWidgetsMap ??= new Multimap<string, Widget>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<Widget>());
+
+            foreach (var zone in zones)
+            {
+                _zoneWidgetsMap.Add(zone, widget);
+            }
+        }
+
+        public virtual void RegisterWidget(Regex zonePattern, Widget widget)
+            => RegisterWidgetByExpression(zonePattern, widget);
+
+        public virtual void RegisterWidget(Func<string, bool> zonePredicate, Widget widget)
+            => RegisterWidgetByExpression(zonePredicate, widget);
+
+        private void RegisterWidgetByExpression(object expression, Widget widget)
+        {
+            Guard.NotNull(expression);
+            Guard.NotNull(widget);
+
+            if (_accessor.HttpContext?.Request?.Query?.ContainsKey("nowidgets") == true)
+            {
+                return;
+            }
+
+            _zoneExpressionWidgetsMap ??= new Multimap<object, Widget>(invokers => new HashSet<Widget>());
+            _zoneExpressionWidgetsMap.Add(expression, widget);
+        }
+
+        public bool HasWidgets(IWidgetZone zone)
+        {
+            return GetWidgets(zone).Any();
+        }
+
+        public bool ContainsWidget(IWidgetZone zone, string widgetKey)
+        {
+            return GetWidgets(zone).Any(x => x.Key == widgetKey);
+        }
+
+        public IEnumerable<Widget> GetWidgets(IWidgetZone zone)
+        {
+            if (zone.Name.IsEmpty())
+            {
+                yield break;
+            }
+
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone.Name, out var widgets))
+            {
+                foreach (var widget in widgets)
+                {
+                    yield return widget;
+                }
+            }
+
+            if (_zoneExpressionWidgetsMap != null)
+            {
+                foreach (var entry in _zoneExpressionWidgetsMap)
+                {
+                    var isMatch = 
+                        (entry.Key is Regex rg && rg.IsMatch(zone.Name)) || 
+                        (entry.Key is Func<string, bool> fn && fn(zone.Name));
+                    
+                    if (isMatch)
+                    {
+                        foreach (var widget in entry.Value)
+                        {
+                            yield return widget;
+                        }
+                    }
+                }
+            }
         }
     }
 }

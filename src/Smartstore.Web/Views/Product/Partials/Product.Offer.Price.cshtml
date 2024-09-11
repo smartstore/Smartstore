@@ -112,5 +112,13 @@
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>
+        <div sm-if="priceModel.Reward != null" class="pd-group">
+            <div class="pd-review-amount text-success hstack gap-2">
+                <span class="badge bg-success rounded-circle p-0" style="width: 28px; min-width: 28px; height: 28px; --badge-font-size: 1em">
+                    <i class="fa fa-award text-white opacity-100"></i>
+                </span>
+                <span class="fs-sm">@Html.Raw(T("RewardPoints.Message.RewardPointsForProductPurchase", priceModel.Reward.Points, priceModel.Reward.Amount.ToString()))</span>
+            </div>
+        </div>
     }
 </div>

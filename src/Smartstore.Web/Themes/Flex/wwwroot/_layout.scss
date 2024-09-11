@@ -39,6 +39,10 @@ body {
         background: $body-bg;
     }
 
+    &.popup .dispensable { 
+        display: none !important;
+    }
+
     &.bare {
         padding: 0;
         margin: 0;

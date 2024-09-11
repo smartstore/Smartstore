@@ -87,9 +87,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.RelatedProducts.GetManyAsync(ids);
+                var toDelete = await _db.RelatedProducts.GetManyAsync(ids, true);
                 _db.RelatedProducts.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -209,9 +210,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.CrossSellProducts.GetManyAsync(ids);
+                var toDelete = await _db.CrossSellProducts.GetManyAsync(ids, true);
                 _db.CrossSellProducts.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -420,9 +422,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductBundleItem.GetManyAsync(ids);
+                var toDelete = await _db.ProductBundleItem.GetManyAsync(ids, true);
                 _db.ProductBundleItem.RemoveRange(toDelete);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new { Success = true, Count = numDeleted });

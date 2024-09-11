@@ -11,6 +11,7 @@ namespace Smartstore.Admin.Models.Orders
     {
         public int CustomerId { get; set; }
         public string CustomerDisplayName { get; set; }
+        public string OrderNumber { get; set; }
         public int ProductsTotal { get; set; }
         public Money TotalAmount { get; set; }
         public string Created { get; set; }

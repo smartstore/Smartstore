@@ -66,23 +66,27 @@
                     </p>
                 </div>
                 <div class="col-6 col-md-4">
-                    <h5>@T("Order.Shipments.ShippingMethod")</h5>
-                    <p>@Model.Order.ShippingMethod</p>
-
-                    @if (Model.TrackingNumber.HasValue())
-                    {
+                    <div>
+                        <h5>@T("Order.Shipments.ShippingMethod")</h5>
+                        <p>@Model.Order.ShippingMethod</p>
+                    </div>
+                    <div sm-if="Model.Carrier.HasValue() && !Model.Carrier.EqualsNoCase(Model.Order.ShippingMethod)">
+                        <h5>@T("Admin.Orders.Shipments.Carrier")</h5>
+                        <p>@Model.Carrier</p>
+                    </div>
+                    <div sm-if="Model.TrackingNumber.HasValue()">
                         <h5>@T("Order.Shipments.TrackingNumber")</h5>
                         <p>
-                            @if (Model.TrackingNumberUrl.HasValue())
+                            @if (Model.TrackingUrl.HasValue())
                             {
-                                <a href="@Model.TrackingNumberUrl" target="_blank" class="tracking-url" rel="nofollow">@Model.TrackingNumber</a>
+                                <a href="@Model.TrackingUrl" target="_blank" class="tracking-url" rel="nofollow">@Model.TrackingNumber</a>
                             }
                             else
                             {
                                 @Model.TrackingNumber
                             }
                         </p>
-                    }
+                    </div>
                 </div>
                 <div sm-if="Model.Order.ShippingAddress != null" class="col-12 col-md-4">
                     <h5>@T("Order.Shipments.ShippingAddress")</h5>

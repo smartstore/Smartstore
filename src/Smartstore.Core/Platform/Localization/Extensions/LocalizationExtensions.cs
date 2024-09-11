@@ -274,19 +274,81 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where TSetting : class, ISettings
         {
-            return GetLocalizedSetting(settings, keySelector, null, storeId, returnDefaultValue, ensureTwoPublishedLanguages, detectEmptyHtml);
+            return GetLocalizedSettingInternal(
+                settings,
+                keySelector,
+                null,
+                storeId,
+                returnDefaultValue,
+                ensureTwoPublishedLanguages,
+                detectEmptyHtml);
         }
 
         /// <summary>
-        /// Get localized property of an <see cref="ISettings"/> implementation
+        /// Gets localized value of an <see cref="ISettings"/> implementation.
         /// </summary>
-        /// <param name="settings">The settings instance</param>
-        /// <param name="keySelector">Key selector</param>
-        /// <param name="requestLanguageIdOrObj">Language id, <see cref="Language"/> object instance or <c>null</c></param>
-        /// <returns>Localized property</returns>
+        /// <param name="settings">The settings instance.</param>
+        /// <param name="keySelector">Key selector.</param>
+        /// <param name="requestLanguageIdOrObj">Language id, <see cref="Language"/> object instance or <c>null</c>.</param>
+        /// <param name="storeId">Store identifier. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <param name="returnDefaultValue">A value indicating whether to return default value (if localized is not found).</param>
+        /// <param name="ensureTwoPublishedLanguages">A value indicating whether to ensure that we have at least two published languages. Otherwise, load only default value.</param>
+        /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
+        /// <returns>Localized value.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LocalizedValue<string> GetLocalizedSetting<TSetting>(this TSetting settings,
             Expression<Func<TSetting, string>> keySelector,
             object requestLanguageIdOrObj, // Id or Language
+            int? storeId = null,
+            bool returnDefaultValue = true,
+            bool ensureTwoPublishedLanguages = true,
+            bool detectEmptyHtml = false)
+            where TSetting : class, ISettings
+        {
+            return GetLocalizedSettingInternal(
+                settings,
+                keySelector,
+                requestLanguageIdOrObj,
+                storeId,
+                returnDefaultValue,
+                ensureTwoPublishedLanguages,
+                detectEmptyHtml);
+        }
+
+        /// <summary>
+        /// Gets localized value of an <see cref="ISettings"/> implementation.
+        /// </summary>
+        /// <param name="settings">The settings instance.</param>
+        /// <param name="keySelector">Key selector.</param>
+        /// <param name="requestLanguageIdOrObj">Language id, <see cref="Language"/> object instance or <c>null</c>.</param>
+        /// <param name="storeId">Store identifier. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <param name="returnDefaultValue">A value indicating whether to return default value (if localized is not found).</param>
+        /// <param name="ensureTwoPublishedLanguages">A value indicating whether to ensure that we have at least two published languages. Otherwise, load only default value.</param>
+        /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
+        /// <returns>Localized value.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static LocalizedValue<string[]> GetLocalizedSetting<TSetting>(this TSetting settings,
+            Expression<Func<TSetting, string[]>> keySelector,
+            object requestLanguageIdOrObj, // Id or Language
+            int? storeId = null,
+            bool returnDefaultValue = true,
+            bool ensureTwoPublishedLanguages = true,
+            bool detectEmptyHtml = false)
+            where TSetting : class, ISettings
+        {
+            return GetLocalizedSettingInternal(
+                settings,
+                keySelector,
+                requestLanguageIdOrObj,
+                storeId,
+                returnDefaultValue,
+                ensureTwoPublishedLanguages,
+                detectEmptyHtml);
+        }
+
+        private static LocalizedValue<TProp> GetLocalizedSettingInternal<TSetting, TProp>(this TSetting settings,
+            Expression<Func<TSetting, TProp>> keySelector,
+            object requestLanguageIdOrObj,
             int? storeId = null,
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
@@ -298,32 +360,36 @@ namespace Smartstore.Core.Localization
 
             if (helper == null)
             {
-                return new LocalizedValue<string>(invoker.Invoke(settings));
+                return new LocalizedValue<TProp>(invoker.Invoke(settings));
             }
 
-            if (storeId == null)
-            {
-                storeId = EngineContext.Current.ResolveService<IStoreContext>().CurrentStore.Id;
-            }
+            storeId ??= EngineContext.Current.ResolveService<IStoreContext>().CurrentStore.Id;
 
             // Make fallback only when storeId is 0 and the paramter says so.
             var localizedValue = GetValue(storeId.Value, storeId == 0 && returnDefaultValue);
 
-            if (storeId > 0 && string.IsNullOrEmpty(localizedValue.Value))
+            if (storeId > 0)
             {
-                localizedValue = GetValue(0, returnDefaultValue);
+                var isEmpty = typeof(TProp) == typeof(string)
+                    ? string.IsNullOrEmpty(localizedValue.Value as string)
+                    : (localizedValue.Value as string[]).IsNullOrEmpty();
+
+                if (isEmpty)
+                {
+                    localizedValue = GetValue(0, returnDefaultValue);
+                }
             }
 
             return localizedValue;
 
-            LocalizedValue<string> GetValue(int id /* storeId */, bool doFallback)
+            LocalizedValue<TProp> GetValue(int id /* storeId */, bool doFallback)
             {
                 return helper.GetLocalizedValue(
                     settings,
                     id,
                     typeof(TSetting).Name,
                     invoker.Property.Name,
-                    (Func<TSetting, string>)invoker,
+                    (Func<TSetting, TProp>)invoker,
                     requestLanguageIdOrObj,
                     doFallback,
                     ensureTwoPublishedLanguages,

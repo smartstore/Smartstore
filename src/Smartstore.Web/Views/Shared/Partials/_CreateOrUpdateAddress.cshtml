@@ -14,7 +14,7 @@
     <div sm-if="Model.CompanyEnabled" class="form-group row">
         <label id="CompanyLabel" asp-for="Company" class="col-@(breakpoint)-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="Company" sm-required="Model.CompanyRequired" />
+            <input asp-for="Company" sm-required="Model.CompanyRequired" autocomplete="organization" />
             <span asp-validation-for="Company"></span>
         </div>
     </div>
@@ -26,7 +26,7 @@
         {
             <label asp-for="Salutation" class="col-@(breakpoint)-3 col-form-label"></label>
             <div class="col-@(breakpoint)-3">
-                <select asp-for="Salutation" asp-items="Model.AvailableSalutations"></select>
+                <select asp-for="Salutation" asp-items="Model.AvailableSalutations" autocomplete="honorific-prefix"></select>
                 <span asp-validation-for="Salutation"></span>
             </div>
         }
@@ -34,7 +34,7 @@
         {
             <label asp-for="Title" class="col-@(breakpoint)-3 col-form-label@(Model.SalutationEnabled ? " text-right" : "")"></label>
             <div class="col-@(breakpoint)-3">
-                <input asp-for="Title" />
+                <input asp-for="Title" autocomplete="organization-title" />
                 <span asp-validation-for="Title"></span>
             </div>
         }
@@ -42,28 +42,28 @@
     <div class="form-group row">
         <label id="FirstNameLabel" asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="FirstName" sm-required="Model.CompanyEnabled ? null : true" />
+            <input asp-for="FirstName" sm-required="Model.CompanyEnabled ? null : true" autocomplete="given-name" />
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
     <div class="form-group row">
         <label id="LastNameLabel" asp-for="LastName" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="LastName" sm-required="Model.CompanyEnabled ? null : true" />
+            <input asp-for="LastName" sm-required="Model.CompanyEnabled ? null : true" autocomplete="family-name" />
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
     <div sm-if="Model.StreetAddressEnabled" class="form-group row">
         <label asp-for="Address1" class="col-@(breakpoint)-3 col-form-label@(Model.StreetAddressRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="Address1" sm-required="Model.StreetAddressRequired" />
+            <input asp-for="Address1" sm-required="Model.StreetAddressRequired" autocomplete="address-line1" />
             <span asp-validation-for="Address1"></span>
         </div>
     </div>
     <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
         <label asp-for="Address2" class="col-@(breakpoint)-3 col-form-label@(Model.StreetAddress2Required ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="Address2" sm-required="Model.StreetAddress2Required" />
+            <input asp-for="Address2" sm-required="Model.StreetAddress2Required" autocomplete="address-line2" />
             <span asp-validation-for="Address2"></span>
         </div>
     </div>
@@ -73,7 +73,7 @@
         <div class="col-@breakpoint-9">
             <div class="row sm-gutters d-flex">
                 <div class="col">
-                    <input asp-for="City" sm-required="Model.CityRequired" />
+                    <input asp-for="City" sm-required="Model.CityRequired" autocomplete="address-level2" />
                 </div>
                 @if (Model.ZipPostalCodeEnabled)
                 {
@@ -81,7 +81,7 @@
                         <label asp-for="ZipPostalCode" class="text-right col-form-label@(Model.ZipPostalCodeRequired ? " required" : "")"></label>
                     </div>
                     <div class="col col-auto">
-                        <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" style="width: 6rem" />
+                        <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" style="width: 6rem" autocomplete="postal-code" />
                     </div>
                 }
             </div>
@@ -129,21 +129,21 @@
     <div class="form-group row">
         <label asp-for="Email" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="Email" sm-required="true" />
+            <input asp-for="Email" sm-required="true" autocomplete="email" />
             <span asp-validation-for="Email"></span>
         </div>
     </div>
     <div sm-if="Model.ValidateEmailAddress" class="form-group row">
         <label asp-for="EmailMatch" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="EmailMatch" sm-required="true" />
+            <input asp-for="EmailMatch" sm-required="true" autocomplete="email" />
             <span asp-validation-for="EmailMatch"></span>
         </div>
     </div>
     <div sm-if="Model.PhoneEnabled" class="form-group row">
         <label asp-for="PhoneNumber" class="col-@(breakpoint)-3 col-form-label@(Model.PhoneRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="PhoneNumber" sm-required="Model.PhoneRequired" />
+            <input asp-for="PhoneNumber" sm-required="Model.PhoneRequired" autocomplete="tel" />
             <span asp-validation-for="PhoneNumber"></span>
         </div>
     </div>

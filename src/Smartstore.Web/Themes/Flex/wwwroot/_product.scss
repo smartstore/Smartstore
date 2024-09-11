@@ -166,9 +166,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-review-summary {
     line-height: $pd-line-height;
     > * { display: inline-block; }
+
     .pd-rating-box .rating {
         vertical-align: sub;
     }
+
     .pd-review-link {
         position: relative;
         font-weight: $font-weight-medium;
@@ -179,6 +181,11 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
             color: $text-muted;
         }
     }
+}
+
+.pd-review-amount {
+    // Award icon (.fa-award)
+    --alert-icon-content: '\f559';
 }
 
 
@@ -598,7 +605,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         height: 100%;
         margin: 0;
         box-shadow: none;
-        outline: 1px solid rgba(#000, 0.15);
+        outline: 1px solid rgba($black, .15);
     }
 }
 
@@ -612,12 +619,12 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-assoc-header {
-    background-color: rgba($black, 0.05);
+    background-color: rgba($black, .05);
     border-radius: var(--border-radius-md);
     transition: background-color 0.1s ease;
 
     &:hover {
-        background-color: rgba($black, 0.1);
+        background-color: rgba($black, .1);
     }
 
     &.collapsed .collapse-chevron {
@@ -628,22 +635,10 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 .pd-assoc-title {
     padding: 0.75rem;
 
-    > .col:not(:last-child) {
-        display: flex;
-        padding: 0.3rem 0.5rem;
-        align-items: center;
-    }
-
     .pd-qty-input-container {
         width: inherit;
         cursor: default;
     }
-
-/*    .numberinput:not(:hover, :active, :focus), 
-    .btn-secondary:not(:hover, :active, :focus) {
-        border-color: transparent;
-        box-shadow: none;
-    }*/
 
     .collapse-chevron {
         height: max-content;
@@ -658,6 +653,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     width: 100%;
     min-width: 100px;
     padding: 0;
+
+    .numberinput-group {
+        overflow: initial;
+    }
+
+    .numberinput,
+    .qty-input-dropdown {
+        box-shadow: var(--box-shadow-xs);
+    }
 }
 
 .pd-assoc-name {
@@ -665,18 +669,19 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-assoc-img {
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
     align-self: center;
+    width: 42px;
+    margin-inline-end: 12px;
 }
 
 .pd-assoc-attr {
     @extend .text-truncate;
-    width: 100%;
+    font-size: $font-size-sm;
+    text-align: center;
 }
 
 .pd-assoc-price {
     font-weight: $font-weight-medium;
     color: $pd-price-color;
+    font-size: $font-size-base;
 }

@@ -30,6 +30,35 @@
     <LocaleResource Name="DisplayWidgetZones.Hint">
         <Value>Injiziert Tooltips in jede Widget-Zone, die den Namen der jeweiligen Widget-Zone enthalten. Die Anzeige ist auf angemeldete Administratoren beschränkt.</Value>
     </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Value>Widget-Zonen-Menü anzeigen</Value>
+        <Children>
+            <LocaleResource Name="ActivateZones">
+                <Value>
+                    <![CDATA[
+                        Momentan sind keine Widget-Zonen eingeschaltet.
+                        Mit Klick auf das <i class="fa fa-power-off px-1"></i> Symbol können Sie die Widget-Zonen aktivieren.
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="Toolbar">
+                <Value>Widget-Zonen Werkzeugleiste</Value>
+            </LocaleResource>
+            <LocaleResource Name="Toggle">
+                <Value>
+                    <![CDATA[
+                        Widget-Zonen anzeigen (Alt&nbsp;+&nbsp;K)
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PersistentToggle">
+                <Value>Widget-Zonen immer anzeigen</Value>
+            </LocaleResource>
+            <LocaleResource Name="CloseButton">
+                <Value>Widget-Zonen-Menü schließen</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
     <LocaleResource Name="DisplayMachineName">
         <Value>Rechnernamen anzeigen</Value>
     </LocaleResource>

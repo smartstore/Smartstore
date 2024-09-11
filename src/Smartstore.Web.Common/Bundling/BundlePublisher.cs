@@ -4,8 +4,8 @@
     {
         public void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles)
         {
-            Guard.NotNull(appContext, nameof(appContext));
-            Guard.NotNull(bundles, nameof(bundles));
+            Guard.NotNull(appContext);
+            Guard.NotNull(bundles);
 
             var bundleProviders = appContext.TypeScanner
                 .FindTypes<IBundleProvider>()

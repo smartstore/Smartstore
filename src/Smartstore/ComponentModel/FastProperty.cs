@@ -291,18 +291,6 @@ namespace Smartstore.ComponentModel
         }
 
         private static ConcurrentDictionary<Type, IDictionary<string, FastProperty>> CreateVolatileCache()
-        {
-            return new ConcurrentDictionary<Type, IDictionary<string, FastProperty>>();
-        }
-
-        class PropertyKey : Tuple<Type, string>
-        {
-            public PropertyKey(Type type, string propertyName)
-                : base(type, propertyName)
-            {
-            }
-            public Type Type { get { return Item1; } }
-            public string PropertyName { get { return Item2; } }
-        }
+            => new();
     }
 }

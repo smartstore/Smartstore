@@ -5,8 +5,8 @@ namespace Smartstore.Core.Widgets
 {
     public class DefaultWidgetSelector : IWidgetSelector
     {
-        private readonly static string[] StartAliases = new[] { "body_start_html_tag_after", "head_html_tag" };
-        private readonly static string[] EndAliases = new[] { "body_end_html_tag_before" };
+        private readonly static string[] StartAliases = ["body_start_html_tag_after", "head_html_tag"];
+        private readonly static string[] EndAliases = ["body_end_html_tag_before"];
 
         private readonly IWidgetSource[] _widgetSources;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -17,45 +17,47 @@ namespace Smartstore.Core.Widgets
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<Widget>> GetWidgetsAsync(string zone, object model = null)
+        public virtual async IAsyncEnumerable<Widget> EnumerateWidgetsAsync(IWidgetZone zone, object model = null)
         {
-            Guard.NotEmpty(zone);
+            Guard.NotNull(zone);
 
             var httpContext = _httpContextAccessor.HttpContext;
             var isPublicArea = httpContext != null && httpContext.GetRouteData().Values.GetAreaName().IsEmpty();
-            var zoneAliases = GetZoneAliases(zone);
-            var widgets = Enumerable.Empty<Widget>();
+            var zoneAliases = GetZoneAliases(zone.Name);
 
             for (var i = 0; i < _widgetSources.Length; i++)
             {
                 var localWidgets = await _widgetSources[i].GetWidgetsAsync(zone, isPublicArea, model);
                 if (localWidgets != null)
                 {
-                    widgets = widgets.Concat(localWidgets);
+                    foreach (var widget in localWidgets)
+                    {
+                        if (widget.IsValid(zone))
+                        {
+                            yield return widget;
+                        }
+                    }
                 }
 
                 if (zoneAliases != null)
                 {
-                    for (var y = 0; y < zoneAliases.Length; y++)
+                    var aliasZones = zoneAliases.Select(x => new PlainWidgetZone(zone) { Name = x }).ToArray();
+                    for (var y = 0; y < aliasZones.Length; y++)
                     {
-                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(zoneAliases[y], isPublicArea, model);
+                        var legacyWidgets = await _widgetSources[i].GetWidgetsAsync(aliasZones[y], isPublicArea, model);
                         if (legacyWidgets != null)
                         {
-                            widgets = widgets.Concat(legacyWidgets);
+                            foreach (var widget in legacyWidgets)
+                            {
+                                if (widget.IsValid(zone))
+                                {
+                                    yield return widget;
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            if (widgets.Any())
-            {
-                widgets = widgets
-                    .Distinct()
-                    .OrderBy(x => x.Prepend)
-                    .ThenBy(x => x.Order);
-            }
-
-            return widgets;
         }
 
         /// <summary>

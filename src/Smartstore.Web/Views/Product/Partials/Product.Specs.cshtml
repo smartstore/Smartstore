@@ -28,7 +28,7 @@
                         else if (count > 1)
                         {
                             <ul class="mb-0 pl-3">
-                                @foreach (var item in grp.OrderBy(x => x.DisplayOrder).ThenBy(x => x.SpecificationAttributeOption))
+                                @foreach (var item in grp.OrderBy(x => x.DisplayOrder).ThenNaturalBy(x => x.SpecificationAttributeOption))
                                 {
                                     <li class="pb-1"><span sm-language-attributes-for="item.SpecificationAttributeOption">@item.SpecificationAttributeOption</span></li>
                                 }

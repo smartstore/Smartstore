@@ -33,6 +33,9 @@ namespace Smartstore.Admin.Models.Orders
         public decimal? TotalWeight { get; set; }
         public string BaseWeight { get; set; }
 
+        [LocalizedDisplay("*Carrier")]
+        public string Carrier { get; set; }
+
         [LocalizedDisplay("*TrackingNumber")]
         public string TrackingNumber { get; set; }
 
@@ -50,7 +53,7 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime? CreatedOn { get; set; }
 
-        public List<ShipmentItemModel> Items { get; set; } = new();
+        public List<ShipmentItemModel> Items { get; set; } = [];
 
         public string EditUrl { get; set; }
         public string OrderEditUrl { get; set; }
@@ -80,7 +83,7 @@ namespace Smartstore.Admin.Models.Orders
             public int QuantityInThisShipment { get; set; }
             public int QuantityInAllShipments { get; set; }
 
-            public List<BundleItemModel> BundleItems { get; set; } = new();
+            public List<BundleItemModel> BundleItems { get; set; } = [];
         }
 
         public class BundleItemModel : ModelBase

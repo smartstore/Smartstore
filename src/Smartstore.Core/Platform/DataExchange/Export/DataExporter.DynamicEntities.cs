@@ -42,6 +42,8 @@ namespace Smartstore.Core.DataExchange.Export
             var orderItems = await ctx.OrderBatchContext.OrderItems.GetOrLoadAsync(order.Id);
             var shipments = await ctx.OrderBatchContext.Shipments.GetOrLoadAsync(order.Id);
 
+            await _genericAttributeService.PrefetchAttributesAsync(nameof(Shipment), shipments.ToDistinctArray(x => x.Id));
+
             dynamic dynObject = ToDynamic(order, ctx);
 
             if (customer != null)
@@ -61,7 +63,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .Select(x => CreateDynamic(x))
                     .ToList();
 
-                if (rewardPointsHistories.Any())
+                if (rewardPointsHistories.Count > 0)
                 {
                     dynObject.Customer._RewardPointsBalance = rewardPointsHistories
                         .OrderByDescending(x => x.CreatedOnUtc)
@@ -694,6 +696,10 @@ namespace Smartstore.Core.DataExchange.Export
                     dynamic exp = new DynamicEntity(x);
                     return exp;
                 })
+                .ToList();
+
+            result._GenericAttributes = shipment.GenericAttributes.UnderlyingEntities
+                .Select(x => CreateDynamic(x))
                 .ToList();
 
             return result;

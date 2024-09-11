@@ -125,7 +125,7 @@ fieldset.content-group {
 
 .has-icon {
     --inline-icon-size: #{$input-height};
-    --inline-icon-font-size: inherit;
+    --inline-icon-font-size: #{$font-size-base};
     --inline-icon-offset: 0px;
 
 	position: relative;
@@ -139,14 +139,14 @@ fieldset.content-group {
 	.input-group-icon {
 		position: absolute;
 		z-index: 10;
+        width: var(--inline-icon-size);
         height: 100%;
-		width: var(--inline-icon-size);
-        line-height: var(--inline-icon-size);
         font-size: cssmax(16px, var(--inline-icon-font-size));
         inset-inline-start: var(--inline-icon-offset);
-		text-align: center;
-		vertical-align: middle;
         pointer-events: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 	}
 
 	&.has-icon-right .input-group-icon {
@@ -159,7 +159,6 @@ fieldset.content-group {
         --inline-icon-font-size: #{$font-size-lg};
 	}
 
-    & .btn-sm,
 	&.input-group-sm {
         --inline-icon-size: #{$input-height-sm};
         --inline-icon-font-size: #{$font-size-sm};
@@ -202,6 +201,51 @@ fieldset.content-group {
         --btn-padding-y: 0;
         --btn-border-radius: var(--addon-border-radius-inner); // Inherit the parent's radius
         --btn-font-size: #{$font-size-sm};
+    }
+}
+
+
+// Toggle password visibility
+// ------------------------------------------------------
+
+.toggle-pwd-group {
+    position: relative;
+
+    > .form-control {
+        padding-inline-end: 2rem;
+    }
+}
+
+.btn-toggle-pwd {
+    position: absolute;
+    cursor: pointer;
+    text-decoration: none;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 3px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    z-index: 10;
+
+    input[type=password] + & {
+        color: var(--gray-700);
+    }
+
+    input[type=text] + & {
+        color: inherit;
+
+        > .far:before {
+            content: '\f06e'; // eye regular
+        }
+    }
+
+    input[disabled] + & {
+        color: var(--gray-400);
+        user-select: inherit;
+        pointer-events: none;
     }
 }
 
@@ -260,6 +304,10 @@ fieldset.content-group {
 	&:focus {
 		box-shadow: none !important;
 	}
+}
+
+.input-validation-error {
+    @extend .is-invalid;
 }
 
 

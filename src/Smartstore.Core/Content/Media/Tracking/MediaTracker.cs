@@ -61,16 +61,16 @@ namespace Smartstore.Core.Content.Media
 
         public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int>> path) where TSetting : ISettings, new()
         {
-            Guard.NotNull(settings, nameof(settings));
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(settings);
+            Guard.NotNull(path);
 
             return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
         }
 
         public Task TrackAsync<TSetting>(TSetting settings, int? prevMediaFileId, Expression<Func<TSetting, int?>> path) where TSetting : ISettings, new()
         {
-            Guard.NotNull(settings, nameof(settings));
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(settings);
+            Guard.NotNull(path);
 
             return TrackSettingAsync(settings, path.ExtractPropertyInfo().Name, prevMediaFileId, path.GetPropertyInvoker().Invoke(settings));
         }
@@ -81,8 +81,8 @@ namespace Smartstore.Core.Content.Media
             int? prevMediaFileId,
             int? currentMediaFileId) where TSetting : ISettings, new()
         {
-            Guard.NotNull(settings, nameof(settings));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(settings);
+            Guard.NotEmpty(propertyName);
 
             var key = nameof(TSetting) + "." + propertyName;
             var storeId = _storeContext.CurrentStoreIdIfMultiStoreMode;
@@ -96,23 +96,23 @@ namespace Smartstore.Core.Content.Media
 
         public Task TrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
         {
-            Guard.NotNull(entity, nameof(entity));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(entity);
+            Guard.NotEmpty(propertyName);
 
             return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Track);
         }
 
         public Task UntrackAsync(BaseEntity entity, int mediaFileId, string propertyName)
         {
-            Guard.NotNull(entity, nameof(entity));
-            Guard.NotEmpty(propertyName, nameof(propertyName));
+            Guard.NotNull(entity);
+            Guard.NotEmpty(propertyName);
 
             return TrackSingleAsync(entity, mediaFileId, propertyName, MediaTrackOperation.Untrack);
         }
 
         protected virtual async Task TrackSingleAsync(BaseEntity entity, int mediaFileId, string propertyName, MediaTrackOperation operation)
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             if (mediaFileId < 1 || entity.IsTransientRecord())
                 return;
@@ -183,106 +183,105 @@ namespace Smartstore.Core.Content.Media
 
         protected virtual async Task TrackManyCoreAsync(IEnumerable<MediaTrack> tracks, string albumName)
         {
-            Guard.NotNull(tracks, nameof(tracks));
+            Guard.NotNull(tracks);
 
             if (!tracks.Any())
                 return;
 
-            using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false))
+            using var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false);
+
+            // Get the album (necessary later to set FolderId)...
+            MediaFolderNode albumNode = albumName.HasValue()
+                ? _folderService.GetNodeByPath(albumName)?.Value
+                : null;
+
+            // Get distinct ids of all detected files...
+            var mediaFileIds = tracks.Select(x => x.MediaFileId).Distinct().ToArray();
+
+            // fetch these files from database...
+            var query = _db.MediaFiles
+                .Include(x => x.Tracks)
+                .Where(x => mediaFileIds.Contains(x.Id));
+
+            var isInstallation = !EngineContext.Current.Application.IsInstalled;
+            if (isInstallation)
             {
-                // Get the album (necessary later to set FolderId)...
-                MediaFolderNode albumNode = albumName.HasValue()
-                    ? _folderService.GetNodeByPath(albumName)?.Value
-                    : null;
+                query = query.Where(x => x.Version == 1);
+            }
 
-                // Get distinct ids of all detected files...
-                var mediaFileIds = tracks.Select(x => x.MediaFileId).Distinct().ToArray();
+            var files = await query.ToDictionaryAsync(x => x.Id);
 
-                // fetch these files from database...
-                var query = _db.MediaFiles
-                    .Include(x => x.Tracks)
-                    .Where(x => mediaFileIds.Contains(x.Id));
-
-                var isInstallation = !EngineContext.Current.Application.IsInstalled;
-                if (isInstallation)
+            // for each media file relation to an entity...
+            foreach (var track in tracks)
+            {
+                // fetch the file from local dictionary by its id...
+                if (files.TryGetValue(track.MediaFileId, out var file))
                 {
-                    query = query.Where(x => x.Version == 1);
-                }
-
-                var files = await query.ToDictionaryAsync(x => x.Id);
-
-                // for each media file relation to an entity...
-                foreach (var track in tracks)
-                {
-                    // fetch the file from local dictionary by its id...
-                    if (files.TryGetValue(track.MediaFileId, out var file))
+                    if (isInstallation)
                     {
-                        if (isInstallation)
-                        {
-                            // set album id as folder id (during installation there are no sub-folders)
-                            file.FolderId = albumNode?.Id;
+                        // set album id as folder id (during installation there are no sub-folders)
+                        file.FolderId = albumNode?.Id;
 
-                            // remember that we processed tracks for this file already
-                            file.Version = 2;
+                        // remember that we processed tracks for this file already
+                        file.Version = 2;
+                    }
+
+                    if (track.Album.IsEmpty())
+                    {
+                        if (albumNode != null)
+                        {
+                            // Overwrite track album if scope album was passed.
+                            track.Album = albumNode.Name;
                         }
-
-                        if (track.Album.IsEmpty())
+                        else if (file.FolderId.HasValue)
                         {
-                            if (albumNode != null)
-                            {
-                                // Overwrite track album if scope album was passed.
-                                track.Album = albumNode.Name;
-                            }
-                            else if (file.FolderId.HasValue)
-                            {
-                                // Determine album from file
-                                albumNode = _folderService.FindAlbum(file)?.Value;
-                                track.Album = albumNode?.Name;
-                            }
-                        }
-
-                        if (track.Album.IsEmpty())
-                            continue; // cannot track without album
-
-                        if ((albumNode ?? _folderService.FindAlbum(file)?.Value)?.CanDetectTracks == false)
-                            continue; // should not track in albums that do not support track detection
-
-                        // add or remove the track from file
-                        if (track.Operation == MediaTrackOperation.Track)
-                        {
-                            file.Tracks.Add(track);
-                        }
-                        else
-                        {
-                            var dbTrack = file.Tracks.FirstOrDefault(x => x == track);
-                            if (dbTrack != null)
-                            {
-                                file.Tracks.Remove(track);
-                                _db.TryChangeState(dbTrack, EfState.Deleted);
-                            }
-                        }
-
-                        if (file.Tracks.Count > 0)
-                        {
-                            // A file with tracks can NEVER be transient
-                            file.IsTransient = false;
-                        }
-                        else if (_makeFilesTransientWhenOrphaned)
-                        {
-                            // But an untracked file can OPTIONALLY be transient
-                            file.IsTransient = true;
+                            // Determine album from file
+                            albumNode = _folderService.FindAlbum(file)?.Value;
+                            track.Album = albumNode?.Name;
                         }
                     }
-                }
 
-                // Save whole batch to database
-                int num = await _db.SaveChangesAsync();
+                    if (track.Album.IsEmpty())
+                        continue; // cannot track without album
 
-                if (num > 0)
-                {
-                    // Breathe
-                    _db.DetachEntities<MediaFile>(deep: true);
+                    if ((albumNode ?? _folderService.FindAlbum(file)?.Value)?.CanDetectTracks == false)
+                        continue; // should not track in albums that do not support track detection
+
+                    // add or remove the track from file
+                    if (track.Operation == MediaTrackOperation.Track)
+                    {
+                        file.Tracks.Add(track);
+                    }
+                    else
+                    {
+                        var dbTrack = file.Tracks.FirstOrDefault(x => x == track);
+                        if (dbTrack != null)
+                        {
+                            file.Tracks.Remove(track);
+                            _db.TryChangeState(dbTrack, EfState.Deleted);
+                        }
+                    }
+
+                    if (file.Tracks.Count > 0)
+                    {
+                        // A file with tracks can NEVER be transient
+                        file.IsTransient = false;
+                    }
+                    else if (_makeFilesTransientWhenOrphaned)
+                    {
+                        // But an untracked file can OPTIONALLY be transient
+                        file.IsTransient = true;
+                    }
                 }
+            }
+
+            // Save whole batch to database
+            int num = await _db.SaveChangesAsync();
+
+            if (num > 0)
+            {
+                // Breathe
+                _db.DetachEntities<MediaFile>(deep: true);
             }
         }
 

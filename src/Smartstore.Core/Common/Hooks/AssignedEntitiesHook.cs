@@ -1,32 +1,33 @@
 ﻿using System.Collections.Frozen;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Messaging;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
 {
     /// <summary>
     /// Deletes assigned entities of entities that were deleted by referential integrity.
-    /// Without explicit deletion these assigned entities (like LocalizedProperty or MediaTrack) would remain in the database forever.
+    /// Without explicit deletion these assigned entities would remain in the database forever.
+    /// Typically used for satellite entities like LocalizedProperty or MediaTrack that have no foreign key relationships.
     /// </summary>
     [Important]
-    internal class AssignedEntitiesHook : AsyncDbSaveHook<BaseEntity>
+    internal class AssignedEntitiesHook(SmartDbContext db) : AsyncDbSaveHook<BaseEntity>
     {
+        const int BatchSize = 128;
+
         private static readonly FrozenSet<Type> _candidateTypes = new Type[]
         {
             typeof(ProductAttribute),
             typeof(ProductVariantAttribute),
             typeof(ProductAttributeOptionsSet),
-            typeof(SpecificationAttribute)
+            typeof(SpecificationAttribute),
+            typeof(QueuedEmail)
         }.ToFrozenSet();
 
-        private readonly SmartDbContext _db;
+        private readonly SmartDbContext _db = db;
         private readonly List<AssignedItem> _assignedItems = [];
-
-        public AssignedEntitiesHook(SmartDbContext db)
-        {
-            _db = db;
-        }
 
         protected override Task<HookResult> OnDeletingAsync(BaseEntity entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(_candidateTypes.Contains(entry.EntityType) ? HookResult.Ok : HookResult.Void);
@@ -42,7 +43,7 @@ namespace Smartstore.Core.Common.Hooks
 
             foreach (var group in groups)
             {
-                var deletedEntityIds = group.Select(x => x.Entity.Id).ToArray();
+                var deletedEntityIds = group.ToDistinctArray(x => x.Entity.Id);
 
                 if (group.Key == typeof(ProductAttribute))
                 {
@@ -92,35 +93,56 @@ namespace Smartstore.Core.Common.Hooks
                             .ToArrayAsync(cancelToken)
                     });
                 }
+                else if (group.Key == typeof(QueuedEmail))
+                {
+                    _assignedItems.Add(new()
+                    {
+                        AssignedEntities = AssignedEntity.MediaStorage,
+                        EntityName = nameof(MediaStorage),
+                        EntityIds = await _db.QueuedEmailAttachments
+                            .Where(x => deletedEntityIds.Contains(x.QueuedEmailId) && x.MediaStorageId > 0)
+                            .Select(x => x.MediaStorageId ?? 0)
+                            .ToArrayAsync(cancelToken)
+                    });
+                }
             }                
         }
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            if (_assignedItems.Count > 0)
+            if (_assignedItems.Count == 0)
             {
-                foreach (var item in _assignedItems)
-                {
-                    foreach (var ids in item.EntityIds.Chunk(100))
-                    {
-                        if (item.AssignedEntities.HasFlag(AssignedEntity.LocalizedProperty))
-                        {
-                            await _db.LocalizedProperties
-                                .Where(x => ids.Contains(x.EntityId) && x.LocaleKeyGroup == item.EntityName)
-                                .ExecuteDeleteAsync(cancelToken);
-                        }
+                return;
+            }
 
-                        if (item.AssignedEntities.HasFlag(AssignedEntity.MediaTrack))
-                        {
-                            await _db.MediaTracks
-                                .Where(x => ids.Contains(x.EntityId) && x.EntityName == item.EntityName)
-                                .ExecuteDeleteAsync(cancelToken);
-                        }
+            foreach (var item in _assignedItems)
+            {
+                foreach (var ids in item.EntityIds.Chunk(BatchSize))
+                {
+                    if (item.AssignedEntities.HasFlag(AssignedEntity.LocalizedProperty))
+                    {
+                        await _db.LocalizedProperties
+                            .Where(x => ids.Contains(x.EntityId) && x.LocaleKeyGroup == item.EntityName)
+                            .ExecuteDeleteAsync(cancelToken);
+                    }
+
+                    if (item.AssignedEntities.HasFlag(AssignedEntity.MediaTrack))
+                    {
+                        await _db.MediaTracks
+                            .Where(x => ids.Contains(x.EntityId) && x.EntityName == item.EntityName)
+                            .ExecuteDeleteAsync(cancelToken);
+                    }
+
+                    if (item.AssignedEntities.HasFlag(AssignedEntity.MediaStorage))
+                    {
+                        await _db.MediaStorage
+                            .Where(x => ids.Contains(x.Id))
+                            .ExecuteDeleteAsync(cancelToken);
                     }
                 }
-
-                _assignedItems.Clear();
             }
+
+            _assignedItems.Clear();
         }
 
 
@@ -128,13 +150,25 @@ namespace Smartstore.Core.Common.Hooks
         enum AssignedEntity
         {
             LocalizedProperty = 1 << 0,
-            MediaTrack = 1 << 1
+            MediaTrack = 1 << 1,
+            MediaStorage = 1 << 2,
         }
 
-        class AssignedItem
+        record AssignedItem
         {
+            /// <summary>
+            /// The assigned entities to delete.
+            /// </summary>
             public AssignedEntity AssignedEntities { get; set; } = AssignedEntity.LocalizedProperty | AssignedEntity.MediaTrack;
+
+            /// <summary>
+            /// The name of the assigned entities.
+            /// </summary>
             public string EntityName { get; set; }
+
+            /// <summary>
+            /// IDs of entities to delete.
+            /// </summary>
             public int[] EntityIds { get; set; }
         }
     }

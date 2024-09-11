@@ -270,7 +270,10 @@
                         <smart-label asp-for="Intro" />
                     </div>
                     <div class="adminData wide">
-                        <ai-text asp-for="Intro" entity-name="@Model.Title" entity-type="Topic">
+                        <ai-text asp-for="Intro" 
+                                 entity-name="@Model.Title" 
+                                 entity-type="Topic"
+                                 char-limit="255">
                             <textarea asp-for="Intro" rows="1"></textarea>
                         </ai-text>
                         <span asp-validation-for="Intro"></span>
@@ -352,7 +355,8 @@
                                  entity-name="@Model.Title"
                                  entity-type="Topic"
                                  display-optimization-options="false"
-                                 display-word-limit="false">
+                                 display-word-limit="false"
+                                 char-limit="400">
                             <input asp-for="MetaTitle" />
                         </ai-text>
                         <span asp-validation-for="MetaTitle"></span>
@@ -367,7 +371,8 @@
                                  entity-name="@Model.Title"
                                  entity-type="Topic"
                                  display-optimization-options="false"
-                                 display-word-limit="false">
+                                 display-word-limit="false"
+                                 char-limit="4000">
                             <textarea asp-for="MetaDescription"></textarea>
                         </ai-text>
                         <span asp-validation-for="MetaDescription"></span>
@@ -382,7 +387,8 @@
                                  entity-name="@Model.Title"
                                  entity-type="Topic"
                                  display-optimization-options="false"
-                                 display-word-limit="false">
+                                 display-word-limit="false"
+                                 char-limit="400">
                             <input asp-for="MetaKeywords" />
                         </ai-text>
                         <span asp-validation-for="MetaKeywords"></span>

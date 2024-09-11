@@ -94,7 +94,7 @@ namespace Smartstore.Core.Content.Media.Storage
                             scope.DbContext.DetachEntities(files, deep: true);
                         }
                     }
-
+                    
                     if (!cancelToken.IsCancellationRequested)
                     {
                         await transaction.CommitAsync(cancelToken);

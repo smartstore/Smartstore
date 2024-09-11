@@ -48,6 +48,7 @@ namespace Smartstore.Admin.Models.Export
 
         [LocalizedDisplay("*EmailSubject")]
         public string EmailSubject { get; set; }
+        public ResolveTokensExampleModel EmailSubjectExample { get; set; }
 
         [LocalizedDisplay("*EmailAccountId")]
         public int EmailAccountId { get; set; }
@@ -59,6 +60,7 @@ namespace Smartstore.Admin.Models.Export
         public bool CreateZip { get; set; }
         public string PublicFolderUrl { get; set; }
         public int FileCount { get; set; }
+
         public LastResultInfo LastResult { get; set; }
 
         public class LastResultInfo

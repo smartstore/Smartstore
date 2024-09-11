@@ -1,0 +1,80 @@
+﻿@model GroupedProductSettingsModel
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="title">@T("Enums.ProductType.GroupedProduct")</div>
+            <div class="text-muted">
+                @T("Admin.Catalog.GroupedProductConfiguration.Note")
+            </div>
+        </div>
+    </div>
+
+    @(Html.LocalizedEditor<GroupedProductSettingsModel, GroupedProductSettingsLocalizedModel>("grouped-product-settings-localized",
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="Locales[item].AssociatedProductsTitle" />
+				</div>
+                <div class="adminData">
+                    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language*@
+                    <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                    <setting-editor asp-for="Locales[item].AssociatedProductsTitle"></setting-editor>
+                    <span asp-validation-for="Locales[item].AssociatedProductsTitle"></span>
+                </div>
+			</div>
+		</div>
+		,
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="AssociatedProductsTitle" />
+				</div>
+                <div class="adminData">
+                    <setting-editor asp-for="AssociatedProductsTitle"></setting-editor>
+                    <span asp-validation-for="AssociatedProductsTitle"></span>
+                </div>
+			</div>
+		</div>
+	))
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AssociatedProductsPageSize" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="AssociatedProductsPageSize"></setting-editor>
+            <span asp-validation-for="AssociatedProductsPageSize"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SearchMinAssociatedProductsCount" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="SearchMinAssociatedProductsCount"></setting-editor>
+            <span asp-validation-for="SearchMinAssociatedProductsCount"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CollapsibleAssociatedProducts" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="CollapsibleAssociatedProducts" data-toggler-for="#grouped-product-config-collapsible"></setting-editor>
+            <span asp-validation-for="CollapsibleAssociatedProducts"></span>
+        </div>
+    </div>
+    <div id="grouped-product-config-collapsible" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CollapsibleAssociatedProductsHeaders" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="CollapsibleAssociatedProductsHeaders">
+                <select asp-for="CollapsibleAssociatedProductsHeaders" asp-items="ViewBag.AssociatedProductsHeaderFields" multiple="multiple" data-tags="true"></select>
+            </setting-editor>
+            <span asp-validation-for="CollapsibleAssociatedProductsHeaders"></span>
+        </div>
+    </div>
+</div>

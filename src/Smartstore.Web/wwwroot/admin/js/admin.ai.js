@@ -1,83 +1,88 @@
 (function ($, window, document, undefined) {
     $(function () {
         // Images
-        $(document).on('click', '.ai-provider-cnt .ai-image-creation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-image-composer', function (e) {
             e.preventDefault();
 
-            var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            let el = $(this);
+            let tool = el.closest(".ai-provider-tool");
 
             // Set the title used for the modal dialog title. 
             // For direct openers the title is set else we take the text of the dropdown item.
-            var title = this.hasAttribute("title") ? el.attr('title') : el.html();
+            let title = this.getAttribute("title") || el.html();
             
-            var params = {
-                providerSystemname: cnt.data('provider-systemname'),
-                targetProperty: cnt.data('target-property'),
-                entityName: cnt.data('entity-name'),
-                type: cnt.data('entity-type'),
+            let params = {
+                providerSystemname: tool.data('provider-systemname'),
+                targetProperty: tool.data('target-property'),
+                entityName: tool.data('entity-name'),
+                type: tool.data('entity-type'),
                 modalTitle: title,
-                format: cnt.data('format'),
-                mediaFolder: cnt.data('media-folder')
+                format: tool.data('format'),
+                mediaFolder: tool.data('media-folder')
             };
 
-            var url = getAIDialogUrl(cnt.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Text creation
-        $(document).on('click', '.ai-text-creation', function (e) {
+        $(document).on('click', '.ai-text-composer', function (e) {
             e.preventDefault();
 
-            var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
-            var isRichtext = cnt.data('is-rich-text');
+            let el = $(this);
+            let tool = el.closest(".ai-provider-tool");
+            let isRichText = tool.data('is-rich-text');
 
-            if (!isRichtext) {
-                // Get choosen provider cnt.
-                cnt = el.closest(".cnt-ai-dialog-opener").find("button.active");
+            if (!isRichText) {
+                // Get chosen provider tool.
+                tool = el.closest(".ai-dialog-opener-root").find("button.active");
             }
 
-            var params = {
-                providerSystemName: cnt.data('provider-systemname'),
-                entityName: cnt.data('entity-name'),
-                Type: cnt.data('entity-type'),
-                targetProperty: cnt.data('target-property')
+            if (tool.length === 0) {
+                return;
+            }
+
+            let params = {
+                providerSystemName: tool.data('provider-systemname'),
+                entityName: tool.data('entity-name'),
+                Type: tool.data('entity-type'),
+                targetProperty: tool.data('target-property'),
+                charLimit: tool.data('char-limit')
             };
 
-            if (!isRichtext) {
+            if (!isRichText) {
                 Object.assign(params, {
-                    optimizationCommand: el.data('command'),    // INFO: This is the optimization command of the clicked item.
-                    changeParameter: el.text(),                 // INFO: This is important for change style and tone items. We must know how to change the present text. For command "change-style" e.g. professional, casual, friendly, etc.
-                    displayWordLimit: cnt.data('display-word-limit'),
-                    displayStyle: cnt.data('display-style'),
-                    displayTone: cnt.data('display-tone'),
-                    displayOptimizationOptions: cnt.data('display-optimization-options')
+                    // INFO: This is the optimization command of the clicked item.
+                    optimizationCommand: el.data('command'),
+                    // INFO: This is important for change style and tone items. We must know how to change the present text. 
+                    // For command "change-style" e.g.professional, casual, friendly, etc.
+                    changeParameter: el.text(),
+                    displayWordLimit: tool.data('display-word-limit'),
+                    displayStyle: tool.data('display-style'),
+                    displayTone: tool.data('display-tone'),
+                    displayOptimizationOptions: tool.data('display-optimization-options')
                 });
-            } else {
+            }
+            else {
                 Object.assign(params, {
-                    entityId: cnt.data('entity-id'),
-                    displayAdditionalContentOptions: cnt.data('display-additional-content-options'),
-                    displayLinkOptions: cnt.data('display-link-options'),
-                    displayImageOptions: cnt.data('display-image-options'),
-                    displayStructureOptions: cnt.data('display-structure-options')
+                    entityId: tool.data('entity-id'),
+                    displayAdditionalContentOptions: tool.data('display-additional-content-options'),
+                    displayLinkOptions: tool.data('display-link-options'),
+                    displayImageOptions: tool.data('display-image-options'),
+                    displayStructureOptions: tool.data('display-structure-options')
                 });
             }
 
-            var url = getAIDialogUrl(cnt.data('modal-url'), params);
-
-            openPopup({ large: isRichtext, flex: true, url: url });
+            openDialog(tool, params, isRichText);
         });
 
         // Prevent dropdown from closing when a provider is choosen.
         $(document).on("click", ".btn-ai-provider-chooser", function (e) {
             e.stopPropagation();
 
-            var el = $(this);
+            let el = $(this);
 
             // Swap active class of button group
-            var btnGroup = el.closest('.btn-group');
+            let btnGroup = el.closest('.btn-group');
             btnGroup.find('button').removeClass('active');
             el.addClass('active');
 
@@ -85,60 +90,84 @@
         });
 
         // Translation
-        $(document).on('click', '.ai-provider-cnt .ai-translation', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-translator', function (e) {
             e.preventDefault();
 
-            var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            let el = $(this);
+            let tool = el.closest(".ai-provider-tool");
 
-            var params = {
-                providerSystemname: cnt.data('provider-systemname'),
-                targetProperty: cnt.data('target-property'),
-                ModalTitle: cnt.data('modal-title')
+            let params = {
+                providerSystemname: tool.data('provider-systemname'),
+                targetProperty: tool.data('target-property'),
+                ModalTitle: tool.data('modal-title')
             };
 
-            var url = getAIDialogUrl(cnt.data('modal-url'), params);
-
-            openPopup({ large: true, flex: true, url: url });
+            openDialog(tool, params, true);
         });
 
         // Suggestion
-        $(document).on('click', '.ai-provider-cnt .ai-suggestion', function (e) {
+        $(document).on('click', '.ai-provider-tool .ai-suggestion', function (e) {
             e.preventDefault();
 
-            var el = $(this);
-            var cnt = el.closest(".ai-provider-cnt");
+            let el = $(this);
+            let tool = el.closest(".ai-provider-tool");
 
-            var params = {
-                providerSystemname: cnt.data('provider-systemname'),
-                targetProperty: cnt.data('target-property'),
-                type: cnt.data('entity-type'),
-                mandatoryEntityFields: cnt.data('mandatory-entity-fields')
+            let params = {
+                providerSystemname: tool.data('provider-systemname'),
+                targetProperty: tool.data('target-property'),
+                type: tool.data('entity-type'),
+                mandatoryEntityFields: tool.data('mandatory-entity-fields'),
+                charLimit: tool.data('char-limit')
             };
 
-            var url = getAIDialogUrl(cnt.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
-        $('.cnt-ai-dialog-opener').each(function () {
-            var textarea = $(this).find('textarea');
-            if (textarea.length > 0 && textarea[0].scrollHeight > textarea.innerHeight() && textarea.innerHeight() > 0) {
-                $(this).addClass('has-scrollbar');
+        $('.ai-dialog-opener-root').each(function () {
+            const root = $(this);
+            const localeEditor = root.parent();
+
+            if (localeEditor.hasClass('locale-editor')) {
+                // Removing translator menu items that have no according input element in the localized editor.
+                root.find('.ai-translator-menu .ai-provider-tool').each(function () {
+                    const tool = $(this);
+                    const propName = tool.data('target-property');
+                    if (!_.isEmpty(propName) && localeEditor.find('#' + propName).length == 0) {
+                        tool[0].remove();
+                    }
+                });
+                return;
             }
 
-            var summernote = $(this).find('.note-editor-preview');
-            if (summernote.length > 0 && summernote[0].scrollHeight > summernote.innerHeight() && summernote.innerHeight() > 0) {
-                $(this).addClass('has-scrollbar');
+            let textarea = root.find('> textarea');
+            let innerHeight = textarea.innerHeight();
+            if (textarea.length && innerHeight && textarea[0].scrollHeight > innerHeight) {
+                root.addClass('has-scrollbar');
+            }
+
+            let summernote = root.find('.note-editor-preview');
+            innerHeight = summernote.innerHeight();
+            if (summernote.length && innerHeight && summernote[0].scrollHeight > innerHeight) {
+                root.addClass('has-scrollbar');
             }
 
             // TODO: On summernote init shift ai-opener below toolbar.
         });
     });
 
-    function getAIDialogUrl(baseUrl, params) {
-        var queryString = Object.entries(params).map(([key, value]) => {
+    function openDialog(opener, params, large) {
+        openPopup({
+            url: getDialogUrl(opener.data('modal-url'), params),
+            large: large,
+            flex: true,
+            backdrop: 'static',
+            scrollable: false
+        });
+    }
+
+    function getDialogUrl(baseUrl, params) {
+        let queryString = _.map(params, (value, key) => {
             return encodeURIComponent(key) + "=" + encodeURIComponent(value);
         }).join("&");
 

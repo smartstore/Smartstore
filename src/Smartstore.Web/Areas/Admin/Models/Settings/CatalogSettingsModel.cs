@@ -185,22 +185,6 @@ namespace Smartstore.Admin.Models
 
         #endregion
 
-        #region Grouped product configuration
-
-        [LocalizedDisplay("*AssociatedProductsPageSize")]
-        public int AssociatedProductsPageSize { get; set; }
-
-        [LocalizedDisplay("*SearchMinAssociatedProductsCount")]
-        public int SearchMinAssociatedProductsCount { get; set; }
-
-        [LocalizedDisplay("*CollapsibleAssociatedProducts")]
-        public bool CollapsibleAssociatedProducts { get; set; }
-
-        [LocalizedDisplay("*CollapsibleAssociatedProductsHeaders")]
-        public string[] CollapsibleAssociatedProductsHeaders { get; set; }
-
-        #endregion
-
         #region Product tags
 
         [LocalizedDisplay("*NumberOfProductTags")]
@@ -289,6 +273,8 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowProductTags")]
         public bool ShowProductTags { get; set; }
 
+        public GroupedProductSettingsModel GroupedProductSettings { get; set; } = new();
+
         #endregion
 
         public PriceSettingsModel PriceSettings { get; set; } = new();
@@ -333,8 +319,8 @@ namespace Smartstore.Admin.Models
 
             RuleFor(x => x.DisplayAllImagesNumber).GreaterThanOrEqualTo(0);
 
-            RuleFor(x => x.AssociatedProductsPageSize).GreaterThan(0);
-            RuleFor(x => x.SearchMinAssociatedProductsCount).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.GroupedProductSettings.AssociatedProductsPageSize).GreaterThan(0);
+            RuleFor(x => x.GroupedProductSettings.SearchMinAssociatedProductsCount).GreaterThanOrEqualTo(0);
         }
     }
 }

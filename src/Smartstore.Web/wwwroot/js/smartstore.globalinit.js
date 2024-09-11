@@ -4,7 +4,7 @@ jQuery(function () {
         win = $(window),
         body = $(document.body);
 
-    // Adjust initPNotify global defaults
+    // Adjust PNotify global defaults
     if (typeof PNotify !== 'undefined') {
         var stack = {
             dir1: "up",
@@ -31,7 +31,7 @@ jQuery(function () {
     }
 
     // Adjust datetimepicker global defaults
-    var dtp = $.fn.datetimepicker;
+    const dtp = $.fn.datetimepicker;
     if (typeof dtp !== 'undefined' && dtp.Constructor && dtp.Constructor.Default) {
         dtp.Constructor.Default = $.extend({}, dtp.Constructor.Default, {
             locale: 'glob',
@@ -65,7 +65,7 @@ jQuery(function () {
 
     // Confirm
     $(document).on('click', '.confirm', function (e) {
-        var msg = $(this).data("confirm-message") || window.Res["Admin.Common.AskToProceed"];
+        const msg = $(this).data("confirm-message") || window.Res["Admin.Common.AskToProceed"];
         return confirm(msg);
     });
 
@@ -107,7 +107,7 @@ jQuery(function () {
     });
 
     // Hacky fix for select2 not focusing search field on container open
-    $(document).on('select2:open', function() {
+    $(document).on('select2:open', function () {
         document.querySelector('.select2-container--open .select2-search__field').focus();
     });
 
@@ -186,11 +186,9 @@ jQuery(function () {
     })();
 
 
+    // .dropdown-group (nested dropdowns) && .dropdown-hoverdrop (hover dropdowns)
     (function () {
-        var currentDrop,
-            currentSubGroup,
-            closeTimeout,
-            closeTimeoutSub;
+        let currentDrop, closeTimeout;
 
         function showDrop(group, fn) {
             let menu = group.find('> .dropdown-menu');
@@ -201,7 +199,7 @@ jQuery(function () {
                         computeStyle: { gpuAcceleration: false },
                     },
                     preventOverflow: {
-                        boundariesElement: window
+                        boundariesElement: 'viewport'
                     }
                 });
 
@@ -210,30 +208,66 @@ jQuery(function () {
                 group.addClass('show');
                 menu.addClass('show');
 
+                // Show any parent groups
+                group.parents('.dropdown-group, .dropdown-group > .dropdown-menu').addClass('show');
+
                 if (_.isFunction(fn)) fn();
             }
         }
 
         function closeDrop(group, fn) {
-            let popper = group.data('popper');
-            if (popper) {
-                popper.destroy();
-                group.removeData('popper');
-            }
+            group.find('.dropdown-group, .dropdown-menu').addBack().each(function () {
+                const el = $(this);
+                el.removeClass('show');
 
-            group.removeClass('show').find('> .dropdown-menu').removeClass('show');
+                if (el.is('.dropdown-group')) {
+                    // Destroy and remove Popper instance
+                    let popper = el.data('popper');
+                    if (popper) {
+                        popper.destroy();
+                        el.removeData('popper');
+                    }
+                }
+            });
+
             if (_.isFunction(fn)) fn();
         }
 
-        // drop dropdown menus on hover
+        function handleEnter(group) {
+            clearTimeout(group.data('closeTimeout'));
+
+            // Close all open dropdowns that are not ancestors or descendants
+            $('.dropdown-group.show').each(function () {
+                let openGroup = $(this);
+                if (!$.contains(openGroup[0], group[0]) && !$.contains(group[0], openGroup[0])) {
+                    closeDrop(openGroup);
+                }
+            });
+
+            showDrop(group);
+            currentSubGroup = group;
+        }
+
+        function handleLeave(group, leaveDelay) {
+            let closeTimeout = setTimeout(() => {
+                // Ensure child dropdowns are also closed
+                group.find('.dropdown-group.show').addBack().each(function () {
+                    closeDrop($(this));
+                });
+            }, leaveDelay);
+
+            group.data('closeTimeout', closeTimeout);
+        }
+
+        // Drop dropdown menus on hover
         $(document).on('mouseenter mouseleave', '.dropdown-hoverdrop', function (e) {
-            var li = $(this),
-                a = $('> .dropdown-toggle', this);
+            const li = $(this);
+            const a = $('> .dropdown-toggle', this);
 
             if (a.data("toggle") === 'dropdown')
                 return;
 
-            var afterClose = function () { currentDrop = null; };
+            const afterClose = () => currentDrop = null;
 
             if (e.type == 'mouseenter') {
                 if (currentDrop) {
@@ -245,7 +279,7 @@ jQuery(function () {
             }
             else {
                 li.removeClass('show');
-                closeTimeout = window.setTimeout(function () { closeDrop(li, afterClose); }, 250);
+                closeTimeout = setTimeout(() => closeDrop(li, afterClose), 250);
             }
         });
 
@@ -257,7 +291,7 @@ jQuery(function () {
 
             if (e.type === 'click') {
                 let item = $(e.target).closest('.dropdown-item');
-                if (item.length && item.parent().get(0) == this) {
+                if (item.length && item.parent()[0] == this) {
                     type = $(this).is('.show') ? 'leave' : 'enter';
                     leaveDelay = 0;
                     item.trigger("blur");
@@ -265,21 +299,14 @@ jQuery(function () {
                     e.stopPropagation();
                 }
             }
-                
+
             type = type || (e.type == 'mouseenter' ? 'enter' : 'leave');
 
-            if (type == 'enter') {
-                if (currentSubGroup) {
-                    clearTimeout(closeTimeoutSub);
-                    closeDrop(currentSubGroup);
-                }
-
-                showDrop(group);
-                currentSubGroup = group;
-            }
-            else {
-                group.removeClass('show');
-                closeTimeoutSub = window.setTimeout(function () { closeDrop(group); }, leaveDelay);
+            if (type === 'enter') {
+                handleEnter(group);
+            } else {
+                // Close drop delayed to allow for mouse re-entry
+                handleLeave(group, leaveDelay);
             }
         });
     })();
@@ -289,10 +316,11 @@ jQuery(function () {
         $('.more-less').moreLess();
     }
 
+    // Toggle grouped buttons
     $(document).on('mouseup', '.btn-group-toggle.unselectable > .btn', function (e) {
         let btn = $(this);
         let radio = btn.find('input:radio');
-            
+
         if (radio.length && radio.prop('checked')) {
             e.preventDefault();
             e.stopPropagation();
@@ -415,6 +443,17 @@ jQuery(function () {
 
         win.on("scroll", throttledScroll);
     })();
+
+    // Toggle password visibility
+    $(document).on('click', '.btn-toggle-pwd', function () {
+        const input = $(this).prev('.form-control')[0];
+        if (input?.type == 'text') {
+            input.type = 'password';
+        }
+        else if (input?.type == 'password') {
+            input.type = 'text';
+        }
+    });
 
     // Modal stuff
     $(document).on('hide.bs.modal', '.modal', function (e) { body.addClass('modal-hiding'); });

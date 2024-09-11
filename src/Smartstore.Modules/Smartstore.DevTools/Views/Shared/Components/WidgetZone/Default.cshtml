@@ -1,14 +1,21 @@
-﻿@{
-    var widgetZone = ViewData["widgetZone"] as string;
+﻿@using Smartstore.Core.Widgets
+
+@{
+    if (ViewData["widgetzone"] is not IWidgetZone zone)
+    {
+        return;
+    }
 }
 
-@if (WorkContext.IsAdminArea && "sidebar_left".Equals(widgetZone))
+@if (zone.PreviewTagName == "meta")
 {
-    // Ignore, because it messes up the admin layout completely.
+    <meta name="widget-zone-name" class="wz-preview" content="@zone.Name" />
 }
 else
 {
-    <span class="badge badge-default widget-zone-info" title="@ViewData["widgetZone"]">
-        Widget Zone
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name"
+          attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
+          attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
+        <span class="text-truncate">@zone.Name</span>
     </span>
 }

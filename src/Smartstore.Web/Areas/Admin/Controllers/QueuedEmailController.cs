@@ -1,9 +1,12 @@
-﻿using Smartstore.Admin.Models.Messages;
+﻿using Autofac;
+using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Http;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -14,15 +17,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IQueuedEmailService _queuedEmailService;
+        private readonly AsyncRunner _asyncRunner;
 
         public QueuedEmailController(
             SmartDbContext db,
             IDateTimeHelper dateTimeHelper,
-            IQueuedEmailService queuedEmailService)
+            IQueuedEmailService queuedEmailService,
+            AsyncRunner asyncRunner)
         {
             _db = db;
             _dateTimeHelper = dateTimeHelper;
             _queuedEmailService = queuedEmailService;
+            _asyncRunner = asyncRunner;
         }
 
         public IActionResult Index()
@@ -107,13 +113,15 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Message.Delete)]
         public async Task<IActionResult> QueuedEmailDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds().ToList();
+            var ids = selection.GetEntityIds();
             var numDeleted = 0;
-            if (ids.Count > 0)
+
+            if (ids.Any())
             {
-                numDeleted = await _db.QueuedEmails
-                    .Where(x => ids.Contains(x.Id))
-                    .ExecuteDeleteAsync();
+                var toDelete = await _db.QueuedEmails.GetManyAsync(ids, true);
+                _db.QueuedEmails.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
+                numDeleted = toDelete.Count;
             }
 
             return Json(new
@@ -130,6 +138,69 @@ namespace Smartstore.Admin.Controllers
             var count = await _queuedEmailService.DeleteAllQueuedMailsAsync();
             NotifySuccess(T("Admin.Common.RecordsDeleted", count));
             return RedirectToAction(nameof(List));
+        }
+
+        /// <summary>
+        /// Deletes orphaned data caused by the deletion of <see cref="QueuedEmail"/> entities.
+        /// </summary>
+        /// <remarks>
+        /// Should only be executed once, as no more new orphaned data will be created after deletion.
+        /// That is why we do not have a service method for this.
+        /// </remarks>
+        [MaintenanceAction]
+        [Permission(Permissions.System.Message.Delete)]
+        public async Task<IActionResult> Cleanup(int batchSize = 128)
+        {
+            var numTotalDeleted = 0;
+
+            try
+            {
+                // MediaStorages that are neither referenced by MediaFiles nor by QueuedEmailAttachments.
+                var query = (
+                    from ms in _db.MediaStorage
+                    join mf in _db.MediaFiles on ms.Id equals mf.MediaStorageId into smf
+                    from mf in smf.DefaultIfEmpty()
+                    join ea in _db.QueuedEmailAttachments on ms.Id equals ea.MediaStorageId into sea
+                    from ea in sea.DefaultIfEmpty()
+                    where mf == null && ea == null
+                    select ms)
+                    .OrderBy(x => x.Id)
+                    .Select(x => x.Id)
+                    .Take(batchSize);
+
+                while (true)
+                {
+                    var ids = await query.ToListAsync();
+                    if (ids.Count == 0)
+                    {
+                        break;
+                    }
+
+                    var numDeleted = await _db.MediaStorage
+                        .Where(x => ids.Contains(x.Id))
+                        .ExecuteDeleteAsync();
+
+                    if (numDeleted == 0)
+                    {
+                        break;
+                    }
+
+                    numTotalDeleted += numDeleted;
+                }
+
+                if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
+                {
+                    var tableName = _db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
+                    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Content($"ERROR: {ex.Message}");
+            }
+
+            return Content(T("Admin.System.Maintenance.CleanupOrphanedRecords", numTotalDeleted.ToString("N0"), nameof(MediaStorage)));
         }
 
         [Permission(Permissions.System.Message.Read)]

@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Search
     {
         public CatalogSearchingEvent(CatalogSearchQuery query, bool direct)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             Query = query;
             Direct = direct;
@@ -31,8 +31,8 @@ namespace Smartstore.Core.Catalog.Search
     {
         public CatalogSearchedEvent(CatalogSearchQuery query, CatalogSearchResult result)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotNull(result, nameof(result));
+            Guard.NotNull(query);
+            Guard.NotNull(result);
 
             Query = query;
             Result = result;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.OutputCache;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Google.Analytics.Filters;
@@ -22,6 +23,19 @@ namespace Smartstore.Google.Analytics
                         context => context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax());
                 });
             }
+        }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            // OutputCache invalidation.
+            var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
+
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.TrackingScript, x => x.RemoveAllAsync());
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.DisplayCookieInfosForAds, x => x.RemoveAllAsync());
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.GoogleId, x => x.RemoveAllAsync());
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.MinifyScripts, x => x.RemoveAllAsync());
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.RenderWithUserConsentOnly, x => x.RemoveAllAsync());
+            observer.ObserveSettingProperty<GoogleAnalyticsSettings>(x => x.RenderCatalogScripts, x => x.InvalidateByRouteAsync([.. OutputCacheDefaults.AllProductListsRoutes, OutputCacheDefaults.ProductDetailsRoute]));
         }
     }
 }

@@ -134,8 +134,8 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            var validateCheckoutAttributes = (TempData["ValidateCheckoutAttributes"] as bool?) ?? false;
-            var model = await cart.MapAsync(validateCheckoutAttributes: validateCheckoutAttributes);
+            var isShoppingCartInvalid = (TempData["IsShoppingCartInvalid"] as bool?) ?? false;
+            var model = await cart.MapAsync(validateCheckoutAttributes: isShoppingCartInvalid, validateRequiredProducts: isShoppingCartInvalid);
 
             ViewBag.CartItemSelectionLink = GetCartItemSelectionLink(cart);
 
@@ -183,7 +183,7 @@ namespace Smartstore.Web.Controllers
             // Save data entered on cart page.
             if (!await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false))
             {
-                TempData["ValidateCheckoutAttributes"] = true;
+                TempData["IsShoppingCartInvalid"] = true;
 
                 return RedirectToRoute("ShoppingCart");
             }
@@ -304,6 +304,7 @@ namespace Smartstore.Web.Controllers
             var totalsHtml = string.Empty;
             var warningsHtml = string.Empty;
             var itemSelectionHtml = string.Empty;
+            var paymentButtonsHtml = string.Empty;
             var newItemPrice = string.Empty;
             var message = string.Empty;
             var subtotal = Money.Zero;
@@ -358,6 +359,7 @@ namespace Smartstore.Web.Controllers
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     itemSelectionHtml = GetCartItemSelectionLink(cart);
                     warningsHtml = await InvokePartialViewAsync("CartWarnings", cartModel.Warnings);
+                    paymentButtonsHtml = await InvokePartialViewAsync("CartPaymentButtons", cartModel);
 
                     if (item != null)
                     {
@@ -387,7 +389,8 @@ namespace Smartstore.Web.Controllers
                 cartHtml,
                 totalsHtml,
                 itemSelectionHtml,
-                warningsHtml
+                warningsHtml,
+                paymentButtonsHtml
             });
         }
 

@@ -22,38 +22,6 @@
         return viewport;
     };
 
-    window.CookieManager = {
-        getCookie: function (cookieName) {
-            var name = cookieName + "=";
-            var decodedCookie = decodeURIComponent(document.cookie);
-            var ca = decodedCookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        },
-        isAllowed: function (propName) {
-            var cookie = this.getCookie("CookieConsent");
-            if (cookie !== "") {
-                var obj = JSON.parse(cookie);
-                return obj[propName];
-            }
-            return false;
-        },
-        get allowsAnalytics() {
-            return this.isAllowed("AllowAnalytics");
-        },
-        get allowsThirdParty() {
-            return this.isAllowed("AllowThirdParty");
-        }
-    };
-
     var _commonPluginFactories = [
         // select2
         function (ctx) {
@@ -94,7 +62,11 @@
                 el.closest(".qty-input").find(".numberinput-postfix").text(qtyUnitName);
             });
         },
-        // newsletter subsription
+        // Copy to clipboard button
+        function (ctx) {
+            connectCopyToClipboard(ctx.find(".btn-clipboard"));
+        },
+        // Newsletter subsription
         function (ctx) {
             var newsletterContainer = $(".footer-newsletter");
             if (newsletterContainer.length > 0) {
@@ -138,35 +110,7 @@
                 });
             }
         },
-        // cookie manager
-        function (ctx) {
-            ctx.find('.cookie-manager').on("click", function (e) {
-                e.preventDefault();
-
-                var dialog = $("#cookie-manager-window");
-
-                if (dialog.length > 0) {
-                    // Dialog was already loaded > just open dialog.
-                    $('#cookie-manager-window').modal('show');
-                }
-                else {
-
-                    // Dialog wasn't loaded yet > get view via ajax call.
-                    var url = $(this).attr("href");
-
-                    $.ajax({
-                        cache: false,
-                        type: "POST",
-                        url: url,
-                        data: {},
-                        success: function (data) {
-                            $("body").append(data);
-                        }
-                    });
-                }
-            });
-        },
-        // slick carousel
+        // Slick carousel
         function (ctx) {
             if ($.fn.slick === undefined)
                 return;

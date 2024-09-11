@@ -4,7 +4,17 @@
 
 @if (!Model.WrapContent)
 {
-    @Html.Raw(Model.Body)
+    @if (Model.Consented || Model.CookieType == null)
+    {
+        @Html.Raw(Model.Body)
+    }
+    else
+    {
+        <template data-consent="@Model.CookieType.Value.ToString().ToLower()">
+            @Html.Raw(Model.Body)
+        </template>
+    }
+    
     return;
 }
 

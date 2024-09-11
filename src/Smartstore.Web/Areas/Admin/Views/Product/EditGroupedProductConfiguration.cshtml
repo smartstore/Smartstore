@@ -1,0 +1,102 @@
+﻿@using Smartstore.Core.Catalog
+
+@model GroupedProductConfigurationModel
+
+@inject CatalogSettings CatalogSettings
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Products.GroupedProductConfiguration").Value;
+}
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<form id="grouped-product-config-form" asp-action="EditGroupedProductConfiguration" asp-route-id="@Model.Id" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @(Html.LocalizedEditor<GroupedProductConfigurationModel, GroupedProductConfigurationLocalizedModel>("grouped-product-config-localized",
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="Locales[item].Title" />
+				</div>
+                <div class="adminData">
+                    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language*@
+                    <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                    <setting-editor asp-for="Locales[item].Title">
+                        <input asp-for="Locales[item].Title" placeholder="@Model.Locales[item].DefaultTitle" />
+                    </setting-editor>
+                    <span asp-validation-for="Locales[item].Title"></span>
+                </div>
+			</div>
+		</div>
+		,
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="Title" />
+				</div>
+                <div class="adminData">
+                    <setting-editor asp-for="Title">
+                        <input asp-for="Title" placeholder="@Model.DefaultTitle" />
+                    </setting-editor>
+                    <span asp-validation-for="Title"></span>
+                </div>
+			</div>
+		</div>
+	))
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PageSize" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PageSize" placeholder="@CatalogSettings.AssociatedProductsPageSize" />
+                <span asp-validation-for="PageSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SearchMinAssociatedCount" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SearchMinAssociatedCount" placeholder="@CatalogSettings.SearchMinAssociatedProductsCount" />
+                <span asp-validation-for="SearchMinAssociatedCount"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Collapsible" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Collapsible" placeholder="@T(CatalogSettings.CollapsibleAssociatedProducts ? "Common.Yes" : "Common.No")" />
+                <span asp-validation-for="Collapsible"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="HeaderFields" />
+            </div>
+            <div class="adminData">
+                <select asp-for="HeaderFields"
+                        asp-items="ViewBag.AssociatedProductsHeaderFields"
+                        placeholder="@ViewBag.DefaultAssociatedProductsHeaderFields"
+                        multiple="multiple"
+                        data-tags="true"></select>
+                <span asp-validation-for="HeaderFields"></span>
+            </div>
+        </div>
+    </div>
+</form>

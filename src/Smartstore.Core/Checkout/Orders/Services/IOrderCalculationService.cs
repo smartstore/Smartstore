@@ -128,6 +128,18 @@ namespace Smartstore.Core.Checkout.Orders
         Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer);
 
         /// <summary>
+        /// Gets the reward points for a purchase amount.
+        /// </summary>
+        /// <param name="amount">
+        /// The purchase amount to return reward points for.
+        /// </param>
+        /// <param name="decreasePointsBalanceHistory">
+        /// A value indicating whether the returned points will be used to decrease the points balance history.
+        /// <c>true</c> to decrease the points balance history, otherwise <c>false</c> (default).
+        /// </param>
+        int GetRewardPointsForPurchase(decimal amount, bool decreasePointsBalanceHistory = false);
+
+        /// <summary>
         /// Converts reward points to an amount in the primary currency.
         /// </summary>
         /// <param name="rewardPoints">Reward points.</param>

@@ -5,6 +5,7 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.CompareProducts"));
+    Assets.AppendMetaDescriptionParts(T("PageDescription.CompareProducts", CommonServices.StoreContext.CurrentStore.Name));
 
     var specificationAttributes = new List<ProductSpecificationModel>();
     foreach (var product in Model.Items)

@@ -1,17 +1,11 @@
-﻿/// <reference path="../../../Smartstore.Web/wwwroot/admin/theme.scss" />
+﻿/// <reference path="_core.scss" />
 
-.widget-zone-info {
-    display: block;
-    background: #fff;
-    color: inherit;
-    border: 1px dashed $gray-400;
-    margin-bottom: 3px;
-    text-align: start;
-}
+@import '_core.scss';
 
-#header,
-.options {
-    .widget-zone-info {
-        display: inline-block;
+.wz-preview {
+    @include widget-zone-preview();
+
+    #header &, .options & {
+        display: inline-flex;
     }
 }

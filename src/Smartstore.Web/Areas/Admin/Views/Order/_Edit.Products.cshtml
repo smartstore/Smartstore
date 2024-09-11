@@ -20,7 +20,9 @@
 
 <div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="alert alert-info alert-dismissible">
     <button type="button" class="btn-close" data-dismiss="alert"></button>
-    @Html.Raw(Model.UpdateOrderItemInfo)
+    <div class="w-25">
+        @Html.Raw(Model.UpdateOrderItemInfo)
+    </div>
 </div>
 
 <div>
@@ -59,11 +61,19 @@
                 @for (var i = 0; i < Model.Items.Count; i++)
                 {
                     var item = Model.Items[i];
-                    <tr>
+                    <tr attr-class='(item.IsProductSoftDeleted, "text-muted")'>
                         <td class="align-top">
                             <div>
                                 <div class="mb-2">
-                                    @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
+                                    @if (item.IsProductSoftDeleted)
+                                    {
+                                        <span class="mr-1 badge badge-subtle badge-ring badge-light">@T("Admin.Common.Deleted")</span>
+                                        <span>@item.ProductName</span>
+                                    }
+                                    else
+                                    {
+                                        @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
+                                    }
                                 </div>
                                 <div sm-if="item.AttributeDescription.HasValue()">
                                     @Html.Raw(item.AttributeDescription)
@@ -80,7 +90,14 @@
                                         {
                                             <div class="bundle-item mt-2">
                                                 <div class="bundle-item-name">
-                                                    <a asp-action="Edit" asp-controller="Product" asp-route-id="@bi.ProductId">@bi.ProductName</a>
+                                                    @if (item.IsProductSoftDeleted)
+                                                    {
+                                                        <span>@bi.ProductName</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a asp-action="Edit" asp-controller="Product" asp-route-id="@bi.ProductId">@bi.ProductName</a>
+                                                    }
                                                     <span sm-if="bi.Quantity > 1">&#215;&nbsp;@bi.Quantity</span>
                                                 </div>
                                                 <div sm-if="bi.PriceWithDiscount.HasValue()" class="bundle-item-price">
@@ -111,10 +128,17 @@
                                     @(T("Admin.Orders.Products.GiftCards")):
                                     @for (var j = 0; j < item.PurchasedGiftCardIds.Count; j++)
                                     {
-                                        <a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@item.PurchasedGiftCardIds[j]">@item.PurchasedGiftCardIds[j]</a>
+                                        @if (item.IsProductSoftDeleted)
+                                        {
+                                            <span>@item.PurchasedGiftCardIds[j]</span>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@item.PurchasedGiftCardIds[j]">@item.PurchasedGiftCardIds[j]</a>
+                                        }
                                         if (j != item.PurchasedGiftCardIds.Count - 1)
                                         { <text>,</text>}
-                                }
+                                    }
                                 </div>
                             </div>
                         </td>

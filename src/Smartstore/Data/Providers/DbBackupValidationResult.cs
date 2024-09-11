@@ -3,22 +3,17 @@
     /// <summary>
     /// Represents the result of a database backup name validation.
     /// </summary>
-    public class DbBackupValidationResult
+    public record DbBackupValidationResult(string Name)
     {
-        public DbBackupValidationResult(string name)
-        {
-            Name = name;
-        }
+        /// <summary>
+        /// The file name of the database backup.
+        /// </summary>
+        public string Name { get; } = Name;
 
         /// <summary>
         /// A value indicating whether the backup is valid.
         /// </summary>
         public bool IsValid { get; init; }
-
-        /// <summary>
-        /// The file name of the database backup.
-        /// </summary>
-        public string Name { get; }
 
         /// <summary>
         /// The Smartstore version under which the backup was created.

@@ -258,6 +258,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [DisallowRobot]
+        [HttpPost]
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]
         public IActionResult CookieManager()
         {
@@ -269,13 +270,16 @@ namespace Smartstore.Web.Controllers
         {
             if (model.AcceptAll)
             {
+                model.RequiredConsent = true;
                 model.AnalyticsConsent = true;
                 model.ThirdPartyConsent = true;
                 model.AdUserDataConsent = true;
                 model.AdPersonalizationConsent = true;
             }
 
-            _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
+            // Info: We don't pass the required value from model.RequiredConsent because the control is disabled and the value is always false
+            // but required cookies are always allowed. However, we need to set the consent explicitly because we can't even set required cookies without consent.
+            _cookieConsentManager.SetConsentCookie(true, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
 
             if (!HttpContext.Request.IsAjax())
             {

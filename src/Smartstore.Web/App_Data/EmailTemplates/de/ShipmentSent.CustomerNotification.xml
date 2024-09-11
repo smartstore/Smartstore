@@ -3,7 +3,8 @@
 	<To>{{ Customer.FullName }} &lt;{{ Customer.Email }}&gt;</To>
 	<Subject>{{ Store.Name }}. Ihre Sendung wurde verschickt.</Subject>
 	<ModelTypes>Shipment, Shipment.Order, Shipment.Customer</ModelTypes>
-	<Body><![CDATA[{% extends 'master' %}
+	<Body>
+          <![CDATA[{% extends 'master' %}
 
 {% block 'body' %}
 <h1>
@@ -12,6 +13,9 @@
 
 <p>
   Ihre Sendung mit der Nummer <b>{{ Shipment.Id }}</b> wurde verschickt.
+  {% if Shipment.Carrier %}
+  Der Versand erfolgt über {{ Shipment.Carrier }}.
+  {% endif %}
 </p>
 
 {% if Shipment.TrackingUrl %}
@@ -23,7 +27,7 @@
 <table class="w-100 mb-3">
   <thead>
   	<tr>
-    	<th class="text-muted text-sm">Bestellt am</th>
+      <th class="text-muted text-sm">Bestellt am</th>
       <th class="text-muted text-sm">Bestellnr.</th>
       <th class="text-muted text-sm">Tracking-ID</th>
       <th class="text-muted text-sm">Versendet am</th>
@@ -31,7 +35,7 @@
   </thead>
   <tbody class="mb-3">
   	<tr>
-    	<td class="text-sm">{{ Order.CreatedOn | Date:'d' }}</td>
+      <td class="text-sm">{{ Order.CreatedOn | Date:'d' }}</td>
       <td class="text-sm">{{ Order.OrderNumber }}</td>
       <td class="text-sm">{{ Shipment.TrackingNumber }}</td>
       <td class="text-sm">{{ Shipment.ShippedOn }}</td>

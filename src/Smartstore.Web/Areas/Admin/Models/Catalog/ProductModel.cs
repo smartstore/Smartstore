@@ -281,7 +281,6 @@ namespace Smartstore.Admin.Models.Catalog
         public int[] SelectedDiscountIds { get; set; }
 
         public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; } = new();
-        public GroupedProductConfigurationModel GroupedProductConfiguration { get; set; } = new();
 
         //BasePrice
         [LocalizedDisplay("*BasePriceEnabled")]
@@ -701,17 +700,6 @@ namespace Smartstore.Admin.Models.Catalog
                     .NotEmpty()
                     .When(x => x.NewVersionDownloadId != null && x.NewVersionDownloadId != 0)
                     .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
-            });
-
-            When(x => x.ProductTypeId == (int)ProductType.GroupedProduct, () =>
-            {
-                RuleFor(x => x.GroupedProductConfiguration.PageSize)
-                    .GreaterThan(0)
-                    .When(x => x.GroupedProductConfiguration.PageSize != null);
-
-                RuleFor(x => x.GroupedProductConfiguration.SearchMinAssociatedCount)
-                    .GreaterThanOrEqualTo(0)
-                    .When(x => x.GroupedProductConfiguration.SearchMinAssociatedCount != null);
             });
         }
     }

@@ -239,7 +239,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var isStackItem = context.Items.ContainsKey("IconStack");
 
-            var svg = (TagBuilder)HtmlHelper.BootstrapIcon(
+            var svg = (TagBuilder)HtmlHelper.BootstrapIconInternal(
                 Name,
                 isStackItem,
                 Fill,

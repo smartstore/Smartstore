@@ -54,7 +54,7 @@ namespace Smartstore.Templating.Liquid
                     return;
 
                 var model = context.Environments.First();
-                var evt = new ZoneRenderingEvent(zoneName, model)
+                var evt = new TemplateZoneRenderingEvent(zoneName, model)
                 {
                     LiquidContext = context
                 };

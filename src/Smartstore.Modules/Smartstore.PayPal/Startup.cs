@@ -8,6 +8,7 @@ using Smartstore.Net.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Filters;
 using Smartstore.PayPal.Services;
+using Smartstore.Web.Bundling;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal
@@ -58,6 +59,15 @@ namespace Smartstore.PayPal
             observer.ObserveSettingProperty<PayPalSettings>(
                 x => x.DisplayProductDetailPayLaterWidget, 
                 p => p.InvalidateByRouteAsync(OutputCacheDefaults.ProductDetailsRoute));
+
+            // INFO: We can load the utility js regardless of user consent. It doesn't set any cookies.
+            builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
+            {
+                // (perf PageSpeed) Get the frontend script bundle and include the utility script
+                var bundleCollection = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IBundleCollection>();
+                var bundle = bundleCollection.GetBundleFor("/bundle/js/site.js");
+                bundle?.Include("/Modules/Smartstore.PayPal/js/paypal.utils.js");
+            });
         }
     }
 }

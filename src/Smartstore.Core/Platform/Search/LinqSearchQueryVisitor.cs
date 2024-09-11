@@ -184,9 +184,9 @@ namespace Smartstore.Core.Search
         /// <param name="context">The search query context.</param>
         /// <param name="query">The LINQ query to apply the sort to.</param>
         /// <returns>The modified LINQ query.</returns>
-        protected virtual IOrderedQueryable<TEntity> ApplyDefaultSorting(TContext context, IQueryable<TEntity> query)
+        protected virtual IQueryable<TEntity> ApplyDefaultSorting(TContext context, IQueryable<TEntity> query)
         {
-            return query.OrderBy(x => x.Id);
+            return OrderBy(query, x => x.Id);
         }
 
         /// <summary>

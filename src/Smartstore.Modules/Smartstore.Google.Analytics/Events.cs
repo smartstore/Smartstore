@@ -42,12 +42,6 @@ namespace Smartstore.Google.Analytics
                 return;
             }
 
-            // If user has not accepted the cookie consent don't render anything.
-            if (_settings.RenderWithUserConsentOnly && !await cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics))
-            {
-                return;
-            }
-
             var componentType = message.Descriptor.TypeInfo.AsType();
 
             if (!_interceptableViewComponents.TryGetValue(componentType, out var zone))
@@ -74,7 +68,11 @@ namespace Smartstore.Google.Analytics
                         itemsScript = new JsMinifier().Minify(itemsScript);
                     }
 
-                    _widgetProvider.RegisterHtml(zone, new HtmlString($"<script>{itemsScript}</script>"));
+                    // If user has not accepted the cookie consent and the module is configured to render only with user consent, add consent attributes.
+                    var consented = _settings.RenderWithUserConsentOnly || await cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+                    var scriptIncludeTag = new HtmlString($"<script{(consented ? string.Empty : " data-consent=\"analytics\" type=\"text/plain\"")}>$(function() {{{itemsScript}}});</script>");
+
+                    _widgetProvider.RegisterHtml(zone, scriptIncludeTag);
                 }
             }
         }

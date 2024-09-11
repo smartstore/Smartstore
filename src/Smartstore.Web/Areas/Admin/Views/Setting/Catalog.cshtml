@@ -648,54 +648,13 @@
                         <span asp-validation-for="ShowProductTags"></span>
                     </div>
                 </div>
-
-                <div class="adminRow">
-                    <div class="admin-config-group">
-                        <div class="title mb-0">@T("Enums.ProductType.GroupedProduct")</div>
-                    </div>
-                </div>
-                <div class="adminRow text-muted">
-                    @T("Admin.Catalog.GroupedProductConfiguration.Note")
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="AssociatedProductsPageSize" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="AssociatedProductsPageSize"></setting-editor>
-                        <span asp-validation-for="AssociatedProductsPageSize"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="SearchMinAssociatedProductsCount" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="SearchMinAssociatedProductsCount"></setting-editor>
-                        <span asp-validation-for="SearchMinAssociatedProductsCount"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CollapsibleAssociatedProducts" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CollapsibleAssociatedProducts" data-toggler-for="#grouped-product-config-collapsible"></setting-editor>
-                        <span asp-validation-for="CollapsibleAssociatedProducts"></span>
-                    </div>
-                </div>
-                <div id="grouped-product-config-collapsible" class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CollapsibleAssociatedProductsHeaders" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="CollapsibleAssociatedProductsHeaders">
-                            <select asp-for="CollapsibleAssociatedProductsHeaders" asp-items="ViewBag.AssociatedProductsHeaderFields" multiple="multiple" data-tags="true"></select>
-                        </setting-editor>
-                        <span asp-validation-for="CollapsibleAssociatedProductsHeaders"></span>
-                    </div>
-                </div>
             </div>
+
+            @{
+                var groupedProductViewData = new ViewDataDictionary(ViewData);
+                groupedProductViewData.TemplateInfo.HtmlFieldPrefix = nameof(Model.GroupedProductSettings);
+            }
+            <partial name="Catalog.GroupedProduct" model="Model.GroupedProductSettings" view-data="groupedProductViewData" />
 
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.Catalog.UserSettings")">

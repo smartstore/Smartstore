@@ -26,6 +26,10 @@ namespace Smartstore.Web.Controllers
             var isBundle = product.ProductType == ProductType.BundledProduct;
             var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
             var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+            var computeRewardAmount = _rewardPointsSettings.Enabled
+                && _rewardPointsSettings.ShowPointsForProductPurchase
+                && _rewardPointsSettings.PointsForPurchases_Amount > decimal.Zero 
+                && !customer.IsGuest();
 
             priceModel.HidePrices = !modelContext.DisplayPrices;
             priceModel.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
@@ -80,11 +84,32 @@ namespace Smartstore.Web.Controllers
                 calculationContext.Options.ApplyPreselectedAttributes = true;
             }
 
-            // Calculate unit price now
-            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-            
-            // Map base
-            MapPriceBase(calculatedPrice, priceModel, true);
+            CalculatedPrice unitPrice, subtotal;
+            if (selectedQuantity > 1 && computeRewardAmount)
+            {
+                (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+            }
+            else
+            {
+                unitPrice = subtotal = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            }
+
+            if (computeRewardAmount)
+            {
+                var rewardPoints = _orderCalculationService.Value.GetRewardPointsForPurchase(subtotal.FinalPrice.Amount);
+                if (rewardPoints != 0)
+                {
+                    var rewardAmountBase = _orderCalculationService.Value.ConvertRewardPointsToAmount(rewardPoints);
+
+                    priceModel.Reward = new()
+                    {
+                        Points = rewardPoints,
+                        Amount = _currencyService.ConvertFromPrimaryCurrency(rewardAmountBase.Amount, _services.WorkContext.WorkingCurrency)
+                    };
+                }
+            }
+
+            MapPriceBase(unitPrice, priceModel, true);
 
             if ((priceModel.CallForPrice || priceModel.CustomerEntersPrice) && !isBundleItemPricing)
             {
@@ -95,17 +120,14 @@ namespace Smartstore.Web.Controllers
                 return;
             }
 
-            // Countdown text
-            priceModel.CountdownText = _priceLabelService.GetPromoCountdownText(calculatedPrice);
+            priceModel.CountdownText = _priceLabelService.GetPromoCountdownText(unitPrice);
 
-            // Offer badges
             if (_priceSettings.ShowOfferBadge)
             {
                 // Add default promo badges as configured
-                AddPromoBadge(calculatedPrice, priceModel.Badges);
+                AddPromoBadge(unitPrice, priceModel.Badges);
             }
 
-            // Bundle per item pricing stuff
             if (isBundle && product.BundlePerItemPricing)
             {
                 if (priceModel.RegularPrice != null)
@@ -115,7 +137,7 @@ namespace Smartstore.Web.Controllers
                 }
                 
                 // Add promo badge for bundle: "As bundle only"
-                if (calculatedPrice.Saving.HasSaving && !product.HasTierPrices)
+                if (unitPrice.Saving.HasSaving && !product.HasTierPrices)
                 {
                     priceModel.Badges.Add(new ProductBadgeModel
                     {

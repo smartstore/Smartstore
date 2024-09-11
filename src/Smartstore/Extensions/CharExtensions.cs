@@ -91,5 +91,16 @@ namespace Smartstore
 
             return ch.ToString();
         }
+
+        /// <summary>
+        /// Determines if the given character is a line break character as
+        /// specified here:
+        /// http://www.w3.org/TR/html401/struct/text.html#h-9.3.2
+        /// </summary>
+        /// <param name="c">The character to examine.</param>
+        /// <returns>The result of the test.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsLineBreak(this char c) 
+            => c == '\n' || c == '\r';
     }
 }

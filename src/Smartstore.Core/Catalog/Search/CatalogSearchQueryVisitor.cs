@@ -1,5 +1,4 @@
 ﻿using System.Linq.Dynamic.Core;
-using AngleSharp.Dom;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
@@ -547,11 +546,11 @@ namespace Smartstore.Core.Catalog.Search
                 // Sort by relevance.
                 if (context.CategoryId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == context.CategoryId.Value).DisplayOrder);
+                    return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
                 }
                 else if (context.ManufacturerId > 0)
                 {
-                    query = OrderBy(query, x => x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == context.ManufacturerId.Value).DisplayOrder);
+                    return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
                 }
             }
             else if (sorting.FieldName == names.CreatedOn)
@@ -570,22 +569,52 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
-        protected override IOrderedQueryable<Product> ApplyDefaultSorting(CatalogSearchQueryContext context, IQueryable<Product> query)
+        protected override IQueryable<Product> ApplyDefaultSorting(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             if (context.SearchQuery.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null)
             {
-                return query.OrderBy(x => x.DisplayOrder);
+                return query
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.Id);
             }
             else if (context.CategoryId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Category"))
             {
-                return OrderBy(query, x => x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == context.CategoryId.Value).DisplayOrder);
+                return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
             }
             else if (context.ManufacturerId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Manufacturer"))
             {
-                return OrderBy(query, x => x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == context.ManufacturerId.Value).DisplayOrder);
+                return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
             }
 
             return query.OrderBy(x => x.Id);
+        }
+
+        private static IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
+        {
+            if (byCategory)
+            {
+                return query
+                    .Select(x => new
+                    {
+                        ProductCategory = x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == entityId),
+                        Product = x
+                    })
+                    .OrderBy(x => x.ProductCategory.DisplayOrder)
+                    .ThenBy(x => x.ProductCategory.Id)
+                    .Select(x => x.Product);
+            }
+            else
+            {
+                return query
+                    .Select(x => new
+                    {
+                        ProductManufacturer = x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == entityId),
+                        Product = x
+                    })
+                    .OrderBy(x => x.ProductManufacturer.DisplayOrder)
+                    .ThenBy(x => x.ProductManufacturer.Id)
+                    .Select(x => x.Product);
+            }
         }
 
         private static IQueryable<Product> ApplyCategoriesFilter(IQueryable<Product> query, int[] ids, bool? featuredOnly)

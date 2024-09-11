@@ -391,7 +391,10 @@ Vue.component("sm-datagrid", {
 
         // Load user prefs
         this.originalState = this.getGridState();
-        this.originalDefaultRow = JSON.parse(JSON.stringify(this.options.defaultDataRow));
+
+        if (this.options.defaultDataRow) {
+            this.originalDefaultRow = JSON.parse(JSON.stringify(this.options.defaultDataRow));
+        } 
 
         if (this.options.preserveState) {
             const userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
@@ -1291,7 +1294,7 @@ Vue.component("sm-datagrid", {
                 if (elFocus.length === 0) {
                     elFocus = $(editing.tr).find('.dg-cell-edit :input:visible');
                 }
-                elFocus.first().focus();
+                elFocus.first().trigger('focus');
             });
         },
 

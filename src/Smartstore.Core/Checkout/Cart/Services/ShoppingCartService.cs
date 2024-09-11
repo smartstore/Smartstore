@@ -70,6 +70,7 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual async Task AddItemToCartAsync(AddToCartContext ctx)
         {
@@ -348,17 +349,26 @@ namespace Smartstore.Core.Checkout.Cart
         {
             Guard.NotNull(cart);
 
-            var itemsToDelete = new List<ShoppingCartItem>(cart.Items.Select(x => x.Item));
-
-            // Add child items (like bundle items).
-            foreach (var item in cart.Items)
+            var numDeleted = 0;
+            try
             {
-                itemsToDelete.AddRange(item.ChildItems.Select(x => x.Item));
+                var itemsToDelete = new List<ShoppingCartItem>(cart.Items.Select(x => x.Item));
+
+                // Add child items (like bundle items).
+                foreach (var item in cart.Items)
+                {
+                    itemsToDelete.AddRange(item.ChildItems.Select(x => x.Item));
+                }
+
+                _db.ShoppingCartItems.RemoveRange(itemsToDelete);
+
+                await _db.SaveChangesAsync();
+                numDeleted = itemsToDelete.Count;
             }
-
-            _db.ShoppingCartItems.RemoveRange(itemsToDelete);
-
-            await _db.SaveChangesAsync();
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Logger.Warn(ex);
+            }
 
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 
@@ -372,7 +382,7 @@ namespace Smartstore.Core.Checkout.Cart
                 await RemoveInvalidCheckoutAttributesAsync(cart.Customer, cart.StoreId);
             }
 
-            return itemsToDelete.Count;
+            return numDeleted;
         }
 
         public virtual Task<ShoppingCart> GetCartAsync(
@@ -560,7 +570,8 @@ namespace Smartstore.Core.Checkout.Cart
             ProductVariantQuery query,
             bool? useRewardPoints = null,
             bool resetCheckoutData = true,
-            bool validateCheckoutAttributes = true)
+            bool validateCheckoutAttributes = true,
+            bool validateRequiredProducts = true)
         {
             cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
 
@@ -586,7 +597,7 @@ namespace Smartstore.Core.Checkout.Cart
             // INFO: we must save before validating the cart.
             await _db.SaveChangesAsync();
 
-            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
+            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes, validateRequiredProducts);
         }
 
         public virtual OrganizedShoppingCartItem FindItemInCart(
@@ -735,7 +746,8 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             var missingProductIds = productIds.Except(cart.Items.Select(x => x.Item.ProductId));
-            var missingProducts = await _db.Products.GetManyAsync(missingProductIds, false);
+            // INFO: must be tracked otherwise an InvalidOperationException message may occur.
+            var missingProducts = await _db.Products.GetManyAsync(missingProductIds, true);
             var items = new List<OrganizedShoppingCartItem>(cart.Items);
             var newItems = new List<OrganizedShoppingCartItem>();
 

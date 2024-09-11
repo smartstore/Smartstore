@@ -6,8 +6,6 @@ namespace Smartstore.Core.Catalog.Search
 {
     public class SearchSettings : ISettings
     {
-        private static readonly string[] _instantSearchFields = ["sku", "gtin", "mpn", "manufacturer", "attrname", "variantname"];
-
         /// <summary>
         /// Gets or sets the search mode
         /// </summary>
@@ -101,13 +99,24 @@ namespace Smartstore.Core.Catalog.Search
 
             if (forInstantSearch)
             {
-                fields = ["name", "shortdescription", "tagname", "keyword"];
+                fields = ["name", "shortdescription", "tagname"];
 
-                foreach (var fieldName in _instantSearchFields)
+                if (!SearchFields.IsNullOrEmpty())
                 {
-                    if (SearchFields?.Contains(fieldName) ?? false)
+                    foreach (var fieldName in SearchFields)
                     {
-                        fields.Add(fieldName);
+                        switch (fieldName)
+                        {
+                            case "sku":
+                            case "gtin":
+                            case "mpn":
+                            case "keyword":
+                            case "manufacturer":
+                            case "attrname":
+                            case "variantname":
+                                fields.Add(fieldName);
+                                break;
+                        }
                     }
                 }
             }
@@ -115,7 +124,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 fields = ["name"];
 
-                if (SearchFields != null)
+                if (!SearchFields.IsNullOrEmpty())
                 {
                     fields.AddRange(SearchFields);
                 }

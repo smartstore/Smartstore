@@ -1,12 +1,7 @@
-﻿/// <reference path="../../../Smartstore.Web/Themes/Flex/wwwroot/theme.scss" />
+﻿/// <reference path="_core.scss" />
 
-/*TODO: (mh) (core) A better solution must be found. Maybe something with an absolute position popup which doesn't disturb the flow */
+@import '_core.scss';
 
-.widget-zone-info {
-    display: block;
-    background: #fff;
-    color: inherit;
-    border: 1px dashed $gray-400;
-    margin-bottom: 3px;
-    text-align: start;
+.wz-preview {
+    @include widget-zone-preview();
 }

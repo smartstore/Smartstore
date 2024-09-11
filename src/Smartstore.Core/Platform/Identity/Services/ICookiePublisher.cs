@@ -25,7 +25,7 @@ namespace Smartstore.Core.Identity
             => nameof(CookieInfo);
 
         string[] IDisplayedEntity.GetDisplayNameMemberNames()
-            => new[] { nameof(Name) };
+            => [nameof(Name)];
 
         string IDisplayedEntity.GetDisplayName()
             => Name;
@@ -60,7 +60,12 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Specifies that required cookies can be set.
         /// </summary>
-        Required = 1,
+        None = 0,
+
+        /// <summary>
+        /// Specifies that required cookies can be set.
+        /// </summary>
+        Required = 1 << 0,
 
         /// <summary>
         /// Specifies that analytical cookies can be set.

@@ -35,20 +35,11 @@ namespace Smartstore.Admin.Controllers
             var rows = await products.MapAsync(Services.MediaService);
 
             var productIds = products.ToDistinctArray(x => x.Id);
-            var orderCounts = await _db.Products
-                .IgnoreQueryFilters()
-                .Where(p => productIds.Contains(p.Id))
-                .Select(p => new
-                {
-                    p.Id,
-                    Count = _db.Orders
-                        .IgnoreQueryFilters()
-                        .Where(o => o.OrderItems.Any(oi => oi.ProductId == p.Id))
-                        .Select(o => o.Id)
-                        .Distinct()
-                        .Count()
-                })
-                .ToDictionaryAsync(x => x.Id, x => x.Count);
+            var orderCounts = await _db.OrderItems
+                .Select(oi => new { oi.ProductId, oi.OrderId })
+                .Distinct()
+                .GroupBy(oi => oi.ProductId)
+                .ToDictionaryAsync(x => x.Key, x => x.Count());
 
             foreach (var row in rows)
             {

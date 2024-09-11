@@ -1,12 +1,12 @@
 ﻿using System.Net;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Net;
 
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Identity
                     }
                     else if (_privacySettings.CookieConsentRequirement == CookieConsentRequirement.RequiredInEUCountriesOnly)
                     {
-                        return geoCountry.IsInEu; 
+                        return geoCountry.IsInEu || geoCountry.IsoCode == "CH"; 
                     }
                 }
             }
@@ -151,13 +151,24 @@ namespace Smartstore.Core.Identity
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<ConsentCookie>(value);
+                        var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
+
+                        // If date is not set it's a cookie that was saved pre 5.2.0 and thus is HttpOnly.
+                        // We must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
+                        if (consentCookie.ConsentedOn == null)
+                        {
+                            consentCookie.ConsentedOn = DateTime.UtcNow;
+                            SetConsentCookieCore(consentCookie);
+                        }
+
+                        return consentCookie;
                     }
                     catch
                     {
                         // Let's be tolerant in case of error.
                         return new ConsentCookie 
                         {
+                            AllowRequired = true,
                             AllowAnalytics = true,
                             AllowThirdParty = true,
                             AdPersonalizationConsent = true,
@@ -169,6 +180,7 @@ namespace Smartstore.Core.Identity
                 // There is no cookie consent cookie.
                 return new ConsentCookie
                 {
+                    AllowRequired = false,
                     AllowAnalytics = false,
                     AllowThirdParty = false,
                     AdPersonalizationConsent = false,
@@ -176,15 +188,16 @@ namespace Smartstore.Core.Identity
                 };
             });
 
-            // Initialise allowedTypes with the required value, as this is always permitted.
-            CookieType allowedTypes = CookieType.Required;
+            // Initialise allowedTypes with the CookieType.None which means no cookie is set yet and not even required cookies are allowed.
+            CookieType allowedTypes = CookieType.None;
 
+            if (consentCookie.AllowRequired) allowedTypes |= CookieType.Required;
             if (consentCookie.AllowAnalytics) allowedTypes |= CookieType.Analytics;
             if (consentCookie.AllowThirdParty) allowedTypes |= CookieType.ThirdParty;
             if (consentCookie.AdUserDataConsent) allowedTypes |= CookieType.ConsentAdUserData;
             if (consentCookie.AdPersonalizationConsent) allowedTypes |= CookieType.ConsentAdPersonalization;
 
-            return allowedTypes.HasFlag(cookieType);
+            return allowedTypes.HasFlag(cookieType); 
         }
 
         public virtual ConsentCookie GetCookieData()
@@ -217,30 +230,74 @@ namespace Smartstore.Core.Identity
             return null;
         }
 
-        public virtual void SetConsentCookie(
+        public virtual TagBuilder GenerateScript(bool consented, CookieType consentType, string src)
+        {
+            Guard.NotEmpty(src);
+
+            var script = new TagBuilder("script");
+            if (consented)
+            {
+                script.Attributes["src"] = src;
+            }
+            else
+            {
+                script.Attributes["data-src"] = src;
+                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
+            }
+
+            return script;
+        }
+
+        public virtual TagBuilder GenerateInlineScript(bool consented, CookieType consentType, string code)
+        {
+            Guard.NotEmpty(code);
+
+            var script = new TagBuilder("script");
+            script.InnerHtml.AppendHtml(code);
+
+            if (!consented)
+            {
+                script.Attributes["type"] = "text/plain";
+                script.Attributes["data-consent"] = consentType.ToString().ToLowerInvariant();
+            }
+
+            return script;
+        }
+
+        public void SetConsentCookie(
+            bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false,
             bool adUserDataConsent = false,
             bool adPersonalizationConsent = false)
         {
+            var cookieData = new ConsentCookie
+            {
+                AllowRequired = allowRequired,
+                AllowAnalytics = allowAnalytics,
+                AllowThirdParty = allowThirdParty,
+                AdUserDataConsent = adUserDataConsent,
+                AdPersonalizationConsent = adPersonalizationConsent,
+                ConsentedOn = DateTime.UtcNow
+            };
+
+            SetConsentCookieCore(cookieData);
+        }
+
+        protected virtual void SetConsentCookieCore(ConsentCookie cookieData)
+        {
+            Guard.NotNull(cookieData);
+            
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
             {
-                var cookieData = new ConsentCookie
-                {
-                    AllowAnalytics = allowAnalytics,
-                    AllowThirdParty = allowThirdParty,
-                    AdUserDataConsent = adUserDataConsent,
-                    AdPersonalizationConsent = adPersonalizationConsent
-                };
-
                 var cookies = context.Response.Cookies;
                 var cookieName = CookieNames.CookieConsent;
 
                 var options = new CookieOptions
                 {
                     Expires = DateTime.UtcNow.AddDays(365),
-                    HttpOnly = true,
+                    HttpOnly = false,
                     IsEssential = true,
                     Secure = _webHelper.IsCurrentConnectionSecured()
                 };
@@ -287,6 +344,11 @@ namespace Smartstore.Core.Identity
     public class ConsentCookie
     {
         /// <summary>
+        /// A value indicating whether required cookies are allowed to be set.
+        /// </summary>
+        public bool AllowRequired { get; set; }
+
+        /// <summary>
         /// A value indicating whether analytical cookies are allowed to be set.
         /// </summary>
         public bool AllowAnalytics { get; set; }
@@ -305,5 +367,10 @@ namespace Smartstore.Core.Identity
         /// A value indicating whether personalization is allowed.
         /// </summary>
         public bool AdPersonalizationConsent { get; set; }
+
+        /// <summary>
+        /// A value indicating when the consent was given.
+        /// </summary>
+        public DateTime? ConsentedOn { get; set; } = null;
     }
 }

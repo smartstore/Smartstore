@@ -1,18 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text suggestions.
     /// </summary>
-    [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AISuggestionTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase(htmlGenerator)
+    [HtmlTargetElement("ai-suggestion", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
+    public class AISuggestionTagHelper() : AITagHelperBase()
     {
-        const string EditorTagName = "ai-suggestion";
-
         const string MandatoryEntityFieldsAttributeName = "mandatory-entity-fields";
+        const string CharLimitAttributeName = "char-limit";
 
         /// <summary>
         /// List of comma separated mandatory fields of the target entity.
@@ -22,15 +20,21 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(MandatoryEntityFieldsAttributeName)]
         public string MandatoryEntityFields { get; set; }
 
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        /// <summary>
+        /// Specifies the maximum number of characters that an AI response may have.
+        /// Typically, this is the length of the associated database field.
+        /// 0 (default) to not limit the length of the answer.
+        /// </summary>
+        [HtmlAttributeName(CharLimitAttributeName)]
+        public int CharLimit { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
-            var attributes = GetTaghelperAttributes();
-            var tool = _aiToolHtmlGenerator.GenerateSuggestionTool(attributes);
+            var attributes = GetTagHelperAttributes();
+            var tool = AIToolHtmlGenerator.GenerateSuggestionTool(attributes);
             if (tool == null)
             {
                 return;
@@ -39,19 +43,13 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.WrapContentWith(tool);
         }
 
-        private AttributeDictionary GetTaghelperAttributes()
+        protected override AttributeDictionary GetTagHelperAttributes()
         {
-            var attributes = new AttributeDictionary
-            {
-                // INFO: We can't just use For.Name here, because the target property might be a nested property.
-                //["data-target-property"] = For.Name,
-                ["data-target-property"] = GetHtmlId(),
-                ["data-entity-name"] = EntityName,
-                ["data-entity-type"] = EntityType,
-                ["data-mandatory-entity-fields"] = MandatoryEntityFields
-            };
+            var attrs = base.GetTagHelperAttributes();
+            attrs["data-mandatory-entity-fields"] = MandatoryEntityFields;
+            attrs["data-char-limit"] = CharLimit.ToStringInvariant();
 
-            return attributes;
+            return attrs;
         }
     }
 }

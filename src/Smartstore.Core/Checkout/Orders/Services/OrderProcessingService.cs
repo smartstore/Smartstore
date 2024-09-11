@@ -242,7 +242,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
 
-            order.AddOrderNote(T("Admin.OrderNotice.OrderCancelled"));
+            AddOrderNotes(order, T("Admin.OrderNotice.OrderCancelled"));
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
@@ -413,16 +413,18 @@ namespace Smartstore.Core.Checkout.Orders
                 ? (int)ShippingStatus.PartiallyShipped
                 : (int)ShippingStatus.Shipped;
 
-            order.AddOrderNote(T("Admin.OrderNotice.ShipmentSent", shipment.Id));
+            var notes = new List<string> { T("Admin.OrderNotice.ShipmentSent", shipment.Id) };
 
             if (notifyCustomer)
             {
                 var msg = await _messageFactory.SendShipmentSentCustomerNotificationAsync(shipment, order.CustomerLanguageId);
                 if (msg?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, [.. notes]);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -444,16 +446,18 @@ namespace Smartstore.Core.Checkout.Orders
                 order.ShippingStatusId = (int)ShippingStatus.Delivered;
             }
 
-            order.AddOrderNote(T("Admin.OrderNotice.ShipmentDelivered", shipment.Id));
+            var notes = new List<string> { T("Admin.OrderNotice.ShipmentDelivered", shipment.Id) };
 
             if (notifyCustomer)
             {
                 var msg = await _messageFactory.SendShipmentDeliveredCustomerNotificationAsync(shipment, order.CustomerLanguageId);
                 if (msg?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, [.. notes]);
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -526,7 +530,12 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        public virtual async Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities)
+        public virtual async Task<Shipment> AddShipmentAsync(
+            Order order, 
+            string carrier,
+            string trackingNumber, 
+            string trackingUrl, 
+            Dictionary<int, int> quantities)
         {
             Guard.NotNull(order);
 
@@ -547,13 +556,13 @@ namespace Smartstore.Core.Checkout.Orders
 
                 var qtyToAdd = 0;
 
-                if (quantities != null && quantities.ContainsKey(orderItem.Id))
-                {
-                    qtyToAdd = quantities[orderItem.Id];
-                }
-                else if (quantities == null)
+                if (quantities == null)
                 {
                     qtyToAdd = maxQtyToAdd;
+                }
+                else
+                {
+                    quantities.TryGetValue(orderItem.Id, out qtyToAdd);
                 }
 
                 if (qtyToAdd <= 0)
@@ -565,21 +574,19 @@ namespace Smartstore.Core.Checkout.Orders
                 var orderItemTotalWeight = orderItem.ItemWeight.HasValue ? orderItem.ItemWeight * qtyToAdd : null;
                 if (orderItemTotalWeight.HasValue)
                 {
-                    if (!totalWeight.HasValue)
-                        totalWeight = 0;
-
+                    totalWeight ??= 0;
                     totalWeight += orderItemTotalWeight.Value;
                 }
 
                 if (shipment == null)
                 {
-                    shipment = new Shipment
+                    shipment = new()
                     {
                         OrderId = order.Id,
                         // Otherwise order updated event would not be fired during InsertShipment:
                         Order = order,
-                        TrackingNumber = trackingNumber,
-                        TrackingUrl = trackingUrl,
+                        TrackingNumber = trackingNumber.NullEmpty(),
+                        TrackingUrl = trackingUrl.NullEmpty(),
                         TotalWeight = null,
                         ShippedDateUtc = null,
                         DeliveryDateUtc = null,
@@ -587,19 +594,25 @@ namespace Smartstore.Core.Checkout.Orders
                     };
                 }
 
-                shipment.ShipmentItems.Add(new ShipmentItem
+                shipment.ShipmentItems.Add(new()
                 {
                     OrderItemId = orderItem.Id,
                     Quantity = qtyToAdd
                 });
             }
 
-            if (shipment?.ShipmentItems?.Any() ?? false)
+            if (!(shipment?.ShipmentItems.IsNullOrEmpty() ?? true))
             {
                 shipment.TotalWeight = totalWeight;
 
                 _db.Shipments.Add(shipment);
                 await _db.SaveChangesAsync();
+
+                if (carrier.HasValue())
+                {
+                    shipment.GenericAttributes.Set("Carrier", carrier);
+                    await _db.SaveChangesAsync();
+                }
 
                 return shipment;
             }
@@ -732,25 +745,22 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Applies reward points. The caller is responsible for database commit.
         /// </summary>
-        protected virtual void ApplyRewardPoints(Order order, bool reduce, decimal? amount = null)
+        protected virtual void ApplyRewardPoints(Order order, bool decrease, decimal? amount = null)
         {
             if (!_rewardPointsSettings.Enabled ||
                 _rewardPointsSettings.PointsForPurchases_Amount <= decimal.Zero ||
-                (!reduce && order.RewardPointsWereAdded) || 
-                (reduce && !order.RewardPointsWereAdded) ||
+                (!decrease && order.RewardPointsWereAdded) || 
+                (decrease && !order.RewardPointsWereAdded) ||
                 order.Customer == null ||
                 order.Customer.IsGuest())
             {
                 return;
             }
 
-            var rewardAmount = (amount ?? order.OrderTotal) / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+            var points = _orderCalculationService.GetRewardPointsForPurchase(amount ?? order.OrderTotal, decrease);
 
-            if (reduce)
+            if (decrease)
             {
-                // We use IRoundingHelper here because Truncate increases the risk of inaccuracy of rounding.
-                var points = (int)_roundingHelper.Round(rewardAmount, 0, _primaryCurrency.MidpointRounding);
-
                 if (order.RewardPointsRemaining.HasValue && order.RewardPointsRemaining.Value < points)
                 {
                     points = order.RewardPointsRemaining.Value;
@@ -762,22 +772,16 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (!order.RewardPointsRemaining.HasValue)
                     {
-                        var remainingPoints = order.OrderTotal / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
-                        order.RewardPointsRemaining = (int)_roundingHelper.Round(remainingPoints, 0, _primaryCurrency.MidpointRounding);
+                        order.RewardPointsRemaining = _orderCalculationService.GetRewardPointsForPurchase(order.OrderTotal, true);
                     }
 
                     order.RewardPointsRemaining = Math.Max(order.RewardPointsRemaining.Value - points, 0);
                 }
             }
-            else
+            else if (points != 0)
             {
-                // Truncate same as Floor for positive amounts.
-                var points = (int)Math.Truncate(rewardAmount);
-                if (points != 0)
-                {
-                    order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
-                    order.RewardPointsWereAdded = true;
-                }
+                order.Customer.AddRewardPointsHistoryEntry(points, T("RewardPoints.Message.EarnedForOrder", order.GetOrderNumber()));
+                order.RewardPointsWereAdded = true;
             }
         }
 
@@ -797,7 +801,7 @@ namespace Smartstore.Core.Checkout.Orders
             var giftCards = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                 .ThenInclude(x => x.Order)
-                .ApplyOrderFilter(new[] { order.Id })
+                .ApplyOrderFilter([order.Id])
                 .ToListAsync();
 
             if (giftCards.Count == 0)
@@ -851,14 +855,14 @@ namespace Smartstore.Core.Checkout.Orders
             // Save new order status.
             await _db.SaveChangesAsync();
 
-            order.AddOrderNote(T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)));
+            var notes = new List<string> { T("Admin.OrderNotice.OrderStatusChanged", _localizationService.GetLocalizedEnum(status)) };
 
             if (prevOrderStatus != OrderStatus.Complete && status == OrderStatus.Complete && notifyCustomer)
             {
                 var msgResult = await _messageFactory.SendOrderCompletedCustomerNotificationAsync(order, order.CustomerLanguageId);
                 if (msgResult?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerCompletedEmailQueued", msgResult.Email.Id));
                 }
             }
 
@@ -867,9 +871,11 @@ namespace Smartstore.Core.Checkout.Orders
                 var msgResult = await _messageFactory.SendOrderCancelledCustomerNotificationAsync(order, order.CustomerLanguageId);
                 if (msgResult?.Email?.Id != null)
                 {
-                    order.AddOrderNote(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
+                    notes.Add(T("Admin.OrderNotice.CustomerCancelledEmailQueued", msgResult.Email.Id));
                 }
             }
+
+            AddOrderNotes(order, [.. notes]);
 
             // Reward points.
             var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
@@ -976,6 +982,18 @@ namespace Smartstore.Core.Checkout.Orders
 
                 return q;
             });
+        }
+
+        private void AddOrderNotes(Order order, params string[] notes)
+        {
+            var now = DateTime.UtcNow;
+
+            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
+            {
+                OrderId = order.Id,
+                Note = note,
+                CreatedOnUtc = now
+            }));
         }
 
         #endregion

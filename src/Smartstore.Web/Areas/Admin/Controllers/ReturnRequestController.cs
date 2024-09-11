@@ -256,7 +256,8 @@ namespace Smartstore.Admin.Controllers
             await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
-            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
+
+            TempData[UpdateOrderDetailsContext.InfoKey] = await InvokePartialViewAsync("OrderItemUpdateInfo", context);
 
             return RedirectToAction(nameof(Edit), new { id = returnRequest.Id });
         }

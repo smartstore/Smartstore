@@ -48,7 +48,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             _searchSettings = searchSettings;
         }
 
-        protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
+        protected override string[] Tokens => ["q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v"];
 
         public CatalogSearchQuery Current { get; private set; }
 
@@ -68,7 +68,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var fields = _searchSettings.GetSearchFields(isInstantSearch);
             var term = GetValueFor<string>("q");
 
-            var query = new CatalogSearchQuery(fields.ToArray(), term, _searchSettings.SearchMode)
+            var query = new CatalogSearchQuery([.. fields], term, _searchSettings.SearchMode)
                 .OriginatesFrom(origin)
                 .WithLanguage(_services.WorkContext.WorkingLanguage)
                 .WithCurrency(_services.WorkContext.WorkingCurrency)
@@ -233,10 +233,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             {
                 // Save the view mode selection in session. We'll fetch this session value
                 // on subsequent requests for this route.
-                if (session != null)
-                {
-                    session.SetString(sessionKey, selectedViewMode);
-                }
+                session?.SetString(sessionKey, selectedViewMode);
                 query.CustomData["ViewMode"] = selectedViewMode;
                 return;
             }
@@ -358,8 +355,8 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Count > 0)
             {
-                // TODO; (mc) Get deep ids (???) Make a low-level version of CatalogHelper.GetChildCategoryIds()
-                query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, ids.ToArray());
+                // TODO: (mc) Get deep ids (???) Make a low-level version of CatalogHelper.GetChildCategoryIds()
+                query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, [.. ids]);
             }
 
             AddFacet(query, FacetGroupKind.Category, true, FacetSorting.HitsDesc, descriptor =>
@@ -409,7 +406,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             if (TryGetValueFor(alias ?? "m", out List<int> ids) && ids != null && ids.Count > 0)
             {
-                query.WithManufacturerIds(null, ids.ToArray());
+                query.WithManufacturerIds(null, [.. ids]);
             }
 
             AddFacet(query, FacetGroupKind.Brand, true, FacetSorting.LabelAsc, descriptor =>
@@ -451,9 +448,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 // Normalization.
                 if (minPrice.HasValue && maxPrice.HasValue && minPrice > maxPrice)
                 {
-                    var tmp = minPrice;
-                    minPrice = maxPrice;
-                    maxPrice = tmp;
+                    (maxPrice, minPrice) = (minPrice, maxPrice);
                 }
 
                 if (minPrice.HasValue || maxPrice.HasValue)
@@ -578,7 +573,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             if (TryGetValueFor(alias ?? "d", out List<int> ids) && ids != null && ids.Count > 0)
             {
-                query.WithDeliveryTimeIds(ids.ToArray());
+                query.WithDeliveryTimeIds([.. ids]);
             }
 
             AddFacet(query, FacetGroupKind.DeliveryTime, true, FacetSorting.DisplayOrder, descriptor =>

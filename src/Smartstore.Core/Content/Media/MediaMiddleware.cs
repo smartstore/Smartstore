@@ -12,7 +12,7 @@ using Smartstore.Net;
 
 namespace Smartstore.Core.Content.Media
 {
-    internal class MediaEndpoint
+    internal record MediaEndpoint
     {
         public RouteTemplate Template { get; init; }
         public TemplateMatcher Matcher { get; init; }

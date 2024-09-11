@@ -113,8 +113,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateOrderTotalsPartAsync(Order order, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(order);
 
             var language = messageContext.Language;
             var giftCardService = _services.Resolve<IGiftCardService>();
@@ -262,8 +262,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(OrderItem part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var productAttributeMaterializer = _services.Resolve<IProductAttributeMaterializer>();
             var downloadService = _services.Resolve<IDownloadService>();
@@ -333,10 +333,10 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(ProductBundleItemOrderData part, OrderItem orderItem, Product product, MessageContext messageContext)
         {
-            Guard.NotNull(part, nameof(part));
-            Guard.NotNull(orderItem, nameof(orderItem));
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(part);
+            Guard.NotNull(orderItem);
+            Guard.NotNull(product);
+            Guard.NotNull(messageContext);
 
             var priceWithDiscount = _helper.FormatPrice(part.PriceWithDiscount, orderItem.Order, messageContext);
 
@@ -373,8 +373,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(ShoppingCartItem part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {
@@ -390,8 +390,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(Shipment part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var itemParts = new List<object>();
             var db = _services.Resolve<SmartDbContext>();
@@ -440,13 +440,14 @@ namespace Smartstore.Core.Messaging
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
+                { "Carrier", part.GenericAttributes.Get<string>("Carrier").NullEmpty() },
                 { "TrackingNumber", part.TrackingNumber.NullEmpty() },
                 { "TrackingUrl", trackingUrl.NullEmpty() },
                 { "TotalWeight", part.TotalWeight },
                 { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
                 { "DeliveredOn", _helper.ToUserDate(part.DeliveryDateUtc, messageContext) },
                 { "ShippedOn", _helper.ToUserDate(part.ShippedDateUtc, messageContext) },
-                { "Url", _helper.BuildActionUrl("ShipmentDetails", "Order", new { id = part.Id, area = "" }, messageContext)},
+                { "Url", _helper.BuildActionUrl("ShipmentDetails", "Order", new { id = part.Id, area = string.Empty }, messageContext)},
                 { "Items", itemParts },
             };
 
@@ -457,8 +458,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(RecurringPayment part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var paymentService = _services.Resolve<IPaymentService>();
             var nextPaymentDate = await paymentService.GetNextRecurringPaymentDateAsync(part);
@@ -484,8 +485,8 @@ namespace Smartstore.Core.Messaging
 
         protected virtual async Task<object> CreateModelPartAsync(ReturnRequest part, MessageContext messageContext)
         {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
+            Guard.NotNull(messageContext);
+            Guard.NotNull(part);
 
             var m = new Dictionary<string, object>
             {

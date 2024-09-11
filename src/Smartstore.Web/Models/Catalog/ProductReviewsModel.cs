@@ -9,6 +9,7 @@ namespace Smartstore.Web.Models.Catalog
         public int RatingSum { get; set; }
         public int TotalReviews { get; set; }
         public bool AllowCustomerReviews { get; set; }
+        public RewardModel Reward { get; set; }
     }
 
     [LocalizedDisplay("Reviews.Fields.")]
@@ -18,7 +19,7 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> ProductName { get; set; }
         public string ProductSeName { get; set; }
         public int TotalReviewsCount { get; set; }
-        public List<ProductReviewModel> Items { get; set; } = new();
+        public List<ProductReviewModel> Items { get; set; } = [];
         public bool ShowVerfiedPurchaseBadge { get; set; }
         public bool IsReviewsDetailPage { get; set; }
 

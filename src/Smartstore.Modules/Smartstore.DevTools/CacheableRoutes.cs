@@ -7,6 +7,6 @@ namespace Smartstore.DevTools
         public int Order => 0;
 
         public IEnumerable<string> GetCacheableRoutes()
-            => new[] { "vc:Smartstore.DevTools/CustomFacet" };
+            => ["vc:Smartstore.DevTools/CustomFacet"];
     }
 }

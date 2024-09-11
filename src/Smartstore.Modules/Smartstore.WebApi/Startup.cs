@@ -247,15 +247,9 @@ namespace Smartstore.Web.Api
                 // INFO: could be ODataException, InvalidCastException and many more.
                 // Let the ErrorController handle our below ODataErrorException and (if accepted)
                 // return the standard OData error JSON instead of something the client do not expect.
-                var odataError = new ODataError
-                {
-                    ErrorCode = Status500InternalServerError.ToString(),
-                    Message = ex.Message,
-                    InnerError = new ODataInnerError(ex)
-                };
-
-                var odataEx = new ODataErrorException(ex.Message, ex, odataError);
-                odataEx.Data["JsonContent"] = odataError.ToString();
+                var error = ODataHelper.CreateError(ex.Message, Status500InternalServerError, ex);
+                var odataEx = new ODataErrorException(ex.Message, ex, error);
+                odataEx.Data["JsonContent"] = error.ToString();
                 odataEx.ReThrow();
             }
             else
@@ -276,7 +270,7 @@ namespace Smartstore.Web.Api
                 // INFO: XPathDocument closes the input stream.
                 modelProviders
                     .Select(x => x.GetXmlCommentsStream(appContext))
-                    .Concat(new[] { GetXmlCommentsStream(appContext, "Smartstore.Core.xml") })
+                    .Concat([GetXmlCommentsStream(appContext, "Smartstore.Core.xml")])
                     .Where(x => x != null)
                     .Each(x => options.IncludeXmlComments(() => new XPathDocument(x), true));
             }

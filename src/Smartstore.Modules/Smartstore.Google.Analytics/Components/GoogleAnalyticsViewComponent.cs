@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Widgets;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Web.Components;
 using Smartstore.Web.Models.Search;
@@ -36,12 +37,6 @@ namespace Smartstore.Google.Analytics.Components
         {
             // If GoogleId is empty or is default don't render anything.
             if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0")
-            {
-                return Empty();
-            }
-
-            // If user has not accepted the cookie consent don't render anything.
-            if (_settings.RenderWithUserConsentOnly && !await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics))
             {
                 return Empty();
             }
@@ -150,6 +145,7 @@ namespace Smartstore.Google.Analytics.Components
                     }
                 }
 
+                // INFO: We must leave this here to handle Script settings which weren't updated yet. We can remove these parameters in the future.
                 var cookiesAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
                 var adUserDataAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdUserData);
                 var adPersonalizationAllowed = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.ConsentAdPersonalization);
@@ -162,13 +158,23 @@ namespace Smartstore.Google.Analytics.Components
                 Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
+            // If user has not accepted the cookie consent modify script tags to include data-consent attribute.
+            var consented = !_settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
+            if (!consented)
+            {
+                rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
+                rootScript = rootScript.Replace("src=", "data-src=");
+            }
+
             if (_settings.MinifyScripts && rootScript.HasValue())
             {
                 rootScript = Minifier.Minify(rootScript);
             }
 
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-            rootScript = $"<script src='{path}'></script>\n{rootScript}";
+            //rootScript = $"<script {(consented ? string.Empty : "data-consent=\"analytics\" data-")}src='{path}'></script>\n{rootScript}";
+            var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Analytics, path);
+            rootScript = $"{scriptIncludeTag.ToHtmlString()}\n{rootScript}";
 
             return HtmlContent(rootScript);
         }

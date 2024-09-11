@@ -32,7 +32,8 @@
                     <option value="@item.Value"
                             data-icon="@(deploymentTypeIconClasses.GetValueOrDefault(type))"
                             attr-selected='(Model.DeploymentType == type, "selected")'>
-                        @item.Text</option>
+                        @item.Text
+                    </option>
                 }
             </select>
             <span asp-validation-for="DeploymentType"></span>
@@ -101,6 +102,14 @@
             <span asp-validation-for="EmailSubject"></span>
         </div>
     </div>
+    <div class="adminRow deployment-@emailType">
+        <div class="adminTitle">
+            &nbsp;
+        </div>
+        <div class="adminData">
+            <partial name="_ResolveTokensExample" model="Model.EmailSubjectExample" />
+        </div>
+    </div>
     <div class="adminRow deployment-@httpType deployment-@ftpType">
         <div class="adminTitle">
             <smart-label asp-for="Url" />
@@ -124,7 +133,7 @@
             <smart-label asp-for="Username" />
         </div>
         <div class="adminData">
-            <input asp-for="Username" autocomplete="new-password" />
+            <input asp-for="Username" autocomplete="username" />
             <span asp-validation-for="Username"></span>
         </div>
     </div>
@@ -133,7 +142,7 @@
             <smart-label asp-for="Password" />
         </div>
         <div class="adminData">
-            <input asp-for="Password" type="password" autocomplete="new-password" class="password" attr-value='(Model.Password.HasValue(), Model.Password)' />
+            <input asp-for="Password" type="password" autocomplete="current-password" class="password" attr-value='(Model.Password.HasValue(), Model.Password)' />
             <span asp-validation-for="Password"></span>
         </div>
     </div>

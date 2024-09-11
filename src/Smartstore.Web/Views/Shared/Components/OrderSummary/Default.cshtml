@@ -96,17 +96,8 @@
                                                     <i class="fa fa-angle-right"></i>
                                                 </button>
                                             </div>
-                                            <div sm-if="paymentButtons.Any()" class="addon-buttons">
-                                                <div class="d-flex flex-column row-gap-2">
-                                                    <div class="text-center">
-                                                        <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
-                                                    </div>
-                                                    @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
-                                                    @foreach (var button in paymentButtons)
-                                                    {
-                                                        @button
-                                                    }
-                                                </div>
+                                            <div id="cart-payment-buttons">
+                                                <partial name="CartPaymentButtons" model="Model" />
                                             </div>
                                         </div>
                                     </div>

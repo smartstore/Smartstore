@@ -794,6 +794,10 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => productIds.Contains(x.EntityId) && x.LocaleKeyGroup == entityName)
                 .ExecuteDeleteAsync(cancelToken);
 
+            await _db.GenericAttributes
+                .Where(x => productIds.Contains(x.EntityId) && x.KeyGroup == entityName)
+                .ExecuteDeleteAsync(cancelToken);
+
             await _db.SyncMappings
                 .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
                 .ExecuteDeleteAsync(cancelToken);
@@ -808,7 +812,15 @@ namespace Smartstore.Core.Catalog.Products
                 .Select(x => x.Id);
 
             await _db.MediaTracks
-                .Where(x => productMediaFileIdsQuery.Contains(x.EntityId) && x.EntityName == nameof(ProductMediaFile))
+                .Where(x => productMediaFileIdsQuery.Contains(x.EntityId) && x.EntityName == NamedEntity.GetEntityName<ProductMediaFile>())
+                .ExecuteDeleteAsync(cancelToken);
+
+            var attributeValuesIdsQuery = _db.ProductVariantAttributeValues
+                .Where(x => productIds.Contains(x.ProductVariantAttribute.ProductId))
+                .Select(x => x.Id);
+            
+            await _db.MediaTracks
+                .Where(x => attributeValuesIdsQuery.Contains(x.EntityId) && x.EntityName == NamedEntity.GetEntityName<ProductVariantAttributeValue>())
                 .ExecuteDeleteAsync(cancelToken);
 
             // ----- Finally delete products.

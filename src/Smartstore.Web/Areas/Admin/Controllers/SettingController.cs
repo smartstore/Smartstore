@@ -398,6 +398,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
+            await MapperFactory.MapAsync(catalogSettings, model.GroupedProductSettings);
             await MapperFactory.MapAsync(priceSettings, model.PriceSettings);
 
             await PrepareCatalogConfigurationModelAsync(model, catalogSettings);
@@ -408,12 +409,22 @@ namespace Smartstore.Admin.Controllers
                 locale.LimitedOfferBadgeLabel = priceSettings.GetLocalizedSetting(x => x.LimitedOfferBadgeLabel, languageId, storeScope, false, false);
             });
 
+            AddLocales(model.GroupedProductSettings.Locales, (locale, languageId) =>
+            {
+                locale.AssociatedProductsTitle = catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle, languageId, storeScope, false, false);
+            });
+
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Catalog(int storeScope, CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
+        public async Task<IActionResult> Catalog(
+            int storeScope,
+            CatalogSettingsModel model,
+            CatalogSettings catalogSettings, 
+            PriceSettings priceSettings,
+            GroupedProductSettingsModel groupedProductSettings)
         {
             if (!ModelState.IsValid)
             {
@@ -431,12 +442,18 @@ namespace Smartstore.Admin.Controllers
             }
 
             await MapperFactory.MapAsync(model, catalogSettings);
+            await MapperFactory.MapAsync(groupedProductSettings, catalogSettings);
             await MapperFactory.MapAsync(model.PriceSettings, priceSettings);
 
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.OfferBadgeLabel, localized.OfferBadgeLabel, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(priceSettings, x => x.LimitedOfferBadgeLabel, localized.LimitedOfferBadgeLabel, localized.LanguageId, storeScope);
+            }
+
+            foreach (var localized in groupedProductSettings.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(catalogSettings, x => x.AssociatedProductsTitle, localized.AssociatedProductsTitle, localized.LanguageId, storeScope);
             }
 
             return NotifyAndRedirect(nameof(Catalog));
@@ -1555,8 +1572,8 @@ namespace Smartstore.Admin.Controllers
         {
             ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
             {
-                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
-                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+                new() { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new() { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
             };
 
             var priceLabels = await _db.PriceLabels
@@ -1592,7 +1609,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var value in Enum.GetNames(typeof(BadgeStyle)))
                 {
-                    items.Add(new SelectListItem { Value = value.ToLower(), Text = value, Selected = selectedValue.EqualsNoCase(value) });
+                    items.Add(new() { Value = value.ToLower(), Text = value, Selected = selectedValue.EqualsNoCase(value) });
                 }
 
                 return items;
@@ -1608,39 +1625,39 @@ namespace Smartstore.Admin.Controllers
             {
                 model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
 
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                ]);
 
                 availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
             }
             else
             {
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-                    new SelectListItem { Text = T("Admin.Configuration.Seo.MetaKeywords"), Value = "keyword" },
-                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+                    new() { Text = T("Common.Keywords"), Value = "keyword" },
+                    new() { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+                    new() { Text = T("Admin.Catalog.Categories"), Value = "category" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+                ]);
 
                 if (megaSearchPlusDescriptor != null)
                 {
-                    availableSearchFields.AddRange(new[]
-                    {
-                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
-                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
-                    });
+                    availableSearchFields.AddRange(
+                    [
+                        new() { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new() { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    ]);
                 }
 
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+                availableSearchModes = [.. searchSettings.SearchMode.ToSelectList()];
             }
 
             ViewBag.AvailableSearchFields = availableSearchFields;

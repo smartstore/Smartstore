@@ -17,7 +17,10 @@ namespace Smartstore.Core.Checkout.Orders
 {
     public partial class OrderProcessingService : IOrderProcessingService
     {
-        public virtual async Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData)
+        public virtual async Task<OrderPlacementResult> PlaceOrderAsync(
+            ProcessPaymentRequest paymentRequest, 
+            Dictionary<string, string> extraData,
+            CancellationToken cancelToken = default)
         {
             Guard.NotNull(paymentRequest);
 
@@ -30,10 +33,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             var ctx = new PlaceOrderContext
             {
-                InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId),
+                InitialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId, true, cancelToken),
                 Customer = await _db.Customers
                     .IncludeCustomerRoles()
-                    .FindByIdAsync(paymentRequest.CustomerId),
+                    .FindByIdAsync(paymentRequest.CustomerId, true, cancelToken),
                 ExtraData = extraData,
                 PaymentRequest = paymentRequest
             };
@@ -57,43 +60,74 @@ namespace Smartstore.Core.Checkout.Orders
                 return ctx.Result;
             }
 
-            // Collect data for new order.
-            // Also applies data (like order and tax total) to paymentRequest for payment processing below.
-            await ApplyCustomerData(ctx);
-            await ApplyPricingData(ctx);
+            // Begin atomic transaction: save all or nothing.
+            using var transaction = await _db.Database.BeginTransactionAsync(cancelToken);
 
-            await ProcessPayment(ctx);
-
-            _db.Orders.Add(ctx.Order);
-
-            // Save, we need the primary key.
-            // Payment has been made. Order MUST be saved immediately!
-            await _db.SaveChangesAsync();
-
-            ctx.Result.PlacedOrder = ctx.Order;
-
-            // Also applies data (like discounts) required for saving associated data.
-            await AddOrderItems(ctx);
-            await AddAssociatedData(ctx);
-
-            // Save order items.
-            await _db.SaveChangesAsync();
-
-            // Email messages, order notes etc.
-            await FinalizeOrderPlacement(ctx);
-
-            // Saves changes to database.
-            await CheckOrderStatusAsync(ctx.Order);
-
-            // Events.
-            await _eventPublisher.PublishOrderPlacedAsync(ctx.Order);
-
-            if (ctx.Order.PaymentStatus == PaymentStatus.Paid)
+            try
             {
-                await _eventPublisher.PublishOrderPaidAsync(ctx.Order);
-            }
+                // Collect data for new order.
+                // Also applies data (like order and tax total) to paymentRequest for payment processing below.
+                await ApplyCustomerData(ctx);
+                await ApplyPricingData(ctx);
 
-            return ctx.Result;
+                await ProcessPayment(ctx);
+
+                _db.Orders.Add(ctx.Order);
+
+                // Save, we need the primary key.
+                // Payment has been made. Order MUST be saved immediately!
+                await _db.SaveChangesAsync(cancelToken);
+
+                ctx.Result.PlacedOrder = ctx.Order;
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                   return ctx.Result;
+                };
+
+                // Also applies data (like discounts) required for saving associated data.
+                await AddOrderItems(ctx);
+                await AddAssociatedData(ctx);
+
+                // Save order items.
+                await _db.SaveChangesAsync(cancelToken);
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return ctx.Result;
+                };
+
+                // Email messages, order notes etc.
+                await FinalizeOrderPlacement(ctx);
+
+                // Saves changes to database.
+                await CheckOrderStatusAsync(ctx.Order);
+
+                // Commit atomic transaction.
+                await transaction.CommitAsync(cancelToken);
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                else
+                {
+                    // Events
+                    await _eventPublisher.PublishOrderPlacedAsync(ctx.Order);
+
+                    if (ctx.Order.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        await _eventPublisher.PublishOrderPaidAsync(ctx.Order);
+                    }
+                }
+
+                return ctx.Result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancelToken);
+                throw;
+            }
         }
 
         public virtual Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(
@@ -152,7 +186,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return (warnings, cart);
                 }
 
-                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
+                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, true);
                 if (warnings.Count > 0)
                 {
                     return (warnings, cart);
@@ -990,12 +1024,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            _db.OrderNotes.AddRange(notes.Select(note => new OrderNote
-            {
-                OrderId = order.Id,
-                Note = note,
-                CreatedOnUtc = DateTime.UtcNow
-            }));
+            AddOrderNotes(order, [.. notes]);
 
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)

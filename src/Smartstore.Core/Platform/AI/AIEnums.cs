@@ -1,5 +1,17 @@
 ﻿namespace Smartstore.Core.Platform.AI
 {
+    [Flags]
+    public enum AIProviderFeatures
+    {
+        None = 0,
+        TextCreation = 1 << 0,
+        TextTranslation = 1 << 1,
+        ImageCreation = 1 << 2,
+        ImageAnalysis = 1 << 3,
+        ThemeVarCreation = 1 << 4,
+        Assistence = 1 << 5
+    }
+
     /// <summary>
     /// Represents the AI modal dialog type.
     /// </summary>
@@ -39,6 +51,12 @@
         Horizontal,
         Vertical,
         Square
+    }
+
+    public enum ImageCreationStyle
+    {
+        Vivid,
+        Natural
     }
 
     /// <summary>

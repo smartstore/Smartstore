@@ -91,6 +91,10 @@ body {
     &.popup {
         background-color: #fff;
     }
+
+    &.popup .dispensable {
+        display: none !important;
+    }
 }
 
 #page {
@@ -123,10 +127,6 @@ body {
     @include gradient-bg($indigo);
     grid-column: 1 / -1;
     grid-row: 1 / span 2;
-
-    .popup & {
-        display: none;
-    }
 }
 
 .sidebar-left {
@@ -1482,7 +1482,8 @@ a.editable {
     flex-wrap: nowrap;
 }
 
-.mapping-edit .mapping-list-item {
+.mapping-edit .mapping-list-item,
+.column-mapping-new .mapping-list-item {
     display: contents;
 }
 

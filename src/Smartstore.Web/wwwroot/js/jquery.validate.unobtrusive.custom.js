@@ -179,6 +179,7 @@
                 setControlFeedback($(el), true);
             }
         },
+        errorClass: "is-invalid",
         ignore: "input[type=date]"
     });
 })(jQuery, this, document);

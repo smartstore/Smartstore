@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
     {
         public static HtmlString ToHtmlString(this IHtmlContent content)
         {
-            Guard.NotNull(content, nameof(content));
+            Guard.NotNull(content);
 
             if (content is HtmlString htmlString)
             {
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         public static bool HasContent(this IHtmlContent content)
         {
-            Guard.NotNull(content, nameof(content));
+            Guard.NotNull(content);
 
             switch (content)
             {

@@ -296,6 +296,50 @@
         }
     };
 
+    window.connectCopyToClipboard = function (selector) {
+        const btn = $(selector);
+
+        btn.tooltip({
+            boundary: 'window',
+            placement: "top",
+            trigger: 'hover',
+            title: Res['Common.CopyToClipboard']
+        }).on('click', function (e) {
+            e.preventDefault();
+            let btn = $(this);
+            let text = btn.data('copy');
+
+            if (!text) {
+                // Try to copy text from another element
+                let copyFromSelector = btn.data('copy-from');
+                if (copyFromSelector) {
+                    let copyFrom = $(copyFromSelector);
+                    if (copyFrom.length) {
+                        if (copyFrom.is('input, select, textarea')) {
+                            text = copyFrom.val();
+                        }
+                        else {
+                            text = copyFrom.html();
+                        }
+                    }
+                }
+            }
+
+            if (text) {
+                copyTextToClipboard(text)
+                    .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
+                    .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
+                    .finally(() => {
+                        setTimeout(() => {
+                            btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
+                        }, 2000);
+                    });
+            }
+
+            return false;
+        }).data('copy-connected', true);
+    };
+
     window.getImageSize = function (url, callback) {
         var img = new Image();
         img.src = url;
@@ -356,7 +400,7 @@
         localStorage.setItem(storageId, JSON.stringify(values));
     };
 
-    window.setRememberedFormFields = function (storageId) {
+    window.restoreRememberedFormFields = function (storageId) {
         var values = localStorage.getItem(storageId);
         if (values) {
             values = JSON.parse(values);

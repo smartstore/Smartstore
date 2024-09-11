@@ -5,6 +5,8 @@ namespace Smartstore.Core.Search.Facets
 {
     public class FacetValue : IEquatable<FacetValue>, ICloneable<FacetValue>
     {
+        private string _key;
+
         public FacetValue()
         {
         }
@@ -71,6 +73,12 @@ namespace Smartstore.Core.Search.Facets
         public bool IsEmpty => TypeCode == IndexTypeCode.Empty && Value == null;
 
         #region Metadata
+
+        public string Key
+        {
+            get => _key ??= ToString();
+            set => _key = value;
+        }
 
         public string Label { get; set; }
 
@@ -165,7 +173,7 @@ namespace Smartstore.Core.Search.Facets
                     }
                 }
 
-                return Convert.ToString(value, CultureInfo.InvariantCulture);
+                return Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
             }
 
             return string.Empty;

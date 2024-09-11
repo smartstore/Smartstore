@@ -1,5 +1,4 @@
 ﻿@* Please keep in mind that this layout view is also referenced and used by modules! *@
-@using Smartstore.Core.Logging;
 
 @{
     Layout = "_AdminRoot";
@@ -7,14 +6,21 @@
 
 @if (ViewBag.RefreshPage == true)
 {
+    var btnId = (string)ViewBag.btnId;
     <script>
-		try {
-			window.parent.document.forms['@(ViewBag.formId)'].@(ViewBag.btnId).click();
-		}
-		catch (e) {
-			try { window.parent.document.getElementById('@(ViewBag.btnId)').click(); }
-			catch (e2) { }
-		}
+        @if (btnId.HasValue())
+        {<text>
+            try {
+                window.parent.document.forms['@(ViewBag.formId)'].@(btnId).click();
+            }
+            catch (e) {
+                try {
+                    window.parent.document.getElementById('@(btnId)').click();
+                }
+                catch (e2) {
+                }
+            }
+        </text>}
 
 		@if (!(ViewBag.CloseWindow == false))
 		{
@@ -29,10 +35,11 @@
 }
 
 <div id="page">
-    <div class="page-main">
-        <header id="header">
+    <div class="canvas-blocker canvas-slidable"></div>
+    <div class="page-main canvas-slidable">
+        <header id="header" class="dispensable">
             <zone name="header" replace-content="true">
-                <zone name="admin_navbar_before"></zone>
+                <zone name="admin_navbar_before" preview-class="position-absolute"></zone>
                 @await Component.InvokeAsync("AdminNavbar")
                 <zone name="admin_navbar_after"></zone>
             </zone>
@@ -42,11 +49,11 @@
             </div>
         </header>
 
-        <aside sm-suppress-if-empty-zone="sidebar_left" class="sidebar-left custom-scrollbar d-none d-md-block">
+        <aside sm-suppress-if-empty-zone="sidebar_left" sm-preview-disabled="true" class="sidebar-left custom-scrollbar d-none d-md-block">
             @{ 
                 Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
             }
-            <zone name="sidebar_left"></zone>
+            <zone name="sidebar_left" preview-disabled="true"></zone>
         </aside>
 
         <zone name="beforemaincontent"></zone>

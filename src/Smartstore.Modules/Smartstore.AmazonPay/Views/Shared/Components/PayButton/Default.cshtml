@@ -4,7 +4,7 @@
     <div id="amazonpay-button"></div>
 </div>
 
-<script data-origin="amazonpay-button">
+<script sm-consent-type="Required" data-origin="amazonpay-button">
     loadAmazonPayScript(function () {
         var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
             merchantId: '@Html.Raw(Model.SellerId)',

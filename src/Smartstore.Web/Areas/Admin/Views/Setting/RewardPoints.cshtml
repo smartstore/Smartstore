@@ -92,6 +92,15 @@
                     <span asp-validation-for="PointsForProductReview"></span>
                 </div>
             </div>
+            <div id="pnlPointsForProductReview" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShowPointsForProductReview" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="ShowPointsForProductReview"></setting-editor>
+                    <span asp-validation-for="ShowPointsForProductReview"></span>
+                </div>
+            </div>
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="PointsForPurchases_Points" />
@@ -108,6 +117,15 @@
                         </div>
                     </div>
                     <div id="PointsForPurchasesInfo" class="text-muted mt-1"></div>
+                </div>
+            </div>
+            <div id="pnlPointsForProductPurchase" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShowPointsForProductPurchase" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="ShowPointsForProductPurchase"></setting-editor>
+                    <span asp-validation-for="ShowPointsForProductPurchase"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -160,5 +178,14 @@
             });
         }
 
+        $('#@Html.IdFor(x => x.PointsForProductReview)').on('change', function () {
+            const points = parseInt($(this).val()) || 0;
+            $('#pnlPointsForProductReview').toggle(points > 0);
+        });
+
+        $('#@Html.IdFor(x => x.PointsForPurchases_Points)').on('change', function () {
+            const points = parseInt($(this).val()) || 0;
+            $('#pnlPointsForProductPurchase').toggle(points > 0);
+        });
     });
 </script>

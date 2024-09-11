@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -32,7 +33,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 DiscountPercentage = 10,
                 DiscountAmount = 0,
                 DiscountLimitation = DiscountLimitationType.Unlimited,
-                LimitationTimes = 0,
+                LimitationTimes = 0
             };
             var discount2 = new Discount
             {
@@ -45,10 +46,10 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 RequiresCouponCode = true,
                 CouponCode = "SecretCode",
                 DiscountLimitation = DiscountLimitationType.NTimesPerCustomer,
-                LimitationTimes = 3,
+                LimitationTimes = 3
             };
 
-            DbContext.Discounts.AddRange(new[] { discount1, discount2 });
+            DbContext.Discounts.AddRange([discount1, discount2]);
 
             DbContext.GenericAttributes.AddRange(
                 new GenericAttribute { Key = "", KeyGroup = nameof(Customer), Value = "" },
@@ -71,12 +72,15 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
             var ruleProviderFactoryMock = new Mock<IRuleProviderFactory>();
             ruleProviderFactoryMock.Setup(x => x.GetProvider(RuleScope.Cart, null)).Returns(cartRuleProviderMock.Object);
 
+            var cartServiceMock = new Mock<IShoppingCartService>();
+            cartServiceMock.Setup(x => x.GetCartAsync(null, ShoppingCartType.ShoppingCart, 0, true)).Returns(Task.FromResult<ShoppingCart>(null));
+
             _discountService = new DiscountService(
                 DbContext,
                 NullRequestCache.Instance,
                 _storeContext,
                 ruleProviderFactoryMock.Object,
-                null);
+                new Lazy<IShoppingCartService>(cartServiceMock.Object));
         }
 
         [Test]
@@ -100,7 +104,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 DiscountAmount = 5,
                 RequiresCouponCode = true,
                 CouponCode = "CouponCode 1",
-                DiscountLimitation = DiscountLimitationType.Unlimited,
+                DiscountLimitation = DiscountLimitationType.Unlimited
             };
 
             var customer = new Customer
@@ -113,7 +117,8 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 LastActivityDateUtc = new DateTime(2010, 01, 02)
             };
 
-            var result1 = await _discountService.IsDiscountValidAsync(discount, customer);
+            var validationFlags = DiscountValidationFlags.DiscountLimitations | DiscountValidationFlags.GiftCards;
+            var result1 = await _discountService.IsDiscountValidAsync(discount, customer, flags: validationFlags);
             result1.ShouldEqual(true);
         }
 
@@ -171,7 +176,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 StartDateUtc = DateTime.UtcNow.AddDays(-1),
                 EndDateUtc = DateTime.UtcNow.AddDays(1),
                 RequiresCouponCode = false,
-                DiscountLimitation = DiscountLimitationType.Unlimited,
+                DiscountLimitation = DiscountLimitationType.Unlimited
             };
 
             var discount2 = new Discount
@@ -185,13 +190,15 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 StartDateUtc = DateTime.UtcNow.AddDays(1),
                 EndDateUtc = DateTime.UtcNow.AddDays(2),
                 RequiresCouponCode = false,
-                DiscountLimitation = DiscountLimitationType.Unlimited,
+                DiscountLimitation = DiscountLimitationType.Unlimited
             };
 
-            var result1 = await _discountService.IsDiscountValidAsync(discount1, customer);
+            var validationFlags = DiscountValidationFlags.DiscountLimitations | DiscountValidationFlags.GiftCards;
+
+            var result1 = await _discountService.IsDiscountValidAsync(discount1, customer, flags: validationFlags);
             result1.ShouldEqual(true);
 
-            var result2 = await _discountService.IsDiscountValidAsync(discount2, customer);
+            var result2 = await _discountService.IsDiscountValidAsync(discount2, customer, flags: validationFlags);
             result2.ShouldEqual(false);
         }
     }

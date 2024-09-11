@@ -17,11 +17,11 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
-using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Media;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Controllers
 {
@@ -241,10 +241,25 @@ namespace Smartstore.Web.Controllers
 
                 #region Review overview
 
-                model.ReviewOverview.ProductId = product.Id;
-                model.ReviewOverview.RatingSum = product.ApprovedRatingSum;
-                model.ReviewOverview.TotalReviews = product.ApprovedTotalReviews;
-                model.ReviewOverview.AllowCustomerReviews = product.AllowCustomerReviews;
+                var review = model.ReviewOverview;
+                review.ProductId = product.Id;
+                review.RatingSum = product.ApprovedRatingSum;
+                review.TotalReviews = product.ApprovedTotalReviews;
+                review.AllowCustomerReviews = product.AllowCustomerReviews;
+
+                if (product.AllowCustomerReviews 
+                    && _rewardPointsSettings.Enabled
+                    && _rewardPointsSettings.ShowPointsForProductReview
+                    && _rewardPointsSettings.PointsForProductReview > 0)
+                {
+                    var rewardAmountBase = _orderCalculationService.Value.ConvertRewardPointsToAmount(_rewardPointsSettings.PointsForProductReview);
+
+                    review.Reward = new()
+                    {
+                        Points = _rewardPointsSettings.PointsForProductReview,
+                        Amount = _currencyService.ConvertFromPrimaryCurrency(rewardAmountBase.Amount, _services.WorkContext.WorkingCurrency)
+                    };
+                }
 
                 #endregion
 
@@ -427,9 +442,11 @@ namespace Smartstore.Web.Controllers
 
             pageIndex = Math.Max(0, pageIndex - 1);
 
+            var language = _workContext.WorkingLanguage;
             var product = ctx.Product;
             var batchContext = ctx.BatchContext;
-            var pageSize = ctx.GroupedProductConfiguration.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
+            var config = ctx.GroupedProductConfiguration;
+            var pageSize = config.PageSize ?? _catalogSettings.AssociatedProductsPageSize;
             var searchFields = term.HasValue() && term.Length >= _searchSettings.InstantSearchTermMinLength 
                 ? _searchSettings.GetSearchFields(true).ToArray()
                 : null;
@@ -460,8 +477,11 @@ namespace Smartstore.Web.Controllers
             return new()
             {
                 Id = product.Id,
-                Configuration = ctx.GroupedProductConfiguration,
-                Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount)
+                Configuration = config,
+                Products = associatedProducts.ToPagedList(pageIndex, pageSize, searchResult.TotalHitsCount),
+                AssociatedProductsTitle = config.Titles?.Get(language.LanguageCulture).NullEmpty()
+                    ?? config.Titles?.Get(string.Empty).NullEmpty()
+                    ?? _catalogSettings.GetLocalizedSetting(x => x.AssociatedProductsTitle),
             };
         }
 
@@ -501,7 +521,7 @@ namespace Smartstore.Web.Controllers
                 .Distinct()
                 .ToArray();
 
-            if (linkedProductIds.Any())
+            if (linkedProductIds.Length > 0)
             {
                 linkedProducts = await _db.Products
                     .AsNoTracking()
@@ -525,10 +545,6 @@ namespace Smartstore.Web.Controllers
             foreach (var attribute in attributes)
             {
                 var preSelectedValueId = 0;
-                var attributeValues = attribute.IsListTypeAttribute()
-                    ? attribute.ProductVariantAttributeValues.OrderBy(x => x.DisplayOrder).ToList()
-                    : [];
-
                 var attributeModel = new ProductDetailsModel.ProductVariantAttributeModel
                 {
                     Id = attribute.Id,
@@ -547,7 +563,7 @@ namespace Smartstore.Web.Controllers
                 };
 
                 // Copy queried variant data (entered by customer) to model.
-                if (query.Variants.Any())
+                if (query.Variants.Count > 0)
                 {
                     var selectedAttribute = query.Variants.FirstOrDefault(x =>
                         x.ProductId == product.Id &&
@@ -591,81 +607,93 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                foreach (var value in attributeValues)
+                if (attribute.IsListTypeAttribute())
                 {
-                    ProductBundleItemAttributeFilter attributeFilter = null;
-                    if (productBundleItem?.IsFilteredOut(value, out attributeFilter) ?? false)
-                    {
-                        continue;
-                    }
-                    if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
-                    {
-                        preSelectedValueId = attributeFilter.AttributeValueId;
-                    }
-
-                    var valueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
-                    {
-                        Id = value.Id,
-                        ProductAttributeValue = value,
-                        PriceAdjustment = string.Empty,
-                        Name = value.GetLocalized(x => x.Name),
-                        Alias = value.Alias,
-                        Color = value.Color, // Used with "Boxes" attribute type.
-                        IsPreSelected = value.IsPreSelected
-                    };
-
-                    if (value.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
-                        linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
-                    {
-                        valueModel.SeName = await linkedProduct.GetActiveSlugAsync();
-                    }
-
-                    if (ctx.DisplayPrices && !isBundlePricing)
-                    {
-                        if (priceAdjustments.TryGetValue(value.Id, out var priceAdjustment))
+                    var valuesModels = await attribute.ProductVariantAttributeValues
+                        .SelectAwait(async val =>
                         {
-                            valueModel.PriceAdjustmentValue = priceAdjustment.Price.Amount;
-
-                            if (_priceSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
+                            ProductBundleItemAttributeFilter attributeFilter = null;
+                            if (productBundleItem?.IsFilteredOut(val, out attributeFilter) ?? false)
                             {
-                                if (priceAdjustment.Price > 0)
+                                return null;
+                            }
+                            if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
+                            {
+                                preSelectedValueId = attributeFilter.AttributeValueId;
+                            }
+
+                            var m = new ProductDetailsModel.ProductVariantAttributeValueModel
+                            {
+                                Id = val.Id,
+                                ProductAttributeValue = val,
+                                PriceAdjustment = string.Empty,
+                                Name = val.GetLocalized(x => x.Name),
+                                Alias = val.Alias,
+                                Color = val.Color, // Used with "Boxes" attribute type.
+                                IsPreSelected = val.IsPreSelected,
+                                DisplayOrder = val.DisplayOrder,
+                            };
+
+                            if (val.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
+                                linkedProducts.TryGetValue(val.LinkedProductId, out var linkedProduct))
+                            {
+                                m.SeName = await linkedProduct.GetActiveSlugAsync();
+                            }
+
+                            if (ctx.DisplayPrices && !isBundlePricing)
+                            {
+                                if (priceAdjustments.TryGetValue(val.Id, out var priceAdjustment))
                                 {
-                                    valueModel.PriceAdjustment = $" (+{priceAdjustment.Price})";
+                                    m.PriceAdjustmentValue = priceAdjustment.Price.Amount;
+
+                                    if (_priceSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
+                                    {
+                                        if (priceAdjustment.Price > 0)
+                                        {
+                                            m.PriceAdjustment = $" (+{priceAdjustment.Price})";
+                                        }
+                                        else if (priceAdjustment.Price < 0)
+                                        {
+                                            m.PriceAdjustment = $" (-{priceAdjustment.Price * -1})";
+                                        }
+                                    }
                                 }
-                                else if (priceAdjustment.Price < 0)
+
+                                if (m.IsPreSelected)
                                 {
-                                    valueModel.PriceAdjustment = $" (-{priceAdjustment.Price * -1})";
+                                    preselectedWeightAdjustment += val.WeightAdjustment;
+                                }
+
+                                if (_catalogSettings.ShowLinkedAttributeValueQuantity && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                                {
+                                    m.QuantityInfo = val.Quantity;
                                 }
                             }
-                        }
 
-                        if (valueModel.IsPreSelected)
-                        {
-                            preselectedWeightAdjustment += value.WeightAdjustment;
-                        }
+                            if (_catalogSettings.ShowLinkedAttributeValueImage && val.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                            {
+                                var file = linkedMediaFiles.ContainsKey(val.LinkedProductId)
+                                    ? linkedMediaFiles[val.LinkedProductId].FirstOrDefault()?.MediaFile
+                                    : null;
+                                if (file != null)
+                                {
+                                    m.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                                }
+                            }
+                            else if (val.MediaFileId != 0)
+                            {
+                                m.ImageUrl = await _mediaService.GetUrlAsync(val.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                            }
 
-                        if (_catalogSettings.ShowLinkedAttributeValueQuantity && value.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                        {
-                            valueModel.QuantityInfo = value.Quantity;
-                        }
-                    }
+                            return m;
+                        })
+                        .Where(x => x != null)
+                        .ToListAsync();
 
-                    if (_catalogSettings.ShowLinkedAttributeValueImage && value.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                    {
-                        var file = linkedMediaFiles.ContainsKey(value.LinkedProductId)
-                            ? linkedMediaFiles[value.LinkedProductId].FirstOrDefault()?.MediaFile
-                            : null;
-                        if (file != null)
-                        {
-                            valueModel.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                        }
-                    }
-                    else if (value.MediaFileId != 0)
-                    {
-                        valueModel.ImageUrl = await _mediaService.GetUrlAsync(value.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                    }
-
-                    attributeModel.Values.Add(valueModel);
+                    attributeModel.Values = [.. valuesModels
+                        .Select(x => (ChoiceItemModel)x)
+                        .OrderBy(x => x.DisplayOrder)
+                        .ThenNaturalBy(x => x.Name)];
                 }
 
                 // Add selected attributes for initially displayed combination images and multiple selected checkbox values.

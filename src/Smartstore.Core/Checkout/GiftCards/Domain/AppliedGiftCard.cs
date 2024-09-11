@@ -5,7 +5,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// <summary>
     /// Represents an applied gift card.
     /// </summary>
-    public partial class AppliedGiftCard
+    public partial record AppliedGiftCard
     {
         /// <summary>
         /// Gets or sets the usable amount in primary currency.

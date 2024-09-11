@@ -1,0 +1,25 @@
+﻿@using Smartstore.Web.Models.Cart
+
+@model ShoppingCartModel
+
+@{
+    var paymentButtons = Model.Items.Any()
+        ? (await Model.ButtonPaymentMethods.Items
+            .SelectAwait(x => x.InvokeAsync(ViewContext))
+            .AsyncToList())
+            .Where(x => x.HasContent())
+        : Enumerable.Empty<IHtmlContent>();
+}
+
+<div sm-if="paymentButtons.Any()" class="addon-buttons">
+    <div class="d-flex flex-column row-gap-2">
+        <div class="text-center">
+            <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
+        </div>
+        @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
+        @foreach (var button in paymentButtons)
+        {
+            @button
+        }
+    </div>
+</div>

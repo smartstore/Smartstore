@@ -1,31 +1,26 @@
-﻿using AngleSharp;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for text creation.
     /// </summary>
-    [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class AITextTagHelper(IHtmlGenerator htmlGenerator, AIToolHtmlGenerator aiToolHtmlGenerator) : AITagHelperBase(htmlGenerator)
+    [HtmlTargetElement("ai-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
+    public class AITextTagHelper() : AITagHelperBase()
     {
-        const string EditorTagName = "ai-text";
-
         const string DisplayWordLimitAttributeName = "display-word-limit";
         const string DisplayStyleAttributeName = "display-style";
         const string DisplayToneAttributeName = "display-tone";
         const string DisplayOptimizationOptionsAttributeName = "display-optimization-options";
         const string WordCountAttributeName = "word-count";
-
-        private readonly AIToolHtmlGenerator _aiToolHtmlGenerator = aiToolHtmlGenerator;
+        const string CharLimitAttributeName = "char-limit";
 
         /// <summary>
         /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.
         /// </summary>
         [HtmlAttributeName(DisplayWordLimitAttributeName)]
-        public bool DisplayWordLimit { get; set; } = true;
+        public bool DisplayWordLimit { get; set; } = true;  // TODO: (mh) (ai) commented-out in view. obsolete?
 
         /// <summary>
         /// Used to specify whether the style option should be displayed in the text creation dialog. Default = true.
@@ -46,26 +41,34 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool DisplayOptimizationOptions { get; set; } = true;
 
         /// <summary>
-        /// Used to specify the maximum word count for the text about to be created. Default = 50.
+        /// Specifies the maximum number of characters that an AI response may have.
+        /// Typically, this is the length of the associated database field.
+        /// 0 (default) to not limit the length of the answer.
+        /// </summary>
+        [HtmlAttributeName(CharLimitAttributeName)]
+        public int CharLimit { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum number of words that an AI response may have.
+        /// 0 (default) to not limit the length of the answer.
         /// </summary>
         [HtmlAttributeName(WordCountAttributeName)]
-        public int WordCount { get; set; } = 50;
+        public int WordCount { get; set; }    // TODO: (mh) (ai) this is not used anywhere (?)
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
-        {
-            ProcessCoreAsync(context, output).Await();
-        }
-
-        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
-            // Check if target field has content & pass parameter accordingly.
-            // INFO: Has content has to be checked to determine whether the optimization options should be enabled.
-            var hasContent = await HasValueAsync(output);
+            if (EntityName.IsEmpty())
+            {
+                return;
+            }
+
+            var enabled = For?.Model?.ToString()?.HasValue() ?? false;
             var attributes = GetTagHelperAttributes();
-            var tool = _aiToolHtmlGenerator.GenerateTextCreationTool(attributes, hasContent, EntityName);
+
+            var tool = AIToolHtmlGenerator.GenerateTextCreationTool(attributes, enabled);
             if (tool == null)
             {
                 return;
@@ -74,56 +77,18 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.WrapContentWith(tool);
         }
 
-        private static async Task<bool> HasValueAsync(TagHelperOutput output)
+        protected override AttributeDictionary GetTagHelperAttributes()
         {
-            var hasContent = false;
-            var content = (await output.GetChildContentAsync()).GetContent();
-            
-            var config = Configuration.Default;
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(req => req.Content(content));
+            var attrs = base.GetTagHelperAttributes();
 
-            var inputs = document.QuerySelectorAll("input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio'])");
-            var textareas = document.QuerySelectorAll("textarea");
+            attrs["data-display-word-limit"] = DisplayWordLimit.ToString().ToLower();
+            attrs["data-display-style"] = DisplayStyle.ToString().ToLower();
+            attrs["data-display-tone"] = DisplayTone.ToString().ToLower();
+            attrs["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower();
+            attrs["data-char-limit"] = CharLimit.ToStringInvariant();
+            attrs["data-is-rich-text"] = "false";
 
-            // Check whether any input or textarea has content
-            foreach (var input in inputs)
-            {
-                if (input.GetAttribute("value").HasValue())
-                {
-                    hasContent = true;
-                }
-            }
-
-            foreach (var textarea in textareas)
-            {
-                if (textarea.TextContent.HasValue())
-                {
-                    hasContent = true;
-                }
-            }
-
-            return hasContent;
-        }
-
-        private AttributeDictionary GetTagHelperAttributes()
-        {
-            var attributes = new AttributeDictionary
-            {
-                // INFO: We can't just use For.Name here, because the target property might be a nested property.
-                //["data-target-property"] = For.Name,
-                ["data-target-property"] = GetHtmlId(),
-                ["data-entity-name"] = EntityName.UrlEncode(),
-
-                ["data-entity-type"] = EntityType,
-                ["data-display-word-limit"] = DisplayWordLimit.ToString().ToLower(),
-                ["data-display-style"] = DisplayStyle.ToString().ToLower(),
-                ["data-display-tone"] = DisplayTone.ToString().ToLower(),
-                ["data-display-optimization-options"] = DisplayOptimizationOptions.ToString().ToLower(),
-                ["data-is-rich-text"] = "false"
-            };
-
-            return attributes;
+            return attrs;
         }
     }
 }

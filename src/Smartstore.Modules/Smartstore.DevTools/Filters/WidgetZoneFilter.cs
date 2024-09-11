@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -9,11 +8,21 @@ using Smartstore.DevTools.Components;
 
 namespace Smartstore.DevTools.Filters
 {
+    public class ZonePreviewWidget : ComponentWidget
+    {
+        public ZonePreviewWidget()
+            : base(typeof(WidgetZoneViewComponent))
+        {
+        }
+
+        public override bool IsValid(IWidgetZone zone)
+        {
+            return !(zone.PreviewDisabled || zone.ReplaceContent);
+        }
+    }
+
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
-        private static readonly Regex _widgetZonePattern
-            = new(@"^(?!header$|footer$|stylesheets$|head_scripts$|head_canonical$|head_links$|head$)", RegexOptions.Compiled);
-
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ProfilerSettings _profilerSettings;
@@ -46,7 +55,9 @@ namespace Smartstore.DevTools.Filters
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
             if (!_profilerSettings.DisplayWidgetZones)
+            {
                 return;
+            }
 
             // should only run on a full view rendering result or HTML ContentResult
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
@@ -62,8 +73,19 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
-                // INFO: Don't render in zones where replace-content is true & no <head> zones
-                _widgetProvider.RegisterViewComponent<WidgetZoneViewComponent>(_widgetZonePattern);
+                // Display the widget zone menu.
+                _widgetProvider.RegisterWidget(
+                    new[] { "start", "end" },
+                    new ComponentWidget(typeof(WidgetZoneMenuViewComponent)));
+
+                // Check, whether the cookie '.Smart.WZVisibility' set and if it's value is 'false'. If so, don't render the widget zones.
+                if (filterContext.HttpContext.Request.Cookies.TryGetValue(".Smart.WZVisibility", out var wzVisibility) && wzVisibility == "false")
+                {
+                    return;
+                }
+
+                // Render the widget zones.
+                _widgetProvider.RegisterWidget(_ => true, new ZonePreviewWidget());
             }
         }
 

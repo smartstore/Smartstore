@@ -4,8 +4,9 @@ namespace Smartstore.Web.Models.Orders
 {
     public partial class ShipmentDetailsModel : EntityModelBase
     {
+        public string Carrier { get; set; }
         public string TrackingNumber { get; set; }
-        public string TrackingNumberUrl { get; set; }
+        public string TrackingUrl { get; set; }
         public DateTime? ShippedDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public List<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; } = new();

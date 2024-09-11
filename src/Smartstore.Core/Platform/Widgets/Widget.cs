@@ -10,7 +10,7 @@ namespace Smartstore.Core.Widgets
     /// <summary>
     /// Base class for widgets.
     /// </summary>
-    public abstract class Widget : IEquatable<Widget>
+    public abstract class Widget : IEquatable<Widget>, IComparable<Widget>
     {
         /// <summary>
         /// Order of widget within the zone.
@@ -29,10 +29,19 @@ namespace Smartstore.Core.Widgets
         public string? Key { get; set; }
 
         /// <summary>
+        /// Whether the widget is valid in the given <paramref name="zone"/>.
+        /// An invalid widget will not be listed in widget zone enumerations.
+        /// </summary>
+        /// <param name="zone">The widget zone</param>
+        public virtual bool IsValid(IWidgetZone zone) 
+            => true;
+
+        /// <summary>
         /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
-        public Task<IHtmlContent> InvokeAsync(ViewContext viewContext) => InvokeAsync(new WidgetContext(viewContext));
+        public Task<IHtmlContent> InvokeAsync(ViewContext viewContext) 
+            => InvokeAsync(new WidgetContext(viewContext));
 
         /// <summary>
         /// Invokes the widget and returns its content.
@@ -40,6 +49,20 @@ namespace Smartstore.Core.Widgets
         /// <param name="context">The widget context</param>
         /// <returns>The result HTML content.</returns>
         public abstract Task<IHtmlContent> InvokeAsync(WidgetContext context);
+
+        /// <inheritdoc />
+        int IComparable<Widget>.CompareTo(Widget? other)
+        {
+            if (other is null) return 1;
+
+            int result = Prepend.CompareTo(other.Prepend);
+            if (result == 0)
+            {
+                result = Order.CompareTo(other.Order);
+            }
+
+            return result;
+        }
 
         #region Equatable
 
@@ -60,15 +83,15 @@ namespace Smartstore.Core.Widgets
 
         bool IEquatable<Widget>.Equals(Widget? other)
         {
-            if (other is null || Key == null || other.Key == null)
-            {
-                return false;
-            }   
-
             if (ReferenceEquals(this, other))
             {
                 return true;
-            } 
+            }
+
+            if (other is null || Key == null || other.Key == null)
+            {
+                return false;
+            }
 
             return Key == other.Key && GetType() == other.GetType();
         }

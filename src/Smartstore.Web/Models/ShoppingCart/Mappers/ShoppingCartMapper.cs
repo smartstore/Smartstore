@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json.Linq;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -20,6 +21,7 @@ using Smartstore.Core.Security;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Rendering;
+using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -28,6 +30,7 @@ namespace Smartstore.Web.Models.Cart
         public static async Task<ShoppingCartModel> MapAsync(this ShoppingCart cart,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false,
             bool prepareEstimateShippingIfEnabled = true,
             bool setEstimateShippingDefaultAddress = true)
         {
@@ -36,6 +39,7 @@ namespace Smartstore.Web.Models.Cart
             await cart.MapAsync(model,
                 isEditable,
                 validateCheckoutAttributes,
+                validateRequiredProducts,
                 prepareEstimateShippingIfEnabled,
                 setEstimateShippingDefaultAddress);
 
@@ -46,12 +50,14 @@ namespace Smartstore.Web.Models.Cart
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
+            bool validateRequiredProducts = false,
             bool prepareEstimateShippingIfEnabled = true,
             bool setEstimateShippingDefaultAddress = true)
         {
             dynamic parameters = new GracefulDynamicObject();
             parameters.IsEditable = isEditable;
             parameters.ValidateCheckoutAttributes = validateCheckoutAttributes;
+            parameters.ValidateRequiredProducts = validateRequiredProducts;
             parameters.PrepareEstimateShippingIfEnabled = prepareEstimateShippingIfEnabled;
             parameters.SetEstimateShippingDefaultAddress = setEstimateShippingDefaultAddress;
 
@@ -135,6 +141,7 @@ namespace Smartstore.Web.Models.Cart
             var isBillingAddresRequired = from.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
             var isPaymentRequired = from.Requirements.HasFlag(CheckoutRequirements.Payment);
             var validateCheckoutAttributes = parameters?.ValidateCheckoutAttributes == true;
+            var validateRequiredProducts = parameters?.ValidateRequiredProducts == true;
             var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
             var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
 
@@ -184,7 +191,7 @@ namespace Smartstore.Web.Models.Cart
             }
 
             // Cart warnings.
-            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes);
+            await _shoppingCartValidator.ValidateCartAsync(from, to.Warnings, validateCheckoutAttributes, validateRequiredProducts);
 
             to.CheckoutNotAllowedWarning = T(_shoppingCartSettings.AllowActivatableCartItems ? "ShoppingCart.SelectAtLeastOneProduct" : "ShoppingCart.CartIsEmpty");
 
@@ -212,42 +219,51 @@ namespace Smartstore.Web.Models.Cart
                         .Include(x => x.MediaFile)
                         .AsNoTracking()
                         .Where(x => x.CheckoutAttributeId == attribute.Id)
+                        .OrderBy(x => x.DisplayOrder)
                         .ToListAsync();
 
                     // Prepare each attribute with image and price
-                    foreach (var caValue in caValues)
-                    {
-                        var pvaValueModel = new ShoppingCartModel.CheckoutAttributeValueModel
+                    var valuesModels = await caValues
+                        .SelectAwait(async x =>
                         {
-                            Id = caValue.Id,
-                            Name = caValue.GetLocalized(x => x.Name),
-                            IsPreSelected = caValue.IsPreSelected,
-                            Color = caValue.Color
-                        };
-
-                        if (caValue.MediaFileId.HasValue && caValue.MediaFile != null)
-                        {
-                            pvaValueModel.ImageUrl = _services.MediaService.GetUrl(caValue.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                        }
-
-                        caModel.Values.Add(pvaValueModel);
-
-                        // Display price if allowed.
-                        if (await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
-                        {
-                            var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(caValue);
-                            var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);
-
-                            if (priceAdjustment > 0)
+                            var m = new ShoppingCartModel.CheckoutAttributeValueModel
                             {
-                                pvaValueModel.PriceAdjustment = "+" + priceAdjustment.WithPostFormat(taxFormat).ToString();
-                            }
-                            else if (priceAdjustment < 0)
+                                Id = x.Id,
+                                Name = x.GetLocalized(x => x.Name),
+                                IsPreSelected = x.IsPreSelected,
+                                Color = x.Color,
+                                DisplayOrder = x.DisplayOrder
+                            };
+
+                            if (x.MediaFileId.HasValue && x.MediaFile != null)
                             {
-                                pvaValueModel.PriceAdjustment = "-" + (priceAdjustment * -1).WithPostFormat(taxFormat).ToString();
+                                m.ImageUrl = _services.MediaService.GetUrl(x.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
                             }
-                        }
-                    }
+
+                            // Display price if allowed.
+                            if (await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
+                            {
+                                var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(x);
+                                var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);
+
+                                if (priceAdjustment > 0)
+                                {
+                                    m.PriceAdjustment = "+" + priceAdjustment.WithPostFormat(taxFormat).ToString();
+                                }
+                                else if (priceAdjustment < 0)
+                                {
+                                    m.PriceAdjustment = "-" + (priceAdjustment * -1).WithPostFormat(taxFormat).ToString();
+                                }
+                            }
+
+                            return m;
+                        })
+                        .ToListAsync();
+
+                    caModel.Values = [.. valuesModels
+                        .Select(x => (ChoiceItemModel)x)
+                        .OrderBy(x => x.DisplayOrder)
+                        .ThenNaturalBy(x => x.Name)];
                 }
 
                 // Set already selected attributes.

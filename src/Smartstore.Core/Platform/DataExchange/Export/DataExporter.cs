@@ -56,6 +56,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IMediaService _mediaService;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IUrlService _urlService;
         private readonly IMailService _mailService;
         private readonly Lazy<IUrlHelper> _urlHelper;
@@ -86,6 +87,7 @@ namespace Smartstore.Core.DataExchange.Export
             IMediaService mediaService,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
+            IGenericAttributeService genericAttributeService,
             IUrlService urlService,
             IMailService mailService,
             Lazy<IUrlHelper> urlHelper,
@@ -114,6 +116,7 @@ namespace Smartstore.Core.DataExchange.Export
             _mediaService = mediaService;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
+            _genericAttributeService = genericAttributeService;
             _urlService = urlService;
             _mailService = mailService;
             _urlHelper = urlHelper;
@@ -468,7 +471,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (ctx.IsFileBasedExport)
                 {
                     context.FileIndex += 1;
-                    context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
+                    context.FileName = _exportProfileService.ResolveTokens(profile, profile.FileNamePattern, context.FileIndex, context.MaxFileNameLength, ctx.Store) + fileExtension;
                     file = await dir.GetFileAsync(context.FileName);
 
                     if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))
@@ -1402,7 +1405,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 IFilePublisher publisher = null;
 
-                context.Result = new DataDeploymentResult
+                context.Result = new()
                 {
                     LastExecutionUtc = DateTime.UtcNow
                 };
@@ -1413,7 +1416,8 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         case ExportDeploymentType.Email:
                             publisher = new EmailFilePublisher(_db,
-                                (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value);
+                                (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value,
+                                _exportProfileService);
                             break;
                         case ExportDeploymentType.FileSystem:
                             publisher = new FileSystemFilePublisher(_services.ApplicationContext);
@@ -1645,7 +1649,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             if (entities == null || !entities.Any())
             {
-                return new LocalizedPropertyCollection(keyGroup, null, Enumerable.Empty<LocalizedProperty>());
+                return new LocalizedPropertyCollection(keyGroup, null, []);
             }
 
             return await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entities.ToDistinctArray(x => x.Id));
@@ -1655,7 +1659,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             if (entities == null || !entities.Any())
             {
-                return new UrlRecordCollection(entityName, null, Enumerable.Empty<UrlRecord>());
+                return new UrlRecordCollection(entityName, null, []);
             }
 
             return await _urlService.GetUrlRecordCollectionAsync(entityName, null, entities.ToDistinctArray(x => x.Id));

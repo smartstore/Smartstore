@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Smartstore
 {
+    
     public class Guard
     {
         const string AgainstMessage = "Assertion evaluation failed with 'false'.";
@@ -32,7 +33,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNull(string arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static void NotNull(string arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg is null)
             {
@@ -42,13 +43,13 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotNull<T>(T? arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static T NotNull<T>(T? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             return arg ?? throw new ArgumentNullException(argName);
         }
 
         [DebuggerStepThrough]
-        public static void NotEmpty(string? arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static void NotEmpty(string? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg is null)
             {
@@ -75,7 +76,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollection<T> NotEmpty<T>(ICollection<T>? arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static ICollection<T> NotEmpty<T>(ICollection<T>? arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg == null || arg.Count == 0)
             {
@@ -87,7 +88,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotEmpty<T>(T arg, [CallerArgumentExpression("arg")] string? argName = null) where T : struct
+        public static T NotEmpty<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct
         {
             if (Equals(arg, default(T)))
             {
@@ -99,7 +100,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T InRange<T>(T arg, T min, T max, [CallerArgumentExpression("arg")] string? argName = null) where T : struct, IComparable<T>
+        public static T InRange<T>(T arg, T min, T max, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(min) < 0 || arg.CompareTo(max) > 0)
             {
@@ -111,7 +112,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotNegative<T>(T arg, [CallerArgumentExpression("arg")] string? argName = null, string message = NotNegativeMessage) where T : struct, IComparable<T>
+        public static T NotNegative<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = NotNegativeMessage) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(default) < 0)
             {

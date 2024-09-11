@@ -1,0 +1,41 @@
+﻿@using Smartstore.Core.Checkout.Orders
+
+@model UpdateOrderDetailsContext
+
+@{
+    if (!Model.AdjustInventory && !Model.UpdateRewardPoints)
+    {
+        return;
+    }
+
+    int? stockOld = null;
+    int? stockNew = null;
+
+    if (Model?.Inventory?.HasClearStockQuantityResult ?? false)
+    {
+        stockOld = Model.Inventory.StockQuantityOld;
+        stockNew = Model.Inventory.StockQuantityNew;
+    }
+}
+
+<table class="table table-sm mb-0">
+    <thead>
+        <tr>
+            <th></th>
+            <th class="text-center">@T("Common.Old")</th>
+            <th class="text-center">@T("Common.New")</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr sm-if="Model.AdjustInventory">
+            <td>@T("Admin.Catalog.Products.Fields.StockQuantity")</td>
+            <td class="text-center">@(stockOld?.ToString("N0") ?? "-")</td>
+            <td class="text-center@(stockNew != stockOld ? " fwb" : string.Empty)">@(stockNew?.ToString("N0") ?? "-")</td>
+        </tr>
+        <tr sm-if="Model.UpdateRewardPoints">
+            <td>@T("Admin.Customers.Customers.RewardPoints")</td>
+            <td class="text-center">@Model.OldRewardPoints.ToString("N0")</td>
+            <td class="text-center@(Model.NewRewardPoints != Model.OldRewardPoints ? " fwb" : string.Empty)">@Model.NewRewardPoints.ToString("N0")</td>
+        </tr>
+    </tbody>
+</table>

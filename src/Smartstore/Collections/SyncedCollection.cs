@@ -2,7 +2,7 @@
 using Smartstore.Threading;
 
 namespace Smartstore.Collections
-{
+{ 
     public sealed class SyncedCollection<T> : Disposable, ICollection<T>
     {
         // INFO: Don't call it SynchronizedCollection because of framework dupe.

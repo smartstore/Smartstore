@@ -168,6 +168,7 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(request);
 
+            var result = new ShippingOptionResponse();
             var computationMethods = LoadEnabledShippingProviders(request.StoreId)
                 .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() || allowedShippingRateComputationMethodSystemName.EqualsNoCase(x.Metadata.SystemName))
                 .ToList();
@@ -176,9 +177,6 @@ namespace Smartstore.Core.Checkout.Shipping
             {
                 throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
             }
-
-            // Get shipping options.
-            var result = new ShippingOptionResponse();
 
             foreach (var method in computationMethods)
             {
@@ -191,7 +189,6 @@ namespace Smartstore.Core.Checkout.Shipping
                     result.ShippingOptions.Add(option);
                 }
 
-                // Log errors.
                 if (!response.Success)
                 {
                     foreach (var error in response.Errors)
@@ -205,6 +202,13 @@ namespace Smartstore.Core.Checkout.Shipping
                     }
                 }
             }
+
+            var orderedOptions = result.ShippingOptions
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Rate)
+                .ThenBy(x => x.ShippingMethodId);
+
+            result.ShippingOptions = [.. orderedOptions];
 
             // Return valid options if any present (ignores the errors returned by other shipping rate compuation methods).
             if (_shippingSettings.ReturnValidOptionsIfThereAreAny && result.ShippingOptions.Count > 0 && result.Errors.Count > 0)
