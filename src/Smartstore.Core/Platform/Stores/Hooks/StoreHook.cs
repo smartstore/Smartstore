@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Common.Services;
+﻿using Smartstore.Caching;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -12,17 +13,20 @@ namespace Smartstore.Core.Stores
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly Lazy<ICurrencyService> _currencyService;
+        private readonly ICacheManager _cache;
 
         private string _hookErrorMessage;
 
         public StoreHook(
             SmartDbContext db,
             IStoreContext storeContext,
-            Lazy<ICurrencyService> currencyService)
+            Lazy<ICurrencyService> currencyService,
+            ICacheManager cache)
         {
             _db = db;
             _storeContext = storeContext;
             _currencyService = currencyService;
+            _cache = cache;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -78,34 +82,66 @@ namespace Smartstore.Core.Stores
                 .Select(x => x.Entity)
                 .OfType<Store>()
                 .Select(x => x.Id)
+                .Where(x => x != 0)
                 .ToList();
 
-            if (deletedStoreIds.Any())
+            if (deletedStoreIds.Count == 0)
             {
-                // When we delete a store we should also ensure that all "per store" settings will also be deleted.
-                await _db.Settings
-                    .Where(x => deletedStoreIds.Contains(x.StoreId))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                // Delete AdminAreaStoreScopeConfiguration attribute of deleted stores. Avoids displaying override checkboxes for settings without store scope configuration.
-                var deletedStoreIdsStr = deletedStoreIds.Select(x => x.ToStringInvariant()).ToArray();
-
-                await _db.GenericAttributes
-                    .Where(x => x.Key == SystemCustomerAttributeNames.AdminAreaStoreScopeConfiguration && deletedStoreIdsStr.Contains(x.Value) && x.KeyGroup == nameof(Customer))
-                    .ExecuteDeleteAsync(cancelToken);
-
-                // When we had two stores and now have only one store, we also should delete all "per store" settings.
-                var allStoreIds = await _db.Stores
-                    .Select(x => x.Id)
-                    .ToListAsync(cancelToken);
-
-                if (allStoreIds.Count == 1)
-                {
-                    await _db.Settings
-                        .Where(x => x.StoreId == allStoreIds[0])
-                        .ExecuteDeleteAsync(cancelToken);
-                }
+                return;
             }
+
+            // Cascade delete entities referenced by deleted stores which would be unused/unproductive after their deletion.
+            // Do not delete sales entities like ReturnRequest.
+            await _db.Settings
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.ThemeVariables
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.BackInStockSubscriptions
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.NewsletterSubscriptions
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            // Delete AdminAreaStoreScopeConfiguration attribute of deleted stores.
+            // Avoids displaying override checkboxes for settings without store scope configuration.
+            var deletedStoreIdsStr = deletedStoreIds.Select(x => x.ToStringInvariant()).ToArray();
+
+            await _db.GenericAttributes
+                .Where(x => x.Key == SystemCustomerAttributeNames.AdminAreaStoreScopeConfiguration && deletedStoreIdsStr.Contains(x.Value) && x.KeyGroup == nameof(Customer))
+                .ExecuteDeleteAsync(cancelToken);
+
+            // When we had two stores and now have only one store, we also should delete all "per store" settings.
+            var allStoreIds = await _db.Stores.Select(x => x.Id).ToListAsync(cancelToken);
+            if (allStoreIds.Count == 1)
+            {
+                await _db.Settings
+                    .Where(x => x.StoreId == allStoreIds[0])
+                    .ExecuteDeleteAsync(cancelToken);
+            }
+
+            await _db.ShoppingCartItems
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            await _db.TierPrices
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+
+            var numDeleted = await _db.StoreMappings
+                .Where(x => deletedStoreIds.Contains(x.StoreId))
+                .ExecuteDeleteAsync(cancelToken);
+            if (numDeleted > 0)
+            {
+                await _cache.RemoveByPatternAsync(StoreMappingService.STOREMAPPING_SEGMENT_PATTERN);
+            }
+
+            // What about generic attributes of customers? Can be a lot.
         }
 
         private void FixStoreEntity(Store store)
