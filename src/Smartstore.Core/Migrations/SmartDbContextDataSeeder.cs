@@ -494,6 +494,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Compare products in the {0} online shop.",
                 "Vergleichen Sie Produkte im {0} Online-Shop.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LabelAsNewByAvailableDate",
+                "Label as \"new\" based on the availability date",
+                "Als \"neu\" anhand des Verfügbarkeitsdatums kennzeichnen",
+                "Specifies whether the \"NEW\" labeling is based on the available start date. By default, the creation date of the product is used.",
+                "Legt fest, ob die \"NEU\"-Kennzeichnung anhand des Datums \"Verfügbar ab\" erfolgt. Standardmäßig wird das Erstellungsdatum des Produktes verwendet.");
+
             AddAIResources(builder);
         }
 

@@ -183,6 +183,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*LabelAsNewForMaxDays")]
         public int? LabelAsNewForMaxDays { get; set; }
 
+        [LocalizedDisplay("*LabelAsNewByAvailableDate")]
+        public bool LabelAsNewByAvailableDate { get; set; }
+
         #endregion
 
         #region Product tags

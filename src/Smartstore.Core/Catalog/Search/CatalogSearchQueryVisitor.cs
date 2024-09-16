@@ -8,12 +8,12 @@ namespace Smartstore.Core.Catalog.Search
 {
     public class CatalogSearchQueryVisitor : LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>
     {
-        private static readonly string[] _searchTermFields = new[]
-        {
+        private static readonly string[] _searchTermFields =
+        [
             CatalogSearchQuery.KnownFilters.Name,
             CatalogSearchQuery.KnownFilters.Sku,
             CatalogSearchQuery.KnownFilters.ShortDescription
-        };
+        ];
 
         protected override IQueryable<Product> VisitFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
@@ -124,6 +124,14 @@ namespace Smartstore.Core.Catalog.Search
             {
                 return VisitPriceFilter(filter as IAttributeSearchFilter, context, query);
             }
+            else if (fieldName == names.AvailableStart)
+            {
+                return VisitAvailableStartDateFilter(filter as IRangeSearchFilter, query);
+            }
+            else if (fieldName == names.AvailableEnd)
+            {
+                return VisitAvailableEndDateFilter(filter as IRangeSearchFilter, query);
+            }
             else if (fieldName.EndsWith(names.CategoryId))
             {
                 if (filter is IRangeSearchFilter rf)
@@ -213,56 +221,6 @@ namespace Smartstore.Core.Catalog.Search
                         from p in query
                         from pt in p.ProductTags.Where(pt => tagIds.Contains(pt.Id))
                         select p;
-                }
-            }
-            else if (filter is IRangeSearchFilter rf)
-            {
-                // Range only filters
-                if (fieldName == names.AvailableStart)
-                {
-                    var lower = rf.Term as DateTime?;
-                    var upper = rf.UpperTerm as DateTime?;
-
-                    if (lower.HasValue)
-                    {
-                        if (rf.IncludesLower)
-                            query = query.Where(x => !x.AvailableStartDateTimeUtc.HasValue || x.AvailableStartDateTimeUtc >= lower.Value);
-                        else
-                            query = query.Where(x => !x.AvailableStartDateTimeUtc.HasValue || x.AvailableStartDateTimeUtc > lower.Value);
-                    }
-
-                    if (upper.HasValue)
-                    {
-                        if (rf.IncludesLower)
-                            query = query.Where(x => !x.AvailableStartDateTimeUtc.HasValue || x.AvailableStartDateTimeUtc <= upper.Value);
-                        else
-                            query = query.Where(x => !x.AvailableStartDateTimeUtc.HasValue || x.AvailableStartDateTimeUtc < upper.Value);
-                    }
-
-                    return query;
-                }
-                else if (fieldName == names.AvailableEnd)
-                {
-                    var lower = rf.Term as DateTime?;
-                    var upper = rf.UpperTerm as DateTime?;
-
-                    if (lower.HasValue)
-                    {
-                        if (rf.IncludesLower)
-                            query = query.Where(x => !x.AvailableEndDateTimeUtc.HasValue || x.AvailableEndDateTimeUtc >= lower.Value);
-                        else
-                            query = query.Where(x => !x.AvailableEndDateTimeUtc.HasValue || x.AvailableEndDateTimeUtc > lower.Value);
-                    }
-
-                    if (upper.HasValue)
-                    {
-                        if (rf.IncludesLower)
-                            query = query.Where(x => !x.AvailableEndDateTimeUtc.HasValue || x.AvailableEndDateTimeUtc <= upper.Value);
-                        else
-                            query = query.Where(x => !x.AvailableEndDateTimeUtc.HasValue || x.AvailableEndDateTimeUtc < upper.Value);
-                    }
-
-                    return query;
                 }
             }
             else if (filter is CategoryTreePathFilter tpf)
@@ -497,6 +455,86 @@ namespace Smartstore.Core.Catalog.Search
             return query;
         }
 
+        protected virtual IQueryable<Product> VisitAvailableStartDateFilter(IRangeSearchFilter rf, IQueryable<Product> query)
+        {
+            var lower = rf.Term as DateTime?;
+            var upper = rf.UpperTerm as DateTime?;
+
+            if (lower.HasValue)
+            {
+                if (rf.IncludesLower)
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableStartDateTimeUtc != null && x.AvailableStartDateTimeUtc >= lower.Value)
+                        : query.Where(x => x.AvailableStartDateTimeUtc == null || x.AvailableStartDateTimeUtc >= lower.Value);
+                }
+                else
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableStartDateTimeUtc != null && x.AvailableStartDateTimeUtc > lower.Value)
+                        : query.Where(x => x.AvailableStartDateTimeUtc == null || x.AvailableStartDateTimeUtc > lower.Value);
+                }
+            }
+
+            if (upper.HasValue)
+            {
+                if (rf.IncludesLower)
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableStartDateTimeUtc != null && x.AvailableStartDateTimeUtc <= upper.Value)
+                        : query.Where(x => x.AvailableStartDateTimeUtc == null || x.AvailableStartDateTimeUtc <= upper.Value);
+                }
+                else
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableStartDateTimeUtc != null && x.AvailableStartDateTimeUtc < upper.Value)
+                        : query.Where(x => x.AvailableStartDateTimeUtc == null || x.AvailableStartDateTimeUtc < upper.Value);
+                }
+            }
+
+            return query;
+        }
+
+        protected virtual IQueryable<Product> VisitAvailableEndDateFilter(IRangeSearchFilter rf, IQueryable<Product> query)
+        {
+            var lower = rf.Term as DateTime?;
+            var upper = rf.UpperTerm as DateTime?;
+
+            if (lower.HasValue)
+            {
+                if (rf.IncludesLower)
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableEndDateTimeUtc != null && x.AvailableEndDateTimeUtc >= lower.Value)
+                        : query.Where(x => x.AvailableEndDateTimeUtc == null || x.AvailableEndDateTimeUtc >= lower.Value);
+                }
+                else
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableEndDateTimeUtc != null && x.AvailableEndDateTimeUtc > lower.Value)
+                        : query.Where(x => x.AvailableEndDateTimeUtc == null || x.AvailableEndDateTimeUtc > lower.Value);
+                }
+            }
+
+            if (upper.HasValue)
+            {
+                if (rf.IncludesLower)
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableEndDateTimeUtc != null && x.AvailableEndDateTimeUtc <= upper.Value)
+                        : query.Where(x => x.AvailableEndDateTimeUtc == null || x.AvailableEndDateTimeUtc <= upper.Value);
+                }
+                else
+                {
+                    query = rf.Mode == SearchMode.ExactMatch
+                        ? query.Where(x => x.AvailableEndDateTimeUtc != null && x.AvailableEndDateTimeUtc < upper.Value)
+                        : query.Where(x => x.AvailableEndDateTimeUtc == null || x.AvailableEndDateTimeUtc < upper.Value);
+                }
+            }
+
+            return query;
+        }
+
         protected virtual IQueryable<Product> VisitRoleFilter(ISearchFilter filter, CatalogSearchQueryContext context, IQueryable<Product> query)
         {
             var db = context.Services.DbContext;
@@ -556,6 +594,10 @@ namespace Smartstore.Core.Catalog.Search
             else if (sorting.FieldName == names.CreatedOn)
             {
                 query = OrderBy(query, x => x.CreatedOnUtc, sorting.Descending);
+            }
+            else if (sorting.FieldName == names.AvailableStart)
+            {
+                query = OrderBy(query, x => x.AvailableStartDateTimeUtc, sorting.Descending);
             }
             else if (sorting.FieldName == names.Name)
             {

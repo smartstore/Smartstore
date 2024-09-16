@@ -36,6 +36,7 @@
 - Enhanced database optimization and vacuum operations
 - Vacuum single database table
 - #909 Allow to control the product availability based on the existence of an attribute combination.
+- New catalog setting to label products as *new* by the availability start date.
 - MegaSearch
   - Setting to place the search hits of unavailable products further back in the search list.
   - Finding products by keywords (e.g. product compatibility list). Also added product meta keywords to the search index.

@@ -563,8 +563,10 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             {
                 if (newByAvailableDate)
                 {
+                    // INFO: "ExactMatch" is actually only intended for string filters (terms).
+                    // We use it here to instruct LINQ search to filter only for products with a specified availability start date.
                     var filter = SearchFilter.ByRange(CatalogSearchQuery.KnownFilters.AvailableStart, fromUtc, null, true, false);
-                    query.WithFilter(filter.Mandatory().NotAnalyzed());
+                    query.WithFilter(filter.ExactMatch().Mandatory().NotAnalyzed());
                 }
                 else
                 {
