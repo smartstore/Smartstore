@@ -14,7 +14,8 @@ namespace Smartstore.Core.Platform.AI
             AddMessages(messages);
         }
 
-        public IReadOnlyList<AIChatMessage> Messages => _messages;
+        public IReadOnlyList<AIChatMessage> Messages 
+            => _messages;
 
         public bool HasMessages()
             => _messages.Count > 0;
@@ -24,7 +25,10 @@ namespace Smartstore.Core.Platform.AI
         /// </summary>
         public void AddMessages(params AIChatMessage[] messages)
         {
-            Guard.NotNull(messages);
+            if (messages.IsNullOrEmpty())
+            {
+                return;
+            }
 
             _messages.AddRange(messages.Where(x => x.HasContent()));
         }
