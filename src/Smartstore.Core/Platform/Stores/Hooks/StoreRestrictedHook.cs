@@ -9,9 +9,7 @@ namespace Smartstore.Core.Stores
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
 
-        public StoreRestrictedHook(
-            SmartDbContext db,
-            ICacheManager cache)
+        public StoreRestrictedHook(SmartDbContext db, ICacheManager cache)
         {
             _db = db;
             _cache = cache;
