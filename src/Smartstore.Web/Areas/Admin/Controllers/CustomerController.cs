@@ -537,7 +537,7 @@ namespace Smartstore.Admin.Controllers
             };
 
             // Validate super admin
-            if (!ValidateSuperAdmin(model.SelectedCustomerRoleIds))
+            if (!Services.Permissions.ValidateSuperAdmin(model.SelectedCustomerRoleIds))
             {
                 NotifyAccessDenied();
                 return RedirectToAction(nameof(Create), new { customer.Id });
@@ -629,35 +629,15 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if (!await Services.Permissions.CanAccessEntity(customer))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
+            }
+
             var model = new CustomerModel();
             await PrepareCustomerModel(model, customer);
-
             return View(model);
-        }
-
-        /// <summary>
-        /// Controls that:
-        /// - only super admins can add new super admins
-        /// - if there is no existing super admin, then any admin can give itself super admin priviledges
-        /// - if there is already a super admin, then no admins can give itself super admin priviledges
-        /// </summary>
-        /// <param name="selectedCustomerRoleIds"></param>
-        /// <returns>true if validation passed, otherwise false</returns>
-        private bool ValidateSuperAdmin(int[] selectedCustomerRoleIds)
-        {
-            // Only if there is currently no super admin, allow an admin customer to set itself as super admin. 
-            var superAdminRole = _db.CustomerRoles.FirstOrDefault(x => x.SystemName == SystemCustomerRoleNames.SuperAdministrators);
-            if (!Services.WorkContext.CurrentCustomer.IsSuperAdmin() && selectedCustomerRoleIds.Any(x => x == superAdminRole?.Id))
-            {
-                var superAdminExists = _db.Customers.Any(
-                customer => customer.CustomerRoleMappings.Any(
-                    mapping => mapping.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators));
-                if (superAdminExists)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -674,21 +654,9 @@ namespace Smartstore.Admin.Controllers
             {
                 return NotFound();
             }
-
-            if (customer.IsSuperAdmin() && !Services.WorkContext.CurrentCustomer.IsSuperAdmin())
-            {
-                NotifyAccessDenied();
-                return RedirectToAction(nameof(Edit), new { customer.Id });
-            }
-
-            if (customer.IsAdmin() && !Services.WorkContext.CurrentCustomer.IsAdmin())
-            {
-                NotifyAccessDenied();
-                return RedirectToAction(nameof(Edit), new { customer.Id });
-            }
-
+            
             // Validate super admin
-            if (!ValidateSuperAdmin(model.SelectedCustomerRoleIds))
+            if (!Services.Permissions.ValidateSuperAdmin(model.SelectedCustomerRoleIds))
             {
                 NotifyAccessDenied();
                 return RedirectToAction(nameof(Edit), new { customer.Id });

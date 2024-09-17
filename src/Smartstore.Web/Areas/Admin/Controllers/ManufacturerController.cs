@@ -7,6 +7,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
@@ -241,6 +242,12 @@ namespace Smartstore.Admin.Controllers
             if (manufacturer == null)
             {
                 return NotFound();
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(manufacturer))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var mapper = MapperFactory.GetMapper<Manufacturer, ManufacturerModel>();

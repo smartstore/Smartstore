@@ -236,6 +236,12 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if(!await Services.Permissions.CanAccessEntity(shipment))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
+            }
+
             var model = new ShipmentModel();
             await PrepareShipmentModel(model, shipment, true);
             PrepareViewBag();

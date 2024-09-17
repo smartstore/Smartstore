@@ -873,6 +873,12 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if(! await Services.Permissions.CanAccessEntity(order))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
+            }
+
             var model = new OrderModel();
             await PrepareOrderModel(model, order);
 

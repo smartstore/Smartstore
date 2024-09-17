@@ -257,10 +257,16 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.ProductTags)
                 .Include(x => x.AppliedDiscounts)
                 .FindByIdAsync(id);
-
+            
             if (product == null)
             {
                 NotifyWarning(T("Products.NotFound", id));
+                return RedirectToAction(nameof(List));
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(product))
+            {
+                NotifyAccessDenied();
                 return RedirectToAction(nameof(List));
             }
 
