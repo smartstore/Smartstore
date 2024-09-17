@@ -1,10 +1,13 @@
 ﻿#nullable enable
 
+using Newtonsoft.Json;
+
 namespace Smartstore.Core.Platform.AI
 {
     /// <summary>
     /// Represents an AI conversation consisting of a sequence of messages.
     /// </summary>
+    [JsonConverter(typeof(AIChatJsonConverter))]
     public class AIChat
     {
         private readonly List<AIChatMessage> _messages = [];
@@ -30,7 +33,7 @@ namespace Smartstore.Core.Platform.AI
                 return;
             }
 
-            _messages.AddRange(messages.Where(x => x.HasContent()));
+            _messages.AddRange(messages.Where(x => x.Content.HasValue()));
         }
 
         public override string ToString()
