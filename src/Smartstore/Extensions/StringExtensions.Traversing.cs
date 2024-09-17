@@ -97,11 +97,14 @@ namespace Smartstore
         /// <param name="separator">If <c>null</c> then value is searched for a common delimiter like pipe, semicolon or comma</param>
         /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<string> SplitSafe(this string? input, string? separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        public static IEnumerable<string> SplitSafe(
+            this string? input, 
+            string? separator, 
+            StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
             if (string.IsNullOrEmpty(input))
             {
-                return Enumerable.Empty<string>();
+                return [];
             }
 
             // Do not use separator.IsEmpty() here because whitespace like " " is a valid separator.
@@ -130,8 +133,8 @@ namespace Smartstore
                 }
 
                 return options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && string.IsNullOrWhiteSpace(input)
-                    ? Enumerable.Empty<string>()
-                    : new[] { input };
+                    ? []
+                    : [input];
             }
             else
             {
@@ -151,9 +154,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<string> SplitSafe(this string? input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
-            return string.IsNullOrEmpty(input)
-                ? Enumerable.Empty<string>()
-                : Tokenize(input, separator, options);
+            return string.IsNullOrEmpty(input) ? [] : Tokenize(input, separator, options);
         }
 
         /// <summary>
@@ -194,7 +195,7 @@ namespace Smartstore
         /// <param name="options">One of the enumeration values that determines whether the split operation should omit empty substrings from the return value.</param>
         public static IEnumerable<string> Tokenize(this string input, char separator, StringSplitOptions options = StringSplitOptions.None)
         {
-            return Tokenize(input, new[] { separator }, options);
+            return Tokenize(input, [separator], options);
         }
 
         /// <summary>
