@@ -60,6 +60,7 @@ namespace Smartstore.Core.Catalog.Search
         public readonly string Name = "name";
         public readonly string Price = "price";
         public readonly string CreatedOn = "createdon";
+        public readonly string AvailableStart = "availablestart";
         public readonly string ParentId = "parentid";
     }
 

@@ -9,6 +9,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
@@ -1585,7 +1586,8 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var label in priceLabels)
             {
-                ViewBag.AvailableDefaultComparePriceLabels.Add(new SelectListItem { 
+                ViewBag.AvailableDefaultComparePriceLabels.Add(new SelectListItem
+                { 
                     Value = label.Id.ToString(), 
                     Text = label.GetLocalized(x => x.ShortName), 
                     Selected = model.PriceSettings.DefaultComparePriceLabelId == label.Id
@@ -1602,6 +1604,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
             ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
             ViewBag.AssociatedProductsHeaderFields = ProductController.CreateAssociatedProductsHeaderFieldsList(catalogSettings.CollapsibleAssociatedProductsHeaders, T);
+            ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
 
             static List<SelectListItem> AddBadgeStyles(string selectedValue)
             {
@@ -1662,6 +1665,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableSearchFields = availableSearchFields;
             ViewBag.AvailableSearchModes = availableSearchModes;
+            ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
         }
 
         private SelectListItem ResToSelectListItem(string resourceKey)
@@ -1682,6 +1686,22 @@ namespace Smartstore.Admin.Controllers
             }
 
             return false;
+        }
+
+        private List<SelectListItem> CreateProductSortingsList(ProductSortingEnum selectedSorting)
+        {
+            var language = Services.WorkContext.WorkingLanguage;
+            var sortings = (ProductSortingEnum[])Enum.GetValues(typeof(ProductSortingEnum));
+
+            return sortings
+                .Where(x => x != ProductSortingEnum.CreatedOnAsc)
+                .Select(x => new SelectListItem
+                {
+                    Text = Services.Localization.GetLocalizedEnum(x, language.Id),
+                    Value = ((int)x).ToString(),
+                    Selected = x == selectedSorting
+                })
+                .ToList();
         }
     }
 }

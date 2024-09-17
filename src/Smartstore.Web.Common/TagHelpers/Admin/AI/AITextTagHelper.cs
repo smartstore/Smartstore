@@ -19,8 +19,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// <summary>
         /// Used to specify whether the word count should be displayed in the text creation dialog. Default = true.
         /// </summary>
+        /// <remarks>
+        /// This setting is needed e.g. for SEO texts like title and description, where the length of the answer is handled explicitly by the prompt. 
+        /// </remarks>
         [HtmlAttributeName(DisplayWordLimitAttributeName)]
-        public bool DisplayWordLimit { get; set; } = true;  // TODO: (mh) (ai) commented-out in view. obsolete?
+        public bool DisplayWordLimit { get; set; } = true;
 
         /// <summary>
         /// Used to specify whether the style option should be displayed in the text creation dialog. Default = true.
