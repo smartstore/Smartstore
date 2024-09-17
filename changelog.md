@@ -145,6 +145,7 @@
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
   - #991 topic target *homepage* was not imported correctly.
+  - #938 Story is published in Page Builder editor.
 - Forum:
   - #951 The forum post page counter is always incremented by 2 when the page is opened.
   - Fixed HTML links are not displayed in posts.
