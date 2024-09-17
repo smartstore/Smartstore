@@ -2,6 +2,7 @@
 using Smartstore.Core.Stores;
 using Smartstore.IO;
 using Smartstore.Scheduling;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -103,7 +104,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <summary>
         /// Use this dictionary for any custom data required along the import.
         /// </summary>
-        public Dictionary<string, object> CustomProperties { get; set; } = new();
+        public Dictionary<string, object> CustomProperties { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the result of the import.
@@ -123,7 +124,9 @@ namespace Smartstore.Core.DataExchange.Import
             get
             {
                 if (CancelToken.IsCancellationRequested || IsMaxFailures)
+                {
                     return DataExchangeAbortion.Hard;
+                }
 
                 return _abortion;
             }
@@ -139,33 +142,23 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="value">Progress value.</param>
         /// <param name="maximum">Progress maximum.</param>
-        public async Task SetProgressAsync(int value, int maximum)
+        public Task SetProgressAsync(int value, int maximum)
         {
-            try
-            {
-                await ProgressCallback.Invoke(value, maximum, _progressInfo.FormatInvariant(value, maximum));
-            }
-            catch
-            {
-            }
+            return CommonHelper.TryAction(() => ProgressCallback.Invoke(value, maximum, _progressInfo.FormatInvariant(value.ToString("N0"), maximum.ToString("N0"))));
         }
 
         /// <summary>
         /// Allows to set a progress message.
         /// </summary>
         /// <param name="message">Output message.</param>
-        public async Task SetProgressAsync(string message)
+        public Task SetProgressAsync(string message)
         {
             if (message.HasValue())
             {
-                try
-                {
-                    await ProgressCallback.Invoke(0, 0, message);
-                }
-                catch
-                {
-                }
+                return CommonHelper.TryAction(() => ProgressCallback.Invoke(0, 0, message));
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -175,12 +168,13 @@ namespace Smartstore.Core.DataExchange.Import
         /// <returns>Custom property.</returns>
         public T GetCustomProperty<T>(string key)
         {
-            if (!CustomProperties.ContainsKey(key))
+            if (!CustomProperties.TryGetValue(key, out object value))
             {
-                CustomProperties[key] = Activator.CreateInstance(typeof(T));
+                value = Activator.CreateInstance(typeof(T));
+                CustomProperties[key] = value;
             }
 
-            return (T)CustomProperties[key];
+            return (T)value;
         }
     }
 }
