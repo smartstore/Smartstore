@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json.Linq;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -147,12 +146,14 @@ namespace Smartstore.Web.Models.Cart
 
             #region Simple properties
 
+            to.IsEditable = isEditable;
             to.MediaDimensions = _mediaSettings.CartThumbPictureSize;
             to.DisplayBasePrice = _shoppingCartSettings.ShowBasePrice;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.DisplayCommentBox = _shoppingCartSettings.ShowCommentBox;
             to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
-            to.IsEditable = isEditable;
+            to.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnShoppingCart;
+            to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
 
             to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
                 await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));

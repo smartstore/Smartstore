@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
