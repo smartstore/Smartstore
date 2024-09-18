@@ -73,5 +73,22 @@ namespace Smartstore.Core.Security
         /// <param name="permissionProviders">Providers whose permissions are to be installed.</param>
         /// <param name="removeUnusedPermissions">Whether to remove permissions no longer supported by the providers.</param>
         Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false);
+
+        /// <summary>
+        /// Controls that:
+        /// - only super admins can add new super admins
+        /// - if there is no existing super admin, then any admin can give itself super admin priviledges
+        /// - if there is already a super admin, then no admins can give itself super admin priviledges
+        /// </summary>
+        /// <param name="selectedCustomerRoleIds">Role Ids that are currently selected from the customer being edited</param>
+        /// <returns>true if validation passed, otherwise false</returns>
+        bool ValidateSuperAdmin(int[] selectedCustomerRoleIds);
+
+        /// <summary>
+        /// Forbids customers from entering into unauthorized customers' edit pages by manipulating the url. 
+        /// </summary>
+        /// <param name="entity">The entity intended to be edited by currently authenticated customer</param>
+        /// <returns>true if authenticated customer is authorized, false otherwise</returns>
+        Task<bool> CanAccessEntity<T>(T entity) where T : BaseEntity;
     }
 }

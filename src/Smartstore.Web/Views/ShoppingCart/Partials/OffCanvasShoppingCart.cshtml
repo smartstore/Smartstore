@@ -41,6 +41,8 @@
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
+                var bundleItemsWithImages = item.BundleItems.Where(x => x.ImageModel.HasImage()).ToArray();
+
                 <div class="offcanvas-cart-item@(!item.Active ? " offcanvas-cart-item-inactive" : string.Empty)">
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-image col-alpha">
@@ -58,15 +60,14 @@
                                 @Html.Raw(item.EssentialSpecAttributesInfo)
                                 @Html.Raw(item.AttributeInfo)
                             </div>
-                            <div sm-if="item.BundleItems.Any()" class="mb-bundle-pictures mt-3">
-                                @for (int j = 0, bundlelength = item.BundleItems.Count; j < bundlelength; j++)
+                            <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
+                                @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
                                 {
-                                    var bundleItem = item.BundleItems[j];
-
-                                    <a sm-if="bundleItem.ImageModel.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
+                                    var bundleItem = bundleItemsWithImages[i];
+                                    <a href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
                                         <img sm-model="bundleItem.ImageModel" />
                                     </a>
-                                    <i sm-if="(j + 1) < bundlelength" class="fa fa-plus"></i>
+                                    <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
                                 }
                             </div>
 

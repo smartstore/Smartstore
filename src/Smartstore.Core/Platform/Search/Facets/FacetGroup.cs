@@ -96,6 +96,7 @@ namespace Smartstore.Core.Search.Facets
                 case "available":
                     return FacetGroupKind.Availability;
                 case "createdon":
+                case "availablestart":
                     return scope == "Catalog" ? FacetGroupKind.NewArrivals : FacetGroupKind.Date;
                 case "forumid":
                     return FacetGroupKind.Forum;

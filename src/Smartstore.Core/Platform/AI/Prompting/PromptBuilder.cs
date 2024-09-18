@@ -21,83 +21,16 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public PromptResources Resources { get; }
 
         /// <summary>
-        /// Adds prompt parts with general instructions for simple text creation, e.g. not do use markdown. 
-        /// Wordlimit, Tone and Style are properties of <paramref name="model"/> that are also considered.
+        /// Adds prompt parts with general instructions for text creation. 
         /// </summary>
         /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildSimpleTextPrompt(ITextGenerationPrompt model, List<string> parts)
+        /// <param name="isRichText">A value indicating whether to build a HTML containing rich text prompt.</param>
+        public virtual Task BuildTextPromptAsync(ITextGenerationPrompt model, List<string> parts, bool isRichText)
         {
-            parts.Add(Resources.DontUseMarkdown());
-
-            if (model.CharLimit > 0)
-            {
-                parts.Add(Resources.CharLimit(model.CharLimit));
-            }
-
-            if (model.WordLimit > 0)
-            {
-                parts.Add(Resources.WordLimit(model.WordLimit));
-            }
-
-            if (model.Tone.HasValue())
-            {
-                parts.Add(Resources.LanguageTone(model.Tone));
-            }
-
-            if (model.Style.HasValue())
-            {
-                parts.Add(Resources.LanguageStyle(model.Style));
-            }
-        }
-
-        /// <summary>
-        /// Adds prompt parts with general instructions for rich text creation. 
-        /// </summary>
-        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
-        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual async Task BuildRichTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
-        {
-            // TODO: (mh) (ai) Does it make sense to have own methods for every single part?
-            // So it can be overwritten granularly.
-
-            // General instructions
-            parts.AddRange(
-            [
-                Resources.CreateHtml(),
-                Resources.JustHtml(),
-                Resources.StartWithDivTag(),
-                Resources.DontCreateTitle(model.EntityName)
-            ]);
-
-            if (model.LanguageId > 0)
-            {
-                var language = await _db.Languages.FindByIdAsync(model.LanguageId);
-                parts.Add(Resources.Language(language.Name.ToLower()));
-            }
-
-            // Append phrase for tone from model
-            if (model.Tone.HasValue())
-            {
-                parts.Add(Resources.LanguageTone(model.Tone));
-            }
-
-            // Append phrase for style from model
-            if (model.Style.HasValue())
-            {
-                parts.Add(Resources.LanguageStyle(model.Style));
-            }
-
-            BuildStructurePrompt(model, parts);
-            BuildKeywordsPrompt(model, parts);
-            BuildIncludeImagesPrompt(model, parts, model.IncludeIntro, model.IncludeConclusion);
-            
-            if (model.AddToc)
-            {
-                parts.Add(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag));
-            }
-
-            await BuildLinkPromptAsync(model, parts);
+            return isRichText
+                ? BuildRichTextPromptAsync(model, parts)
+                : BuildSimpleTextPromptAsync(model, parts);
         }
 
         /// <summary>
@@ -342,6 +275,93 @@ namespace Smartstore.Core.Platform.AI.Prompting
             {
                 parts.Add(Resources.CharLimitSuggestions(model.CharLimit));
             }
+        }
+
+        /// <summary>
+        /// Adds prompt parts with general instructions for simple text creation, e.g. not do use markdown. 
+        /// Wordlimit, Tone and Style are properties of <paramref name="model"/> that are also considered.
+        /// </summary>
+        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        protected virtual Task BuildSimpleTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
+        {
+            parts.Add(Resources.DontUseMarkdown());
+
+            if (model.CharLimit > 0)
+            {
+                parts.Add(Resources.CharLimit(model.CharLimit));
+            }
+
+            if (model.WordLimit > 0)
+            {
+                parts.Add(Resources.WordLimit(model.WordLimit));
+            }
+
+            return AddLanguagePartsAsync(model, parts);
+        }
+
+        /// <summary>
+        /// Adds prompt parts with general instructions for rich text creation. 
+        /// </summary>
+        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
+        /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
+        protected virtual async Task BuildRichTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
+        {
+            AddHtmlParts(parts);
+            await AddLanguagePartsAsync(model, parts);
+
+            parts.Add(Resources.DontCreateTitle(model.EntityName));
+
+            BuildStructurePrompt(model, parts);
+            BuildKeywordsPrompt(model, parts);
+            BuildIncludeImagesPrompt(model, parts, model.IncludeIntro, model.IncludeConclusion);
+
+            if (model.AddToc)
+            {
+                parts.Add(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag));
+            }
+
+            await BuildLinkPromptAsync(model, parts);
+        }
+
+        /// <summary>
+        /// Adds parts for language name, tone and style.
+        /// </summary>
+        protected virtual async Task AddLanguagePartsAsync(ITextGenerationPrompt model, List<string> parts)
+        {
+            if (model.LanguageId > 0)
+            {
+                var languageName = await _db.Languages
+                    .Where(x => x.Id == model.LanguageId)
+                    .Select(x => x.Name)
+                    .FirstOrDefaultAsync();
+
+                if (languageName.HasValue())
+                {
+                    parts.Add(Resources.Language(languageName.ToLower()));
+                }
+            }
+
+            if (model.Tone.HasValue())
+            {
+                parts.Add(Resources.LanguageTone(model.Tone));
+            }
+
+            if (model.Style.HasValue())
+            {
+                parts.Add(Resources.LanguageStyle(model.Style));
+            }
+        }
+
+        /// <summary>
+        /// Adds parts for HTML creation.
+        /// </summary>
+        protected virtual void AddHtmlParts(List<string> parts)
+        {
+            parts.AddRange([
+                Resources.CreateHtml(),
+                Resources.JustHtml(),
+                Resources.StartWithDivTag()]);
         }
 
         #endregion

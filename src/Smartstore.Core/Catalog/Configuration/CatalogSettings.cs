@@ -335,8 +335,13 @@ namespace Smartstore.Core.Catalog
 
         public int? LabelAsNewForMaxDays { get; set; }
 
-        public bool ShowDefaultQuantityUnit { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to label products as "new" 
+        /// by the availability start date instead of the creation date.
+        /// </summary>
+        public bool LabelAsNewByAvailableDate { get; set; }
 
+        public bool ShowDefaultQuantityUnit { get; set; }
         public bool ShowDefaultDeliveryTime { get; set; }
 
         public bool ShowPopularProductTagsOnHomepage { get; set; } = false;

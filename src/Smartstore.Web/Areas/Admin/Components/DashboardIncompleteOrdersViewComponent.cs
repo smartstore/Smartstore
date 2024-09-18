@@ -25,7 +25,7 @@ namespace Smartstore.Admin.Components
 
             var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
             var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+            var authorizedStoreIds = await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
 
             var model = new List<DashboardIncompleteOrdersModel>
             {
@@ -43,7 +43,7 @@ namespace Smartstore.Admin.Components
                 .AsNoTracking()
                 .ApplyAuditDateFilter(CreatedFrom, null)
                 .ApplyIncompleteOrdersFilter()
-                .ApplyCustomerFilter(authorizedStoreIds)
+                .ApplyCustomerStoreFilter(authorizedStoreIds)
                 .Select(x => new OrderDataPoint
                 {
                     CreatedOn = x.CreatedOnUtc,

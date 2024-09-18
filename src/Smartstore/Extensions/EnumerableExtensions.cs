@@ -32,6 +32,24 @@ namespace Smartstore
 
         #endregion
 
+        #region Array
+
+        /// <summary>
+        /// Checks whether given <paramref name="source"/> array is either
+        /// <c>null</c> or empty.
+        /// </summary>
+        public static bool IsNullOrEmpty<T>(this T[] source)
+        {
+            if (source == null)
+            {
+                return true;
+            }
+
+            return source.Length == 0;
+        }
+
+        #endregion
+
         #region IEnumerable
 
         /// <summary>

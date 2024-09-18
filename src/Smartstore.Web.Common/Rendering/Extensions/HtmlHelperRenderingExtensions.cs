@@ -377,12 +377,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IHtmlContent HintTooltipFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
         {
-            Guard.NotNull(expression);
-
-            var modelExpression = helper.ModelExpressionFor(expression);
-            var hintText = modelExpression?.Metadata?.Description;
-
-            return HintTooltip(helper, hintText);
+            return HintTooltip(helper, helper.DescriptionFor(expression));
         }
 
         /// <summary>
@@ -417,14 +412,21 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Generates control description text.
         /// </summary>
-        public static IHtmlContent HintFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
+        public static string DescriptionFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
         {
             Guard.NotNull(expression);
 
             var modelExpression = helper.ModelExpressionFor(expression);
             var hintText = modelExpression?.Metadata?.Description;
+            return hintText;
+        }
 
-            return Hint(helper, hintText);
+        /// <summary>
+        /// Generates control description element.
+        /// </summary>
+        public static IHtmlContent HintFor<TModel, TResult>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, TResult>> expression)
+        {
+            return Hint(helper, helper.DescriptionFor(expression));
         }
 
         /// <summary>

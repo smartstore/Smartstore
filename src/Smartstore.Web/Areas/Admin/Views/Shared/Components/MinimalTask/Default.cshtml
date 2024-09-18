@@ -16,8 +16,8 @@
         <partial name="~/Areas/Admin/Views/Scheduling/MinimalTask.cshtml" model="Model" />
 	</div>
     <div class="task-progress text-muted col" attr-class='(!isRunning, "hide")' data-task-id="@Model.Id" data-running="@(isRunning ? "true" : "false")"></div>
-	<div sm-if="cancellable && canExecute" class="col-auto">
-		<a href="@Model.CancelUrl" data-task-id="@Model.Id" class="btn btn-sm btn-danger btn-cancel-task confirm" attr-class='(!isRunning, "hide")'>
+	<div sm-if="cancellable && canExecute" class="col-auto" attr-class='(!isRunning, "hide")'>
+		<a href="@Model.CancelUrl" data-task-id="@Model.Id" class="btn btn-sm btn-danger btn-cancel-task confirm">
 			@T("Common.Cancel")
 		</a>
 	</div>

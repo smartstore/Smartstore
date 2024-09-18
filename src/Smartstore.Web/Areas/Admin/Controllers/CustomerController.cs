@@ -48,7 +48,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IShippingService> _shippingService;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly IStoreMappingService _storeMappingService;
 
         public CustomerController(
             SmartDbContext db,
@@ -69,8 +68,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IShoppingCartService> shoppingCartService,
             Lazy<IShippingService> shippingService,
             Lazy<IPaymentService> paymentService,
-            ShoppingCartSettings shoppingCartSettings,
-            IStoreMappingService storeMappingService)
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _customerService = customerService;
@@ -91,7 +89,6 @@ namespace Smartstore.Admin.Controllers
             _shippingService = shippingService;
             _paymentService = paymentService;
             _shoppingCartSettings = shoppingCartSettings;
-            _storeMappingService = storeMappingService;
         }
 
         #region Utilities
@@ -141,7 +138,7 @@ namespace Smartstore.Admin.Controllers
             model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
             model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-            model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(customer);
+            model.SelectedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(customer);
 
             if (customer != null)
             {
@@ -426,7 +423,7 @@ namespace Smartstore.Admin.Controllers
                 CompanyEnabled = _customerSettings.CompanyEnabled,
                 PhoneEnabled = _customerSettings.PhoneEnabled,
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
-                SearchCustomerRoleIds = new int[] { registeredRole.Id }
+                SearchCustomerRoleIds = [registeredRole.Id]
             };
 
             return View(listModel);
@@ -442,7 +439,11 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.ShippingAddress)
                 .IncludeCustomerRoles()
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber)
-                .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt());
+                .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt())
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Customer), [.. _db.Customers.Select(x => x.Id)]))
+                .ApplySuperAdminFilter(Services.WorkContext.CurrentCustomer.IsSuperAdmin());
 
             if (model.SearchCustomerRoleIds != null)
             {
@@ -535,6 +536,13 @@ namespace Smartstore.Admin.Controllers
                 LastActivityDateUtc = DateTime.UtcNow
             };
 
+            // Validate super admin
+            if (!Services.Permissions.ValidateSuperAdmin(model.SelectedCustomerRoleIds))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(Create), new { customer.Id });
+            }
+
             // Validate customer roles.
             var allCustomerRoleIds = await _db.CustomerRoles.Select(x => x.Id).ToListAsync();
             var (newCustomerRoles, customerRolesError) = await ValidateCustomerRoles(model.SelectedCustomerRoleIds, allCustomerRoleIds);
@@ -578,7 +586,10 @@ namespace Smartstore.Admin.Controllers
                         });
                     });
 
-                    await _storeMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds);
+                    if (!await Services.StoreMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds))
+                    {
+                        NotifyError("Unauthorized stores removed.");
+                    }
                     await _db.SaveChangesAsync();
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
@@ -618,9 +629,14 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if (!await Services.Permissions.CanAccessEntity(customer))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
+            }
+
             var model = new CustomerModel();
             await PrepareCustomerModel(model, customer);
-
             return View(model);
         }
 
@@ -638,8 +654,9 @@ namespace Smartstore.Admin.Controllers
             {
                 return NotFound();
             }
-
-            if (customer.IsAdmin() && !Services.WorkContext.CurrentCustomer.IsAdmin())
+            
+            // Validate super admin
+            if (!Services.Permissions.ValidateSuperAdmin(model.SelectedCustomerRoleIds))
             {
                 NotifyAccessDenied();
                 return RedirectToAction(nameof(Edit), new { customer.Id });
@@ -765,7 +782,10 @@ namespace Smartstore.Admin.Controllers
                             await scope.CommitAsync();
                         }
 
-                        await _storeMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds);
+                        if (!await Services.StoreMappingService.ApplyStoreMappingsAsync(customer, model.SelectedStoreIds))
+                        {
+                            NotifyError("Unauthorized stores removed.");
+                        }
                         await _db.SaveChangesAsync();
 
                         await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
@@ -1013,6 +1033,10 @@ namespace Smartstore.Admin.Controllers
                 .IncludeCustomerRoles()
                 .Where(x => !x.IsSystemAccount)
                 .ApplyOnlineCustomersFilter(_customerSettings.OnlineCustomerMinutes)
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Customer), [.. _db.Customers.Select(x => x.Id)]))
+                .ApplySuperAdminFilter(Services.WorkContext.CurrentCustomer.IsSuperAdmin())
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -1318,7 +1342,10 @@ namespace Smartstore.Admin.Controllers
                 var startDate = Services.DateTimeHelper.ConvertToUserTime(DateTime.Now).AddDays(-days);
 
                 return await _db.Customers
-                    .ApplyRolesFilter(new[] { registeredRoleId })
+                    .ApplyCustomerStoreFilter(
+                        await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                        await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Customer), [.. _db.Customers.Select(x => x.Id)]))
+                    .ApplyRolesFilter([registeredRoleId])
                     .ApplyRegistrationFilter(startDate, null)
                     .CountAsync();
             }
@@ -1342,6 +1369,7 @@ namespace Smartstore.Admin.Controllers
             var shippingStatusIds = model.ShippingStatusId > 0 ? new[] { model.ShippingStatusId } : null;
 
             var orderQuery = _db.Orders
+                .ApplyCustomerStoreFilter(await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync())
                 .Where(x => !x.Customer.Deleted)
                 .ApplyStatusFilter(orderStatusIds, paymentStatusIds, shippingStatusIds)
                 .ApplyAuditDateFilter(startDate, endDate);

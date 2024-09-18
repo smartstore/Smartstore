@@ -254,6 +254,12 @@
             return false;
         });
 
+        // Dropdown container
+        $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown-container .droptrap', (e) => {
+            const container = $(e.currentTarget).closest('.dropdown-container');
+            container.toggleClass('active', e.type === 'shown');
+        });
+
         $(window).on('load', function () {
             // swap classes onload and domready
             html.removeClass("loading").addClass("loaded");

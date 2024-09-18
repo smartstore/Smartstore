@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Store;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
@@ -23,7 +27,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public StoreController(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICatalogSearchService catalogSearchService,
             ShoppingCartSettings shoppingCartSettings)
         {
@@ -76,9 +80,11 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> StoreList(GridCommand command)
         {
             var stores = Services.StoreContext.GetAllStores();
+            var customerAuthorizedStores = await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
             var mapper = MapperFactory.GetMapper<Store, StoreModel>();
 
             var rows = await stores
+                .Where(store => customerAuthorizedStores.Length != 0 ? customerAuthorizedStores.Any(cas => store.Id == cas) : true)
                 .AsQueryable()
                 .ApplyGridCommand(command)
                 .SelectAwait(async x =>
@@ -210,36 +216,38 @@ namespace Smartstore.Admin.Controllers
         public async Task<JsonResult> StoreDashboardReportAsync()
         {
             var primaryCurrency = Services.CurrencyService.PrimaryCurrency;
+            var authorizedStoreIds = await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
+            
+            var customerStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Customer), [.. _db.Customers.Select(x => x.Id)]);
+            var productStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Product), [.. _db.Products.Select(x => x.Id)]);
+            var categoryStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Category), [.. _db.Categories.Select(x => x.Id)]);
+            var manufacturerStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Manufacturer), [.. _db.MediaFiles.Select(x => x.Id)]);
+            var attributesCountStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(ProductAttribute), [.. _db.ProductAttributes.Select(x => x.Id)]);
+            var attributeCombinationsCountStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(ProductVariantAttributeCombination), [.. _db.MediaFiles.Select(x => x.Id)]);
+            var shoppingCartItemStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(ShoppingCartItem), [.. _db.ShoppingCartItems.Select(x => x.Id)]);
+            var mediaFileStoreMappings = await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(MediaFile), [.. _db.MediaFiles.Select(x => x.Id)]);
+            var filteredCustomers = _db.Customers.ApplyCustomerStoreFilter(authorizedStoreIds, customerStoreMappings);
 
-            var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
-
-            var ordersQuery = _db.Orders.ApplyCustomerFilter(authorizedStoreIds).AsNoTracking();
-            var registeredRole = await _db.CustomerRoles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
-
-            var registeredCustomersQuery = _db.Customers
-                .AsNoTracking()
-                .ApplyRolesFilter([registeredRole.Id]);
-
+            var registeredRole = await _db.CustomerRoles.AsNoTracking().FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
+            var ordersQuery = _db.Orders.ApplyCustomerStoreFilter(authorizedStoreIds).AsNoTracking();
             var sumAllOrders = await ordersQuery.SumAsync(x => (decimal?)x.OrderTotal) ?? 0;
-            var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart, _shoppingCartSettings.AllowActivatableCartItems ? true : null);
-            var sumWishlists = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
-            var totalMediaSize = await _db.MediaFiles.SumAsync(x => (long)x.Size);
+            var shoppingCartItems = _db.ShoppingCartItems.ApplyCustomerStoreFilter(authorizedStoreIds, shoppingCartItemStoreMappings);
+            var sumOpenCarts = await shoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart, _shoppingCartSettings.AllowActivatableCartItems ? true : null);
+            var sumWishlists = await shoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
+            var totalMediaSize = await _db.MediaFiles.ApplyCustomerStoreFilter(authorizedStoreIds, mediaFileStoreMappings).SumAsync(x => (long)x.Size);
 
             var model = new StoreDashboardReportModel
             {
-                ProductsCount = (await _catalogSearchService.PrepareQuery(new CatalogSearchQuery()).CountAsync()).ToString("N0"),
-                CategoriesCount = (await _db.Categories.CountAsync()).ToString("N0"),
-                ManufacturersCount = (await _db.Manufacturers.CountAsync()).ToString("N0"),
-                AttributesCount = (await _db.ProductAttributes.CountAsync()).ToString("N0"),
-                AttributeCombinationsCount = (await _db.ProductVariantAttributeCombinations.CountAsync(x => x.IsActive)).ToString("N0"),
+                ProductsCount = (await _catalogSearchService.PrepareQuery(new CatalogSearchQuery()).ApplyCustomerStoreFilter(authorizedStoreIds, productStoreMappings).CountAsync()).ToString("N0"),
+                CategoriesCount = (await _db.Categories.ApplyCustomerStoreFilter(authorizedStoreIds, categoryStoreMappings).CountAsync()).ToString("N0"),
+                ManufacturersCount = (await _db.Manufacturers.ApplyCustomerStoreFilter(authorizedStoreIds, manufacturerStoreMappings).CountAsync()).ToString("N0"),
+                AttributesCount = (await _db.ProductAttributes.ApplyCustomerStoreFilter(authorizedStoreIds, attributesCountStoreMappings).CountAsync()).ToString("N0"),
+                AttributeCombinationsCount = (await _db.ProductVariantAttributeCombinations.ApplyCustomerStoreFilter(authorizedStoreIds, attributeCombinationsCountStoreMappings).CountAsync(x => x.IsActive)).ToString("N0"),
                 MediaCount = (await Services.MediaService.CountFilesAsync(new MediaSearchQuery { Deleted = false })).ToString("N0"),
                 MediaSize = Prettifier.HumanizeBytes(totalMediaSize),
-                CustomersCount = (await registeredCustomersQuery.CountAsync()).ToString("N0"),
+                CustomersCount = (await filteredCustomers.AsNoTracking().ApplyRolesFilter([registeredRole.Id]).CountAsync()).ToString("N0"),
+                OnlineCustomersCount = (await filteredCustomers.ApplyOnlineCustomersFilter(15).CountAsync()).ToString("N0"),
                 OrdersCount = (await ordersQuery.CountAsync()).ToString("N0"),
-                OnlineCustomersCount = (await _db.Customers.ApplyOnlineCustomersFilter(15).CountAsync()).ToString("N0"),
                 Sales = Services.CurrencyService.CreateMoney(sumAllOrders, primaryCurrency).ToString(),
                 CartsValue = Services.CurrencyService.CreateMoney(sumOpenCarts, primaryCurrency).ToString(),
                 WishlistsValue = Services.CurrencyService.CreateMoney(sumWishlists, primaryCurrency).ToString()
