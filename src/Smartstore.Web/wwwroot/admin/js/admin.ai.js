@@ -55,7 +55,7 @@
                     optimizationCommand: el.data('command'),
                     // INFO: This is important for change style and tone items. We must know how to change the present text. 
                     // For command "change-style" e.g.professional, casual, friendly, etc.
-                    changeParameter: el.text(),
+                    changeParameter: el.attr("data-command") === 'change-style' || el.attr("data-command") === 'change-tone' ? el.text() : "",
                     displayWordLimit: tool.data('display-word-limit'),
                     displayStyle: tool.data('display-style'),
                     displayTone: tool.data('display-tone'),
