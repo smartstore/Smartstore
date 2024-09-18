@@ -61,7 +61,7 @@
             </div>
         }
 
-        <p sm-if="suggestions.Any()" class="search-suggestions">
+        <p sm-if="suggestions.Length > 0" class="search-suggestions">
             <strong>@(T(encodedAttemptedTerm.HasValue() || Model.TotalProductsCount == 0 ? "Search.DidYouMean" : "Search.RelatedSearchTerms")):</strong>
             @{
                 var links = string.Join(", ", suggestions.Select(x => "<a href='" + Url.RouteUrl("Search", new { q = x }) + $"'>{x}</a>"));
