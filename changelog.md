@@ -122,6 +122,8 @@
   - Fixed `InvalidOperationException` when adding a required product to cart that is already on the wishlist.
   - Fixed the validation of required products was missing if they were not automatically added to the shopping cart.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
+- Fixed mini shopping cart displayed large placeholder images if the cart setting for bundle item images was deactivated.
+- Fixed cart settings for images on wishlist were always ignored.
 - Fixed the discount amount of an order can have an incorrect value if a discount rule was applied during the subtotal calculation.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
 - Fixed tier prices of product bundles were not taken into account in product lists if the lowest possible price is to be displayed.
