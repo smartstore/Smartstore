@@ -255,7 +255,7 @@
         });
 
         // Dropdown container
-        $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown-container .dropdown, .dropdown-container .dropup', (e) => {
+        $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown-container .droptrap', (e) => {
             const container = $(e.currentTarget).closest('.dropdown-container');
             container.toggleClass('active', e.type === 'shown');
         });
