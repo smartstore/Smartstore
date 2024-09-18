@@ -73,6 +73,7 @@ namespace Smartstore.Web.Models.Cart
             var batchContext = (ProductBatchContext)parameters.BatchContext;
             var showEssentialAttributes = parameters?.ShowEssentialAttributes ?? true;
             var cachedBrands = (Dictionary<int, BrandOverviewModel>)parameters.CachedBrands;
+            var cart = parameters?.Cart as ShoppingCart;
 
             var item = from.Item;
             var product = from.Item.Product;
@@ -163,20 +164,26 @@ namespace Smartstore.Web.Models.Cart
 
             await MapPriceAsync(from, to, parameters);
 
-            if (isBundleItem && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
+            // Image.
+            var showImage = cart == null || cart.CartType == ShoppingCartType.ShoppingCart
+                ? (isBundleItem ? _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart : _shoppingCartSettings.ShowProductImagesOnShoppingCart)
+                : (isBundleItem ? _shoppingCartSettings.ShowProductBundleImagesOnWishList : _shoppingCartSettings.ShowProductImagesOnWishList);
+
+            if (showImage)
             {
-                await from.MapAsync(to.Image, MediaSettings.CartThumbBundleItemPictureSize, to.ProductName);
+                var imageSize = isBundleItem ? MediaSettings.CartThumbBundleItemPictureSize : MediaSettings.CartThumbPictureSize;
+                await from.MapAsync(to.Image, imageSize, to.ProductName);
             }
-            else if (!isBundleItem && _shoppingCartSettings.ShowProductImagesOnShoppingCart)
+            else
             {
-                await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);
+                to.Image.NoFallback = true;
             }
 
             // Warnings.
             var itemWarnings = new List<string>();
             await ShoppingCartValidator.ValidateProductAsync(from.Item, null, itemWarnings);
 
-            if (parameters?.Cart is ShoppingCart cart)
+            if (cart != null)
             {
                 await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, itemWarnings);
                 await ShoppingCartValidator.ValidateRequiredProductsAsync(product, cart.Items, itemWarnings);

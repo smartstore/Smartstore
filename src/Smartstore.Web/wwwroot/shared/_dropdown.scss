@@ -185,3 +185,13 @@
         line-height: $line-height-base;
     }
 }
+
+
+// Dropdown container
+// (Disable all events within this container when a dropdown is visible)
+// ==============================================================
+
+.dropdown-container.active .btn {
+    pointer-events: none;
+    user-select: none;
+}

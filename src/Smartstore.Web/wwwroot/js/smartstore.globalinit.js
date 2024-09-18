@@ -55,6 +55,20 @@ jQuery(function () {
         });
     }
 
+    // Adjust Tooltip global defaults
+    if (bootstrap?.Tooltip?.Default) {
+        bootstrap.Tooltip.Default.popperConfig = {
+            modifiers: {
+                computeStyle: { gpuAcceleration: false },
+                arrow: { element: '.arrow' },
+                flip: { enabled: false },
+            },
+            preventOverflow: {
+                boundariesElement: 'viewport'
+            }
+        };
+    }
+
     // Global notification subscriber
     if (window.EventBroker && window._ && typeof PNotify !== 'undefined') {
         EventBroker.subscribe("message", function (message, data) {

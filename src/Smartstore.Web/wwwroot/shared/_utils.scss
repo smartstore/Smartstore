@@ -169,6 +169,21 @@ table th {
     text-align: start;
 }
 
+.tooltip {
+    // INFO: Scaling only works if GPU acceleration is turned off via {... computeStyle: { gpuAcceleration: false } }
+    transform: scale(0.9) !important;
+
+    &.show {
+        transform: scale(1) !important;
+    }
+
+    &.fade {
+        transition-property: transform, opacity;
+        transition-duration: 90ms;
+        transition-timing-function: ease-out;
+    }
+}
+
 
 //
 // Bootstrap List group tweaks

@@ -9,9 +9,9 @@ namespace Smartstore.Web.Models.Cart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this OrganizedShoppingCartItem entity, WishlistModel.WishlistItemModel model, dynamic parameters = null)
+        public static Task MapAsync(this OrganizedShoppingCartItem entity, WishlistModel.WishlistItemModel model, dynamic parameters = null)
         {
-            await MapperFactory.MapAsync(entity, model, parameters);
+            return MapperFactory.MapAsync(entity, model, parameters);
         }
     }
 

@@ -299,6 +299,10 @@
     window.connectCopyToClipboard = function (selector) {
         const btn = $(selector);
 
+        if (btn.data('copy-connected')) {
+            return;
+        }
+
         btn.tooltip({
             boundary: 'window',
             placement: "top",
