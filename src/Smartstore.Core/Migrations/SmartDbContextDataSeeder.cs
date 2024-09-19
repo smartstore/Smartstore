@@ -500,6 +500,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether the \"NEW\" labeling is based on the available start date. By default, the creation date of the product is used.",
                 "Legt fest, ob die \"NEU\"-Kennzeichnung anhand des Datums \"Verfügbar ab\" erfolgt. Standardmäßig wird das Erstellungsdatum des Produktes verwendet.");
 
+            builder.AddOrUpdate("Admin.Customers.NoAdministratorsDeletedWarning",
+                "{0} customers are administrators. They have not been deleted for security reasons. Please delete administrators individually via the customer edit page.",
+                "Bei {0} Kunden handelt es sich um Administratoren. Aus Sicherheitsgründen wurden diese nicht gelöscht. Bitte löschen Sie Administratoren einzeln über die Kundenbearbeitungsseite.");
+
+            builder.AddOrUpdate("Admin.Customers.ReallyDeleteAdministrator",
+                "The customer is an administrator. Do you really want to delete him?",
+                "Bei dem Kunden handelt es sich um einen Administrator. Möchten Sie ihn wirklich löschen?");
+
             AddAIResources(builder);
         }
 

@@ -105,6 +105,7 @@
 - PostFinance: added an order note with the selected payment method.
 - Customer import: providing a last name in an address should not be mandatory.
 - URL sanitizer for last visited page tracking.
+- For security reasons, do not delete administrators via the customer grid. Double ask if administrators are deleted via the edit page.
 
 ### Bugfixes
 
