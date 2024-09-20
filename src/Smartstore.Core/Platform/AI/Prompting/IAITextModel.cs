@@ -3,15 +3,15 @@
 namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
-    /// Interface to be implemented by all text generation prompts.
+    /// Represents a simple text generation model.
     /// </summary>
-    public interface ITextGenerationPrompt : 
-        ILanguageGenerationPrompt, 
-        IStructureGenerationPrompt, 
-        IKeywordGenerationPrompt, 
-        ITocGenerationPrompt,
-        ILinkGenerationPrompt,
-        IIncludeImagesGenerationPrompt
+    public interface IAITextModel : 
+        IAILanguageModel, 
+        IAITextLayoutModel,
+        IAIKeywordModel,
+        IAITocModel,
+        IAIImageContainerModel,
+        IAILinkModel
     {
         int? TargetEntityId { get; }
         string EntityName { get; }

@@ -16,13 +16,13 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public virtual bool CanHandle(string type)
             => type == Type;
 
-        public virtual Task<string> GenerateTextPromptAsync(ITextGenerationPrompt model)
+        public virtual Task<string> GenerateTextPromptAsync(IAITextModel model)
             => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName));
 
-        public virtual Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt model)
+        public virtual Task<string> GenerateSuggestionPromptAsync(IAISuggestionModel model)
             => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input));
 
-        public virtual Task<string> GenerateImagePromptAsync(IImageGenerationPrompt model)
+        public virtual Task<string> GenerateImagePromptAsync(IAIImageModel model)
         {
             var parts = new List<string>
             {

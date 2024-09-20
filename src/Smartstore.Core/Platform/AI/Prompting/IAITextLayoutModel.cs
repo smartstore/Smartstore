@@ -1,9 +1,9 @@
 ﻿namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
-    /// Represents a text generation model with structure properties.
+    /// Represents a text generation model with structure/layout properties.
     /// </summary>
-    public partial interface IStructureGenerationPrompt
+    public partial interface IAITextLayoutModel
     {
         /// <summary>
         /// Gets or sets a value defining whether to include an intro.

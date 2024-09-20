@@ -54,7 +54,7 @@ namespace Smartstore.Core.Platform.AI
         /// </param>
         /// <returns>The URL(s) of the generated image(s).</returns>
         /// <exception cref="AIException"></exception>
-        Task<string[]?> CreateImagesAsync(IImageGenerationPrompt model, int numImages = 1, CancellationToken cancelToken = default);
+        Task<string[]?> CreateImagesAsync(IAIImageModel model, int numImages = 1, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Analyzes an image based on an AI prompt.

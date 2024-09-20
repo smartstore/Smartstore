@@ -38,7 +38,7 @@ namespace Smartstore.Core.Platform.AI
         public virtual IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual Task<string[]> CreateImagesAsync(IImageGenerationPrompt prompt, int numImages = 1, CancellationToken cancelToken = default)
+        public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         public virtual Task<string> AnalyzeImageAsync(string url, string prompt, CancellationToken cancelToken = default)

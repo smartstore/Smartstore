@@ -23,10 +23,10 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts with general instructions for text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAITextModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
         /// <param name="isRichText">A value indicating whether to build a HTML containing rich text prompt.</param>
-        public virtual Task BuildTextPromptAsync(ITextGenerationPrompt model, List<string> parts, bool isRichText)
+        public virtual Task BuildTextPromptAsync(IAITextModel model, List<string> parts, bool isRichText)
         {
             return isRichText
                 ? BuildRichTextPromptAsync(model, parts)
@@ -36,9 +36,9 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts for creating HTML structure instructions for rich text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="IStructureGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAITextLayoutModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildStructurePrompt(IStructureGenerationPrompt model, List<string> parts)
+        public virtual void BuildTextLayoutPrompt(IAITextLayoutModel model, List<string> parts)
         {
             if (model.IncludeIntro)
             {
@@ -76,9 +76,9 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts for keyword generation instructions for rich text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="IKeywordGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAIKeywordModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildKeywordsPrompt(IKeywordGenerationPrompt model, List<string> parts)
+        public virtual void BuildKeywordsPrompt(IAIKeywordModel model, List<string> parts)
         {
             if (model.Keywords.HasValue())
             {
@@ -98,10 +98,10 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts for image creation instructions for rich text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="IIncludeImagesGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAIImageContainerModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual void BuildIncludeImagesPrompt(
-            IIncludeImagesGenerationPrompt model, 
+        public virtual void BuildImageContainerPrompt(
+            IAIImageContainerModel model, 
             List<string> parts, 
             bool includeIntro, 
             bool includeConclusion)
@@ -125,9 +125,9 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts for link generation instructions for rich text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="ILinkGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAILinkModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        public virtual async Task BuildLinkPromptAsync(ILinkGenerationPrompt model, List<string> parts)
+        public virtual async Task BuildLinkPromptAsync(IAILinkModel model, List<string> parts)
         {
             if (model.AnchorLink.HasValue())
             {
@@ -157,8 +157,8 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt part with specific parameters for image creation.
         /// </summary>
-        /// <param name="model">The <see cref="IImageGenerationPrompt"/> model</param>
-        public virtual void BuildImagePrompt(IImageGenerationPrompt model, List<string> parts)
+        /// <param name="model">The <see cref="IAIImageModel"/> model</param>
+        public virtual void BuildImagePrompt(IAIImageModel model, List<string> parts)
         {
             var prompt = string.Empty;
 
@@ -261,7 +261,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds general instructions for AI suggestions.
         /// </summary>
         /// <param name="parts">The list of prompt parts to add AI instruction to.</param>
-        public virtual void BuildSuggestionPromptPart(ISuggestionPrompt model, List<string> parts)
+        public virtual void BuildSuggestionPromptPart(IAISuggestionModel model, List<string> parts)
         {
             parts.Add(Resources.DontUseQuotes());
 
@@ -281,9 +281,9 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// Adds prompt parts with general instructions for simple text creation, e.g. not do use markdown. 
         /// Wordlimit, Tone and Style are properties of <paramref name="model"/> that are also considered.
         /// </summary>
-        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAITextModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        protected virtual Task BuildSimpleTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
+        protected virtual Task BuildSimpleTextPromptAsync(IAITextModel model, List<string> parts)
         {
             parts.Add(Resources.DontUseMarkdown());
 
@@ -303,18 +303,18 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds prompt parts with general instructions for rich text creation. 
         /// </summary>
-        /// <param name="model">The <see cref="ITextGenerationPrompt"/> model</param>
+        /// <param name="model">The <see cref="IAITextModel"/> model</param>
         /// <param name="parts">The list of prompt parts to which the generated prompt will be added.</param>
-        protected virtual async Task BuildRichTextPromptAsync(ITextGenerationPrompt model, List<string> parts)
+        protected virtual async Task BuildRichTextPromptAsync(IAITextModel model, List<string> parts)
         {
             AddHtmlParts(parts);
             await AddLanguagePartsAsync(model, parts);
 
             parts.Add(Resources.DontCreateTitle(model.EntityName));
 
-            BuildStructurePrompt(model, parts);
+            BuildTextLayoutPrompt(model, parts);
             BuildKeywordsPrompt(model, parts);
-            BuildIncludeImagesPrompt(model, parts, model.IncludeIntro, model.IncludeConclusion);
+            BuildImageContainerPrompt(model, parts, model.IncludeIntro, model.IncludeConclusion);
 
             if (model.AddToc)
             {
@@ -327,7 +327,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         /// <summary>
         /// Adds parts for language name, tone and style.
         /// </summary>
-        protected virtual async Task AddLanguagePartsAsync(ITextGenerationPrompt model, List<string> parts)
+        protected virtual async Task AddLanguagePartsAsync(IAITextModel model, List<string> parts)
         {
             if (model.LanguageId > 0)
             {
