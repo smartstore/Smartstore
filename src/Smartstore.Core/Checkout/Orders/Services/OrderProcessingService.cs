@@ -424,7 +424,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, [.. notes]);
+            AddOrderNotes(order, notes.ToArray());
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -457,7 +457,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, [.. notes]);
+            AddOrderNotes(order, notes.ToArray());
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
@@ -801,7 +801,7 @@ namespace Smartstore.Core.Checkout.Orders
             var giftCards = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                 .ThenInclude(x => x.Order)
-                .ApplyOrderFilter([order.Id])
+                .ApplyOrderFilter(new[] { order.Id })
                 .ToListAsync();
 
             if (giftCards.Count == 0)
@@ -875,7 +875,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, [.. notes]);
+            AddOrderNotes(order, notes.ToArray());
 
             // Reward points.
             var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;

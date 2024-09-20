@@ -998,7 +998,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, [.. notes]);
+            AddOrderNotes(order, notes.ToArray());
 
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)
