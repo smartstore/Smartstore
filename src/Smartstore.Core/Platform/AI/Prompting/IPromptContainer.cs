@@ -12,6 +12,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         string? EntityName { get; }
         string? Prompt { get; }
 
+        // TODO: (mc) (ai) Localization is missing. e.g. in simple text dialog.
         int WordLimit { get; }
         string? Style { get; }
         string? Tone { get; }
