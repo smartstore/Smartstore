@@ -26,6 +26,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string DecimalsAttributeName = "sm-decimals";
         const string StyleAttributeName = "sm-numberinput-style";
         const string GroupClassAttributeName = "sm-numberinput-group-class";
+        const string SuppressProcessingAttributeName = "sm-suppress-processing";
 
         private readonly ILocalizationService _localizationService;
 
@@ -61,12 +62,23 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(GroupClassAttributeName)]
         public string GroupClass { get; set; }
 
+        /// <summary>
+        /// Suppresses processing of this taghelper.
+        /// </summary>
+        [HtmlAttributeName(SuppressProcessingAttributeName)]
+        public bool SuppressProcessing { get; set; }
+
         [HtmlAttributeNotBound]
         [ViewContext]
         public ViewContext ViewContext { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
+            if (SuppressProcessing)
+            {
+                return;
+            }
+
             output.AppendCssClass("numberinput");
             output.MergeAttribute("data-editor", "numberinput");
 
