@@ -185,6 +185,7 @@
 - #1125 Buttons for payment methods that are restricted by cart rule to the subtotal amount are not shown/hidden when the item quantity is updated on the cart page.
 - Delete media tracks of variant values of permanent deleted products.
 - Show soft-deleted products on order edit page and in order details.
+- Fixed duplicate minus signs for amounts on the order detail page.
 
 
 ## Smartstore 5.1.0
