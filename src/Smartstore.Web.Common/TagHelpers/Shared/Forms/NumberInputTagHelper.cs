@@ -26,7 +26,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string DecimalsAttributeName = "sm-decimals";
         const string StyleAttributeName = "sm-numberinput-style";
         const string GroupClassAttributeName = "sm-numberinput-group-class";
-        const string SuppressProcessingAttributeName = "sm-suppress-processing";
+        const string NativeAttributeName = "sm-native";
 
         private readonly ILocalizationService _localizationService;
 
@@ -63,10 +63,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string GroupClass { get; set; }
 
         /// <summary>
-        /// Suppresses processing of this taghelper.
+        /// Suppresses processing of the <see cref="NumberInputTagHelper"/> and renders the control browser native.
         /// </summary>
-        [HtmlAttributeName(SuppressProcessingAttributeName)]
-        public bool SuppressProcessing { get; set; }
+        [HtmlAttributeName(NativeAttributeName)]
+        public bool Native { get; set; }
 
         [HtmlAttributeNotBound]
         [ViewContext]
@@ -74,7 +74,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (SuppressProcessing)
+            if (Native)
             {
                 return;
             }
