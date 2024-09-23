@@ -307,7 +307,8 @@
             boundary: 'window',
             placement: "top",
             trigger: 'hover',
-            title: Res['Common.CopyToClipboard']
+            title: Res['Common.CopyToClipboard'],
+            container: btn.attr('data-container') || false
         }).on('click', function (e) {
             e.preventDefault();
             let btn = $(this);
