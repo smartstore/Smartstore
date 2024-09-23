@@ -272,7 +272,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout.TermsOfService",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint",
-                "Admin.Orders.OrderItem.Update.Info");
+                "Admin.Orders.OrderItem.Update.Info",
+                "Admin.ContentManagement.Topics.Validation.NoWhiteSpace",
+                "Forum.Submit");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
@@ -284,8 +286,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ShowOnPasswordRecoveryPage",
                 "Show on password recovery page",
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
-
-            builder.Delete("Admin.ContentManagement.Topics.Validation.NoWhiteSpace");
 
             builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
                 "Spaces are invalid for the HTML attribute 'id'.",
