@@ -22,36 +22,37 @@ namespace Smartstore.Web.Controllers
     {
         public void MapListActions(ProductSummaryModel model, IPagingOptions entity, string defaultPageSizeOptions)
         {
-            var searchQuery = _catalogSearchQueryFactory.Current;
+            var languageId = _workContext.WorkingLanguage.Id;
+            var query = _catalogSearchQueryFactory.Current;
 
-            // View mode
+            model.AllowFiltering = true;
             model.AllowViewModeChanging = _catalogSettings.AllowProductViewModeChanging;
 
             // Sorting
             model.AllowSorting = _catalogSettings.AllowProductSorting;
             if (model.AllowSorting)
             {
-                model.CurrentSortOrder = searchQuery?.CustomData.Get("CurrentSortOrder").Convert<int?>();
+                model.AvailableSortOptions = _cache.Get($"pres:productlistsortoptions-{languageId}", () => 
+                    Enum.GetValues(typeof(ProductSortingEnum))
+                        .Cast<ProductSortingEnum>()
+                        .Where(x => x != ProductSortingEnum.CreatedOnAsc && x != ProductSortingEnum.Initial)
+                        .ToDictionary(x => (int)x, x => _localizationService.GetLocalizedEnum(x, languageId))
+                );
 
-                model.AvailableSortOptions = _cache.Get("pres:productlistsortoptions-{0}".FormatInvariant(_workContext.WorkingLanguage.Id), () =>
-                {
-                    var dict = new Dictionary<int, string>();
-                    foreach (ProductSortingEnum enumValue in Enum.GetValues(typeof(ProductSortingEnum)))
-                    {
-                        if (enumValue == ProductSortingEnum.CreatedOnAsc || enumValue == ProductSortingEnum.Initial)
-                            continue;
+                model.CurrentSortOrder = query?.CustomData.Get("CurrentSortOrder").Convert<int?>();
 
-                        dict[(int)enumValue] = _localizationService.GetLocalizedEnum(enumValue, _workContext.WorkingLanguage.Id);
-
-                    }
-
-                    return dict;
-                });
-
-                if (!searchQuery.Origin.EqualsNoCase("Search/Search"))
+                if (query.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category) ||
+                    query.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
                 {
                     model.RelevanceSortOrderName = T("Products.Sorting.Featured");
-                    if ((int)ProductSortingEnum.Relevance == (model.CurrentSortOrder ?? 1))
+
+                    if (model.CurrentSortOrder.GetValueOrDefault() == 0)
+                    {
+                        // Featured sorting is preselected.
+                        model.CurrentSortOrder = (int)ProductSortingEnum.Relevance;
+                    }
+
+                    if (model.CurrentSortOrder.Value <= (int)ProductSortingEnum.Relevance)
                     {
                         model.CurrentSortOrderName = model.RelevanceSortOrderName;
                     }
@@ -59,7 +60,7 @@ namespace Smartstore.Web.Controllers
 
                 if (model.CurrentSortOrderName.IsEmpty())
                 {
-                    model.CurrentSortOrderName = model.AvailableSortOptions.Get(model.CurrentSortOrder ?? 1) ?? model.AvailableSortOptions.First().Value;
+                    model.CurrentSortOrderName = model.AvailableSortOptions.Get(model.CurrentSortOrder.GetValueOrDefault()) ?? model.AvailableSortOptions.First().Value;
                 }
             }
 
@@ -72,11 +73,9 @@ namespace Smartstore.Web.Controllers
                 }
                 catch
                 {
-                    model.AvailablePageSizes = new int[] { 12, 24, 36, 48, 72, 120 };
+                    model.AvailablePageSizes = [12, 24, 36, 48, 72, 120];
                 }
             }
-
-            model.AllowFiltering = true;
         }
 
         public ProductSummaryMappingSettings GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode viewMode)
@@ -453,9 +452,9 @@ namespace Smartstore.Web.Controllers
                 // Variant Attributes
                 if (attributes.Count > 0 && settings.MapAttributes)
                 {
-                    if (item.ColorAttributes != null && item.ColorAttributes.Any())
+                    if (item.ColorAttributes != null && item.ColorAttributes.Count > 0)
                     {
-                        var processedIds = item.ColorAttributes.Select(x => x.AttributeId).Distinct().ToArray();
+                        var processedIds = item.ColorAttributes.ToDistinctArray(x => x.AttributeId);
                         attributes = attributes.Where(x => !processedIds.Contains(x.Id)).ToList();
                     }
 
@@ -557,7 +556,7 @@ namespace Smartstore.Web.Controllers
 
             if (attributes.IsNullOrEmpty())
             {
-                return Enumerable.Empty<ProductSpecificationModel>();
+                return [];
             }
 
             var productId = attributes.First().ProductId;
