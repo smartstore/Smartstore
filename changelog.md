@@ -187,6 +187,7 @@
 - Delete media tracks of variant values of permanent deleted products.
 - Show soft-deleted products on order edit page and in order details.
 - Fixed duplicate minus signs for amounts on the order detail page.
+- Category and manufacturer pages show "Relevance" as sorting, although only "Featured" is offered in the selection.
 
 
 ## Smartstore 5.1.0
