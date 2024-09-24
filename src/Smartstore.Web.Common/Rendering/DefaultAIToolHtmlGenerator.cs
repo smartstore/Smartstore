@@ -225,6 +225,17 @@ namespace Smartstore.Web.Rendering
             var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
+            // Add "Change style" & "Change tone" options from module settings.
+            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
+            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
+
+            if (styleDropdown != null || toneDropdown != null)
+            {
+                builder.AppendHtml(styleDropdown);
+                builder.AppendHtml(toneDropdown);
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            }
+
             if (!forChatDialog)
             {
                 builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
@@ -235,17 +246,6 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
-
-            // Add "Change style" & "Change tone" options from module settings.
-            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
-            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
-
-            if (styleDropdown != null || toneDropdown != null)
-            {
-                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
-                builder.AppendHtml(styleDropdown);
-                builder.AppendHtml(toneDropdown);
-            }
 
             return builder;
         }
