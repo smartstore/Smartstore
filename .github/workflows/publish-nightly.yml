@@ -56,12 +56,21 @@ jobs:
     #    password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Publish and Push for Linux
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'debian-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
         docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
         docker push ghcr.io/smartstore/smartstore-linux:nightly
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-linux:nightly .
         #docker push smartstore/smartstore-linux:nightly
+
+    - name: Publish and Push for Windows
+      if: matrix.os == 'windows-latest'
+      run: | 
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
+        docker build --build-arg SOURCE=./.build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
+        docker push ghcr.io/smartstore/smartstore-windows:nightly
+        #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-windows:nightly .
+        #docker push smartstore/smartstore-windows:nightly
 
 
