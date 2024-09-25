@@ -7,7 +7,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
     /// <summary>
     /// Contains methods to obtain string resources for AI prompts.
     /// </summary>
-    public partial class PromptResources(ILocalizationService localizationService)
+    public partial class AIMessageResources(ILocalizationService localizationService)
     {
         private readonly ILocalizationService _localizationService = localizationService;
 
