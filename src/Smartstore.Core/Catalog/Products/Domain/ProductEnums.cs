@@ -225,8 +225,8 @@
 
         /// <summary>
         /// Product creation date.
-        /// Actually CreatedOnDesc (but due to localization this remains as is).
         /// </summary>
+        /// <remarks>Actually "CreatedOnDesc" (but due to localization this remains as is).</remarks>
         CreatedOn = 15,
 
         /// <summary>
