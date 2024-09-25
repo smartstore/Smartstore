@@ -11,7 +11,7 @@ namespace Smartstore.Core.Localization
     internal static class LocalizedSettingsLoader
     {
         private static Dictionary<string, LocalizedSettingEntry> _entries = null;
-        private static object _lock = new();
+        private static Lock _lock = new();
 
         private static void Initialize(ITypeScanner typeScanner, Dictionary<string, LocalizedSettingEntry> entries)
         {
