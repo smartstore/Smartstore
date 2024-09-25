@@ -4,7 +4,7 @@ namespace Smartstore.Threading
 {
     public class PortableTimer : IDisposable
     {
-        private readonly Lock _stateLock = new();
+        private readonly object _stateLock = new();
         private readonly Func<CancellationToken, Task> _onTick;
         private readonly CancellationTokenSource _cancel = new();
         private readonly Timer _timer;
