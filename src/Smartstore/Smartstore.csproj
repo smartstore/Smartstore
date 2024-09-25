@@ -29,6 +29,7 @@
         <PackageReference Include="AsyncKeyedLock" Version="7.0.1" />
         <PackageReference Include="Autofac" Version="8.0.0" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageReference Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))" Include="Backport.System.Threading.Lock" Version="2.0.3" />
         <PackageReference Include="Barcoder" Version="1.1.1" />
         <PackageReference Include="CronExpressionDescriptor" Version="2.33.0" />
         <PackageReference Include="HtmlSanitizer" Version="8.0.744" />
