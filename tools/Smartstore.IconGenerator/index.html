@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>IconGenerator</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" href="favicon.ico" />
+		<link type="text/css" href="styles.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id="controls">
+			<input type="text" name="filter" placeholder="Filter" />
+			<div>
+				<input type="checkbox" id="filter_new" />
+				<label for="filter_new">Only new</label>
+			</div>
+			<div>
+				<input type="checkbox" id="filter_modified" />
+				<label for="filter_modified">Only modified</label>
+			</div>
+			<div>
+				<input type="checkbox" id="filter_used" />
+				<label for="filter_used">Only used</label>
+			</div>
+			<div>
+				<input type="checkbox" id="filter_selected" />
+				<label for="filter_selected">Only Selected</label>
+			</div>
+		</div>
+		<div id="iconContainer"></div>
+		
+		<script type="text/javascript" src="script.js"></script>
+	</body>
+</html>

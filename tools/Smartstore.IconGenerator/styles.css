@@ -1,0 +1,76 @@
+body {
+	font-family:Tahoma;
+}
+
+#controls {
+	position: sticky;
+	display: flex;
+	justify-content: end;
+	gap: 1rem;
+	top: 0;
+	left: 0;
+	padding: 0.4rem;
+	background-color: white;
+	z-index: 1;
+}
+#controls label {
+	user-select: none;
+}
+
+.icon {
+	position: relative;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	width: 5rem;
+	border-radius: 0.5rem;
+	padding: 0.7rem;
+	margin: 0.3rem;
+	background-color: #00000007;
+	text-align: center;
+	user-select: none;
+}
+.icon:hover {
+	background-color: #00000020 !important;
+}
+.icon.hide {
+	display: none;
+}
+.icon.selected {
+	background-color: #00000015;
+}
+.icon.selected svg {
+	color: lightseagreen !important;
+}
+.icon.badge::after {
+	content: '';
+	position: absolute;
+	display: block;
+	top: 0;
+	right: 0.5rem;
+	height: 1rem;
+	color: white;
+	padding: 0.05em 0.2rem 0.1rem;
+	border-radius: 0.3rem;
+	font-size: 0.8em;
+}
+.icon.new::after {
+	content: 'New';
+	background-color: green;
+}
+.icon svg {
+	width: 1.2rem;
+	height: 1.2rem;
+}
+.icon span {
+	font-size: 0.8em;
+	color: gray;
+}
+.icon.modified svg{
+	/*
+	TODO: (mw) Find good way to display modified icons.
+	
+	color: darkgreen;
+	*/
+}
