@@ -102,13 +102,13 @@ namespace Smartstore.Caching
         public virtual Task<CacheEntry> GetAsync(string key)
             => Task.FromResult(Get(key));
 
-        public virtual ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
+        public virtual ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null, bool preserveOrder = false)
         {
             var result = _cache.GetOrCreate(key, x =>
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, acquirer?.Invoke());
+                var memSet = new MemorySet(this, acquirer?.Invoke(), preserveOrder);
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });
@@ -116,13 +116,15 @@ namespace Smartstore.Caching
             return result.Value as ISet;
         }
 
-        public virtual async Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
+        public virtual async Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null, bool preserveOrder = false)
         {
             var result = await _cache.GetOrCreateAsync(key, async (x) =>
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, acquirer == null ? null : await acquirer?.Invoke());
+                var memSet = new MemorySet(this, 
+                    acquirer == null ? null : await acquirer?.Invoke(), 
+                    preserveOrder);
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });

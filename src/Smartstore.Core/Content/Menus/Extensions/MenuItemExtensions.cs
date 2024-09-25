@@ -129,8 +129,8 @@ namespace Smartstore.Core.Content.Menus
             string origin,
             IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> itemProviders)
         {
-            Guard.NotNull(items, nameof(items));
-            Guard.NotNull(itemProviders, nameof(itemProviders));
+            Guard.NotNull(items);
+            Guard.NotNull(itemProviders);
 
             if (!items.Any())
             {

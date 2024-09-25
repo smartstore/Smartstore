@@ -127,8 +127,9 @@ namespace Smartstore.Caching
         /// </summary>
         /// <param name="key">The set cache item key</param>
         /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
+        /// <param name="preserveOrder">Whether to preserve the order of elements in the set.</param>
         /// <returns>The hashset</returns>
-        ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null);
+        ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null, bool preserveOrder = false);
 
         /// <summary>
         /// Gets or creates a provider specific hashset implementation.
@@ -136,8 +137,9 @@ namespace Smartstore.Caching
         /// </summary>
         /// <param name="key">The set cache item key</param>
         /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
+        /// <param name="preserveOrder">Whether to preserve the order of elements in the set.</param>
         /// <returns>The hashset</returns>
-        Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null);
+        Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null, bool preserveOrder = false);
 
         /// <summary>
         /// Adds a cache entry with the specified key to the store.

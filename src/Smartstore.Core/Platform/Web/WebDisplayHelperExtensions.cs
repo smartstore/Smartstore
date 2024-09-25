@@ -140,7 +140,7 @@ namespace Smartstore
             });
         }
 
-        class PageIdentity
+        record PageIdentity
         {
             public string CurrentPageType { get; set; } = default!;
             public object CurrentPageId { get; set; } = default!;
