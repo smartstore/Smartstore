@@ -1,6 +1,8 @@
 ﻿using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Net.Mail;
@@ -13,7 +15,7 @@ namespace Smartstore.Core.Messaging
         private readonly SmartDbContext _db;
         private readonly IMailService _mailService;
         private readonly IMediaService _mediaService;
-        internal readonly EmailAccountSettings _emailAccountSettings;
+        private readonly EmailAccountSettings _emailAccountSettings;
 
         private bool? _shouldSaveToDisk;
 
@@ -46,14 +48,21 @@ namespace Smartstore.Core.Messaging
                 query = query.Where(x => x.CreatedOnUtc < olderThan);
             }
 
-            while (true)
-            {
-                var numDeleted = await query.Take(1000).ExecuteDeleteAsync(cancelToken);
+            var pager = query
+                .OrderBy(x => x.Id)
+                .ToFastPager(500);
 
-                numTotalDeleted += numDeleted;
-                if (numDeleted < 1000)
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
+            {
+                while (!cancelToken.IsCancellationRequested &&
+                    (await pager.ReadNextPageAsync<QueuedEmail>(cancelToken)).Out(out var queuedEmails))
                 {
-                    break;
+                    _db.QueuedEmails.RemoveRange(queuedEmails);
+                    await _db.SaveChangesAsync(cancelToken);
+
+                    numTotalDeleted += queuedEmails.Count;
+
+                    CommonHelper.TryAction(() => _db.DetachEntities<QueuedEmail>());
                 }
             }
 

@@ -353,7 +353,7 @@ namespace Smartstore.Google.Analytics.Services
               {categories}
               price: {price},
               {(!string.IsNullOrEmpty(listName) ? $"item_list_name: '{listName}'," : string.Empty)}
-              {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{brandName}'," : string.Empty)}
+              {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{FixIllegalJavaScriptChars(brandName)}'," : string.Empty)}
             }}";
 
             if (addComma)

@@ -30,6 +30,26 @@
     <LocaleResource Name="DisplayWidgetZones.Hint">
         <Value>Injiziert Tooltips in jede Widget-Zone, die den Namen der jeweiligen Widget-Zone enthalten. Die Anzeige ist auf angemeldete Administratoren beschränkt.</Value>
     </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Children>
+            <LocaleResource Name="Toolbar">
+                <Value>Werkzeugleiste</Value>
+            </LocaleResource>
+            <LocaleResource Name="Toggle">
+                <Value>
+                    <![CDATA[
+                        Temporär Umschalten (Alt&nbsp;+&nbsp;K)
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PersistentToggle">
+                <Value>Dauerhaft Umschalten (in Cookie speichern)</Value>
+            </LocaleResource>
+            <LocaleResource Name="CloseButton">
+                <Value>Menü schließen</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
     <LocaleResource Name="DisplayMachineName">
         <Value>Rechnernamen anzeigen</Value>
     </LocaleResource>

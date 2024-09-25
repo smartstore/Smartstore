@@ -6,7 +6,7 @@
         /// Deletes all queued emails.
         /// </summary>
         /// <param name="olderThan">Delete only entries that are older than the given date.</param>
-        /// <returns>The count of deleted entries.</returns>
+        /// <returns>The number of deleted entries.</returns>
         Task<int> DeleteAllQueuedMailsAsync(DateTime? olderThan = null, CancellationToken cancelToken = default);
 
         /// <summary>

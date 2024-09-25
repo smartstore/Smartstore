@@ -1,9 +1,12 @@
-﻿using Smartstore.Admin.Models.Messages;
+﻿using Autofac;
+using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Http;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 
@@ -14,15 +17,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IQueuedEmailService _queuedEmailService;
+        private readonly AsyncRunner _asyncRunner;
 
         public QueuedEmailController(
             SmartDbContext db,
             IDateTimeHelper dateTimeHelper,
-            IQueuedEmailService queuedEmailService)
+            IQueuedEmailService queuedEmailService,
+            AsyncRunner asyncRunner)
         {
             _db = db;
             _dateTimeHelper = dateTimeHelper;
             _queuedEmailService = queuedEmailService;
+            _asyncRunner = asyncRunner;
         }
 
         public IActionResult Index()
@@ -132,6 +138,82 @@ namespace Smartstore.Admin.Controllers
             var count = await _queuedEmailService.DeleteAllQueuedMailsAsync();
             NotifySuccess(T("Admin.Common.RecordsDeleted", count));
             return RedirectToAction(nameof(List));
+        }
+
+        [MaintenanceAction]
+        [Permission(Permissions.System.Message.Delete)]
+        public IActionResult Cleanup(int take = 5000)
+        {
+            _ = _asyncRunner.RunTask((scope, ct, state) => CleanupInternal(scope, (int)state, ct), take);
+
+            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
+
+            return RedirectToAction(nameof(List));
+        }
+
+        /// <summary>
+        /// Deletes orphaned data caused by the deletion of <see cref="QueuedEmail"/> entities.
+        /// </summary>
+        /// <remarks>
+        /// Should only be executed once, as no new orphaned data can be created after deletion.
+        /// That is why we do not have a service method for this.
+        /// </remarks>
+        private static async Task CleanupInternal(ILifetimeScope scope, int take, CancellationToken cancelToken)
+        {
+            var db = scope.Resolve<SmartDbContext>();
+            var logger = scope.Resolve<ILogger>();
+
+            try
+            {
+                var numberOfDeletedMediaStorages = 0;
+
+                // MediaStorages that are neither referenced by MediaFiles nor by QueuedEmailAttachments.
+                var query = (
+                    from ms in db.MediaStorage
+                    join mf in db.MediaFiles on ms.Id equals mf.MediaStorageId into smf
+                    from mf in smf.DefaultIfEmpty()
+                    join ea in db.QueuedEmailAttachments on ms.Id equals ea.MediaStorageId into sea
+                    from ea in sea.DefaultIfEmpty()
+                    where mf == null && ea == null
+                    select ms)
+                    .OrderBy(x => x.Id)
+                    .Select(x => x.Id)
+                    .Take(take);
+
+                while (true)
+                {
+                    cancelToken.ThrowIfCancellationRequested();
+
+                    var ids = await query.ToListAsync(cancelToken);
+                    if (ids.Count == 0)
+                    {
+                        break;
+                    }
+
+                    var numDeleted = await db.MediaStorage
+                        .Where(x => ids.Contains(x.Id))
+                        .ExecuteDeleteAsync(cancelToken);
+
+                    if (numDeleted == 0)
+                    {
+                        break;
+                    }
+
+                    numberOfDeletedMediaStorages += numDeleted;
+                }
+
+                if (numberOfDeletedMediaStorages > 10000 && !cancelToken.IsCancellationRequested && db.DataProvider.CanOptimizeTable)
+                {
+                    var tableName = db.Model.FindEntityType(typeof(MediaStorage)).GetTableName();
+                    await CommonHelper.TryAction(() => db.DataProvider.OptimizeTableAsync(tableName, cancelToken));
+                }
+                
+                logger.Debug($"Deleted {numberOfDeletedMediaStorages} media storages.");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+            }
         }
 
         [Permission(Permissions.System.Message.Read)]

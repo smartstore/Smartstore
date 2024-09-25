@@ -74,9 +74,6 @@ namespace Smartstore.PayPal.Filters
                     return;
                 }
 
-                // INFO: Lets load the utility js regardless of user consent. It doesn't set any cookies.
-                _pageAssetBuilder.AppendScriptFiles($"~/Modules/Smartstore.PayPal/js/paypal.utils.js?v={SmartstoreVersion.CurrentFullVersion}.1");
-
                 var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
 
                 var scriptUrl = $"https://www.paypal.com/sdk/js" +
