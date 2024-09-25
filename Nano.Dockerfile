@@ -4,7 +4,7 @@
 # is running Windows containers.
 # -----------------------------------------------------------
 
-ARG ASPNET_TAG=8.0
+ARG ASPNET_TAG=8.0-nanoserver-ltsc2022
 
 FROM mcr.microsoft.com/dotnet/aspnet:${ASPNET_TAG}
 EXPOSE 80
