@@ -208,6 +208,14 @@ fieldset.content-group {
 // Toggle password visibility
 // ------------------------------------------------------
 
+.toggle-pwd-group {
+    position: relative;
+
+    > .form-control {
+        padding-inline-end: 2rem;
+    }
+}
+
 .btn-toggle-pwd {
     position: absolute;
     cursor: pointer;

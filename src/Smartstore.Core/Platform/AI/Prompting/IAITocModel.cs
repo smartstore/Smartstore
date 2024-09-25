@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a text generation model with table of content (TOC) properties.
     /// </summary>
-    public partial interface ITocGenerationPrompt
+    public partial interface IAITocModel
     {
         /// <summary>
         /// Gets or sets a value defining whether a table of contents should be added to the generated text.

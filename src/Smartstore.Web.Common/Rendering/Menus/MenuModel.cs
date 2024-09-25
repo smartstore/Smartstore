@@ -31,7 +31,7 @@ namespace Smartstore.Web.Rendering.Menus
                 _selectedNode = value;
                 Path = _selectedNode != null
                     ? _selectedNode.Trail.Where(x => !x.IsRoot).ToList()
-                    : new List<TreeNode<MenuItem>>();
+                    : [];
 
                 _seekedSelectedNode = true;
             }

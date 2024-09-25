@@ -257,16 +257,16 @@ namespace Smartstore.Core.DataExchange.Import
             body.Append("<p>");
 
             body.AppendFormat("<div>{0}: {1} &middot; {2}: {3}</div>",
-                T("Admin.Common.TotalRows"), result.TotalRecords,
-                T("Admin.Common.Skipped"), result.SkippedRecords);
+                T("Admin.Common.TotalRows"), result.TotalRecords.ToString("N0"),
+                T("Admin.Common.Skipped"), result.SkippedRecords.ToString("N0"));
 
             body.AppendFormat("<div>{0}: {1} &middot; {2}: {3}</div>",
-                T("Admin.Common.NewRecords"), result.NewRecords,
-                T("Admin.Common.Updated"), result.ModifiedRecords);
+                T("Admin.Common.NewRecords"), result.NewRecords.ToString("N0"),
+                T("Admin.Common.Updated"), result.ModifiedRecords.ToString("N0"));
 
             body.AppendFormat("<div>{0}: {1} &middot; {2}: {3}</div>",
-                T("Admin.Common.Errors"), result.Errors,
-                T("Admin.Common.Warnings"), result.Warnings);
+                T("Admin.Common.Errors"), result.Errors.ToString("N0"),
+                T("Admin.Common.Warnings"), result.Warnings.ToString("N0"));
 
             body.Append("</p>");
 
@@ -384,12 +384,12 @@ namespace Smartstore.Core.DataExchange.Import
                 sb.AppendLine("Started:        " + result.StartDateUtc.ToLocalTime());
                 sb.AppendLine("Finished:       " + result.EndDateUtc.ToLocalTime());
                 sb.AppendLine("Duration:       " + (result.EndDateUtc - result.StartDateUtc).ToString("g"));
-                sb.AppendLine("Rows total:     " + result.TotalRecords);
-                sb.AppendLine("Rows processed: " + result.AffectedRecords);
-                sb.AppendLine("Rows imported:  " + result.NewRecords);
-                sb.AppendLine("Rows updated:   " + result.ModifiedRecords);
-                sb.AppendLine("Warnings:       " + result.Warnings);
-                sb.Append("Errors:         " + result.Errors);
+                sb.AppendLine("Rows total:     " + result.TotalRecords.ToString("N0"));
+                sb.AppendLine("Rows processed: " + result.AffectedRecords.ToString("N0"));
+                sb.AppendLine("Rows imported:  " + result.NewRecords.ToString("N0"));
+                sb.AppendLine("Rows updated:   " + result.ModifiedRecords.ToString("N0"));
+                sb.AppendLine("Warnings:       " + result.Warnings.ToString("N0"));
+                sb.Append("Errors:         " + result.Errors.ToString("N0"));
                 ctx.Log.Info(sb.ToString());
 
                 foreach (var message in result.Messages)

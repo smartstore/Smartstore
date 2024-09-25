@@ -25,40 +25,92 @@ namespace Smartstore.Caching
         /// <summary>
         /// The backing dictionary. The values are never used; just the keys.
         /// </summary>
-        private readonly ConcurrentDictionary<string, byte> _dictionary;
+        private readonly ConcurrentDictionary<string, bool> _dictionary;
 
-        public MemorySet(ICacheStore cache)
-            : this(cache, null)
+        /// <summary>
+        /// Whether the insertion sequence should be preserved while iterating.
+        /// </summary>
+        private readonly bool _preserveOrder;
+
+        /// <summary>
+        /// Thread-safe queue for saving the insertion sequence
+        /// </summary>
+        private ConcurrentQueue<string>? _orderTracker;
+
+        /// <summary>
+        /// Object for locking during deletion
+        /// </summary>
+        private readonly object _clearLock = new();
+
+        public MemorySet(ICacheStore cache, bool preserveOrder = false)
+            : this(cache, null, preserveOrder)
         {
         }
 
-        public MemorySet(ICacheStore cache, IEnumerable<string>? values)
+        public MemorySet(ICacheStore cache, IEnumerable<string>? values, bool preserveOrder = false)
         {
             _cache = cache;
-            _dictionary = values == null 
-                ? new ConcurrentDictionary<string, byte>(DefaultConcurrencyLevel, DefaultCapacity)
-                : new ConcurrentDictionary<string, byte>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, byte>(x, 0)), null);
+            _preserveOrder = preserveOrder;
+
+            if (values != null)
+            {
+                // Initialize the dictionary directly with the values
+                _dictionary = new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, bool>(x, false)), null);
+
+                // Initialize the order tracker queue directly with the values
+                if (_preserveOrder) _orderTracker = new ConcurrentQueue<string>(values);
+            }
+            else
+            {
+                _dictionary = new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, DefaultCapacity);
+                if (_preserveOrder) _orderTracker = new ConcurrentQueue<string>();
+            }
         }
 
         public bool Add(string value)
         {
-            return _dictionary.TryAdd(value, 0);
+            Guard.NotEmpty(value);
+            
+            if (_dictionary.TryAdd(value, false)) 
+            {
+                // If the element is new, add it to the queue
+                _orderTracker?.Enqueue(value);
+
+                return true;
+            }
+
+            return false;
         }
 
         public void AddRange(IEnumerable<string> values)
         {
-            if (values != null)
+            if (values.IsNullOrEmpty())
             {
-                foreach (var v in values)
-                {
-                    Add(v);
-                }
+                return;
+            }
+
+            foreach (var v in values)
+            {
+                Add(v);
             }
         }
 
         public void Clear()
         {
-            _dictionary.Clear();
+            if (_orderTracker != null)
+            {
+                lock (_clearLock)
+                {
+                    _dictionary.Clear();
+
+                    // Reset the queue
+                    while (_orderTracker.TryDequeue(out _)) { }
+                }
+            }
+            else
+            {
+                _dictionary.Clear();
+            }
         }
 
         public bool Contains(string value)
@@ -136,10 +188,12 @@ namespace Smartstore.Caching
             // PERF: Do not use dictionary.Keys here because that creates a snapshot
             // of the collection resulting in a List<T> allocation. Instead, use the
             // KeyValuePair enumerator and pick off the Key part.
-            foreach (var kvp in _dictionary)
-            {
-                yield return kvp.Key;
-            }
+
+            var items = _orderTracker != null
+                ? _orderTracker.Where(_dictionary.ContainsKey)
+                : _dictionary.Select(x => x.Key);
+
+            return items.GetEnumerator();
         }
 
         #region Async

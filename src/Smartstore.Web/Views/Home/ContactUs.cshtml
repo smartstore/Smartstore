@@ -55,14 +55,13 @@
 
                         <zone name="gdpr_consent" />
 
-                        <div class="mb-3">
+                        <div sm-if="Model.DisplayCaptcha" class="mt-3">
                             <captcha sm-enabled="Model.DisplayCaptcha" />
                         </div>
 
-                        <button type="submit" name="send-email" class="btn btn-primary btn-lg">
+                        <button type="submit" name="send-email" class="btn btn-primary btn-lg mt-3">
                             @T("ContactUs.Button")
                         </button>
-
                     </form>
                 }
             </div>

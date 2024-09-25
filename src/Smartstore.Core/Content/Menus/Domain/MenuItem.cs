@@ -44,7 +44,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         public string Id
         {
-            get => _id ??= CommonHelper.GenerateRandomDigitCode(10).TrimStart('0');
+            get => _id ??= CommonHelper.GenerateRandomString();
             set => _id = value;
         }
 

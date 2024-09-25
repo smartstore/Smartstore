@@ -16,6 +16,7 @@ namespace Smartstore.Web.Rendering.Choices
         public bool IsDisabled { get; set; }
         public bool IsUnavailable { get; set; }
         public string ImageUrl { get; set; }
+        public int DisplayOrder { get; set; }
 
         public abstract string GetItemLabel();
     }

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -27,15 +28,11 @@ namespace Smartstore.Web.Rendering
         /// Creates the icon button to open the simple text creation dialog.
         /// </summary>
         /// <param name="attributes">The attributes of the <see cref="TagHelper"/>.</param>
-        /// <param name="hasContent">
-        /// Indicates whether the target property already has content.
-        /// If it has, we can offer options like: summarize, optimize etc.
-        /// </param>
-        /// <returns>
+        /// <param name="enabled">A value indicating Whether to initially enable the command dropdown items.</param>
         /// The icon button inclusive dropdown to choose a rewrite command from.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
-        TagBuilder? GenerateTextCreationTool(AttributeDictionary? attributes, bool hasContent);
+        TagBuilder? GenerateTextCreationTool(AttributeDictionary? attributes, bool enabled = true);
 
         /// <summary>
         /// Creates the icon button to open the suggestion dialog.
@@ -66,5 +63,13 @@ namespace Smartstore.Web.Rendering
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
         TagBuilder? GenerateRichTextTool(AttributeDictionary? attributes);
+
+        /// <summary>
+        /// Generates the text optimizer dropdown items for the text optimizer dropdown menu.
+        /// </summary>
+        /// <param name="forChatDialog">Whether the dropdown is rendered within the chat dialog.</param>
+        /// <param name="enabled">A value indicating Whether to initially enable the command dropdown items.</param>
+        /// <returns>The HTML content.</returns>
+        IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true);
     }
 }

@@ -20,7 +20,7 @@ namespace Smartstore.DevTools.Filters
             return !(zone.PreviewDisabled || zone.ReplaceContent);
         }
     }
-    
+
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
         private readonly ICommonServices _services;
@@ -73,6 +73,18 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
+                // Display the widget zone menu.
+                _widgetProvider.RegisterWidget(
+                    new[] { "start", "end" },
+                    new ComponentWidget(typeof(WidgetZoneMenuViewComponent)));
+
+                // Check, whether the cookie '.Smart.WZVisibility' set and if it's value is 'false'. If so, don't render the widget zones.
+                if (filterContext.HttpContext.Request.Cookies.TryGetValue(".Smart.WZVisibility", out var wzVisibility) && wzVisibility == "false")
+                {
+                    return;
+                }
+
+                // Render the widget zones.
                 _widgetProvider.RegisterWidget(_ => true, new ZonePreviewWidget());
             }
         }

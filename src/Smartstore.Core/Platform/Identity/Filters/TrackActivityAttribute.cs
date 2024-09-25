@@ -112,22 +112,11 @@ namespace Smartstore.Core.Identity
                 }
             }
 
-            // Last visited page
-            if (_attribute.TrackPage && _customerSettings.StoreLastVisitedPage)
-            {
-                var currentUrl = _webHelper.GetCurrentPageUrl(true);
-                if (currentUrl.HasValue())
-                {
-                    dirty = dirty || customer.LastVisitedPage != currentUrl;
-                    customer.LastVisitedPage = currentUrl;
-                }
-            }
-
             // Last user agent
             if (_attribute.TrackUserAgent && _customerSettings.StoreLastUserAgent)
             {
                 var currentUserAgent = _userAgent.UserAgent;
-                if (currentUserAgent.HasValue())
+                if (currentUserAgent.HasValue() && currentUserAgent.Length <= 255)
                 {
                     dirty = dirty || customer.LastUserAgent != currentUserAgent;
                     customer.LastUserAgent = currentUserAgent;
@@ -138,10 +127,21 @@ namespace Smartstore.Core.Identity
             if (_attribute.TrackDeviceFamily && _customerSettings.StoreLastDeviceFamily)
             {
                 var currentDeviceName = _userAgent.Device.IsUnknown() ? _userAgent.Platform.Name : _userAgent.Device.Name;
-                if (currentDeviceName.HasValue() && currentDeviceName != "Unknown")
+                if (currentDeviceName.HasValue() && currentDeviceName.Length <= 255 && currentDeviceName != "Unknown")
                 {
                     dirty = dirty || customer.LastUserDeviceType != currentDeviceName;
                     customer.LastUserDeviceType = currentDeviceName;
+                }
+            }
+
+            // Last visited page
+            if (_attribute.TrackPage && _customerSettings.StoreLastVisitedPage)
+            {
+                var currentUrl = _webHelper.GetCurrentPageUrl(withQueryString: true);
+                if (currentUrl.HasValue() && SanitizeUrl(ref currentUrl))
+                {
+                    dirty = dirty || customer.LastVisitedPage != currentUrl;
+                    customer.LastVisitedPage = currentUrl;
                 }
             }
 
@@ -149,6 +149,33 @@ namespace Smartstore.Core.Identity
             {
                 _db.TryUpdate(customer);
             }
+        }
+
+        private static bool SanitizeUrl(ref string url)
+        {
+            var len = url.Length;
+            
+            if (len <= 512)
+            {
+                return true;
+            }
+
+            if (len <= 2048)
+            {
+                var qindex = url.IndexOf('?');
+                if (qindex > -1)
+                {
+                    url = url[..qindex];
+                    return true;
+                }
+                else
+                {
+                    // "Too long" for a url without query string. Ignore.
+                    return false;
+                }
+            }
+
+            return false;
         }
     }
 }

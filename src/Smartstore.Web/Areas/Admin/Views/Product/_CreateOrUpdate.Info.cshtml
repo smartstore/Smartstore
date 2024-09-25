@@ -240,7 +240,9 @@
                     <smart-label asp-for="ShortDescription" />
 			    </div>
 			    <div class="adminData">
-                    <ai-text asp-for="ShortDescription" entity-name="@Model.Name" entity-type="Product">
+                    <ai-text asp-for="ShortDescription" 
+                             entity-name="@Model.Name" 
+                             entity-type="Product">
                         <textarea asp-for="ShortDescription"></textarea>
                     </ai-text>
 				    <span asp-validation-for="ShortDescription"></span>

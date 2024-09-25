@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OData;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Engine;
 
@@ -63,15 +62,10 @@ namespace Smartstore.Web.Api.Bootstrapping
                 // Would lead to valid, duplicate routes like "/Manufacturers" and "/odata/v1/Manufacturers".
                 // We also cannot use Route("odata/v1/Manufacturers"). It produces invalid OData path templates (empty URL segments).
 
-                // INFO: multiple GET endpoints require a route template to avoid AmbiguousMatchException. See also https://github.com/OData/AspNetCoreOData/issues/428
+                // INFO: multiple GET endpoints require a route template to avoid AmbiguousMatchException.
+                // See also https://github.com/OData/AspNetCoreOData/issues/428
                 options.AddRouteComponents("odata/v1", edmModel, services =>
                 {
-                    // TODO: (mg) (core) use DefaultStreamBasedJsonWriterFactory when bug is fixed:
-                    // "Batch response contains invalid JSON when using DefaultStreamBasedJsonWriterFactory" https://github.com/OData/AspNetCoreOData/issues/673
-
-                    // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
-                    //services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
-
                     //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
 
                     services.AddSingleton<ODataBatchHandler>(_ =>

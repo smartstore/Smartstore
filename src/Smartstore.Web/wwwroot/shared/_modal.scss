@@ -115,11 +115,12 @@
 	padding: 10px;
 	top: 0.5rem;
 	right: 0.5rem;
-    background-color: $white;
+    background-color: #fff;
     border-radius: 50%;
 	z-index: $zindex-modal-backdrop + 1;
 
-	//.modal[data-backdrop=true] > & {
+	//.modal[data-backdrop=true] > &,
+    //.modal[data-backdrop=static] > & {
     //    filter: var(--btn-close-white-filter);
 	//}
 }

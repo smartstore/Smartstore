@@ -312,21 +312,67 @@ namespace Smartstore
         public static string? HtmlDecode(this string? value)
             => HttpUtility.HtmlDecode(value);
 
-        public static string EncodeJsString(this string? value)
-            => EncodeJsString(value, '"', true);
+        /// <inheritdoc cref="EncodeJsString(string?, char, bool)" />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string EncodeJsStringUnquoted(this string? value, bool stripLineBreaks = true)
+            => EncodeJsString(value, null, stripLineBreaks);
 
-        public static string EncodeJsString(this string? value, char delimiter, bool appendDelimiters)
+        /// <summary>
+        /// Encodes a string value for use in JavaScript string literals.
+        /// </summary>
+        /// <param name="value">The string value to encode.</param>
+        /// <param name="quoteDelimiter">The character used as the quote delimiter. Default: '"'</param>
+        /// <param name="stripLineBreaks">If true, line breaks will be stripped.</param>
+        /// <returns>The encoded JavaScript string.</returns>
+        public static string EncodeJsString(this string? value, char? quoteDelimiter = '"', bool stripLineBreaks = true)
         {
-            var result = value.HasValue()
-                ? JavaScriptEncoder.Default.Encode(value!)
-                : value.EmptyNull();
-
-            if (appendDelimiters)
+            if (string.IsNullOrEmpty(value))
             {
-                result = delimiter + result + delimiter;
+                return value.EmptyNull();
             }
 
-            return result;
+            var sb = new StringBuilder(value.Length);
+            foreach (char c in value)
+            {
+                switch (c)
+                {
+                    case '\\':  // Backslash
+                        sb.Append("\\\\");
+                        break;
+                    case '"':   // Double quotes
+                        sb.Append("\\\"");
+                        break;
+                    case '\'':  // Single quotes
+                        sb.Append("\\'");
+                        break;
+                    case '\n':  // New line
+                        if (!stripLineBreaks) sb.Append("\\n");
+                        break;
+                    case '\r':  // New line
+                        if (!stripLineBreaks) sb.Append("\\r");
+                        break;
+                    case '<':   // XSS
+                        sb.Append("\\x3C");
+                        break;
+                    case '>':   // XSS
+                        sb.Append("\\x3E");
+                        break;
+                    case '&':   // XSS
+                        sb.Append("\\x26");
+                        break;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+
+            if (quoteDelimiter.HasValue && quoteDelimiter != '\0')
+            {
+                sb.Insert(0, quoteDelimiter);
+                sb.Append(quoteDelimiter);
+            }
+
+            return sb.ToString();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

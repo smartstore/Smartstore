@@ -282,6 +282,59 @@ namespace Smartstore.Core.Localization
             return ApplyLocalizedValueAsync(settings, storeId, typeof(TSetting).Name, keySelector, value, languageId);
         }
 
+        public virtual void ApplyLocalizedValue(
+            LocalizedProperty localizedProperty,
+            int entityId,
+            string localeKeyGroup,
+            string localeKey,
+            object value,
+            int languageId)
+        {
+            Guard.NotEmpty(localeKeyGroup);
+            Guard.NotZero(languageId);
+
+            var valueStr = value?.Convert<string>();
+
+            if (localizedProperty != null)
+            {
+                if (string.IsNullOrEmpty(valueStr))
+                {
+                    if (!localizedProperty.IsHidden)
+                    {
+                        // Delete (but only visible/user-defined entries)
+                        _db.LocalizedProperties.Remove(localizedProperty);
+                    }
+                }
+                else
+                {
+                    // Update
+                    if (localizedProperty.LocaleValue != valueStr)
+                    {
+                        localizedProperty.LocaleValue = valueStr;
+
+                        // User modified entry, so this cannot be hidden anymore.
+                        localizedProperty.IsHidden = false;
+                    }
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(valueStr))
+                {
+                    // Insert
+                    localizedProperty = new LocalizedProperty
+                    {
+                        EntityId = entityId,
+                        LanguageId = languageId,
+                        LocaleKey = localeKey,
+                        LocaleKeyGroup = localeKeyGroup,
+                        LocaleValue = valueStr
+                    };
+                    _db.LocalizedProperties.Add(localizedProperty);
+                }
+            }
+        }
+
         protected virtual async Task ApplyLocalizedValueAsync<T, TPropType>(
             T obj,
             int id, // T is BaseEntity = EntityId, T is ISetting = StoreId
@@ -291,60 +344,14 @@ namespace Smartstore.Core.Localization
             int languageId) where T : class
         {
             Guard.NotNull(obj);
-            Guard.NotEmpty(keyGroup);
-            Guard.NotZero(languageId);
 
-            var propInfo = keySelector.ExtractPropertyInfo();
-            if (propInfo == null)
-            {
-                throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
-            }
+            var propInfo = keySelector.ExtractPropertyInfo() ?? throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
 
-            var setProps = _db.LocalizedProperties;
-            var key = propInfo.Name;
-            var valueStr = value.Convert<string>();
-            var entity = await setProps
-                .ApplyStandardFilter(languageId, id, keyGroup, key)
+            var entity = await _db.LocalizedProperties
+                .ApplyStandardFilter(languageId, id, keyGroup, propInfo.Name)
                 .FirstOrDefaultAsync();
 
-            if (entity != null)
-            {
-                if (string.IsNullOrEmpty(valueStr))
-                {
-                    if (!entity.IsHidden)
-                    {
-                        // Delete (but only visible/user-defined entries)
-                        setProps.Remove(entity);
-                    }
-                }
-                else
-                {
-                    // Update
-                    if (entity.LocaleValue != valueStr)
-                    {
-                        entity.LocaleValue = valueStr;
-
-                        // User modified entry, so this cannot be hidden anymore.
-                        entity.IsHidden = false;
-                    }
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(valueStr))
-                {
-                    // insert
-                    entity = new LocalizedProperty
-                    {
-                        EntityId = id,
-                        LanguageId = languageId,
-                        LocaleKey = key,
-                        LocaleKeyGroup = keyGroup,
-                        LocaleValue = valueStr
-                    };
-                    setProps.Add(entity);
-                }
-            }
+            ApplyLocalizedValue(entity, id, keyGroup, propInfo.Name, value, languageId);
         }
 
         public virtual Task ClearCacheAsync()

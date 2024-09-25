@@ -37,6 +37,8 @@
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
+                var bundleItemsWithImages = item.ChildItems.Where(x => x.Image.HasImage()).ToArray();
+
                 <div class="offcanvas-cart-item">
                     <div class="row sm-gutters">
 
@@ -57,18 +59,14 @@
                                 @Html.Raw(item.AttributeInfo)
                             </div>
 
-                            <div sm-if="item.ChildItems.Any()" class="mb-bundle-pictures mt-3">
-                                @{
-                                    var childItems = item.ChildItems.ToList();
-                                    for (int i = 0; i < childItems.Count; i++)
-                                    {
-                                        var bundleItem = childItems[i];
-                                        <a sm-if="bundleItem.Image.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
-                                            <img sm-model="bundleItem.Image" />
-                                        </a>
-
-                                        <i sm-if="(i + 1) < childItems.Count" class="fa fa-plus"></i>
-                                    }
+                            <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
+                                @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
+                                {
+                                    var bundleItem = bundleItemsWithImages[i];
+                                    <a href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
+                                        <img sm-model="bundleItem.Image" />
+                                    </a>
+                                    <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
                                 }
                             </div>
                         </div>

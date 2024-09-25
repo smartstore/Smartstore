@@ -1,110 +1,21 @@
 ﻿@using Smartstore.Core.Widgets
 
 @{
-    // INFO: (mw) (dt) Please analyze all review commits carefully! Try to adopt best-practices, code style and conventions the next time.
-    // TODO: (mw) (dt) Offcanvas: Use smaller font-size for clickable items.
-    // TODO: (mw) (dt) Offcanvas: Use bg color for hover & active for clickable items.
-    
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
         return;
-    }
-
-    // Check if the visibility cookie is set.
-    var visibilityCookie = Request.Cookies[".Smart.WZVisibility"];
-    var isVisible = visibilityCookie != "hidden";
-
-    if (zone.Name == "start")
-    {
-        // Add the offcanvas zone preview menu
-        <a id="wz-menu-toggle" class="position-fixed top-0 end-0 m-2 mt-6 btn btn-dark" href="#" data-toggle="offcanvas" data-autohide="true" data-blocker="true" data-placement="start" data-fullscreen="false" data-target="#wz-menu">
-            <i class="far fa-layer-group"></i>
-        </a>
-        <aside id="wz-menu" class="offcanvas offcanvas-shadow">
-            <div class="offcanvas-content custom-scrollbar custom-scrollbar-invert">
-                <div class="wz-zone-list d-flex flex-column flex-grow-1 overflow-auto p-2 mr-n2"></div>
-
-                <div class="sticky-bottom p-3">
-                    <div class="btn-group w-100 rounded-1" role="group" aria-label="@T("Plugins.Developer.DevTools.WidgetZoneMenu.Toolbar")">
-                        <a class="wz-toggle btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.Toggle"))">
-                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
-                        </a>
-                        <a class="wz-toggle btn btn-secondary" data-persistent="true" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.PersistentToggle")">
-                            <i class="far fa-eye@(isVisible ? "" : "-slash")"></i>
-                        </a>
-                        <a class="wz-sidebar-close btn btn-secondary" href="#" rel="nofollow" title="" data-toggle="tooltip" data-placement="top" data-original-title="@T("Plugins.Developer.DevTools.WidgetZoneMenu.CloseButton")">
-                            <i class="fa fa-times"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </aside>
     }
 }
 
 @if (zone.PreviewTagName == "meta")
 {
-    <meta name="widget-zone-name" class="wz-preview" attr-class='(!isVisible, "d-none")' content="@zone.Name" />
+    <meta name="widget-zone-name" class="wz-preview" content="@zone.Name" />
 }
 else
 {
-    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" attr-class='(!isVisible, "d-none")' title="@zone.Name"
+    <span sm-tagname="@zone.PreviewTagName" class="wz-preview badge badge-primary badge-subtle badge-ring text-truncate" title="@zone.Name"
           attr-class='(zone.PreviewCssClass.HasValue(), zone.PreviewCssClass)'
           attr-style='(zone.PreviewCssStyle.HasValue(), zone.PreviewCssStyle)'>
         <span class="text-truncate">@zone.Name</span>
-        @* Maybe later *@
-        @*<a href="javascript:;" class="btn-clipboard pretty-link mr-1" data-copy="@zoneName">
-            <span><i class="far fa-paste"></i></span>
-        </a>*@
     </span>
 }
-
-<script sm-if='zone.Name == "end"' type="module">
-    import { DevTools } from "@(Url.Content("~/Modules/Smartstore.DevTools/js/smartstore.devtools.js"))";
-
-    // Add widget zone group containers.
-    let groups = @Html.Raw(Json.Serialize(ViewBag.WidgetZoneGroups));
-
-    // Add a meta and default group for user-defined zones.
-    groups.unshift({
-        name: 'Meta',
-        zones: [],
-    });
-    groups.push({
-        name: @T("Admin.WidgetZones.UserDefined").JsValue,
-        zones: []
-    });
-
-    $(function () {
-        const zoneList = document.querySelector('.wz-zone-list');
-
-        // Add div's to '#wz-menu .wz-zone-list' for each element in groups.
-        groups.forEach(group => {
-            let groupContainer = $(`<div class="wz-zone-group d-flex flex-column mb-2 d-none" data-group="${group.name}"><h6 class="text-muted">${group.name}</h6></div>`);
-            groupContainer.data('groups', group.zones.join(' '))
-            $(zoneList).append(groupContainer);
-        });
-
-        const devTools = new DevTools();
-        devTools.initialize();
-
-        const zones = $('.wz-preview');
-        zones.each(function() {
-            const el = $(this);
-            if (el.is('meta')) {
-                devTools.registerWidgetZone({
-                    name: el.attr('content'),
-                    previewTagName: 'meta'
-                });
-            }
-            else {
-                devTools.registerWidgetZone({
-                    name: el.attr('title'),
-                    previewTagName: el[0].tagName.toLowerCase()
-                });
-            }
-        });
-    });
-</script>
-
-<script src="~/js/smartstore.offcanvas.js" sm-target-zone="scripts"></script>

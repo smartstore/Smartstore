@@ -50,11 +50,14 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
+            // Include deleted products but do not load a deleted order.
             var order = await _db.Orders
-                .Include(x => x.ShippingAddress)
-                .Include(x => x.BillingAddress)
-                .Include(x => x.Shipments)
-                .FindByIdAsync(id, false);
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .IncludeBillingAddress()
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
 
             if (await IsNonExistentOrderAsync(order))
             {
@@ -73,10 +76,12 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Print(int id, bool pdf = false)
         {
             var order = await _db.Orders
-                .Include(x => x.ShippingAddress)
-                .Include(x => x.BillingAddress)
-                .Include(x => x.Shipments)
-                .FindByIdAsync(id, false);
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .IncludeBillingAddress()
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
 
             if (await IsNonExistentOrderAsync(order))
             {
@@ -87,7 +92,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            return await PrintCore(new List<Order> { order }, pdf);
+            return await PrintCore([order], pdf);
         }
 
         [AuthorizeAdmin]
@@ -99,6 +104,8 @@ namespace Smartstore.Web.Controllers
             var totalCount = 0;
 
             var orderQuery = _db.Orders
+                .AsNoTracking()
+                .IgnoreQueryFilters()
                 .IncludeBillingAddress()
                 .IncludeShippingAddress()
                 .IncludeOrderItems();

@@ -636,5 +636,34 @@ namespace Smartstore
 
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
+
+        /// <summary>
+        /// Strips all line breaks from the given string.
+        /// </summary>
+        /// <param name="value">The string to examine.</param>
+        /// <returns>A new string, which excludes the line breaks.</returns>
+        public static string StripLineBreaks(this string value)
+        {
+            var array = value.ToCharArray();
+            int num = 0;
+            int num2 = array.Length;
+            int num3 = 0;
+
+            while (num3 < num2)
+            {
+                array[num3] = array[num3 + num];
+                if (array[num3].IsLineBreak())
+                {
+                    num++;
+                    num2--;
+                }
+                else
+                {
+                    num3++;
+                }
+            }
+
+            return new string(array, 0, num2);
+        }
     }
 }

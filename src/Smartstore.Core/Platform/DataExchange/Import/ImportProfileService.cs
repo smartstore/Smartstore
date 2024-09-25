@@ -235,17 +235,17 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (_entityProperties == null)
                     {
-                        _entityProperties = new Dictionary<ImportEntityType, Dictionary<string, string>>();
+                        _entityProperties = [];
 
                         var allLanguages = _languageService.GetAllLanguages(true);
                         var allLanguageNames = allLanguages.ToDictionarySafe(x => x.LanguageCulture, x => x.GetLocalized(x => x.Name));
 
                         var localizableProperties = new Dictionary<ImportEntityType, string[]>
                         {
-                            { ImportEntityType.Product, new[] { "Name", "ShortDescription", "FullDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" } },
-                            { ImportEntityType.Category, new[] { "Name", "FullName", "Description", "BottomDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" } },
-                            { ImportEntityType.Customer, Array.Empty<string>() },
-                            { ImportEntityType.NewsletterSubscription, Array.Empty<string>() }
+                            { ImportEntityType.Product, [ "Name", "ShortDescription", "FullDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" ] },
+                            { ImportEntityType.Category, [ "Name", "FullName", "Description", "BottomDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" ] },
+                            { ImportEntityType.Customer, [] },
+                            { ImportEntityType.NewsletterSubscription, [] }
                         };
 
                         // There is no 'FindEntityTypeByDisplayName'.
@@ -310,7 +310,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            return _entityProperties.ContainsKey(entityType) ? _entityProperties[entityType] : null;
+            return _entityProperties.TryGetValue(entityType, out var value) ? value : null;
         }
 
         private string GetLocalizedPropertyLabel(ImportEntityType entityType, string property)
@@ -396,7 +396,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         private static readonly HashSet<string> _ignoreResourceKeys = new(StringComparer.OrdinalIgnoreCase)
         {
-            "IsSystemProduct", "SystemName", "LastForumVisit", "LastUserAgent", "LastUserDeviceType"
+            "IsSystemProduct", "SystemName", "LastForumVisit", "LastUserAgent", "LastUserDeviceType", "GroupedProductConfiguration", "ClientIdent"
         };
 
         /// <summary>

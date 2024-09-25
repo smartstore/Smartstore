@@ -794,6 +794,10 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => productIds.Contains(x.EntityId) && x.LocaleKeyGroup == entityName)
                 .ExecuteDeleteAsync(cancelToken);
 
+            await _db.GenericAttributes
+                .Where(x => productIds.Contains(x.EntityId) && x.KeyGroup == entityName)
+                .ExecuteDeleteAsync(cancelToken);
+
             await _db.SyncMappings
                 .Where(x => productIds.Contains(x.EntityId) && x.EntityName == entityName)
                 .ExecuteDeleteAsync(cancelToken);

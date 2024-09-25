@@ -1,9 +1,9 @@
 ﻿namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
-    /// Represents a text generation model with keyword properties.
+    /// Represents a model for text generation with keyword properties.
     /// </summary>
-    public partial interface IKeywordGenerationPrompt
+    public partial interface IAIKeywordModel
     {
         /// <summary>
         /// Gets or sets a value defining the keywords to use while generating the text.

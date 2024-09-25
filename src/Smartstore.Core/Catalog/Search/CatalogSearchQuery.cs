@@ -60,14 +60,27 @@ namespace Smartstore.Core.Catalog.Search
         public readonly string Name = "name";
         public readonly string Price = "price";
         public readonly string CreatedOn = "createdon";
+        public readonly string AvailableStart = "availablestart";
         public readonly string ParentId = "parentid";
     }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class KnownOrigins : IHideObjectMembers
+    {
+        internal KnownOrigins() { }
+        public readonly string Search = "Search/Search";
+        public readonly string InstantSearch = "Search/InstantSearch";
+        public readonly string Category = "Catalog/Category";
+        public readonly string Manufacturer = "Catalog/Manufacturer";
+    }
+
 
     [ValidateNever, ModelBinder(typeof(CatalogSearchQueryModelBinder))]
     public partial class CatalogSearchQuery : SearchQuery<CatalogSearchQuery>, ICloneable<CatalogSearchQuery>
     {
         public static KnownFilterNames KnownFilters = new();
         public static KnownSortingNames KnownSortings = new();
+        public static KnownOrigins KnownOrigins = new();
 
         private readonly static Func<DbSet<Product>, int[], Task<List<Product>>> _defaultHitsFactory = (dbSet, ids)
             => dbSet.SelectSummary().GetManyAsync(ids);

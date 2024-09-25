@@ -396,8 +396,8 @@ namespace Smartstore.Core.Messaging
 
                 if (CreateMessage(ctx, parts))
                 {
-                    // INFO: tracked because entity is updated in CreateMessageAsync.
                     ctx.MessageTemplate = await _db.MessageTemplates
+                        .AsNoTracking()
                         .Where(x => x.Name == ctx.MessageTemplateName)
                         .ApplyStoreFilter(ctx.Store.Id)
                         .FirstOrDefaultAsync();

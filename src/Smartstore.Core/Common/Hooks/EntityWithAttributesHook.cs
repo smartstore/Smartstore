@@ -27,7 +27,7 @@ namespace Smartstore.Core.Common.Hooks
                     var entityIds = group.Select(x => x.Id).ToArray();
                     var entityName = group.Key;
 
-                    foreach (var chunk in entityIds.Chunk(500))
+                    foreach (var chunk in entityIds.Chunk(128))
                     {
                         await _db.GenericAttributes
                             .Where(x => chunk.Contains(x.EntityId) && x.KeyGroup == entityName)

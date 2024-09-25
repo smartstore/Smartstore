@@ -176,11 +176,12 @@ namespace Smartstore.Web.Api.Controllers
             try
             {
                 var entity = await Entities
-                    .Include(x => x.ShippingAddress)
-                    .Include(x => x.BillingAddress)
-                    .Include(x => x.OrderItems)
-                    .ThenInclude(x => x.Product)
-                    .FindByIdAsync(id);
+                    .AsNoTracking()
+                    .IgnoreQueryFilters()
+                    .IncludeBillingAddress()
+                    .IncludeOrderItems()
+                    .IncludeShipments()
+                    .FirstOrDefaultAsync(x => x.Id == id && !x.Deleted);
 
                 if (entity == null)
                 {
@@ -201,6 +202,7 @@ namespace Smartstore.Web.Api.Controllers
                     {
                         OrderItemId = x.Id,
                         ProductId = x.ProductId,
+                        IsProductSoftDeleted = x.IsProductSoftDeleted,
                         Sku = x.Sku,
                         ProductName = x.ProductName,
                         ProductSlug = x.ProductSeName,

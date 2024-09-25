@@ -181,9 +181,13 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>A alue indicating whether the product is labeled as NEW.</returns>
         public static bool IsNew(this Product product, CatalogSettings catalogSettings)
         {
-            if (catalogSettings.LabelAsNewForMaxDays.HasValue)
+            if (catalogSettings.LabelAsNewForMaxDays != null)
             {
-                return (DateTime.UtcNow - product.CreatedOnUtc).Days <= catalogSettings.LabelAsNewForMaxDays.Value;
+                var dt = catalogSettings.LabelAsNewByAvailableDate ? product.AvailableStartDateTimeUtc : product.CreatedOnUtc;
+                if (dt != null)
+                {
+                    return (DateTime.UtcNow - dt.Value).Days <= catalogSettings.LabelAsNewForMaxDays.Value;
+                }
             }
 
             return false;

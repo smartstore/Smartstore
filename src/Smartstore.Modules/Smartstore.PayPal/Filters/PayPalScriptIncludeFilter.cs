@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
@@ -106,15 +107,14 @@ namespace Smartstore.PayPal.Filters
                     ? await GetClientToken(context.HttpContext) 
                     : string.Empty;
 
-                // TODO: (mh) Continue refactoring in other places.
                 //var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
-                var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, scriptUrl);
-                scriptIncludeTag.Attributes["id"] = "paypal-js";
-                scriptIncludeTag.Attributes["data-partner-attribution-id"] = "SmartStore_Cart_PPCP";
-                scriptIncludeTag.Attributes["data-client-token"] = clientToken;
-                scriptIncludeTag.Attributes["async"] = "async";
+                var jsSdkScriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, scriptUrl);
+                jsSdkScriptIncludeTag.Attributes["id"] = "paypal-js";
+                jsSdkScriptIncludeTag.Attributes["data-partner-attribution-id"] = "SmartStore_Cart_PPCP";
+                jsSdkScriptIncludeTag.Attributes["data-client-token"] = clientToken;
+                jsSdkScriptIncludeTag.Attributes["async"] = "async";
 
-                _widgetProvider.RegisterHtml("end", scriptIncludeTag);
+                _widgetProvider.RegisterHtml("end", jsSdkScriptIncludeTag);
             }
 
             if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))
@@ -142,7 +142,11 @@ namespace Smartstore.PayPal.Filters
             // INFO: Single quotes (') aren't allowed to delimit strings.
             sb.Append("{\"sandbox\":" + (_settings.UseSandbox ? "true" : "false") + ",\"f\":\"" + clientMetaId + "\",\"s\":\"" + sourceIdentifier + "\" }");
             sb.Append("</script>");
-            sb.Append($"<script type='text/javascript' {(consented ? string.Empty : "data-consent=\"required\" data-")}src='https://c.paypal.com/da/r/fb.js'></script>");
+
+            //sb.Append($"<script type='text/javascript' {(consented ? string.Empty : "data-consent=\"required\" data-")}src='https://c.paypal.com/da/r/fb.js'></script>");
+            var scriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, "https://c.paypal.com/da/r/fb.js");
+            sb.Append(scriptIncludeTag.ToHtmlString());
+
             sb.Append($"<noscript><img src='https://c.paypal.com/v1/r/d/b/ns?f={clientMetaId}&s={sourceIdentifier}&js=0&r=1' /></noscript>");
 
             _widgetProvider.RegisterHtml("end", new HtmlString(sb.ToString()));

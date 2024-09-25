@@ -155,8 +155,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.AddRuleWarning", "Please add a rule first.", "Bitte zuerst eine Regel hinzufügen.");
 
             builder.AddOrUpdate("Admin.Rules.AddCondition", "Add rule", "Regel hinzufügen");
-            builder.AddOrUpdate("Admin.Rules.AllConditions", 
-                "<span>If</span> {0} <span>of the following rules are true.</span>", 
+            builder.AddOrUpdate("Admin.Rules.AllConditions",
+                "<span>If</span> {0} <span>of the following rules are true.</span>",
                 "<span>Wenn</span> {0} <span>der folgenden Regeln erfüllt sind.</span>");
 
             builder.AddOrUpdate("Admin.Rules.OneCondition",
@@ -169,7 +169,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Regeln können erst nach einem Speichern festgelegt werden.");
 
             builder.AddOrUpdate("Admin.Rules.TestConditions").Value("de", "Regeln {0} Testen {1}");
-            
+
             builder.AddOrUpdate("Admin.Rules.EditRuleSet", "Edit rule set", "Regelsatz bearbeiten");
             builder.AddOrUpdate("Admin.Rules.OpenRuleSet", "Open rule set", "Regelsatz öffnen");
             builder.Delete(
@@ -271,7 +271,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout.TermsOfService.Read",
                 "Checkout.TermsOfService",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
-                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint");
+                "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint",
+                "Admin.Orders.OrderItem.Update.Info",
+                "Admin.ContentManagement.Topics.Validation.NoWhiteSpace",
+                "Forum.Submit");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
@@ -284,8 +287,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Show on password recovery page",
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
 
-            builder.Delete("Admin.ContentManagement.Topics.Validation.NoWhiteSpace");
-            
             builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
                 "Spaces are invalid for the HTML attribute 'id'.",
                 "Leerzeichen sind für das HTML-Attribut 'id' ungültig.");
@@ -339,7 +340,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Minimale Produktanzahl für Suche",
                 "Specifies the minimum number of associated products from which the search field is displayed.",
                 "Legt die Mindestanzahl verknüpfter Produkte fest, ab denen das Suchfeld angezeigt wird.");
-            
+
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Collapsible",
                  "Collapsible associated products",
                  "Aufklappbare verknüpfte Produkte",
@@ -378,8 +379,8 @@ namespace Smartstore.Core.Data.Migrations
                 "To edit, please first save the product as a grouped product.",
                 "Zur Bearbeitung bitte zunächst das Produkt als Gruppenprodukt speichern.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title", 
-                "Title of associated products list", 
+            builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.Title",
+                "Title of associated products list",
                 "Listentitel der verknüpften Produkte");
 
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration", "Edit grouped product", "Gruppenprodukt bearbeiten");
@@ -434,6 +435,79 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether the reward points awarded for purchasing a product, including the corresponding amount, should be displayed on the product detail page.",
                 "Legt fest, ob die für den Kauf eines Produktes gewährten Bonuspunkte samt dem entsprechenden Betrag auf der Produktdetailseite angezeigt werden sollen.");
 
+            builder.AddOrUpdate("Common.Old", "Old", "Alt");
+            builder.AddOrUpdate("Common.Keywords", "Keywords", "Keywords");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.CleanupOrphanedRecords",
+                "{0} orphaned data records of type {1} were deleted.",
+                "Es wurden {0} verwaiste Datensätze vom Typ {1} gelöscht.");
+
+            builder.AddOrUpdate("Admin.Configuration.Countries.Fields.TwoLetterIsoCode",
+                "Country code (2 characters)",
+                "Länderkürzel (2 Zeichen)",
+                "Two-letter country code according to ISO 3166.",
+                "Zweibuchstabiges Länderkürzel nach ISO 3166.");
+
+            builder.AddOrUpdate("Admin.Configuration.Countries.Fields.ThreeLetterIsoCode",
+                "Country code (3 characters)",
+                "Länderkürzel (3 Zeichen)",
+                "Three-letter country code according to ISO 3166.",
+                "Dreibuchstabiges Länderkürzel nach ISO 3166.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ProductDescriptionPriority",
+                "Priority of product descriptions",
+                "Vorrang von Produktbeschreibungen",
+                "Specifies which 'description' is read by search engines as description content for rich snippets. " +
+                "If the description selected here is not stored in the product, the other one is automatically marked as 'description', if available.",
+                "Bestimmt, welche Beschreibung von Suchmaschinen als 'description'-Inhalt für Rich Snippets ausgelesen wird. " +
+                "Wenn die hier gewählte Beschreibung nicht im Produkt hinterlegt ist, wird automatisch die andere als 'description' gekennzeichnet, sofern vorhanden.");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.FullDescription",
+                "Full description",
+                "Langtext");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.ShortDescription",
+                "Short description",
+                "Kurzbeschreibung");
+
+            builder.AddOrUpdate("Enums.ProductDescriptionPriority.Both",
+                "Full and short description",
+                "Langtext und Kurzbeschreibung");
+
+            builder.AddOrUpdate("PageDescription.Manufacturers",
+                "Discover all manufacturers in the {0} online shop.",
+                "Entdecken Sie alle Hersteller im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.AllProductTags",
+                "Discover all product tags in the {0} online shop.",
+                "Entdecken Sie alle Produkt Tags im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.RecentlyAddedProducts",
+                "Discover all recently added product in the {0} online shop.",
+                "Entdecken Sie alle zuletzt hinzugefügten Produkte im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.RecentlyViewedProducts",
+                "Discover all recently viewed products in the {0} online shop.",
+                "Entdecken Sie alle zuletzt angesehenen Produkte im {0} Online-Shop.");
+
+            builder.AddOrUpdate("PageDescription.CompareProducts",
+                "Compare products in the {0} online shop.",
+                "Vergleichen Sie Produkte im {0} Online-Shop.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LabelAsNewByAvailableDate",
+                "Label as \"new\" based on the availability date",
+                "Als \"neu\" anhand des Verfügbarkeitsdatums kennzeichnen",
+                "Specifies whether the \"NEW\" labeling is based on the available start date. By default, the creation date of the product is used.",
+                "Legt fest, ob die \"NEU\"-Kennzeichnung anhand des Datums \"Verfügbar ab\" erfolgt. Standardmäßig wird das Erstellungsdatum des Produktes verwendet.");
+
+            builder.AddOrUpdate("Admin.Customers.NoAdministratorsDeletedWarning",
+                "{0} customers are administrators. They have not been deleted for security reasons. Please delete administrators individually via the customer edit page.",
+                "Bei {0} Kunden handelt es sich um Administratoren. Aus Sicherheitsgründen wurden diese nicht gelöscht. Bitte löschen Sie Administratoren einzeln über die Kundenbearbeitungsseite.");
+
+            builder.AddOrUpdate("Admin.Customers.ReallyDeleteAdministrator",
+                "The customer is an administrator. Do you really want to delete him?",
+                "Bei dem Kunden handelt es sich um einen Administrator. Möchten Sie ihn wirklich löschen?");
+
             AddAIResources(builder);
         }
 
@@ -463,17 +537,21 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeStyle", "Change style", "Sprachstil ändern");
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Change tone", "Ton ändern");
 
-            builder.AddOrUpdate("Admin.AI.SpecifyTopic", "Please enter a topic", "Bitte geben Sie ein Thema an");
-
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes",
                 "Do not enclose the text in quotation marks.",
                 "Schließe den Text nicht in Anführungszeichen ein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdown",
+                "Do not use markdown formatting.",
+                "Verwende keine Markdown-Formatierungen.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontNumberSuggestions",
                 "Do not number the suggestions.",
                 "Nummeriere die Vorschläge nicht.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimitSuggestions",
+                "Maximum {0} characters per suggestion.",
+                "Maximal {0} Zeichen pro Vorschlag.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign",
-                "Separate each suggestion with the # sign.",
-                "Trenne jeden Vorschlag mit dem #-Zeichen.");
+                "Always separate each suggestion with the # sign.",
+                "Trenne jeden Vorschlag zwingend mit dem #-Zeichen.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimit",
                 "Limit your answer to {0} characters!",
                 "Begrenze deine Antwort auf {0} Zeichen!");
@@ -486,9 +564,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
                 "Do not use the name of the website as this will be added later. Reserve 5 words for this.",
                 "Verwende dabei nicht den Namen der Website, da dieser später hinzugefügt wird. Reserviere dafür 5 Wörter.");
-            builder.AddOrUpdate("Smartstore.AI.Prompts.CreatePicture",
-                "Generate an image for the topic '{0}'.",
-                "Generiere ein Bild zum Thema '{0}'.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.AddCallToAction",
                 "Finally, insert a link with the text '{0}' that refers to '{1}'. The link is given the CSS classes 'btn btn-primary'",
                 "Füge abschließend einen Link mit dem Text '{0}' ein, der auf '{1}' verweist. Der Link erhält die CSS-Klassen 'btn btn-primary'");

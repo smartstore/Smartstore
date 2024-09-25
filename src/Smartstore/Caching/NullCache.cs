@@ -36,10 +36,10 @@ namespace Smartstore.Caching
         public Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false)
             => acquirer == null ? default : acquirer(new CacheEntryOptions());
 
-        public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
+        public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null, bool preserveOrder = false)
             => new MemorySet(null);
 
-        public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
+        public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null, bool preserveOrder = false)
             => Task.FromResult<ISet>(new MemorySet(null));
 
         public void Put(string key, object value, CacheEntryOptions options = null)

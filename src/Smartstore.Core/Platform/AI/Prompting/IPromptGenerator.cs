@@ -19,21 +19,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
         bool CanHandle(string type);
 
         /// <summary>
-        /// Builds the prompt for given <see cref="ITextGenerationPrompt"/> model.
+        /// Builds the prompt for given <see cref="IAITextModel"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt);
+        Task<string> GenerateTextPromptAsync(IAITextModel model);
 
         /// <summary>
-        /// Builds the prompt for given <see cref="IImageGenerationPrompt"/> model.
+        /// Builds the prompt for given <see cref="IAIImageModel"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt);
+        Task<string> GenerateImagePromptAsync(IAIImageModel model);
 
         /// <summary>
-        /// Builds the prompt for given <see cref="ISuggestionPrompt"/> model.
+        /// Builds the prompt for given <see cref="IAISuggestionModel"/> model.
         /// </summary>
         /// <returns>The prompt</returns>
-        Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt);
+        Task<string> GenerateSuggestionPromptAsync(IAISuggestionModel model);
     }
 }

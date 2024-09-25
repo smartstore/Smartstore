@@ -16,24 +16,26 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public virtual bool CanHandle(string type)
             => type == Type;
 
-        public virtual Task<string> GenerateTextPromptAsync(ITextGenerationPrompt prompt)
-            => Task.FromResult(GetDefaultPrompt("Admin.AI.TextCreation.DefaultPrompt", prompt?.EntityName));
+        public virtual Task<string> GenerateTextPromptAsync(IAITextModel model)
+            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName));
 
-        public virtual Task<string> GenerateImagePromptAsync(IImageGenerationPrompt prompt)
-            => Task.FromResult(GetDefaultPrompt("Admin.AI.ImageCreation.DefaultPrompt", prompt?.EntityName));
+        public virtual Task<string> GenerateSuggestionPromptAsync(IAISuggestionModel model)
+            => Task.FromResult(_promptBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input));
 
-        public virtual Task<string> GenerateSuggestionPromptAsync(ISuggestionPrompt prompt)
-            => Task.FromResult(GetDefaultPrompt("Admin.AI.Suggestions.DefaultPrompt", prompt?.Input));
-
-        /// <summary>
-        /// Gets a simple default prompt.
-        /// </summary>
-        /// <param name="key">The string resource key.</param>
-        /// <param name="value">The value to get prompt for.</param>
-        protected virtual string GetDefaultPrompt(string key, string? value)
+        public virtual Task<string> GenerateImagePromptAsync(IAIImageModel model)
         {
-            var localizedValue = _promptBuilder.Localization.GetResource(key, returnEmptyIfNotFound: true);
-            return localizedValue?.FormatCurrent(value.NaIfEmpty()) ?? string.Empty;
+            var parts = new List<string>
+            {
+                _promptBuilder.Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", model?.EntityName)
+            };
+
+            // Enhance prompt for image creation from model.
+            _promptBuilder.BuildImagePrompt(model, parts);
+
+            return Task.FromResult(Join(parts));
         }
+
+        protected virtual string Join(IEnumerable<string> parts)
+            => string.Join(" ", parts.Where(x => x.HasValue()));
     }
 }

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Gets or sets the subject.
         /// </summary>
-        [Required]
+        [Required, StringLength(450)]
         public string Subject { get; set; }
 
         /// <summary>

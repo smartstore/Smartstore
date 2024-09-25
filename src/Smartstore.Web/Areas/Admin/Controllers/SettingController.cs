@@ -9,6 +9,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
@@ -1585,7 +1586,8 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var label in priceLabels)
             {
-                ViewBag.AvailableDefaultComparePriceLabels.Add(new SelectListItem { 
+                ViewBag.AvailableDefaultComparePriceLabels.Add(new SelectListItem
+                { 
                     Value = label.Id.ToString(), 
                     Text = label.GetLocalized(x => x.ShortName), 
                     Selected = model.PriceSettings.DefaultComparePriceLabelId == label.Id
@@ -1602,6 +1604,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
             ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
             ViewBag.AssociatedProductsHeaderFields = ProductController.CreateAssociatedProductsHeaderFieldsList(catalogSettings.CollapsibleAssociatedProductsHeaders, T);
+            ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
 
             static List<SelectListItem> AddBadgeStyles(string selectedValue)
             {
@@ -1625,43 +1628,44 @@ namespace Smartstore.Admin.Controllers
             {
                 model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
 
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                ]);
 
                 availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
             }
             else
             {
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-                    new SelectListItem { Text = T("Admin.Configuration.Seo.MetaKeywords"), Value = "keyword" },
-                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                });
+                availableSearchFields.AddRange(
+                [
+                    new() { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+                    new() { Text = T("Common.Keywords"), Value = "keyword" },
+                    new() { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+                    new() { Text = T("Admin.Catalog.Categories"), Value = "category" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+                    new() { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+                ]);
 
                 if (megaSearchPlusDescriptor != null)
                 {
-                    availableSearchFields.AddRange(new[]
-                    {
-                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
-                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
-                    });
+                    availableSearchFields.AddRange(
+                    [
+                        new() { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new() { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    ]);
                 }
 
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+                availableSearchModes = [.. searchSettings.SearchMode.ToSelectList()];
             }
 
             ViewBag.AvailableSearchFields = availableSearchFields;
             ViewBag.AvailableSearchModes = availableSearchModes;
+            ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
         }
 
         private SelectListItem ResToSelectListItem(string resourceKey)
@@ -1682,6 +1686,22 @@ namespace Smartstore.Admin.Controllers
             }
 
             return false;
+        }
+
+        private List<SelectListItem> CreateProductSortingsList(ProductSortingEnum selectedSorting)
+        {
+            var language = Services.WorkContext.WorkingLanguage;
+            var sortings = (ProductSortingEnum[])Enum.GetValues(typeof(ProductSortingEnum));
+
+            return sortings
+                .Where(x => x != ProductSortingEnum.CreatedOnAsc)
+                .Select(x => new SelectListItem
+                {
+                    Text = Services.Localization.GetLocalizedEnum(x, language.Id),
+                    Value = ((int)x).ToString(),
+                    Selected = x == selectedSorting
+                })
+                .ToList();
         }
     }
 }

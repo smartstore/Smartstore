@@ -228,8 +228,8 @@ namespace Smartstore.Core.Installation
 
             AddProductPicture(adidasSuperstarSchuh, "product/adidas_superstar_schuh_1.png", "adidas-superstar-schuh-1");
 
-            jackWolfskinCooGeeLow.ProductCategories.Add(new ProductCategory { Category = categories["Shoes"], DisplayOrder = 1 });
-            jackWolfskinCooGeeLow.ProductManufacturers.Add(new ProductManufacturer { Manufacturer = manufacturers["Adidas"], DisplayOrder = 1, });
+            adidasSuperstarSchuh.ProductCategories.Add(new ProductCategory { Category = categories["Shoes"], DisplayOrder = 1 });
+            adidasSuperstarSchuh.ProductManufacturers.Add(new ProductManufacturer { Manufacturer = manufacturers["Adidas"], DisplayOrder = 1, });
 
             #endregion Adidas SUPERSTAR SCHUH
 

@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Identity;
@@ -10,6 +11,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -18,6 +20,7 @@ namespace Smartstore.Core.DataExchange.Import
         const string CargoDataKey = "CustomerImporter.CargoData";
 
         private readonly IMediaImporter _mediaImporter;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
@@ -29,6 +32,7 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IMediaImporter mediaImporter,
+            IGenericAttributeService genericAttributeService,
             SeoSettings seoSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -38,6 +42,7 @@ namespace Smartstore.Core.DataExchange.Import
             : base(services, storeMappingService, urlService, seoSettings)
         {
             _mediaImporter = mediaImporter;
+            _genericAttributeService = genericAttributeService;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;
@@ -45,19 +50,19 @@ namespace Smartstore.Core.DataExchange.Import
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public static string[] SupportedKeyFields => new[]
-        {
+        public static string[] SupportedKeyFields =>
+        [
             nameof(Customer.Id),
             nameof(Customer.CustomerGuid),
             nameof(Customer.Email),
             nameof(Customer.Username)
-        };
+        ];
 
-        public static string[] DefaultKeyFields => new[]
-        {
+        public static string[] DefaultKeyFields =>
+        [
             nameof(Customer.Email),
             nameof(Customer.CustomerGuid)
-        };
+        ];
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
@@ -88,6 +93,8 @@ namespace Smartstore.Core.DataExchange.Import
                 // Update result object.
                 context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
                 context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
+
+                await _genericAttributeService.PrefetchAttributesAsync(nameof(Customer), batch.Select(x => x.Entity.Id).ToArray());
 
                 // ===========================================================================
                 // Process customer roles.
@@ -389,8 +396,6 @@ namespace Smartstore.Core.DataExchange.Import
             DbContextScope scope,
             IEnumerable<ImportRow<Customer>> batch)
         {
-            // TODO: (mg) (core) (perf) (low) Prefetch all generic attributes for whole batch and work against batch (to be implemented after initial release).
-
             foreach (var row in batch)
             {
                 if (_taxSettings.EuVatEnabled)

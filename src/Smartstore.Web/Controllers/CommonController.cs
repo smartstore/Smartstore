@@ -277,7 +277,9 @@ namespace Smartstore.Web.Controllers
                 model.AdPersonalizationConsent = true;
             }
 
-            _cookieConsentManager.SetConsentCookie(model.RequiredConsent, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
+            // Info: We don't pass the required value from model.RequiredConsent because the control is disabled and the value is always false
+            // but required cookies are always allowed. However, we need to set the consent explicitly because we can't even set required cookies without consent.
+            _cookieConsentManager.SetConsentCookie(true, model.AnalyticsConsent, model.ThirdPartyConsent, model.AdUserDataConsent, model.AdPersonalizationConsent);
 
             if (!HttpContext.Request.IsAjax())
             {

@@ -4,6 +4,7 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.RecentlyViewedProducts"));
+    Assets.AppendMetaDescriptionParts(T("PageDescription.RecentlyViewedProducts", CommonServices.StoreContext.CurrentStore.Name));
 }
 
 <div class="page recently-viewed-products-page">

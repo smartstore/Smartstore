@@ -1,7 +1,4 @@
-﻿using Parlot.Fluent;
-using static Smartstore.Core.Content.Media.Icons.IconDescription;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public class SearchFilter : SearchFilterBase, IAttributeSearchFilter
     {

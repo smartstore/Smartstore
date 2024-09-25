@@ -1,27 +1,42 @@
 const widgetZoneMenuId = '#wz-menu';
 let widgetZones;
 const zIndex = 1000;
-const animationDuration = 3000;
+const showZoneClass = 'show-wz';
 
 export class DevTools {
+    Res = {};
+
     /**
      * Initialize the DevTools widget functionality: Create the widget zone menu and set up event listeners.
      */
-    initialize(translations) {
+    initialize(canToggleVisibilityInitially) {
         widgetZones = [];
         let wzMenu = $(widgetZoneMenuId);
 
         let wzMenuToggle = $('#wz-menu-toggle');
         wzMenuToggle.css('z-index', zIndex);
 
-        console.log($(".sticky-bottom").length);
+        let persistentToggleButton = wzMenu.find('.wz-toggle[data-persistent]');
+        let temporaryToggleButton = wzMenu.find('.wz-toggle:not([data-persistent])').first();
+        persistentToggleButton.data('persistent', canToggleVisibilityInitially);
 
-        applyCommonPlugins($(".sticky-bottom"));
+        // Make sure tooltips are displayed on offcanvas.
+        $('#wz-toolbar [data-toggle="tooltip"]').tooltip({
+            trigger: 'hover',
+            placement: 'top',
+            container: '#wz-toolbar'
+        });
+
+        // Hide menu toggle button to show the menu.
+        wzMenuToggle.on('click', (e) => {
+            wzMenuToggle.addClass('hide');
+        });
 
         // Add widget zone menu close button.
-        wzMenu.on('clicK', '.wz-sidebar-close', (e) => {
+        wzMenu.on('click', '.wz-sidebar-close', (e) => {
             e.preventDefault();
-            wzMenuToggle.click();
+            wzMenuToggle.click().removeClass('hide');
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
             return false;
         });
 
@@ -33,64 +48,69 @@ export class DevTools {
         });
 
         // Jump to the zone.
-        wzMenu.on("click", ".wz-zone-pointer", function (e) {
+        wzMenu.on("click", ".wz-zone-pointer", (e) => {
             e.preventDefault();
 
-            let wzName = $(this).text();
-            let widetzones = document.querySelectorAll('span[title="' + wzName + '"]');
+            wzMenu.find(".wz-zone-pointer-container.active").removeClass('active');
+            $(e.currentTarget).parent().addClass('active');
 
-            if (widetzones) {
-                widetzones.forEach((wz, index) => {
-                    let wzPreview = $(wz);
-                    let wzIsHidden = wzPreview.hasClass('d-none');
+            let wzName = $(e.currentTarget).text();
+            let widetzones = $('span[title="' + wzName + '"]');
 
-                    // If multiple widget zones with the same name exist, we scroll to the first one.
-                    if (index == 0) {
-                        wzMenu.css('opacity', 0.5);
+            if (widetzones.length > 0) {
+                let wzFirstPreview = widetzones.first();
+                let wzIsHidden = wzFirstPreview.hasClass('d-none');
+
+                if (wzIsHidden) {
+                    // Must be visible to scroll to it.
+                    widetzones.removeClass('d-none');
+                }
+
+                // Save scroll position.
+                // let scrollTop = $(window).scrollTop();
+                // let scrollLeft = $(window).scrollLeft();
+
+                // Scroll to widget zone and add highlight.
+                this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
+                    widetzones.addClass('wz-highlight');
+                    
+                    setTimeout(() => {
+                        widetzones.removeClass('wz-highlight');
 
                         if (wzIsHidden) {
-                            // Must be visible to scroll to it.
-                            wzPreview.removeClass('d-none');
+                            wzFirstPreview.addClass('d-none');
                         }
-                        // Scroll to widget zone.
-                        wz.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
 
-                        setTimeout(() => {
-                            wzMenu.css('opacity', 1);
-                        }, animationDuration);
-                    }
-
-                    wzPreview.addClass('wz-highlight');
-
-                    setTimeout(() => {
-                        wzPreview.removeClass('wz-highlight');
-                    }, animationDuration);
-
-                    if (wzIsHidden) {
-                        wzPreview.addClass('d-none');
-                    }
+                        // Restore scroll position.
+                        // window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "smooth" });
+                    }, 2400);
                 });
             }
         });
 
         // Add toggle buttons to widget zone menu.
-        wzMenu.on("click", ".wz-toggle", (e) => {
+        // Persistent toggle button.
+        wzMenu.on("click", ".wz-toggle[data-persistent]", (e) => {
             e.preventDefault();
 
-            let wzToggleButton = $(e.currentTarget);
-            let isPersistent = wzToggleButton.data('persistent');
+            let canToggleVisibility = !persistentToggleButton.data('persistent');
 
-            if (isPersistent) {
-                // Set both buttons to the same state.
-                let isVisible = !wzToggleButton.find('i').hasClass('fa-eye');
-                wzMenu.find('.wz-toggle i').removeClass('fa-eye fa-eye-slash').addClass('fa-eye' + (isVisible ? '' : '-slash'));
-            }
-            else
-            {
-                wzToggleButton.find('i').toggleClass('fa-eye fa-eye-slash');
+            // Save state in a cookie if requested.
+            document.cookie = '.Smart.WZVisibility=' + canToggleVisibility + '; path=/; max-age=31536000; SameSite=Lax';
+
+            // Refresh page.
+            window.location.reload();
+        });
+
+        // Temporary toggle button.
+        wzMenu.on("click", ".wz-toggle:not([data-persistent])", (e) => {
+            e.preventDefault();
+
+            if (persistentToggleButton.data('persistent')) {
+                $(e.currentTarget).toggleClass(showZoneClass);
             }
 
-            this.toggleAllZones(isPersistent);
+            this.setVisibilityForAllZones(temporaryToggleButton.hasClass(showZoneClass));
         });
 
         // Add event listener to copy widget zone name to clipboard.
@@ -123,8 +143,9 @@ export class DevTools {
 
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
-            .append('<div class="d-flex pt-2 gap-2"><a href="#" class="wz-zone-pointer flex-grow-1 text-primary text-decoration-none text-break">' + zone.name
-            + '</a><a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '"><i class="far fa-copy"></i><a></div>')
+            .append('<div class="wz-zone-pointer-container"><a href="#" class="wz-zone-pointer text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
+                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
+                '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
 
@@ -152,16 +173,59 @@ export class DevTools {
     }
 
     /**
-     * Toggles the visibility of all widget zones. If saveInCookie is true, the state will be saved in a cookie.
+     * Sets the visibility of all widget zones.
      */
-    toggleAllZones(saveInCookie = false) {
+    setVisibilityForAllZones(showZones) {
         const zonePreviews = $(document).find('.wz-preview');
-        zonePreviews.toggleClass('d-none');
 
-        // Save state in a cookie if requested.
-        if (saveInCookie) {
-            let wzState = zonePreviews.hasClass('d-none') ? 'hidden' : 'visible';
-            document.cookie = '.Smart.WZVisibility=' + wzState + '; path=/; max-age=31536000';
+        if (showZones) {
+            zonePreviews.removeClass('d-none');
+            $('#wz-toolbar .wz-invisible').addClass('d-none');
+            $('#wz-toolbar .wz-visible').removeClass('d-none');
         }
+        else
+        {
+            zonePreviews.addClass('d-none');
+            $('#wz-toolbar .wz-invisible').removeClass('d-none');
+            $('#wz-toolbar .wz-visible').addClass('d-none');
+        }
+    }
+
+    /**
+     * Returns a promise to smoothly scroll to an element and resolve.
+     * @param {number} [timeDelay=100] Set the number of milliseconds between the last scroll and resolution.
+     */
+    scrollToElementAndThen(element, timeDelay = 50) {
+        return new Promise((resolve) => {
+
+            // Check whether scrolling is necessary or not.
+            const rect = element.getBoundingClientRect();
+            const isInViewport = (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+
+            if (isInViewport) {
+                resolve();
+            } else {
+                element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+
+                let isScrolling;
+
+                function onScroll() {
+                    window.clearTimeout(isScrolling);
+
+                    // Set a timeout to run after scrolling ends
+                    isScrolling = setTimeout(() => {
+                        window.removeEventListener('scroll', onScroll);
+                        resolve();
+                    }, timeDelay);
+                }
+
+                window.addEventListener('scroll', onScroll);
+            }
+        });
     }
 }

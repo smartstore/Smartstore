@@ -106,6 +106,23 @@ namespace Smartstore.Core.Localization
             int storeId = 0) where TSetting : class, ISettings;
 
         /// <summary>
+        /// Applies a localized property value. The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="localizedProperty">The localized property to be updated. Will be created if <c>null</c>.</param>
+        /// <param name="entityId">The identifier of the entity the localized property belongs to.</param>
+        /// <param name="localeKeyGroup">Locale key group (scope).</param>
+        /// <param name="localeKey">Locale key.</param>
+        /// <param name="value">Localized value.</param>
+        /// <param name="languageId">The language identifier.</param>
+        void ApplyLocalizedValue(
+            LocalizedProperty localizedProperty,
+            int entityId,
+            string localeKeyGroup,
+            string localeKey,
+            object value,
+            int languageId);
+
+        /// <summary>
         /// Clears the value cache completely.
         /// </summary>
         Task ClearCacheAsync();

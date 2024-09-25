@@ -10,24 +10,23 @@ using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Domain;
-using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
     internal class SwaggerOperationHelper
     {
-        private static readonly string[] _descriptionsToReplace = new[]
-        {
+        private static readonly string[] _descriptionsToReplace =
+        [
             "Success", "No Content", "Bad Request", "Not Found", "Client Error"
-        };
+        ];
 
         private static readonly Dictionary<int, string> _statusDescriptions = new()
         {
             { Status200OK, "The request has succeeded." },
             { Status204NoContent, "The request has succeeded. There is no content provided." },
             { Status400BadRequest, "Bad request. The reason is assumed to be a client error, like incorrect data, data formatting or request syntax." },
-            { Status401Unauthorized, $"Unauthorized API request. The exact reason is provided by the **{BasicAuthenticationHandler.ResultDescriptionHeader}** response header." },
+            { Status401Unauthorized, $"Unauthorized API request." },
             { Status404NotFound, "The requested resource was not found." },
             { Status409Conflict, "The request failed due to a conflict. The most common cause of this failure is a concurrency violation at the related entity." },
             { Status415UnsupportedMediaType, "The request failed due to an unsupported content type." },

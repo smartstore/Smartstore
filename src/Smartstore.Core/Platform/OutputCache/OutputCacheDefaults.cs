@@ -14,29 +14,29 @@
         public static string SearchRoute { get; } = "Search/Search";
         public static string TopicDetailsRoute { get; } = "Topic/TopicDetails";
 
-        public static string[] AllProductListsRoutes { get; } = new[] 
-        { 
+        public static string[] AllProductListsRoutes { get; } =
+        [
             CategoryRoute, 
             ManufacturerRoute, 
             ProductsByTagRoute, 
             RecentlyAddedProductsRoute
-        };
+        ];
 
-        public static string[] AllProductListsWithRssRoutes { get; } = new[]
-        {
+        public static string[] AllProductListsWithRssRoutes { get; } =
+        [
             CategoryRoute,
             ManufacturerRoute,
             ProductsByTagRoute,
             RecentlyAddedProductsRoute,
             RecentlyAddedProductsRssRoute
-        };
+        ];
 
-        public static string[] AllProductListsWithSearchFiltersRoutes { get; } = new[]
-        {
+        public static string[] AllProductListsWithSearchFiltersRoutes { get; } =
+        [
             CategoryRoute,
             ManufacturerRoute,
             ProductsByTagRoute,
             SearchRoute
-        };
+        ];
     }
 }

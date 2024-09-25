@@ -1,7 +1,7 @@
 ﻿@using Smartstore.Core.Catalog
-@using Smartstore.Core.Catalog.Products 
+@using Smartstore.Core.Catalog.Products
 @using Smartstore.Core.Catalog.Pricing
-  
+
 @model CatalogSettingsModel
 
 @{
@@ -336,7 +336,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="DefaultSortOrder">
-                            <select asp-for="DefaultSortOrder" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductSortingEnum))"></select>
+                            <select asp-for="DefaultSortOrder" asp-items="ViewBag.AvailableProductSortings"></select>
                         </setting-editor>
                         <span asp-validation-for="DefaultSortOrder"></span>
                     </div>
@@ -464,6 +464,15 @@
                     <div class="adminData">
                         <setting-editor asp-for="LabelAsNewForMaxDays" sm-postfix="@T("Time.Days")"></setting-editor>
                         <span asp-validation-for="LabelAsNewForMaxDays"></span>
+                    </div>
+                </div>
+                <div id="pnlLabelAsNewByAvailableDate" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LabelAsNewByAvailableDate" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LabelAsNewByAvailableDate"></setting-editor>
+                        <span asp-validation-for="LabelAsNewByAvailableDate"></span>
                     </div>
                 </div>
             </div>
@@ -825,3 +834,14 @@
         </tab>
     </tabstrip>
 </form>
+
+<script sm-target-zone="Scripts" data-origin="catalog-settings">
+    $(function () {
+
+        $('#@Html.IdFor(x => x.LabelAsNewForMaxDays)').change(function () {
+            $('#pnlLabelAsNewByAvailableDate').toggle(!_.isEmpty($(this).val()));
+        })
+        .trigger('change');
+
+    });
+</script>

@@ -68,7 +68,7 @@ namespace Smartstore.Utilities
                 MatchCollection collection = _rgNumberRange.Matches(pattern);
                 foreach (var match in collection.Cast<Match>())
                 {
-                    var split = match.Value.Split(new char[] { '-' });
+                    var split = match.Value.Split(['-']);
                     var min = split[0];
                     var max = split[1];
                     var term = NumberRangeRegexGenerator.Generate(min, max);

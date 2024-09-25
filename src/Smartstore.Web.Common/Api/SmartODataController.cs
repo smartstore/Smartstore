@@ -102,15 +102,8 @@ namespace Smartstore.Web.Api
                 query = queryModifier(query);
             }
 
-            var entity = await query.SingleOrDefaultAsync(x => x.Id == id);
-            if (entity == null)
-            {
-                throw new ODataErrorException(new ODataError
-                {
-                    ErrorCode = StatusCodes.Status404NotFound.ToString(),
-                    Message = $"Cannot find {typeof(TEntity).Name} entity with identifier {id}."
-                });
-            }
+            var entity = await query.SingleOrDefaultAsync(x => x.Id == id) 
+                ?? throw new ODataErrorException(ODataHelper.CreateError($"Cannot find {typeof(TEntity).Name} entity with identifier {id}.", StatusCodes.Status404NotFound));
 
             return entity;
         }
@@ -124,7 +117,7 @@ namespace Smartstore.Web.Api
         /// <returns>Returns zero or one entities.</returns>
         protected SingleResult<TProperty> GetRelatedEntity<TProperty>(int id, Expression<Func<TEntity, TProperty>> navigationProperty, bool tracked = false)
         {
-            Guard.NotNull(navigationProperty, nameof(navigationProperty));
+            Guard.NotNull(navigationProperty);
 
             var query = Entities
                 .ApplyTracking(tracked)
@@ -143,7 +136,7 @@ namespace Smartstore.Web.Api
         /// <returns>Related entities query.</returns>
         protected IQueryable<TProperty> GetRelatedQuery<TProperty>(int id, Expression<Func<TEntity, IEnumerable<TProperty>>> navigationProperty, bool tracked = false)
         {
-            Guard.NotNull(navigationProperty, nameof(navigationProperty));
+            Guard.NotNull(navigationProperty);
 
             var query = Entities
                 .ApplyTracking(tracked)
@@ -155,7 +148,7 @@ namespace Smartstore.Web.Api
 
         //protected async Task<IActionResult> GetPropertyValueAsync(int id, string property)
         //{
-        //    Guard.NotEmpty(property, nameof(property));
+        //    Guard.NotEmpty(property);
 
         //    var values = await Entities
         //        .Where(x => x.Id == id)
@@ -354,7 +347,7 @@ namespace Smartstore.Web.Api
         /// <returns>Dictionary with key property names and values.</returns>
         protected IReadOnlyDictionary<string, object> GetRelatedKeys(Uri uri)
         {
-            Guard.NotNull(uri, nameof(uri));
+            Guard.NotNull(uri);
 
             var feature = HttpContext.ODataFeature();
             //var serviceRoot = new Uri(new Uri(feature.BaseAddress), feature.RoutePrefix);
@@ -511,7 +504,7 @@ namespace Smartstore.Web.Api
         /// </summary>
         protected IEnumerable<TEntity> UnwrapEntityQuery(IQueryable source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             foreach (var item in source)
             {
@@ -559,12 +552,7 @@ namespace Smartstore.Web.Api
                 return ODataErrorResult(oex.Error);
             }
 
-            return ODataErrorResult(new()
-            {
-                ErrorCode = statusCode.ToString(),
-                Message = message ?? ex.Message,
-                InnerError = ex != null ? new ODataInnerError(ex) : null
-            });
+            return ODataErrorResult(ODataHelper.CreateError(message ?? ex.Message, statusCode, ex));                
         }
 
         protected NotFoundODataResult NotFound(int id, string entityName = null)

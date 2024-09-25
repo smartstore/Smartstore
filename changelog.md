@@ -24,6 +24,7 @@
 - **Grouped product enhancements**
   - Optional presentation of associated products as collapsible/expandable panels.
   - Added paging for associated products.
+- **MailChimp** plugin (commercial)
 - **Pixlr image editing** plugin (commercial)
   - Create and edit images directly in the Media Manager.
 - Updated to **.NET 8**
@@ -35,9 +36,10 @@
 - Enhanced database optimization and vacuum operations
 - Vacuum single database table
 - #909 Allow to control the product availability based on the existence of an attribute combination.
+- New catalog setting to label products as *new* by the availability start date.
 - MegaSearch
   - Setting to place the search hits of unavailable products further back in the search list.
-  - Added product meta keywords to the search index.
+  - Finding products by keywords (e.g. product compatibility list). Also added product meta keywords to the search index.
   - Added price calculation options for the price to be indexed.
 - Affiliates
   - #896 Added a cart rule for affiliates.
@@ -55,6 +57,8 @@
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
 - #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page. 
 - #783 Add a field to shipment entity for the name of the cargo company.
+- #1176 Avoid duplicate assignment of description on the product page.
+- #528 Add an option to no longer allow posts on a forum topic.
 
 ### Improvements
 
@@ -69,9 +73,10 @@
   - Fixed *boxed titles* spacing and line-height issues
 - Web API
   - Enabling CORS.
-  - #928 mask the secret key in backend API user list.
-  - #1057 add endpoints for `WalletHistory` entity.
-  - #929 add endpoints for PageBuilder stories, story blocks and import/export.
+  - #928 Mask the secret key in backend API user list.
+  - #1057 Add endpoints for `WalletHistory` entity.
+  - #929 Add endpoints for PageBuilder stories, story blocks and import/export.
+  - #1175 Add endpoints for `DependingPrices`.
 - Security
   - #886 Replace CoreFTP with FluentFTP.
   - #1004 Add captcha to password recovery form.
@@ -82,7 +87,8 @@
   - Export *out of stock* if inventory management and the buy button are deactivated.
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
 - #968 Allow to specify a language in which the notification is to be sent for manually created gift cards.
-- #1115 Use atomic transaction in PlaceOrder (save all or nothing)
+- #1115 Use atomic transaction in PlaceOrder (save all or nothing).
+- #1158 Natural sorting for product attributes.
 - Added meta properties name and uploadDate for videos
 - (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
 - #965 Prevent adding of products to the shopping cart by system customers such as *builtin@search-engine-record.com*.
@@ -99,6 +105,8 @@
 - Enable tokens (e.g. current date and time) for email subject in email export deployments.
 - PostFinance: added an order note with the selected payment method.
 - Customer import: providing a last name in an address should not be mandatory.
+- URL sanitizer for last visited page tracking.
+- For security reasons, do not delete administrators via the customer grid. Double ask if administrators are deleted via the edit page.
 
 ### Bugfixes
 
@@ -116,6 +124,8 @@
   - Fixed `InvalidOperationException` when adding a required product to cart that is already on the wishlist.
   - Fixed the validation of required products was missing if they were not automatically added to the shopping cart.
 - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
+- Fixed mini shopping cart displayed large placeholder images if the cart setting for bundle item images was deactivated.
+- Fixed cart settings for images on wishlist were always ignored.
 - Fixed the discount amount of an order can have an incorrect value if a discount rule was applied during the subtotal calculation.
 - #957 Fixed prices should not be hidden if the *Access Shopping Cart* permission has not been granted.
 - Fixed tier prices of product bundles were not taken into account in product lists if the lowest possible price is to be displayed.
@@ -139,6 +149,7 @@
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
   - #991 topic target *homepage* was not imported correctly.
+  - #938 Story is published in Page Builder editor.
 - Forum:
   - #951 The forum post page counter is always incremented by 2 when the page is opened.
   - Fixed HTML links are not displayed in posts.
@@ -174,6 +185,9 @@
 - #1136 Datagrid Vue component throws when expanding child grid.
 - #1125 Buttons for payment methods that are restricted by cart rule to the subtotal amount are not shown/hidden when the item quantity is updated on the cart page.
 - Delete media tracks of variant values of permanent deleted products.
+- Show soft-deleted products on order edit page and in order details.
+- Fixed duplicate minus signs for amounts on the order detail page.
+- Category and manufacturer pages show "Relevance" as sorting, although only "Featured" is offered in the selection.
 
 
 ## Smartstore 5.1.0

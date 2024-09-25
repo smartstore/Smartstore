@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -52,23 +51,5 @@ namespace Smartstore.Core.Checkout.Orders
 
         public int OldRewardPoints { get; set; }
         public int NewRewardPoints { get; set; }
-
-        public string ToString(ILocalizationService localizationService)
-        {
-            if (Inventory == null && OldRewardPoints == 0 && NewRewardPoints == 0)
-                return string.Empty;
-
-            string stockOld = null;
-            string stockNew = null;
-
-            if (Inventory != null && Inventory.HasClearStockQuantityResult)
-            {
-                stockOld = Inventory.StockQuantityOld.ToString();
-                stockNew = Inventory.StockQuantityNew.ToString();
-            }
-
-            return localizationService.GetResource("Admin.Orders.OrderItem.Update.Info")
-                .FormatInvariant(stockOld.NaIfEmpty(), stockNew.NaIfEmpty(), OldRewardPoints, NewRewardPoints);
-        }
     }
 }

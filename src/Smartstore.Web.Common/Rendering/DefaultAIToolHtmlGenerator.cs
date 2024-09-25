@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Autofac;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
@@ -16,6 +17,7 @@ namespace Smartstore.Web.Rendering
         private readonly IAIProviderFactory _aiProviderFactory;
         private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
+        private readonly IWorkContext _workContext;
         private IHtmlHelper _htmlHelper;
         private ViewContext _viewContext;
 
@@ -23,12 +25,14 @@ namespace Smartstore.Web.Rendering
             SmartDbContext db,
             IAIProviderFactory aiProviderFactory,
             ModuleManager moduleManager, 
-            IUrlHelper urlHelper)
+            IUrlHelper urlHelper,
+            IWorkContext workContext)
         {
             _db = db;
             _aiProviderFactory = aiProviderFactory;
             _moduleManager = moduleManager;
             _urlHelper = urlHelper;
+            _workContext = workContext;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -113,7 +117,7 @@ namespace Smartstore.Web.Rendering
             var inputGroupColDiv = CreateDialogOpener(true);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu ai-translator-menu";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
 
             foreach (var provider in providers)
             {
@@ -138,7 +142,7 @@ namespace Smartstore.Web.Rendering
                     //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
 
                     var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
-                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, true, additionalClasses);
+                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
 
                     var attrs = dropdownLi.Attributes;
                     attrs["data-provider-systemname"] = provider.Metadata.SystemName;
@@ -157,7 +161,7 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool hasContent)
+        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
         {
             CheckContextualized();
 
@@ -170,7 +174,7 @@ namespace Smartstore.Web.Rendering
             var inputGroupColDiv = CreateDialogOpener(true);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
             // Create a button group for the providers. If there is only one provider, hide the button group.
             // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases,
@@ -209,61 +213,82 @@ namespace Smartstore.Web.Rendering
 
             btnGroupLi.InnerHtml.AppendHtml(btnGroupDiv);
             dropdownUl.InnerHtml.AppendHtml(btnGroupLi);
-            CreateTextCreationOptionsDropdown(hasContent, dropdownUl);
+            dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
         }
 
-        /// <summary>
-        /// Adds simple text creation option menu items to the dropdown.
-        /// </summary>
-        /// <param name="hasContent">Indicates whether the target property already has content. If it has we can offer options like: summarize, optimize etc.</param>
-        /// <param name="dropdownUl">The UL tag to which the items are  appended.</param>
-        private void CreateTextCreationOptionsDropdown(bool hasContent, TagBuilder dropdownUl)
+        public IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
         {
-            // Create new always is enabled.
-            var builder = dropdownUl.InnerHtml;
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.CreateNew"), true, "create-new", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Summarize"), hasContent, "summarize", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Improve"), hasContent, "improve", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Simplify"), hasContent, "simplify", false, "ai-text-composer"));
-            builder.AppendHtml(CreateDropdownItem(T("Admin.AI.TextCreation.Extend"), hasContent, "extend", false, "ai-text-composer"));
+            var builder = new HtmlContentBuilder();
+            var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
+            var resRoot = "Admin.AI.TextCreation.";
+
+            if (!forChatDialog)
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            }
+
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
             // Add "Change style" & "Change tone" options from module settings.
-            AddMenuItemsFromSetting(dropdownUl, hasContent, "change-style");
-            AddMenuItemsFromSetting(dropdownUl, hasContent, "change-tone");
+            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
+            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
+
+            if (styleDropdown != null || toneDropdown != null)
+            {
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+                builder.AppendHtml(styleDropdown);
+                builder.AppendHtml(toneDropdown);
+            }
+
+            return builder;
         }
 
         /// <summary>
-        /// Adds menu items from module settings to the dropdown.
+        /// Creates a sub-dropdown for text creation styles an tones.
         /// </summary>
-        /// <param name="dropdownUl">The dropdown to append items to.</param>
-        /// <param name="hasContent">Defines whether the target field has a value. If there is no value to manipulate the items will be displayed disabled.</param>
         /// <param name="command">The command type choosen by the user. It can be "change-style" or "change-tone".</param>
-        private void AddMenuItemsFromSetting(TagBuilder dropdownUl, bool hasContent, string command)
+        private TagBuilder AddMenuItemsFromSetting(bool enabled, string command, string additionalClasses, string iconName = null)
         {
-            var settingName = command == "change-style" ? "AISettings.AvailableTextCreationStyles" : "AISettings.AvailableTextCreationTones";
-            var setting = _db.Settings.FirstOrDefault(x => x.Name == settingName);
-            if (setting != null && setting.Value.HasValue())
+            const string keyGroup = "AISettings";
+            var settingName = command == "change-style" ? "TextCreationStyles" : "TextCreationTones";
+
+            // INFO: These settings are not store-dependent (storeId is always 0).
+            var settingValue = _db.LocalizedProperties
+                .Where(x => x.LocaleKey == settingName && x.LocaleKeyGroup == keyGroup && x.LanguageId == _workContext.WorkingLanguage.Id)
+                .Select(x => x.LocaleValue)
+                .FirstOrDefault();
+
+            settingValue ??= _db.Settings
+                .Where(x => x.Name == keyGroup + '.' + settingName)
+                .Select(x => x.Value)
+                .FirstOrDefault();
+
+            var options = settingValue.SplitSafe(',').ToArray();
+            if (options.IsNullOrEmpty())
             {
-                var title = T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone");
-                var providerDropdownItemLi = CreateDropdownItem(title);
-                providerDropdownItemLi.Attributes["class"] = "dropdown-group";
-
-                var settingsUl = new TagBuilder("ul");
-                settingsUl.Attributes["class"] = "dropdown-menu";
-                
-                var options = setting?.Value?.Split([','], StringSplitOptions.RemoveEmptyEntries) ?? [];
-
-                foreach (var option in options)
-                {
-                    settingsUl.InnerHtml.AppendHtml(CreateDropdownItem(option, hasContent, command, false, "ai-text-composer"));
-                }
-
-                providerDropdownItemLi.InnerHtml.AppendHtml(settingsUl);
-                dropdownUl.InnerHtml.AppendHtml(providerDropdownItemLi);
+                return null;
             }
+
+            var optionsList = new TagBuilder("ul");
+            optionsList.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+
+            foreach (var option in options)
+            {
+                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, iconName, false, additionalClasses));
+            }
+
+            var subDropdown = CreateDropdownItem(T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"));
+            subDropdown.Attributes["class"] = "dropdown-group";
+            subDropdown.InnerHtml.AppendHtml(optionsList);
+
+            return subDropdown;
         }
 
         public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
@@ -335,13 +360,13 @@ namespace Smartstore.Web.Rendering
             {
                 var inputGroupColDiv = CreateDialogOpener(true);
                 var dropdownUl = new TagBuilder("ul");
-                dropdownUl.Attributes["class"] = "dropdown-menu";
+                dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
                 foreach (var provider in providers)
                 {
                     var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                     var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
-                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, true, additionalClasses);
+                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, null, true, additionalClasses);
 
                     MergeDataAttributes(dropdownLi, provider, attributes, dialogType);
 
@@ -435,14 +460,14 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener icon.</returns>
         private TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", false, htmlAttributes: new Dictionary<string, object>
+            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", htmlAttributes: new Dictionary<string, object>
             {
                 ["class"] = "dropdown-icon bi-fw bi"
             });
 
             var btnTag = new TagBuilder("a");
             btnTag.Attributes["href"] = "javascript:;";
-            btnTag.Attributes["class"] = "btn btn-icon btn-flat btn-sm rounded-circle btn-outline-secondary input-group-icon ai-dialog-opener no-chevron";
+            btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron";
             btnTag.AppendCssClass(isDropdown ? "dropdown-toggle" : additionalClasses);
 
             if (isDropdown)
@@ -464,8 +489,8 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="menuText">The text for the menu item.</param>
         /// <returns>A LI tag representing the menu item.</returns>
-        private static TagBuilder CreateDropdownItem(string menuText)
-            => CreateDropdownItem(menuText, true, string.Empty, false);
+        private TagBuilder CreateDropdownItem(string menuText)
+            => CreateDropdownItem(menuText, true, string.Empty, null, false);
 
         /// <summary>
         /// Creates a dropdown item.
@@ -473,42 +498,51 @@ namespace Smartstore.Web.Rendering
         /// <param name="menuText">The text for the menu item.</param>
         /// <param name="enabled">Defines whether the menu item is enabled.</param>
         /// <param name="command">The command of the menu item (needed for optimize commands for simple text creation)</param>
+        /// <param name="iconName">The optional name of a Bootstrap SVG icon. Can be null.</param>
         /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
         /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
-        /// <returns>A LI tag representing the menu item.</returns>
-        private static TagBuilder CreateDropdownItem(
+        /// <returns>An LI tag representing the menu item.</returns>
+        private TagBuilder CreateDropdownItem(
             string menuText,
             bool enabled,
             string command,
+            string iconName,
             bool isProviderTool,
             params string[] additionalClasses)
         {
-            var listItem = new TagBuilder("li");
+            var li = new TagBuilder("li");
             if (isProviderTool)
             {
-                listItem.Attributes["class"] = "ai-provider-tool";
+                li.Attributes["class"] = "ai-provider-tool";
             }
 
-            var dropdownItem = new TagBuilder("a");
-            dropdownItem.Attributes["href"] = "#";
-            dropdownItem.Attributes["class"] = "dropdown-item";
+            var a = new TagBuilder("a");
+            a.Attributes["href"] = "#";
+            a.Attributes["class"] = "dropdown-item";
 
             if (!enabled)
             {
-                dropdownItem.AppendCssClass("disabled");
+                a.AppendCssClass("disabled");
             }
 
-            additionalClasses.Each(dropdownItem.AppendCssClass);
+            additionalClasses.Each(x => a.AppendCssClass(x));
 
             if (command.HasValue())
             {
-                dropdownItem.Attributes["data-command"] = command;
+                a.Attributes["data-command"] = command;
             }
 
-            dropdownItem.InnerHtml.AppendHtml(menuText);
-            listItem.InnerHtml.AppendHtml(dropdownItem);
+            if (iconName.HasValue())
+            {
+                var svg = HtmlHelper.BootstrapIcon(iconName, htmlAttributes: new { @class = "bi-fw" });
+                a.InnerHtml.AppendHtml(svg);
+            }
 
-            return listItem;
+            a.InnerHtml.AppendHtml(menuText);
+
+            li.InnerHtml.AppendHtml(a);
+
+            return li;
         }
 
         private void CheckContextualized()

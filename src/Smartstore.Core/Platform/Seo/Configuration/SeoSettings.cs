@@ -44,6 +44,27 @@ namespace Smartstore.Core.Seo
         Disallow
     }
 
+    /// <summary>
+    /// Represents the prioritization of the schema.org description tag on product pages.
+    /// </summary>
+    public enum ProductDescriptionPriority
+    {
+        /// <summary>
+        /// Use the product's full description, if available.
+        /// </summary>
+        FullDescription = 0,
+
+        /// <summary>
+        /// Use the product's short description, if available.
+        /// </summary>
+        ShortDescription = 1,
+
+        /// <summary>
+        /// Use both the product's short and full description.
+        /// </summary>
+        Both = 2
+    }
+
     public class SeoSettings : ISettings
     {
         public static ISet<string> DefaultRobotDisallows { get; } = new HashSet<string>
@@ -97,6 +118,8 @@ namespace Smartstore.Core.Seo
         public string MetaKeywords { get; set; } = string.Empty;
 
         public string MetaRobotsContent { get; set; }
+
+        public ProductDescriptionPriority ProductDescriptionPriority { get; set; } = ProductDescriptionPriority.FullDescription;
 
         public bool ConvertNonWesternChars { get; set; } = true;
         public bool AllowUnicodeCharsInUrls { get; set; }

@@ -6,8 +6,10 @@
 
 @{
     var sourceResult = Model?.SourceResult;
-    if (sourceResult == null)
+    if (sourceResult == null ||
+        (Model.PagedList.TotalCount == 0 && !sourceResult.Facets.Any(x => x.Value.SelectedFacets.Any())))
     {
+        // INFO: If there is no search hit and no filter applied, nothing should be displayed here, not even via widget zones.
         return;
     }
 

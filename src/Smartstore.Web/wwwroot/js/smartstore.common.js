@@ -297,11 +297,18 @@
     };
 
     window.connectCopyToClipboard = function (selector) {
-        $(selector).tooltip({
+        const btn = $(selector);
+
+        if (btn.data('copy-connected')) {
+            return;
+        }
+
+        btn.tooltip({
             boundary: 'window',
             placement: "top",
             trigger: 'hover',
-            title: Res['Common.CopyToClipboard']
+            title: Res['Common.CopyToClipboard'],
+            container: btn.attr('data-container') || false
         }).on('click', function (e) {
             e.preventDefault();
             let btn = $(this);
@@ -317,7 +324,7 @@
                             text = copyFrom.val();
                         }
                         else {
-                            text = copyFrom.text();
+                            text = copyFrom.html();
                         }
                     }
                 }
@@ -335,7 +342,7 @@
             }
 
             return false;
-        });
+        }).data('copy-connected', true);
     };
 
     window.getImageSize = function (url, callback) {

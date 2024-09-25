@@ -19,7 +19,7 @@
                 {
                     case AttributeControlType.DropdownList:
                         {
-                            <select name="@(controlId)" id="@(controlId)">
+                            <select name="@controlId" id="@controlId">
                                 <option sm-if="!attribute.IsRequired" value="0">---</option>
                                 @foreach (var value in attribute.Values)
                                 {
@@ -34,24 +34,25 @@
                         {
                             foreach (var value in attribute.Values)
                             {
+                                var checkId = controlId + "_" + value.Id;
                                 <div class="form-check">
-                                    <input id="@(controlId)" name="@(controlId)" class="form-check-input"
+                                    <input id="@checkId" name="@controlId" class="form-check-input"
                                            attr-checked='(value.IsPreSelected, "checked")'
                                            type="@(attribute.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio")"
                                            value="@value.Id" />
-                                    <label for="@(controlId)" class="form-check-label">@value.Name</label>
+                                    <label for="@checkId" class="form-check-label">@value.Name</label>
                                 </div>
                             }
                         }
                         break;
                     case AttributeControlType.TextBox:
                         {
-                            <input name="@(controlId)" type="text" id="@(controlId)" class="form-control" />
+                            <input name="@controlId" type="text" id="@controlId" class="form-control" />
                         }
                         break;
                     case AttributeControlType.MultilineTextbox:
                         {
-                            <textarea id="@(controlId)" name="@(controlId)" rows="6" class="form-control"></textarea>
+                            <textarea id="@controlId" name="@controlId" rows="6" class="form-control"></textarea>
                         }
                         break;
                     case AttributeControlType.Datepicker:
@@ -65,7 +66,7 @@
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            <input type="file" id="@(controlId)" name="@(controlId)" />
+                            <input type="file" id="@controlId" name="@controlId" />
                         }
                         break;
                 }

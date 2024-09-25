@@ -21,9 +21,7 @@
                 mediaFolder: tool.data('media-folder')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Text creation
@@ -39,26 +37,33 @@
                 tool = el.closest(".ai-dialog-opener-root").find("button.active");
             }
 
+            if (tool.length === 0) {
+                return;
+            }
+
             let params = {
                 providerSystemName: tool.data('provider-systemname'),
                 entityName: tool.data('entity-name'),
                 Type: tool.data('entity-type'),
-                targetProperty: tool.data('target-property')
+                targetProperty: tool.data('target-property'),
+                charLimit: tool.data('char-limit')
             };
 
             if (!isRichText) {
+                const cmd = el.data('command');
                 Object.assign(params, {
                     // INFO: This is the optimization command of the clicked item.
                     optimizationCommand: el.data('command'),
                     // INFO: This is important for change style and tone items. We must know how to change the present text. 
                     // For command "change-style" e.g.professional, casual, friendly, etc.
-                    changeParameter: el.text(),
+                    changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
                     displayWordLimit: tool.data('display-word-limit'),
                     displayStyle: tool.data('display-style'),
                     displayTone: tool.data('display-tone'),
                     displayOptimizationOptions: tool.data('display-optimization-options')
                 });
-            } else {
+            }
+            else {
                 Object.assign(params, {
                     entityId: tool.data('entity-id'),
                     displayAdditionalContentOptions: tool.data('display-additional-content-options'),
@@ -68,9 +73,7 @@
                 });
             }
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: isRichText, flex: true, url: url });
+            openDialog(tool, params, isRichText);
         });
 
         // Prevent dropdown from closing when a provider is choosen.
@@ -100,9 +103,7 @@
                 ModalTitle: tool.data('modal-title')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: true, flex: true, url: url });
+            openDialog(tool, params, true);
         });
 
         // Suggestion
@@ -116,12 +117,11 @@
                 providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 type: tool.data('entity-type'),
-                mandatoryEntityFields: tool.data('mandatory-entity-fields')
+                mandatoryEntityFields: tool.data('mandatory-entity-fields'),
+                charLimit: tool.data('char-limit')
             };
 
-            let url = getDialogUrl(tool.data('modal-url'), params);
-
-            openPopup({ large: false, flex: true, url: url });
+            openDialog(tool, params, false);
         });
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
@@ -156,6 +156,16 @@
             // TODO: On summernote init shift ai-opener below toolbar.
         });
     });
+
+    function openDialog(opener, params, large) {
+        openPopup({
+            url: getDialogUrl(opener.data('modal-url'), params),
+            large: large,
+            flex: true,
+            backdrop: 'static',
+            scrollable: false
+        });
+    }
 
     function getDialogUrl(baseUrl, params) {
         let queryString = _.map(params, (value, key) => {

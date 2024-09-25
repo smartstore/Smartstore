@@ -55,7 +55,8 @@
                              entity-name="@Model.Name"
                              entity-type="Product"
                              display-optimization-options="false"
-                             display-word-limit="false">
+                             display-word-limit="false"
+                             char-limit="400">
                         <input asp-for="MetaTitle" />
                     </ai-text>
                     <span asp-validation-for="MetaTitle"></span>
@@ -70,7 +71,8 @@
                              entity-name="@Model.Name"
                              entity-type="Product"
                              display-optimization-options="false"
-                             display-word-limit="false">
+                             display-word-limit="false"
+                             char-limit="4000">
                         <textarea asp-for="MetaDescription"></textarea>
                     </ai-text>
                     <span asp-validation-for="MetaDescription"></span>
@@ -85,7 +87,8 @@
                              entity-name="@Model.Name"
                              entity-type="Product"
                              display-optimization-options="false"
-                             display-word-limit="false">
+                             display-word-limit="false"
+                             char-limit="400">
                         <input asp-for="MetaKeywords" />
                     </ai-text>
                     <span asp-validation-for="MetaKeywords"></span>

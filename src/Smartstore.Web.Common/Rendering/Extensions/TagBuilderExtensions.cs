@@ -5,24 +5,28 @@ namespace Smartstore.Web.Rendering
 {
     public static class TagBuilderExtensions
     {
-        public static void AppendCssClass(this TagBuilder builder, Func<string> cssClass)
+        public static TagBuilder AppendCssClass(this TagBuilder builder, Func<string> cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass(), false);
+            return builder;
         }
 
-        public static void PrependCssClass(this TagBuilder builder, Func<string> cssClass)
+        public static TagBuilder PrependCssClass(this TagBuilder builder, Func<string> cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass(), true);
+            return builder;
         }
 
-        public static void AppendCssClass(this TagBuilder builder, string cssClass)
+        public static TagBuilder AppendCssClass(this TagBuilder builder, string cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass, false);
+            return builder;
         }
 
-        public static void PrependCssClass(this TagBuilder builder, string cssClass)
+        public static TagBuilder PrependCssClass(this TagBuilder builder, string cssClass)
         {
             builder.Attributes.AddInValue("class", ' ', cssClass, true);
+            return builder;
         }
 
         /// <summary>
@@ -36,8 +40,8 @@ namespace Smartstore.Web.Rendering
 
         public static void AddCssStyle(this TagBuilder builder, string expression, object value)
         {
-            Guard.NotEmpty(expression, nameof(expression));
-            Guard.NotNull(value, nameof(value));
+            Guard.NotEmpty(expression);
+            Guard.NotNull(value);
 
             var style = expression + ": " + Convert.ToString(value, CultureInfo.InvariantCulture);
 
@@ -53,7 +57,7 @@ namespace Smartstore.Web.Rendering
 
         public static void AddCssStyles(this TagBuilder builder, string styles)
         {
-            Guard.NotEmpty(styles, nameof(styles));
+            Guard.NotEmpty(styles);
 
             if (builder.Attributes.TryGetValue("style", out var str))
             {
@@ -78,8 +82,8 @@ namespace Smartstore.Web.Rendering
 
         public static bool MergeAttribute(this TagBuilder builder, string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
         {
-            Guard.NotEmpty(key, nameof(key));
-            Guard.NotNull(valueAccessor, nameof(valueAccessor));
+            Guard.NotEmpty(key);
+            Guard.NotNull(valueAccessor);
 
             if (replaceExisting || !builder.Attributes.ContainsKey(key))
             {

@@ -72,9 +72,9 @@ namespace Smartstore.Core.OutputCache
             Expression<Func<TSetting, object>> propertyAccessor,
             Func<IOutputCacheProvider, Task> invalidationAction) where TSetting : ISettings
         {
-            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
+            Guard.NotNull(propertyAccessor);
 
-            var key = TypeHelper.NameOf<TSetting>(propertyAccessor, true);
+            var key = TypeHelper.NameOf(propertyAccessor, true);
             observer.ObserveSetting(key, invalidationAction);
         }
     }

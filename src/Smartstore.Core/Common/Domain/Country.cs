@@ -51,17 +51,17 @@ namespace Smartstore.Core.Common
         public bool AllowsShipping { get; set; }
 
         /// <summary>
-        /// Gets or sets the two letter ISO code
+        /// Gets or sets the two letter ISO 3166 code.
         /// </summary>
         public string TwoLetterIsoCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the three letter ISO code
+        /// Gets or sets the three letter ISO 3166 code.
         /// </summary>
         public string ThreeLetterIsoCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the numeric ISO code
+        /// Gets or sets the numeric ISO 3166 code.
         /// </summary>
         public int NumericIsoCode { get; set; }
 

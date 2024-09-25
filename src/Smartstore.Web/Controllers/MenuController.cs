@@ -114,8 +114,12 @@ namespace Smartstore.Web.Controllers
 
         private static object ConvertNodeId(string source)
         {
-            int? intId = int.TryParse(source, out var id) ? id : null;
-            return intId.HasValue ? intId.Value : source;
+            if (int.TryParse(source, out var id))
+            {
+                return id;
+            }
+
+            return source;
         }
 
         private static bool IsNullNode(object source)

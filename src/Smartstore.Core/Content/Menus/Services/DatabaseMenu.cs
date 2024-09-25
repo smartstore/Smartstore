@@ -223,7 +223,7 @@ namespace Smartstore.Core.Content.Menus
             }
             else
             {
-                entities = Enumerable.Empty<MenuItemEntity>();
+                entities = [];
             }
 
             var tree = await entities.GetTreeAsync("DatabaseMenu", _menuItemProviders);

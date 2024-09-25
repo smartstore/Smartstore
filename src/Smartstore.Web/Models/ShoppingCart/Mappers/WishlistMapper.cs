@@ -70,7 +70,8 @@ namespace Smartstore.Web.Models.Cart
             to.IsEditable = parameters?.IsEditable == true;
             to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
             to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
-
+            to.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnWishList;
+            to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnWishList;
             to.CustomerGuid = from.Customer.CustomerGuid;
             to.CustomerFullname = from.Customer.GetFullName();
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
