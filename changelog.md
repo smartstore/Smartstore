@@ -188,6 +188,7 @@
 - Show soft-deleted products on order edit page and in order details.
 - Fixed duplicate minus signs for amounts on the order detail page.
 - Category and manufacturer pages show "Relevance" as sorting, although only "Featured" is offered in the selection.
+- #234 The combination of multiple choice values (and-combine of checkbox values) is missing when creating all attribute combinations.
 
 
 ## Smartstore 5.1.0
