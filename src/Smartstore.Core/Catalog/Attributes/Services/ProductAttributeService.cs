@@ -369,7 +369,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        class CombinationItem
+        record CombinationItem
         {
             public CombinationItem(int attributeId, params int[] valueIds)
             {
