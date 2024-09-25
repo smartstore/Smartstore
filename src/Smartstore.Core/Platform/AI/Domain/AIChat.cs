@@ -24,7 +24,8 @@ namespace Smartstore.Core.Platform.AI
             => _messages.Count > 0;
 
         // TODO: (mh) (ai) Add more convenience methods for adding messages: User(string), System(string) etc.
-        //        as shortcuts for AddMessages(AIChatMessage.From*()). Refactor callers accordingly.
+        //        as shortcuts for AddMessages(AIChatMessage.From*()). Make the methods fluent so they can be chained (chat.User("").System("")...)
+        //        Refactor callers accordingly.
 
         /// <summary>
         /// Adds messages. Empty messages are not added.

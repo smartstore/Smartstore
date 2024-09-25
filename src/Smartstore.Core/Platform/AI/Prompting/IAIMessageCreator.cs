@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Platform.AI.Prompting
 {
-    // TODO: (mh) (ai) Rename --> IAIChatGenerator (because: no clear distinction between IAIMessageCreator and AIMessageBuilder)
+    // TODO: (mh) (ai) Rename --> IAIPromptGenerator (because: no clear distinction between IAIMessageCreator and AIMessageBuilder)
     // TODO: (mh) (ai) Rename methods --> Build*() --> Generate*()
     /// <summary>
     /// Contract to build <see cref="AIChat"/> based on entity type and underlying model.
