@@ -20,6 +20,7 @@ namespace Smartstore.Caching
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMessageBus _bus;
         private readonly ICollection<string> _keys = new SyncedCollection<string>(new HashSet<string>());
+        private readonly Lock _syncLock = new();
 
         private MemoryCache _cache;
 
@@ -308,7 +309,7 @@ namespace Smartstore.Caching
 
         public virtual long RemoveByPattern(string pattern)
         {
-            lock (_cache)
+            lock (_syncLock)
             {
                 // Lock atomic operation
                 var keysToRemove = Keys(pattern);
@@ -331,7 +332,7 @@ namespace Smartstore.Caching
         {
             if (pattern.IsEmpty() || pattern == "*")
             {
-                return _keys.ToArray();
+                return [.. _keys];
             }
 
             var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);

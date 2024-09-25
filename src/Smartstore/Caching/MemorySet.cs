@@ -40,7 +40,7 @@ namespace Smartstore.Caching
         /// <summary>
         /// Object for locking during deletion
         /// </summary>
-        private readonly object _clearLock = new();
+        private readonly Lock _clearLock = new();
 
         public MemorySet(ICacheStore cache, bool preserveOrder = false)
             : this(cache, null, preserveOrder)
