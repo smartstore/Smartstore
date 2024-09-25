@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [debian-latest, windows-latest]
     permissions:
       contents: read
       packages: write
@@ -43,7 +43,7 @@ jobs:
       run: dotnet test Smartstore.sln -c Release --no-restore --no-build
     
     - name: Log in to the GitHub Container registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
