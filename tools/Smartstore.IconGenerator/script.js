@@ -1,3 +1,17 @@
+/* 
+    MC Review:
+    -----------------------------------------------
+    TODO: (mw) Ask for 3 files to compare. Don't hardcode the remote paths. We should be able to compare ANY 3 SVG icon sets.
+    TODO: (mh) Icon boxes must be equal width & height.
+    TODO: (mh) Make icons slightly larger. See https://icons.getbootstrap.com/
+    TODO: (mh) Place labels below icon boxes.
+    TODO: (mh) Use hand cursor on box hover.
+    TODO: (mh) Make the script an ES6 file.
+    TODO: (mh) Make the selected state more "shiny" with more vibrant colors, outline, border etc.
+    TODO: (mh) Implement decent responsiveness.
+
+*/
+
 /*
 	TODO: (mw) Add documentation.
 	TODO: (mw) Put code into module or IIFE for cleaner handling.
@@ -8,6 +22,7 @@
 	TODO: (mw) Alert user on 404 (fetchCode).
 	
 	QUESTION: (mc) Are the three file inputs for 'generic' icon sets necessary, or will this tool only be used to query the main branch of bootstrap and Smartstore's main branch icon sets?
+        RE: We need 3 file inputs to make this tool more generic. We should be able to compare any 3 SVG icon sets.
 
 */
 
