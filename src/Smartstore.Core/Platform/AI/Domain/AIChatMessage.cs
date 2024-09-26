@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Platform.AI
@@ -11,30 +13,36 @@ namespace Smartstore.Core.Platform.AI
     {
         private string? _content;
 
-        public AIChatMessage(string? content, string role, string? name = null)
+        public AIChatMessage(string? content, string role, string? author = null)
         {
             _content = content;
             Role = role;
-            Name = name;
+            Author = author;
         }
 
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.User"/> message.
         /// </summary>
-        public static AIChatMessage FromUser(string? content, string? name = null)
-            => new(content, KnownAIMessageRoles.User, name);
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AIChatMessage FromUser(string? content, string? author = null)
+            => new(content, KnownAIMessageRoles.User, author);
 
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.System"/> message.
         /// </summary>
-        public static AIChatMessage FromSystem(string? content, string? name = null)
-            => new(content, KnownAIMessageRoles.System, name);
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AIChatMessage FromSystem(string? content, string? author = null)
+            => new(content, KnownAIMessageRoles.System, author);
 
         /// <summary>
         /// Creates an <see cref="KnownAIMessageRoles.Assistant"/> message.
         /// </summary>
-        public static AIChatMessage FromAssistant(string? content, string? name = null)
-            => new(content, KnownAIMessageRoles.Assistant, name);
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AIChatMessage FromAssistant(string? content, string? author = null)
+            => new(content, KnownAIMessageRoles.Assistant, author);
 
         /// <summary>
         /// The role of the author of this message. Typically system, user or assistant.
@@ -45,7 +53,7 @@ namespace Smartstore.Core.Platform.AI
         /// The author's name of this message.
         /// May contain a-z, A-Z, 0-9 and underscores with a maximum length of 64 characters.
         /// </summary>
-        public string? Name { get; }
+        public string? Author { get; }
 
         /// <summary>
         /// The message content.
@@ -71,7 +79,7 @@ namespace Smartstore.Core.Platform.AI
             return HashCodeCombiner.Start()
                 .Add(typeof(AIChatMessage))
                 .Add(Role)
-                .Add(Name)
+                .Add(Author)
                 .Add(Content)
                 .CombinedHash;
         }
@@ -95,7 +103,7 @@ namespace Smartstore.Core.Platform.AI
 
             return
                 string.Equals(Role, other.Role) &&
-                string.Equals(Name, other.Name) &&
+                string.Equals(Author, other.Author) &&
                 string.Equals(Content, other.Content);
         }
 

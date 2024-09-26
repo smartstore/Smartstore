@@ -13,24 +13,19 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
         public virtual int Priority => 0;
 
-        /// <inheritdoc/>
         public virtual bool CanHandle(string type)
             => type == Type;
 
-        /// <inheritdoc/>
         public virtual Task<AIChat> GenerateTextChatAsync(IAITextModel model)
-            => Task.FromResult(new AIChat (AIChatMessage.FromUser(_messageBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName))));
+            => Task.FromResult(new AIChat().User(_messageBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName)));
 
-        /// <inheritdoc/>
         public virtual Task<AIChat> GenerateSuggestionChatAsync(IAISuggestionModel model)
-            => Task.FromResult(new AIChat(AIChatMessage.FromUser(_messageBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input))));
+            => Task.FromResult(new AIChat().User(_messageBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input)));
 
-        /// <inheritdoc/>
         public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {
-            var chat = new AIChat();
-
-            chat.AddMessages(AIChatMessage.FromUser(_messageBuilder.Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", model?.EntityName)));
+            var chat = new AIChat()
+                .User(_messageBuilder.Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", model?.EntityName));
 
             // Enhance prompt for image creation from model.
             _messageBuilder.BuildImagePrompt(model, chat);
