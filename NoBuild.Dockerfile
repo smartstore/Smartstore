@@ -7,7 +7,7 @@ ARG ASPNET_TAG=8.0
 FROM mcr.microsoft.com/dotnet/aspnet:${ASPNET_TAG}
 EXPOSE 80
 EXPOSE 443
-ENV ASPNETCORE_URLS "http://+:80;https://+:443"
+ENV ASPNETCORE_URLS="http://+:80;https://+:443"
 
 # Copy
 ARG EDITION=Community

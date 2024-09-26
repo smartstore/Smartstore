@@ -29,7 +29,7 @@ RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 EXPOSE 80
 EXPOSE 443
-ENV ASPNETCORE_URLS "http://+:80;https://+:443"
+ENV ASPNETCORE_URLS="http://+:80;https://+:443"
 WORKDIR /app
 COPY --from=build /app/release/publish .
 
