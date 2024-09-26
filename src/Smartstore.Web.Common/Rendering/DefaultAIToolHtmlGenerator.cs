@@ -225,6 +225,12 @@ namespace Smartstore.Web.Rendering
             var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
+            if (!forChatDialog)
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
+                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            }
+
             // Add "Change style" & "Change tone" options from module settings.
             var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
             var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
@@ -233,12 +239,6 @@ namespace Smartstore.Web.Rendering
             {
                 builder.AppendHtml(styleDropdown);
                 builder.AppendHtml(toneDropdown);
-                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
-            }
-
-            if (!forChatDialog)
-            {
-                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
                 builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
             }
 

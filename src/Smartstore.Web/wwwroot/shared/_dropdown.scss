@@ -168,7 +168,7 @@
 
 .dropdown-menu-check {
     .dropdown-item {
-        padding-inline-start: 30px;
+        padding-inline-end: 30px;
     }
 
     .dropdown-item.checked {
@@ -177,7 +177,7 @@
 
     .dropdown-item.checked:after {
         position: absolute;
-        inset-inline-start: 8px;
+        inset-inline-end: 8px;
         display: inline-block;
         @include fontawesome("\f00c"); // check
         color: var(--success);
