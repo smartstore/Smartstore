@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Platform.AI.Prompting
 {
-    public abstract class AIMessageCreatorBase(AIMessageBuilder messageBuilder) : IAIMessageCreator
+    public abstract class AIPromptGeneratorBase(AIMessageBuilder messageBuilder) : IAIPromptGenerator
     {
         protected readonly AIMessageBuilder _messageBuilder = messageBuilder;
 
@@ -18,15 +18,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
             => type == Type;
 
         /// <inheritdoc/>
-        public virtual Task<AIChat> BuildTextChatAsync(IAITextModel model)
+        public virtual Task<AIChat> GenerateTextChatAsync(IAITextModel model)
             => Task.FromResult(new AIChat (AIChatMessage.FromUser(_messageBuilder.Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", model?.EntityName))));
 
         /// <inheritdoc/>
-        public virtual Task<AIChat> BuildSuggestionChatAsync(IAISuggestionModel model)
+        public virtual Task<AIChat> GenerateSuggestionChatAsync(IAISuggestionModel model)
             => Task.FromResult(new AIChat(AIChatMessage.FromUser(_messageBuilder.Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", model?.Input))));
 
         /// <inheritdoc/>
-        public virtual Task<AIChat> BuildImageChatAsync(IAIImageModel model)
+        public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {
             var chat = new AIChat();
 
