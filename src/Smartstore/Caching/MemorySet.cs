@@ -5,7 +5,59 @@ using System.Collections.Concurrent;
 
 namespace Smartstore.Caching
 {
-    internal sealed class MemorySet : ISet
+    internal class OrderedMemorySet : MemorySet
+    {
+        /// <summary>
+        /// Thread-safe queue for saving the insertion sequence
+        /// </summary>
+        private ConcurrentQueue<string> _orderTracker;
+
+        /// <summary>
+        /// Object for locking during deletion
+        /// </summary>
+        private readonly Lock _clearLock = new();
+
+        public OrderedMemorySet(ICacheStore cache)
+            : this(cache, null)
+        {
+        }
+
+        public OrderedMemorySet(ICacheStore cache, IEnumerable<string>? values)
+            : base(cache, values)
+        {
+            // Initialize the order tracker queue
+            _orderTracker = values != null ? new ConcurrentQueue<string>(values) : new ConcurrentQueue<string>();
+        }
+
+        public override bool Add(string value)
+        {
+            if (base.Add(value))
+            {
+                // If the element is new, add it to the queue
+                _orderTracker.Enqueue(value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void Clear()
+        {
+            lock (_clearLock)
+            {
+                base.Clear();
+                // Reset the queue
+                _orderTracker.Clear();
+            }
+        }
+
+        protected override IEnumerator<string> GetEnumeratorImpl()
+        {
+            return _orderTracker.Where(Contains).GetEnumerator();
+        }
+    }
+
+    internal class MemorySet : ISet
     {
         private readonly ICacheStore _cache;
 
@@ -27,59 +79,24 @@ namespace Smartstore.Caching
         /// </summary>
         private readonly ConcurrentDictionary<string, bool> _dictionary;
 
-        /// <summary>
-        /// Whether the insertion sequence should be preserved while iterating.
-        /// </summary>
-        private readonly bool _preserveOrder;
-
-        /// <summary>
-        /// Thread-safe queue for saving the insertion sequence
-        /// </summary>
-        private ConcurrentQueue<string>? _orderTracker;
-
-        /// <summary>
-        /// Object for locking during deletion
-        /// </summary>
-        private readonly Lock _clearLock = new();
-
-        public MemorySet(ICacheStore cache, bool preserveOrder = false)
-            : this(cache, null, preserveOrder)
+        public MemorySet(ICacheStore cache)
+            : this(cache, null)
         {
         }
 
-        public MemorySet(ICacheStore cache, IEnumerable<string>? values, bool preserveOrder = false)
+        public MemorySet(ICacheStore cache, IEnumerable<string>? values)
         {
-            _cache = cache;
-            _preserveOrder = preserveOrder;
-
-            if (values != null)
-            {
-                // Initialize the dictionary directly with the values
-                _dictionary = new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, bool>(x, false)), null);
-
-                // Initialize the order tracker queue directly with the values
-                if (_preserveOrder) _orderTracker = new ConcurrentQueue<string>(values);
-            }
-            else
-            {
-                _dictionary = new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, DefaultCapacity);
-                if (_preserveOrder) _orderTracker = new ConcurrentQueue<string>();
-            }
-        }
-
-        public bool Add(string value)
-        {
-            Guard.NotEmpty(value);
+            Guard.NotNull(cache);
             
-            if (_dictionary.TryAdd(value, false)) 
-            {
-                // If the element is new, add it to the queue
-                _orderTracker?.Enqueue(value);
+            _cache = cache;
+            _dictionary = values == null 
+                ? new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, DefaultCapacity)
+                : new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, bool>(x, false)), null);
+        }
 
-                return true;
-            }
-
-            return false;
+        public virtual bool Add(string value)
+        {
+            return _dictionary.TryAdd(value, false);
         }
 
         public void AddRange(IEnumerable<string> values)
@@ -95,22 +112,9 @@ namespace Smartstore.Caching
             }
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
-            if (_orderTracker != null)
-            {
-                lock (_clearLock)
-                {
-                    _dictionary.Clear();
-
-                    // Reset the queue
-                    while (_orderTracker.TryDequeue(out _)) { }
-                }
-            }
-            else
-            {
-                _dictionary.Clear();
-            }
+            _dictionary.Clear();
         }
 
         public bool Contains(string value)
@@ -183,17 +187,12 @@ namespace Smartstore.Caching
             return GetEnumeratorImpl();
         }
 
-        private IEnumerator<string> GetEnumeratorImpl()
+        protected virtual IEnumerator<string> GetEnumeratorImpl()
         {
             // PERF: Do not use dictionary.Keys here because that creates a snapshot
             // of the collection resulting in a List<T> allocation. Instead, use the
             // KeyValuePair enumerator and pick off the Key part.
-
-            var items = _orderTracker != null
-                ? _orderTracker.Where(_dictionary.ContainsKey)
-                : _dictionary.Select(x => x.Key);
-
-            return items.GetEnumerator();
+            return _dictionary.Select(x => x.Key).GetEnumerator();
         }
 
         #region Async

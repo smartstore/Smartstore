@@ -109,7 +109,9 @@ namespace Smartstore.Caching
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, acquirer?.Invoke(), preserveOrder);
+                var memSet = preserveOrder 
+                    ? new OrderedMemorySet(this, acquirer?.Invoke())
+                    : new MemorySet(this, acquirer?.Invoke());
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });
@@ -123,9 +125,9 @@ namespace Smartstore.Caching
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, 
-                    acquirer == null ? null : await acquirer?.Invoke(), 
-                    preserveOrder);
+                var memSet = preserveOrder 
+                    ? new OrderedMemorySet(this,  acquirer == null ? null : await acquirer?.Invoke())
+                    : new MemorySet(this, acquirer == null ? null : await acquirer?.Invoke());
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });
