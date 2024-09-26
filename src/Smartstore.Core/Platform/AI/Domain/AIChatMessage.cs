@@ -1,7 +1,5 @@
 ﻿#nullable enable
 
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Platform.AI
@@ -23,24 +21,18 @@ namespace Smartstore.Core.Platform.AI
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.User"/> message.
         /// </summary>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static AIChatMessage FromUser(string? content, string? author = null)
             => new(content, KnownAIMessageRoles.User, author);
 
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.System"/> message.
         /// </summary>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static AIChatMessage FromSystem(string? content, string? author = null)
             => new(content, KnownAIMessageRoles.System, author);
 
         /// <summary>
         /// Creates an <see cref="KnownAIMessageRoles.Assistant"/> message.
         /// </summary>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static AIChatMessage FromAssistant(string? content, string? author = null)
             => new(content, KnownAIMessageRoles.Assistant, author);
 
