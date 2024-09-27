@@ -17,9 +17,9 @@
 */
 
 class IconGenerator {
-	constructor(){
-		this.reset();
-	}
+	constructor() {
+        this.reset();
+    }
 	
 	/**
 	* Resets the icon set.
@@ -30,22 +30,69 @@ class IconGenerator {
 			icons: [],
 			// Contains each icon ID.
 			dictionary: [],
-			// Contains the svg code used to reference each symbol.
-			svg: '',
+			// Contains the SVG code used to reference each symbol.
+			svg: ''
 		};
 	}
-	
+
+    tryRestoreFile(fileInput, fileType) {
+        const blobKey = 'svg_' + fileType + '_blob';
+        const nameKey = 'svg_' + fileType + '_name';
+
+        const savedFile = localStorage.getItem(blobKey);
+        const savedFileName = localStorage.getItem(nameKey);
+        if (!savedFile && !savedFileName) {
+            return false;
+        }
+
+        // Wiederherstellen der Datei als Blob
+        const base64Content = savedFile.split(',')[1];
+        const mimeString = savedFile.split(',')[0].split(':')[1].split(';')[0];
+
+        // Base64 dekodieren
+        const binaryString = atob(base64Content);
+        const len = binaryString.length;
+        const uint8Array = new Uint8Array(len);
+
+        // In eine Uint8Array umwandeln
+        for (let i = 0; i < len; i++) {
+            uint8Array[i] = binaryString.charCodeAt(i);
+        }
+
+        // Aus Uint8Array einen Blob erstellen
+        const blob = new Blob([uint8Array], { type: mimeString });
+
+        // Erstelle ein File-Objekt aus dem Blob
+        const file = new File([blob], savedFileName, { type: mimeString });
+
+        // Insert a new file into the file input element
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        return true;
+    }
+
 	/**
 	* Adds a new file to the icon set.
-	* @param fileType Specifies the type of file to load. 0 = latest icon set (remote), 1 = latest icon set (local), 2 = current subset.
+	* @param fileType Specifies the type of file to load. 0 = latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
 	*/
 	async addFile(file, fileType){
-		let self = this;
-		const readFile = new Promise((resolve, reject) => {
+		const readFile = new Promise((resolve, _reject) => {
 			const reader = new FileReader();
 
-			reader.onload = function(e) {
-				self.parseXML(e.target.result, fileType);
+            reader.onload = (e) => {
+                const blobKey = 'svg_' + fileType + '_blob';
+                const nameKey = 'svg_' + fileType + '_name';
+
+                this.parseXML(e.target.result, fileType);
+
+                // Save in localStorage
+                const base64String = utf8ToBase64(e.target.result);
+                const dataUrl = `data:${file.type};base64,${base64String}`;
+                localStorage.setItem(blobKey, dataUrl);
+                localStorage.setItem(nameKey, file.name);
+
 				resolve();
 			};
 
@@ -130,4 +177,17 @@ class IconGenerator {
 		
 		iconSetContainer.innerHTML = allIcons;
 	}
+}
+
+function utf8ToBase64(str) {
+    // Text in UTF-8 Byte-Array umwandeln
+    const utf8Bytes = new TextEncoder().encode(str);
+
+    // Byte-Array in Base64 umwandeln
+    let binary = '';
+    utf8Bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+    });
+
+    return btoa(binary);
 }

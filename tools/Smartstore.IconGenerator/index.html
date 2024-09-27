@@ -63,13 +63,23 @@
 		<script content-type="text/javascript" type="module">
 			const iconGenerator = new IconGenerator();
 
+            const remoteInput = document.getElementById('file_remote');
+            const localInput = document.getElementById('file_local');
+            const subsetInput = document.getElementById('file_subset');
+
+            iconGenerator.tryRestoreFile(localInput, 1);
+			iconGenerator.tryRestoreFile(subsetInput, 2);
+			if (iconGenerator.tryRestoreFile(remoteInput, 0)) {
+				await addFilesAndRender();
+			}
+
 			/**
 			* This function makes sure all files are loaded in sequence.
 			*/
-			async function addFilesAndRender(){
-				let remoteFile = document.getElementById('file_remote').files[0];
-				let localFile = document.getElementById('file_local').files[0];
-				let subsetFile = document.getElementById('file_subset').files[0];
+			async function addFilesAndRender() {
+                const remoteFile = remoteInput.files[0];
+                const localFile = localInput.files[0];
+                const subsetFile = subsetInput.files[0];
 				
 				if (!remoteFile){
 					dialogBox.show('Invalid remote file.')
