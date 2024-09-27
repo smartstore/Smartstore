@@ -89,7 +89,7 @@ namespace Smartstore.Utilities
             return ok;
         }
 
-        class CheckEntry
+        struct CheckEntry
         {
             public bool Value { get; set; }
             public DateTime NextCheckUtc { get; set; }
