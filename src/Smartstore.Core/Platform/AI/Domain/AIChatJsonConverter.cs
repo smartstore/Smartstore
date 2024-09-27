@@ -12,6 +12,7 @@ namespace Smartstore.Core.Platform.AI
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             IReadOnlyList<AIChatMessage> messages = null;
+            var topic = AIChatTopic.Text;
 
             reader.Read();
             while (reader.TokenType == JsonToken.PropertyName)
@@ -23,6 +24,11 @@ namespace Smartstore.Core.Platform.AI
                     reader.Read();
                     messages = serializer.Deserialize(reader, typeof(IReadOnlyList<AIChatMessage>)) as IReadOnlyList<AIChatMessage>;
                 }
+                else if (string.Equals(name, nameof(AIChat.Topic), StringComparison.OrdinalIgnoreCase))
+                {
+                    reader.Read();
+                    topic = serializer.Deserialize<AIChatTopic>(reader);
+                }
                 else
                 {
                     reader.Skip();
@@ -31,7 +37,7 @@ namespace Smartstore.Core.Platform.AI
                 reader.Read();
             }
 
-            var chat = (AIChat)Activator.CreateInstance(objectType);
+            var chat = (AIChat)Activator.CreateInstance(objectType, topic);
             chat.AddMessages([.. messages]);
 
             return chat;
@@ -41,6 +47,9 @@ namespace Smartstore.Core.Platform.AI
         {
             writer.WriteStartObject();
             {
+                writer.WritePropertyName(nameof(AIChat.Topic));
+                serializer.Serialize(writer, GetPropValue(nameof(AIChat.Topic), value));
+
                 writer.WritePropertyName(nameof(AIChat.Messages));
                 serializer.Serialize(writer, GetPropValue(nameof(AIChat.Messages), value));
             }

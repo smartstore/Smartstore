@@ -8,9 +8,11 @@ namespace Smartstore.Core.Platform.AI
     /// Represents an AI conversation consisting of a sequence of messages.
     /// </summary>
     [JsonConverter(typeof(AIChatJsonConverter))]
-    public class AIChat
+    public class AIChat(AIChatTopic topic)
     {
         private readonly List<AIChatMessage> _messages = [];
+
+        public AIChatTopic Topic { get; } = topic;
 
         public IReadOnlyList<AIChatMessage> Messages 
             => _messages;

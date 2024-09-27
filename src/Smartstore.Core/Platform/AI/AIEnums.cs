@@ -18,11 +18,6 @@
     public enum AIChatTopic
     {
         /// <summary>
-        /// Chat to generate images.
-        /// </summary>
-        Image,
-
-        /// <summary>
         /// Chat to generate simple text.
         /// </summary>
         Text,
@@ -40,7 +35,12 @@
         /// <summary>
         /// Chat to generate suggestions.
         /// </summary>
-        Suggestion
+        Suggestion,
+
+        /// <summary>
+        /// Chat to generate images.
+        /// </summary>
+        Image
     }
 
     /// <summary>
