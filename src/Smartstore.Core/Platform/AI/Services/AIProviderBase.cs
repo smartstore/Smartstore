@@ -30,7 +30,7 @@ namespace Smartstore.Core.Platform.AI
         public bool SupportsAssistence
             => Supports(AIProviderFeatures.Assistence);
 
-        public abstract RouteInfo GetDialogRoute(AIDialogType dialogType);
+        public abstract RouteInfo GetDialogRoute(AIChatTopic topic);
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();

@@ -22,9 +22,9 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given <paramref name="dialogType"/>.
+        /// Gets <see cref="RouteInfo"/> for the given <paramref name="topic"/>.
         /// </summary>
-        RouteInfo GetDialogRoute(AIDialogType dialogType);
+        RouteInfo GetDialogRoute(AIChatTopic topic);
 
         /// <summary>
         /// Starts or continues an AI conversation.

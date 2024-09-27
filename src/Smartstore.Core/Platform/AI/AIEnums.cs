@@ -13,32 +13,32 @@
     }
 
     /// <summary>
-    /// Represents the AI modal dialog type.
+    /// Represents the topic of an AI chat.
     /// </summary>
-    public enum AIDialogType
+    public enum AIChatTopic
     {
         /// <summary>
-        /// Used to open a dialog for image creation.
+        /// Chat to generate images.
         /// </summary>
         Image,
 
         /// <summary>
-        /// Used to open a dialog for simple text creation.
+        /// Chat to generate simple text.
         /// </summary>
         Text,
 
         /// <summary>
-        /// Used to open a dialog for rich text creation.
+        /// Chat to generate rich text.
         /// </summary>
         RichText,
 
         /// <summary>
-        /// Used to open a dialog for translations.
+        /// Chat to translate text.
         /// </summary>
         Translation,
 
         /// <summary>
-        /// Used to open a dialog for suggestions.
+        /// Chat to generate suggestions.
         /// </summary>
         Suggestion
     }

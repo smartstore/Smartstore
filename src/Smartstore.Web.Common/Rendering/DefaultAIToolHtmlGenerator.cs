@@ -122,7 +122,7 @@ namespace Smartstore.Web.Rendering
             foreach (var provider in providers)
             {
                 // Add attributes from tag helper properties.
-                var route = provider.Value.GetDialogRoute(AIDialogType.Translation);
+                var route = provider.Value.GetDialogRoute(AIChatTopic.Translation);
                 var routeUrl = _urlHelper.Action(route.Action, route.Controller, route.RouteValues);
 
                 var dropdownLiTitle = T("Admin.AI.TranslateTextWith", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
@@ -205,7 +205,7 @@ namespace Smartstore.Web.Rendering
                 }
 
                 btn.InnerHtml.AppendHtml(_moduleManager.GetLocalizedFriendlyName(provider.Metadata));
-                MergeDataAttributes(btn, provider, attributes, AIDialogType.Text);
+                MergeDataAttributes(btn, provider, attributes, AIChatTopic.Text);
 
                 btnGroupDiv.InnerHtml.AppendHtml(btn);
                 isFirstProvider = false;
@@ -301,7 +301,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIDialogType.Suggestion);
+            return GenerateOutput(providers, attributes, AIChatTopic.Suggestion);
         }
 
         public TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
@@ -314,7 +314,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIDialogType.Image);
+            return GenerateOutput(providers, attributes, AIChatTopic.Image);
         }
 
         public TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
@@ -327,7 +327,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            return GenerateOutput(providers, attributes, AIDialogType.RichText);
+            return GenerateOutput(providers, attributes, AIChatTopic.RichText);
         }
 
         /// <summary>
@@ -335,24 +335,23 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="providers">List of providers to generate dropdown items for.</param>
         /// <param name="attributes">The attributes of the taghelper.</param>
-        /// <param name="dialogType">The type of dialog to be opened <see cref="AIDialogType"/></param>
         /// <returns>
         /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
         /// containing all the metadata needed to open the dialog.
         /// </returns>
-        private TagBuilder GenerateOutput(IReadOnlyList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIDialogType dialogType)
+        private TagBuilder GenerateOutput(IReadOnlyList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIChatTopic topic)
         {
-            var additionalClasses = GetDialogIdentifierClass(dialogType);
+            var additionalClasses = GetDialogIdentifierClass(topic);
 
             // If there is only one provider, render a simple button, render a dropdown otherwise.
             if (providers.Count == 1)
             {
                 var provider = providers[0];
                 var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-                var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
+                var dropdownLiTitle = GetDialogOpenerText(topic, friendlyName);
                 var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
 
-                MergeDataAttributes(openerDiv, provider, attributes, dialogType);
+                MergeDataAttributes(openerDiv, provider, attributes, topic);
 
                 return openerDiv;
             }
@@ -365,10 +364,10 @@ namespace Smartstore.Web.Rendering
                 foreach (var provider in providers)
                 {
                     var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-                    var dropdownLiTitle = GetDialogOpenerText(dialogType, friendlyName);
+                    var dropdownLiTitle = GetDialogOpenerText(topic, friendlyName);
                     var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, null, true, additionalClasses);
 
-                    MergeDataAttributes(dropdownLi, provider, attributes, dialogType);
+                    MergeDataAttributes(dropdownLi, provider, attributes, topic);
 
                     dropdownUl.InnerHtml.AppendHtml(dropdownLi);
                 }
@@ -382,9 +381,9 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Adds the necessary data attributes to the given control.
         /// </summary>
-        private void MergeDataAttributes(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIDialogType dialogType)
+        private void MergeDataAttributes(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIChatTopic topic)
         {
-            var route = provider.Value.GetDialogRoute(dialogType);
+            var route = provider.Value.GetDialogRoute(topic);
             ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
             ctrl.MergeAttribute("data-modal-url", _urlHelper.Action(route.Action, route.Controller, route.RouteValues));
             ctrl.MergeAttributes(attributes);
@@ -393,42 +392,42 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Gets the class name used as the dialog identifier.
         /// </summary>
-        private static string GetDialogIdentifierClass(AIDialogType dialogType)
+        private static string GetDialogIdentifierClass(AIChatTopic topic)
         {
-            switch (dialogType)
+            switch (topic)
             {
-                case AIDialogType.Text:
-                case AIDialogType.RichText:
+                case AIChatTopic.Text:
+                case AIChatTopic.RichText:
                     return "ai-text-composer";
-                case AIDialogType.Image:
+                case AIChatTopic.Image:
                     return "ai-image-composer";
-                case AIDialogType.Translation:
+                case AIChatTopic.Translation:
                     return "ai-translator";
-                case AIDialogType.Suggestion:
+                case AIChatTopic.Suggestion:
                     return "ai-suggestion";
                 default:
-                    throw new Exception("Unknown modal dialog type");
+                    throw new AIException($"Unknown chat topic {topic}.");
             }
         }
 
         /// <summary>
         /// Gets the title of a dropdown item that opens an AI dialog.
         /// </summary>
-        private string GetDialogOpenerText(AIDialogType dialogType, string providerName)
+        private string GetDialogOpenerText(AIChatTopic topic, string providerName)
         {
-            switch (dialogType)
+            switch (topic)
             {
-                case AIDialogType.Text:
-                case AIDialogType.RichText:
+                case AIChatTopic.Text:
+                case AIChatTopic.RichText:
                     return T("Admin.AI.CreateTextWith", providerName);
-                case AIDialogType.Image:
+                case AIChatTopic.Image:
                     return T("Admin.AI.CreateImageWith", providerName);
-                case AIDialogType.Translation:
+                case AIChatTopic.Translation:
                     return T("Admin.AI.TranslateTextWith", providerName);
-                case AIDialogType.Suggestion:
+                case AIChatTopic.Suggestion:
                     return T("Admin.AI.MakeSuggestionWith", providerName);
                 default:
-                    throw new Exception("Unknown modal dialog type");
+                    throw new AIException($"Unknown chat topic {topic}.");
             }
         }
 
