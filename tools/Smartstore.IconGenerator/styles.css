@@ -6,6 +6,7 @@ body {
 	position: sticky;
 	display: flex;
 	justify-content: end;
+	align-items: start;
 	gap: 1rem;
 	top: 0;
 	left: 0;
@@ -16,32 +17,27 @@ body {
 #controls label {
 	user-select: none;
 }
+#controls .spacer {
+	display: inline-block;
+	flex-grow: 1;
+}
+#controls .files {
+	display: flex;
+	align-items: start;
+}
 
 .icon {
 	position: relative;
 	display: inline-flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 0.4rem;
-	width: 5rem;
-	border-radius: 0.5rem;
-	padding: 0.7rem;
-	margin: 0.3rem;
-	background-color: #00000007;
+	width: 6rem;
+	margin: 0.2rem;
 	text-align: center;
 	user-select: none;
 }
-.icon:hover {
-	background-color: #00000020 !important;
-}
 .icon.hide {
 	display: none;
-}
-.icon.selected {
-	background-color: #00000015;
-}
-.icon.selected svg {
-	color: lightseagreen !important;
 }
 .icon.badge::after {
 	content: '';
@@ -59,18 +55,109 @@ body {
 	content: 'New';
 	background-color: green;
 }
-.icon svg {
-	width: 1.2rem;
-	height: 1.2rem;
-}
 .icon span {
 	font-size: 0.8em;
 	color: gray;
 }
-.icon.modified svg{
-	/*
-	TODO: (mw) Find good way to display modified icons.
-	
-	color: darkgreen;
-	*/
+
+.icon .symbol {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 4rem;
+	height: 4rem;
+	padding: 0.7rem;
+	margin: 0.3rem;
+	border-radius: 0.5rem;
+	background-color: #00000007;
+}
+.icon .symbol:hover {
+	background-color: #00000020 !important;
+	cursor: pointer;
+}
+.icon .symbol svg {
+	width: 2rem;
+	height: 3rem;
+}
+.icon.selected .symbol {
+	margin: 0.1rem;
+	background: linear-gradient(to bottom right, transparent 0%, transparent 79%, currentColor 80%);
+	border: 0.2rem solid #0002;
+	color: gold;
+}
+.icon.selected .symbol svg{
+	color: #dba700;
+}
+
+#dialogBox.hidden {
+  display: none !important;
+}
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.dialog-box {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+.dialog-box span {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+.dialog-actions {
+  text-align: right;
+}
+.dialog-actions button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.dialog-actions button:hover {
+  background-color: #0056b3;
+}
+
+/* CallToAction Button */
+.cta-btn {
+  display: inline-block;
+  padding: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+.cta-btn.secondary {
+	background-color: green;
+}
+.cta-btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.3);
+}
+.cta-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.5);
+}
+.cta-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
 }

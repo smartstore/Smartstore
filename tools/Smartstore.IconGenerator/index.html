@@ -6,29 +6,110 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
 	<link rel="shortcut icon" href="favicon.ico" />
 	<link type="text/css" href="styles.css" rel="stylesheet" />
+	<script src="icon-generator.js"></script>
+	<script src="ui.js"></script>
 </head>
 	<body>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="symbol_reference" style="display:none;"></svg>
 		<div id="controls">
-			<input type="text" name="filter" placeholder="Filter" />
-			<div>
-				<input type="checkbox" id="filter_new" />
-				<label for="filter_new">Only new</label>
+			<div class="files">
+				<div>
+					<label for="file_remote">Remote</label>
+					<input type="file" id="file_remote" accept=".svg" />
+				</div>
+				<div>
+					<label for="file_local">Local</label>
+					<input type="file" id="file_local" accept=".svg"/>
+				</div>
+				<div>
+					<label for="file_subset">Subset</label>
+					<input type="file" id="file_subset" accept=".svg"/>
+				</div>
+				<input type="button" class="cta-btn" id="read_files" value="Read files" />
 			</div>
-			<div>
-				<input type="checkbox" id="filter_modified" />
-				<label for="filter_modified">Only modified</label>
+			<span class="spacer"></span>
+			<div class="filter">
+				<input type="text" name="filter" placeholder="Filter" />
+				<div>
+					<input type="checkbox" id="filter_new" />
+					<label for="filter_new">Only new</label>
+				</div>
+				<div>
+					<input type="checkbox" id="filter_modified" />
+					<label for="filter_modified">Only modified</label>
+				</div>
+				<div>
+					<input type="checkbox" id="filter_used" />
+					<label for="filter_used">Only used</label>
+				</div>
+				<div>
+					<input type="checkbox" id="filter_selected" />
+					<label for="filter_selected">Only Selected</label>
+				</div>
 			</div>
-			<div>
-				<input type="checkbox" id="filter_used" />
-				<label for="filter_used">Only used</label>
-			</div>
-			<div>
-				<input type="checkbox" id="filter_selected" />
-				<label for="filter_selected">Only Selected</label>
-			</div>
+			<input type="button" class="cta-btn secondary" id="export_subset" value="Export" disabled />
 		</div>
 		<div id="iconContainer"></div>
 		
-		<script type="text/javascript" src="script.js"></script>
+		<div id="dialogBox" class="dialog-overlay hidden">
+			<div class="dialog-box">
+				<span id="dialogMessage"></span>
+				<div class="dialog-actions">
+					<button id="closeDialogBtn" onclick="dialogBox.hide();">Close</button>
+				</div>
+			</div>
+		</div>
+		
+		<script content-type="text/javascript" type="module">
+			const iconGenerator = new IconGenerator();
+
+			/**
+			* This function makes sure all files are loaded in sequence.
+			*/
+			async function addFilesAndRender(){
+				let remoteFile = document.getElementById('file_remote').files[0];
+				let localFile = document.getElementById('file_local').files[0];
+				let subsetFile = document.getElementById('file_subset').files[0];
+				
+				if (!remoteFile){
+					dialogBox.show('Invalid remote file.')
+					return;
+				}
+				
+				iconGenerator.reset();
+				
+				await iconGenerator.addFile(remoteFile, 0);
+				
+				if (localFile) {
+					await iconGenerator.addFile(localFile, 1);
+				}
+				if (subsetFile) {
+					await iconGenerator.addFile(subsetFile, 2);
+				}
+				
+				iconGenerator.renderIconSet(document.getElementById('iconContainer'));
+			}
+			
+			document.querySelector('#controls input[name=filter]').addEventListener('keyup', applyFilter);
+			document.getElementById('filter_new').addEventListener('change', applyFilter);
+			document.getElementById('filter_modified').addEventListener('change', applyFilter);
+			document.getElementById('filter_used').addEventListener('change', applyFilter);
+			document.getElementById('filter_selected').addEventListener('change', applyFilter);
+			document.getElementById('read_files').addEventListener('click', addFilesAndRender);
+			document.getElementById('file_remote').addEventListener('change', (e) => {
+				document.getElementById('read_files').disabled = !e.target.files[0];
+			});
+			document.getElementById('iconContainer').addEventListener('click', (e) => {
+				const icon = e.target.closest('.icon');
+			
+				if (icon != null){
+					// Toggle selection
+					icon.classList.toggle('selected');
+				}
+			});
+			
+			// Make sure the disabled state is not set, when the last used file is cached.
+			document.getElementById('file_remote').dispatchEvent(new Event('change'));
+		</script>
 	</body>
 </html>
