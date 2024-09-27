@@ -31,7 +31,9 @@ namespace Smartstore.Core.Platform.AI
                 reader.Read();
             }
 
-            var chat = Activator.CreateInstance(objectType, [.. messages]);
+            var chat = (AIChat)Activator.CreateInstance(objectType);
+            chat.AddMessages([.. messages]);
+
             return chat;
         }
 

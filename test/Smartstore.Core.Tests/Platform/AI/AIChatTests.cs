@@ -18,7 +18,9 @@ namespace Smartstore.Core.Tests.AI
                 new AIChatMessage("I have no opinion on the matter.", "user", "Test message 3")
             ];
 
-            var chat = new AIChat(messages);
+            var chat = new AIChat();
+            chat.AddMessages(messages);
+
             var serializedChat = JsonConvert.SerializeObject(chat);
             var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat);
 

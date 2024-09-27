@@ -20,6 +20,21 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
         public AIMessageResources Resources { get; }
 
+        public virtual string GetDefaultMessage(AIChatTopic topic, params object[] args)
+        {
+            switch (topic)
+            {
+                case AIChatTopic.Text:
+                    return Resources.GetResource("Admin.AI.TextCreation.DefaultPrompt", args);
+                case AIChatTopic.Suggestion:
+                    return Resources.GetResource("Admin.AI.Suggestions.DefaultPrompt", args);
+                case AIChatTopic.Image:
+                    return Resources.GetResource("Admin.AI.ImageCreation.DefaultPrompt", args);
+                default:
+                    return null;
+            }
+        }
+
         /// <summary>
         /// Adds <see cref="List{AIChatMessage}"/> with general instructions for text creation. 
         /// </summary>
