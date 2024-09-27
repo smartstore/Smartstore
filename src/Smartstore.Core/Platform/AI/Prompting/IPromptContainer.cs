@@ -12,7 +12,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
         string? EntityName { get; }
         string? Prompt { get; }
 
-        int WordLimit { get; }
+        int? WordLimit { get; }
         string? Style { get; }
         string? Tone { get; }
 

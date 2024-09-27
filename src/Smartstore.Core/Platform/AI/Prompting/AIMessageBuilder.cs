@@ -316,7 +316,7 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
             if (model.WordLimit > 0)
             {
-                chat.User(Resources.WordLimit(model.WordLimit));
+                chat.User(Resources.WordLimit((int)model.WordLimit));
             }
 
             return AddLanguageMessagesAsync(model, chat);
