@@ -61,7 +61,7 @@ jQuery(function () {
             modifiers: {
                 computeStyle: { gpuAcceleration: false },
                 arrow: { element: '.arrow' },
-                flip: { enabled: false },
+                flip: { enabled: true },
             },
             preventOverflow: {
                 boundariesElement: 'viewport'
