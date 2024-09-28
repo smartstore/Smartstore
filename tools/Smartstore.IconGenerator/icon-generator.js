@@ -4,13 +4,18 @@
 	
     TODO: (mw) Implement decent responsiveness for upper #controls bar.
 
+    TODO: (mw) Study the review commits and comply to conventions and quality level in future.
+    TODO: (mw) CSS needs better (predictable) structure. Use more class names.
+    TODO: (mw) Always work with CSS variables.
+    TODO: (mw) Make proper ES6 modules and actually LOAD them as modules. Your scripts are NOT modules. Ask ChatGPT!
+    TODO: (mw) The HTML file should not contain any inline scripts. Just initialization stuff.
 */
 
 /*
 	TODO: (mw) Add Prettified export.
 	
 	QUESTION: (mc) Export using tabs or spaces? RE: Tabs.
-	QUESTION: (mc) Export as text in a textarea, as download file, or offer both?
+	QUESTION: (mc) Export as text in a textarea, as download file, or offer both? RE: Offer both!
 */
 
 class IconGenerator {
