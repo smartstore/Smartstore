@@ -17,31 +17,27 @@ const dialogBox = new DialogBox();
 function applyFilter(){
 	const searchTerm = document.querySelector('#controls input[name=filter]').value;
 	const onlyNew = document.getElementById('filter_new').checked;
-	const onlyModified = document.getElementById('filter_modified').checked;
 	const onlyUsed = document.getElementById('filter_used').checked;
-	const onlySelected = document.getElementById('filter_selected').checked;
 	
 	// Filter by search term.
-	if (searchTerm.length > 0 || onlyNew || onlyModified || onlyUsed || onlySelected){
+	if (searchTerm.length > 0 || onlyNew || onlyUsed) {
 		const icons = document.querySelectorAll('.icon');
 		
-		for (const icon of icons){
+		for (const icon of icons) {
 			let iconName = icon.getAttribute('name');
 			
 			if (iconName.includes(searchTerm) &&
 				(!onlyNew || (onlyNew && icon.classList.contains('new'))) &&
-				(!onlyModified || (onlyModified && icon.classList.contains('modified'))) &&
-				(!onlyUsed || (onlyUsed && icon.classList.contains('subset'))) &&
-				(!onlySelected || (onlySelected && icon.classList.contains('selected')))
-			){
+                (!onlyUsed || (onlyUsed && icon.classList.contains('selected')))
+			) {
 				icon.classList.remove('hide');
 			}
-			else{
+			else {
 				icon.classList.add('hide');
 			}
 		}
 	}
-	else{
+	else {
 		const hiddenIcons = document.querySelectorAll('.icon.hide');
 		
 		for (const icon of hiddenIcons){

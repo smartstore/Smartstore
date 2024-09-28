@@ -13,41 +13,31 @@
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="symbol_reference" style="display:none;"></svg>
 		<div id="controls">
 			<div class="files">
-				<div>
+				<div class="file">
 					<label for="file_remote">Remote</label>
-					<input type="file" id="file_remote" accept=".svg" />
+					<input type="file" class="file-input" id="file_remote" accept=".svg" />
 				</div>
-				<div>
+				<div class="file">
 					<label for="file_local">Local</label>
-					<input type="file" id="file_local" accept=".svg"/>
+					<input type="file" class="file-input" id="file_local" accept=".svg"/>
 				</div>
-				<div>
+				<div class="file">
 					<label for="file_subset">Subset</label>
-					<input type="file" id="file_subset" accept=".svg"/>
+					<input type="file" class="file-input" id="file_subset" accept=".svg"/>
 				</div>
-				<input type="button" class="cta-btn" id="read_files" value="Read files" />
+				<button type="button" class="btn" id="read_files">Read files</button>
 			</div>
-			<span class="spacer"></span>
+
 			<div class="filter">
-				<input type="text" name="filter" placeholder="Filter" />
-				<div>
-					<input type="checkbox" id="filter_new" />
-					<label for="filter_new">Only new</label>
-				</div>
-				<div>
-					<input type="checkbox" id="filter_modified" />
-					<label for="filter_modified">Only modified</label>
-				</div>
-				<div>
-					<input type="checkbox" id="filter_used" />
-					<label for="filter_used">Only used</label>
-				</div>
-				<div>
-					<input type="checkbox" id="filter_selected" />
-					<label for="filter_selected">Only Selected</label>
-				</div>
+				<input type="text" name="filter" class="form-control" placeholder="Filter" style="margin-right: 4px" />
+				<span style="white-space: nowrap">
+					<input type="checkbox" id="filter_new" /><label for="filter_new" style="padding-left: 6px">New</label>
+				</span>
+				<span style="white-space: nowrap">
+					<input type="checkbox" id="filter_used" /><label for="filter_used" style="padding-left: 6px">Used</label>
+				</span>
 			</div>
-			<input type="button" class="cta-btn secondary" id="export_subset" value="Export" disabled />
+			<button type="button" class="btn secondary" id="export_subset" disabled>Export</button>
 		</div>
 		<div id="iconContainer"></div>
 		
@@ -102,9 +92,7 @@
 			
 			document.querySelector('#controls input[name=filter]').addEventListener('keyup', applyFilter);
 			document.getElementById('filter_new').addEventListener('change', applyFilter);
-			document.getElementById('filter_modified').addEventListener('change', applyFilter);
 			document.getElementById('filter_used').addEventListener('change', applyFilter);
-			document.getElementById('filter_selected').addEventListener('change', applyFilter);
 			document.getElementById('read_files').addEventListener('click', addFilesAndRender);
 			document.getElementById('file_remote').addEventListener('change', (e) => {
 				document.getElementById('read_files').disabled = !e.target.files[0];

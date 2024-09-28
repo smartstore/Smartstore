@@ -1,18 +1,15 @@
 /* 
     MC Review:
     -----------------------------------------------
-    TODO: (mw) Make the selected state more "shiny" with more vibrant colors, outline, border etc.
-	QUESTION: (mc) Too shiny?
 	
-    TODO: (mw) Implement decent responsiveness.
+    TODO: (mw) Implement decent responsiveness for upper #controls bar.
 
 */
 
 /*
 	TODO: (mw) Add Prettified export.
-	TODO: (mw) Style controls: file inputs and buttons. Move Filters to an aside?
 	
-	QUESTION: (mc) Export using tabs or spaces?
+	QUESTION: (mc) Export using tabs or spaces? RE: Tabs.
 	QUESTION: (mc) Export as text in a textarea, as download file, or offer both?
 */
 
@@ -124,15 +121,11 @@ class IconGenerator {
 			
 			let iconIndex = mySet.dictionary.indexOf(symbol.id);
 			
-			if (iconIndex !== -1){
+			if (iconIndex !== -1) {
 				let icon = mySet.icons[iconIndex];
 				icon.isNew = false;
 				
-				if (icon.code.trim() !== drawCode.trim()){
-					icon.isModified = true;
-				}
-				
-				if (fileType == 2){
+				if (fileType == 2) {
 					icon.isUsed = true;
 				}
 			}
@@ -142,10 +135,9 @@ class IconGenerator {
 					id: symbol.id,
 					code: drawCode,
 					symbol: symbolCode,
-					svg: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">' + drawCode + '</svg>',
-					isNew: true,
-					isModified: false,
-					isUsed: false, // Icon is used in the subset file, as in 'actively used'.
+                    svg: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">' + drawCode + '</svg>',
+                    isNew: true,
+                    isUsed: false
 				});
 				
 				mySet.dictionary.push(symbol.id);
@@ -164,11 +156,10 @@ class IconGenerator {
 		
 		let allIcons = '';
 		
-		for (const icon of this.iconSet.icons){
+		for (const icon of this.iconSet.icons) {
 			let iconClasses = (icon.isNew ? ' new' : '') +
-				(icon.isUsed ? ' selected subset' : '') +
-				(icon.isModified ? ' modified' : '');
-			if(iconClasses.length > 0){
+				(icon.isUsed ? ' selected' : '');
+			if (iconClasses.length > 0) {
 				iconClasses += ' badge';
 			}
 			
