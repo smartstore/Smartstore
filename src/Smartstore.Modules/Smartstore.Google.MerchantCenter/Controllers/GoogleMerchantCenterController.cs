@@ -41,7 +41,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
             if (entity != null)
             {
-                MiniMapper.Map(entity, model);
+                await MapperFactory.MapAsync(entity, model);
                 model.ProductId = productId;
             }
             else

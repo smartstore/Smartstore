@@ -540,8 +540,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var pvav = new ProductVariantAttributeValue();
-                MiniMapper.Map(model, pvav);
+                var pvav = await MapperFactory.MapAsync<ProductModel.ProductVariantAttributeValueModel, ProductVariantAttributeValue>(model);
                 pvav.MediaFileId = model.PictureId;
                 pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
 
@@ -651,7 +650,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, pvav);
+                await MapperFactory.MapAsync(model, pvav);
                 pvav.MediaFileId = model.PictureId;
                 pvav.LinkedProductId = pvav.ValueType == ProductVariantAttributeValueType.Simple ? 0 : model.LinkedProductId;
 

@@ -327,6 +327,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Manufacturer.Read)]
         public async Task<IActionResult> ProductManufacturerList(GridCommand command, int manufacturerId)
         {
+            var mapper = MapperFactory.GetMapper<ProductManufacturer, ManufacturerProductModel>();
             var productManufacturers = await _db.ProductManufacturers
                 .AsNoTracking()
                 .ApplyManufacturerFilter(manufacturerId)
@@ -334,21 +335,22 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = productManufacturers.Select(x =>
-            {
-                var product = x.Product;
-                var model = MiniMapper.Map<ProductManufacturer, ManufacturerProductModel>(x);
+            var rows = await productManufacturers
+                .SelectAwait(async x =>
+                {
+                    var product = x.Product;
+                    var model = await mapper.MapAsync(x);
 
-                model.ProductName = product.GetLocalized(x => x.Name);
-                model.Sku = product.Sku;
-                model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
-                model.ProductTypeLabelHint = product.ProductTypeLabelHint;
-                model.Published = product.Published;
-                model.EditUrl = Url.Action("Edit", "Product", new { id = x.ProductId, area = "Admin" });
+                    model.ProductName = product.GetLocalized(x => x.Name);
+                    model.Sku = product.Sku;
+                    model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
+                    model.ProductTypeLabelHint = product.ProductTypeLabelHint;
+                    model.Published = product.Published;
+                    model.EditUrl = Url.Action("Edit", "Product", new { id = x.ProductId, area = "Admin" });
 
-                return model;
-            })
-            .ToList();
+                    return model;
+                })
+                .AsyncToList();
 
             return Json(new GridModel<ManufacturerProductModel>
             {

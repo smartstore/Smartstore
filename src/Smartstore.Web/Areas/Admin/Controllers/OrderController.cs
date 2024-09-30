@@ -250,32 +250,33 @@ namespace Smartstore.Admin.Controllers
                     x => _moduleManager.GetLocalizedFriendlyName(x.Metadata),
                     StringComparer.OrdinalIgnoreCase);
 
-            var rows = orders.Select(x =>
-            {
-                paymentMethodsDic.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
-
-                var shipTo = x.ShippingAddress;
-                var m = new OrderOverviewModel();
-
-                PrepareOrderOverviewModel(m, x);
-
-                m.PaymentMethod = paymentMethod.NullEmpty() ?? x.PaymentMethodSystemName;
-                m.ViaShippingMethod = viaShippingMethodString.FormatInvariant(m.ShippingMethod);
-                m.WithPaymentMethod = withPaymentMethodString.FormatInvariant(m.PaymentMethod);
-                m.FromStore = fromStoreString.FormatInvariant(m.StoreName);
-
-                if (shipTo != null && m.IsShippable)
+            var rows = await orders
+                .SelectAwait(async x =>
                 {
-                    m.ShippingAddressString = $"{shipTo.Address1}, {shipTo.ZipPostalCode} {shipTo.City}";
-                    if (shipTo.Country != null)
-                    {
-                        m.ShippingAddressString += ", " + shipTo.Country.TwoLetterIsoCode;
-                    }
-                }
+                    paymentMethodsDic.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
 
-                return m;
-            })
-            .ToList();
+                    var shipTo = x.ShippingAddress;
+                    var m = new OrderOverviewModel();
+
+                    await PrepareOrderOverviewModel(m, x);
+
+                    m.PaymentMethod = paymentMethod.NullEmpty() ?? x.PaymentMethodSystemName;
+                    m.ViaShippingMethod = viaShippingMethodString.FormatInvariant(m.ShippingMethod);
+                    m.WithPaymentMethod = withPaymentMethodString.FormatInvariant(m.PaymentMethod);
+                    m.FromStore = fromStoreString.FormatInvariant(m.StoreName);
+
+                    if (shipTo != null && m.IsShippable)
+                    {
+                        m.ShippingAddressString = $"{shipTo.Address1}, {shipTo.ZipPostalCode} {shipTo.City}";
+                        if (shipTo.Country != null)
+                        {
+                            m.ShippingAddressString += ", " + shipTo.Country.TwoLetterIsoCode;
+                        }
+                    }
+
+                    return m;
+                })
+                .AsyncToList();
 
             var summaryQuery =
                 from q in orderQuery
@@ -1379,7 +1380,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model.Address, address);
+                await MapperFactory.MapAsync(model.Address, address);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishOrderUpdatedAsync(order);
@@ -1794,9 +1795,9 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        private void PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
+        private async Task PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
         {
-            MiniMapper.Map(order, model);
+            await MapperFactory.MapAsync(order, model);
 
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
@@ -1822,8 +1823,8 @@ namespace Smartstore.Admin.Controllers
             var store = Services.StoreContext.GetStoreById(order.StoreId);
             var taxRates = order.TaxRatesDictionary;
 
-            MiniMapper.Map(order, model);
-            PrepareOrderOverviewModel(model, order);
+            await MapperFactory.MapAsync(order, model);
+            await PrepareOrderOverviewModel(model, order);
 
             if (order.AffiliateId != 0)
             {
@@ -2129,6 +2130,7 @@ namespace Smartstore.Admin.Controllers
             var returnRequestsMap = new Multimap<int, ReturnRequest>();
             var giftCardIdsMap = new Multimap<int, int>();
             var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
+            var mapper = MapperFactory.GetMapper<OrderItem, OrderModel.OrderItemModel>();
 
             if (orderItemIds.Length > 0)
             {
@@ -2157,7 +2159,7 @@ namespace Smartstore.Admin.Controllers
                 var product = item.Product;
                 await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
-                var model = MiniMapper.Map<OrderItem, OrderModel.OrderItemModel>(item);
+                var model = await mapper.MapAsync(item);
                 model.IsProductSoftDeleted = product.Deleted;
                 model.ProductName = product.GetLocalized(x => x.Name);
                 model.Sku = item.Sku.NullEmpty() ?? product.Sku;
