@@ -4,6 +4,7 @@
 	
     TODO: (mw) Implement decent responsiveness for upper #controls bar.
 
+	TODO: (mw) Remove path[xmlns] attribute from output.
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
     TODO: (mw) CSS needs better (predictable) structure. Use more class names.
     TODO: (mw) Always work with CSS variables.
@@ -18,7 +19,7 @@
 	QUESTION: (mc) Export as text in a textarea, as download file, or offer both? RE: Offer both!
 */
 
-export class IconGenerator {
+class IconGenerator {
 	constructor() {
         this.reset();
     }

@@ -71,7 +71,7 @@ jQuery(function () {
 
     // Global notification subscriber
     if (window.EventBroker && window._ && typeof PNotify !== 'undefined') {
-        EventBroker.subscribe("message", function (message, data) {
+        EventBroker.subscribe("message", (_message, data) => {
             var opts = _.isString(data) ? { text: data } : data;
             new PNotify(opts);
         });
