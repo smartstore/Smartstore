@@ -2,7 +2,7 @@
 
 @{
     // TODO: (mw) (dt) Bug: Scrolljump when closing the offcanvas menu after auto scroll.
-    //                      Possible solution: Save scrollX/Y before scrolling, then scroll back after the animation is done (See JS code).
+    //                      Possible solution: Save scrollX/Y before scrolling, then scroll back after the animation is done (See smartstore.devtools.js).
 
     if (ViewData["widgetzone"] is not IWidgetZone zone)
     {
@@ -25,7 +25,6 @@
         <aside id="wz-menu" class="d-none d-lg-block bg-dark offcanvas offcanvas-end offcanvas-shadow dispensable">
             <div class="offcanvas-content d-flex flex-column">
                 <div class="wz-zone-list custom-scrollbar custom-scrollbar-invert" attr-class='(!isVisible, "d-flex")'>
-                    @* INFO: (mw) Please STOP using unprefixed, generic CSS class names for specific modules. Pay more attention to the review commits! *@
                     <div sm-if="!isVisible" class="text-white-50 text-center align-self-center p-3">@Html.Raw(T("Plugins.Developer.DevTools.WidgetZoneMenu.ActivateZones"))</div>
                 </div>
 

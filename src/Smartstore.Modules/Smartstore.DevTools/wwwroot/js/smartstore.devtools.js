@@ -193,7 +193,7 @@ export class DevTools {
 
     /**
      * Returns a promise to smoothly scroll to an element and resolve.
-     * @param {number} [timeDelay=100] Set the number of milliseconds between the last scroll and resolution.
+     * @param {number} [timeDelay=50] Set the number of milliseconds between the last scroll and resolution.
      */
     scrollToElementAndThen(element, timeDelay = 50) {
         return new Promise((resolve) => {
