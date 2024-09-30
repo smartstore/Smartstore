@@ -18,7 +18,7 @@
 	QUESTION: (mc) Export as text in a textarea, as download file, or offer both? RE: Offer both!
 */
 
-class IconGenerator {
+export class IconGenerator {
 	constructor() {
         this.reset();
     }
@@ -26,7 +26,7 @@ class IconGenerator {
 	/**
 	* Resets the icon set.
 	*/
-	reset(){
+	reset() {
 		this.iconSet = {
 			// Contains each icon.
 			icons: [],
@@ -43,31 +43,24 @@ class IconGenerator {
 
         const savedFile = localStorage.getItem(blobKey);
         const savedFileName = localStorage.getItem(nameKey);
-        if (!savedFile && !savedFileName) {
+        if (!savedFile || !savedFileName) {
             return false;
         }
 
-        // Wiederherstellen der Datei als Blob
-        const base64Content = savedFile.split(',')[1];
-        const mimeString = savedFile.split(',')[0].split(':')[1].split(';')[0];
+        // Extract metadata and content from the saved file.
+        const metadata = savedFile.split(',');
+		const base64Content = metadata[1];
+        const mimeString = metadata[0].split(':')[1].split(';')[0];
 
-        // Base64 dekodieren
+        // Decode Base64.
         const binaryString = atob(base64Content);
-        const len = binaryString.length;
-        const uint8Array = new Uint8Array(len);
+        const uint8Array = Uint8Array.from(binaryString, c => c.charCodeAt(0));
 
-        // In eine Uint8Array umwandeln
-        for (let i = 0; i < len; i++) {
-            uint8Array[i] = binaryString.charCodeAt(i);
-        }
-
-        // Aus Uint8Array einen Blob erstellen
+        // Create blob and file from the Uint8Array.
         const blob = new Blob([uint8Array], { type: mimeString });
-
-        // Erstelle ein File-Objekt aus dem Blob
         const file = new File([blob], savedFileName, { type: mimeString });
 
-        // Insert a new file into the file input element
+        // Insert the file into the file input element
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         fileInput.files = dataTransfer.files;
@@ -79,7 +72,7 @@ class IconGenerator {
 	* Adds a new file to the icon set.
 	* @param fileType Specifies the type of file to load. 0 = latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
 	*/
-	async addFile(file, fileType){
+	async addFile(file, fileType) {
 		const readFile = new Promise((resolve, _reject) => {
 			const reader = new FileReader();
 
@@ -106,22 +99,21 @@ class IconGenerator {
 
 	/**
 	* Parses an icon set with a given file type.
-	* @param fileType Specifies the type of file to load. 0 = latest icon set (remote), 1 = latest icon set (local), 2 = current subset.
+	* @param fileType Specifies the type of file to load. latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
 	*/
-	parseXML(xml, fileType){
+	parseXML(xml, fileType) {
 		const parser = new DOMParser();
 		const xmlDoc = parser.parseFromString(xml, "text/xml");
 		const symbols = xmlDoc.children[0].children;
 		const mySet = this.iconSet;
 		
-		for (const symbol of symbols){
+		for (const symbol of symbols) {
 			let drawCode = '';
 			let viewBox = symbol.getAttribute('viewBox');
-			let symbolCode = '<symbol viewBox="' + viewBox + '" id="' + symbol.id + '">' + drawCode + '</symbol>';
 			
 			// Retrieve svg code.
-			for (const part of symbol.children){
-				drawCode += "\n\t" + part.outerHTML;
+			for (const part of symbol.children) {
+				drawCode += "\n\t\t" + part.outerHTML;
 			}
 			
 			let iconIndex = mySet.dictionary.indexOf(symbol.id);
@@ -134,7 +126,9 @@ class IconGenerator {
 					icon.isUsed = true;
 				}
 			}
-			else{
+			else {
+				let symbolCode = '\t<symbol viewBox="' + viewBox + '" id="' + symbol.id + '">' + drawCode + '\n\t</symbol>';
+				
 				mySet.icons.push({
 					viewBox: viewBox,
 					id: symbol.id,
@@ -173,6 +167,40 @@ class IconGenerator {
 		
 		iconSetContainer.innerHTML = allIcons;
 	}
+
+    /**
+    * Exports the selected icons as an SVG file.
+    * @param asDownload Specifies whether the export should be returned as a string or downloaded.
+    */
+    exportIconSet(asDownload) {
+        let exportContent = '<svg\n\txmlns="http://www.w3.org/2000/svg"\n\txmlns:xlink="http://www.w3.org/1999/xlink">';
+
+        // Get all selected icons and collect their name attributes.
+        const selectedIcons = document.querySelectorAll('.icon.selected');
+        for (const icon of selectedIcons) {
+            let iconName = icon.getAttribute('name');
+            let iconIndex = this.iconSet.dictionary.indexOf(iconName);
+
+            // TODO: (mw) Pretty print the SVG code.
+            exportContent += '\n' + this.iconSet.icons[iconIndex].symbol;
+        }
+
+        exportContent += '\n</svg>';
+
+        if (!asDownload) {
+            // TODO: (mw) Add exportContent to a textarea for copy-pasting.
+        }
+        else {
+            const exportFile = new Blob([exportContent], { type: 'image/svg+xml' });
+            const exportUrl = URL.createObjectURL(exportFile);
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = exportUrl;
+
+            downloadLink.download = 'icon_set.svg';
+            downloadLink.click();
+        }
+    }
 }
 
 function utf8ToBase64(str) {

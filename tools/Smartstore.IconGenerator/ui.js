@@ -1,12 +1,12 @@
 class DialogBox {
-  show(message) {
-    document.getElementById('dialogMessage').innerText = message;
-    document.getElementById('dialogBox').classList.remove('hidden');
-  }
+    show(message) {
+        document.getElementById('dialogMessage').innerText = message;
+        document.getElementById('dialogBox').classList.remove('hidden');
+    }
 
-  hide() {
-    document.getElementById('dialogBox').classList.add('hidden');
-  }
+    hide() {
+        document.getElementById('dialogBox').classList.add('hidden');
+    }
 }
 
 const dialogBox = new DialogBox();
@@ -14,7 +14,7 @@ const dialogBox = new DialogBox();
 /**
 * Apply the filter logic to the icon display.
 */
-function applyFilter(){
+function applyFilter() {
 	const searchTerm = document.querySelector('#controls input[name=filter]').value;
 	const onlyNew = document.getElementById('filter_new').checked;
 	const onlyUsed = document.getElementById('filter_used').checked;
@@ -40,7 +40,7 @@ function applyFilter(){
 	else {
 		const hiddenIcons = document.querySelectorAll('.icon.hide');
 		
-		for (const icon of hiddenIcons){
+		for (const icon of hiddenIcons) {
 			icon.classList.remove('hide');
 		}
 	}

@@ -6,7 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
 	<link rel="shortcut icon" href="favicon.ico" />
 	<link type="text/css" href="styles.css" rel="stylesheet" />
-	<script src="icon-generator.js"></script>
 	<script src="ui.js"></script>
 </head>
 	<body>
@@ -51,6 +50,8 @@
 		</div>
 		
 		<script content-type="text/javascript" type="module">
+			import { IconGenerator } from "./icon-generator.js"
+
 			const iconGenerator = new IconGenerator();
 
             const remoteInput = document.getElementById('file_remote');
@@ -60,7 +61,7 @@
             iconGenerator.tryRestoreFile(localInput, 1);
 			iconGenerator.tryRestoreFile(subsetInput, 2);
 			if (iconGenerator.tryRestoreFile(remoteInput, 0)) {
-				await addFilesAndRender();
+				addFilesAndRender();
 			}
 
 			/**
@@ -94,6 +95,8 @@
 			document.getElementById('filter_new').addEventListener('change', applyFilter);
 			document.getElementById('filter_used').addEventListener('change', applyFilter);
 			document.getElementById('read_files').addEventListener('click', addFilesAndRender);
+			// TODO: (mw) Change export parameters after testing.
+			document.getElementById('export_subset').addEventListener('click', () => { iconGenerator.exportIconSet(true); });
 			document.getElementById('file_remote').addEventListener('change', (e) => {
 				document.getElementById('read_files').disabled = !e.target.files[0];
 			});
