@@ -5,9 +5,9 @@ using Smartstore.Domain;
 namespace Smartstore.Google.MerchantCenter.Domain
 {
     [Table("GoogleProduct")]
-    [Index(nameof(ProductId), Name = "IX_ProductId")]
-    [Index(nameof(IsTouched), Name = "IX_IsTouched")]
-    [Index(nameof(Export), Name = "IX_Export")]
+    [Index(nameof(ProductId))]
+    [Index(nameof(IsTouched))]
+    [Index(nameof(Export))]
     public class GoogleProduct : BaseEntity
     {
         public int ProductId { get; set; }
