@@ -32,6 +32,8 @@ namespace Smartstore.Google.MerchantCenter.Models
             }
         }
 
+        public string EditUrl { get; set; }
+
         [UIHint("Taxonomy")]
         [LocalizedDisplay("*Products.GoogleCategory")]
         public string Taxonomy { get; set; }
