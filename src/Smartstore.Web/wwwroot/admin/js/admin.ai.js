@@ -66,10 +66,10 @@
             else {
                 Object.assign(params, {
                     entityId: tool.data('entity-id'),
-                    displayAdditionalContentOptions: tool.data('display-additional-content-options'),
+                    displayTocOptions: tool.data('display-additional-content-options'),
                     displayLinkOptions: tool.data('display-link-options'),
                     displayImageOptions: tool.data('display-image-options'),
-                    displayStructureOptions: tool.data('display-structure-options')
+                    displayLayoutOptions: tool.data('display-structure-options')
                 });
             }
 
