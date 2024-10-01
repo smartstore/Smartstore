@@ -9,7 +9,7 @@
     --box-hover-bg: #dee2e6;
     --box-active-bg: #d7ecfa;
     --box-active-outline-bg: #37a0e6;
-    --selected-icon: green;
+    --selected-icon-bg: green;
     --secondary-bg: #1d9f0a;
     --secondary-color: #fff;
     scroll-behavior: smooth;
@@ -73,7 +73,7 @@ button, input, optgroup, select, textarea {
     z-index: 1;
 }
 
-#controls .hidden{
+#controls .hidden {
     display: none;
 }
 
@@ -133,18 +133,18 @@ button, input, optgroup, select, textarea {
 .icon.badge::after {
 	content: '';
 	position: absolute;
-	display: block;
-	top: 0;
-	right: 0.5rem;
-	height: 1rem;
-	color: white;
-	padding: 0.05em 0.2rem 0.1rem;
-	border-radius: 0.3rem;
-	font-size: 0.8em;
+	display: inline-block;
+	top: -7px;
+	right: -8px;
+	color: #fff;
+	padding: 2px 7px;
+	border-radius: 50em;
+	font-size: 10px;
+    font-weight: 600;
 }
 .icon.new::after {
-    content: 'New';
-    background-color: var(--selected-icon);
+    content: 'NEW';
+    background-color: var(--selected-icon-bg);
 }
 .icon span {
 	font-size: 0.875em;

@@ -2,6 +2,17 @@
     MC Review:
     -----------------------------------------------
 	
+    INFO: (mw) Ich sollte nach dem DRITTEN Review nicht so viele NEUE TODOs aufschreiben müssen. Das ist wirklich ermüdend und macht keinen Spaß! Bitte mehr Sorgfalt und Anspruch!
+    -------------------------------------------------------------------------
+    TODO: (mw) Restore the upload file inputs UI to how it was before! WTF?!
+    TODO: (mw) Use objects for iconSet.icons and .dictionary (or better: combine them somehow). Never "scan" such large arrays for items, access them via index/propname.
+    TODO: (mw) "Used" icons are not displayed anymore.
+    TODO: (mw) Now every icon is "New".
+    TODO: (mw) Export button should visually toggle disabled state!
+    TODO: (mw) "Read files" button has no hover state anymore. What is going on?!!
+    TODO: (mw) Make export dialog larger in height
+    TODO: (mw) Export dialog waste of space: Place closer icon (X) at top right, and copy/download label at top left.
+
     TODO: (mw) Implement decent responsiveness for upper #controls bar.
 
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
