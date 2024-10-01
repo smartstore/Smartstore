@@ -10,26 +10,54 @@
 	<script src="ui.js"></script>
 </head>
 	<body>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none;">
+			<!--// UI icons //-->
+			<symbol viewBox="0 0 16 16" id="ui_file_upload">
+				<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+				<path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+			</symbol>
+			<symbol viewBox="0 0 16 16" id="ui_file_export">
+				<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+				<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+			</symbol>
+		</svg>
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="symbol_reference" style="display:none;"></svg>
 		<div id="controls">
-			<div class="files">
+			<div class="hidden">
+				<input type="file" class="file-input" id="file_remote" accept=".svg" />
+				<input type="file" class="file-input" id="file_local" accept=".svg" />
+				<input type="file" class="file-input" id="file_subset" accept=".svg" />
+			</div>
+			<div class="section files">
 				<div class="file">
-					<label for="file_remote">Remote</label>
-					<input type="file" class="file-input" id="file_remote" accept=".svg" />
+					<label class="btn" tabindex="0" for="file_remote">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
+						Upload remote
+					</label>
 				</div>
 				<div class="file">
-					<label for="file_local">Local</label>
-					<input type="file" class="file-input" id="file_local" accept=".svg"/>
+					<label class="btn" tabindex="0" for="file_remote">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
+						Upload local
+					</label>
 				</div>
 				<div class="file">
-					<label for="file_subset">Subset</label>
-					<input type="file" class="file-input" id="file_subset" accept=".svg"/>
+					<label class="btn" tabindex="0" for="file_remote">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
+						Upload subset
+					</label>
 				</div>
+			</div>
+			<div class="section buttons">
 				<button type="button" class="btn" id="read_files">Read files</button>
+				<button type="button" class="btn secondary" id="export_subset" disabled>
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_export" /></svg>
+					Export
+				</button>
 			</div>
 
-			<div class="filter">
-				<input type="text" name="filter" class="form-control" placeholder="Filter" style="margin-right: 4px" />
+			<div class="section filter">
+				<input type="text" name="filter" id="filter_text" class="form-control" placeholder="Filter" style="margin-right: 4px" />
 				<span style="white-space: nowrap">
 					<input type="checkbox" id="filter_new" /><label for="filter_new" style="padding-left: 6px">New</label>
 				</span>
@@ -37,7 +65,6 @@
 					<input type="checkbox" id="filter_used" /><label for="filter_used" style="padding-left: 6px">Used</label>
 				</span>
 			</div>
-			<button type="button" class="btn secondary" id="export_subset" disabled>Export</button>
 		</div>
 		<div id="iconContainer"></div>
 		
@@ -45,71 +72,31 @@
 			<div class="dialog-box">
 				<span id="dialogMessage"></span>
 				<div class="dialog-actions">
-					<button id="closeDialogBtn" onclick="dialogBox.hide();">Close</button>
+					<button id="closeDialogBtn" class="form-control" onclick="dialogBox.hide();">Close</button>
 				</div>
 			</div>
 		</div>
 		
-		<script content-type="text/javascript" type="module">
+		<script content-type="text/javascript">
 			const iconGenerator = new IconGenerator();
 
+            // File input elements.
             const remoteInput = document.getElementById('file_remote');
             const localInput = document.getElementById('file_local');
             const subsetInput = document.getElementById('file_subset');
 
-            iconGenerator.tryRestoreFile(localInput, 1);
-			iconGenerator.tryRestoreFile(subsetInput, 2);
-			if (iconGenerator.tryRestoreFile(remoteInput, 0)) {
-				addFilesAndRender();
-			}
+            // Filter input elements.
+            const textFilter = document.getElementById('filter_text');
+            const newFilter = document.getElementById('filter_new');
+            const usedFilter = document.getElementById('filter_used');
 
-			/**
-			* This function makes sure all files are loaded in sequence.
-			*/
-			async function addFilesAndRender() {
-                const remoteFile = remoteInput.files[0];
-                const localFile = localInput.files[0];
-                const subsetFile = subsetInput.files[0];
-				
-				if (!remoteFile){
-					dialogBox.show('Invalid remote file.')
-					return;
-				}
-				
-				iconGenerator.reset();
-				
-				await iconGenerator.addFile(remoteFile, 0);
-				
-				if (localFile) {
-					await iconGenerator.addFile(localFile, 1);
-				}
-				if (subsetFile) {
-					await iconGenerator.addFile(subsetFile, 2);
-				}
-				
-				iconGenerator.renderIconSet(document.getElementById('iconContainer'));
-			}
-			
-			document.querySelector('#controls input[name=filter]').addEventListener('keyup', applyFilter);
-			document.getElementById('filter_new').addEventListener('change', applyFilter);
-			document.getElementById('filter_used').addEventListener('change', applyFilter);
-			document.getElementById('read_files').addEventListener('click', addFilesAndRender);
-			// TODO: (mw) Change export parameters after testing.
-			document.getElementById('export_subset').addEventListener('click', () => { iconGenerator.exportIconSet(true); });
-			document.getElementById('file_remote').addEventListener('change', (e) => {
-				document.getElementById('read_files').disabled = !e.target.files[0];
-			});
-			document.getElementById('iconContainer').addEventListener('click', (e) => {
-				const icon = e.target.closest('.icon');
-			
-				if (icon != null){
-					// Toggle selection
-					icon.classList.toggle('selected');
-				}
-			});
-			
-			// Make sure the disabled state is not set, when the last used file is cached.
-			document.getElementById('file_remote').dispatchEvent(new Event('change'));
+            // Icon container and buttons.
+            const iconContainer = document.getElementById('iconContainer');
+            const readFilesButton = document.getElementById('read_files');
+			const exportButton = document.getElementById('export_subset');
+
+			tryRestoreFiles();
+			initUI();
 		</script>
 	</body>
 </html>

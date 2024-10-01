@@ -4,19 +4,13 @@
 	
     TODO: (mw) Implement decent responsiveness for upper #controls bar.
 
-	TODO: (mw) Remove path[xmlns] attribute from output.
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
     TODO: (mw) CSS needs better (predictable) structure. Use more class names.
-    TODO: (mw) Always work with CSS variables.
-    TODO: (mw) Make proper ES6 modules and actually LOAD them as modules. Your scripts are NOT modules. Ask ChatGPT!
-    TODO: (mw) The HTML file should not contain any inline scripts. Just initialization stuff.
 */
 
 /*
-	TODO: (mw) Add Prettified export.
-	
-	QUESTION: (mc) Export using tabs or spaces? RE: Tabs.
-	QUESTION: (mc) Export as text in a textarea, as download file, or offer both? RE: Offer both!
+    TODO: (mw) Add separate hover color for each button style.
+    TODO: (mw) When finished, clean up CSS. Remove unused styles and summarize similar ones. Use CSS variables for multiple uses.
 */
 
 class IconGenerator {
@@ -35,30 +29,29 @@ class IconGenerator {
 			dictionary: [],
 			// Contains the SVG code used to reference each symbol.
 			svg: ''
-		};
+        };
 	}
 
+    /**
+     * Tries to restore a file from the local storage.
+     * @param {HTMLInputElement} fileInput The file input element to which the file should be restored.
+     * @param {number} fileType The type of file to restore. 0 = latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
+     * @returns {boolean} True if the file was restored successfully, false otherwise.
+     */
     tryRestoreFile(fileInput, fileType) {
-        const blobKey = 'svg_' + fileType + '_blob';
+        const codeKey = 'svg_' + fileType + '_code';
         const nameKey = 'svg_' + fileType + '_name';
 
-        const savedFile = localStorage.getItem(blobKey);
+        const savedCode = localStorage.getItem(codeKey);
         const savedFileName = localStorage.getItem(nameKey);
-        if (!savedFile || !savedFileName) {
+        if (!savedCode || !savedFileName) {
             return false;
         }
 
-        // Extract metadata and content from the saved file.
-        const metadata = savedFile.split(',');
-		const base64Content = metadata[1];
-        const mimeString = metadata[0].split(':')[1].split(';')[0];
+        const mimeString = 'image/svg+xml';
 
-        // Decode Base64.
-        const binaryString = atob(base64Content);
-        const uint8Array = Uint8Array.from(binaryString, c => c.charCodeAt(0));
-
-        // Create blob and file from the Uint8Array.
-        const blob = new Blob([uint8Array], { type: mimeString });
+        // Create blob and file from the code.
+        const blob = new Blob([savedCode], { type: mimeString });
         const file = new File([blob], savedFileName, { type: mimeString });
 
         // Insert the file into the file input element
@@ -71,6 +64,7 @@ class IconGenerator {
 
 	/**
 	* Adds a new file to the icon set.
+    * @param [HTMLInputElement] file The file input element from which the file should be loaded.
 	* @param fileType Specifies the type of file to load. 0 = latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
 	*/
 	async addFile(file, fileType) {
@@ -78,15 +72,13 @@ class IconGenerator {
 			const reader = new FileReader();
 
             reader.onload = (e) => {
-                const blobKey = 'svg_' + fileType + '_blob';
+                const codeKey = 'svg_' + fileType + '_code';
                 const nameKey = 'svg_' + fileType + '_name';
 
                 this.parseXML(e.target.result, fileType);
 
                 // Save in localStorage
-                const base64String = utf8ToBase64(e.target.result);
-                const dataUrl = `data:${file.type};base64,${base64String}`;
-                localStorage.setItem(blobKey, dataUrl);
+                localStorage.setItem(codeKey, e.target.result);
                 localStorage.setItem(nameKey, file.name);
 
 				resolve();
@@ -100,6 +92,7 @@ class IconGenerator {
 
 	/**
 	* Parses an icon set with a given file type.
+    * @param xml The XML content to parse.
 	* @param fileType Specifies the type of file to load. latest full icon set (remote), 1 = current distributed full icon set (local), 2 = current distributed subset.
 	*/
 	parseXML(xml, fileType) {
@@ -112,13 +105,13 @@ class IconGenerator {
 			let drawCode = '';
 			let viewBox = symbol.getAttribute('viewBox');
 			
-			// Retrieve svg code.
-			for (const part of symbol.children) {
-				drawCode += "\n\t\t" + part.outerHTML;
+			// Retrieve svg code without the namespace.
+            for (const part of symbol.children) {
+				drawCode += "\n\t\t" + part.outerHTML.replaceAll(/xmlns="http:\/\/www.w3.org\/2000\/svg"/g, '');
 			}
 			
-			let iconIndex = mySet.dictionary.indexOf(symbol.id);
-			
+            // Check if the icon already exists in the set.
+            let iconIndex = mySet.dictionary.indexOf(symbol.id);
 			if (iconIndex !== -1) {
 				let icon = mySet.icons[iconIndex];
 				icon.isNew = false;
@@ -170,10 +163,9 @@ class IconGenerator {
 	}
 
     /**
-    * Exports the selected icons as an SVG file.
-    * @param asDownload Specifies whether the export should be returned as a string or downloaded.
+    * Prepares the selected icons as an SVG file.
     */
-    exportIconSet(asDownload) {
+    exportIconSet() {
         let exportContent = '<svg\n\txmlns="http://www.w3.org/2000/svg"\n\txmlns:xlink="http://www.w3.org/1999/xlink">';
 
         // Get all selected icons and collect their name attributes.
@@ -182,37 +174,29 @@ class IconGenerator {
             let iconName = icon.getAttribute('name');
             let iconIndex = this.iconSet.dictionary.indexOf(iconName);
 
-            // TODO: (mw) Pretty print the SVG code.
             exportContent += '\n' + this.iconSet.icons[iconIndex].symbol;
         }
 
         exportContent += '\n</svg>';
 
-        if (!asDownload) {
-            // TODO: (mw) Add exportContent to a textarea for copy-pasting.
-        }
-        else {
-            const exportFile = new Blob([exportContent], { type: 'image/svg+xml' });
-            const exportUrl = URL.createObjectURL(exportFile);
-
-            const downloadLink = document.createElement('a');
-            downloadLink.href = exportUrl;
-
-            downloadLink.download = 'icon_set.svg';
-            downloadLink.click();
-        }
+        this.lastExport = exportContent;
     }
-}
 
-function utf8ToBase64(str) {
-    // Text in UTF-8 Byte-Array umwandeln
-    const utf8Bytes = new TextEncoder().encode(str);
+    /**
+     * Downloads the last export as an SVG file.
+     */
+    downloadExport() {
+        if(!this.lastExport) {
+            return;
+        }
 
-    // Byte-Array in Base64 umwandeln
-    let binary = '';
-    utf8Bytes.forEach((byte) => {
-        binary += String.fromCharCode(byte);
-    });
+        const exportFile = new Blob([this.lastExport], { type: 'image/svg+xml' });
+        const exportUrl = URL.createObjectURL(exportFile);
 
-    return btoa(binary);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = exportUrl;
+
+        downloadLink.download = 'icon_set.svg';
+        downloadLink.click();
+    }
 }

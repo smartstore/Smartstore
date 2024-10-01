@@ -9,6 +9,9 @@
     --box-hover-bg: #dee2e6;
     --box-active-bg: #d7ecfa;
     --box-active-outline-bg: #37a0e6;
+    --selected-icon: green;
+    --secondary-bg: #1d9f0a;
+    --secondary-color: #fff;
     scroll-behavior: smooth;
 }
 
@@ -21,7 +24,6 @@ body {
     overflow-x: hidden;
     margin: 0;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 1rem;
     line-height: 1.4;
     color: var(--color);
 }
@@ -50,10 +52,9 @@ button, input, optgroup, select, textarea {
 #iconContainer {
     display: grid;
     padding: 1rem;
-    grid-gap: 0;
     justify-content: space-between;
     grid-template-columns: repeat(auto-fill, 160px);
-    grid-auto-rows: minmax(var(--m-row-height), max-content);
+    grid-auto-rows: max-content;
     gap: 1.5rem 1rem;
 }
 
@@ -72,34 +73,52 @@ button, input, optgroup, select, textarea {
     z-index: 1;
 }
 
-.filter {
-    margin-left: auto;
-    display: flex;
-    flex-flow: row;
-    align-items: center;
-    gap: .5rem;
+#controls .hidden{
+    display: none;
 }
 
 #controls label {
 	user-select: none;
 }
 
-.files {
-	display: flex;
-	align-items: center;
+.section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 0.5rem;
 }
-.file {
-    width: 250px;
+.section svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
 }
+
 .file > label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
 }
-.file-input {
-    display: block;
-    width: 100%;
+.file > .btn {
+    background-color: transparent;
+    color: var(--color);
+    border: dotted currentColor;
+}
+
+.section.buttons button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.filter {
+    margin-left: auto;
+    flex-flow: row;
+}
+#filter_text {
+    min-width: 10rem;
+    flex-grow: 1;
 }
 
 .icon {
@@ -124,8 +143,8 @@ button, input, optgroup, select, textarea {
 	font-size: 0.8em;
 }
 .icon.new::after {
-	content: 'New';
-	background-color: green;
+    content: 'New';
+    background-color: var(--selected-icon);
 }
 .icon span {
 	font-size: 0.875em;
@@ -158,46 +177,56 @@ button, input, optgroup, select, textarea {
   display: none !important;
 }
 .dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0, .5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0, .5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 .dialog-box {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0, .3);
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 95vw;
+    max-height: 95vh;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0, .3);
 }
 .dialog-box span {
-  display: block;
-  margin-bottom: 20px;
-  font-size: 16px;
+    display: block;
+    margin-bottom: 20px;
+    font-size: 16px;
 }
-.dialog-actions {
-  text-align: right;
+.dialog-box .export-result {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
-.dialog-actions button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.dialog-actions button:hover {
-  background-color: #0056b3;
+.dialog-box .export-result textarea{
+    width: 60vw;
+    height: 40vh;
 }
 
-/* CallToAction Button */
+.dialog-actions {
+    text-align: right;
+}
+.dialog-actions button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.dialog-actions button:hover {
+    background-color: #0056b3;
+}
+
 .btn {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -211,22 +240,55 @@ button, input, optgroup, select, textarea {
     border: none;
     cursor: pointer;
 }
-.btn.secondary {
-	background-color: green;
+.btn:hover {
+    /*background-color: #0b5ed7;*/
 }
-    .btn:hover {
-        background-color: #0b5ed7;
-    }
-    .btn:active {
-        background-color: #0a58ca;
-        box-shadow: inset 0 3px 5px rgba(0,0,0, 0.2);
-    }
-.btn:focus {
-    outline: none;
+.btn:active {
+    background-color: #0a58ca;
+    box-shadow: inset 0 3px 5px rgba(0,0,0, 0.2);
 }
 .btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
     pointer-events: none;
     box-shadow: none;
+}
+.btn.secondary {
+    background-color: var(--secondary-bg);
+    color: var(--secondary-color);
+}
+
+@media (max-width: 1120px) {
+    #controls{
+        flex-wrap: wrap;
+    }
+
+    .section.buttons {
+        margin-inline-start: auto;
+    }
+
+    .section.filter {
+        margin: 0;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    #controls{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section {
+        width: 100%;
+    }
+
+    .file {
+        flex-grow: 1;
+    }
+
+    .btn {
+        justify-content: center;
+        width: 100%;
+    }
 }
