@@ -9,17 +9,16 @@ namespace Smartstore.Web.TagHelpers.Admin
     [HtmlTargetElement("ai-rich-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AIRichTextTagHelper() : AITagHelperBase()
     {
-        // TODO: (mh) (ai) Bad naming. More specific please.
-        const string DisplayAdditionalContentOptionsAttributeName = "display-additional-content-options";
+        const string DisplayTocOptionsAttributeName = "display-toc-options";
         const string DisplayLinkOptionsAttributeName = "display-link-options";
-        const string DisplayStructureOptionsAttributeName = "display-structure-options";
+        const string DisplayLayoutOptionsAttributeName = "display-layout-options";
         const string DisplayImageOptionsAttributeName = "display-image-options";
 
         /// <summary>
-        /// Defines whether the additional content options should be displayed in the rich text creation dialog.
+        /// Defines whether the options to create a table of contents should be displayed in the rich text creation dialog.
         /// </summary>
-        [HtmlAttributeName(DisplayAdditionalContentOptionsAttributeName)]
-        public bool DisplayAdditionalContentOptions { get; set; }
+        [HtmlAttributeName(DisplayTocOptionsAttributeName)]
+        public bool DisplayTocOptions { get; set; }
 
         /// <summary>
         /// Defines whether the link options should be displayed in the rich text creation dialog.
@@ -30,8 +29,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// <summary>
         /// Defines whether the structure options should be displayed in the rich text creation dialog.
         /// </summary>
-        [HtmlAttributeName(DisplayStructureOptionsAttributeName)]
-        public bool DisplayStructureOptions { get; set; } = true;
+        [HtmlAttributeName(DisplayLayoutOptionsAttributeName)]
+        public bool DisplayLayoutOptions { get; set; } = true;
 
         /// <summary>
         /// Defines whether the image options should be displayed in the rich text creation dialog.
@@ -58,10 +57,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attrs = base.GetTagHelperAttributes();
 
-            attrs["data-display-additional-content-options"] = DisplayAdditionalContentOptions.ToString().ToLower();
+            attrs["data-display-toc-options"] = DisplayTocOptions.ToString().ToLower();
             attrs["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower();
             attrs["data-display-image-options"] = DisplayImageOptions.ToString().ToLower();
-            attrs["data-display-structure-options"] = DisplayStructureOptions.ToString().ToLower();
+            attrs["data-display-layout-options"] = DisplayLayoutOptions.ToString().ToLower();
             attrs["data-is-rich-text"] = "true";
 
             return attrs;
