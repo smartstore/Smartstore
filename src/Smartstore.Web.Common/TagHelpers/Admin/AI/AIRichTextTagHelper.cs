@@ -43,6 +43,11 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
+            if (EntityName.IsEmpty())
+            {
+                return;
+            }
+
             var attributes = GetTagHelperAttributes();
             var tool = AIToolHtmlGenerator.GenerateRichTextTool(attributes);
             if (tool == null)
