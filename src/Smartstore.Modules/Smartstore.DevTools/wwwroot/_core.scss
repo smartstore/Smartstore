@@ -24,8 +24,8 @@
     }
 
     &.wz-highlight {
-        /* Info: Animation length: 6 * 0.4s = 2400ms */
-        animation: pulse-highlight 0.4s ease-in-out 6;
+        /* Info: Animation length: 5 * 0.3s = 1500ms */
+        animation: pulse-highlight 0.3s ease-in-out 5;
         // Overwrite .d-none
         display: flex !important;
         z-index: 999;
@@ -50,106 +50,104 @@
     }
 }
 
-#wz-menu {
-    .wz-zone-list {
-        flex-grow: 1;
-        padding: 0 0 1rem 0;
-        overflow: scroll;
+.wz-zone-list {
+    flex-grow: 1;
+    padding: 0 0 1rem 0;
+    overflow: scroll;
+}
 
-        .wz-zone-group {
-            display: flex;
-            flex-direction: column;
-            margin-top: 0.5rem;
+.wz-zone-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.5rem;
 
-            h6 {
-                margin-block: 0.5rem;
-            }
+    h6 {
+        margin-block: 0.5rem;
+    }
 
-            > * {
-                padding-left: 1rem;
-            }
-        }
+    > * {
+        padding-left: 1rem;
+    }
+}
 
-        .wz-zone-pointer-container {
-            display: flex;
-            gap: 0.5rem;
-            padding-block: 0.25rem;
-            transition: 0.3s;
+.wz-zone-pointer-container {
+    display: flex;
+    gap: 0.5rem;
+    padding-block: 0.25rem;
 
-            &:hover, &.active {
-                background-color: rgba(255, 255, 255, 0.1);
-            }
+    &:hover, 
+    &.active {
+        background-color: rgba($white, 0.1);
 
-            .wz-zone-pointer {
-                flex-grow: 1;
-                color: var(--primary-border-subtle);
-                font-size: 0.8rem;
-                text-decoration: none;
-
-                &:hover {
-                    color: var(--white);
-                }
-            }
-        }
-
-        .copy-to-clipboard.text-secondary:hover {
-            color: var(--white) !important;
+        > a.wz-zone-pointer {
+            color: #fff;
         }
     }
+
+    > .wz-copy:hover {
+        color: #fff !important;
+    }
+}
+
+a.wz-zone-pointer {
+    flex-grow: 1;
+    color: var(--primary-border-subtle);
+    font-size: 0.8rem;
+    text-decoration: none;
 }
 
 #wz-toolbar {
     display: flex;
     align-items: stretch;
     background-color: rgba($white, .06);
+}
 
-    .wz-tool {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-grow: 1;
-        padding: 1rem;
-        color: var(--gray-300) !important;
-        font-size: 1.375rem;
+.wz-tool {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding: 1rem;
+    color: var(--gray-300) !important;
+    font-size: 1.375rem;
+    text-decoration: none;
+
+    > svg {
+        width: 1em;
+        height: 1em;
+    }
+
+    &:not(.disabled):hover {
         text-decoration: none;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: var(--white) !important;
+    }
+
+    &[data-persistent] {
+        color: var(--red) !important;
+
+        &:hover {
+            color: lighten(red, 30%) !important;
+        }
 
         > svg {
-            width: 1em;
-            height: 1em;
+            filter: drop-shadow(0 0 2px var(--red));
         }
+    }
 
-        &:not(.disabled):hover {
-            text-decoration: none;
-            background-color: rgba(255, 255, 255, 0.15);
-            color: var(--white) !important;
+    &.show-wz[data-persistent] {
+        color: var(--green) !important;
+
+        > svg {
+            filter: drop-shadow(0 0 2px var(--green));
         }
+    }
 
-        &[data-persistent] {
-            color: var(--red) !important;
+    &.disabled {
+        pointer-events: none;
 
-            &:hover {
-                color: lighten(red, 30%) !important;
-            }
-
-            > svg {
-                filter: drop-shadow(0 0 2px var(--red));
-            }
-        }
-
-        &.show-wz[data-persistent] {
-            color: var(--green) !important;
-
-            > svg {
-                filter: drop-shadow(0 0 2px var(--green));
-            }
-        }
-
-        &.disabled {
-            pointer-events: none;
-
-            > svg {
-                opacity: 0.3;
-            }
+        > svg {
+            opacity: 0.3;
         }
     }
 }
