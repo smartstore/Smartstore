@@ -256,6 +256,15 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public virtual string NoConclusionImage()
             => P("NoConclusionImage");
 
+        /// <summary>
+        /// Should prevent the AI from using text when creating images. (Doesn't not work with dall-e-3. But it must work sooner or later)
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Do not use any text or characters in the images to be created. The image should be purely visual, without any writing or labelling.
+        /// </returns>
+        public virtual string DontUseTextInImages()
+            => P("DontUseTextInImages");
+
         #endregion
 
         /// <summary>

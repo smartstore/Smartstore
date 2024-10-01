@@ -591,6 +591,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.NoConclusionImage",
                 "The conclusion does not receive a picture.",
                 "Das Fazit erhält kein Bild.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseTextInImages",
+                "Do not use any text or characters in the images to be created. The image should be purely visual, without any writing or labelling.",
+                "Verwende keinen Text oder Schriftzeichen in den zu erstellenden Bildern. Das Bild soll rein visuell sein, ohne jegliche Schrift oder Beschriftung.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.UseKeywords",
                 "Use the following keywords: '{0}'.",
                 "Verwende folgende Keywords: '{0}'.");
