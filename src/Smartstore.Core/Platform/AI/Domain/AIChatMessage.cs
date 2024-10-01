@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Text;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Platform.AI
@@ -9,13 +10,17 @@ namespace Smartstore.Core.Platform.AI
     /// </summary>
     public partial class AIChatMessage : IEquatable<AIChatMessage>
     {
-        private string? _content;
+        private StringBuilder? _content;
 
         public AIChatMessage(string? content, string role, string? author = null)
         {
-            _content = content;
             Role = role;
             Author = author;
+
+            if (content != null)
+            {
+                _content = new StringBuilder(content);
+            }
         }
 
         /// <summary>
@@ -51,18 +56,25 @@ namespace Smartstore.Core.Platform.AI
         /// The message content.
         /// </summary>
         public string? Content
-            => _content;
+            => _content?.ToString();
 
         /// <summary>
         /// Appends content to the message.
         /// </summary>
-        public void Append(string? content)
+        public void Append(string content)
         {
-            _content += content;
+            if (_content == null)
+            {
+                _content = new StringBuilder(content);
+            }
+            else
+            {
+                _content.Append(content);
+            }
         }
 
         public override string? ToString()
-            => _content;
+            => _content?.ToString();
 
         #region Equality
 
