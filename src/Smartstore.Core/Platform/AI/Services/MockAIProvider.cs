@@ -95,14 +95,14 @@ namespace Smartstore.Core.Platform.AI
 
             while (currentIndex < input.Length)
             {
-                int length = random.Next(3, 6);
+                var length = random.Next(3, 6);
 
                 if (currentIndex + length > input.Length)
                 {
                     length = input.Length - currentIndex;
                 }
 
-                string substring = input.Substring(currentIndex, length);
+                var substring = input.Substring(currentIndex, length);
 
                 // Let's simulate the velocity of a ChatGPT language model.
                 await Task.Delay(10);
