@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
@@ -12,8 +13,7 @@ namespace Smartstore.Core.Platform.AI
         private readonly static AIProviderFeatures _features =
             AIProviderFeatures.TextCreation |
             AIProviderFeatures.TextTranslation |
-            AIProviderFeatures.ImageCreation |
-            AIProviderFeatures.ImageAnalysis;
+            AIProviderFeatures.ImageCreation;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Platform.AI
             chat.AddMessages(newMessage);
         }
 
-        private async IAsyncEnumerable<string> SplitStringAsync(string input)
+        private static async IAsyncEnumerable<string> SplitStringAsync(string input)
         {
             var random = new Random();
             int currentIndex = 0;
@@ -115,86 +115,22 @@ namespace Smartstore.Core.Platform.AI
             }
         }
 
-        //public override async Task<string[]> CreateImagesAsync(IAIImageModel model, int numImages, CancellationToken cancelToken = default)
-        //{
-        //    Guard.NotNull(model);
-        //    Guard.NotEmpty(model.Prompt);
-        //    Guard.IsPositive(numImages);
+        public override async Task<string[]> CreateImagesAsync(IAIImageModel model, int numImages, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(model);
+            Guard.NotEmpty(model.Prompt);
+            Guard.IsPositive(numImages);
 
-        //    // INFO: there are only three sizes supported.
-        //    string size;
-        //    switch (model.Format)
-        //    {
-        //        case AIImageFormat.Horizontal:
-        //            size = "1792x1024";
-        //            break;
-        //        case AIImageFormat.Vertical:
-        //            size = "1024x1792";
-        //            break;
-        //        case AIImageFormat.Square:
-        //        default:
-        //            size = "1024x1024";
-        //            break;
-        //    }
+            var urls = new List<string>();
 
-        //    var request = new ImageCreateRequest
-        //    {
-        //        Model = AIModels.Dall_e_3,
-        //        Prompt = model.Prompt,
-        //        N = 1, //numImages,
-        //        Quality = "hd",
-        //        ResponseFormat = "url",
-        //        Size = size,
-        //        Style = model.Style.ToString().ToLower()
-        //    };
+            for (int i = 0; i < numImages; i++)
+            {
+                urls.Add($"https://picsum.photos/800/600?random={i}");
+            }
 
-        //    var service = CreateAIService();
-        //    var result = await service.Image.CreateImage(request, cancelToken);
+            await Task.Delay(1000, cancelToken);
 
-        //    if (!result.Successful)
-        //    {
-        //        // Something went wrong.
-        //        throw new AIException($"{result.Error?.Type}: {result.Error?.Message}");
-        //    }
-
-        //    return result.Results
-        //        .Where(x => x.Url.HasValue())
-        //        .Select(x => x.Url)
-        //        .Take(numImages)
-        //        .ToArray();
-        //}
-
-        //public override async Task<string> AnalyzeImageAsync(string url, string prompt, CancellationToken cancelToken = default)
-        //{
-        //    Guard.NotEmpty(url);
-        //    Guard.NotEmpty(prompt);
-
-        //    var service = CreateAIService();
-        //    var request = new ChatCompletionCreateRequest
-        //    {
-        //        Messages =
-        //        [
-        //            ChatMessage.FromSystem("You are an image analyzer assistant."),
-        //            ChatMessage.FromUser(
-        //            [
-        //                MessageContent.TextContent(prompt),
-        //                MessageContent.ImageUrlContent(url, ImageStatics.ImageDetailTypes.High)
-        //            ]),
-        //        ],
-        //        MaxTokens = 300,
-        //        Model = AIModels.Gpt_4_vision_preview,
-        //        N = 1
-        //    };
-
-        //    var completion = await service.ChatCompletion.CreateCompletion(request, cancellationToken: cancelToken);
-        //    if (completion.Successful)
-        //    {
-        //        return completion.Choices.FirstOrDefault()?.Message.Content;
-        //    }
-        //    else
-        //    {
-        //        throw CreateException(completion);
-        //    }
-        //}
+            return [.. urls];
+        }
     }
 }
