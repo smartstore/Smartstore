@@ -14,6 +14,12 @@
         string TargetProperty { get; }
 
         /// <summary>
+        /// The name of the AI model.
+        /// </summary>
+        /// <example>dall-e-3</example>
+        string AIModelName { get; }
+
+        /// <summary>
         /// e.g. photo, painting, illustration
         /// </summary>
         string Medium { get; }

@@ -27,20 +27,32 @@ namespace Smartstore.Core.Platform.AI
         RouteInfo GetDialogRoute(AIChatTopic topic);
 
         /// <summary>
-        /// Starts or continues an AI conversation.
-        /// Adds the latest answer to <paramref name="chat"/>.
+        /// Gets the names of the preferred AI models for text generation.
         /// </summary>
-        /// <returns>Latest answer.</returns>
-        /// <exception cref="AIException"></exception>
-        Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
+        string[] GetPreferedTextModelNames();
+
+        /// <summary>
+        /// Gets the names of the preferred AI models for image creation.
+        /// </summary>
+        string[] GetPreferedImageModelNames();
 
         /// <summary>
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
+        /// <param name="modelName">The name of the AI model, e.g. gpt-4o. <c>null</c> to use the default model.</param>
         /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default);
+        Task<string?> ChatAsync(AIChat chat, string? modelName = null, CancellationToken cancelToken = default);
+
+        /// <summary>
+        /// Starts or continues an AI conversation.
+        /// Adds the latest answer to <paramref name="chat"/>.
+        /// </summary>
+        /// <param name="modelName">The name of the AI model, e.g. gpt-4o. <c>null</c> to use the default model.</param>
+        /// <returns>Latest answer.</returns>
+        /// <exception cref="AIException"></exception>
+        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, string? modelName = null, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).
