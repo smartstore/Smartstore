@@ -32,9 +32,11 @@ namespace Smartstore.Core.Platform.AI
 
         public abstract RouteInfo GetDialogRoute(AIChatTopic topic);
 
-        public virtual string[] GetPreferedTextModelNames() => [];
+        // TODO: (mg) (ai) Maybe better to return ["default"] ?
+        public virtual string[] GetPreferredTextModelNames() => [];
 
-        public virtual string[] GetPreferedImageModelNames() => [];
+        // TODO: (mg) (ai) Maybe better to return ["default"] ?
+        public virtual string[] GetPreferredImageModelNames() => [];
 
         public virtual Task<string> ChatAsync(AIChat chat, string modelName = null, CancellationToken cancelToken = default)
             => throw new NotSupportedException();

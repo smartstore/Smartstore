@@ -29,12 +29,12 @@ namespace Smartstore.Core.Platform.AI
         /// <summary>
         /// Gets the names of the preferred AI models for text generation.
         /// </summary>
-        string[] GetPreferedTextModelNames();
+        string[] GetPreferredTextModelNames();
 
         /// <summary>
         /// Gets the names of the preferred AI models for image creation.
         /// </summary>
-        string[] GetPreferedImageModelNames();
+        string[] GetPreferredImageModelNames();
 
         /// <summary>
         /// Starts or continues an AI conversation.
@@ -43,6 +43,7 @@ namespace Smartstore.Core.Platform.AI
         /// <param name="modelName">The name of the AI model, e.g. gpt-4o. <c>null</c> to use the default model.</param>
         /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
+        // TODO: (mg) (ai) Remove modelName method parameter and move it as property to AIChat. Implement AIChat.UseModel(string) fluent method for convenience.
         Task<string?> ChatAsync(AIChat chat, string? modelName = null, CancellationToken cancelToken = default);
 
         /// <summary>
