@@ -261,7 +261,25 @@
                         <smart-label asp-for="Title" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Title" />
+                        @if (Model.Title.IsEmpty())
+                        {
+                            <ai-suggestion asp-for="Title" 
+                                           entity-type="Topic" 
+                                           mandatory-entity-fields="Body"
+                                           char-limit="4000">
+                                <input asp-for="Title" />
+                            </ai-suggestion>
+                        }
+                        else 
+                        {
+                            <ai-text asp-for="Title"
+                                     entity-name="@Model.Title"
+                                     entity-type="Topic"
+                                     word-count="50"
+                                     char-limit="4000">
+                                <input asp-for="Title" />
+                            </ai-text>
+                        }
                         <span asp-validation-for="Title"></span>
                     </div>
                 </div>
