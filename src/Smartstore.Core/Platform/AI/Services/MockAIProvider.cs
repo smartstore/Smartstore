@@ -105,8 +105,8 @@ namespace Smartstore.Core.Platform.AI
                 var substring = input.Substring(currentIndex, length);
 
                 // Let's simulate the velocity of a ChatGPT language model.
-                await Task.Delay(10);
-
+                await Task.Delay(Random.Shared.Next(5, 25));
+                
                 await Task.Yield();
 
                 yield return substring;
