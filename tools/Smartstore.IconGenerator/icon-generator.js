@@ -2,8 +2,8 @@
     MC Review:
     -----------------------------------------------
 	
-    INFO: (mw) Ich sollte nach dem DRITTEN Review nicht so viele NEUE TODOs aufschreiben müssen. Das ist wirklich ermüdend und macht keinen Spaß! Bitte mehr Sorgfalt und Anspruch!
-    -------------------------------------------------------------------------
+    TODO: (mw) In #controls panel, show the number of icons for each input file label, e.g.: Remote (1.234 icons) - Local (1.123 icons) - Subset (123 selected).
+    
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
     TODO: (mw) CSS needs better (predictable) structure. Use more class names.
 */

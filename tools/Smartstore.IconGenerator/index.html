@@ -81,6 +81,9 @@
 		<script content-type="text/javascript">
 			const iconGenerator = new IconGenerator();
 
+			// TODO: (mw) Script initialization should be done on DOMContentLoaded event. Possibly too early here for DOM access.
+			// TODO: (mw) Very bad practice to declare variables here and clutter the global namespace with them. Programming requires structure and ISOLATION! Be creative and try to implement more sophisticated code.
+
             // File input elements.
             const remoteInput = document.getElementById('file_remote');
             const localInput = document.getElementById('file_local');

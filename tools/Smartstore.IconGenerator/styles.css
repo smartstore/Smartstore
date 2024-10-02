@@ -179,7 +179,7 @@ button, input, optgroup, select, textarea {
     display: inline-block;
     padding: 0.5rem 1rem;
     background-color: var(--primary-bg);
-    color: var(--color);
+    color: var(--primary-color);
     text-decoration: none;
     font-size: inherit;
     font-weight: 400;
@@ -396,6 +396,12 @@ button, input, optgroup, select, textarea {
         --secondary-bg: #157307;
         --secondary-hover-bg: #107e00;
     }
+
+    /* 
+        TODO: (mw) For dark mode, the following rules should not be necessary. Instead, solely overriding CSS vars should be sufficient.
+                   That's the whole point of using CSS vars.
+                   Please refactor (it is a good learning experience for the proper and smart usage of vars).
+    */
 
     .form-control {
         background-color: transparent;
