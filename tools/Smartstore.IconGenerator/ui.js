@@ -1,12 +1,6 @@
 class DialogBox {
-    show(message) {
-        document.getElementById('dialogMessage').innerText = message;
-        document.getElementById('dialogBox').classList.remove('hidden');
-    }
-
     showExport(svgCode) {
-        document.getElementById('dialogMessage').innerHTML = '<div class="export-result"><textarea readonly>' + svgCode +
-            '</textarea><span class="download-message">Copy the code or <a href="#" onclick="iconGenerator.downloadExport();">download</a> the file.</span></div>';
+        document.getElementById('dialogExport').innerHTML = svgCode;
         document.getElementById('dialogBox').classList.remove('hidden');
     }
 
@@ -80,7 +74,6 @@ async function addFilesAndRender() {
     const subsetFile = subsetInput.files[0];
 
     if (!remoteFile) {
-        dialogBox.show('Invalid remote file.')
         return;
     }
 
@@ -141,15 +134,4 @@ function initUI() {
 
     // Make sure the disabled state of the 'Read files' button is not set, when the last used file is cached.
     remoteInput.dispatchEvent(new Event('change'));
-
-    // Make file input labels pressable when focused.
-    const fileInputs = document.querySelectorAll('.file label');
-    for (const label of fileInputs) {
-        label.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                document.querySelector('#' + e.target.getAttribute('for')).click();
-            }
-        });
-    }
 }

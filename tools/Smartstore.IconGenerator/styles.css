@@ -3,6 +3,7 @@
 }
 
 :root {
+    --body-bg: #fff;
     --color: #393f46;
     --box-bg: #e9ecef;
     --box-hover-color: #0a58ca;
@@ -10,8 +11,12 @@
     --box-active-bg: #d7ecfa;
     --box-active-outline-bg: #37a0e6;
     --selected-icon-bg: green;
-    --secondary-bg: #1d9f0a;
+    --primary-color: #fff;
+    --primary-bg: #0d6efd;
+    --primary-hover-bg: #0b5ed7;
     --secondary-color: #fff;
+    --secondary-bg: #1d9f0a;
+    --secondary-hover-bg: #107e00;
     scroll-behavior: smooth;
 }
 
@@ -25,6 +30,7 @@ body {
     margin: 0;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.4;
+    background-color: var(--body-bg);
     color: var(--color);
 }
 
@@ -58,6 +64,12 @@ button, input, optgroup, select, textarea {
     gap: 1.5rem 1rem;
 }
 
+.ui-icon {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+}
+
 #controls {
     position: sticky;
     display: flex;
@@ -72,11 +84,6 @@ button, input, optgroup, select, textarea {
     box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.05);
     z-index: 1;
 }
-
-#controls .hidden {
-    display: none;
-}
-
 #controls label {
 	user-select: none;
 }
@@ -87,22 +94,17 @@ button, input, optgroup, select, textarea {
     align-items: center;
     gap: 0.5rem;
 }
-.section svg {
-    width: 1rem;
-    height: 1rem;
-    fill: currentColor;
-}
 
+.file {
+    max-width: 250px;
+}
 .file > label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     font-weight: 600;
 }
-.file > .btn {
-    background-color: transparent;
-    color: var(--color);
-    border: dotted currentColor;
+.file-input {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
 }
 
 .section.buttons button {
@@ -173,65 +175,11 @@ button, input, optgroup, select, textarea {
     background-color: var(--box-active-bg);
 }
 
-#dialogBox.hidden {
-  display: none !important;
-}
-.dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0, .5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-.dialog-box {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 95vw;
-    max-height: 95vh;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0, .3);
-}
-.dialog-box span {
-    display: block;
-    margin-bottom: 20px;
-    font-size: 16px;
-}
-.dialog-box .export-result {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-.dialog-box .export-result textarea{
-    width: 60vw;
-    height: 40vh;
-}
-
-.dialog-actions {
-    text-align: right;
-}
-.dialog-actions button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.dialog-actions button:hover {
-    background-color: #0056b3;
-}
-
 .btn {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background-color: #0d6efd;
-    color: white;
+    background-color: var(--primary-bg);
+    color: var(--color);
     text-decoration: none;
     font-size: inherit;
     font-weight: 400;
@@ -241,14 +189,14 @@ button, input, optgroup, select, textarea {
     cursor: pointer;
 }
 .btn:hover {
-    /*background-color: #0b5ed7;*/
+    background-color: var(--primary-hover-bg);
 }
 .btn:active {
-    background-color: #0a58ca;
-    box-shadow: inset 0 3px 5px rgba(0,0,0, 0.2);
+    background-color: var(--primary-bg);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
 }
 .btn:disabled {
-    background-color: #ccc;
+    background-color: #ccc !important;
     cursor: not-allowed;
     pointer-events: none;
     box-shadow: none;
@@ -257,9 +205,84 @@ button, input, optgroup, select, textarea {
     background-color: var(--secondary-bg);
     color: var(--secondary-color);
 }
+.btn.secondary:hover {
+    background-color: var(--secondary-hover-bg);
+}
+.btn.secondary:active {
+    background-color: var(--secondary-bg);
+}
 
-@media (max-width: 1120px) {
-    #controls{
+#dialogBox.hidden {
+    display: none !important;
+}
+#dialogBox .title-bar {
+    display: flex;
+    justify-content: space-between;
+}
+#dialogBox .title-bar .title {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+.dialog-overlay {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 1000;
+}
+.dialog-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 95vw;
+    height: 95vh;
+    padding: 20px;
+    background-color: var(--body-bg);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
+}
+#dialogMessage {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+}
+.dialog-box .download-message {
+    font-size: 0.8rem;
+}
+#dialogExport {
+    flex-grow: 1;
+    padding: 0.2rem 0.5rem;
+}
+#closeDialogBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    background-color: var(--box-bg);
+    color: var(--color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#closeDialogBtn:hover {
+    background-color: #bbb;
+}
+
+@media (max-width: 1410px) {
+    .file {
+        max-width: 180px;
+    }
+}
+
+@media (max-width: 1200px) {
+    #controls {
         flex-wrap: wrap;
     }
 
@@ -273,8 +296,8 @@ button, input, optgroup, select, textarea {
     }
 }
 
-@media (max-width: 768px) {
-    #controls{
+@media (max-width: 840px) {
+    #controls {
         flex-direction: column;
         align-items: flex-start;
     }
@@ -284,11 +307,130 @@ button, input, optgroup, select, textarea {
     }
 
     .file {
+        max-width: unset;
         flex-grow: 1;
     }
 
     .btn {
         justify-content: center;
         width: 100%;
+    }
+}
+
+@media (max-width: 630px) {
+    #controls {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .section.files {
+        display: inline-flex;
+        flex-direction: column;
+        width: auto;
+    }
+    .file {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        flex-grow: 0;
+    }
+    .file-input {
+        max-width: 250px;
+        margin-top: 0;
+    }
+
+    .section.buttons {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: auto;
+        margin-inline-start: 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .file-input {
+        max-width: 180px;
+    }
+}
+
+@media (max-width: 420px) {
+    #controls {
+        flex-direction: column;
+        justify-content: unset;
+    }
+
+    .section.files {
+        width: 100%;
+    }
+    .file-input {
+        width: auto;
+        max-width: unset;
+    }
+
+    .section.buttons {
+        width: 100%;
+    }
+
+    #filter_text {
+        min-width: unset;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --body-bg: #212529;
+        --color: #bbb;
+        --box-bg: #343a40;
+        --box-hover-color: #0d6efd;
+        --box-hover-bg: #1c1f24;
+        --box-active-bg: #1c1f24;
+        --box-active-outline-bg: #0d6efd;
+        --selected-icon-bg: #0d6efd;
+        --primary-color: var(--color);
+        --primary-bg: #0849a8;
+        --primary-hover-bg: #0b5ed7;
+        --secondary-color: var(--color);
+        --secondary-bg: #157307;
+        --secondary-hover-bg: #107e00;
+    }
+
+    .form-control {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    #controls {
+        background-color: var(--box-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .section.filter {
+        color: var(--color);
+    }
+
+    .symbol {
+        background-color: var(--box-bg);
+    }
+    .symbol:hover {
+        background-color: var(--box-hover-bg);
+        color: var(--box-hover-color);
+    }
+    .symbol.selected .symbol {
+        outline: 2px solid var(--box-active-outline-bg);
+        background-color: var(--box-active-bg);
+    }
+
+    .dialog-box {
+        background-color: var(--box-bg);
+    }
+    .download-message a:visited, .download-message a:link {
+        color: var(--color);
+    }
+    #dialogExport {
+        background-color: var(--box-active-bg);
+        color: #999;
     }
 }

@@ -12,50 +12,46 @@
 	<body>
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none;">
 			<!--// UI icons //-->
-			<symbol viewBox="0 0 16 16" id="ui_file_upload">
-				<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-				<path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
-			</symbol>
-			<symbol viewBox="0 0 16 16" id="ui_file_export">
+			<symbol viewBox="0 0 16 16" id="ig_ui_export">
+				<!--// Bootstrap download icon //-->
 				<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
 				<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+			</symbol>
+			<symbol viewBox="0 0 16 16" id="ig_ui_grid">
+				<!--// Bootstrap grid-3x3-gap-fill icon //-->
+				<path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z" />
+			</symbol>
+			<symbol viewBox="0 0 16 16" id="ig_ui_x">
+				<!--// Bootstrap x-lg icon //-->
+				<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
 			</symbol>
 		</svg>
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="symbol_reference" style="display:none;"></svg>
 		<div id="controls">
-			<div class="hidden">
-				<input type="file" class="file-input" id="file_remote" accept=".svg" />
-				<input type="file" class="file-input" id="file_local" accept=".svg" />
-				<input type="file" class="file-input" id="file_subset" accept=".svg" />
-			</div>
 			<div class="section files">
 				<div class="file">
-					<label class="btn" tabindex="0" for="file_remote">
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
-						Upload remote
-					</label>
+					<label for="file_remote">Remote</label>
+					<input type="file" class="file-input" id="file_remote" accept=".svg" />
 				</div>
 				<div class="file">
-					<label class="btn" tabindex="0" for="file_remote">
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
-						Upload local
-					</label>
+					<label  for="file_remote">Local</label>
+					<input type="file" class="file-input" id="file_local" accept=".svg" />
 				</div>
 				<div class="file">
-					<label class="btn" tabindex="0" for="file_remote">
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_upload" /></svg>
-						Upload subset
-					</label>
+					<label for="file_remote">Subset</label>
+					<input type="file" class="file-input" id="file_subset" accept=".svg" />
 				</div>
 			</div>
 			<div class="section buttons">
-				<button type="button" class="btn" id="read_files">Read files</button>
+                <button type="button" class="btn" id="read_files">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon"><use xlink:href="#ig_ui_grid" /></svg>
+					Read files
+                </button>
 				<button type="button" class="btn secondary" id="export_subset" disabled>
-					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#ui_file_export" /></svg>
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon"><use xlink:href="#ig_ui_export" /></svg>
 					Export
 				</button>
 			</div>
-
 			<div class="section filter">
 				<input type="text" name="filter" id="filter_text" class="form-control" placeholder="Filter" style="margin-right: 4px" />
 				<span style="white-space: nowrap">
@@ -67,14 +63,19 @@
 			</div>
 		</div>
 		<div id="iconContainer"></div>
-		
 		<div id="dialogBox" class="dialog-overlay hidden">
-			<div class="dialog-box">
-				<span id="dialogMessage"></span>
-				<div class="dialog-actions">
-					<button id="closeDialogBtn" class="form-control" onclick="dialogBox.hide();">Close</button>
+            <div class="dialog-box">
+				<div class="title-bar">
+					<span class="title">Icon subset</span>
+					<button id="closeDialogBtn" onclick="dialogBox.hide();">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon" title="Close"><use xlink:href="#ig_ui_x" /></svg>
+					</button>
 				</div>
-			</div>
+				<div id="dialogMessage">
+					<span class="download-message">Copy the code or <a href="#" onclick="iconGenerator.downloadExport();">download</a> the file.</span>
+					<textarea id="dialogExport" readonly></textarea>
+				</div>
+            </div>
 		</div>
 		
 		<script content-type="text/javascript">

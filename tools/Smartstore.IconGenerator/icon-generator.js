@@ -4,23 +4,11 @@
 	
     INFO: (mw) Ich sollte nach dem DRITTEN Review nicht so viele NEUE TODOs aufschreiben müssen. Das ist wirklich ermüdend und macht keinen Spaß! Bitte mehr Sorgfalt und Anspruch!
     -------------------------------------------------------------------------
-    TODO: (mw) Restore the upload file inputs UI to how it was before! WTF?!
-    TODO: (mw) Use objects for iconSet.icons and .dictionary (or better: combine them somehow). Never "scan" such large arrays for items, access them via index/propname.
-    TODO: (mw) "Used" icons are not displayed anymore.
-    TODO: (mw) Now every icon is "New".
-    TODO: (mw) Export button should visually toggle disabled state!
-    TODO: (mw) "Read files" button has no hover state anymore. What is going on?!!
-    TODO: (mw) Make export dialog larger in height
-    TODO: (mw) Export dialog waste of space: Place closer icon (X) at top right, and copy/download label at top left.
-
-    TODO: (mw) Implement decent responsiveness for upper #controls bar.
-
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
     TODO: (mw) CSS needs better (predictable) structure. Use more class names.
 */
 
 /*
-    TODO: (mw) Add separate hover color for each button style.
     TODO: (mw) When finished, clean up CSS. Remove unused styles and summarize similar ones. Use CSS variables for multiple uses.
 */
 
@@ -35,9 +23,7 @@ class IconGenerator {
 	reset() {
 		this.iconSet = {
 			// Contains each icon.
-			icons: [],
-			// Contains each icon ID.
-			dictionary: [],
+            icons: {},
 			// Contains the SVG code used to reference each symbol.
 			svg: ''
         };
@@ -114,7 +100,8 @@ class IconGenerator {
 		
 		for (const symbol of symbols) {
 			let drawCode = '';
-			let viewBox = symbol.getAttribute('viewBox');
+            let viewBox = symbol.getAttribute('viewBox');
+            let id = symbol.id;
 			
 			// Retrieve svg code without the namespace.
             for (const part of symbol.children) {
@@ -122,9 +109,8 @@ class IconGenerator {
 			}
 			
             // Check if the icon already exists in the set.
-            let iconIndex = mySet.dictionary.indexOf(symbol.id);
-			if (iconIndex !== -1) {
-				let icon = mySet.icons[iconIndex];
+            let icon = mySet.icons[id];
+            if (icon) {
 				icon.isNew = false;
 				
 				if (fileType == 2) {
@@ -132,21 +118,18 @@ class IconGenerator {
 				}
 			}
 			else {
-				let symbolCode = '\t<symbol viewBox="' + viewBox + '" id="' + symbol.id + '">' + drawCode + '\n\t</symbol>';
-				
-				mySet.icons.push({
+				let symbolCode = '\t<symbol viewBox="' + viewBox + '" id="' + id + '">' + drawCode + '\n\t</symbol>';
+
+                mySet.icons[id] = {
 					viewBox: viewBox,
-					id: symbol.id,
-					code: drawCode,
+					id: id,
 					symbol: symbolCode,
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">' + drawCode + '</svg>',
+                    svg: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><use xlink:href="#' + id + '" /></svg>',
                     isNew: true,
                     isUsed: false
-				});
+                };
 				
-				mySet.dictionary.push(symbol.id);
-				
-				mySet.svgCode += symbolCode;
+				mySet.svgSymbolCode += symbolCode;
 			}
 		}
 	}
@@ -156,18 +139,19 @@ class IconGenerator {
 	* @param iconSetContainer The container element to which all displayed icons are added.
 	*/
 	renderIconSet(iconSetContainer){
-		document.getElementById('symbol_reference').innerHTML = this.iconSet.svg;
+        document.getElementById('symbol_reference').innerHTML = this.iconSet.svgSymbolCode;
 		
 		let allIcons = '';
-		
-		for (const icon of this.iconSet.icons) {
+
+        for (const iconId in this.iconSet.icons) {
+            let icon = this.iconSet.icons[iconId];
 			let iconClasses = (icon.isNew ? ' new' : '') +
 				(icon.isUsed ? ' selected' : '');
 			if (iconClasses.length > 0) {
 				iconClasses += ' badge';
 			}
 			
-			allIcons += '<div class="icon' + iconClasses + '" name="' + icon.id + '"><div class="symbol">' + icon.svg + '</div><span>' + icon.id + '</span></div>';
+            allIcons += '<div class="icon' + iconClasses + '" name="' + icon.id + '"><div class="symbol">' + icon.svg + '</div><span>' + icon.id + '</span></div>';
 		}
 		
 		iconSetContainer.innerHTML = allIcons;
@@ -183,9 +167,7 @@ class IconGenerator {
         const selectedIcons = document.querySelectorAll('.icon.selected');
         for (const icon of selectedIcons) {
             let iconName = icon.getAttribute('name');
-            let iconIndex = this.iconSet.dictionary.indexOf(iconName);
-
-            exportContent += '\n' + this.iconSet.icons[iconIndex].symbol;
+            exportContent += '\n' + this.iconSet.icons[iconName].symbol;
         }
 
         exportContent += '\n</svg>';
