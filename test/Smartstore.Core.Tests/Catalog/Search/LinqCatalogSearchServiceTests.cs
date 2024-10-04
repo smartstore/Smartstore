@@ -99,6 +99,27 @@ namespace Smartstore.Core.Tests.Catalog.Search
         }
 
         [Test]
+        public async Task LinqSearch_can_order_by_discounted_price()
+        {
+            var products = new List<Product>
+            {
+                new SearchProduct(1) { Price=100M, Name="a" },
+                new SearchProduct(2) { Price=200M, Name="b" },
+                new SearchProduct(3) { Price=300M, SpecialPrice = 100M, Name="c"},
+                new SearchProduct(4) { Price=400M, SpecialPrice=90M, Name="d" }
+            };
+
+            // After sorting by price, order should be d, c, a, b
+
+            var query = new CatalogSearchQuery();
+            query.SortBy(ProductSortingEnum.PriceAsc);
+
+            var result = await SearchAsync(query, products);
+
+            Assert.That(string.Join(",", (await result.GetHitsAsync()).Select(x => x.Name)), Is.EqualTo("d,c,a,b"));
+        }
+
+        [Test]
         public async Task LinqSearch_can_page_result()
         {
             var products = new List<Product>();
