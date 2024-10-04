@@ -337,7 +337,7 @@ button, input, optgroup, select, textarea {
         flex-grow: 0;
     }
     .file-input {
-        max-width: 250px;
+        max-width: 200px;
         margin-top: 0;
     }
 
@@ -350,13 +350,13 @@ button, input, optgroup, select, textarea {
     }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 580px) {
     .file-input {
         max-width: 180px;
     }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 515px) {
     #controls {
         flex-direction: column;
         justify-content: unset;
@@ -376,6 +376,12 @@ button, input, optgroup, select, textarea {
 
     #filter_text {
         min-width: unset;
+    }
+}
+@media (max-width: 450px) {
+    .file {
+        flex-direction: column;
+        align-items: start;
     }
 }
 

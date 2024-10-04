@@ -2,13 +2,12 @@
     MC Review:
     -----------------------------------------------
 	
-    TODO: (mw) In #controls panel, show the number of icons for each input file label, e.g.: Remote (1.234 icons) - Local (1.123 icons) - Subset (123 selected).
-    
     TODO: (mw) Study the review commits and comply to conventions and quality level in future.
     TODO: (mw) CSS needs better (predictable) structure. Use more class names.
 */
 
 /*
+    TODO: (mw) Refactor the dark mode CSS, so that only CSS variables are used.
     TODO: (mw) When finished, clean up CSS. Remove unused styles and summarize similar ones. Use CSS variables for multiple uses.
 */
 
@@ -27,6 +26,8 @@ class IconGenerator {
 			// Contains the SVG code used to reference each symbol.
 			svg: ''
         };
+
+        this.fileTypeCount = [0, 0, 0];
 	}
 
     /**
@@ -96,12 +97,18 @@ class IconGenerator {
 		const parser = new DOMParser();
 		const xmlDoc = parser.parseFromString(xml, "text/xml");
 		const symbols = xmlDoc.children[0].children;
-		const mySet = this.iconSet;
+        const mySet = this.iconSet;
+
+        // Reset the count of the current file type.
+        this.fileTypeCount[fileType] = 0;
 		
 		for (const symbol of symbols) {
 			let drawCode = '';
             let viewBox = symbol.getAttribute('viewBox');
             let id = symbol.id;
+
+            // Increase the count of the current file type.
+            this.fileTypeCount[fileType]++;
 			
 			// Retrieve svg code without the namespace.
             for (const part of symbol.children) {

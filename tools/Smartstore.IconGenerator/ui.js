@@ -11,127 +11,170 @@ class DialogBox {
 
 const dialogBox = new DialogBox();
 
-/**
-* Apply the filter logic to the icon display.
-*/
-function applyFilter() {
-    const searchTerm = textFilter.value;
-    const onlyNew = newFilter.checked;
-    const onlyUsed = usedFilter.checked;
-	
-	// Filter by search term.
-	if (searchTerm.length > 0 || onlyNew || onlyUsed) {
-		const icons = document.querySelectorAll('.icon');
-		
-		for (const icon of icons) {
-			let iconName = icon.getAttribute('name');
-			
-			if (iconName.includes(searchTerm) &&
-				(!onlyNew || (onlyNew && icon.classList.contains('new'))) &&
-                (!onlyUsed || (onlyUsed && icon.classList.contains('selected')))
-			) {
-				icon.classList.remove('hide');
-			}
-			else {
-				icon.classList.add('hide');
-			}
-		}
-	}
-	else {
-		const hiddenIcons = document.querySelectorAll('.icon.hide');
-		
-		for (const icon of hiddenIcons) {
-			icon.classList.remove('hide');
-		}
-	}
-}
+// The UI object handles the UI logic of the icon generator.
+const iconGeneratorUI = (function () {
+    return {
+        /**
+        * Apply the filter logic to the icon display.
+        */
+        applyFilter: function () {
+            const searchTerm = iconGeneratorUI.textFilter.value;
+            const onlyNew = iconGeneratorUI.newFilter.checked;
+            const onlyUsed = iconGeneratorUI.usedFilter.checked;
 
-/**
- * Show the export dialog.
- */
-function showExport() {
-    iconGenerator.exportIconSet();
-    dialogBox.showExport(iconGenerator.lastExport);
-}
+            // Filter by search term.
+            if (searchTerm.length > 0 || onlyNew || onlyUsed) {
+                const icons = document.querySelectorAll('.icon');
 
-/**
- * Try to restore and render the files from the local storage.
- */
-function tryRestoreFiles() {
-    iconGenerator.tryRestoreFile(localInput, 1);
-    iconGenerator.tryRestoreFile(subsetInput, 2);
-    if (iconGenerator.tryRestoreFile(remoteInput, 0)) {
-        addFilesAndRender();
-    }
-}
+                for (const icon of icons) {
+                    let iconName = icon.getAttribute('name');
 
-/**
-* This function makes sure all files are loaded in sequence.
-*/
-async function addFilesAndRender() {
-    const remoteFile = remoteInput.files[0];
-    const localFile = localInput.files[0];
-    const subsetFile = subsetInput.files[0];
+                    if (iconName.includes(searchTerm) &&
+                        (!onlyNew || (onlyNew && icon.classList.contains('new'))) &&
+                        (!onlyUsed || (onlyUsed && icon.classList.contains('selected')))
+                    ) {
+                        icon.classList.remove('hide');
+                    }
+                    else {
+                        icon.classList.add('hide');
+                    }
+                }
+            }
+            else {
+                const hiddenIcons = document.querySelectorAll('.icon.hide');
 
-    if (!remoteFile) {
-        return;
-    }
+                for (const icon of hiddenIcons) {
+                    icon.classList.remove('hide');
+                }
+            }
+        },
 
-    iconGenerator.reset();
+        /**
+         * Show the export dialog.
+         */
+        showExport: function () {
+            iconGeneratorUI.generator.exportIconSet();
+            dialogBox.showExport(iconGeneratorUI.generator.lastExport);
+        },
 
-    await iconGenerator.addFile(remoteFile, 0);
+        /**
+         * Try to restore and render the files from the local storage.
+         */
+        tryRestoreFiles: function () {
+            const iGenerator = iconGeneratorUI.generator;
 
-    if (localFile) {
-        await iconGenerator.addFile(localFile, 1);
-    }
-    if (subsetFile) {
-        await iconGenerator.addFile(subsetFile, 2);
-    }
+            iGenerator.tryRestoreFile(iconGeneratorUI.localInput, 1);
+            iGenerator.tryRestoreFile(iconGeneratorUI.subsetInput, 2);
+            if (iGenerator.tryRestoreFile(iconGeneratorUI.remoteInput, 0)) {
+                iconGeneratorUI.addFilesAndRender();
+            }
+        },
 
-    iconGenerator.renderIconSet(iconContainer);
+        /**
+        * This function makes sure all files are loaded in sequence.
+        */
+        addFilesAndRender: async function () {
+            const remoteFile = iconGeneratorUI.remoteInput.files[0];
+            const localFile = iconGeneratorUI.localInput.files[0];
+            const subsetFile = iconGeneratorUI.subsetInput.files[0];
 
-    // Make sure the export button is enabled/disabled correctly.
-    iconContainer.dispatchEvent(new Event('click'));
-}
+            if (!remoteFile) {
+                return;
+            }
 
-/**
- * Add event listeners to the controls.
- */
-function initUI() {
-    // Apply filter on keyup and checkbox change.
-    textFilter.addEventListener('keyup', applyFilter);
-    newFilter.addEventListener('change', applyFilter);
-    usedFilter.addEventListener('change', applyFilter);
+            const iGenerator = iconGeneratorUI.generator;
+            iGenerator.reset();
 
-    // Add read and export on buttons.
-    readFilesButton.addEventListener('click', addFilesAndRender);
-    exportButton.addEventListener('click', showExport);
+            await iGenerator.addFile(remoteFile, 0);
 
-    // Enable the 'Read files' button, when a remote file is selected.
-    remoteInput.addEventListener('change', (e) => {
-        readFilesButton.disabled = !e.target.files[0];
-    });
+            if (localFile) {
+                await iGenerator.addFile(localFile, 1);
+            }
+            if (subsetFile) {
+                await iGenerator.addFile(subsetFile, 2);
+            }
 
-    // Select and deselect icons, and enable/disable export button.
-    iconContainer.addEventListener('click', (e) => {
-        const icon = e.target.closest('.icon');
+            iGenerator.renderIconSet(iconGeneratorUI.iconContainer);
 
-        if (icon != null) {
-            // Toggle selection
-            icon.classList.toggle('selected');
+            // Update the file count for remotefile, localfile and subsetfile.
+            document.querySelector('label[for="' + iconGeneratorUI.remoteInput.id + '"]').textContent =
+                'Remote (' + iGenerator.fileTypeCount[0] + ' icon' + (iGenerator.fileTypeCount[0] == 1 ? '' : 's') + ')';
+            document.querySelector('label[for="' + iconGeneratorUI.localInput.id + '"]').textContent =
+                'Local (' + iGenerator.fileTypeCount[1] + ' icon' + (iGenerator.fileTypeCount[1] == 1 ? '' : 's') + ')';
+            document.querySelector('label[for="' + iconGeneratorUI.subsetInput.id + '"]').textContent =
+                'Subset (' + iGenerator.fileTypeCount[2] + ' icon' + (iGenerator.fileTypeCount[2] == 1 ? '' : 's') + ')';
+
+            // Make sure the export button is enabled/disabled correctly.
+            iconGeneratorUI.iconContainer.dispatchEvent(new Event('click'));
+        },
+
+        /**
+         * Add event listeners to the controls.
+         */
+        initUI: function () {
+            // Apply filter on keyup and checkbox change.
+            iconGeneratorUI.textFilter.addEventListener('keyup', iconGeneratorUI.applyFilter);
+            iconGeneratorUI.newFilter.addEventListener('change', iconGeneratorUI.applyFilter);
+            iconGeneratorUI.usedFilter.addEventListener('change', iconGeneratorUI.applyFilter);
+
+            // Add read and export on buttons.
+            iconGeneratorUI.readFilesButton.addEventListener('click', iconGeneratorUI.addFilesAndRender);
+            iconGeneratorUI.exportButton.addEventListener('click', iconGeneratorUI.showExport);
+
+            // Enable the 'Read files' button, when a remote file is selected.
+            iconGeneratorUI.remoteInput.addEventListener('change', (e) => {
+                iconGeneratorUI.readFilesButton.disabled = !e.target.files[0];
+            });
+
+            // Select and deselect icons, and enable/disable export button.
+            iconGeneratorUI.iconContainer.addEventListener('click', (e) => {
+                const icon = e.target.closest('.icon');
+
+                if (icon != null) {
+                    // Toggle selection
+                    icon.classList.toggle('selected');
+                }
+
+                // Enable export button if at least one icon is selected.
+                iconGeneratorUI.exportButton.disabled = !document.querySelector('.icon.selected');
+            });
+
+            // Download the export file in the dialog box.
+            document.getElementById('dialogBox').addEventListener('click', (e) => {
+                if (e.target.id === 'download-export') {
+                    iconGeneratorUI.generator.downloadExport();
+                }
+            });
+
+            // Make sure the disabled state of the 'Read files' button is not set, when the last used file is cached.
+            iconGeneratorUI.remoteInput.dispatchEvent(new Event('change'));
+        },
+
+        init: function () {
+
         }
+    };
+})();
 
-        // Enable export button if at least one icon is selected.
-        exportButton.disabled = !document.querySelector('.icon.selected');
-    });
+// Initialize the UI after the DOM has loaded.
+document.addEventListener('DOMContentLoaded', () => {
+    iconGeneratorUI.generator = new IconGenerator();
 
-    // Download the export file in the dialog box.
-    document.getElementById('dialogBox').addEventListener('click', (e) => {
-        if (e.target.id === 'download-export') {
-            iconGenerator.downloadExport();
-        }
-    });
+    // File input elements.
+    iconGeneratorUI.remoteInput = document.getElementById('file_remote');
+    iconGeneratorUI.localInput = document.getElementById('file_local');
+    iconGeneratorUI.subsetInput = document.getElementById('file_subset');
 
-    // Make sure the disabled state of the 'Read files' button is not set, when the last used file is cached.
-    remoteInput.dispatchEvent(new Event('change'));
-}
+    // Filter input elements.
+    iconGeneratorUI.textFilter = document.getElementById('filter_text');
+    iconGeneratorUI.newFilter = document.getElementById('filter_new');
+    iconGeneratorUI.usedFilter = document.getElementById('filter_used');
+
+    // Icon container and buttons.
+    iconGeneratorUI.iconContainer = document.getElementById('iconContainer');
+    iconGeneratorUI.readFilesButton = document.getElementById('read_files');
+    iconGeneratorUI.exportButton = document.getElementById('export_subset');
+
+    iconGeneratorUI.tryRestoreFiles();
+    iconGeneratorUI.initUI();
+});
