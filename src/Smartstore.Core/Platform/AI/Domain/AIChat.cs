@@ -14,6 +14,13 @@ namespace Smartstore.Core.Platform.AI
 
         public AIChatTopic Topic { get; } = topic;
 
+        /// <summary>
+        /// The name of the AI model.
+        /// <c>null</c> to use the default model.
+        /// </summary>
+        /// <example>gpt-4o</example>
+        public string? ModelName { get; set; }
+
         public IReadOnlyList<AIChatMessage> Messages 
             => _messages;
 

@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Platform.AI.Prompting;
+﻿using Smartstore.Core.Localization;
+using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
@@ -8,6 +9,8 @@ namespace Smartstore.Core.Platform.AI
     /// </summary>
     public abstract class AIProviderBase : IAIProvider
     {
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         public abstract bool IsActive();
 
         public abstract bool Supports(AIProviderFeatures feature);
@@ -32,16 +35,16 @@ namespace Smartstore.Core.Platform.AI
 
         public abstract RouteInfo GetDialogRoute(AIChatTopic topic);
 
-        // TODO: (mg) (ai) Maybe better to return ["default"] ?
-        public virtual string[] GetPreferredTextModelNames() => [];
+        public virtual string[] GetPreferredTextModelNames() 
+            => [T("Admin.Common.Standard")];
 
-        // TODO: (mg) (ai) Maybe better to return ["default"] ?
-        public virtual string[] GetPreferredImageModelNames() => [];
+        public virtual string[] GetPreferredImageModelNames()
+            => [T("Admin.Common.Standard")];
 
-        public virtual Task<string> ChatAsync(AIChat chat, string modelName = null, CancellationToken cancelToken = default)
+        public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, string modelName = null, CancellationToken cancelToken = default)
+        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)

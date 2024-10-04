@@ -19,7 +19,8 @@ namespace Smartstore.Core.Tests.AI
             ];
 
             var chat = new AIChat(AIChatTopic.RichText);
-            chat.AddMessages(messages);
+            chat.UseModel("gpt-4o-mini")
+                .AddMessages(messages);
 
             var serializedChat = JsonConvert.SerializeObject(chat);
             var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat);
@@ -28,6 +29,7 @@ namespace Smartstore.Core.Tests.AI
             {
                 Assert.That(obj, Is.Not.EqualTo(null));
                 Assert.That(obj.Topic, Is.EqualTo(AIChatTopic.RichText));
+                Assert.That(obj.ModelName, Is.EqualTo("gpt-4o-mini"));
                 Assert.That(obj.Messages, Has.Count.EqualTo(3));
 
                 Assert.That(obj.Messages.All(x => x.Content.HasValue()));

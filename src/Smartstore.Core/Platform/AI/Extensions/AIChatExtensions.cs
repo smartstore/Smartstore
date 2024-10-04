@@ -39,5 +39,17 @@ namespace Smartstore.Core.Platform.AI
             Guard.NotNull(chat).AddMessages(AIChatMessage.FromAssistant(message, author));
             return chat;
         }
+
+        /// <summary>
+        /// Applies the name of an AI model.
+        /// </summary>
+        /// <param name="modelName">AI model name.</param>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AIChat UseModel(this AIChat chat, string? modelName)
+        {
+            Guard.NotNull(chat).ModelName = modelName;
+            return chat;
+        }
     }
 }

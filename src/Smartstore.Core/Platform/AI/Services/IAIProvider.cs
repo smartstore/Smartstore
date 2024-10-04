@@ -40,20 +40,17 @@ namespace Smartstore.Core.Platform.AI
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <param name="modelName">The name of the AI model, e.g. gpt-4o. <c>null</c> to use the default model.</param>
         /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
-        // TODO: (mg) (ai) Remove modelName method parameter and move it as property to AIChat. Implement AIChat.UseModel(string) fluent method for convenience.
-        Task<string?> ChatAsync(AIChat chat, string? modelName = null, CancellationToken cancelToken = default);
+        Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <param name="modelName">The name of the AI model, e.g. gpt-4o. <c>null</c> to use the default model.</param>
         /// <returns>Latest answer.</returns>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, string? modelName = null, CancellationToken cancelToken = default);
+        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).

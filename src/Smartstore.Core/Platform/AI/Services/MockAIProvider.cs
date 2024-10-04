@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -14,8 +13,6 @@ namespace Smartstore.Core.Platform.AI
             AIProviderFeatures.TextCreation |
             AIProviderFeatures.TextTranslation |
             AIProviderFeatures.ImageCreation;
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public override bool IsActive()
             => true;
@@ -56,7 +53,7 @@ namespace Smartstore.Core.Platform.AI
             return new(action, "AI", new { area = "Admin" });
         }
 
-        public override Task<string> ChatAsync(AIChat chat, string modelName = null, CancellationToken cancelToken = default)
+        public override Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
         {
             if (chat == null || !chat.HasMessages())
             {
@@ -69,7 +66,7 @@ namespace Smartstore.Core.Platform.AI
             return Task.FromResult(answer);
         }
 
-        public override async IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, string modelName = null, [EnumeratorCancellation] CancellationToken cancelToken = default)
+        public override async IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
             if (chat == null || !chat.HasMessages())
             {
