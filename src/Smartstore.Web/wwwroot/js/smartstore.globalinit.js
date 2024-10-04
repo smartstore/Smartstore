@@ -55,18 +55,10 @@ jQuery(function () {
         });
     }
 
-    // Adjust Tooltip global defaults
-    if (bootstrap?.Tooltip?.Default) {
-        bootstrap.Tooltip.Default.popperConfig = {
-            modifiers: {
-                computeStyle: { gpuAcceleration: false },
-                arrow: { element: '.arrow' },
-                flip: { enabled: true },
-            },
-            preventOverflow: {
-                boundariesElement: 'viewport'
-            }
-        };
+    // Adjust Popper global defaults
+    if (Popper?.Defaults) {
+        const d = Popper?.Defaults;
+        d.modifiers.computeStyle.gpuAcceleration = false;
     }
 
     // Global notification subscriber
