@@ -713,7 +713,7 @@ namespace Smartstore.Core.Security
         public async Task<bool> CanAccessEntity<T>(T entity) where T : BaseEntity
         {
             var customerAuthorizedStores = await _storeMappingService.GetCustomerAuthorizedStoreIdsAsync();
-            if (customerAuthorizedStores.Length == 0)
+            if (_workContext.Value.CurrentCustomer.IsSuperAdmin() || customerAuthorizedStores.Length == 0)
             {
                 return true;
             }

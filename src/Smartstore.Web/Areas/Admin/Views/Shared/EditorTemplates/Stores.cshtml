@@ -36,7 +36,7 @@
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     var authorizedStoreIds = await StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
-    if (authorizedStoreIds.Count() > 0)
+    if (!CommonServices.WorkContext.CurrentCustomer.IsSuperAdmin() && authorizedStoreIds.Count() > 0)
     {
         //Admin is limited to at least one store.
         items = items.Where(x => authorizedStoreIds.Contains(int.Parse(x.Value))).ToList();

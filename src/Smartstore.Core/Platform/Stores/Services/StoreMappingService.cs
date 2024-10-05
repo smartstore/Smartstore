@@ -59,7 +59,7 @@ namespace Smartstore.Core.Stores
         {
             var customerAuthorizedStores = await GetCustomerAuthorizedStoreIdsAsync();
             selectedStoreIds ??= (!_workContext.CurrentCustomer.IsSuperAdmin() ? customerAuthorizedStores : []) ;
-            if (customerAuthorizedStores.Length > 0 && selectedStoreIds.Any(ssId => !customerAuthorizedStores.Any(cas => ssId == cas)))
+            if (!_workContext.CurrentCustomer.IsSuperAdmin() && customerAuthorizedStores.Length > 0 && selectedStoreIds.Any(ssId => !customerAuthorizedStores.Any(cas => ssId == cas)))
             {
                 //Trying to select a store not in the list of authorized stores of the customer making this change
                 return false;
@@ -150,7 +150,7 @@ namespace Smartstore.Core.Stores
 
         public virtual async Task<int[]> GetCustomerAuthorizedStoreIdsAsync()
         {
-            return await GetAuthorizedStoreIdsAsync("Customer", _workContext.CurrentCustomer.Id);
+            return _workContext.CurrentCustomer.IsSuperAdmin() ? [] : await GetAuthorizedStoreIdsAsync("Customer", _workContext.CurrentCustomer.Id);
         }
 
         public virtual async Task PrefetchStoreMappingsAsync(string entityName, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
