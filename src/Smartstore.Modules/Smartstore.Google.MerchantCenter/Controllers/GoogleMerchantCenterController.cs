@@ -41,7 +41,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
             if (entity != null)
             {
-                MiniMapper.Map(entity, model);
+                await MapperFactory.MapAsync(entity, model);
                 model.ProductId = productId;
             }
             else
@@ -88,8 +88,8 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             }
 
             ViewBag.AvailableCategories = model.Taxonomy.HasValue()
-                ? new List<SelectListItem> { new SelectListItem { Text = model.Taxonomy, Value = model.Taxonomy, Selected = true } }
-                : new List<SelectListItem>();
+                ? new List<SelectListItem> { new() { Text = model.Taxonomy, Value = model.Taxonomy, Selected = true } }
+                : null;
 
             ViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[GMC]";
             return View(model);
@@ -172,6 +172,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     model.Sku = x.Sku;
                     model.Name = x.Name;
                     model.ProductTypeId = x.ProductTypeId;
+                    model.EditUrl = Url.Action("Edit", "Product", new { Id = x.ProductId, Area = "Admin" });
 
                     if (model.ProductType != ProductType.SimpleProduct)
                     {
@@ -234,7 +235,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             page ??= 1;
 
             var skip = (page.Value - 1) * take;
-            var (categories, hasMoreItems) = await GetTaxonomyListAsync(search, skip, take);
+            var (categories, hasMoreItems) = await GetTaxonomyList(search, skip, take);
             var items = categories.Select(x => new { id = x, text = x }).ToList();
 
             return Json(new
@@ -244,7 +245,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             });
         }
 
-        private async Task<(List<string> categories, bool hasMoreItems)> GetTaxonomyListAsync(string searchTerm, int skip, int take)
+        private async Task<(List<string> categories, bool hasMoreItems)> GetTaxonomyList(string searchTerm, int skip, int take)
         {
             var categories = new List<string>(take);
             var hasMoreItems = false;
@@ -253,29 +254,23 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             {
                 var provider = _providerManager.GetProvider("Feeds.GoogleMerchantCenterProductXml");
                 var module = provider.Metadata.ModuleDescriptor;
-                var fileDir = "Files";
                 var fileName = $"taxonomy.{Services.WorkContext.WorkingLanguage.LanguageCulture ?? "de-DE"}.txt";
                 var filter = searchTerm.HasValue();
+                var numSkipped = 0;
+                var numTook = 0;
                 string line;
 
-                var file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, fileName));
+                var file = module.ContentRoot.GetFile(PathUtility.Join("Files", fileName));
                 if (!file.Exists)
                 {
-                    file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, "taxonomy.en-US.txt"));
+                    file = module.ContentRoot.GetFile(PathUtility.Join("Files", "taxonomy.en-US.txt"));
                 }
-
-                int numSkipped = 0;
-                int numTook = 0;
 
                 using var reader = new StreamReader(file.OpenRead(), Encoding.UTF8);
                 while ((line = await reader.ReadLineAsync()) != null)
                 {
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        continue;
-                    }
-
-                    if (filter && !line.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrWhiteSpace(line)
+                        || (filter && !line.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }

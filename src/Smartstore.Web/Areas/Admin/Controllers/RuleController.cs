@@ -104,6 +104,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Rule.Read)]
         public async Task<IActionResult> RuleSetList(GridCommand command)
         {
+            var mapper = MapperFactory.GetMapper<RuleSetEntity, RuleSetModel>();
             var ruleSets = await _db.RuleSets
                 .AsNoTracking()
                 .ApplyStandardFilter(null, false, true)
@@ -111,16 +112,17 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = ruleSets.Select(x =>
-            {
-                var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(x);
-                model.ScopeName = Services.Localization.GetLocalizedEnum(x.Scope);
-                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                model.EditUrl = Url.Action(nameof(Edit), "Rule", new { id = x.Id, area = "Admin" });
+            var rows = await ruleSets
+                .SelectAwait(async x =>
+                {
+                    var model = await mapper.MapAsync(x);
+                    model.ScopeName = Services.Localization.GetLocalizedEnum(x.Scope);
+                    model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    model.EditUrl = Url.Action(nameof(Edit), "Rule", new { id = x.Id, area = "Admin" });
 
-                return model;
-            })
-            .ToList();
+                    return model;
+                })
+                .AsyncToList();
 
             var gridModel = new GridModel<RuleSetModel>
             {
@@ -169,7 +171,7 @@ namespace Smartstore.Admin.Controllers
                 return View(model);
             }
 
-            var ruleSet = MiniMapper.Map<RuleSetModel, RuleSetEntity>(model);
+            var ruleSet = await MapperFactory.MapAsync<RuleSetModel, RuleSetEntity>(model);
             _db.Add(ruleSet);
 
             await _db.SaveChangesAsync();
@@ -192,7 +194,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(ruleSet);
+            var model = await MapperFactory.MapAsync<RuleSetEntity, RuleSetModel>(ruleSet);
 
             await PrepareModel(model, ruleSet);
 
@@ -211,7 +213,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            MiniMapper.Map(model, ruleSet);
+            await MapperFactory.MapAsync(model, ruleSet);
 
             if (model.RawRuleData.HasValue())
             {
@@ -264,7 +266,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(ruleSet);
+            var model = await MapperFactory.MapAsync<RuleSetEntity, RuleSetModel>(ruleSet);
 
             ViewData["IsSingleStoreMode"] = Services.StoreContext.IsSingleStoreMode();
             ViewData["UsernamesEnabled"] = _customerSettings.CustomerLoginType != CustomerLoginType.Email;

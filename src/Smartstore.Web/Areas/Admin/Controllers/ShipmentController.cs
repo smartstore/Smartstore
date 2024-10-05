@@ -451,7 +451,7 @@ namespace Smartstore.Admin.Controllers
         {
             // Requires: Shipment.Order
             // Requires for edit: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
-            MiniMapper.Map(shipment, model);
+            await MapperFactory.MapAsync(shipment, model);
 
             var order = shipment.Order;
             var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);

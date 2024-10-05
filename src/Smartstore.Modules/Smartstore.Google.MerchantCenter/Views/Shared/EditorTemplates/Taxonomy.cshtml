@@ -2,10 +2,12 @@
 
 @{
     var size = GetMetadata<string>("size");
+    var placeholder = GetMetadata<string>("placeholder");
 }
 
 <select asp-for="@Model"
         asp-items="@ViewBag.AvailableCategories"
+        asp-placeholder="@placeholder"
         class="edit-control"
         attr-class='(size.HasValue(), "form-control-" + size)'
         data-editor="taxonomy"

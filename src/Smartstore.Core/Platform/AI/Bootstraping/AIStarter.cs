@@ -12,14 +12,14 @@ namespace Smartstore.Core.Bootstrapping
             if (appContext.IsInstalled)
             {
                 // Register all prompt generators.
-                var promptGeneratorTypes = appContext.TypeScanner.FindTypes<IPromptGenerator>();
+                var promptGeneratorTypes = appContext.TypeScanner.FindTypes<IAIPromptGenerator>();
                 foreach (var type in promptGeneratorTypes)
                 {
-                    builder.RegisterType(type).As<IPromptGenerator>().Keyed<IPromptGenerator>(type).InstancePerLifetimeScope();
+                    builder.RegisterType(type).As<IAIPromptGenerator>().Keyed<IAIPromptGenerator>(type).InstancePerLifetimeScope();
                 }
 
-                builder.RegisterType<PromptBuilder>().AsSelf().InstancePerLifetimeScope();
-                builder.RegisterType<PromptResources>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();
                 builder.RegisterType<AIProviderFactory>().As<IAIProviderFactory>().InstancePerLifetimeScope();
             }
         }

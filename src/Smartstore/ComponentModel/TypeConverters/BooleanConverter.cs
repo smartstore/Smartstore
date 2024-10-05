@@ -1,17 +1,18 @@
+using System.Collections.Frozen;
 using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
     internal class BooleanConverter : DefaultTypeConverter
     {
-        private readonly HashSet<string> _trueValues;
-        private readonly HashSet<string> _falseValues;
+        private readonly FrozenSet<string> _trueValues;
+        private readonly FrozenSet<string> _falseValues;
 
         public BooleanConverter(string[] trueValues, string[] falseValues)
             : base(typeof(bool))
         {
-            _trueValues = new HashSet<string>(trueValues, StringComparer.OrdinalIgnoreCase);
-            _falseValues = new HashSet<string>(falseValues, StringComparer.OrdinalIgnoreCase);
+            _trueValues = trueValues.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+            _falseValues = falseValues.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
         }
 
         public ICollection<string> TrueValues

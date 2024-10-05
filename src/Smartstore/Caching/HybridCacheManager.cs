@@ -113,20 +113,20 @@ namespace Smartstore.Caching
             return _stores[_lastIndex].KeysAsync(pattern);
         }
 
-        public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
+        public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null, bool preserveOrder = false)
         {
             Guard.NotEmpty(key);
 
             // Get only from LAST store
-            return _stores[_lastIndex].GetHashSet(key, acquirer);
+            return _stores[_lastIndex].GetHashSet(key, acquirer, preserveOrder);
         }
 
-        public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
+        public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null, bool preserveOrder = false)
         {
             Guard.NotEmpty(key);
 
             // INFO: Get only from LAST store
-            return _stores[_lastIndex].GetHashSetAsync(key, acquirer);
+            return _stores[_lastIndex].GetHashSetAsync(key, acquirer, preserveOrder);
         }
 
         public T Get<T>(string key, bool independent = false)

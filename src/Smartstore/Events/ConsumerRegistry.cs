@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using Smartstore.Collections;
 
 namespace Smartstore.Events
@@ -31,6 +32,11 @@ namespace Smartstore.Events
                     if (method.ReturnType != typeof(Task) && method.ReturnType != typeof(void))
                     {
                         throw new NotSupportedException($"A message consumer method's return type must either be 'void' or '${typeof(Task).FullName}'. Method: '{method}'.");
+                    }
+
+                    if (method.ReturnType == typeof(void) && HasAsyncKeyword(method))
+                    {
+                        throw new NotSupportedException($"The return type of an asynchronous message consumer method must not be 'void'. Method: '{method}'.");
                     }
 
                     if (method.Name.EndsWith("Async") && !descriptor.IsAsync)
@@ -97,6 +103,14 @@ namespace Smartstore.Events
                     yield return method;
                 }
             }
+        }
+
+        private static bool HasAsyncKeyword(MethodInfo method)
+        {
+            return method.GetCustomAttribute<AsyncStateMachineAttribute>()
+                ?.StateMachineType
+                ?.GetTypeInfo()
+                ?.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
         }
 
         public virtual IEnumerable<ConsumerDescriptor> GetConsumers(object message)

@@ -619,11 +619,11 @@ namespace Smartstore.Core.Catalog.Search
                     .OrderBy(x => x.DisplayOrder)
                     .ThenBy(x => x.Id);
             }
-            else if (context.CategoryId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Category"))
+            else if (context.CategoryId > 0 && context.SearchQuery.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
             {
                 return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
             }
-            else if (context.ManufacturerId > 0 && context.SearchQuery.Origin.EqualsNoCase("Catalog/Manufacturer"))
+            else if (context.ManufacturerId > 0 && context.SearchQuery.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
             {
                 return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
             }

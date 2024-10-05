@@ -73,10 +73,12 @@ namespace Smartstore.DevTools.Filters
                     return;
                 }
 
+                var url = filterContext.HttpContext.Request.Path.Value;
+
                 // Display the widget zone menu.
                 _widgetProvider.RegisterWidget(
-                    new[] { "start", "end" },
-                    new ComponentWidget(typeof(WidgetZoneMenuViewComponent)));
+                    ["start", "end"],
+                    new ComponentWidget<WidgetZoneViewComponent>(true));
 
                 // Check, whether the cookie '.Smart.WZVisibility' set and if it's value is 'false'. If so, don't render the widget zones.
                 if (filterContext.HttpContext.Request.Cookies.TryGetValue(".Smart.WZVisibility", out var wzVisibility) && wzVisibility == "false")

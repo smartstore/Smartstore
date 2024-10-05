@@ -62,7 +62,7 @@
                 @{ await DisplayTemplate(); }
             </display-template>
             <edit-template>
-                @Html.EditorFor(model => model.Taxonomy, new { size = "sm" })
+                @Html.EditorFor(model => model.Taxonomy, new { size = "sm", placeholder = emptyCell })
             </edit-template>
         </column>
         <column for="Gender" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">

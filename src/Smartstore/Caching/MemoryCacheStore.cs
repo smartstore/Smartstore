@@ -20,6 +20,7 @@ namespace Smartstore.Caching
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMessageBus _bus;
         private readonly ICollection<string> _keys = new SyncedCollection<string>(new HashSet<string>());
+        private readonly Lock _syncLock = new();
 
         private MemoryCache _cache;
 
@@ -102,13 +103,15 @@ namespace Smartstore.Caching
         public virtual Task<CacheEntry> GetAsync(string key)
             => Task.FromResult(Get(key));
 
-        public virtual ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
+        public virtual ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null, bool preserveOrder = false)
         {
             var result = _cache.GetOrCreate(key, x =>
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, acquirer?.Invoke());
+                var memSet = preserveOrder 
+                    ? new OrderedMemorySet(this, acquirer?.Invoke())
+                    : new MemorySet(this, acquirer?.Invoke());
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });
@@ -116,13 +119,15 @@ namespace Smartstore.Caching
             return result.Value as ISet;
         }
 
-        public virtual async Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
+        public virtual async Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null, bool preserveOrder = false)
         {
             var result = await _cache.GetOrCreateAsync(key, async (x) =>
             {
                 _keys.Add(key);
 
-                var memSet = new MemorySet(this, acquirer == null ? null : await acquirer?.Invoke());
+                var memSet = preserveOrder 
+                    ? new OrderedMemorySet(this,  acquirer == null ? null : await acquirer?.Invoke())
+                    : new MemorySet(this, acquirer == null ? null : await acquirer?.Invoke());
 
                 return new CacheEntry { Key = key, Value = memSet, ValueType = typeof(MemorySet) };
             });
@@ -306,7 +311,7 @@ namespace Smartstore.Caching
 
         public virtual long RemoveByPattern(string pattern)
         {
-            lock (_cache)
+            lock (_syncLock)
             {
                 // Lock atomic operation
                 var keysToRemove = Keys(pattern);
@@ -329,7 +334,7 @@ namespace Smartstore.Caching
         {
             if (pattern.IsEmpty() || pattern == "*")
             {
-                return _keys.ToArray();
+                return [.. _keys];
             }
 
             var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);

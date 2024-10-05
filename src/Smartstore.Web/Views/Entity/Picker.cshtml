@@ -54,13 +54,13 @@
                 {
                     var availableSearchTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableCustomerSearchTypes;
 
-                    <div class="input-group col mb-0">
-                        <label asp-for="CustomerSearchType" class="form-label text-truncate mr-2"></label>
-                        <select asp-for="CustomerSearchType" asp-items="availableSearchTypes"></select>
+                    <div class="d-flex align-items-center">
+                        <label asp-for="CustomerSearchType" class="form-label text-nowrap mr-2 mb-0"></label>
+                        <select asp-for="CustomerSearchType" asp-items="availableSearchTypes" class="entpicker-searchtype"></select>
                     </div>
                 }
 
-                <div class="input-group">
+                <div class="input-group flex-nowrap">
                     <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@T("Search.SearchTerm")" />
                     <span class="input-group-append">
                         <button type="button" class="btn btn-warning" name="SearchEntities" data-loading-text="@(T("Common.Loading"))&hellip;" title="@T("Admin.Common.Search")">

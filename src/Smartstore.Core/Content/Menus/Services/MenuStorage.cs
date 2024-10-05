@@ -100,9 +100,9 @@ namespace Smartstore.Core.Content.Menus
                         .Select(x => x.SystemName)
                         .ToArrayAsync();
 
-                    // INFO: distinct after materialization to keep the sorting and avoid EF warning.
+                    // INFO: Distinct after materialization to keep the sorting and avoid EF warning.
                     return systemNames.Distinct();
-                });
+                }, preserveOrder: true);
             }
 
             return null;

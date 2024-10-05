@@ -4,15 +4,6 @@
     Layout = "_ConfigureModule";
 }
 
-@await Component.InvokeAsync("StoreScope")
-
-<widget target-zone="admin_button_toolbar_before">
-    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-        <i class="fa fa-check"></i>
-        <span>@T("Admin.Common.Save")</span>
-    </button>
-</widget>
-
 <div class="plugin-configuration">
     <div>
         <div class="alert alert-info alert-dismissible">

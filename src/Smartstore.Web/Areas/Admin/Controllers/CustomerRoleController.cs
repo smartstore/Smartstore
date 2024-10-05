@@ -130,6 +130,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> RoleList(GridCommand command)
         {
             var isSuperAdmin = Services.WorkContext.CurrentCustomer.IsSuperAdmin();
+            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
                 .Where(x => isSuperAdmin || x.SystemName != SystemCustomerRoleNames.SuperAdministrators)
@@ -138,13 +139,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = customerRoles.Select(x =>
+            var rows = await customerRoles.SelectAwait(async x =>
             {
-                var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(x);
+                var model = await mapper.MapAsync(x);
                 model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
                 return model;
             })
-            .ToList();
+            .AsyncToList();
 
             return Json(new GridModel<CustomerRoleModel>
             {
@@ -172,7 +173,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);
+                var role = await MapperFactory.MapAsync<CustomerRoleModel, CustomerRole>(model);
                 var result = await _roleManager.CreateAsync(role);
 
                 if (result.Succeeded)
@@ -204,7 +205,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(role);
+            var model = await MapperFactory.MapAsync<CustomerRole, CustomerRoleModel>(role);
 
             await PrepareRoleModel(model, role);
 
@@ -224,7 +225,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (ModelState.IsValid)
                     {
-                        MiniMapper.Map(model, role);
+                        await MapperFactory.MapAsync(model, role);
 
                         var result = await _roleManager.UpdateAsync(role);
                         success = result.Succeeded;
@@ -268,7 +269,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    MiniMapper.Map(model, role);
+                    await MapperFactory.MapAsync(model, role);
                     await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
 
                     // INFO: cached permission tree removed by PermissionRoleMappingHook.

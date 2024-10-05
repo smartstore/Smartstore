@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [debian-latest, windows-latest]
     permissions:
       contents: read
       packages: write
@@ -31,30 +31,29 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Format branch label
       id: format-branch-label
       run: bash .github/FormatBranchLabel.sh
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x # << Change this to current .NET version.
-        include-prerelease: false
+        dotnet-version: 8.x # << Change this to current .NET version.
 
     - name: Build
       run: dotnet build Smartstore.sln -c Release
 
     - name: Log in to the GitHub Container registry
-      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish and Push for Linux
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'debian-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./.build/release --no-restore --no-build --no-self-contained
         docker build --build-arg SOURCE=./.build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:latest -t ghcr.io/smartstore/smartstore-linux:${{ steps.format-branch-label.outputs.branch-label }} .

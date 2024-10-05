@@ -17,7 +17,7 @@
         function (ctx) {
             ctx.find(".cph").tooltip({
                 selector: "a.hint",
-                boundary: 'window',
+                boundary: 'viewport',
                 placement: Smartstore.globalization.culture.isRTL ? "right" : "left",
                 trigger: 'hover',
                 delay: { show: 400, hide: 0 }

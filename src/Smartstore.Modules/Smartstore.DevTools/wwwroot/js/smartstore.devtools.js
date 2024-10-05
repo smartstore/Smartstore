@@ -41,7 +41,7 @@ export class DevTools {
         });
 
         // Add event listener to copy widget zone name to clipboard.
-        wzMenu.on("click", ".copy-to-clipboard", (e) => {
+        wzMenu.on("click", ".wz-copy", (e) => {
             e.preventDefault();
             window.copyTextToClipboard($(e.currentTarget).data('value'));
             return false;
@@ -55,15 +55,15 @@ export class DevTools {
             $(e.currentTarget).parent().addClass('active');
 
             let wzName = $(e.currentTarget).text();
-            let widetzones = $('span[title="' + wzName + '"]');
+            let widgetZones = $('span[title="' + wzName + '"]');
 
-            if (widetzones.length > 0) {
-                let wzFirstPreview = widetzones.first();
+            if (widgetZones.length > 0) {
+                let wzFirstPreview = widgetZones.first();
                 let wzIsHidden = wzFirstPreview.hasClass('d-none');
 
                 if (wzIsHidden) {
                     // Must be visible to scroll to it.
-                    widetzones.removeClass('d-none');
+                    widgetZones.removeClass('d-none');
                 }
 
                 // Save scroll position.
@@ -72,18 +72,18 @@ export class DevTools {
 
                 // Scroll to widget zone and add highlight.
                 this.scrollToElementAndThen(wzFirstPreview[0]).then(() => {
-                    widetzones.addClass('wz-highlight');
-                    
-                    setTimeout(() => {
-                        widetzones.removeClass('wz-highlight');
+                    widgetZones.addClass('wz-highlight');
+
+                    wzFirstPreview.one('animationend', function () { 
+                        widgetZones.removeClass('wz-highlight');
 
                         if (wzIsHidden) {
                             wzFirstPreview.addClass('d-none');
                         }
 
-                        // Restore scroll position.
-                        // window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "smooth" });
-                    }, 2400);
+                        //Restore scroll position.
+                        //window.scrollTo({ top: scrollTop, left: scrollLeft, behavior: "smooth" });
+                    });
                 });
             }
         });
@@ -114,7 +114,7 @@ export class DevTools {
         });
 
         // Add event listener to copy widget zone name to clipboard.
-        wzMenu.on("click", ".copy-to-clipboard", (e) => {
+        wzMenu.on("click", ".wz-copy", (e) => {
             e.preventDefault();
             window.copyTextToClipboard($(e.currentTarget).data('value'));
             return false;
@@ -144,7 +144,7 @@ export class DevTools {
         // Place the widget zone in the correct group and make sure the group is visible.
         $('.wz-zone-group[data-group="' + groupName + '"]')
             .append('<div class="wz-zone-pointer-container"><a href="#" class="wz-zone-pointer text-truncate" title="' + zone.name + '">' + zone.name + '</a>' +
-                '<a href="#" class="copy-to-clipboard text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
+                '<a href="#" class="wz-copy text-secondary" data-value="' + zone.name + '" title="' + this.Res['Common.CopyToClipboard'] +
                 '"><i class="far fa-copy"></i><a></div>')
             .removeClass('d-none');
     }
@@ -193,7 +193,7 @@ export class DevTools {
 
     /**
      * Returns a promise to smoothly scroll to an element and resolve.
-     * @param {number} [timeDelay=100] Set the number of milliseconds between the last scroll and resolution.
+     * @param {number} [timeDelay=50] Set the number of milliseconds between the last scroll and resolution.
      */
     scrollToElementAndThen(element, timeDelay = 50) {
         return new Promise((resolve) => {

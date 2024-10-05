@@ -38,12 +38,11 @@ namespace Smartstore.Google.MerchantCenter
 
         public async Task HandleEventAsync(ModelBoundEvent message)
         {
-            if (!message.BoundModel.CustomProperties.ContainsKey("GMC"))
+            if (!message.BoundModel.CustomProperties.TryGetValue("GMC", out object value)
+                || value is not GoogleProductModel model)
+            {
                 return;
-
-            var model = message.BoundModel.CustomProperties["GMC"] as GoogleProductModel;
-            if (model == null)
-                return;
+            }
 
             var utcNow = DateTime.UtcNow;
             var entity = await _db.GoogleProducts()
@@ -61,7 +60,7 @@ namespace Smartstore.Google.MerchantCenter
                 };
             }
 
-            MiniMapper.Map(model, entity);
+            await MapperFactory.MapAsync(model, entity);
             entity.UpdatedOnUtc = utcNow;
             entity.IsTouched = entity.IsTouched();
 
@@ -96,7 +95,7 @@ namespace Smartstore.Google.MerchantCenter
                 CreatedOnUtc = DateTime.UtcNow
             };
 
-            MiniMapper.Map(originalGoogleProduct, newGoogleProduct);
+            await MapperFactory.MapAsync(originalGoogleProduct, newGoogleProduct);
 
             // Restore entity ID after Minimapper mapped the original ID.
             newGoogleProduct.Id = 0;

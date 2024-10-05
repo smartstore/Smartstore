@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Menus
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IUrlService _urlService;
 
-        private static readonly object _lock = new();
+        private static readonly Lock _lock = new();
         private static LinkBuilderMetadata[] _metadata;
 
         public LinkResolver(

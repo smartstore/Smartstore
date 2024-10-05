@@ -14,11 +14,11 @@
     //                .WithColumn("Name").AsString(400).NotNullable()
     //                .WithColumn("Description").AsMaxString().Nullable()
     //                .WithColumn("PageSize").AsInt32().Nullable()
-    //                .WithColumn("LimitedToStores").AsBoolean().NotNullable().Indexed("IX_LimitedToStores")
-    //                .WithColumn("SubjectToAcl").AsBoolean().NotNullable().Indexed("IX_SubjectToAcl")
+    //                .WithColumn("LimitedToStores").AsBoolean().NotNullable().Indexed()
+    //                .WithColumn("SubjectToAcl").AsBoolean().NotNullable().Indexed()
     //                .WithColumn("Published").AsBoolean().NotNullable()
-    //                .WithColumn("Deleted").AsBoolean().NotNullable().Indexed("IX_Deleted")
-    //                .WithColumn("DisplayOrder").AsInt32().NotNullable().Indexed("IX_DisplayOrder")
+    //                .WithColumn("Deleted").AsBoolean().NotNullable().Indexed()
+    //                .WithColumn("DisplayOrder").AsInt32().NotNullable().Indexed()
     //                .WithColumn("CreatedOnUtc").AsDateTime2().NotNullable()
     //                .WithColumn("UpdatedOnUtc").AsDateTime2().NotNullable();
     //        }

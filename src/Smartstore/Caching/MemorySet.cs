@@ -5,7 +5,59 @@ using System.Collections.Concurrent;
 
 namespace Smartstore.Caching
 {
-    internal sealed class MemorySet : ISet
+    internal class OrderedMemorySet : MemorySet
+    {
+        /// <summary>
+        /// Thread-safe queue for saving the insertion sequence
+        /// </summary>
+        private ConcurrentQueue<string> _orderTracker;
+
+        /// <summary>
+        /// Object for locking during deletion
+        /// </summary>
+        private readonly Lock _clearLock = new();
+
+        public OrderedMemorySet(ICacheStore cache)
+            : this(cache, null)
+        {
+        }
+
+        public OrderedMemorySet(ICacheStore cache, IEnumerable<string>? values)
+            : base(cache, values)
+        {
+            // Initialize the order tracker queue
+            _orderTracker = values != null ? new ConcurrentQueue<string>(values) : new ConcurrentQueue<string>();
+        }
+
+        public override bool Add(string value)
+        {
+            if (base.Add(value))
+            {
+                // If the element is new, add it to the queue
+                _orderTracker.Enqueue(value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void Clear()
+        {
+            lock (_clearLock)
+            {
+                base.Clear();
+                // Reset the queue
+                _orderTracker.Clear();
+            }
+        }
+
+        protected override IEnumerator<string> GetEnumeratorImpl()
+        {
+            return _orderTracker.Where(Contains).GetEnumerator();
+        }
+    }
+
+    internal class MemorySet : ISet
     {
         private readonly ICacheStore _cache;
 
@@ -25,7 +77,7 @@ namespace Smartstore.Caching
         /// <summary>
         /// The backing dictionary. The values are never used; just the keys.
         /// </summary>
-        private readonly ConcurrentDictionary<string, byte> _dictionary;
+        private readonly ConcurrentDictionary<string, bool> _dictionary;
 
         public MemorySet(ICacheStore cache)
             : this(cache, null)
@@ -34,29 +86,33 @@ namespace Smartstore.Caching
 
         public MemorySet(ICacheStore cache, IEnumerable<string>? values)
         {
+            Guard.NotNull(cache);
+            
             _cache = cache;
             _dictionary = values == null 
-                ? new ConcurrentDictionary<string, byte>(DefaultConcurrencyLevel, DefaultCapacity)
-                : new ConcurrentDictionary<string, byte>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, byte>(x, 0)), null);
+                ? new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, DefaultCapacity)
+                : new ConcurrentDictionary<string, bool>(DefaultConcurrencyLevel, values.Select(x => new KeyValuePair<string, bool>(x, false)), null);
         }
 
-        public bool Add(string value)
+        public virtual bool Add(string value)
         {
-            return _dictionary.TryAdd(value, 0);
+            return _dictionary.TryAdd(value, false);
         }
 
         public void AddRange(IEnumerable<string> values)
         {
-            if (values != null)
+            if (values.IsNullOrEmpty())
             {
-                foreach (var v in values)
-                {
-                    Add(v);
-                }
+                return;
+            }
+
+            foreach (var v in values)
+            {
+                Add(v);
             }
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             _dictionary.Clear();
         }
@@ -131,15 +187,12 @@ namespace Smartstore.Caching
             return GetEnumeratorImpl();
         }
 
-        private IEnumerator<string> GetEnumeratorImpl()
+        protected virtual IEnumerator<string> GetEnumeratorImpl()
         {
             // PERF: Do not use dictionary.Keys here because that creates a snapshot
             // of the collection resulting in a List<T> allocation. Instead, use the
             // KeyValuePair enumerator and pick off the Key part.
-            foreach (var kvp in _dictionary)
-            {
-                yield return kvp.Key;
-            }
+            return _dictionary.Select(x => x.Key).GetEnumerator();
         }
 
         #region Async

@@ -145,7 +145,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             // Determine entity id if possible.
             IPagingOptions entity = null;
 
-            if (origin.EqualsNoCase("Catalog/Category"))
+            if (origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
             {
                 var entityId = _httpContextAccessor.HttpContext.GetRouteValueAs<int?>("categoryId");
                 if (entityId.HasValue)
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     entityViewMode = ((Category)entity)?.DefaultViewMode;
                 }
             }
-            else if (origin.EqualsNoCase("Catalog/Manufacturer"))
+            else if (origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
             {
                 var entityId = _httpContextAccessor.HttpContext.GetRouteValueAs<int?>("manufacturerId");
                 if (entityId.HasValue)
@@ -353,7 +353,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         protected virtual void ConvertCategory(CatalogSearchQuery query, string origin)
         {
-            if (origin.EqualsNoCase("Catalog/Category"))
+            if (origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
             {
                 // We don't need category facetting in category pages.
                 return;
@@ -390,7 +390,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             //GetValueFor(query, "m", FacetGroupKind.Brand, out ids);
 
             //// Preselect manufacturer on manufacturer page.... and then?
-            //if (origin.IsCaseInsensitiveEqual("Catalog/Manufacturer"))
+            //if (origin.IsCaseInsensitiveEqual(CatalogSearchQuery.KnownOrigins.Manufacturer))
             //{
             //	minHitCount = 0;
 
@@ -404,7 +404,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             //	}
             //}
 
-            if (origin.EqualsNoCase("Catalog/Manufacturer"))
+            if (origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
             {
                 // We don't need brand facetting in brand pages.
                 return;

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Smartstore SVG Icon Subset Generator</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link type="text/css" href="styles.css" rel="stylesheet" />
+	<script src="icon-generator.js"></script>
+	<script src="ui.js"></script>
+</head>
+	<body>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none;">
+			<!--// UI icons //-->
+			<symbol viewBox="0 0 16 16" id="ig_ui_export">
+				<!--// Bootstrap download icon //-->
+				<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+				<path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+			</symbol>
+			<symbol viewBox="0 0 16 16" id="ig_ui_grid">
+				<!--// Bootstrap grid-3x3-gap-fill icon //-->
+				<path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z" />
+			</symbol>
+			<symbol viewBox="0 0 16 16" id="ig_ui_x">
+				<!--// Bootstrap x-lg icon //-->
+				<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+			</symbol>
+		</svg>
+		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="symbol_reference" style="display:none;"></svg>
+		<div id="controls">
+			<div class="section files">
+				<div class="file">
+					<label for="file_remote">Remote</label>
+					<input type="file" class="file-input" id="file_remote" accept=".svg" />
+				</div>
+				<div class="file">
+					<label  for="file_local">Local</label>
+					<input type="file" class="file-input" id="file_local" accept=".svg" />
+				</div>
+				<div class="file">
+					<label for="file_subset">Subset</label>
+					<input type="file" class="file-input" id="file_subset" accept=".svg" />
+				</div>
+			</div>
+			<div class="section buttons">
+                <button type="button" class="btn" id="read_files" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon"><use xlink:href="#ig_ui_grid" /></svg>
+					Read files
+                </button>
+				<button type="button" class="btn secondary" id="export_subset" disabled>
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon"><use xlink:href="#ig_ui_export" /></svg>
+					Export
+				</button>
+			</div>
+			<div class="section filter">
+				<input type="text" name="filter" id="filter_text" class="form-control" placeholder="Filter" style="margin-right: 4px" />
+				<span style="white-space: nowrap">
+					<input type="checkbox" id="filter_new" /><label for="filter_new" style="padding-left: 6px">New</label>
+				</span>
+				<span style="white-space: nowrap">
+					<input type="checkbox" id="filter_used" /><label for="filter_used" style="padding-left: 6px">Used</label>
+				</span>
+			</div>
+		</div>
+		<div id="iconContainer"></div>
+		<div id="dialogBox" class="dialog-overlay hidden">
+            <div class="dialog-box">
+				<div class="title-bar">
+					<span class="title">Icon subset</span>
+					<button id="closeDialogBtn" onclick="dialogBox.hide();">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="ui-icon" title="Close"><use xlink:href="#ig_ui_x" /></svg>
+					</button>
+				</div>
+				<div id="dialogMessage">
+					<span class="download-message">Copy the code or <a href="#" onclick="iconGenerator.downloadExport();">download</a> the file.</span>
+					<textarea id="dialogExport" readonly></textarea>
+				</div>
+            </div>
+		</div>
+	</body>
+</html>

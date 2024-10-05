@@ -20,7 +20,7 @@ namespace Smartstore.Web.Components
         {
             var model = new SearchBoxModel
             {
-                Origin = "Search/Search",
+                Origin = CatalogSearchQuery.KnownOrigins.Search,
                 SearchUrl = Url.RouteUrl("Search"),
                 InstantSearchUrl = Url.RouteUrl("InstantSearch"),
                 InputPlaceholder = T("Search.SearchBox.Tooltip"),

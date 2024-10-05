@@ -22,9 +22,19 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given <paramref name="dialogType"/>.
+        /// Gets <see cref="RouteInfo"/> for the given <paramref name="topic"/>.
         /// </summary>
-        RouteInfo GetDialogRoute(AIDialogType dialogType);
+        RouteInfo GetDialogRoute(AIChatTopic topic);
+
+        /// <summary>
+        /// Gets the names of the preferred AI models for text generation.
+        /// </summary>
+        string[] GetPreferredTextModelNames();
+
+        /// <summary>
+        /// Gets the names of the preferred AI models for image creation.
+        /// </summary>
+        string[] GetPreferredImageModelNames();
 
         /// <summary>
         /// Starts or continues an AI conversation.
@@ -54,7 +64,7 @@ namespace Smartstore.Core.Platform.AI
         /// </param>
         /// <returns>The URL(s) of the generated image(s).</returns>
         /// <exception cref="AIException"></exception>
-        Task<string[]?> CreateImagesAsync(IImageGenerationPrompt model, int numImages = 1, CancellationToken cancelToken = default);
+        Task<string[]?> CreateImagesAsync(IAIImageModel model, int numImages = 1, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Analyzes an image based on an AI prompt.

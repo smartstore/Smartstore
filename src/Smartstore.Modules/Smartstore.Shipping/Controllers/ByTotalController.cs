@@ -195,7 +195,7 @@ namespace Smartstore.Shipping.Controllers
         [Permission(Permissions.Configuration.Shipping.Create)]
         public async Task<IActionResult> AddShippingRateByTotal(ByTotalModel model)
         {
-            var rate = MiniMapper.Map<ByTotalModel, ShippingRateByTotal>(model);
+            var rate = await MapperFactory.MapAsync<ByTotalModel, ShippingRateByTotal>(model);
             rate.ShippingChargePercentage = model.UsePercentage ? model.ShippingChargePercentage : 0;
             rate.ShippingChargeAmount = model.UsePercentage ? 0 : model.ShippingChargeAmount;
 

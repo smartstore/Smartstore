@@ -57,7 +57,8 @@
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
 - #762 CookieManager: Scripts are now loaded immediately after consent without refreshing the page. 
 - #783 Add a field to shipment entity for the name of the cargo company.
-- #1176 Avoid duplicate assignment of description on the product page
+- #1176 Avoid duplicate assignment of description on the product page.
+- #528 Add an option to no longer allow posts on a forum topic.
 
 ### Improvements
 
@@ -105,6 +106,7 @@
 - PostFinance: added an order note with the selected payment method.
 - Customer import: providing a last name in an address should not be mandatory.
 - URL sanitizer for last visited page tracking.
+- For security reasons, do not delete administrators via the customer grid. Double ask if administrators are deleted via the edit page.
 
 ### Bugfixes
 
@@ -184,6 +186,12 @@
 - #1125 Buttons for payment methods that are restricted by cart rule to the subtotal amount are not shown/hidden when the item quantity is updated on the cart page.
 - Delete media tracks of variant values of permanent deleted products.
 - Show soft-deleted products on order edit page and in order details.
+- Fixed duplicate minus signs for amounts on the order detail page.
+- Category and manufacturer pages show "Relevance" as sorting, although only "Featured" is offered in the selection.
+- #234 The combination of multiple choice values (and-combine of checkbox values) is missing when creating all attribute combinations.
+- GMC:
+  - Fixed missing product edit URL in product grid.
+  - Fixed Google category cannot be cleared in product grid.
 
 
 ## Smartstore 5.1.0

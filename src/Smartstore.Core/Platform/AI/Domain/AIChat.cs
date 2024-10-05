@@ -8,14 +8,18 @@ namespace Smartstore.Core.Platform.AI
     /// Represents an AI conversation consisting of a sequence of messages.
     /// </summary>
     [JsonConverter(typeof(AIChatJsonConverter))]
-    public class AIChat
+    public class AIChat(AIChatTopic topic)
     {
         private readonly List<AIChatMessage> _messages = [];
 
-        public AIChat(params AIChatMessage[] messages)
-        {
-            AddMessages(messages);
-        }
+        public AIChatTopic Topic { get; } = topic;
+
+        /// <summary>
+        /// The name of the AI model.
+        /// <c>null</c> to use the default model.
+        /// </summary>
+        /// <example>gpt-4o</example>
+        public string? ModelName { get; set; }
 
         public IReadOnlyList<AIChatMessage> Messages 
             => _messages;
@@ -28,12 +32,10 @@ namespace Smartstore.Core.Platform.AI
         /// </summary>
         public void AddMessages(params AIChatMessage[] messages)
         {
-            if (messages.IsNullOrEmpty())
+            if (messages != null)
             {
-                return;
+                _messages.AddRange(messages.Where(x => x.Content.HasValue()));
             }
-
-            _messages.AddRange(messages.Where(x => x.Content.HasValue()));
         }
 
         public override string ToString()

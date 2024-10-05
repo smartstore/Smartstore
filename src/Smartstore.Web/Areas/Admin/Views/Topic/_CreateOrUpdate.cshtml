@@ -126,7 +126,7 @@
                         <smart-label asp-for="HtmlId" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="HtmlId" />
+                        <input asp-for="HtmlId" autocomplete="off" />
                         <span asp-validation-for="HtmlId"></span>
                     </div>
                 </div>
@@ -261,7 +261,25 @@
                         <smart-label asp-for="Title" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Title" />
+                        @if (Model.Title.IsEmpty())
+                        {
+                            <ai-suggestion asp-for="Title" 
+                                           entity-type="Topic" 
+                                           mandatory-entity-fields="Body"
+                                           char-limit="4000">
+                                <input asp-for="Title" />
+                            </ai-suggestion>
+                        }
+                        else 
+                        {
+                            <ai-text asp-for="Title"
+                                     entity-name="@Model.Title"
+                                     entity-type="Topic"
+                                     word-count="50"
+                                     char-limit="4000">
+                                <input asp-for="Title" />
+                            </ai-text>
+                        }
                         <span asp-validation-for="Title"></span>
                     </div>
                 </div>
@@ -287,7 +305,7 @@
                         <ai-rich-text asp-for="Body"
                                       entity-name="@Model.Title"
                                       entity-type="Topic"
-                                      display-additional-content-options="true"
+                                      display-toc-options="true"
                                       display-link-options="true">
                             <editor asp-for="Body" />
                         </ai-rich-text>

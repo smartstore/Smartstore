@@ -272,7 +272,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Checkout.TermsOfService",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled",
                 "Admin.Configuration.Settings.Order.TermsOfServiceEnabled.Hint",
-                "Admin.Orders.OrderItem.Update.Info");
+                "Admin.Orders.OrderItem.Update.Info",
+                "Admin.ContentManagement.Topics.Validation.NoWhiteSpace",
+                "Forum.Submit");
             // ----- Quick checkout (end)
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.MaxAvatarFileSize",
@@ -284,8 +286,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ShowOnPasswordRecoveryPage",
                 "Show on password recovery page",
                 "Auf der Seite zur Passwort-Wiederherstellung anzeigen");
-
-            builder.Delete("Admin.ContentManagement.Topics.Validation.NoWhiteSpace");
 
             builder.AddOrUpdate("Admin.Common.HtmlId.NoWhiteSpace",
                 "Spaces are invalid for the HTML attribute 'id'.",
@@ -500,6 +500,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether the \"NEW\" labeling is based on the available start date. By default, the creation date of the product is used.",
                 "Legt fest, ob die \"NEU\"-Kennzeichnung anhand des Datums \"Verfügbar ab\" erfolgt. Standardmäßig wird das Erstellungsdatum des Produktes verwendet.");
 
+            builder.AddOrUpdate("Admin.Customers.NoAdministratorsDeletedWarning",
+                "{0} customers are administrators. They have not been deleted for security reasons. Please delete administrators individually via the customer edit page.",
+                "Bei {0} Kunden handelt es sich um Administratoren. Aus Sicherheitsgründen wurden diese nicht gelöscht. Bitte löschen Sie Administratoren einzeln über die Kundenbearbeitungsseite.");
+
+            builder.AddOrUpdate("Admin.Customers.ReallyDeleteAdministrator",
+                "The customer is an administrator. Do you really want to delete him?",
+                "Bei dem Kunden handelt es sich um einen Administrator. Möchten Sie ihn wirklich löschen?");
+
             AddAIResources(builder);
         }
 
@@ -583,6 +591,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.NoConclusionImage",
                 "The conclusion does not receive a picture.",
                 "Das Fazit erhält kein Bild.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseTextInImages",
+                "Do not use any text or characters in the images to be created. The image should be purely visual, without any writing or labelling.",
+                "Verwende keinen Text oder Schriftzeichen in den zu erstellenden Bildern. Das Bild soll rein visuell sein, ohne jegliche Schrift oder Beschriftung.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.UseKeywords",
                 "Use the following keywords: '{0}'.",
                 "Verwende folgende Keywords: '{0}'.");

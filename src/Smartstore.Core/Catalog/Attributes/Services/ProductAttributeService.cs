@@ -199,7 +199,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             if (source.Count == 0)
             {
-                return new HashSet<int>();
+                return [];
             }
 
             var result = source
@@ -209,6 +209,8 @@ namespace Smartstore.Core.Catalog.Attributes
 
             return new HashSet<int>(result);
         }
+
+        #region Creating all attribute combinations
 
         public virtual async Task<int> CreateAllAttributeCombinationsAsync(int productId)
         {
@@ -235,42 +237,60 @@ namespace Smartstore.Core.Catalog.Attributes
                 return 0;
             }
 
-            var mappedAttributes = attributes
+            var attributeValuesMap = attributes
                 .SelectMany(x => x.ProductVariantAttributeValues)
-                .ToDictionarySafe(x => x.Id, x => x.ProductVariantAttribute);
+                .ToDictionarySafe(x => x.Id);
 
-            var toCombine = new List<List<ProductVariantAttributeValue>>();
-            var resultMatrix = new List<List<ProductVariantAttributeValue>>();
-            var tmpValues = new List<ProductVariantAttributeValue>();
+            var numAdded = 0;
+            var toCombine = new List<List<CombinationItem>>();
+            var resultMatrix = new List<List<CombinationItem>>();
+            var tmpItems = new List<CombinationItem>();
 
-            attributes
-                .Where(x => x.ProductVariantAttributeValues.Any())
-                .Each(x => toCombine.Add(x.ProductVariantAttributeValues.ToList()));
+            // 1. Build a matrix "toCombine" with all attribute values to be combined.
+            foreach (var pva in attributes.Where(x => x.ProductVariantAttributeValues.Count > 0))
+            {
+                var values = pva.ProductVariantAttributeValues;
+
+                if (pva.IsMultipleChoice && values.Count > 1)
+                {
+                    var combinations = GetCombinations(values.Select(v => v.Id).ToList());
+
+                    toCombine.Add(combinations
+                        .Select(x => new CombinationItem(pva.Id, [.. x]))
+                        .ToList());
+                }
+                else
+                {
+                    toCombine.Add(values
+                        .Select(v => new CombinationItem(pva.Id, v.Id))
+                        .ToList());
+                }
+            }
 
             if (toCombine.Count == 0)
             {
                 return 0;
             }
 
-            CombineAll(0, tmpValues);
+            // 2. Combine all items of "toCombine" and put the combinations to "resultMatrix".
+            CombineAll(0, tmpItems);
 
-            var numAdded = 0;
-
+            // 3. Create ProductVariantAttributeCombination entities from "resultMatrix" and store them in the database.
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
-                foreach (var values in resultMatrix)
+                foreach (var items in resultMatrix)
                 {
-                    var attributeSelection = new ProductVariantAttributeSelection(string.Empty);
+                    var selection = new ProductVariantAttributeSelection(string.Empty);
 
-                    foreach (var value in values)
+                    foreach (var item in items)
                     {
-                        attributeSelection.AddAttributeValue(mappedAttributes[value.Id].Id, value.Id);
+                        selection.AddAttribute(item.AttributeId, item.ValueIds.Select(id => (object)id));
                     }
 
                     _db.ProductVariantAttributeCombinations.Add(new()
                     {
                         ProductId = productId,
-                        RawAttributes = attributeSelection.AsJson(),
+                        RawAttributes = selection.AsJson(),
                         StockQuantity = 10000,
                         AllowOutOfStockOrders = true,
                         IsActive = true
@@ -285,25 +305,15 @@ namespace Smartstore.Core.Catalog.Attributes
                 await scope.CommitAsync();
             }
 
-            //foreach (var y in resultMatrix)
-            //{
-            //	var sb = new System.Text.StringBuilder();
-            //	foreach (var x in y)
-            //	{
-            //		sb.AppendFormat("{0} ", x.Name);
-            //	}
-            //	sb.ToString().Dump();
-            //}
-
             return numAdded;
 
-            void CombineAll(int row, List<ProductVariantAttributeValue> tmp)
+            void CombineAll(int row, List<CombinationItem> tmp)
             {
                 var combine = toCombine[row];
 
                 for (var col = 0; col < combine.Count; ++col)
                 {
-                    var lst = new List<ProductVariantAttributeValue>(tmp)
+                    var lst = new List<CombinationItem>(tmp)
                     {
                         combine[col]
                     };
@@ -318,6 +328,59 @@ namespace Smartstore.Core.Catalog.Attributes
                     }
                 }
             }
+
+            //void Dump(List<List<CombinationItem>> list)
+            //{
+            //    var sb = new System.Text.StringBuilder();
+            //    foreach (var y in list)
+            //    {
+            //        foreach (var x in y)
+            //        {
+            //            if (y.IndexOf(x) != 0)
+            //            {
+            //                sb.Append(", ");
+            //            }
+            //            sb.Append(string.Join('+', x.ValueIds.Select(id => attributeValueMap[id]?.Name)));
+            //        }
+            //        sb.AppendLine();
+            //    }
+            //    sb.ToString().Dump();
+            //}
         }
+
+        static List<List<T>> GetCombinations<T>(List<T> list)
+        {
+            var result = new List<List<T>>
+            {
+                new()
+            };
+
+            foreach (var item in list)
+            {
+                var count = result.Count;
+                for (var i = 0; i < count; i++)
+                {
+                    var newCombination = new List<T>(result[i]) { item };
+                    result.Add(newCombination);
+                }
+            }
+
+            result.RemoveAt(0);
+            return result;
+        }
+
+        record CombinationItem
+        {
+            public CombinationItem(int attributeId, params int[] valueIds)
+            {
+                AttributeId = attributeId;
+                ValueIds.AddRange(valueIds);
+            }
+
+            public int AttributeId { get; }
+            public List<int> ValueIds { get; } = [];
+        }
+
+        #endregion
     }
 }

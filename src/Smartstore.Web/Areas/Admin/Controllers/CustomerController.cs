@@ -223,6 +223,8 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
+            ViewBag.IsAdmin = customer.IsAdmin() || customer.IsSuperAdmin();
+
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled && model.CountryId > 0)
             {
@@ -937,12 +939,34 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.Customers.GetManyAsync(ids, true);
+                var toDelete = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .Where(x => ids.Contains(x.Id))
+                    .ToListAsync();
+
+                var adminIds = toDelete
+                    .Where(c => c.CustomerRoleMappings.Any(rm => 
+                        rm.CustomerRole.IsSystemRole && 
+                        rm.CustomerRole.Active && 
+                        (rm.CustomerRole.SystemName == SystemCustomerRoleNames.Administrators || rm.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators)))
+                    .Select(x => x.Id)
+                    .ToList();
+
+                if (adminIds.Count > 0)
+                {
+                    // Do not delete administrators here for security reasons.
+                    toDelete = toDelete.Where(x => !adminIds.Contains(x.Id)).ToList();
+                }
 
                 _db.Customers.RemoveRange(toDelete);
                 await _db.SaveChangesAsync();
 
                 numDeleted = toDelete.Count;
+
+                if (adminIds.Count > 0)
+                {
+                    NotifyWarning(T("Admin.Customers.NoAdministratorsDeletedWarning", adminIds.Count));
+                }
             }
 
             return Json(new { Success = true, Count = numDeleted });

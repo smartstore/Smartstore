@@ -3,7 +3,7 @@
 # the source within the container
 # -----------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Copy solution and source
 ARG SOLUTION=Smartstore.sln
@@ -26,18 +26,18 @@ RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
 	--no-restore
 
 # Build Docker image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 EXPOSE 80
 EXPOSE 443
-ENV ASPNETCORE_URLS "http://+:80;https://+:443"
+ENV ASPNETCORE_URLS="http://+:80;https://+:443"
 WORKDIR /app
 COPY --from=build /app/release/publish .
 
 # Install wkhtmltopdf
 RUN apt update &&\
-	apt -y install wget &&\
-	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb &&\ 
-	apt -y install ./wkhtmltox_0.12.6-1.buster_amd64.deb &&\
-	rm ./wkhtmltox_0.12.6-1.buster_amd64.deb
+    apt -y install wget &&\
+    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\ 
+    apt -y install ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb &&\
+    rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
 
 ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]

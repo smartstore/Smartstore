@@ -175,7 +175,7 @@ namespace Smartstore.Collections
 
         private Dictionary<object, TreeNodeBase<T>> GetIdNodeMap()
         {
-            var map = Root._idNodeMap ??= new Dictionary<object, TreeNodeBase<T>>();
+            var map = Root._idNodeMap ??= [];
             return map;
         }
 

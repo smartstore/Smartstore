@@ -1,9 +1,9 @@
 ﻿namespace Smartstore.Core.Platform.AI.Prompting
 {
     /// <summary>
-    /// Represents a text generation model with language properties.
+    /// Represents a model for text generation with language properties.
     /// </summary>
-    public partial interface ILanguageGenerationPrompt
+    public partial interface IAILanguageModel
     {
         /// <summary>
         /// Gets or sets a value defining the id of the choosen language.

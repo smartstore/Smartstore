@@ -32,7 +32,7 @@ namespace Smartstore.ComponentModel
         private readonly static MapperLifetime _scopeMapperLifetime = new ScopeMapperLifetime();
         private readonly static MapperLifetime _transientMapperLifetime = new TransientMapperLifetime();
         // Init lock
-        private readonly static object _lock = new();
+        private readonly static Lock _lock = new();
 
         #region Init
 

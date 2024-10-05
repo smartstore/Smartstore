@@ -14,11 +14,11 @@
 
     <LocaleResource Name="AdminInstruction">
         <Value>
-            <![CDATA[<ul>
+            <![CDATA[<ul class="mb-0">
 			<li>Either the GTIN (such as UPC, EAN, etc.) or manufacturer and manufacturer part number (MPN) are required for product identification. Google recommends that all three pieces of information be specified.</li>
 			<li>Specify default tax and shipping values in your Google Merchant Center account settings.</li>
-			<li>In order to get more info about required fields look at the following article <a href="http://support.google.com/merchants/bin/answer.py?hl=en&answer=188494" target="_blank">Product feed specification</a>.</li>
-			<li>You can find a list of all Google categories <a href="http://support.google.com/merchants/bin/answer.py?hl=en&answer=160081" target="_blank">here</a>.</li>
+			<li>In order to get more info about required fields look at the following article <a class="alert-link" href="https://support.google.com/merchants/answer/7052112?hl=en" target="_blank">Product feed specification</a>.</li>
+			<li>You can find a list of all Google categories <a class="alert-link" href="https://support.google.com/merchants/answer/6324436?hl=en" target="_blank">here</a>.</li>
 			</ul>]]>
         </Value>
     </LocaleResource>

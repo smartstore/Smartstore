@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,6 +12,8 @@ namespace Smartstore.Utilities
 {
     public static partial class CommonHelper
     {
+        private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
         private static readonly int _pointerSize = Environment.Is64BitOperatingSystem
             ? sizeof(long)
             : sizeof(int);
@@ -139,17 +142,8 @@ namespace Smartstore.Utilities
         #endregion
 
         #region Randomizer
-
-        [ThreadStatic]
-        private static Random _random;
-
-        private static Random GetRandomizer()
-        {
-            return _random ??= new Random();
-        }
-
         /// <summary>
-        /// Generate random digit code
+        /// Generates a random digit code
         /// </summary>
         /// <param name="length">Length</param>
         /// <returns>Result string</returns>
@@ -158,10 +152,36 @@ namespace Smartstore.Utilities
             var buffer = new byte[length];
             for (int i = 0; i < length; ++i)
             {
-                buffer[i] = (byte)GetRandomizer().Next(10);
+                buffer[i] = (byte)Random.Shared.Next(10);
             }
 
             return string.Join(string.Empty, buffer);
+        }
+
+        /// <summary>
+        /// Generates a cryptographically secure unique random string with a specified length.
+        /// The string is composed of alphanumeric characters (A-Z, a-z, 0-9).
+        /// The default length of 16 characters provides approximately 96 bits of entropy, 
+        /// which makes collisions highly unlikely.
+        /// </summary>
+        /// <param name="length">The length of the random string to generate. Default is 16.</param>
+        /// <returns>A cryptographically secure random string of the specified length.</returns>
+        public static string GenerateRandomString(int length = 16)
+        {
+            var result = new char[length];
+            var data = new byte[length];
+
+            // Fill the byte array with cryptographically secure random data
+            RandomNumberGenerator.Fill(data);
+
+            // Convert each byte into a character from the alphanumeric set
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = Chars[data[i] % Chars.Length];
+            }
+
+            // Return the generated random string
+            return new string(result);
         }
 
         /// <summary>
@@ -172,8 +192,7 @@ namespace Smartstore.Utilities
         /// <returns>Random integer number.</returns>
         public static int GenerateRandomInteger(int min = 0, int max = int.MaxValue)
         {
-            using var random = new NumberRandomizer();
-            return random.Next(min, max);
+            return Random.Shared.Next(min, max);
         }
 
         #endregion

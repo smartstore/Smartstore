@@ -1,11 +1,13 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections
 {
+    [DebuggerDisplay("TreeNode, Value = {Value}, Id = {Id}")]
     [JsonConverter(typeof(TreeNodeJsonConverter))]
     public class TreeNode<TValue> : TreeNodeBase<TreeNode<TValue>>
     {
@@ -117,7 +119,7 @@ namespace Smartstore.Collections
         public IEnumerable<TValue> Flatten(Func<TValue, bool>? predicate, bool includeSelf = true)
         {
             var list = includeSelf 
-                ? new[] { Value } 
+                ? [Value] 
                 : Enumerable.Empty<TValue>();
 
             if (!HasChildren)

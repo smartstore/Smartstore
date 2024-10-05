@@ -17,7 +17,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IAclService _aclService;
-        private readonly IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> _menuItemProviders;
+        private readonly Dictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> _menuItemProviders;
 
         public MenuController(
             SmartDbContext db,
@@ -252,8 +252,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var menu = MiniMapper.Map<MenuEntityModel, MenuEntity>(model);
-                menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
+                var menu = await MapperFactory.MapAsync<MenuEntityModel, MenuEntity>(model);
+                menu.WidgetZone = string.Join(',', model.WidgetZone ?? []).NullEmpty();
 
                 _db.Menus.Add(menu);
                 await _db.SaveChangesAsync();
@@ -285,7 +285,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = MiniMapper.Map<MenuEntity, MenuEntityModel>(menu);
+            var model = await MapperFactory.MapAsync<MenuEntity, MenuEntityModel>(menu);
             model.WidgetZone = menu.WidgetZone.SplitSafe(',').ToArray();
 
             await PrepareModelAsync(model, menu);
@@ -309,8 +309,8 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, menu);
-                menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
+                await MapperFactory.MapAsync(model, menu);
+                menu.WidgetZone = string.Join(',', model.WidgetZone ?? []).NullEmpty();
 
                 await _storeMappingService.ApplyStoreMappingsAsync(menu, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
@@ -393,8 +393,9 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 itemModel.ParentItemId ??= 0;
-                var item = MiniMapper.Map<MenuItemModel, MenuItemEntity>(itemModel);
-                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
+
+                var item = await MapperFactory.MapAsync<MenuItemModel, MenuItemEntity>(itemModel);
+                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? []).NullEmpty();
 
                 _db.MenuItems.Add(item);
                 await _db.SaveChangesAsync();
@@ -426,7 +427,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = MiniMapper.Map<MenuItemEntity, MenuItemModel>(item);
+            var model = await MapperFactory.MapAsync<MenuItemEntity, MenuItemModel>(item);
             model.ParentItemId = item.ParentItemId == 0 ? null : item.ParentItemId;
             model.PermissionNames = item.PermissionNames.SplitSafe(',').ToArray();
 
@@ -454,8 +455,9 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 itemModel.ParentItemId ??= 0;
-                MiniMapper.Map(itemModel, item);
-                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
+
+                await MapperFactory.MapAsync(itemModel, item);
+                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? []).NullEmpty();
 
                 await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);

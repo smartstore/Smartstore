@@ -92,7 +92,7 @@ namespace Smartstore.Core.Seo
             "ß;ss"
         };
 
-        private readonly object _lock = new();
+        private readonly Lock _lock = new();
         private FrozenDictionary<char, string> _charConversionMap = null;
 
         public SeoSettings()

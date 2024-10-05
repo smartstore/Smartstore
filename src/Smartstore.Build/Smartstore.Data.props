@@ -6,6 +6,7 @@
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<PreserveCompilationContext>false</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+        <LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

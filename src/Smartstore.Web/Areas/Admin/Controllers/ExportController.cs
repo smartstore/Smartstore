@@ -248,7 +248,7 @@ namespace Smartstore.Admin.Controllers
             profile.Limit = model.Limit ?? 0;
             profile.BatchSize = model.BatchSize ?? 0;
             profile.PerStore = model.PerStore;
-            profile.CompletedEmailAddresses = string.Join(",", model.CompletedEmailAddresses ?? Array.Empty<string>());
+            profile.CompletedEmailAddresses = string.Join(",", model.CompletedEmailAddresses ?? []);
             profile.EmailAccountId = model.EmailAccountId ?? 0;
             profile.CreateZipArchive = model.CreateZipArchive;
             profile.Cleanup = model.Cleanup;
@@ -256,11 +256,11 @@ namespace Smartstore.Admin.Controllers
             // Projection.
             if (model.Projection != null)
             {
-                var projection = MiniMapper.Map<ExportProjectionModel, ExportProjection>(model.Projection);
+                var projection = await MapperFactory.MapAsync<ExportProjectionModel, ExportProjection>(model.Projection);
                 projection.NumberOfMediaFiles = model.Projection.NumberOfPictures;
-                projection.AppendDescriptionText = string.Join(",", model.Projection.AppendDescriptionText ?? Array.Empty<string>());
+                projection.AppendDescriptionText = string.Join(",", model.Projection.AppendDescriptionText ?? []);
                 projection.RemoveCriticalCharacters = model.Projection.RemoveCriticalCharacters;
-                projection.CriticalCharacters = string.Join(",", model.Projection.CriticalCharacters ?? Array.Empty<string>());
+                projection.CriticalCharacters = string.Join(",", model.Projection.CriticalCharacters ?? []);
 
                 profile.Projection = XmlHelper.Serialize(projection);
             }
@@ -268,9 +268,9 @@ namespace Smartstore.Admin.Controllers
             // Filtering.
             if (model.Filter != null)
             {
-                var filter = MiniMapper.Map<ExportFilterModel, ExportFilter>(model.Filter);
+                var filter = await MapperFactory.MapAsync<ExportFilterModel, ExportFilter>(model.Filter);
                 filter.StoreId = model.Filter.StoreId ?? 0;
-                filter.CategoryIds = model.Filter.CategoryIds?.Where(x => x != 0)?.ToArray() ?? Array.Empty<int>();
+                filter.CategoryIds = model.Filter.CategoryIds?.Where(x => x != 0)?.ToArray() ?? [];
 
                 if (model.Filter.CreatedFrom.HasValue)
                 {
@@ -727,8 +727,8 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var deployment = MiniMapper.Map<ExportDeploymentModel, ExportDeployment>(model);
-                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? Array.Empty<string>());
+                var deployment = await MapperFactory.MapAsync<ExportDeploymentModel, ExportDeployment>(model);
+                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? []);
                 deployment.Id = 0;  // Route value > Model binding > MiniMapper > deployment.Id != 0 > SqlException!!
 
                 _db.ExportDeployments.Add(deployment);
@@ -782,11 +782,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                MiniMapper.Map(model, deployment);
-                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? Array.Empty<string>());
+                await MapperFactory.MapAsync(model, deployment);
+                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? []);
 
                 await _db.SaveChangesAsync();
-
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
                 return continueEditing ?
@@ -833,7 +832,7 @@ namespace Smartstore.Admin.Controllers
             TaskExecutionInfo lastExecutionInfo,
             bool createForEdit)
         {
-            MiniMapper.Map(profile, model);
+            await MapperFactory.MapAsync(profile, model);
 
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
             var logFile = await dir.GetFileAsync("log.txt");
@@ -910,7 +909,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
 
             // Projection.
-            model.Projection = MiniMapper.Map<ExportProjection, ExportProjectionModel>(projection);
+            model.Projection = await MapperFactory.MapAsync<ExportProjection, ExportProjectionModel>(projection);
             model.Projection.NumberOfPictures = projection.NumberOfMediaFiles;
             model.Projection.AppendDescriptionText = projection.AppendDescriptionText.SplitSafe(',').ToArray();
             model.Projection.CriticalCharacters = projection.CriticalCharacters.SplitSafe(',').ToArray();
@@ -921,7 +920,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Filtering.
-            model.Filter = MiniMapper.Map<ExportFilter, ExportFilterModel>(filter);
+            model.Filter = await MapperFactory.MapAsync<ExportFilter, ExportFilterModel>(filter);
 
             // Deployment.
             model.Deployments = await profile.Deployments.SelectAwait(async x =>
@@ -1036,7 +1035,7 @@ namespace Smartstore.Admin.Controllers
             Provider<IExportProvider> provider,
             bool createForEdit)
         {
-            var model = MiniMapper.Map<ExportDeployment, ExportDeploymentModel>(deployment);
+            var model = await MapperFactory.MapAsync<ExportDeployment, ExportDeploymentModel>(deployment);
 
             model.EmailAddresses = deployment.EmailAddresses.SplitSafe(',').ToArray();
             model.DeploymentTypeName = Services.Localization.GetLocalizedEnum(deployment.DeploymentType);

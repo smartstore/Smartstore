@@ -56,7 +56,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// 0 (default) to not limit the length of the answer.
         /// </summary>
         [HtmlAttributeName(WordCountAttributeName)]
-        public int WordCount { get; set; }    // TODO: (mh) (ai) this is not used anywhere (?)
+        public int WordCount { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {

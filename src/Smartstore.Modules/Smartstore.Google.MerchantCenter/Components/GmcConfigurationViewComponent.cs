@@ -16,8 +16,8 @@ namespace Smartstore.Google.MerchantCenter.Components
 
             ViewBag.LanguageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower();
             ViewBag.AvailableCategories = model.DefaultGoogleCategory.HasValue()
-                ? new List<SelectListItem> { new SelectListItem { Text = model.DefaultGoogleCategory, Value = model.DefaultGoogleCategory, Selected = true } }
-                : new List<SelectListItem>();
+                ? new List<SelectListItem> { new() { Text = model.DefaultGoogleCategory, Value = model.DefaultGoogleCategory, Selected = true } }
+                : null;
 
             return View(model);
         }

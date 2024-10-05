@@ -132,6 +132,7 @@
 
     $(function () {
         var addresses = $('#customer-addresses');
+        const isAdmin = @(((bool)ViewBag.IsAdmin).ToString().ToLowerInvariant());
 
         addresses.on('click', '.delete-address', function () {
             $(this).ajax({
@@ -152,6 +153,40 @@
                 }
 		    });
         });
+
+        $('#delete-customer').on('click', function (e) {
+            e.preventDefault();
+
+            confirm2({
+                message: @T("Admin.Common.DeleteConfirmation").JsValue,
+                icon: { type: 'delete' },
+                callback: function (accepted) {
+                    if (accepted) {
+
+                        if (isAdmin) {
+                            confirm2({
+                                message: @T("Admin.Customers.ReallyDeleteAdministrator").JsValue,
+                                icon: { type: 'delete' },
+                                callback: function (accepted) {
+                                    if (accepted) {
+                                        deleteCustomer();
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            deleteCustomer();
+                        }
+                    }
+                }
+            });
+        });
+
+        function deleteCustomer() {
+            $({}).postData({
+                url: '@Url.Action("Delete", "Customer", new { id = Model.Id, area = "Admin" })'
+            });
+        }
     });
 </script>
 
