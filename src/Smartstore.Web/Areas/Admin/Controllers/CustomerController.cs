@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using NUglify.Helpers;
 using Smartstore.Admin.Models.Cart;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.Scheduling;
@@ -223,7 +224,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
-            ViewBag.IsAdmin = customer.IsAdmin() || customer.IsSuperAdmin();
+            ViewBag.IsAdmin = customer != null && (customer.IsAdmin() || customer.IsSuperAdmin());
 
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled && model.CountryId > 0)
