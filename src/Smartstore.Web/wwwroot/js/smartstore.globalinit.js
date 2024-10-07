@@ -57,8 +57,7 @@ jQuery(function () {
 
     // Adjust Popper global defaults
     if (Popper?.Defaults) {
-        const d = Popper?.Defaults;
-        d.modifiers.computeStyle.gpuAcceleration = false;
+        Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
     }
 
     // Global notification subscriber

@@ -31,6 +31,9 @@
   - Faster app startup
   - Increased overall performance
   - ~10 % less memory usage after app start
+- **DevTools**: New widget zone preview panel
+  - Lists all zones in a menu
+  - Zones can be temporarily toggled
 - Toggle password visibility
 - New app setting for MS SQL Server compatibility level
 - Enhanced database optimization and vacuum operations
