@@ -508,6 +508,9 @@ namespace Smartstore.Core.Data.Migrations
                 "The customer is an administrator. Do you really want to delete him?",
                 "Bei dem Kunden handelt es sich um einen Administrator. Möchten Sie ihn wirklich löschen?");
 
+            builder.AddOrUpdate("Common.Done", "Done", "Erledigt");
+            builder.AddOrUpdate("Common.Failed", "Failed", "Fehlgeschlagen");
+
             AddAIResources(builder);
         }
 

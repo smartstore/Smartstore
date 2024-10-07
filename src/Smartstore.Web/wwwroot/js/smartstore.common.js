@@ -127,7 +127,7 @@
         }
     };
 
-    window.displayNotification = function (message, type, sticky, delay) {
+    window.displayNotification = function(message, type, sticky, delay) {
         if (window.EventBroker === undefined || window._ === undefined)
             return;
 
@@ -151,6 +151,39 @@
         else {
             notify(message);
         }
+    };
+
+    window.notifyTip = function (element, message, placement = 'top', duration = 2000) {
+        let btn = $(element);
+        let tooltip = btn.data('bs.tooltip') || btn.tooltip({
+            boundary: 'window',
+            placement: placement,
+            trigger: 'manual'
+        }).data('bs.tooltip');
+
+        const originalPlacement = tooltip.config.placement;
+        tooltip.config.placement = placement;
+
+        message = message || Res['Common.Done'];
+        const originalTitle = btn.attr('data-original-title');
+        if (originalTitle != message) {
+            btn.attr('data-original-title', message);
+        }
+
+        // --> Show tooltip
+        tooltip.show();
+
+        setTimeout(() => {
+            // --> Hide tooltip after [duration] ms.
+            tooltip.hide();
+            btn.one('hidden.bs.tooltip', () => {
+                // Restore originals from already existing tooltip.
+                tooltip.config.placement = originalPlacement;
+                if (originalTitle) {
+                    btn.attr('data-original-title', originalTitle);
+                }
+            })
+        }, duration);
     };
 
     window.Prefixer = (function () {
@@ -332,11 +365,11 @@
 
             if (text) {
                 copyTextToClipboard(text)
-                    .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
-                    .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
+                    .then(() => btn.data('original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
+                    .catch(() => btn.data('original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
                     .finally(() => {
                         setTimeout(() => {
-                            btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
+                            btn.data('original-title', Res['Common.CopyToClipboard']).tooltip('hide');
                         }, 2000);
                     });
             }
