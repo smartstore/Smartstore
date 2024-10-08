@@ -27,14 +27,15 @@ namespace Smartstore.Core.Platform.AI
         RouteInfo GetDialogRoute(AIChatTopic topic);
 
         /// <summary>
-        /// Gets the names of the preferred AI models for text generation.
+        /// Gets the names of the preferred AI models for <paramref name="topic"/>.
         /// </summary>
-        string[] GetPreferredTextModelNames();
+        string[]? GetPreferredModelNames(AIChatTopic topic);
 
         /// <summary>
-        /// Gets the names of the preferred AI models for image creation.
+        /// Gets the default AI model names.
+        /// To be used when <see cref="GetPreferredModelNames(AIChatTopic)"/> return <c>null</c>.
         /// </summary>
-        string[] GetPreferredImageModelNames();
+        string[] GetDefaultModelNames();
 
         /// <summary>
         /// Starts or continues an AI conversation.
