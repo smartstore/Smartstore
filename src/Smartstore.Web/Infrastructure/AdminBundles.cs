@@ -60,6 +60,7 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/js/pnotify.mobile.js",
                 lib + "pnotify/js/pnotify.buttons.js",
                 lib + "pnotify/js/pnotify.animate.js",
+                lib + "aos/js/aos.js",
                 lib + "popper/popper.js",
                 lib + "bootstrap/js/bootstrap.js",
                 // Common
