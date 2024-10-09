@@ -25,7 +25,8 @@ namespace Smartstore.Core.Platform.AI.Prompting
         public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {
             var chat = new AIChat(AIChatTopic.Image)
-                .User(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName));
+                .User(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName))
+                .UseModel(model?.ModelName);
 
             // Enhance prompt for image creation from model.
             _messageBuilder.BuildImagePrompt(model, chat);
