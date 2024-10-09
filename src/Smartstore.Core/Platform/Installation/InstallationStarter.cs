@@ -17,6 +17,17 @@ namespace Smartstore.Core.Installation
             builder.RegisterType<InstallationService>().As<IInstallationService>().InstancePerLifetimeScope();
 
             // Register app languages for installation
+            builder.RegisterType<FaIRSeedData>()
+                .As<InvariantSeedData>()
+                .WithMetadata<InstallationAppLanguageMetadata>(m =>
+                {
+                    m.For(em => em.Culture, "fa-IR");
+                    m.For(em => em.Name, "Persian");
+                    m.For(em => em.UniqueSeoCode, "fa");
+                    m.For(em => em.FlagImageFileName, "ir.png");
+                    m.For(em => em.Rtl, true);
+                })
+                .InstancePerRequest();
             builder.RegisterType<EnUSSeedData>()
                 .As<InvariantSeedData>()
                 .WithMetadata<InstallationAppLanguageMetadata>(m =>
@@ -25,6 +36,7 @@ namespace Smartstore.Core.Installation
                     m.For(em => em.Name, "English");
                     m.For(em => em.UniqueSeoCode, "en");
                     m.For(em => em.FlagImageFileName, "us.png");
+                    m.For(em => em.Rtl, false);
                 })
                 .InstancePerLifetimeScope();
             builder.RegisterType<DeDESeedData>()
@@ -35,8 +47,10 @@ namespace Smartstore.Core.Installation
                     m.For(em => em.Name, "Deutsch");
                     m.For(em => em.UniqueSeoCode, "de");
                     m.For(em => em.FlagImageFileName, "de.png");
+                    m.For(em => em.Rtl, false);
                 })
                 .InstancePerLifetimeScope();
+
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

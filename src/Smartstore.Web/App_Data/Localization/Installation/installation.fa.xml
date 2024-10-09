@@ -1,0 +1,212 @@
+﻿<Language Name="Persian" IsDefault="true" IsRightToLeft="true" LanguageCulture="fa-IR" FlagImageFileName="ir.png">
+  <LocaleResource Name="AdminEmail">
+    <Value>ایمیل کاربری ادمین</Value>
+  </LocaleResource>
+  <LocaleResource Name="AdminPassword">
+    <Value>رمز ورود</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConfigureDirectoryPermissions">
+    <Value> '{0}' اجازه دسترسی به پوشه '{1}'. ندارد لطفا دسترسی ها را چک کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConfigureFilePermissions">
+    <Value>'{0}' اجازه دسترسی به فایل '{1}' را ندارد. لطفا دسترسی ها را تنظیم کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConfirmPassword">
+    <Value>تکرار رمز ورود</Value>
+  </LocaleResource>
+  <LocaleResource Name="DbRawConnectionString">
+    <Value>کانکشن استرینگ</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConnectionStringValues">
+    <Value>مقدار اس کیوال کانکشن را وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConnectionStringWrongFormat">
+    <Value>فرومت کانکشن استرینگ اشتباه است</Value>
+  </LocaleResource>
+  <LocaleResource Name="CreateDatabaseIfDoesNotExist">
+    <Value>ساخت دیتابیس اگر وجود ندارد</Value>
+  </LocaleResource>
+  <LocaleResource Name="CreateSampleData">
+    <Value>ساخت داده های آزمایشی</Value>
+  </LocaleResource>
+  <LocaleResource Name="CustomCollation">
+    <Value>ترکیب سفارشی استفاده کنید</Value>
+  </LocaleResource>
+    <LocaleResource Name="CustomCollation.Hint">
+        <Value><![CDATA[برای استفاده از مقادیر پیش فرض خالی بگذارید]]></Value>
+    </LocaleResource>
+  <LocaleResource Name="DatabaseCreationError">
+    <Value>در ساخت دیتابیس خطای رخ داده است: {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="DatabaseInformation">
+    <Value>اطلاعات پایگاه داده</Value>
+  </LocaleResource>
+  <LocaleResource Name="DbName">
+    <Value>نام دیتا بیس</Value>
+  </LocaleResource>
+  <LocaleResource Name="DatabaseNotExists">
+    <Value>دیتابیس وجود ندارد یا شما اجازه دسترسی به آنرا ندارید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Example">
+    <Value>نمونه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Install">
+    <Value>نصب</Value>
+  </LocaleResource>
+  <LocaleResource Name="Installing">
+    <Value>در حال نصب فروشگاه ...</Value>
+  </LocaleResource>
+  <LocaleResource Name="PasswordsDoNotMatch">
+    <Value>پسورها یکی نیستند</Value>
+  </LocaleResource>
+  <LocaleResource Name="RawConnectionString">
+    <Value>کانکشن استرینگ را وارد کنید (پیشرفته)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Recommended">
+    <Value>[توصیه شده]</Value>
+  </LocaleResource>
+  <LocaleResource Name="RestartInstallation">
+    <Value>راه اندازی مجدد مراحل نصب</Value>
+  </LocaleResource>
+  <LocaleResource Name="RestartInstallationTooltip">
+    <Value>برای مراحل نصب و راه اندازی دوباره کلیک کنید (تمامی اطلاعات کش شده را پاک کنید)</Value>
+  </LocaleResource>
+  <LocaleResource Name="SetupFailed">
+    <Value>راه اندازی شکست خورد: {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="SqlAuthentication">
+    <Value>استفاده از اس کیو ال اکانت</Value>
+  </LocaleResource>
+    <LocaleResource Name="WindowsAuthentication">
+        <Value>اهراز هویت یکپارچه ویندوز</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbServer">
+        <Value>نام سرور</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbPassword">
+        <Value>پسورد</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbUserId">
+        <Value>نام کاربری</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseSqlServer">
+        <Value>ماکروسافت اسکیوال سرور</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseMySql">
+        <Value>مای اس کیوال</Value>
+    </LocaleResource>
+    <LocaleResource Name="UsePostgreSql">
+        <Value>PostgreSQL</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseSqlite">
+        <Value>SQLite (برای استفاده در فروشگاه نهایی مناسب نیست!)</Value>
+    </LocaleResource>
+    <LocaleResource Name="StoreInformation">
+        <Value>اطلاعات فروشگاه</Value>
+    </LocaleResource>
+  <LocaleResource Name="Title">
+    <Value>نصب و راه اندازی</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tooltip1">
+    <Value>به بخش راه اندازی فروشگاه اینترنتی خوش آمدید، جهت نصب فروشگاه خود، آدرس ایمیل و پسورد خود را وارد کنید. و سپس بر روی دکمه نصب کلیک نمایید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tooltip2">
+    <Value>در صورت بروز مشکل در مراحل نصب اتوماتیک بر روی دکمه راه اندازی مجدد مراحل نصب در بالای صفحه موجود می باشد کلیک کرده و مراحل نصب را تکرار نمایید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="UseIntegratedAuthentication">
+    <Value>استفاده از اهراز هویت یکپارچه ویندوز</Value>
+  </LocaleResource>
+  <LocaleResource Name="PrimaryLanguage">
+    <Value>زبان اصلی</Value>
+  </LocaleResource>
+  <LocaleResource Name="PrimaryLanguageRequired">
+    <Value>زمان اصلی مورد نیاز می باشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ConfirmInstall">
+    <Value>آیا میخواهید فروشگاه را نصب کنید؟</Value>
+  </LocaleResource>
+  <LocaleResource Name="AdminEmailValue">
+    <Value>admin@mystore.com</Value>
+  </LocaleResource>
+  <LocaleResource Name="MediaStorage.Label">
+    <Value>فضای فایلها</Value>
+  </LocaleResource>
+  <LocaleResource Name="MediaStorage.Hint">
+    <Value>فایل سیستمی بالاترین عملکر و ثبات را ارائه می دهد که برای محیط تولید مناسب است</Value>
+  </LocaleResource>
+  <LocaleResource Name="MediaStorage.DB">
+    <Value>دیتا بیس</Value>
+  </LocaleResource>
+  <LocaleResource Name="MediaStorage.FS">
+    <Value>فایل سیستمی</Value>
+  </LocaleResource>
+  <LocaleResource Name="Common.Notification">
+    <Value>اخطار</Value>
+  </LocaleResource>
+  <LocaleResource Name="Common.StartShop">
+    <Value>هوررررا! نصب فروشگاه با موفقیت انجام شده ;-)  فروشگاه در حال راه اندازی می باشه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.CheckingRequirements">
+    <Value>چک کردن ملزومات</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.BuildingDatabase">
+    <Value>ساخت دیتابیس</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.InstallingPlugins">
+    <Value>نصب پلاگین {0} از {1}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.ProcessingMedia">
+    <Value>پردازش فایلهای مدیا</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.Finalizing">
+    <Value>نصب و راه اندازی نهایی</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.CreatingRequiredData">
+    <Value>ایجاد داده های مورد نیاز</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.CreatingSampleData">
+    <Value>ساخت دیتای نمونه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.Redirect">
+        <Value><![CDATA[اگر به طور خودکار به صفحه اصلی فروشگاه هدایت نشدید، لطفاً <a href="{0}">اینجا</a> را کلیک کنید]]></Value>
+    </LocaleResource>
+  <LocaleResource Name="InstallOptions">
+    <Value>انتخاب ها</Value>
+  </LocaleResource>
+    <LocaleResource Name="DbSystem">
+        <Value>دیتابیس سیستم</Value>
+    </LocaleResource>
+    <LocaleResource Name="Connection">
+        <Value>اتصال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Server">
+        <Value>سرور</Value>
+    </LocaleResource>
+    <LocaleResource Name="Authentication">
+        <Value>احراز هویت</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminEmailRequired">
+        <Value>ایمیل ادمین اجباری می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminPasswordRequired">
+        <Value>پسورد برای ادمین اجباری می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfirmPasswordRequired">
+        <Value>تایید پسورد مورد نیاز می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbRawConnectionStringRequired">
+        <Value>رشته اتصال مورد نیاز می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbServerRequired">
+        <Value>نام سرور اجباری می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbNameRequired">
+        <Value>نام دیتابیس اجباری می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbUserIdRequired">
+        <Value>نام کاربری اجباری می باشد</Value>
+    </LocaleResource>
+    <LocaleResource Name="AreYouSure">
+        <Value>مطمئنی؟</Value>
+    </LocaleResource>
+</Language>
