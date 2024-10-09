@@ -36,7 +36,7 @@ namespace Smartstore
         /// <returns>A list of matching key names</returns>
         public static IEnumerable<object> EnumerateKeys(this IMemoryCache cache, string pattern = "*")
         {
-            Guard.NotNull(cache, nameof(cache));
+            Guard.NotNull(cache);
 
             var allKeys = GetInternalEntries(cache).Keys
                 .Cast<object>()
@@ -66,7 +66,7 @@ namespace Smartstore
         /// <returns>Number of removed cache items</returns>
         public static int RemoveByPattern(this IMemoryCache cache, string pattern = "*")
         {
-            Guard.NotNull(cache, nameof(cache));
+            Guard.NotNull(cache);
 
             var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
             int numRemoved = 0;
@@ -85,7 +85,7 @@ namespace Smartstore
             _entriesFieldInfo = LazyInitializer.EnsureInitialized(ref _entriesFieldInfo, () =>
             {
                 _coherentStateFieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
-                _entriesFieldInfo = _coherentStateFieldInfo.GetValue(cache).GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
+                _entriesFieldInfo = _coherentStateFieldInfo.GetValue(cache).GetType().GetField("_stringEntries", BindingFlags.NonPublic | BindingFlags.Instance);
 
                 return _entriesFieldInfo;
             });
