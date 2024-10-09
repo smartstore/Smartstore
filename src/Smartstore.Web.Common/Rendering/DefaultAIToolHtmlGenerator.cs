@@ -125,7 +125,7 @@ namespace Smartstore.Web.Rendering
                 var route = provider.Value.GetDialogRoute(AIChatTopic.Translation);
                 var routeUrl = _urlHelper.Action(route.Action, route.Controller, route.RouteValues);
 
-                var dropdownLiTitle = T("Admin.AI.TranslateTextWith", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
+                var dropdownLiTitle = T("Admin.AI.TranslateText", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
                 var headingLi = new TagBuilder("li");
                 headingLi.Attributes["class"] = "dropdown-header h6";
                 headingLi.InnerHtml.AppendHtml(dropdownLiTitle);
@@ -416,13 +416,13 @@ namespace Smartstore.Web.Rendering
             {
                 case AIChatTopic.Text:
                 case AIChatTopic.RichText:
-                    return T("Admin.AI.CreateTextWith", providerName);
+                    return T("Admin.AI.CreateText", providerName);
                 case AIChatTopic.Image:
-                    return T("Admin.AI.CreateImageWith", providerName);
+                    return T("Admin.AI.CreateImage", providerName);
                 case AIChatTopic.Translation:
-                    return T("Admin.AI.TranslateTextWith", providerName);
+                    return T("Admin.AI.TranslateText", providerName);
                 case AIChatTopic.Suggestion:
-                    return T("Admin.AI.MakeSuggestionWith", providerName);
+                    return T("Admin.AI.MakeSuggestion", providerName);
                 default:
                     throw new AIException($"Unknown chat topic {topic}.");
             }

@@ -516,16 +516,16 @@ namespace Smartstore.Core.Data.Migrations
 
         private static void AddAIResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Admin.AI.CreateImageWith", "Create image with {0}", "Bild erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.CreateTextWith", "Create text with {0}", "Text erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.TranslateTextWith", "Translate with {0}", "Übersetzen mit {0}");
-            builder.AddOrUpdate("Admin.AI.MakeSuggestionWith", "Make suggestions with {0}", "Mach mir Vorschläge mit {0}");
+            builder.AddOrUpdate("Admin.AI.CreateImage", "Generate image", "Bild erzeugen");
+            builder.AddOrUpdate("Admin.AI.CreateText", "Generate text", "Text erzeugen");
+            builder.AddOrUpdate("Admin.AI.TranslateText", "Translate", "Übersetzen");
+            builder.AddOrUpdate("Admin.AI.MakeSuggestion", "Make suggestions", "Vorschläge machen");
 
-            builder.AddOrUpdate("Admin.AI.CreateShortDescWith", "Create short description with {0}", "Kurzbeschreibung erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.CreateMetaTitleWith", "Create title tag with {0}", "Title-Tag erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.CreateMetaDescWith", "Create meta description with {0}", "Meta Description erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.CreateMetaKeywordsWith", "Create meta keywords with {0}", "Meta Keywords erzeugen mit {0}");
-            builder.AddOrUpdate("Admin.AI.CreateFullDescWith", "Create full description with {0}", "Langtext erzeugen mit {0}");
+            builder.AddOrUpdate("Admin.AI.CreateShortDesc", "Generate short description", "Kurzbeschreibung erzeugen");
+            builder.AddOrUpdate("Admin.AI.CreateMetaTitle", "Generate title tag", "Title-Tag erzeugen");
+            builder.AddOrUpdate("Admin.AI.CreateMetaDesc", "Generate meta description", "Meta Description erzeugen");
+            builder.AddOrUpdate("Admin.AI.CreateMetaKeywords", "Generate meta keywords", "Meta Keywords erzeugen");
+            builder.AddOrUpdate("Admin.AI.CreateFullDesc", "Generate full description", "Langtext erzeugen");
 
             builder.AddOrUpdate("Admin.AI.TextCreation.CreateNew", "Create new", "Neu erstellen");
             builder.AddOrUpdate("Admin.AI.TextCreation.Summarize", "Summarize", "Zusammenfassen");

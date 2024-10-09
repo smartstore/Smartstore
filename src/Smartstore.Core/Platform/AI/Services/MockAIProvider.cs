@@ -6,7 +6,7 @@ using Smartstore.Http;
 namespace Smartstore.Core.Platform.AI
 {
     [SystemName("Smartstore.AI.Mock")]
-    [FriendlyName("Mock Chat Provider")]
+    [FriendlyName("Mock Chat")]
     public class MockAIProvider : AIProviderBase
     {
         private readonly static AIProviderFeatures _features =
