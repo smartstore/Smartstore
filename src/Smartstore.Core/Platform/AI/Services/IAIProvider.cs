@@ -2,7 +2,6 @@
 
 using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
@@ -20,11 +19,6 @@ namespace Smartstore.Core.Platform.AI
         /// Gets a value indicating whether the provider supports the given <paramref name="feature"/>.
         /// </summary>
         bool Supports(AIProviderFeatures feature);
-
-        /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given <paramref name="topic"/>.
-        /// </summary>
-        RouteInfo GetDialogRoute(AIChatTopic topic);
 
         /// <summary>
         /// Gets the names of the preferred AI models for the given <paramref name="topic"/>.

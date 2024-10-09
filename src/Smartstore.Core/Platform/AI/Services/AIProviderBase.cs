@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Platform.AI.Prompting;
-using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
@@ -32,8 +31,6 @@ namespace Smartstore.Core.Platform.AI
 
         public bool SupportsAssistence
             => Supports(AIProviderFeatures.Assistence);
-
-        public abstract RouteInfo GetDialogRoute(AIChatTopic topic);
 
         public virtual string[] GetPreferredModelNames(AIChatTopic topic)
             => null;

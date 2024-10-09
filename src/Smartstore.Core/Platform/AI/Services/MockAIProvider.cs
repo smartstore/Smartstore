@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Platform.AI.Prompting;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 
 namespace Smartstore.Core.Platform.AI
 {
@@ -47,21 +46,6 @@ namespace Smartstore.Core.Platform.AI
             return times == 1 ? html : string.Concat(Enumerable.Repeat(html, (int)times));
         }
 
-        public override RouteInfo GetDialogRoute(AIChatTopic topic)
-        {
-            var action = topic switch
-            {
-                AIChatTopic.Image => "Image",
-                AIChatTopic.Text => "Text",
-                AIChatTopic.RichText => "RichText",
-                AIChatTopic.Translation => "Translation",
-                AIChatTopic.Suggestion => "Suggestion",
-                _ => throw new AIException($"Unknown chat topic {topic}.")
-            };
-
-            return new(action, "AI", new { area = "Admin" });
-        }
-
         public override Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
         {
             if (chat == null || !chat.HasMessages())
@@ -69,7 +53,7 @@ namespace Smartstore.Core.Platform.AI
                 Task.FromResult((string)null);
             }
 
-            var answer = chat.Topic == AIChatTopic.Text ? GetLoremIpsum() : GetLoremIpsumHtml();
+            var answer = chat.Topic == AIChatTopic.RichText ? GetLoremIpsumHtml() : GetLoremIpsum();
             chat.Assistant(answer);
 
             return Task.FromResult(answer);
@@ -83,7 +67,7 @@ namespace Smartstore.Core.Platform.AI
             }
 
             var newMessage = AIChatMessage.FromAssistant(null);
-            var answer = chat.Topic == AIChatTopic.Text ? GetLoremIpsum() : GetLoremIpsumHtml();
+            var answer = chat.Topic == AIChatTopic.RichText ? GetLoremIpsumHtml() : GetLoremIpsum();
 
             await foreach (var substring in SplitStringAsync(answer))
             {

@@ -15,7 +15,6 @@
             let title = this.getAttribute("title") || el.html();
             
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 entityName: tool.data('entity-name'),
                 type: tool.data('entity-type'),
@@ -40,7 +39,6 @@
             let isRichText = tool.data('is-rich-text');
 
             let params = {
-                providerSystemName: tool.data('provider-systemname'),
                 entityName: tool.data('entity-name'),
                 Type: tool.data('entity-type'),
                 targetProperty: tool.data('target-property'),
@@ -85,7 +83,6 @@
             }
 
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 ModalTitle: tool.data('modal-title')
             };
@@ -104,7 +101,6 @@
             }
 
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 type: tool.data('entity-type'),
                 mandatoryEntityFields: tool.data('mandatory-entity-fields'),
