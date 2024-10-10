@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Core.Checkout.Shipping
+﻿using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Orders.Reporting;
+
+namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Shipment query extensions
@@ -51,6 +54,22 @@
                 .Where(x => shipmentIds.Contains(x.Id))
                 .OrderBy(x => x.Id)
                 .ThenBy(x => x.CreatedOnUtc);
+        }
+
+        /// <summary>
+        /// Selects shipments that the currently authenticated customer is authorized to access.
+        /// </summary>
+        /// <param name="query">Shipment query to filter from.</param>
+        /// <param name="authorizedStoreIds">Ids of stores customer has access to</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="Shipment"/>.</returns>
+        public static IQueryable<Shipment> ApplyCustomerStoreFilter(this IQueryable<Shipment> query, int[] authorizedStoreIds)
+        {
+            Guard.NotNull(query);
+            if (!authorizedStoreIds.IsNullOrEmpty())
+            {
+                query = query.Where(s => authorizedStoreIds.Contains(s.Order.StoreId));
+            }
+            return query;
         }
     }
 }

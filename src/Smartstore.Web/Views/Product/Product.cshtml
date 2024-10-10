@@ -12,21 +12,38 @@
     {
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
     }
+    bool hasVideo = Model.MediaGalleryModel.Files.Any(f => f.MediaType == MediaType.Video);
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />
 
 <div class="page product-details-page" itemscope itemtype="http://schema.org/Product">
     <zone name="productdetails_top" />
-    
+
     <article class="pd page-body">
 
         <div id="main-update-container" class="update-container" data-url="@Model.UpdateUrl" data-id="@Model.Id">
             <form asp-route="Product" asp-route-SeName="@Model.SeName" method="post" id="pd-form">
                 <!-- Top Content: Picture, Description, Attrs, Variants, Bundle Items, Price etc. -->
                 <section class="row pd-section pd-section-top">
+
+                    <!-- Title -->
+                    <div class="page-title">
+                        <h1 sm-language-attributes-for="Model.Name" class="pd-name" itemprop="name">
+                            @if (Model.IsAssociatedProduct && Model.VisibleIndividually)
+                            {
+                                <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@Html.Raw(Model.Name)</a>
+                            }
+                            else
+                            {
+                                @Html.Raw(Model.Name)
+                            }
+
+                        </h1>
+                    </div>
+
                     <!-- Picture -->
-                    <div class="col-12 col-md-6 col-lg-7 pd-data-col">
+                    <div class="col-12 col-md-6 col-lg-7 pd-data-col @(hasVideo ? "w-100" : "" )">
                         <div class="pd-data-col-inner">
                             <zone name="productdetails_pictures_top" />
 
@@ -39,7 +56,7 @@
                     </div>
 
                     <!-- Sidebar: Info, Price, Buttons etc. -->
-                    <aside class="col-12 col-md-6 col-lg-5 pd-info-col">
+                    <aside class="col-12 col-md-6 col-lg-5 pd-info-col @(hasVideo ? "mt-md-n9 mt-xl-n10 mt-xxl-n11 ml-md-auto mr-md-2" : "")">
                         @* INFO: Don't add any line breaks here, because otherwise the empty selector in the zoom-window-container div won't work. *@
                         <div class="zoom-window-container"></div>
 
@@ -78,9 +95,9 @@
 
                         @if (Model.DisplayAdminLink)
                         {
-                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" 
-                               class="btn btn-secondary btn-flat btn-admin-edit" 
-                               target="admin-product" 
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
+                               class="btn btn-secondary btn-flat btn-admin-edit"
+                               target="admin-product"
                                rel="nofollow">
                                 <i class="fa fa-cog"></i>
                                 <span>@T("Common.Catalog.EditProduct")</span>
@@ -134,7 +151,7 @@
                 <partial name="Product.Tags" model="Model.ProductTags" />
                 <zone name="productdetail_tags_after" />
             }
-            
+
             <!-- Related products -->
             <partial name="Product.RelatedProducts" model="Model.RelatedProducts" />
             <zone name="productdetail_related_products_after" />
@@ -157,6 +174,6 @@
             enableZoom: toBool('@(Model.MediaGalleryModel.ImageZoomEnabled)')
         };
 
-    	$('#pd-form').productDetail(settings);
+        $('#pd-form').productDetail(settings);
     });
 </script>

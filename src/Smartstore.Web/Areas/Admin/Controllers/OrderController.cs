@@ -167,8 +167,6 @@ namespace Smartstore.Admin.Controllers
             var withPaymentMethodString = T("Admin.Order.WithPaymentMethod").Value;
             var fromStoreString = T("Admin.Order.FromStore").Value;
             var paymentMethodSystemnames = model.PaymentMethods.SplitSafe(',').ToArray();
-            var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
             
             DateTime? startDateUtc = model.StartDate == null
                 ? null
@@ -187,7 +185,7 @@ namespace Smartstore.Admin.Controllers
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
                 .ApplyPaymentFilter(paymentMethodSystemnames)
-                .ApplyCustomerFilter(authorizedStoreIds);
+                .ApplyCustomerStoreFilter(await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync());
 
             if (productId > 0)
             {
@@ -874,6 +872,12 @@ namespace Smartstore.Admin.Controllers
             if (order == null)
             {
                 return NotFound();
+            }
+
+            if(! await Services.Permissions.CanAccessEntity(order))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var model = new OrderModel();
@@ -1725,7 +1729,9 @@ namespace Smartstore.Admin.Controllers
             var orderItemQuery = _db.OrderItems
                 .AsNoTracking()
                 .ApplyOrderFilter(0, startDate, endDate, orderStatusId, paymentStatusId, shippingStatusId, countryId)
-                .ApplyProductFilter(null, true);
+                .ApplyProductFilter(null, true)
+                .Include(x => x.Order)
+                .ApplyCustomerStoreFilter([.. (await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync())]);
 
             var reportLines = await orderItemQuery
                 .SelectAsBestsellersReportLine(sorting)

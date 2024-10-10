@@ -22,10 +22,8 @@ namespace Smartstore.Admin.Components
                 return Empty();
             }
 
-            var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
-            
-            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerFilter(authorizedStoreIds);
+            var authorizedStoreIds = await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
+            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted).ApplyCustomerStoreFilter(authorizedStoreIds);
 
             var reportByQuantity = await orderQuery
                 .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)

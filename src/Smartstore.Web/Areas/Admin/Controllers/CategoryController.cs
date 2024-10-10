@@ -8,6 +8,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
@@ -30,7 +31,6 @@ namespace Smartstore.Admin.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IDiscountService _discountService;
         private readonly IRuleService _ruleService;
-        private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
@@ -57,7 +57,6 @@ namespace Smartstore.Admin.Controllers
             _localizedEntityService = localizedEntityService;
             _discountService = discountService;
             _ruleService = ruleService;
-            _storeMappingService = storeMappingService;
             _aclService = aclService;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
@@ -179,6 +178,9 @@ namespace Smartstore.Admin.Controllers
 
             var categories = await query
                 .ApplyStandardFilter(true, null, model.SearchStoreId)
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Category), [.. query.Select(x => x.Id)]))
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -326,7 +328,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);
                 await _ruleService.ApplyRuleSetMappingsAsync(category, model.SelectedRuleSetIds);
-                await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
+                await Services.StoreMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
 
                 await _db.SaveChangesAsync();
@@ -358,6 +360,12 @@ namespace Smartstore.Admin.Controllers
             if (category == null)
             {
                 return NotFound();
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(category))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
@@ -408,7 +416,7 @@ namespace Smartstore.Admin.Controllers
                 await ApplyLocales(model, category);
                 await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);
                 await _ruleService.ApplyRuleSetMappingsAsync(category, model.SelectedRuleSetIds);
-                await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
+                await Services.StoreMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
 
                 _db.Categories.Update(category);
@@ -617,7 +625,7 @@ namespace Smartstore.Admin.Controllers
                 model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(category.UpdatedOnUtc, DateTimeKind.Utc);
                 model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(category.CreatedOnUtc, DateTimeKind.Utc);
                 model.SelectedDiscountIds = category.AppliedDiscounts.Select(x => x.Id).ToArray();
-                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(category);
+                model.SelectedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync(category);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(category);
                 model.SelectedRuleSetIds = category.RuleSets.Select(x => x.Id).ToArray();
                 model.CategoryUrl = await GetEntityPublicUrlAsync(category);
