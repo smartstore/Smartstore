@@ -58,7 +58,7 @@
             return null;
         }
 
-        EventBroker.publish("message", { title: 'Method "' + method + '" does not exist on jQuery.entityPicker', type: "error" });
+        EventBroker.publish("message", { text: 'Method "' + method + '" does not exist in jQuery.entityPicker', type: "error" });
         return null;
     }
 
@@ -126,10 +126,10 @@
         return options;
     }
 
-    function ajaxErrorHandler(objXml) {
+    function ajaxErrorHandler(xhr) {
         try {
-            if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
-                EventBroker.publish("message", { title: objXml.responseText, type: "error" });
+            if (xhr != null && xhr.responseText != null && xhr.responseText !== '') {
+                EventBroker.publish("message", { title: xhr.statusText, text: xhr.responseText, type: "error" });
             }
         }
         catch (e) { }

@@ -127,7 +127,7 @@
         }
     };
 
-    window.displayNotification = function(message, type, sticky, delay) {
+    window.displayNotification = function (message, type, sticky, delay) {
         if (window.EventBroker === undefined || window._ === undefined)
             return;
 

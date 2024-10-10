@@ -54,6 +54,11 @@
 }
 
 .ui-pnotify-text {
+    --overflow-x: auto !important;
+    @extend .custom-scrollbar;
+}
+
+.ui-pnotify-text {
     font-size: $font-size-lg;
     max-height: 300px;
     overflow-y: auto;
