@@ -511,6 +511,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.Done", "Done", "Erledigt");
             builder.AddOrUpdate("Common.Failed", "Failed", "Fehlgeschlagen");
 
+            builder.AddOrUpdate("Admin.Common.LicensePlugin",
+                "Please license the plugin \"{0}\" in order to continue to use this feature.",
+                "Bitte lizenzieren Sie das Plugin \"{0}\", um diese Funktion weiter zu nutzen.");
+
             AddAIResources(builder);
         }
 
