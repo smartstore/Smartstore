@@ -27,8 +27,8 @@ namespace Smartstore.Web.Models.Cart
     {
         public WishlistEmailAFriendValidator()
         {
-            RuleFor(x => x.FriendEmail).NotEmpty().EmailAddress();
-            RuleFor(x => x.YourEmailAddress).NotEmpty().EmailAddress();
+            RuleFor(x => x.FriendEmail).NotEmpty().EmailAddressStrict();
+            RuleFor(x => x.YourEmailAddress).NotEmpty().EmailAddressStrict();
         }
     }
 }

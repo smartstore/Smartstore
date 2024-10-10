@@ -21,7 +21,7 @@ namespace Smartstore.Admin.Models.Messages
     {
         public NewsletterSubscriptionValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddressStrict();
         }
     }
 }

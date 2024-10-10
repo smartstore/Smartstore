@@ -301,14 +301,14 @@ namespace Smartstore.Admin.Models.Customers
                     RuleFor(x => x.FirstName).NotEmpty();
                 }
 
-                RuleFor(x => x.FirstName).ValidName(T);
+                RuleFor(x => x.FirstName).ValidPersonName(T);
 
                 if (customerSettings.LastNameRequired)
                 {
                     RuleFor(x => x.LastName).NotEmpty();
                 }
 
-                RuleFor(x => x.LastName).ValidName(T);
+                RuleFor(x => x.LastName).ValidPersonName(T);
 
                 if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
                 {
