@@ -33,7 +33,7 @@
     <Value>ترکیب سفارشی استفاده کنید</Value>
   </LocaleResource>
     <LocaleResource Name="CustomCollation.Hint">
-        <Value><![CDATA[برای استفاده از مقادیر پیش فرض خالی بگذارید]]></Value>
+        <Value><![CDATA[برای استفاده از مقادیر پیش فرض خالی بگذارید.اطلاعات بیشتر <a id="CollationInfoLink" href="#" rel="nofollow" target="_blank">لینک</a>]]></Value>
     </LocaleResource>
   <LocaleResource Name="DatabaseCreationError">
     <Value>در ساخت دیتابیس خطای رخ داده است: {0}</Value>

@@ -7,6 +7,7 @@
 
     var installResult = ViewBag.InstallResult as InstallationResult;
     var wasRunning = installResult != null;
+    bool rtl = InstallService.GetCurrentLanguage().IsRightToLeft;
 }
 
 @functions {
@@ -17,7 +18,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="@InstallService.GetCurrentLanguage().Code">
+<html lang="@InstallService.GetCurrentLanguage().Code" @(rtl ? Html.Raw("dir='rtl'") : Html.Raw("dir=\"ltr\""))>
 <head>
     <meta charset="utf-8">
     <title>@T("Title")</title>
@@ -39,6 +40,10 @@
     <link rel="stylesheet" href="~/lib/fontastic/fontastic.css" />
     <link rel="stylesheet" href="~/lib/fa6/css/all.min.css" />
     <link rel="stylesheet" href="~/bundle/css/admin-theme.css" />
+    @if (rtl)
+    {
+        <link rel="stylesheet" href="~/bundle/css/admin-theme-rtl.css" />
+    }
 
     <script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
     <script src="~/lib/popper/popper.min.js"></script>
@@ -54,6 +59,14 @@
         .redirect-info > a {
             color: #fff;
             text-decoration: underline;
+        }
+
+        [dir="rtl"] .has-icon .input-group-icon {
+            inset-inline-start: -16px;
+        }
+
+        [dir="rtl"] .form-check .form-check-input{
+            float:right !important;
         }
     </style>
 </head>
