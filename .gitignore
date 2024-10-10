@@ -238,3 +238,5 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
+/src/Smartstore.Build/Smartstore.ModuleBuilder/src/Properties
+/src/Smartstore.Web
