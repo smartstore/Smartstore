@@ -29,6 +29,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="attributes">The attributes of the <see cref="TagHelper"/>.</param>
         /// <param name="enabled">A value indicating Whether to initially enable the command dropdown items.</param>
+        /// <returns>
         /// The icon button inclusive dropdown to choose a rewrite command from.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>

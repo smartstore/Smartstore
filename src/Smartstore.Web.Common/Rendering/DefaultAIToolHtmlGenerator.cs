@@ -248,11 +248,11 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Generates the output for the AI dialog openers.
         /// </summary>
-        /// <param name="providers">List of providers to generate dropdown items for.</param>
         /// <param name="attributes">The attributes of the taghelper.</param>
+        /// <param name="feature">The <see cref="AIProviderFeatures"/> to be supported for the AI tool.</param>
+        /// <param name="topic">The <see cref="AIChatTopic"/> of the AI tool.</param>
         /// <returns>
-        /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
-        /// containing all the metadata needed to open the dialog.
+        /// The tagbuilder for the AI dialog opener.
         /// </returns>
         protected virtual TagBuilder GenerateOutput(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
         {
@@ -350,6 +350,10 @@ namespace Smartstore.Web.Rendering
             return btnTag;
         }
 
+        /// <summary>
+        /// Gets the URL of the dialog.
+        /// </summary>
+        /// <param name="topic">The <see cref="AIChatTopic"/> of the dialog.</param>
         protected virtual string GetDialogUrl(AIChatTopic topic)
         {
             var action = topic switch
