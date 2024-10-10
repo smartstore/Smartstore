@@ -605,7 +605,7 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (sorting.FieldName == names.Price)
             {
-                query = OrderBy(query, x => x.Price, sorting.Descending);
+                query = OrderBy(query, x => x.SpecialPrice ?? x.Price, sorting.Descending);
             }
 
             return query;
