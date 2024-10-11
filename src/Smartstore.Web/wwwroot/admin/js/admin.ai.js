@@ -37,25 +37,27 @@
             }
 
             let isRichText = tool.data('is-rich-text');
+            const cmd = el.data('command');
 
             let params = {
                 entityName: tool.data('entity-name'),
                 Type: tool.data('entity-type'),
                 targetProperty: tool.data('target-property'),
-                charLimit: tool.data('char-limit')
+                charLimit: tool.data('char-limit'),
+                // INFO: This is the optimization command of the clicked item.
+                optimizationCommand: el.data('command'),
+                // INFO: This is important for change style and tone items. We must know how to change the present text. 
+                // For command "change-style" e.g.professional, casual, friendly, etc.
+                changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
+                displayWordLimit: tool.data('display-word-limit'),
+                displayStyle: tool.data('display-style'),
+                displayTone: tool.data('display-tone'),
             };
-
+            
             if (!isRichText) {
-                const cmd = el.data('command');
                 Object.assign(params, {
-                    // INFO: This is the optimization command of the clicked item.
-                    optimizationCommand: el.data('command'),
-                    // INFO: This is important for change style and tone items. We must know how to change the present text. 
-                    // For command "change-style" e.g.professional, casual, friendly, etc.
-                    changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
-                    displayWordLimit: tool.data('display-word-limit'),
-                    displayStyle: tool.data('display-style'),
-                    displayTone: tool.data('display-tone'),
+                    // TODO: (mh) (ai) Is this still needed? Originally it was used to supress optimization options in the dialog (e.g. For SEO-Meta-Properties).
+                    // Seems like it isn't used anymore.
                     displayOptimizationOptions: tool.data('display-optimization-options')
                 });
             }

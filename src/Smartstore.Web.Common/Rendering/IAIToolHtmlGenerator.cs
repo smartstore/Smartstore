@@ -25,15 +25,26 @@ namespace Smartstore.Web.Rendering
         TagBuilder? GenerateTranslationTool(ILocalizedModel model);
 
         /// <summary>
-        /// Creates the icon button to open the simple text creation dialog.
+        /// Creates the icon button and the commands dropdown menu to open the simple text creation dialog.
         /// </summary>
         /// <param name="attributes">The attributes of the <see cref="TagHelper"/>.</param>
-        /// <param name="enabled">A value indicating Whether to initially enable the command dropdown items.</param>
+        /// <param name="enabled">A value indicating whether to initially enable the command dropdown items (e.g. optimize, change-tone, etc.).</param>
         /// <returns>
         /// The icon button inclusive dropdown to choose a rewrite command from.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
         TagBuilder? GenerateTextCreationTool(AttributeDictionary? attributes, bool enabled = true);
+
+        /// <summary>
+        /// Creates the icon button and the commands dropdown menu to open the rich text creation dialog.
+        /// </summary>
+        /// <param name="attributes">The attributes of the <see cref="TagHelper"/>.</param>
+        /// <param name="enabled">A value indicating whether to initially enable the command dropdown items (e.g. optimize, change-tone, etc.).</param>
+        /// <returns>
+        /// The icon button to open the rich text creation dialog.
+        /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
+        /// </returns>
+        TagBuilder? GenerateRichTextTool(AttributeDictionary? attributes, bool enabled = true);
 
         /// <summary>
         /// Creates the icon button to open the suggestion dialog.
@@ -56,20 +67,10 @@ namespace Smartstore.Web.Rendering
         TagBuilder? GenerateImageCreationTool(AttributeDictionary? attributes);
 
         /// <summary>
-        /// Creates the icon button to open the rich text creation dialog.
-        /// </summary>
-        /// <param name="attributes">The attributes of the <see cref="TagHelper"/>.</param>
-        /// <returns>
-        /// The icon button to open the rich text creation dialog.
-        /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
-        /// </returns>
-        TagBuilder? GenerateRichTextTool(AttributeDictionary? attributes);
-
-        /// <summary>
         /// Generates the text optimizer dropdown items for the text optimizer dropdown menu.
         /// </summary>
         /// <param name="forChatDialog">Whether the dropdown is rendered within the chat dialog.</param>
-        /// <param name="enabled">A value indicating Whether to initially enable the command dropdown items.</param>
+        /// <param name="enabled">A value indicating whether to initially enable the command dropdown items.</param>
         /// <returns>The HTML content.</returns>
         IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true);
     }

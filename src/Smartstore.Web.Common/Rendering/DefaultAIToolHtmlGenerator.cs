@@ -145,6 +145,12 @@ namespace Smartstore.Web.Rendering
         }
 
         public virtual TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
+            => GenerateTextToolOutput(attributes, AIChatTopic.Text, enabled);
+
+        public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes, bool enabled = true)    
+            => GenerateTextToolOutput(attributes, AIChatTopic.RichText, enabled);
+    
+        protected virtual TagBuilder GenerateTextToolOutput(AttributeDictionary attributes, AIChatTopic topic, bool enabled = true)
         {
             CheckContextualized();
 
@@ -155,7 +161,7 @@ namespace Smartstore.Web.Rendering
             }
 
             var inputGroupColDiv = CreateDialogOpener(true);
-            inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(AIChatTopic.Text);
+            inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
             inputGroupColDiv.MergeAttributes(attributes);
 
             var dropdownUl = new TagBuilder("ul");
@@ -242,9 +248,6 @@ namespace Smartstore.Web.Rendering
         public virtual TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
             => GenerateOutput(attributes, AIProviderFeatures.ImageCreation, AIChatTopic.Image);
 
-        public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
-            => GenerateOutput(attributes, AIProviderFeatures.TextCreation, AIChatTopic.RichText);
-
         /// <summary>
         /// Generates the output for the AI dialog openers.
         /// </summary>
@@ -269,15 +272,16 @@ namespace Smartstore.Web.Rendering
 
             switch (topic)
             {
-                case AIChatTopic.Text:
-                case AIChatTopic.RichText:
-                    dropdownLiTitle = T("Admin.AI.CreateText");
-                    break;
+                // INFO: Text, RichText and Translation are not handled here. Clean up???
+                //case AIChatTopic.Text:
+                //case AIChatTopic.RichText:
+                //    dropdownLiTitle = T("Admin.AI.CreateText");
+                //    break;
+                //case AIChatTopic.Translation:
+                //    dropdownLiTitle = T("Admin.AI.TranslateText");
+                //    break;
                 case AIChatTopic.Image:
                     dropdownLiTitle = T("Admin.AI.CreateImage");
-                    break;
-                case AIChatTopic.Translation:
-                    dropdownLiTitle = T("Admin.AI.TranslateText");
                     break;
                 case AIChatTopic.Suggestion:
                     dropdownLiTitle = T("Admin.AI.MakeSuggestion");
