@@ -365,11 +365,11 @@
 
             if (text) {
                 copyTextToClipboard(text)
-                    .then(() => btn.data('original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
-                    .catch(() => btn.data('original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
+                    .then(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Succeeded']).tooltip('show'))
+                    .catch(() => btn.attr('data-original-title', Res['Common.CopyToClipboard.Failed']).tooltip('show'))
                     .finally(() => {
                         setTimeout(() => {
-                            btn.data('original-title', Res['Common.CopyToClipboard']).tooltip('hide');
+                            btn.attr('data-original-title', Res['Common.CopyToClipboard']).tooltip('hide');
                         }, 2000);
                     });
             }
