@@ -255,7 +255,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="feature">The <see cref="AIProviderFeatures"/> to be supported for the AI tool.</param>
         /// <param name="topic">The <see cref="AIChatTopic"/> of the AI tool.</param>
         /// <returns>
-        /// The tagbuilder for the AI dialog opener.
+        /// The TagBuilder for the AI dialog opener.
         /// </returns>
         protected virtual TagBuilder GenerateOutput(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
         {

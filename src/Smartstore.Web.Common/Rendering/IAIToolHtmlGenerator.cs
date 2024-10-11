@@ -19,7 +19,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="model">The localized model to be translated.</param>
         /// <returns>
-        /// The icon button inclusive dropdown to choose the target property to be translated.
+        /// The icon button with a drop-down list to select the target property to be translated.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.
         /// </returns>
         TagBuilder? GenerateTranslationTool(ILocalizedModel model);
