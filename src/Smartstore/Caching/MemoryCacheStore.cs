@@ -137,6 +137,12 @@ namespace Smartstore.Caching
 
         public void Put(string key, CacheEntry entry)
         {
+            if (_cache.TryGetValue<CacheEntry>(key, out var existingEntry) && existingEntry.IsSameEntry(entry))
+            {
+                // Don't reconfigure and re-add "equal" entry that is already in the cache.
+                return;
+            }
+            
             entry.Key = key;
             PopulateCacheEntry(entry, _cache.CreateEntry(key));
         }
