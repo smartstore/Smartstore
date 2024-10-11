@@ -12,7 +12,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Core.Platform.DataExchange.Export
+namespace Smartstore.Core.DataExchange.Export
 {
     /// <summary>
     /// Allows to exclude XML nodes from export.

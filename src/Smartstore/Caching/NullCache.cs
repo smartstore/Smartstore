@@ -11,6 +11,8 @@ namespace Smartstore.Caching
 
         public static NullCache Instance { get; } = new NullCache();
 
+        public bool IsDistributed => false;
+
 #pragma warning disable CS0067 // The event is never used
         public event EventHandler<CacheEntryExpiredEventArgs> Expired;
 #pragma warning restore CS0067
