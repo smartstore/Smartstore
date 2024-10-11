@@ -1,9 +1,9 @@
 ﻿#nullable enable
 
-using Smartstore.Core.Platform.AI.Prompting;
+using Smartstore.Core.AI.Prompting;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents an AI provider like ChatGPT.

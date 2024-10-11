@@ -1,5 +1,4 @@
 ﻿using Smartstore.Caching;
-using Smartstore.Core.Platform.AI;
 
 namespace Smartstore.Core.AI
 {

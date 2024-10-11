@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Localization;
-using Smartstore.Core.Platform.AI.Prompting;
+using Smartstore.Core.AI.Prompting;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// A base class to implement <see cref="IAIProvider"/>.

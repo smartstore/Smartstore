@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Smartstore.Core.Platform.AI;
-
-namespace Smartstore.Core.AI
+﻿namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Interface for AI chat cache.

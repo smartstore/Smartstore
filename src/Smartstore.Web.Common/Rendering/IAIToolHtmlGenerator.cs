@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering

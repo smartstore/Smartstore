@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Platform.AI.Prompting
+namespace Smartstore.Core.AI.Prompting
 {
     /// <summary>
     /// Contains methods to obtain string resources for AI prompts.

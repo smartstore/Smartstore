@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Core.Platform.AI.Prompting
+namespace Smartstore.Core.AI.Prompting
 {
     public partial class AIMessageBuilder
     {

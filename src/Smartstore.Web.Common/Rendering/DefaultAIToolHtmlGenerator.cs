@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering

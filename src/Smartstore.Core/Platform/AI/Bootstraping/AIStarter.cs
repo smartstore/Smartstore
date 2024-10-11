@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Smartstore.Core.AI;
-using Smartstore.Core.Platform.AI;
-using Smartstore.Core.Platform.AI.Prompting;
+using Smartstore.Core.AI.Prompting;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

@@ -1,6 +1,6 @@
 ﻿using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     public partial class AIProviderFactory : IAIProviderFactory
     {

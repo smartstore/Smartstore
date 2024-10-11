@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {

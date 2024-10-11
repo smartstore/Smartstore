@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     internal sealed class AIChatJsonConverter : JsonConverter
     {

@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Platform.AI.Prompting
+﻿namespace Smartstore.Core.AI.Prompting
 {
     /// <summary>
     /// Represents a model for text generation with keyword properties.
