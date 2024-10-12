@@ -217,7 +217,7 @@
     }
 </tabstrip>
 
-<script sm-target-zone="scripts" data-origin="discount-edit">
+<script sm-target-zone="scripts" sm-minify="true" data-origin="discount-edit">
     $(function() {
         $("#@Html.IdFor(model => model.DiscountTypeId)").on('change', function() {
             var selectedDiscountTypeId = $("#@Html.IdFor(model => model.DiscountTypeId)").val();

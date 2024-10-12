@@ -51,8 +51,8 @@ namespace Smartstore.Web.TagHelpers
 
         public static void AddCssStyle(this TagHelperOutput output, string expression, object value)
         {
-            Guard.NotEmpty(expression, nameof(expression));
-            Guard.NotNull(value, nameof(value));
+            Guard.NotEmpty(expression);
+            Guard.NotNull(value);
 
             var style = expression + ": " + Convert.ToString(value, CultureInfo.InvariantCulture);
             AddCssStyles(output, style);
@@ -60,7 +60,7 @@ namespace Smartstore.Web.TagHelpers
 
         public static void AddCssStyles(this TagHelperOutput output, string styles)
         {
-            Guard.NotEmpty(styles, nameof(styles));
+            Guard.NotEmpty(styles);
 
             if (output.Attributes.TryGetAttribute("style", out var attribute))
             {
@@ -79,7 +79,7 @@ namespace Smartstore.Web.TagHelpers
 
         public static void MergeAttribute(this TagHelperOutput output, string name, object value, bool replace = false)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             if (output.Attributes.ContainsName(name) && replace)
             {
@@ -109,8 +109,8 @@ namespace Smartstore.Web.TagHelpers
         /// </summary>
         public static void CopyTo(this TagHelperOutput output, IHtmlContentBuilder destination)
         {
-            Guard.NotNull(output, nameof(output));
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(output);
+            Guard.NotNull(destination);
 
             // Copy PreElement
             output.PreElement.CopyTo(destination);
@@ -128,8 +128,8 @@ namespace Smartstore.Web.TagHelpers
         /// </summary>
         public static void MoveTo(this TagHelperOutput output, IHtmlContentBuilder destination)
         {
-            Guard.NotNull(output, nameof(output));
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(output);
+            Guard.NotNull(destination);
 
             // Copy PreElement
             output.PreElement.MoveTo(destination);
@@ -238,7 +238,7 @@ namespace Smartstore.Web.TagHelpers
         /// <param name="tags">The tags to wrap the element with.</param>
         public static TagHelperOutput WrapElementWith(this TagHelperOutput output, params TagBuilder[] tags)
         {
-            Guard.NotNull(output, nameof(output));
+            Guard.NotNull(output);
 
             return WrapWithCore(output, true, tags);
         }
@@ -250,7 +250,7 @@ namespace Smartstore.Web.TagHelpers
         /// <param name="tags">The tags to wrap the content with.</param>
         public static TagHelperOutput WrapContentWith(this TagHelperOutput output, params TagBuilder[] tags)
         {
-            Guard.NotNull(output, nameof(output));
+            Guard.NotNull(output);
 
             return WrapWithCore(output, false, tags);
         }
