@@ -85,7 +85,9 @@ namespace Smartstore
             _entriesFieldInfo = LazyInitializer.EnsureInitialized(ref _entriesFieldInfo, () =>
             {
                 _coherentStateFieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
-                _entriesFieldInfo = _coherentStateFieldInfo.GetValue(cache).GetType().GetField("_stringEntries", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                var coherentStateType = _coherentStateFieldInfo.GetValue(cache).GetType();
+                _entriesFieldInfo = GetEntriesField(coherentStateType, "_stringEntries") ?? GetEntriesField(coherentStateType, "_entries");
 
                 return _entriesFieldInfo;
             });
@@ -93,6 +95,11 @@ namespace Smartstore
             var coherentState = _coherentStateFieldInfo.GetValue(cache);
 
             return _entriesFieldInfo.GetValue(coherentState) as IDictionary;
+        }
+
+        private static FieldInfo GetEntriesField(Type coherentStateType, string entriesFieldName)
+        {
+            return coherentStateType.GetField(entriesFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
         }
     }
 }
