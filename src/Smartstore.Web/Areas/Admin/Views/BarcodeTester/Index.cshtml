@@ -125,7 +125,7 @@
     </div>
 </form>
 
-<script sm-target-zone="scripts" data-origin="barcode-tester">
+<script sm-target-zone="scripts" sm-minify="true" data-origin="barcode-tester">
     $(function () {
         var data = $('#data');
 
@@ -163,12 +163,12 @@
 
             let png = $('<img class="img-fluid barcode" src="{0}" />'.format(urlPng + q));
 
-            $(png).on('error', function (e) {
+            $(png).on('error', () => {
                 pngOutput.html('<span class="text-danger">Invalid input!</span>');
             });
 
             pngOutput.html(png);
-            png.on('load', function (e) {
+            png.on('load', () => {
                 // Now fetch SVG image
                 let svg = $('<img class="img-fluid barcode" src="{0}" style="width: {1:D}px" />'.format(urlSvg + q, png.width()));
 
