@@ -22,11 +22,11 @@
     --controls-border-color: var(--shadow-color-mid);
     --button-disabled-color: #ccc;
     --icon-bagde-new-text: 'NEW';
-    --icon-bagde-new-bg: green;
+    --icon-bagde-new-bg: #007d00;
     --icon-bagde-local-text: 'LOCAL';
-    --icon-bagde-local-bg: green;
-    --icon-bagde-subset-text: 'SUBSET';
-    --icon-bagde-subset-bg: green;
+    --icon-bagde-local-bg: #800072;
+    --icon-bagde-not-local-text: 'SUBSET';
+    --icon-bagde-not-local-bg: #002080;
     --dialogbox-bg: var(--body-bg);
     --dialog-export-color: var(--color);
     --dialog-export-bg: var(--body-bg);
@@ -167,9 +167,9 @@ button, input, optgroup, select, textarea {
     content: var(--icon-bagde-local-text);
     background-color: var(--icon-bagde-local-bg);
 }
-.icon.only-subset::after {
-    content: var(--icon-bagde-subset-text);
-    background-color: var(--icon-bagde-subset-bg);
+.icon.not-local::after {
+    content: var(--icon-bagde-not-local-text);
+    background-color: var(--icon-bagde-not-local-bg);
 }
 .icon span {
 	font-size: 0.875em;
@@ -432,7 +432,9 @@ button, input, optgroup, select, textarea {
         --form-control-border-color: rgba(255, 255, 255, 0.12);
         --controls-bg: var(--box-active-bg);
         --controls-border-color: rgba(255, 255, 255, 0.12);
-        --icon-bagde-new-bg: #0d6efd;
+        --icon-bagde-new-bg: #00b324;
+        --icon-bagde-local-bg: #a500b3;
+        --icon-bagde-not-local-bg: var(--box-active-outline-bg);
         --dialogbox-bg: var(--box-bg);
         --dialog-export-color: #999;
         --dialog-export-bg: var(--box-active-bg);
