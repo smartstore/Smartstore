@@ -101,13 +101,13 @@
             @if (Model.CheckoutAsGuest)
             {
                 @await Component.InvokeAsync("TopicBlock", new { systemName = "CheckoutAsGuestOrRegister", bodyOnly = true })
-                <div class="row sm-gutters">
-                    <div class="col-sm-6 col-md-12 col-lg-6 pb-2 pb-lg-0">
+                <div class="row g-2">
+                    <div class="col-12">
                         <a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl">
                             @T("Account.Register.Button")
                         </a>
                     </div>
-                    <div class="col-sm-6 col-md-12 col-lg-6">
+                    <div class="col-12">
                         <a class="btn btn-secondary btn-lg btn-block checkout-as-guest-button" asp-route="Checkout">
                             <span>@T("Account.Login.CheckoutAsGuest")</span>
                             <i class="fa fa-angle-right"></i>
