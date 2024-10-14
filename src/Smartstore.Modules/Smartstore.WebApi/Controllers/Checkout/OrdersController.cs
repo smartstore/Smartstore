@@ -45,7 +45,10 @@ namespace Smartstore.Web.Api.Controllers
         [Permission(Permissions.Order.Read)]
         public IQueryable<Order> Get()
         {
-            return Entities.AsNoTracking();
+            return Entities
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(x => !x.Deleted);
         }
 
         [HttpGet("Orders({key})"), ApiQueryable]

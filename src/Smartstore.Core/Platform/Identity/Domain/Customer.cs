@@ -160,7 +160,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets a value indicating whether the customer has been deleted
         /// </summary>
-        [IgnoreDataMember]
         public bool Deleted { get; set; }
 
         bool ISoftDeletable.ForceDeletion
