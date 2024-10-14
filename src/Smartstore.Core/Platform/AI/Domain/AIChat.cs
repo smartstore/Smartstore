@@ -10,6 +10,7 @@ namespace Smartstore.Core.AI
     [JsonConverter(typeof(AIChatJsonConverter))]
     public class AIChat(AIChatTopic topic)
     {
+        private IDictionary<string, object?>? _metadata;
         private readonly List<AIChatMessage> _messages = [];
 
         public AIChatTopic Topic { get; } = topic;
@@ -36,6 +37,12 @@ namespace Smartstore.Core.AI
             {
                 _messages.AddRange(messages.Where(x => x.Content.HasValue()));
             }
+        }
+
+        public IDictionary<string, object?> Metadata
+        {
+            get => _metadata ??= new Dictionary<string, object?>();
+            set => _metadata = value;
         }
 
         public override string ToString()
