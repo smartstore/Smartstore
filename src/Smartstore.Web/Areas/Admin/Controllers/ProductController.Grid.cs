@@ -28,15 +28,17 @@ namespace Smartstore.Admin.Controllers
                 var query = _catalogSearchService.Value
                     .PrepareQuery(searchQuery)
                     .ApplyGridCommand(command, false);
-
-                products = await query.ToPagedList(command).LoadAsync();
+                    
+                products = await query
+                    .ApplyCustomerStoreFilter(
+                        await _storeMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                        await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Product), [.. query.Select(x => x.Id)]))
+                    .ToPagedList(command).LoadAsync();
             }
-
-            var rows = await products.MapAsync(Services.MediaService);
 
             return Json(new GridModel<ProductOverviewModel>
             {
-                Rows = rows,
+                Rows = await products.MapAsync(Services.MediaService),
                 Total = products.TotalCount
             });
         }

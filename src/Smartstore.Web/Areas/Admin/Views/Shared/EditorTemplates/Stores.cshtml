@@ -1,8 +1,11 @@
 ﻿@using System.Globalization
 @using Smartstore.Utilities
 @using Smartstore.Core.Stores
+@using Smartstore.Core
 
 @inject IStoreContext StoreContext
+@inject IWorkContext workContext
+@inject IStoreMappingService StoreMappingService
 
 @functions
 {
@@ -31,6 +34,13 @@
     var multiple = GetMetadata<bool>("multiple", false);
     var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    var authorizedStoreIds = await StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
+    if (!CommonServices.WorkContext.CurrentCustomer.IsSuperAdmin() && authorizedStoreIds.Count() > 0)
+    {
+        //Admin is limited to at least one store.
+        items = items.Where(x => authorizedStoreIds.Contains(int.Parse(x.Value))).ToList();
+    }
 
     if (multiple && !attributes.ContainsKey("data-placeholder"))
     {

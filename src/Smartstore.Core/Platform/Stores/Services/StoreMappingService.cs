@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching;
+﻿using Autofac.Core;
+using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -17,12 +18,14 @@ namespace Smartstore.Core.Stores
         private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
         private readonly IDictionary<string, StoreMappingCollection> _prefetchedCollections;
+        private readonly IWorkContext _workContext;
 
-        public StoreMappingService(ICacheManager cache, IStoreContext storeContext, SmartDbContext db)
+        public StoreMappingService(ICacheManager cache, IStoreContext storeContext, SmartDbContext db, IWorkContext workContext)
         {
             _cache = cache;
             _storeContext = storeContext;
             _db = db;
+            _workContext = workContext;
 
             _prefetchedCollections = new Dictionary<string, StoreMappingCollection>(StringComparer.OrdinalIgnoreCase);
         }
@@ -51,14 +54,19 @@ namespace Smartstore.Core.Stores
 
         #endregion
 
-        public virtual async Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds)
+        public virtual async Task<bool> ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds)
             where T : BaseEntity, IStoreRestricted
         {
-            selectedStoreIds ??= Array.Empty<int>();
-
+            var customerAuthorizedStores = await GetCustomerAuthorizedStoreIdsAsync();
+            selectedStoreIds ??= (!_workContext.CurrentCustomer.IsSuperAdmin() ? customerAuthorizedStores : []) ;
+            if (!_workContext.CurrentCustomer.IsSuperAdmin() && customerAuthorizedStores.Length > 0 && selectedStoreIds.Any(ssId => !customerAuthorizedStores.Any(cas => ssId == cas)))
+            {
+                //Trying to select a store not in the list of authorized stores of the customer making this change
+                return false;
+            }
+            
             List<StoreMapping> lookup = null;
             var allStores = _storeContext.GetAllStores();
-
             entity.LimitedToStores = (selectedStoreIds.Length != 1 || selectedStoreIds[0] != 0) && selectedStoreIds.Any();
 
             foreach (var store in allStores)
@@ -81,6 +89,7 @@ namespace Smartstore.Core.Stores
                     }
                 }
             }
+            return true;
         }
 
         public virtual void AddStoreMapping<T>(T entity, int storeId) where T : BaseEntity, IStoreRestricted
@@ -126,17 +135,22 @@ namespace Smartstore.Core.Stores
 
             if (entityId <= 0)
             {
-                return Array.Empty<int>();
+                return [];
             }
 
             var cacheSegment = await GetCacheSegmentAsync(entityName, entityId);
 
             if (!cacheSegment.TryGetValue(entityId, out var storeIds))
             {
-                return Array.Empty<int>();
+                return [];
             }
 
             return storeIds;
+        }
+
+        public virtual async Task<int[]> GetCustomerAuthorizedStoreIdsAsync()
+        {
+            return _workContext.CurrentCustomer.IsSuperAdmin() ? [] : await GetAuthorizedStoreIdsAsync("Customer", _workContext.CurrentCustomer.Id);
         }
 
         public virtual async Task PrefetchStoreMappingsAsync(string entityName, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)

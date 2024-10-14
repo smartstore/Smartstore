@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Identity
@@ -179,6 +180,23 @@ namespace Smartstore.Core.Identity
             return query;
         }
 
+
+        /// <summary>
+        /// Selects customers that the currently authenticated customer is authorized to access.
+        /// </summary>
+        /// <param name="query">Customers query to filter from.</param>
+        /// <param name="authorizedStoreIds">Ids of stores customer has access to</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="Customer"/>.</returns>
+        public static IQueryable<Customer> ApplyCustomerStoreFilter(this IQueryable<Customer> query, int[] authorizedStoreIds)
+        {
+            Guard.NotNull(query);
+            if (!authorizedStoreIds.IsNullOrEmpty())
+            {
+                query = query.Where(c => authorizedStoreIds.Contains(c.Id));
+            }
+            return query;
+        }
+
         /// <summary>
         /// Selects customers who are currently online since <paramref name="minutes"/> and orders by <see cref="Customer.LastActivityDateUtc"/> descending.
         /// </summary>
@@ -192,6 +210,21 @@ namespace Smartstore.Core.Identity
             return query
                 .Where(c => c.IsSystemAccount == false)
                 .ApplyLastActivityFilter(fromUtc, null);
+        }
+
+        /// <summary>
+        /// Filters out super admins when the current customer is not a super admin - when isSuperAdmin = false.
+        /// </summary>
+        /// <param name="isSuperAdmin"></param>
+        public static IQueryable<Customer> ApplySuperAdminFilter(this IQueryable<Customer> query, bool isSuperAdmin)
+        {
+            Guard.NotNull(query);
+            
+            if (!isSuperAdmin)
+            {
+                return query.Where(customer => !customer.CustomerRoleMappings.Any(mapping => mapping.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators));
+            }
+            return query;
         }
 
         /// <summary>

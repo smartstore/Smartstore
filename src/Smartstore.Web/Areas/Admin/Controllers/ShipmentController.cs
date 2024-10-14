@@ -102,9 +102,10 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.Order != null)
                 .ApplyTimeFilter(startDate, endDate)
                 .ApplyGridCommand(command, false)
+                .ApplyCustomerStoreFilter([.. (await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync())])
                 .ToPagedList(command)
                 .LoadAsync();
-
+            
             var rows = await shipments.SelectAwait(async x =>
             {
                 var m = new ShipmentModel();
@@ -233,6 +234,12 @@ namespace Smartstore.Admin.Controllers
             if (shipment == null)
             {
                 return NotFound();
+            }
+
+            if(!await Services.Permissions.CanAccessEntity(shipment))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var model = new ShipmentModel();
