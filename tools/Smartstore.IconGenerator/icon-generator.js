@@ -2,13 +2,7 @@
     MC Review:
     -----------------------------------------------
 	
-    TODO: (mw) Study the review commits and comply to conventions and quality level in future.
-    TODO: (mw) CSS needs better (predictable) structure. Use more class names.
-*/
-
-/*
-    TODO: (mw) Refactor the dark mode CSS, so that only CSS variables are used.
-    TODO: (mw) When finished, clean up CSS. Remove unused styles and summarize similar ones. Use CSS variables for multiple uses.
+    Add badges for only-in-subset icons and only-in-local icons.
 */
 
 class IconGenerator {
