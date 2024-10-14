@@ -26,6 +26,20 @@
         <meta itemprop="name" content="@brand.Name.Value">
     </div>
 
+    <!-- Title -->
+    <div class="page-title">
+        <h1 sm-language-attributes-for="Model.Name" class="pd-name" itemprop="name">
+            @if (Model.IsAssociatedProduct && Model.VisibleIndividually)
+            {
+                <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@Html.Raw(Model.Name)</a>
+            }
+            else
+            {
+                @Html.Raw(Model.Name)
+            }
+        </h1>
+    </div>
+
     <!-- Short description -->
     @if (Model.ShortDescription.Value.HasValue())
     {
