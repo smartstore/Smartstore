@@ -39,13 +39,13 @@ namespace Smartstore.Core.AI
             => ["default"];
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+            => throw new NotImplementedException();
 
-        public virtual IAsyncEnumerable<(string Answer, int Index)> ChatAsStreamAsync(
+        public virtual IAsyncEnumerable<AIChatCompletionResponse> ChatAsStreamAsync(
             AIChat chat,
             int numAnswers,
             CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
+            => throw new NotImplementedException();
 
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
