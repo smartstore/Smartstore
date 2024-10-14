@@ -1,8 +1,7 @@
-﻿using Smartstore.Core.Localization;
-using Smartstore.Core.Platform.AI.Prompting;
-using Smartstore.Http;
+﻿using Smartstore.Core.AI.Prompting;
+using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// A base class to implement <see cref="IAIProvider"/>.
@@ -33,18 +32,19 @@ namespace Smartstore.Core.Platform.AI
         public bool SupportsAssistence
             => Supports(AIProviderFeatures.Assistence);
 
-        public abstract RouteInfo GetDialogRoute(AIChatTopic topic);
+        public virtual string[] GetPreferredModelNames(AIChatTopic topic)
+            => null;
 
-        public virtual string[] GetPreferredTextModelNames() 
-            => ["default"];
-
-        public virtual string[] GetPreferredImageModelNames()
+        public virtual string[] GetDefaultModelNames()
             => ["default"];
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default)
+        public virtual IAsyncEnumerable<(string Answer, int Index)> ChatAsStreamAsync(
+            AIChat chat,
+            int numAnswers,
+            CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)

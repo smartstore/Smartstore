@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace Smartstore.Core.Platform.AI.Prompting
+namespace Smartstore.Core.AI.Prompting
 {
     /// <summary>
     /// Represents a simple text generation model.

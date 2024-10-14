@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -79,35 +80,27 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            TagHelperContent childContent = await output.GetChildContentAsync();
-            TagHelperContent content;
-
-            if (output.TagName == "widget")
-            {
-                if (childContent.IsEmptyOrWhiteSpace)
-                {
-                    output.SuppressOutput();
-                    return;
-                }
-
-                // Never render <widget> tag, only the content
-                output.TagName = null;
-                content = childContent;
-            }
-            else
-            {
-                output.Content.SetHtmlContent(childContent);
-                content = new DefaultTagHelperContent();
-                output.CopyTo(content);
-            }
+            var content = await GetContentAsync(context, output);
 
             output.SuppressOutput();
 
-            if (!content.IsEmptyOrWhiteSpace)
+            if (content != null && !content.IsEmptyOrWhiteSpace)
             {
                 var widget = new HtmlWidget(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
                 _widgetProvider.RegisterWidget(TargetZone, widget);
             }
+        }
+
+        protected virtual async Task<TagHelperContent> GetContentAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            var childContent = await output.GetChildContentAsync();
+            if (!childContent.IsEmptyOrWhiteSpace)
+            {
+                // Never render <widget> tag, only the content
+                output.TagName = null;
+            }
+
+            return childContent;
         }
     }
 
@@ -166,6 +159,24 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             get => base.Key;
             set => base.Key = value;
+        }
+
+        protected override async Task<TagHelperContent> GetContentAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            var content = new DefaultTagHelperContent();
+
+            if (output.Content.IsModified)
+            {
+                output.CopyTo(content);
+            }
+            else
+            {
+                var childContent = await output.GetChildContentAsync();
+                output.Content.SetHtmlContent(childContent);
+                output.CopyTo(content);
+            }
+            
+            return content;
         }
     }
 }

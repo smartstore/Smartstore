@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents an error that occurs during AI processing.

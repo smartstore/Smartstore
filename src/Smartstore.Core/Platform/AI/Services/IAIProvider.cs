@@ -1,10 +1,9 @@
 ﻿#nullable enable
 
-using Smartstore.Core.Platform.AI.Prompting;
+using Smartstore.Core.AI.Prompting;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents an AI provider like ChatGPT.
@@ -22,19 +21,15 @@ namespace Smartstore.Core.Platform.AI
         bool Supports(AIProviderFeatures feature);
 
         /// <summary>
-        /// Gets <see cref="RouteInfo"/> for the given <paramref name="topic"/>.
+        /// Gets the names of the preferred AI models for the given <paramref name="topic"/>.
         /// </summary>
-        RouteInfo GetDialogRoute(AIChatTopic topic);
+        string[]? GetPreferredModelNames(AIChatTopic topic);
 
         /// <summary>
-        /// Gets the names of the preferred AI models for text generation.
+        /// Gets the default AI model names.
+        /// To be used when <see cref="GetPreferredModelNames(AIChatTopic)"/> returns <c>null</c>.
         /// </summary>
-        string[] GetPreferredTextModelNames();
-
-        /// <summary>
-        /// Gets the names of the preferred AI models for image creation.
-        /// </summary>
-        string[] GetPreferredImageModelNames();
+        string[] GetDefaultModelNames();
 
         /// <summary>
         /// Starts or continues an AI conversation.
@@ -48,9 +43,14 @@ namespace Smartstore.Core.Platform.AI
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <returns>Latest answer.</returns>
+        /// <param name="chat">Chat to start or continue.</param>
+        /// <param name="numAnswers">The number of AI answers to return. 1 by default.</param>
+        /// <returns>The answer and its index. The index is greater than or equal to 0 and less than <paramref name="numAnswers"/>.</returns>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default);
+        IAsyncEnumerable<(string Answer, int Index)> ChatAsStreamAsync(
+            AIChat chat,
+            int numAnswers = 1,
+            CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).

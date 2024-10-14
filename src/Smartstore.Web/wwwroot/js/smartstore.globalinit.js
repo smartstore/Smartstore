@@ -57,14 +57,17 @@ jQuery(function () {
 
     // Adjust Popper global defaults
     if (Popper?.Defaults) {
-        const d = Popper?.Defaults;
-        d.modifiers.computeStyle.gpuAcceleration = false;
+        Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
     }
 
     // Global notification subscriber
     if (window.EventBroker && window._ && typeof PNotify !== 'undefined') {
         EventBroker.subscribe("message", (_message, data) => {
             var opts = _.isString(data) ? { text: data } : data;
+            if (opts.text) {
+                opts.text = '<div class="ui-pnotify-text-inner">' + opts.text + '</div>';
+            }
+            
             new PNotify(opts);
         });
     }
@@ -132,6 +135,7 @@ jQuery(function () {
         })
         .ajaxError(function (_e, xhr) {
             var msg = xhr.getResponseHeader('X-Message');
+            console.log('KAKAKAKA', msg);
             if (msg) {
                 displayNotification(base64Decode(msg), xhr.getResponseHeader('X-Message-Type'));
             }

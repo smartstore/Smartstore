@@ -576,6 +576,10 @@ namespace Smartstore.Core.Seo
                 if ((urlRecord == null || foundIsSelf) && !reserved)
                 {
                     found = urlRecord;
+                    if (found == null)
+                    {
+                        tempSlug = slug.Truncate(400);
+                    }
                     break;
                 }
 

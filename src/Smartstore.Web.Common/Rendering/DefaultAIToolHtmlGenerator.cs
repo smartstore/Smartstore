@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Platform.AI;
-using Smartstore.Engine.Modularity;
+using Smartstore.Core.AI;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering
@@ -15,7 +14,6 @@ namespace Smartstore.Web.Rendering
     {
         private readonly SmartDbContext _db;
         private readonly IAIProviderFactory _aiProviderFactory;
-        private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
         private readonly IWorkContext _workContext;
         private IHtmlHelper _htmlHelper;
@@ -24,13 +22,11 @@ namespace Smartstore.Web.Rendering
         public DefaultAIToolHtmlGenerator(
             SmartDbContext db,
             IAIProviderFactory aiProviderFactory,
-            ModuleManager moduleManager, 
             IUrlHelper urlHelper,
             IWorkContext workContext)
         {
             _db = db;
             _aiProviderFactory = aiProviderFactory;
-            _moduleManager = moduleManager;
             _urlHelper = urlHelper;
             _workContext = workContext;
         }
@@ -61,7 +57,7 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        public TagBuilder GenerateTranslationTool(ILocalizedModel model)
+        public virtual TagBuilder GenerateTranslationTool(ILocalizedModel model)
         {
             Guard.NotNull(model);
 
@@ -114,46 +110,33 @@ namespace Smartstore.Web.Rendering
             }
 
             string[] additionalItemClasses = ["ai-translator"];
+            var dialogUrl = GetDialogUrl(AIChatTopic.Translation);
             var inputGroupColDiv = CreateDialogOpener(true);
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
 
-            foreach (var provider in providers)
+            // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
+            // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
+            // We do not have this information here. Solution: we put all properties in the menu and later remove those that are not included using JavaScript.
+            foreach (var name in propertyNames)
             {
-                // Add attributes from tag helper properties.
-                var route = provider.Value.GetDialogRoute(AIChatTopic.Translation);
-                var routeUrl = _urlHelper.Action(route.Action, route.Controller, route.RouteValues);
+                var id = HtmlHelper.Id(name);
+                var displayName = HtmlHelper.DisplayName(name);
+                var info = propertyInfoMap.Get(name) ?? new();
+                //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
 
-                var dropdownLiTitle = T("Admin.AI.TranslateTextWith", _moduleManager.GetLocalizedFriendlyName(provider.Metadata)).ToString();
-                var headingLi = new TagBuilder("li");
-                headingLi.Attributes["class"] = "dropdown-header h6";
-                headingLi.InnerHtml.AppendHtml(dropdownLiTitle);
-                dropdownUl.InnerHtml.AppendHtml(headingLi);
+                var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
+                var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
 
-                // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
-                // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
-                // We do not have this information here. Solution: we put all properties in the menu and later remove those that are not included using JavaScript.
-                foreach (var name in propertyNames)
-                {
-                    var id = HtmlHelper.Id(name);
-                    var displayName = HtmlHelper.DisplayName(name);
-                    var info = propertyInfoMap.Get(name) ?? new();
-                    //$"- id:{id} displayName:{displayName} hasValue:{info.HasValue}".Dump();
+                var attrs = dropdownLi.Attributes;
+                attrs["data-modal-url"] = dialogUrl;
+                attrs["data-modal-title"] = displayName;
+                attrs["data-target-property"] = id;
 
-                    var additionalClasses = info.HasValue ? additionalItemClasses : [.. additionalItemClasses, "disabled"];
-                    var dropdownLi = CreateDropdownItem(displayName, true, string.Empty, null, true, additionalClasses);
-
-                    var attrs = dropdownLi.Attributes;
-                    attrs["data-provider-systemname"] = provider.Metadata.SystemName;
-                    attrs["data-modal-url"] = routeUrl;
-                    attrs["data-target-property"] = id;
-                    attrs["data-modal-title"] = dropdownLiTitle + ": " + displayName;
-
-                    // INFO: there is no explicit item order. To put the menu items in the same order as the HTML elements,
-                    // the properties of the ILocalizedLocaleModel must be ordered accordingly.
-                    dropdownUl.InnerHtml.AppendHtml(dropdownLi);
-                }
+                // INFO: there is no explicit item order. To put the menu items in the same order as the HTML elements,
+                // the properties of the ILocalizedLocaleModel must be ordered accordingly.
+                dropdownUl.InnerHtml.AppendHtml(dropdownLi);
             }
 
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
@@ -161,75 +144,43 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
+        public virtual TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
+            => GenerateTextToolOutput(attributes, AIChatTopic.Text, enabled);
+
+        public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes, bool enabled = true)    
+            => GenerateTextToolOutput(attributes, AIChatTopic.RichText, enabled);
+    
+        protected virtual TagBuilder GenerateTextToolOutput(AttributeDictionary attributes, AIChatTopic topic, bool enabled = true)
         {
             CheckContextualized();
 
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
             if (providers.Count == 0)
             {
                 return null;
             }
-            
+
             var inputGroupColDiv = CreateDialogOpener(true);
+            inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
+            inputGroupColDiv.MergeAttributes(attributes);
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
 
-            // Create a button group for the providers. If there is only one provider, hide the button group.
-            // INFO: The button group will be rendered hidden in order to have the same javascript initialization for all cases,
-            // because the button contains all the necessary data attributes.
-            var btnGroupLi = new TagBuilder("li");
-            btnGroupLi.Attributes["class"] = "dropdown-group";
-
-            var btnGroupDiv = new TagBuilder("div");
-            btnGroupDiv.Attributes["class"] = "btn-group mb-2";
-
-            if (providers.Count == 1)
-            {
-                btnGroupDiv.AppendCssClass("d-none");
-            }
-
-            var isFirstProvider = true;
-            foreach (var provider in providers)
-            {
-                var btn = new TagBuilder("button");
-                btn.Attributes["type"] = "button";
-                btn.Attributes["class"] = "btn-ai-provider-chooser btn btn-secondary btn-sm";
-                btn.Attributes["aria-haspopup"] = "true";
-                btn.Attributes["aria-expanded"] = "false";
-
-                if (isFirstProvider)
-                {
-                    btn.AppendCssClass("active");
-                }
-
-                btn.InnerHtml.AppendHtml(_moduleManager.GetLocalizedFriendlyName(provider.Metadata));
-                MergeDataAttributes(btn, provider, attributes, AIChatTopic.Text);
-
-                btnGroupDiv.InnerHtml.AppendHtml(btn);
-                isFirstProvider = false;
-            }
-
-            btnGroupLi.InnerHtml.AppendHtml(btnGroupDiv);
-            dropdownUl.InnerHtml.AppendHtml(btnGroupLi);
             dropdownUl.InnerHtml.AppendHtml(GenerateOptimizeCommands(false, enabled));
             inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return inputGroupColDiv;
         }
 
-        public IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
+        public virtual IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
         {
             var builder = new HtmlContentBuilder();
             var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
             var resRoot = "Admin.AI.TextCreation.";
 
-            if (!forChatDialog)
-            {
-                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
-                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
-            }
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
+            builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
 
             // Add "Change style" & "Change tone" options from module settings.
             var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
@@ -291,144 +242,59 @@ namespace Smartstore.Web.Rendering
             return subDropdown;
         }
 
-        public TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
-        {
-            CheckContextualized();
+        public virtual TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
+            => GenerateOutput(attributes, AIProviderFeatures.TextCreation, AIChatTopic.Suggestion);
 
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
-            if (providers.Count == 0)
-            {
-                return null;
-            }
-
-            return GenerateOutput(providers, attributes, AIChatTopic.Suggestion);
-        }
-
-        public TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
-        {
-            CheckContextualized();
-
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.ImageCreation);
-            if (providers.Count == 0)
-            {
-                return null;
-            }
-
-            return GenerateOutput(providers, attributes, AIChatTopic.Image);
-        }
-
-        public TagBuilder GenerateRichTextTool(AttributeDictionary attributes)
-        {
-            CheckContextualized();
-
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
-            if (providers.Count == 0)
-            {
-                return null;
-            }
-
-            return GenerateOutput(providers, attributes, AIChatTopic.RichText);
-        }
+        public virtual TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
+            => GenerateOutput(attributes, AIProviderFeatures.ImageCreation, AIChatTopic.Image);
 
         /// <summary>
         /// Generates the output for the AI dialog openers.
         /// </summary>
-        /// <param name="providers">List of providers to generate dropdown items for.</param>
         /// <param name="attributes">The attributes of the taghelper.</param>
+        /// <param name="feature">The <see cref="AIProviderFeatures"/> to be supported for the AI tool.</param>
+        /// <param name="topic">The <see cref="AIChatTopic"/> of the AI tool.</param>
         /// <returns>
-        /// A button (if there's only one provider) or a dropdown incl. menu items (if there are more then one provider) 
-        /// containing all the metadata needed to open the dialog.
+        /// The TagBuilder for the AI dialog opener.
         /// </returns>
-        private TagBuilder GenerateOutput(IReadOnlyList<Provider<IAIProvider>> providers, AttributeDictionary attributes, AIChatTopic topic)
+        protected virtual TagBuilder GenerateOutput(AttributeDictionary attributes, AIProviderFeatures feature, AIChatTopic topic)
         {
+            CheckContextualized();
+
+            var providers = _aiProviderFactory.GetProviders(feature);
+            if (providers.Count == 0)
+            {
+                return null;
+            }
+
             var additionalClasses = GetDialogIdentifierClass(topic);
+            var dropdownLiTitle = string.Empty;
 
-            // If there is only one provider, render a simple button, render a dropdown otherwise.
-            if (providers.Count == 1)
-            {
-                var provider = providers[0];
-                var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-                var dropdownLiTitle = GetDialogOpenerText(topic, friendlyName);
-                var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
-
-                MergeDataAttributes(openerDiv, provider, attributes, topic);
-
-                return openerDiv;
-            }
-            else
-            {
-                var inputGroupColDiv = CreateDialogOpener(true);
-                var dropdownUl = new TagBuilder("ul");
-                dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
-
-                foreach (var provider in providers)
-                {
-                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-                    var dropdownLiTitle = GetDialogOpenerText(topic, friendlyName);
-                    var dropdownLi = CreateDropdownItem(dropdownLiTitle, true, string.Empty, null, true, additionalClasses);
-
-                    MergeDataAttributes(dropdownLi, provider, attributes, topic);
-
-                    dropdownUl.InnerHtml.AppendHtml(dropdownLi);
-                }
-
-                inputGroupColDiv.InnerHtml.AppendHtml(dropdownUl);
-
-                return inputGroupColDiv;
-            }
-        }
-
-        /// <summary>
-        /// Adds the necessary data attributes to the given control.
-        /// </summary>
-        private void MergeDataAttributes(TagBuilder ctrl, Provider<IAIProvider> provider, AttributeDictionary attributes, AIChatTopic topic)
-        {
-            var route = provider.Value.GetDialogRoute(topic);
-            ctrl.MergeAttribute("data-provider-systemname", provider.Metadata.SystemName);
-            ctrl.MergeAttribute("data-modal-url", _urlHelper.Action(route.Action, route.Controller, route.RouteValues));
-            ctrl.MergeAttributes(attributes);
-        }
-
-        /// <summary>
-        /// Gets the class name used as the dialog identifier.
-        /// </summary>
-        private static string GetDialogIdentifierClass(AIChatTopic topic)
-        {
             switch (topic)
             {
-                case AIChatTopic.Text:
-                case AIChatTopic.RichText:
-                    return "ai-text-composer";
+                // INFO: Text, RichText and Translation are not handled here. Clean up???
+                //case AIChatTopic.Text:
+                //case AIChatTopic.RichText:
+                //    dropdownLiTitle = T("Admin.AI.CreateText");
+                //    break;
+                //case AIChatTopic.Translation:
+                //    dropdownLiTitle = T("Admin.AI.TranslateText");
+                //    break;
                 case AIChatTopic.Image:
-                    return "ai-image-composer";
-                case AIChatTopic.Translation:
-                    return "ai-translator";
+                    dropdownLiTitle = T("Admin.AI.CreateImage");
+                    break;
                 case AIChatTopic.Suggestion:
-                    return "ai-suggestion";
+                    dropdownLiTitle = T("Admin.AI.MakeSuggestion");
+                    break;
                 default:
                     throw new AIException($"Unknown chat topic {topic}.");
             }
-        }
 
-        /// <summary>
-        /// Gets the title of a dropdown item that opens an AI dialog.
-        /// </summary>
-        private string GetDialogOpenerText(AIChatTopic topic, string providerName)
-        {
-            switch (topic)
-            {
-                case AIChatTopic.Text:
-                case AIChatTopic.RichText:
-                    return T("Admin.AI.CreateTextWith", providerName);
-                case AIChatTopic.Image:
-                    return T("Admin.AI.CreateImageWith", providerName);
-                case AIChatTopic.Translation:
-                    return T("Admin.AI.TranslateTextWith", providerName);
-                case AIChatTopic.Suggestion:
-                    return T("Admin.AI.MakeSuggestionWith", providerName);
-                default:
-                    throw new AIException($"Unknown chat topic {topic}.");
-            }
+            var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
+            openerDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
+            openerDiv.MergeAttributes(attributes);
+
+            return openerDiv;
         }
 
         /// <summary>
@@ -438,11 +304,16 @@ namespace Smartstore.Web.Rendering
         /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
         /// <param name="title">The title of the opener.</param>
         /// <returns>The dialog opener.</returns>
-        private TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
+        protected virtual TagBuilder CreateDialogOpener(bool isDropdown, string additionalClasses = "", string title = "")
         {
             var inputGroupColDiv = new TagBuilder("div");
             inputGroupColDiv.Attributes["class"] = "has-icon has-icon-right ai-dialog-opener-root";
-            inputGroupColDiv.AppendCssClass(isDropdown ? "dropdown" : "ai-provider-tool");
+            inputGroupColDiv.AppendCssClass("ai-provider-tool");
+
+            if (isDropdown)
+            {
+                inputGroupColDiv.AppendCssClass("dropdown");
+            }
 
             var iconA = GenerateOpenerIcon(isDropdown, additionalClasses, title);
             inputGroupColDiv.InnerHtml.AppendHtml(iconA);
@@ -457,7 +328,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="additionalClasses">Additional CSS classes to add to the opener icon.</param>
         /// <param name="title">The title of the opener.</param>
         /// <returns>The dialog opener icon.</returns>
-        private TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
+        protected virtual TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
             var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", htmlAttributes: new Dictionary<string, object>
             {
@@ -484,11 +355,51 @@ namespace Smartstore.Web.Rendering
         }
 
         /// <summary>
+        /// Gets the URL of the dialog.
+        /// </summary>
+        /// <param name="topic">The <see cref="AIChatTopic"/> of the dialog.</param>
+        protected virtual string GetDialogUrl(AIChatTopic topic)
+        {
+            var action = topic switch
+            {
+                AIChatTopic.Image => "Image",
+                AIChatTopic.Text => "Text",
+                AIChatTopic.RichText => "RichText",
+                AIChatTopic.Translation => "Translation",
+                AIChatTopic.Suggestion => "Suggestion",
+                _ => throw new AIException($"Unknown chat topic {topic}.")
+            };
+
+            return _urlHelper.Action(action, "AI", new { area = "Admin" });
+        }
+
+        /// <summary>
+        /// Gets the class name used as the dialog identifier.
+        /// </summary>
+        private static string GetDialogIdentifierClass(AIChatTopic topic)
+        {
+            switch (topic)
+            {
+                case AIChatTopic.Text:
+                case AIChatTopic.RichText:
+                    return "ai-text-composer";
+                case AIChatTopic.Image:
+                    return "ai-image-composer";
+                case AIChatTopic.Translation:
+                    return "ai-translator";
+                case AIChatTopic.Suggestion:
+                    return "ai-suggestion";
+                default:
+                    throw new AIException($"Unknown chat topic {topic}.");
+            }
+        }
+
+        /// <summary>
         /// Creates a dropdown item.
         /// </summary>
         /// <param name="menuText">The text for the menu item.</param>
         /// <returns>A LI tag representing the menu item.</returns>
-        private TagBuilder CreateDropdownItem(string menuText)
+        protected virtual TagBuilder CreateDropdownItem(string menuText)
             => CreateDropdownItem(menuText, true, string.Empty, null, false);
 
         /// <summary>
@@ -501,7 +412,7 @@ namespace Smartstore.Web.Rendering
         /// <param name="isProviderTool">Defines whether the item is a provider tool container.</param>
         /// <param name="additionalClasses">Additional CSS classes to add to the menu item.</param>
         /// <returns>An LI tag representing the menu item.</returns>
-        private TagBuilder CreateDropdownItem(
+        protected virtual TagBuilder CreateDropdownItem(
             string menuText,
             bool enabled,
             string command,

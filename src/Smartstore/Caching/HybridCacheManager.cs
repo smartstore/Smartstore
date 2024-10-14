@@ -36,6 +36,11 @@ namespace Smartstore.Caching
             _lastIndex = _stores.Length - 1;
         }
 
+        public bool IsDistributed
+        {
+            get => _isDistributed;
+        }
+
         #region Events
 
         public event EventHandler<CacheEntryExpiredEventArgs> Expired;

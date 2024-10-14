@@ -22,6 +22,7 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*Customer")]
         public int CustomerId { get; set; }
+        public bool CustomerDeleted { get; set; }
 
         [LocalizedDisplay("Admin.Orders.List.CustomerName")]
         public string CustomerName { get; set; }

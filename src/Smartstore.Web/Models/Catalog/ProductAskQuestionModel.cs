@@ -37,7 +37,7 @@ namespace Smartstore.Web.Models.Catalog
     {
         public ProductAskQuestionValidator(PrivacySettings privacySettings)
         {
-            RuleFor(x => x.SenderEmail).NotEmpty().EmailAddress();
+            RuleFor(x => x.SenderEmail).NotEmpty().EmailAddressStrict();
             RuleFor(x => x.Question).NotEmpty();
 
             if (privacySettings.FullNameOnProductRequestRequired)

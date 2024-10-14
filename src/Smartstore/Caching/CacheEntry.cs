@@ -87,7 +87,7 @@ namespace Smartstore.Caching
         /// Gets or sets the keys of dependant (child) cache entries.
         /// If any of these entries are removed from cáche, this item will also be removed.
         /// </summary>
-        public string[] Dependencies { get; set; } = Array.Empty<string>();
+        public string[] Dependencies { get; set; } = [];
 
         [IgnoreDataMember]
         public bool CancelTokenSourceOnRemove { get; set; } = true;
@@ -156,6 +156,17 @@ namespace Smartstore.Caching
                 ApplyTimeExpirationPolicy = this.ApplyTimeExpirationPolicy,
                 CancelTokenSourceOnRemove = this.CancelTokenSourceOnRemove
             };
+        }
+
+        public bool IsSameEntry(CacheEntry other)
+        {
+            return other != null &&
+                Key == other.Key &&
+                Value == other.Value &&
+                AbsoluteExpiration == other.AbsoluteExpiration &&
+                SlidingExpiration == other.SlidingExpiration &&
+                Priority == other.Priority &&
+                ((Dependencies == null && other.Dependencies == null) || Dependencies.SequenceEqual(other.Dependencies));
         }
     }
 }

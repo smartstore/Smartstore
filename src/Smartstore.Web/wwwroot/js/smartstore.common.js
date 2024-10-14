@@ -153,6 +153,39 @@
         }
     };
 
+    window.notifyTip = function (element, message, placement = 'top', duration = 2000) {
+        let btn = $(element);
+        let tooltip = btn.data('bs.tooltip') || btn.tooltip({
+            boundary: 'window',
+            placement: placement,
+            trigger: 'manual'
+        }).data('bs.tooltip');
+
+        const originalPlacement = tooltip.config.placement;
+        tooltip.config.placement = placement;
+
+        message = message || Res['Common.Done'];
+        const originalTitle = btn.attr('data-original-title');
+        if (originalTitle != message) {
+            btn.attr('data-original-title', message);
+        }
+
+        // --> Show tooltip
+        tooltip.show();
+
+        setTimeout(() => {
+            // --> Hide tooltip after [duration] ms.
+            tooltip.hide();
+            btn.one('hidden.bs.tooltip', () => {
+                // Restore originals from already existing tooltip.
+                tooltip.config.placement = originalPlacement;
+                if (originalTitle) {
+                    btn.attr('data-original-title', originalTitle);
+                }
+            })
+        }, duration);
+    };
+
     window.Prefixer = (function () {
         var TransitionEndEvent = {
             WebkitTransition: 'webkitTransitionEnd',

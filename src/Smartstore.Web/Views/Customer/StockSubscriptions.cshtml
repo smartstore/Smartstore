@@ -63,7 +63,7 @@
     </div>
 </form>
 
-<script sm-target-zone="scripts" data-origin="stock-subscriptions">
+<script sm-target-zone="scripts" sm-minify="true" data-origin="stock-subscriptions">
     $(function () {
         $('#select-all-stock-subscriptions').on('click', function () {
             $('#stock-subscription-list .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');

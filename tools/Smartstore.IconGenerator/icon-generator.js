@@ -1,16 +1,3 @@
-/* 
-    MC Review:
-    -----------------------------------------------
-	
-    TODO: (mw) Study the review commits and comply to conventions and quality level in future.
-    TODO: (mw) CSS needs better (predictable) structure. Use more class names.
-*/
-
-/*
-    TODO: (mw) Refactor the dark mode CSS, so that only CSS variables are used.
-    TODO: (mw) When finished, clean up CSS. Remove unused styles and summarize similar ones. Use CSS variables for multiple uses.
-*/
-
 class IconGenerator {
 	constructor() {
         this.reset();
@@ -118,11 +105,8 @@ class IconGenerator {
             // Check if the icon already exists in the set.
             let icon = mySet.icons[id];
             if (icon) {
-				icon.isNew = false;
-				
-				if (fileType == 2) {
-					icon.isUsed = true;
-				}
+                // Update the usage bit to indicate that the icon is used in the current file type.
+                icon.usageBit |= (fileType == 1 ? 2 : 0) | (fileType == 2 ? 4 : 0);
 			}
 			else {
 				let symbolCode = '\t<symbol viewBox="' + viewBox + '" id="' + id + '">' + drawCode + '\n\t</symbol>';
@@ -132,8 +116,8 @@ class IconGenerator {
 					id: id,
 					symbol: symbolCode,
                     svg: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><use xlink:href="#' + id + '" /></svg>',
-                    isNew: true,
-                    isUsed: false
+                    // 0 = not used, 1 = new, 2 = only in local, 4 = only in subset
+                    usageBit: 0 | (fileType == 0 ? 1 : 0) | (fileType == 1 ? 2 : 0) | (fileType == 2 ? 4 : 0),
                 };
 				
 				mySet.svgSymbolCode += symbolCode;
@@ -152,8 +136,15 @@ class IconGenerator {
 
         for (const iconId in this.iconSet.icons) {
             let icon = this.iconSet.icons[iconId];
-			let iconClasses = (icon.isNew ? ' new' : '') +
-				(icon.isUsed ? ' selected' : '');
+            let iconClasses =
+                // Add a badge for new icons (only in the remote file).
+                (icon.usageBit == 1 ? ' new' : '') +
+                // Add a badge for the selected icons (used in the subset file).
+                ((icon.usageBit & 4) == 4 ? ' selected' : '') +
+                // Add a badge for icons not included in the subset file.
+                (icon.usageBit == 2 ? ' only-local' : '') +
+                // Add a badge for icons not included in the local file.
+                (icon.usageBit == 5 ? ' not-local' : '');
 			if (iconClasses.length > 0) {
 				iconClasses += ' badge';
 			}

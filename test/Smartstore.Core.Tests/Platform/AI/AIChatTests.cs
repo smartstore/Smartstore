@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 
 namespace Smartstore.Core.Tests.AI
 {

@@ -74,7 +74,8 @@
         <column for="CustomerName" sortable="false" title="@T("Admin.Orders.Fields.Customer")">
             <display-template>
                 <div class="dg-cell-value">
-                    <a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
+                    <a v-if="!item.row.CustomerDeleted" :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
+                    <div v-if="item.row.CustomerDeleted" class="text-truncate">{{ item.row.CustomerName }}</div>
                     <div class="text-truncate">{{ item.row.CustomerEmail }}</div>
                 </div>
             </display-template>

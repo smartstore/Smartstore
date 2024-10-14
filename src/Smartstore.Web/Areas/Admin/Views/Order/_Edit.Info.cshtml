@@ -77,8 +77,15 @@
             <smart-label asp-for="CustomerId" />
         </div>
         <div class="adminData">
-            <div class="form-control-plaintext">
-                <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">@Model.CustomerName</a>
+            <div class="form-control-plaintext" attr-class='(Model.CustomerDeleted, "text-muted")'>
+                @if (!Model.CustomerDeleted)
+                {
+                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">@Model.CustomerName</a>
+                }
+                else
+                {
+                    @Model.CustomerName
+                }
             </div>
         </div>
     </div>
@@ -417,7 +424,7 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="order-edit-info">
+<script sm-target-zone="scripts" sm-minify="true" data-origin="order-edit-info">
     $(function () {
         $('#btnRefreshPage').on('click', function () {
             location.reload();

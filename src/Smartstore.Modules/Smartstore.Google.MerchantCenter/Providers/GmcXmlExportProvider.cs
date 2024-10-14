@@ -14,7 +14,6 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
-using Smartstore.Core.Platform.DataExchange.Export;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Components;

@@ -31,6 +31,9 @@
   - Faster app startup
   - Increased overall performance
   - ~10 % less memory usage after app start
+- **DevTools**: New widget zone preview panel
+  - Lists all zones in a menu
+  - Zones can be temporarily toggled
 - Toggle password visibility
 - New app setting for MS SQL Server compatibility level
 - Enhanced database optimization and vacuum operations
@@ -192,6 +195,8 @@
 - GMC:
   - Fixed missing product edit URL in product grid.
   - Fixed Google category cannot be cleared in product grid.
+- Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
+- Fixed orders of deleted customers were not displayed in order grid.
 
 
 ## Smartstore 5.1.0

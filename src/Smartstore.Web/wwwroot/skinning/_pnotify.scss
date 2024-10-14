@@ -11,6 +11,7 @@
     box-shadow: 0 6px 12px rgba($black, 0.175) !important;
     border-width: 1px;
     min-height: 75px !important;
+    max-height: 90dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -50,6 +51,11 @@
 		float: none;
 		margin: 0;
     }
+}
+
+.ui-pnotify-text {
+    --overflow-x: auto !important;
+    @extend .custom-scrollbar;
 }
 
 .ui-pnotify-text {

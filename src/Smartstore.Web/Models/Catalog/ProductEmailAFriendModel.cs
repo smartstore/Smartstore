@@ -33,8 +33,8 @@ namespace Smartstore.Web.Models.Catalog
     {
         public ProductEmailAFriendValidator()
         {
-            RuleFor(x => x.FriendEmail).NotEmpty().EmailAddress();
-            RuleFor(x => x.YourEmailAddress).NotEmpty().EmailAddress();
+            RuleFor(x => x.FriendEmail).NotEmpty().EmailAddressStrict();
+            RuleFor(x => x.YourEmailAddress).NotEmpty().EmailAddressStrict();
         }
     }
 }

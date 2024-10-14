@@ -10,7 +10,7 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.OutputCache;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 using Smartstore.Core.Widgets;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;

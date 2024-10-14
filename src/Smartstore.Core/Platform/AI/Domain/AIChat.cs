@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents an AI conversation consisting of a sequence of messages.

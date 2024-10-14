@@ -51,7 +51,7 @@ namespace Smartstore.Admin.Models.Messages
     {
         public EmailAccountValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddressStrict();
             RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Host).NotEmpty();
 

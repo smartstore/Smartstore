@@ -19,7 +19,7 @@ namespace Smartstore.Caching
         private readonly IOptions<MemoryCacheOptions> _optionsAccessor;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMessageBus _bus;
-        private readonly ICollection<string> _keys = new SyncedCollection<string>(new HashSet<string>());
+        private readonly ICollection<string> _keys = new SyncedCollection<string>([]);
         private readonly Lock _syncLock = new();
 
         private MemoryCache _cache;
@@ -137,6 +137,12 @@ namespace Smartstore.Caching
 
         public void Put(string key, CacheEntry entry)
         {
+            if (_cache.TryGetValue<CacheEntry>(key, out var existingEntry) && existingEntry.IsSameEntry(entry))
+            {
+                // Don't reconfigure and re-add "equal" entry that is already in the cache.
+                return;
+            }
+            
             entry.Key = key;
             PopulateCacheEntry(entry, _cache.CreateEntry(key));
         }

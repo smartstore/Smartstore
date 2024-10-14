@@ -177,6 +177,7 @@ namespace Smartstore.Admin.Controllers
                 : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
             var orderQuery = _db.Orders
+                .IgnoreQueryFilters()
                 .Include(x => x.OrderItems)
                 .Include(x => x.BillingAddress)
                 .IncludeShippingAddress()
@@ -227,6 +228,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             orderQuery = orderQuery
+                .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command);
 
@@ -1809,6 +1811,7 @@ namespace Smartstore.Admin.Controllers
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
             model.CustomerName = order.Customer?.GetDisplayName(T);
             model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.FindEmail();
+            model.CustomerDeleted = order.Customer?.Deleted ?? true;
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
             model.PaymentStatusString = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
@@ -1817,7 +1820,11 @@ namespace Smartstore.Admin.Controllers
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(order.UpdatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action(nameof(Edit), "Order", new { id = order.Id });
-            model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = order.CustomerId });
+
+            if (!model.CustomerDeleted)
+            {
+                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = order.CustomerId });
+            }
         }
 
         private async Task PrepareOrderModel(OrderModel model, Order order)

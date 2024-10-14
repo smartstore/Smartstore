@@ -3,7 +3,7 @@
 using System.Text;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Represents a chat message in an AI conversation history.
