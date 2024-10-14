@@ -288,12 +288,13 @@ namespace Smartstore.Core.AI.Prompting
         {
             chat.System(Resources.DontUseMarkdown())
                 .System(Resources.DontUseQuotes())
-                .System(Resources.DontNumberSuggestions())
-                .System(Resources.SeparateWithNumberSign());
+                .System(Resources.DontUseLineBreaks());
 
             if (model.CharLimit > 0)
             {
-                chat.System(Resources.CharLimitSuggestions(model.CharLimit));
+                // INFO: the instruction should be formulated in plural (e.g. "each answer..."),
+                // as otherwise individual answers may exceed the character limit.
+                chat.System(Resources.CharLimit(model.CharLimit));
             }
 
             return chat;

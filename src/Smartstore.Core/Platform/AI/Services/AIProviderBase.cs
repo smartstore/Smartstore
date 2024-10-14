@@ -1,5 +1,5 @@
-﻿using Smartstore.Core.Localization;
-using Smartstore.Core.AI.Prompting;
+﻿using Smartstore.Core.AI.Prompting;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.AI
 {
@@ -41,7 +41,10 @@ namespace Smartstore.Core.AI
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual IAsyncEnumerable<string> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default)
+        public virtual IAsyncEnumerable<(string Answer, int Index)> ChatAsStreamAsync(
+            AIChat chat,
+            int numAnswers,
+            CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)

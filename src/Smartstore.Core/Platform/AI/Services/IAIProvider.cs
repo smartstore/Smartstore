@@ -43,9 +43,14 @@ namespace Smartstore.Core.AI
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to <paramref name="chat"/>.
         /// </summary>
-        /// <returns>Latest answer.</returns>
+        /// <param name="chat">Chat to start or continue.</param>
+        /// <param name="numAnswers">The number of AI answers to return. 1 by default.</param>
+        /// <returns>The answer and its index. The index is greater than or equal to 0 and less than <paramref name="numAnswers"/>.</returns>
         /// <exception cref="AIException"></exception>
-        IAsyncEnumerable<string?> ChatAsStreamAsync(AIChat chat, CancellationToken cancelToken = default);
+        IAsyncEnumerable<(string Answer, int Index)> ChatAsStreamAsync(
+            AIChat chat,
+            int numAnswers = 1,
+            CancellationToken cancelToken = default);
 
         /// <summary>
         /// Get the URL(s) of AI generated image(s).

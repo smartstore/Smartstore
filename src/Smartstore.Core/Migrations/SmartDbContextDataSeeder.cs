@@ -539,7 +539,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.AI.TextCreation.DefaultPrompt", "Generate text about the topic '{0}'.", "Erzeuge Text zum Thema '{0}'.");
             builder.AddOrUpdate("Admin.AI.ImageCreation.DefaultPrompt", "Generate a picture about the topic: '{0}'.", "Erzeuge ein Bild zum Thema: '{0}'.");
-            builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt", "Make suggestions about the topic: '{0}'.", "Mache Vorschläge zum Thema '{0}'.");
+            builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt", "Make a suggestion about the topic: '{0}'.", "Mache einen Vorschlag zum Thema '{0}'.");
 
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeStyle", "Change style", "Sprachstil ändern");
             builder.AddOrUpdate("Admin.AI.MenuItemTitle.ChangeTone", "Change tone", "Ton ändern");
@@ -550,18 +550,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdown",
                 "Do not use markdown formatting.",
                 "Verwende keine Markdown-Formatierungen.");
-            builder.AddOrUpdate("Smartstore.AI.Prompts.DontNumberSuggestions",
-                "Do not number the suggestions.",
-                "Nummeriere die Vorschläge nicht.");
-            builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimitSuggestions",
-                "Maximum {0} characters per suggestion.",
-                "Maximal {0} Zeichen pro Vorschlag.");
-            builder.AddOrUpdate("Smartstore.AI.Prompts.SeparateWithNumberSign",
-                "Always separate each suggestion with the # sign.",
-                "Trenne jeden Vorschlag zwingend mit dem #-Zeichen.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseLineBreaks",
+                "Do not use line breaks.",
+                "Verwende keine Zeilenumbrüche.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimit",
-                "Limit your answer to {0} characters!",
-                "Begrenze deine Antwort auf {0} Zeichen!");
+                "Each answer should have a maximum of {0} characters!",
+                "Jede Antwort soll maximal {0} Zeichen haben!");
             builder.AddOrUpdate("Smartstore.AI.Prompts.WordLimit",
                 "The text may contain a maximum of {0} words.",
                 "Der Text darf maximal {0} Wörter enthalten.");
