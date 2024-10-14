@@ -66,7 +66,7 @@ namespace Smartstore.Collections.JsonConverters
             }
 
             var ctorParams = objChildren != null
-                ? new object[] { objValue, objChildren }
+                ? [objValue, objChildren]
                 : new object[] { objValue };
 
             var treeNode = Activator.CreateInstance(objectType, ctorParams);
@@ -107,17 +107,7 @@ namespace Smartstore.Collections.JsonConverters
                 if (GetPropValue("Metadata", value) is IDictionary<string, object> dict && dict.Count > 0)
                 {
                     writer.WritePropertyName("Metadata");
-
-                    var typeNameHandling = serializer.TypeNameHandling;
-                    try
-                    {
-                        serializer.TypeNameHandling = TypeNameHandling.All;
-                        serializer.Serialize(writer, dict);
-                    }
-                    finally
-                    {
-                        serializer.TypeNameHandling = typeNameHandling;
-                    }
+                    serializer.SerializeObjectDictionary(writer, dict);
                 }
 
                 // Children
@@ -131,8 +121,6 @@ namespace Smartstore.Collections.JsonConverters
         }
 
         private static object GetPropValue(string name, object instance)
-        {
-            return instance.GetType().GetProperty(name).GetValue(instance);
-        }
+            => instance.GetType().GetProperty(name).GetValue(instance);
     }
 }
