@@ -196,6 +196,7 @@
   - Fixed missing product edit URL in product grid.
   - Fixed Google category cannot be cleared in product grid.
 - Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
+- Fixed orders of deleted customers were not displayed in order grid.
 
 
 ## Smartstore 5.1.0
