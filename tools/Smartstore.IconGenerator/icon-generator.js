@@ -149,7 +149,7 @@ class IconGenerator {
 				iconClasses += ' badge';
 			}
 			
-            allIcons += '<div class="icon' + iconClasses + '" name="' + icon.id + '"><div class="symbol">' + icon.svg + '</div><span>' + icon.id + '</span></div>';
+            allIcons += '<div class="icon' + iconClasses + '" name="' + icon.id + '"><div class="symbol">' + icon.svg + '</div><span class="icon-name">' + icon.id + '</span></div>';
 		}
 		
 		iconSetContainer.innerHTML = allIcons;

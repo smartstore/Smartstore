@@ -142,7 +142,6 @@ button, input, optgroup, select, textarea {
 .icon {
 	position: relative;
 	text-align: center;
-	user-select: none;
 }
 .icon.hide {
 	display: none;
@@ -176,13 +175,14 @@ button, input, optgroup, select, textarea {
 }
 
 .symbol {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 1.5rem 1rem;
-	margin-bottom: 0.5rem;
-	border-radius: 0.5rem;
-	background-color: var(--box-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--box-bg);
+    user-select: none;
 }
 .symbol:hover {
     background-color: var(--box-hover-bg);

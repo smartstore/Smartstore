@@ -106,6 +106,9 @@ const iconGeneratorUI = (function () {
 
             // Make sure the export button is enabled/disabled correctly.
             iconGeneratorUI.iconContainer.dispatchEvent(new Event('click'));
+
+            // Enable export button if at least one icon is selected.
+            iconGeneratorUI.exportButton.disabled = !document.querySelector('.icon.selected');
         },
 
         /**
@@ -128,15 +131,24 @@ const iconGeneratorUI = (function () {
 
             // Select and deselect icons, and enable/disable export button.
             iconGeneratorUI.iconContainer.addEventListener('click', (e) => {
-                const icon = e.target.closest('.icon');
+                if (e.target.matches('.icon-name')) {
+                    var range = document.createRange();
+                    var selection = window.getSelection();
 
-                if (icon != null) {
-                    // Toggle selection
-                    icon.classList.toggle('selected');
+                    range.selectNodeContents(e.target);  // Select the contents of the clicked element
+                    selection.removeAllRanges();     // Clear any existing selections
+                    selection.addRange(range);       // Add the new range (selected element)
                 }
+                else {
+                    const symbol = e.target.closest('.symbol');
+                    if (symbol != null) {
+                        // Toggle selection
+                        symbol.parentElement.classList.toggle('selected');
 
-                // Enable export button if at least one icon is selected.
-                iconGeneratorUI.exportButton.disabled = !document.querySelector('.icon.selected');
+                        // Enable export button if at least one icon is selected.
+                        iconGeneratorUI.exportButton.disabled = !document.querySelector('.icon.selected');
+                    }
+                }
             });
 
             // Download the export file in the dialog box.
