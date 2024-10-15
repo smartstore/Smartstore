@@ -183,8 +183,8 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
 
             // Add "Change style" & "Change tone" options from module settings.
-            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className);
-            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className);
+            var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className, "vector-pen");
+            var toneDropdown = AddMenuItemsFromSetting(enabled, "change-tone", className, "emoji-wink");
 
             if (styleDropdown != null || toneDropdown != null)
             {
@@ -194,7 +194,7 @@ namespace Smartstore.Web.Rendering
             }
 
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "suitcase-lg", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Improve"), enabled, "improve", "lightbulb", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
@@ -232,10 +232,15 @@ namespace Smartstore.Web.Rendering
 
             foreach (var option in options)
             {
-                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, iconName, false, additionalClasses));
+                optionsList.InnerHtml.AppendHtml(CreateDropdownItem(option, enabled, command, null, false, additionalClasses));
             }
 
-            var subDropdown = CreateDropdownItem(T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"));
+            var subDropdown = CreateDropdownItem(
+                T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"), 
+                true,
+                string.Empty, 
+                iconName,
+                false);
             subDropdown.Attributes["class"] = "dropdown-group";
             subDropdown.InnerHtml.AppendHtml(optionsList);
 
