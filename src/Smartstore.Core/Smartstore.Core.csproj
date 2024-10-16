@@ -29,14 +29,14 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Parlot" Version="0.0.25" />
-        <PackageReference Include="Polly" Version="8.3.1" />
+        <PackageReference Include="Polly" Version="8.4.2" />
         <PackageReference Include="PreMailer.Net" Version="2.4.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-        <PackageReference Include="Serilog.Expressions" Version="4.0.0" />
-        <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
-        <PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
-        <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.1" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.12" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+        <PackageReference Include="Serilog.Expressions" Version="5.0.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="2.0.0" />
+        <PackageReference Include="Serilog.Sinks.Map" Version="2.0.0" />
+        <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.6" />
         <PackageReference Include="System.Memory.Data" Version="8.0.1" />
         <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
         <PackageReference Include="System.Threading.RateLimiting" Version="8.0.0" />

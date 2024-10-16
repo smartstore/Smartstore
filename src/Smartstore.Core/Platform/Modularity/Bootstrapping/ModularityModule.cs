@@ -17,7 +17,7 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    internal class ModularityModule : Module
+    public sealed class ModularityModule : Module
     {
         private readonly IApplicationContext _appContext;
 
