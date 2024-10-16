@@ -60,7 +60,7 @@ namespace Smartstore.Engine.Modularity
 
         public bool HasModule(string systemName)
         {
-            return _nameMap.ContainsKey(systemName);
+            return _nameMap.TryGetValue(systemName, out var descriptor) && descriptor.IsInstalled();
         }
 
         public IModuleDescriptor GetModuleByAssembly(Assembly assembly)
