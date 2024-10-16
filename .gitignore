@@ -238,5 +238,7 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
-/src/Smartstore.Build/Smartstore.ModuleBuilder/src/Properties
-/src/Smartstore.Web
+/src/Smartstore.Web/smartstore.db
+/src/Smartstore.Web/smartstore.db-shm
+/src/Smartstore.Web/smartstore.db-wal
+/src/Smartstore.Build/Smartstore.ModuleBuilder/src/Properties/launchSettings.json
