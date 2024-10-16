@@ -1,7 +1,7 @@
 ﻿@model ApiKeysModel
 
 @{
-    async Task RenderBody()
+    async Task RenderBodyContent()
     {
         <div data-enabled="@Model.Enabled">
             <div class="form-group">
@@ -31,7 +31,7 @@
 
     if ((ViewBag.BodyOnly as bool?) ?? false)
     {
-        await RenderBody();
+        await RenderBodyContent();
         return;
     }
 }
@@ -39,7 +39,9 @@
 <modal id="webapi-keys-dialog" sm-render-at-page-end="true" sm-size="Medium">
     <modal-header sm-title="@T("Plugins.Api.WebApi.ApiAccess")"></modal-header>
     <modal-body>
-        @{ await RenderBody(); }
+        @{
+            await RenderBodyContent();
+        }
     </modal-body>
     <modal-footer>
         <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
