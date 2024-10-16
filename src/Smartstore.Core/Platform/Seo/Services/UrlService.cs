@@ -517,7 +517,7 @@ namespace Smartstore.Core.Seo
             // Use displayName if seName is not specified.
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
             {
-                seName = displayName;
+                seName = displayName.Truncate(400);
             }
 
             // Validation
@@ -576,10 +576,6 @@ namespace Smartstore.Core.Seo
                 if ((urlRecord == null || foundIsSelf) && !reserved)
                 {
                     found = urlRecord;
-                    if (found == null)
-                    {
-                        tempSlug = slug.Truncate(400);
-                    }
                     break;
                 }
 
