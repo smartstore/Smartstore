@@ -84,7 +84,18 @@
                                      data-zoom-height="@file.Size.Height"
                                      alt="@file.Alt"
                                      title="@file.TitleAttribute"
-                                     itemprop="image" />
+                                itemprop="image" />
+                            }
+                            else if(file.MediaType == MediaType.Video)
+                            {
+                                <figure class="file-figure gal-item-content" itemprop="video">
+                                    <picture class="file-thumb show fs-display-3" data-type="video" title="@file.TitleAttribute">
+                                        <video class="file-video" alt="@file.Alt" attrs="@srcAttributes">
+                                            <source src="@file.GetUrl()" type="video/mp4">
+                                        </video>
+                                        <img class="d-none" src="@Model.FallbackUrl" alt="@Model.DefaultAlt" />
+                                    </picture>
+                                </figure>
                             }
                             else
                             {
