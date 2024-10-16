@@ -1,9 +1,13 @@
-﻿@using Smartstore.Web.Models.Media;
+﻿@using Smartstore.Engine.Modularity;
+@using Smartstore.Web.Models.Media;
+
+@inject IModuleCatalog ModuleCatalog
 
 @model MediaGalleryModel
 
 @{
     var defaultFile = Model.Files?.ElementAtOrDefault(Model.GalleryStartIndex);
+    var hasMediaManager = ModuleCatalog.HasModule("Smartstore.MediaManager");
 }
 
 <script src="~/bundle/js/smart-gallery.js" sm-target-zone="scripts"></script>
@@ -86,7 +90,7 @@
                                      title="@file.TitleAttribute"
                                      itemprop="image" />
                             }
-                            else if(file.MediaType == MediaType.Video)
+                            else if (file.MediaType == MediaType.Video && !hasMediaManager)
                             {
                                 <figure class="file-figure gal-item-content" itemprop="video">
                                     <picture class="file-thumb show fs-display-3" data-type="video" title="@file.TitleAttribute">

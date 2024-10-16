@@ -262,7 +262,7 @@ table th {
 // ------------------------------------------------------
 
 .hide {
-	display: none;
+	display: none !important;
 }
 
 .muted {
