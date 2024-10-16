@@ -23,7 +23,7 @@
                 mediaFolder: tool.data('media-folder')
             };
 
-            openDialog(tool, params, false);
+            openDialog(tool, params, true);
         });
 
         // Text creation

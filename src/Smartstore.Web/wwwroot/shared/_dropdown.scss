@@ -158,7 +158,8 @@
     }
 }
 
-.navbar.navbar-slide .dropdown-menu {
+.navbar.navbar-slide .dropdown-menu,
+.dropdown-menu-slide {
 	@include sliding-dropdown-menu();
 }
 

@@ -228,7 +228,7 @@ namespace Smartstore.Web.Rendering
             }
 
             var optionsList = new TagBuilder("ul");
-            optionsList.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+            optionsList.Attributes["class"] = "dropdown-menu dropdown-menu-slide dropdown-menu-right";
 
             foreach (var option in options)
             {
