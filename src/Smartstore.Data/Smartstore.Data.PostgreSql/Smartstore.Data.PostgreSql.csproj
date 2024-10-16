@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Npgsql" Version="8.0.3" GeneratePathProperty="true" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" GeneratePathProperty="true" />
+        <PackageReference Include="Npgsql" Version="8.0.5" GeneratePathProperty="true" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" GeneratePathProperty="true" />
         <None Include="$(PkgNpgsql)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>
