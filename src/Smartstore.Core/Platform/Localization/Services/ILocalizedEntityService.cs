@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Configuration;
+﻿#nullable enable
+
+using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Localization
 {
@@ -41,7 +43,7 @@ namespace Smartstore.Core.Localization
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false);
+        Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[]? entityIds, bool isRange = false, bool isSorted = false);
 
         /// <summary>
         /// Gets a collection of localized properties for a range of entities in one go.
@@ -57,7 +59,7 @@ namespace Smartstore.Core.Localization
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false);
+        Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[]? entityIds, bool isRange = false, bool isSorted = false);
 
         /// <summary>
         /// Applies a localized property value. The caller is responsible for database commit.
@@ -67,10 +69,13 @@ namespace Smartstore.Core.Localization
         /// <param name="keySelector">Key selector</param>
         /// <param name="value">Locale value</param>
         /// <param name="languageId">Language ID</param>
-        Task ApplyLocalizedValueAsync<T>(
+        /// <returns>
+        /// The <see cref="LocalizedProperty"/> instance that was affected by this operation.
+        /// </returns>
+        Task<LocalizedProperty?> ApplyLocalizedValueAsync<T>(
             T entity,
             Expression<Func<T, string>> keySelector,
-            string value,
+            string? value,
             int languageId) where T : class, ILocalizedEntity;
 
         /// <summary>
@@ -82,10 +87,13 @@ namespace Smartstore.Core.Localization
         /// <param name="keySelector">Key selector</param>
         /// <param name="value">Locale value</param>
         /// <param name="languageId">Language ID</param>
-        Task ApplyLocalizedValueAsync<T, TPropType>(
+        /// <returns>
+        /// The <see cref="LocalizedProperty"/> instance that was affected by this operation.
+        /// </returns>
+        Task<LocalizedProperty?> ApplyLocalizedValueAsync<T, TPropType>(
             T entity,
             Expression<Func<T, TPropType>> keySelector,
-            TPropType value,
+            TPropType? value,
             int languageId) where T : class, ILocalizedEntity;
 
         /// <summary>
@@ -98,10 +106,13 @@ namespace Smartstore.Core.Localization
         /// <param name="value">Locale value</param>
         /// <param name="languageId">Language ID</param>
         /// <param name="storeId">Store ID</param>
-        Task ApplyLocalizedSettingAsync<TSetting, TPropType>(
+        /// <returns>
+        /// The <see cref="LocalizedProperty"/> instance that was affected by this operation.
+        /// </returns>
+        Task<LocalizedProperty?> ApplyLocalizedSettingAsync<TSetting, TPropType>(
             TSetting settings,
             Expression<Func<TSetting, TPropType>> keySelector,
-            TPropType value,
+            TPropType? value,
             int languageId,
             int storeId = 0) where TSetting : class, ISettings;
 
@@ -114,12 +125,15 @@ namespace Smartstore.Core.Localization
         /// <param name="localeKey">Locale key.</param>
         /// <param name="value">Localized value.</param>
         /// <param name="languageId">The language identifier.</param>
-        void ApplyLocalizedValue(
-            LocalizedProperty localizedProperty,
+        /// <returns>
+        /// The passed <paramref name="localizedProperty"/> or any <see cref="LocalizedProperty"/> instance that was affected by this operation.
+        /// </returns>
+        LocalizedProperty? ApplyLocalizedValue(
+            LocalizedProperty? localizedProperty,
             int entityId,
             string localeKeyGroup,
             string localeKey,
-            object value,
+            object? value,
             int languageId);
 
         /// <summary>
