@@ -278,7 +278,7 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (filter is IAttributeSearchFilter af)
             {
-                filters = new[] { af };
+                filters = [af];
             }
 
             if (filters.IsNullOrEmpty())

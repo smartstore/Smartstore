@@ -9,7 +9,7 @@ namespace Smartstore.Core.Rules.Filters
     public static class FilterExpressionParser
     {
         static readonly SearchValues<char> _wildcardChars = SearchValues.Create("*?");
-        static readonly Parser<List<FilterExpression>> Grammar;
+        static readonly Parser<IReadOnlyList<FilterExpression>> Grammar;
 
         #region Tokens
 
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Rules.Filters
         static readonly Parser<TextSpan> QuotedTerm = Terms.String(StringLiteralQuotes.SingleOrDouble);
 
         // Expression
-        static readonly Deferred<List<FilterExpression>> FilterExpressions = Deferred<List<FilterExpression>>();
+        static readonly Deferred<IReadOnlyList<FilterExpression>> FilterExpressions = Deferred<IReadOnlyList<FilterExpression>>();
         static readonly Deferred<FilterExpression> FilterExpression = Deferred<FilterExpression>();
         static readonly Deferred<FilterExpression> GroupExpression = Deferred<FilterExpression>();
 
@@ -155,7 +155,7 @@ namespace Smartstore.Core.Rules.Filters
             return result;
         }
 
-        private static FilterExpression PostProcessResult<T, TValue>(List<FilterExpression> expressions, FilterDescriptor<T, TValue> descriptor, Type entityType)
+        private static FilterExpression PostProcessResult<T, TValue>(IReadOnlyList<FilterExpression> expressions, FilterDescriptor<T, TValue> descriptor, Type entityType)
             where T : class
         {
             PostProcess(expressions);
