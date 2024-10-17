@@ -13,7 +13,7 @@ namespace Smartstore.Engine.Modularity.NuGet
 {
     internal class NuGetExplorer : Disposable
     {
-        private readonly static Lock _lock = new();
+        private readonly static object _lock = new();
 
         private readonly IApplicationContext _appContext;
         private readonly SourceCacheContext _sourceCacheContext;

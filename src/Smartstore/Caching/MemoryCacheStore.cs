@@ -20,7 +20,7 @@ namespace Smartstore.Caching
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMessageBus _bus;
         private readonly ICollection<string> _keys = new SyncedCollection<string>([]);
-        private readonly Lock _syncLock = new();
+        private readonly object _syncLock = new();
 
         private MemoryCache _cache;
 

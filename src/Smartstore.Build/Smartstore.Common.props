@@ -2,14 +2,13 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<!--<RuntimeIdentifiers>win-x64; win-x86; osx-x64; linux-x64</RuntimeIdentifiers>-->
+        <!--<RuntimeIdentifiers>win-x64; win-x86; osx-x64; linux-x64</RuntimeIdentifiers>-->
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<SatelliteResourceLanguages>ar; de; de-DE; es; fa; fr; it; ja; nl; pt; pt-BR; ru; sv; tr; vi; zh-CN</SatelliteResourceLanguages>
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
         <ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
 		<Configurations>Debug;Release;DebugNoRazorCompile</Configurations>
 		<NoWarn>$(NoWarn);1573;1591;1701;1702;CS9216</NoWarn>
-        <LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
     <PropertyGroup>

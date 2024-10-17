@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Menus
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IUrlService _urlService;
 
-        private static readonly Lock _lock = new();
+        private static readonly object _lock = new();
         private static LinkBuilderMetadata[] _metadata;
 
         public LinkResolver(
@@ -69,11 +69,11 @@ namespace Smartstore.Core.Content.Menus
                 {
                     _metadata ??= providers
                         .SelectMany(x => x.GetBuilderMetadata())
-                        .Concat(new[]
-                        {
+                        .Concat(
+                        [
                             new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
                             new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
-                        })
+                        ])
                         .OrderBy(x => x.Order)
                         .ToArray();
                 }

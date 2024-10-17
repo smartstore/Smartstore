@@ -14,7 +14,7 @@ namespace Smartstore.Core.Identity
 {
     public partial class CookieConsentManager : ICookieConsentManager
     {
-        private readonly static Lock _lock = new();
+        private readonly static object _lock = new();
         private static IList<Type> _cookiePublisherTypes = null;
 
         const string CookieConsentKey = "cookieconsent";

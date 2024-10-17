@@ -15,7 +15,7 @@ namespace Smartstore.Caching
         /// <summary>
         /// Object for locking during deletion
         /// </summary>
-        private readonly Lock _clearLock = new();
+        private readonly object _clearLock = new();
 
         public OrderedMemorySet(ICacheStore cache)
             : this(cache, null)

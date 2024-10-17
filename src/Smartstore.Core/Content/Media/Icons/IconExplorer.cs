@@ -19,7 +19,7 @@ namespace Smartstore.Core.Content.Media.Icons
     {
         private IDictionary<string, IconDescription> _icons;
         private readonly Multimap<string, string> _searchMap = new(StringComparer.OrdinalIgnoreCase, x => new HashSet<string>(x));
-        private readonly Lock _lock = new();
+        private readonly object _lock = new();
 
         private readonly IApplicationContext _appContext;
 
