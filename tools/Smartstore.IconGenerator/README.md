@@ -23,11 +23,11 @@ To use **IconGenerator**, the following requirements must be met:
 - You can optionally load a **local** file (your existing local copy) and a **subset** file (your last created subset).
 - Each symbol in the SVG files must contain:
   - A valid **ID** attribute.
-  - Properly defined **viewport** and **SVG drawing data** (e.g., `<path>`, `<rect>`, etc.).
+  - Properly defined **viewBox** and **SVG drawing data** (e.g., `<path>`, `<rect>`, etc.).
 
 ### Sample SVG Symbol File
 
-Here is a sample of an SVG symbol file with two icons. Each symbol contains an ID, viewport, and simple SVG path data:
+Here is a sample of an SVG symbol file with two icons. Each symbol contains an ID, viewBox, and simple SVG path data:
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg">
