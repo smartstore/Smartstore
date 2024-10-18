@@ -22,6 +22,11 @@
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.4.5" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.4.5" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.4.5" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Razor" Version="6.0.35" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.35" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
 			<PrivateAssets>all</PrivateAssets>
