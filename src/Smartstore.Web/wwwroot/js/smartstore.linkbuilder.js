@@ -62,7 +62,7 @@
 
                 var currentCtrl = self.controls
                     .filter('[data-type="' + el.data('type') + '"]')
-                    .attr("style", "display: block !important;");
+                    .show();
 
                 // focus input elem to indicate next user interaction
                 _.delay(function () { currentCtrl.find(':input:not([readonly])').focus(); }, 100);
