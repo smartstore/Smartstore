@@ -111,7 +111,7 @@ namespace Smartstore.Web.Rendering
 
             string[] additionalItemClasses = ["ai-translator"];
             var dialogUrl = GetDialogUrl(AIChatTopic.Translation);
-            var inputGroupColDiv = CreateDialogOpener(true);
+            var inputGroupColDiv = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Translation));
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
@@ -160,7 +160,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            var inputGroupColDiv = CreateDialogOpener(true);
+            var inputGroupColDiv = CreateDialogOpener(true, title: GetOpenerTitle(AIChatTopic.Text));
             inputGroupColDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
             inputGroupColDiv.MergeAttributes(attributes);
 
@@ -272,30 +272,7 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
-            var additionalClasses = GetDialogIdentifierClass(topic);
-            var dropdownLiTitle = string.Empty;
-
-            switch (topic)
-            {
-                // INFO: Text, RichText and Translation are not handled here. Clean up???
-                //case AIChatTopic.Text:
-                //case AIChatTopic.RichText:
-                //    dropdownLiTitle = T("Admin.AI.CreateText");
-                //    break;
-                //case AIChatTopic.Translation:
-                //    dropdownLiTitle = T("Admin.AI.TranslateText");
-                //    break;
-                case AIChatTopic.Image:
-                    dropdownLiTitle = T("Admin.AI.CreateImage");
-                    break;
-                case AIChatTopic.Suggestion:
-                    dropdownLiTitle = T("Admin.AI.MakeSuggestion");
-                    break;
-                default:
-                    throw new AIException($"Unknown chat topic {topic}.");
-            }
-
-            var openerDiv = CreateDialogOpener(false, additionalClasses, dropdownLiTitle);
+            var openerDiv = CreateDialogOpener(false, GetDialogIdentifierClass(topic), GetOpenerTitle(topic));
             openerDiv.Attributes["data-modal-url"] = GetDialogUrl(topic);
             openerDiv.MergeAttributes(attributes);
 
@@ -343,17 +320,14 @@ namespace Smartstore.Web.Rendering
             var btnTag = new TagBuilder("a");
             btnTag.Attributes["href"] = "javascript:;";
             btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron";
+            btnTag.Attributes["title"] = title;
             btnTag.AppendCssClass(isDropdown ? "dropdown-toggle" : additionalClasses);
 
             if (isDropdown)
             {
                 btnTag.Attributes["data-toggle"] = "dropdown";
             }
-            else
-            {
-                btnTag.Attributes["title"] = title;
-            }
-
+            
             btnTag.InnerHtml.AppendHtml(icon);
 
             return btnTag;
@@ -394,6 +368,27 @@ namespace Smartstore.Web.Rendering
                     return "ai-translator";
                 case AIChatTopic.Suggestion:
                     return "ai-suggestion";
+                default:
+                    throw new AIException($"Unknown chat topic {topic}.");
+            }
+        }
+
+        /// <summary>
+        /// Gets the title of the dialog opener element.
+        /// </summary>
+        private string GetOpenerTitle(AIChatTopic topic)
+        {
+            switch (topic)
+            {
+                case AIChatTopic.Text:
+                case AIChatTopic.RichText:
+                    return T("Admin.AI.CreateText");
+                case AIChatTopic.Translation:
+                    return T("Admin.AI.TranslateText");
+                case AIChatTopic.Image:
+                    return T("Admin.AI.CreateImage");
+                case AIChatTopic.Suggestion:
+                    return T("Admin.AI.MakeSuggestion");
                 default:
                     throw new AIException($"Unknown chat topic {topic}.");
             }
