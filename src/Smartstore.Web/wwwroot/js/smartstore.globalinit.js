@@ -135,7 +135,6 @@ jQuery(function () {
         })
         .ajaxError(function (_e, xhr) {
             var msg = xhr.getResponseHeader('X-Message');
-            console.log('KAKAKAKA', msg);
             if (msg) {
                 displayNotification(base64Decode(msg), xhr.getResponseHeader('X-Message-Type'));
             }
