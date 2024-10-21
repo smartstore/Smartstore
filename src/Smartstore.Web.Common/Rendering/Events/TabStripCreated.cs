@@ -29,8 +29,8 @@ namespace Smartstore.Web.Rendering.Events
         /// <summary>
         /// Gets the names of the tabs.
         /// </summary>
-        public IReadOnlyList<string> TabNames
-            => TabStrip.Tabs.Select(x => x.TabName).ToList();
+        public string[] TabNames
+            => TabStrip.Tabs.Select(x => x.TabName).ToArray();
 
         /// <summary>
         /// Renders a widget into a dynamically created special tab called 'Plugins'.
