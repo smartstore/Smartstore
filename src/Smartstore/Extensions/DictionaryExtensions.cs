@@ -261,20 +261,22 @@ namespace Smartstore
         {
             mergedValue = null;
 
-            if (currentValue.IsEmpty())
+            if (string.IsNullOrWhiteSpace(currentValue))
             {
+                // Quick checks to handle empty or identical values
                 mergedValue = value;
             }
             else
             {
                 currentValue = currentValue.Trim(separator);
 
-                var manyCurrentValues = currentValue.Contains(separator);
-                var manyValues = value.Contains(separator);
+                var hasManyCurrentValues = currentValue.Contains(separator);
+                var hasManyAttemptedValues = value.Contains(separator);
 
-                if (!manyCurrentValues && !manyValues)
+                if (!hasManyCurrentValues && !hasManyAttemptedValues)
                 {
-                    if (value != currentValue)
+                    // Quick check to handle single values on both sides
+                    if (!string.Equals(value, currentValue, StringComparison.Ordinal))
                     {
                         mergedValue = prepend
                             ? value + separator + currentValue
@@ -283,11 +285,13 @@ namespace Smartstore
                 }
                 else
                 {
-                    var currentValues = manyCurrentValues
+                    // Split the current values
+                    var currentValues = hasManyCurrentValues
                         ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         : [currentValue];
 
-                    var attemptedValues = manyValues
+                    // Split the new values
+                    var attemptedValues = hasManyAttemptedValues
                         ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         : [value];
 
