@@ -8,6 +8,8 @@ namespace Smartstore.Admin.Models.Localization
     [LocalizedDisplay("Admin.Configuration.Languages.Fields.")]
     public class LanguageModel : EntityModelBase, ILocalizedModel<LanguageLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Language);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

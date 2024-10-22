@@ -5,6 +5,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.")]
     public class QuantityUnitModel : EntityModelBase, ILocalizedModel<QuantityUnitLocalizedModel>
     {
+        public Type GetEntityType() => typeof(QuantityUnit);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

@@ -6,6 +6,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Measures.Dimensions.Fields.")]
     public class MeasureDimensionModel : EntityModelBase, ILocalizedModel<MeasureDimensionLocalizedModel>
     {
+        public Type GetEntityType() => typeof(MeasureDimension);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

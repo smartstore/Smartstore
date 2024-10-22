@@ -11,6 +11,7 @@ namespace Smartstore.Admin.Models.Menus
     [LocalizedDisplay("Admin.ContentManagement.Menus.Item.")]
     public class MenuItemModel : TabbableModel, IIcon, ILocalizedModel<MenuItemLocalizedModel>
     {
+        public Type GetEntityType() => typeof(MenuItem);
         public int MenuId { get; set; }
         public string Model { get; set; }
         public bool ProviderAppendsMultipleItems { get; set; }

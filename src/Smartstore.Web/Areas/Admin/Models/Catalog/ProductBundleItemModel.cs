@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.BundleItems.Fields.")]
     public class ProductBundleItemModel : EntityModelBase, ILocalizedModel<ProductBundleItemLocalizedModel>
     {
-        public List<ProductBundleItemLocalizedModel> Locales { get; set; } = new();
-        public List<ProductBundleItemAttributeModel> Attributes { get; set; } = new();
+        public Type GetEntityType() => typeof(ProductBundleItem);
+
+        public List<ProductBundleItemLocalizedModel> Locales { get; set; } = [];
+        public List<ProductBundleItemAttributeModel> Attributes { get; set; } = [];
 
         public int ProductId { get; set; }
         public int BundleProductId { get; set; }

@@ -11,6 +11,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Categories.Fields.")]
     public class CategoryModel : TabbableModel, ILocalizedModel<CategoryLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Category);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

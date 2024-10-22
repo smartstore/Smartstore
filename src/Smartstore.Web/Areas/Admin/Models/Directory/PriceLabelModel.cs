@@ -1,10 +1,13 @@
 ﻿using FluentValidation;
+using Smartstore.Core.Catalog.Pricing;
 
 namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.PriceLabel.Fields.")]
     public class PriceLabelModel : EntityModelBase, ILocalizedModel<PriceLabelLocalizedModel>
     {
+        public Type GetEntityType() => typeof(PriceLabel);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

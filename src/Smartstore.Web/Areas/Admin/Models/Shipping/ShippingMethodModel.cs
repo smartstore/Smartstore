@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Shipping
@@ -7,6 +8,8 @@ namespace Smartstore.Admin.Models.Shipping
     [LocalizedDisplay("Admin.Configuration.Shipping.Methods.Fields.")]
     public class ShippingMethodModel : TabbableModel, ILocalizedModel<ShippingMethodLocalizedModel>
     {
+        public Type GetEntityType() => typeof(ShippingMethod);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

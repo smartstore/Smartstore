@@ -86,7 +86,9 @@
 
             let params = {
                 targetProperty: tool.data('target-property'),
-                ModalTitle: tool.data('modal-title')
+                ModalTitle: tool.data('modal-title'),
+                EntityId: tool.data('entity-id'),
+                EntityName: tool.data('entity-type')
             };
 
             openDialog(tool, params, true);

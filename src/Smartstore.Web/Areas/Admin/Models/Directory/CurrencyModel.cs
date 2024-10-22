@@ -8,6 +8,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Currencies.Fields.")]
     public class CurrencyModel : EntityModelBase, ILocalizedModel<CurrencyLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Currency);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

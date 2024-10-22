@@ -21,6 +21,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.")]
     public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAttributeLocalizedModel>
     {
+        public Type GetEntityType() => typeof(ProductAttribute);
+
         [LocalizedDisplay("*Alias")]
         public string Alias { get; set; }
 

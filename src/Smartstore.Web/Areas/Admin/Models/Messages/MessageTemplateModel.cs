@@ -2,12 +2,15 @@
 using System.Runtime.Serialization;
 using FluentValidation;
 using Smartstore.Collections;
+using Smartstore.Core.Messaging;
 
 namespace Smartstore.Admin.Models.Messages
 {
     [LocalizedDisplay("Admin.ContentManagement.MessageTemplates.Fields.")]
     public class MessageTemplateModel : TabbableModel, ILocalizedModel<MessageTemplateLocalizedModel>
     {
+        public Type GetEntityType() => typeof(MessageTemplate);
+
         [LocalizedDisplay("*AllowedTokens")]
         [IgnoreDataMember]
         public TreeNode<string> TokensTree { get; set; }

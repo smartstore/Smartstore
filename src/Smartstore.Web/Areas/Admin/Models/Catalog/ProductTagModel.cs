@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -16,6 +17,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.ProductTags.")]
     public class ProductTagModel : EntityModelBase, ILocalizedModel<ProductTagLocalizedModel>
     {
+        public Type GetEntityType() => typeof(ProductTag);
+
         [Required]
         [LocalizedDisplay("*Fields.Name")]
         public string Name { get; set; }

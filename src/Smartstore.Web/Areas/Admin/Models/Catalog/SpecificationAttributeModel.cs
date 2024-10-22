@@ -26,6 +26,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.")]
     public class SpecificationAttributeModel : EntityModelBase, ILocalizedModel<SpecificationAttributeLocalizedModel>
     {
+        public Type GetEntityType() => typeof(SpecificationAttribute);
+
         [LocalizedDisplay("*Name")]
         public string SearchName { get; set; }
 

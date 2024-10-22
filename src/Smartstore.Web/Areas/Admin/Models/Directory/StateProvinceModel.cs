@@ -5,6 +5,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.")]
     public class StateProvinceModel : EntityModelBase, ILocalizedModel<StateProvinceLocalizedModel>
     {
+        public Type GetEntityType() => typeof(StateProvince);
+
         public int CountryId { get; set; }
 
         [LocalizedDisplay("*Name")]

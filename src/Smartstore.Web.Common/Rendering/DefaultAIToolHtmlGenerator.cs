@@ -7,6 +7,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.AI;
 using Smartstore.Web.Modelling;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Web.Rendering
 {
@@ -68,7 +69,7 @@ namespace Smartstore.Web.Rendering
             {
                 return null;
             }
-
+            
             // Model must implement ILocalizedModel<T> where T : ILocalizedLocaleModel
             var modelType = model.GetType();
             if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>)))
@@ -76,8 +77,9 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
+            var entityId = 0;
             // Entity model must not be transient
-            if (model is EntityModelBase entityModel && entityModel.EntityId == 0)
+            if (model is EntityModelBase entityModel && (entityId = entityModel.EntityId) == 0)
             {
                 return null;
             }
@@ -116,6 +118,13 @@ namespace Smartstore.Web.Rendering
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
 
+            var entityType = model.GetEntityType();
+            var entityTypeName = string.Empty;
+            if (entityType != null)
+            {
+                entityTypeName = NamedEntity.GetEntityName(entityType);
+            }
+
             // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
             // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
             // We do not have this information here. Solution: we put all properties in the menu and later remove those that are not included using JavaScript.
@@ -133,6 +142,12 @@ namespace Smartstore.Web.Rendering
                 attrs["data-modal-url"] = dialogUrl;
                 attrs["data-modal-title"] = displayName;
                 attrs["data-target-property"] = id;
+
+                if (entityTypeName.HasValue())
+                {
+                    attrs["data-entity-id"] = entityId.ToString();
+                    attrs["data-entity-type"] = entityTypeName;
+                }
 
                 // INFO: there is no explicit item order. To put the menu items in the same order as the HTML elements,
                 // the properties of the ILocalizedLocaleModel must be ordered accordingly.

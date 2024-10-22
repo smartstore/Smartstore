@@ -6,6 +6,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.")]
     public class MeasureWeightModel : EntityModelBase, ILocalizedModel<MeasureWeightLocalizedModel>
     {
+        public Type GetEntityType() => typeof(MeasureWeight);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
