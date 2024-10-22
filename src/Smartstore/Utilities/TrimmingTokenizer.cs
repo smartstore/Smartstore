@@ -106,7 +106,7 @@ namespace Smartstore.Utilities
         /// <returns>
         /// An <see cref="Enumerator"/> that iterates through the split and trimmed <see cref="StringSegment"/>s.
         /// </returns>
-        public Enumerator GetEnumerator() => new(this);
+        public Enumerator GetEnumerator() => new(ref this);
 
         /// <inheritdoc />
         IEnumerator<StringSegment> IEnumerable<StringSegment>.GetEnumerator() => GetEnumerator();
@@ -118,39 +118,31 @@ namespace Smartstore.Utilities
         /// An <see cref="IEnumerator{StringSegment}"/> wrapping <see cref="StringTokenizer.Enumerator"/> and providing
         /// trimmed <see cref="StringSegment"/>s.
         /// </summary>
-        public struct Enumerator : IEnumerator<StringSegment>, IEnumerator, IDisposable
+        public struct Enumerator : IEnumerator<StringSegment>
         {
-            private readonly TrimmingTokenizer _tokenizer;
-
+            private readonly StringSegment _value;
+            private readonly int _maxCount;
             private int _count;
             private StringTokenizer.Enumerator _enumerator;
             private StringSegment _remainder;
+            private StringSegment _currentTrimmedSegment;
 
             /// <summary>
             /// Instantiates a new <see cref="Enumerator"/> instance for <paramref name="tokenizer"/>.
             /// </summary>
             /// <param name="tokenizer">The containing <see cref="TrimmingTokenizer"/>.</param>
-            public Enumerator(TrimmingTokenizer tokenizer)
+            public Enumerator(ref TrimmingTokenizer tokenizer)
             {
-                _tokenizer = tokenizer;
+                _value = tokenizer._originalString;
                 _count = 0;
+                _maxCount = tokenizer._maxCount;
                 _enumerator = tokenizer._tokenizer.GetEnumerator();
                 _remainder = StringSegment.Empty;
+                _currentTrimmedSegment = StringSegment.Empty;
             }
 
             /// <inheritdoc />
-            public StringSegment Current
-            {
-                get
-                {
-                    if (_count < _tokenizer._maxCount)
-                    {
-                        return _enumerator.Current.Trim();
-                    }
-
-                    return _remainder;
-                }
-            }
+            public StringSegment Current => _currentTrimmedSegment;
 
             /// <inheritdoc />
             object IEnumerator.Current => Current;
@@ -161,23 +153,27 @@ namespace Smartstore.Utilities
             /// <inheritdoc />
             public bool MoveNext()
             {
-                // Do nothing except return false if _maxCount == 0.
-                var result = false;
-                if (_count < _tokenizer._maxCount)
+                bool result = false;
+                if (_count < _maxCount)
                 {
-                    // Keep moving until enumeration is done or we find a non-empty (and non-whitespace) segment.
+                    // Move to the next token and trim it, skipping empty or whitespace-only segments.
                     do
                     {
                         result = _enumerator.MoveNext();
+                        if (result)
+                        {
+                            _currentTrimmedSegment = _enumerator.Current.Trim();
+                        }
                     }
-                    while (result && StringSegment.IsNullOrEmpty(Current));
+                    while (result && StringSegment.IsNullOrEmpty(_currentTrimmedSegment));
 
                     if (result)
                     {
-                        if (_count + 1 >= _tokenizer._maxCount)
+                        // Handle the final segment if we reached the max count.
+                        if (_count + 1 >= _maxCount)
                         {
-                            _remainder = _tokenizer._originalString
-                                .Subsegment(Current.Offset - _tokenizer._originalString.Offset)
+                            _remainder = _value
+                                .Subsegment(_currentTrimmedSegment.Offset - _value.Offset)
                                 .Trim();
                         }
 
@@ -194,6 +190,7 @@ namespace Smartstore.Utilities
                 _count = 0;
                 _enumerator.Reset();
                 _remainder = StringSegment.Empty;
+                _currentTrimmedSegment = StringSegment.Empty;
             }
         }
     }

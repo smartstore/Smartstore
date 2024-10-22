@@ -222,10 +222,21 @@ namespace Smartstore
 
             if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries))
             {
-                return tokenizer.Where(x => x.Length > 0).Select(x => x.Value!);
+                foreach (var segment in tokenizer)
+                {
+                    if (segment.Length > 0)
+                    {
+                        yield return segment.Value!;
+                    }
+                }
             }
-
-            return tokenizer.Select(x => x.Value!);
+            else
+            {
+                foreach (var segment in tokenizer)
+                {
+                    yield return segment.Value!;
+                }
+            }
         }
     }
 }
