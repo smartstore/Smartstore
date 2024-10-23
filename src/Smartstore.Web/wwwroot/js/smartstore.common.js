@@ -438,30 +438,38 @@
         localStorage.setItem(storageId, JSON.stringify(values));
     };
 
-    window.restoreRememberedFormFields = function (storageId) {
+    window.restoreRememberedFormFields = function (storageId, fieldId) {
         var values = localStorage.getItem(storageId);
         if (values) {
             values = JSON.parse(values);
 
-            for (var key in values) {
-                var val = values[key];
+            if (fieldId) {
+                restoreField(fieldId);
+                return;
+            }
 
+            for (var key in values) {
+                restoreField(key);
+            }
+
+            function restoreField(key) {
+                const val = values[key];
                 if (val !== null && val !== undefined) {
-                    var el = document.getElementById(key);
+                    const el = document.getElementById(key);
 
                     if (!el)
-                        continue;
+                        return;
 
                     if (el.classList.contains('form-check-input')) {
                         el.checked = val;
                     }
                     else {
                         if (val === '' && el.matches('.remember-disallow-empty')) {
-                            continue;
+                            return;
                         }
 
                         el.value = val;
-                    }   
+                    }
 
                     el.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
                 }
