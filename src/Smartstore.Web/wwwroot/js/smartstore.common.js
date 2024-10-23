@@ -428,11 +428,12 @@
 
     window.rememberFormFields = function (contextId, storageId) {
         var context = document.getElementById(contextId);
-        var rememberFields = context.querySelectorAll('.form-control.remember, .form-check-input.remember');
+        var rememberFields = context.querySelectorAll('input.remember, select.remember, textarea.remember');
         var values = {};
 
         for (let el of rememberFields) {
-            values[el.id] = el.classList.contains('form-check-input') ? el.checked : el.value;
+            const isCheck = el.matches('input[type=checkbox], input[type=radio]');
+            values[el.id] = isCheck ? el.checked : el.value;
         }
 
         localStorage.setItem(storageId, JSON.stringify(values));
@@ -457,9 +458,11 @@
                 if (val !== null && val !== undefined) {
                     const el = document.getElementById(key);
 
-                    if (!el) return;
+                    if (!el || !el.matches('input, select, textarea')) {
+                        return;
+                    }
 
-                    if (el.classList.contains('form-check-input')) {
+                    if (el.matches('input[type=checkbox], input[type=radio]')) {
                         el.checked = val;
                     }
                     else {
