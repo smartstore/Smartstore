@@ -438,7 +438,7 @@
         localStorage.setItem(storageId, JSON.stringify(values));
     };
 
-    window.restoreRememberedFormFields = function (storageId, fieldId) {
+    window.restoreRememberedFormFields = function (storageId, fieldId = null) {
         var values = localStorage.getItem(storageId);
         if (values) {
             values = JSON.parse(values);
@@ -457,8 +457,7 @@
                 if (val !== null && val !== undefined) {
                     const el = document.getElementById(key);
 
-                    if (!el)
-                        return;
+                    if (!el) return;
 
                     if (el.classList.contains('form-check-input')) {
                         el.checked = val;
