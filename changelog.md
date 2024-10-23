@@ -148,6 +148,7 @@
 - Fixed the reward points for purchases setting was not saved in multi-store mode.
 - #960 Setting `ManufacturerItemsToDisplayInOffcanvasMenu` cannot be changed in backend.
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
+- #1197 Product grid search form does not parse the search term expression.
 - Page Builder:
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
@@ -199,7 +200,6 @@
   - Fixed Google category cannot be cleared in product grid.
 - Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
 - Fixed orders of deleted customers were not displayed in order grid.
-- #1197 CatalogSearchQueryVisitor.VisitTermFilter[Name] does not parse the search expression.
 
 
 ## Smartstore 5.1.0

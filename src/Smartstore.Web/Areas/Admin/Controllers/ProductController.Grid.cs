@@ -97,6 +97,8 @@ namespace Smartstore.Admin.Controllers
                 query = query.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
             }
 
+            query.ParseSearchTerm = !useCatalogSearch;
+
             if (useCatalogSearch)
             {
                 query = query.Slice((command.Page - 1) * command.PageSize, command.PageSize);
@@ -122,10 +124,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     query = query.SortBy(ProductSortingEnum.NameAsc);
                 }
-            }
-            else
-            {
-                query.ParseSearchTerm = true;
             }
 
             return query;
