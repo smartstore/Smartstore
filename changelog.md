@@ -199,6 +199,7 @@
   - Fixed Google category cannot be cleared in product grid.
 - Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
 - Fixed orders of deleted customers were not displayed in order grid.
+- #1197 CatalogSearchQueryVisitor.VisitTermFilter[Name] does not parse the search expression.
 
 
 ## Smartstore 5.1.0
