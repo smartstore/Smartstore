@@ -92,7 +92,7 @@ namespace Smartstore.Admin.Controllers
                 query = query.WithCategoryIds(null, model.SearchCategoryId);
             }
 
-            if (model.SearchDeliveryTimeIds?.Any() ?? false)
+            if (!model.SearchDeliveryTimeIds.IsNullOrEmpty())
             {
                 query = query.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
             }
@@ -122,6 +122,10 @@ namespace Smartstore.Admin.Controllers
                 {
                     query = query.SortBy(ProductSortingEnum.NameAsc);
                 }
+            }
+            else
+            {
+                query.ParseSearchTerm = true;
             }
 
             return query;

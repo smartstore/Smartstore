@@ -288,6 +288,7 @@ namespace Smartstore.Core.Catalog.Search
 
             var names = CatalogSearchQuery.KnownFilters;
             var languageId = context.SearchQuery.LanguageId ?? 0;
+            var parseSearchTerm = context.SearchQuery.ParseSearchTerm;
 
             var baseQuery =
                 from p in query
@@ -300,15 +301,15 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     if (af.FieldName == names.Sku)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, af);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, x => x.Translation.LocaleKey, af);
                     }
                     else if (af.FieldName == names.Name)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Name, af, languageId);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Name, x => x.Translation.LocaleKey, af, languageId, parseSearchTerm);
                     }
                     else if (af.FieldName == names.ShortDescription)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, af, languageId);
+                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, x => x.Translation.LocaleKey, af, languageId, parseSearchTerm);
                     }
 
                     return null;
@@ -325,9 +326,10 @@ namespace Smartstore.Core.Catalog.Search
 
             var group = expressions.Length == 1 && expressions[0] is FilterExpressionGroup group2
                 ? group2
-                : new FilterExpressionGroup(typeof(TermSearchProduct), expressions.ToArray()) { LogicalOperator = op };
+                : new FilterExpressionGroup(typeof(TermSearchProduct), [.. expressions]) { LogicalOperator = op };
 
             baseQuery = baseQuery.Where(group).Cast<TermSearchProduct>();
+            //baseQuery.Select(x => x.Product).ToQueryString().Dump();
 
             return baseQuery.Select(x => x.Product);
         }

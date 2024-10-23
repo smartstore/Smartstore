@@ -15,27 +15,26 @@ namespace Smartstore.Core.Catalog.Search
         public LocalizedProperty Translation { get; set; }
 
         public static FilterExpression CreateFilter(
-            Expression<Func<TermSearchProduct, string>> memberExpression,
+            Expression<Func<TermSearchProduct, string>> productExpression,
+            Expression<Func<TermSearchProduct, string>> translationExpression,
             IAttributeSearchFilter filter,
-            int languageId = 0)
+            int languageId = 0, 
+            bool parseTerm = false)
         {
-            Guard.NotNull(memberExpression);
+            Guard.NotNull(productExpression);
+            Guard.NotNull(translationExpression);
             Guard.NotNull(filter);
 
-            var pFilter = new FilterExpression
-            {
-                Descriptor = new FilterDescriptor<TermSearchProduct, string>(memberExpression, RuleScope.Product),
-                Operator = filter.GetOperator(),
-                Value = filter.Term
-            };
+            var pFilter = CreateExpression(productExpression, filter, RuleScope.Product, parseTerm);
 
             if (languageId == 0)
             {
-                // Ignore LocalizedProperty.
+                // Ignore localized property.
                 return pFilter;
             }
 
-            var propertyName = ((MemberExpression)memberExpression.Body).Member.Name;
+            var tFilter = CreateExpression(translationExpression, filter, RuleScope.Other, parseTerm);
+            var propertyName = ((MemberExpression)productExpression.Body).Member.Name;
 
             var lpFilters = new FilterExpression[]
             {
@@ -49,7 +48,7 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     Descriptor = new FilterDescriptor<TermSearchProduct, string>(x => x.Translation.LocaleKeyGroup, RuleScope.Other),
                     Operator = RuleOperator.IsEqualTo,
-                    Value = "Product"
+                    Value = nameof(Product)
                 },
                 new()
                 {
@@ -57,12 +56,7 @@ namespace Smartstore.Core.Catalog.Search
                     Operator = RuleOperator.IsEqualTo,
                     Value = propertyName
                 },
-                new()
-                {
-                    Descriptor = new FilterDescriptor<TermSearchProduct, string>(x => x.Translation.LocaleValue, RuleScope.Other),
-                    Operator = filter.GetOperator(),
-                    Value = filter.Term
-                }
+                tFilter
             };
 
             // p.Name.StartsWith(term) || (lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term))
@@ -78,6 +72,25 @@ namespace Smartstore.Core.Catalog.Search
             return new FilterExpressionGroup(typeof(TermSearchProduct), expressions)
             {
                 LogicalOperator = LogicalRuleOperator.Or
+            };
+        }
+
+        private static FilterExpression CreateExpression(
+            Expression<Func<TermSearchProduct, string>> memberExpression,
+            IAttributeSearchFilter filter,
+            RuleScope scope, 
+            bool parseTerm)
+        {
+            if (parseTerm && FilterExpressionParser.TryParse(memberExpression, filter.Term?.ToString(), out var result))
+            {
+                return result;
+            }
+
+            return new()
+            {
+                Descriptor = new FilterDescriptor<TermSearchProduct, string>(memberExpression, scope),
+                Operator = filter.GetOperator(),
+                Value = filter.Term
             };
         }
     }
