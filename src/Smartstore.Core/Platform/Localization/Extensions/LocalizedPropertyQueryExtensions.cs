@@ -8,7 +8,7 @@
             string localeKeyGroup,
             string localeKey)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (languageId > 0)
                 query = query.Where(x => x.LanguageId == languageId);

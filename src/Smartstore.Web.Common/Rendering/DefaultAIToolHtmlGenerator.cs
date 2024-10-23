@@ -119,11 +119,7 @@ namespace Smartstore.Web.Rendering
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right ai-translator-menu";
 
             var entityType = model.GetEntityType();
-            var entityTypeName = string.Empty;
-            if (entityType != null)
-            {
-                entityTypeName = NamedEntity.GetEntityName(entityType);
-            }
+            var entityTypeName = entityType == null ? string.Empty : NamedEntity.GetEntityName(entityType);
 
             // INFO: we often have several localized editors per ILocalizedLocaleModel (e.g. "blogpost-info-localized" and "blogpost-seo-localized")
             // but we only want to have the properties in the translator menu that can also be edited in the associated localized editor.
