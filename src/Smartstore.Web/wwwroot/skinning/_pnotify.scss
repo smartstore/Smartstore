@@ -7,7 +7,7 @@
 
 .alert.ui-pnotify-container {
     padding-inline-start: 70px !important;
-    padding-inline-end: 1.5rem;
+    padding-inline-end: 2rem;
     box-shadow: 0 6px 12px rgba($black, 0.175) !important;
     border-width: 1px;
     min-height: 75px !important;
@@ -55,6 +55,8 @@
 
 .ui-pnotify-text {
     --overflow-x: auto !important;
+    --scrollbar-size: 6px;
+    --scrollbar-thumb-padding: 0px;
     @extend .custom-scrollbar;
 }
 
@@ -78,13 +80,21 @@
 
 .ui-pnotify-closer, 
 .ui-pnotify-sticker {
+    $c: rgba(var(--alert-base-rgb), 0.75);
     --action-offset: 5px;
-    @include trailing-action($bg: transparent, $color: rgba(var(--alert-base-rgb), 0.75), $hover-bg: rgba(var(--alert-icon-bg-rgb), 0.75), $active-bg: rgba(var(--alert-icon-bg-rgb), 1));
+    @include trailing-action(
+        $size: 1.5rem, 
+        $bg: transparent, 
+        $color: rgba(var(--alert-base-rgb), 0.82), 
+        $hover-bg: rgba(0,0,0, 0.06),
+        $hover-color: rgba(var(--alert-base-rgb), 1), 
+        $active-bg: rgba(0,0,0, 0.1));
 
 	margin: 0;
 	position: absolute;
 	top: var(--action-offset);
 	inset-inline-end: var(--action-offset);
+    transform: translateY(2px);
 }
 
 .ui-pnotify-sticker {
