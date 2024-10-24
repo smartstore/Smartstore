@@ -149,15 +149,15 @@ namespace Smartstore.Core.Tests.Catalog.Search
             List<LocalizedProperty> translations = null;
             if (languageId > 0)
             {
-                translations = new List<LocalizedProperty>
-                {
+                translations =
+                [
                     new() { LocaleKeyGroup = "Product", LocaleKey = "Name", EntityId = 5, LocaleValue = "Holisticly leadership extensible for Smartstore pontificate.", LanguageId = languageId }
-                };
+                ];
             }
 
             await InitTestDataAsync(products, null, translations);
 
-            var query = new CatalogSearchQuery(new[] { "name", "shortdescription" }, term, mode);
+            var query = new CatalogSearchQuery(["name", "shortdescription"], term, mode);
             if (languageId > 0)
             {
                 query = query.WithLanguage(await DbContext.Languages.FindByIdAsync(languageId));
