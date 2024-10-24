@@ -8,10 +8,7 @@ namespace Smartstore.Admin.Components
     {
         private readonly SmartDbContext _db;
 
-        public DashboardRegisteredCustomersViewComponent(SmartDbContext db)
-        {
-            _db = db;
-        }
+        public DashboardRegisteredCustomersViewComponent(SmartDbContext db) => _db = db;
 
         public override async Task<IViewComponentResult> InvokeAsync()
         {
@@ -25,9 +22,12 @@ namespace Smartstore.Admin.Components
                 .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
 
             var customerDates = _db.Customers
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Customer), [.. _db.Customers.Select(x => x.Id)]))
                 .AsNoTracking()
                 .ApplyRegistrationFilter(CreatedFrom, Now)
-                .ApplyRolesFilter(new[] { registeredRole.Id })
+                .ApplyRolesFilter([registeredRole.Id])
                 .Select(x => x.CreatedOnUtc)
                 .ToList();
 

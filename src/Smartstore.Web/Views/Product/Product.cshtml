@@ -18,7 +18,7 @@
 
 <div class="page product-details-page" itemscope itemtype="http://schema.org/Product">
     <zone name="productdetails_top" />
-    
+
     <article class="pd page-body">
 
         <div id="main-update-container" class="update-container" data-url="@Model.UpdateUrl" data-id="@Model.Id">
@@ -78,9 +78,9 @@
 
                         @if (Model.DisplayAdminLink)
                         {
-                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" 
-                               class="btn btn-secondary btn-flat btn-admin-edit" 
-                               target="admin-product" 
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
+                               class="btn btn-secondary btn-flat btn-admin-edit"
+                               target="admin-product"
                                rel="nofollow">
                                 <i class="fa fa-cog"></i>
                                 <span>@T("Common.Catalog.EditProduct")</span>
@@ -134,7 +134,7 @@
                 <partial name="Product.Tags" model="Model.ProductTags" />
                 <zone name="productdetail_tags_after" />
             }
-            
+
             <!-- Related products -->
             <partial name="Product.RelatedProducts" model="Model.RelatedProducts" />
             <zone name="productdetail_related_products_after" />
@@ -157,6 +157,6 @@
             enableZoom: toBool('@(Model.MediaGalleryModel.ImageZoomEnabled)')
         };
 
-    	$('#pd-form').productDetail(settings);
+        $('#pd-form').productDetail(settings);
     });
 </script>
