@@ -27,8 +27,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage",
                 "Use small product box on homepage",
                 "Kleine Produktbox auf der Homepage verwenden",
+                "استفاده از محصولات کوچک در صفحه اصلی",
                 "Defines the size of the product boxes on the homepage of your store.",
-                "Bestimmt die Größe der Produktboxen auf der Startseite Ihres Shops.");
+                "Bestimmt die Größe der Produktboxen auf der Startseite Ihres Shops.",
+                "اندازه جعبه محصول در صفحه اصلی را مشخص می کند.");
 
             builder.AddOrUpdate("Admin.Configuration.Themes.Option.AssetCachingEnabled.Hint",
                 "Determines whether compiled asset files should be cached in file system in order to speed up application restarts. Select 'Auto' if caching should depend on the current environment (Debug = disabled, Production = enabled).",

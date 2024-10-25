@@ -113,10 +113,11 @@ namespace Smartstore.Core.Data.Migrations
         {
             #region General
 
-            builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "Aktuelles");
+            builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "Aktuelles","سرویس خبری");
             builder.AddOrUpdate("Admin.NewsFeed.ServerDown",
                 "Unfortunately the connection to our server could not be established. Please check your internet connection.",
-                "Leider konnte keine Verbindung zu unserem Server aufgebaut werden. Bitte prüfen Sie Ihre Internetverbindung.");
+                "Leider konnte keine Verbindung zu unserem Server aufgebaut werden. Bitte prüfen Sie Ihre Internetverbindung.",
+                "متاسفانه اتصال به سرور ما برقرار نشد. لطفا اتصال اینترنت خود را بررسی کنید.");
 
             builder.Delete("Admin.Marketplace.News");
             builder.Delete("Admin.Marketplace.ComingSoon");
@@ -124,11 +125,13 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Catalog.Products.Orders.NoOrdersAvailable",
                 "There are no orders for this product yet.",
-                "Für dieses Produkt existieren noch keine Bestellungen.");
+                "Für dieses Produkt existieren noch keine Bestellungen.",
+                "هنوز هیچ سفارشی برای این محصول وجود ندارد.");
 
             builder.AddOrUpdate("Admin.Orders.List.NoOrdersAvailable",
                 "There are no orders for this customer yet.",
-                "Für diesen Kunden existieren noch keine Bestellungen.");
+                "Für diesen Kunden existieren noch keine Bestellungen.",
+                "هنوز هیچ سفارشی برای این مشتری وجود ندارد.");
 
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
@@ -138,29 +141,35 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Stores.Fields.DefaultCurrencyId",
                 "Default currency",
                 "Standardwährung",
+                "ارز پیش فرض",
                 "Sets the currency that is preselected for this shop in the frontend.",
-                "Legt die im Frontend vorausgewählte Währung für diesen Shop fest.");
+                "Legt die im Frontend vorausgewählte Währung für diesen Shop fest.",
+                "واحد پولی از پیش انتخاب شده برای قسمت نمایشی فروشگاه را تعیین می کند");
 
-            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval");
-            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval", "فاصله");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend","باقی مانده");
 
             builder.AddOrUpdate("Admin.Tax.Categories.NoDuplicatesAllowed",
                 "A tax category with this name already exists. Please choose another name.",
-                "Eine Steuerklasse mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.");
+                "Eine Steuerklasse mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.",
+                "یک دسته مالیات با این نام از قبل وجود دارد. لطفا نام دیگری انتخاب کنید");
 
-            builder.AddOrUpdate("Admin.Customers.Customers.List.SearchCustomerNumber", "Customer number", "Kundennummer");
+            builder.AddOrUpdate("Admin.Customers.Customers.List.SearchCustomerNumber", "Customer number", "Kundennummer", "شماره مشتری");
 
             builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CannotDeleteDefaultAccount",
                 "The default email account \"{0}\" cannot be deleted. Set a different default email account first.",
-                "Das Standard-Email-Konto \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst ein anderes Standard-Email-Konto fest.");
+                "Das Standard-Email-Konto \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst ein anderes Standard-Email-Konto fest.",
+                "حساب ایمیل پیش فرض \"{0}\" قابل حذف نیست. ابتدا یک حساب ایمیل پیش فرض متفاوت تنظیم کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CannotDeleteLastAccount",
                 "The email account \"{0}\" cannot be deleted. At least one email account is required.",
-                "Das E-Mail-Konto \"{0}\" kann nicht gelöscht werden. Es wird mindestens ein E-Mail-Konto benötigt.");
+                "Das E-Mail-Konto \"{0}\" kann nicht gelöscht werden. Es wird mindestens ein E-Mail-Konto benötigt.",
+                "حساب ایمیل \"{0}\" قابل حذف نیست. حداقل یک حساب ایمیل مورد نیاز است.");
 
             builder.AddOrUpdate("ExternalAuthentication.ConfigError",
                 "There is a problem with the selected login method. Please choose another one or notify the store owner.",
-                "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere Methode oder benachrichtigen Sie den Shop-Betreiber.");
+                "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere Methode oder benachrichtigen Sie den Shop-Betreiber.",
+                "روش ورود انتخاب شده مشکل دارد. لطفاً یکی دیگر را انتخاب کنید یا به مالک فروشگاه اطلاع دهید.");
 
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage");
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue");
@@ -170,101 +179,131 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Admin.Configuration.Settings.NoneWithThatId");
             builder.Delete("Admin.Configuration.Settings.AllSettings.Description");
 
-            builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
+            builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen", "به عنوان پیش فرض تنظیم کنید");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error",
                 "An error occurred when applying the rate.",
-                "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
+                "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.",
+                "هنگام اعمال نرخ خطایی رخ داد.");
 
             builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteAssignedProducts",
                 "The quantity unit \"{0}\" cannot be deleted. It has associated products or product variants.",
-                "Die Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
+                "Die Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.",
+                "واحد کمیت \"{0}\" قابل حذف نیست. دارای محصولات مرتبط یا ترکیب محصولات است.");
 
             builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteDefaultQuantityUnit",
                 "The default quantity unit \"{0}\" cannot be deleted. Set another standard quantity unit first.",
-                "Die Standard-Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
+                "Die Standard-Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.",
+                "واحد کمیت پیش‌فرض \"{0}\" قابل حذف نیست. ابتدا واحد کمیت استاندارد دیگری را تنظیم کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts",
                 "The delivery time \"{0}\" cannot be deleted. It has associated products or product variants.",
-                "Die Lieferzeit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
+                "Die Lieferzeit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.",
+                "زمان تحویل \"{0}\" قابل حذف نیست. دارای محصولات مرتبط یا ترکیب محصولات است.");
 
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime",
                 "The default delivery time \"{0}\" cannot be deleted. Set another standard delivery time first.",
-                "Die Standard-Lieferzeit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
+                "Die Standard-Lieferzeit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.",
+                "زمان تحویل پیش‌فرض \"{0}\" قابل حذف نیست. ابتدا زمان تحویل استاندارد دیگری را تنظیم کنید.");
 
             builder.AddOrUpdate("Admin.ContentManagement.Menus.CannotBeDeleted",
                 "The menu \"{0}\" is required by your shop and cannot be deleted.",
-                "Das Menü \"{0}\" wird von Ihrem Shop benötigt und kann nicht gelöscht werden.");
+                "Das Menü \"{0}\" wird von Ihrem Shop benötigt und kann nicht gelöscht werden.",
+                "منوی \"{0}\" برای فروشگاه شما مورد نیاز است و قابل حذف نیست.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityUnit",
                 "Quantity unit",
                 "Verpackungseinheit",
+                "واحد کمیت",
                 "Specifies the quantity unit.",
-                "Legt die Verpackungseinheit fest.");
+                "Legt die Verpackungseinheit fest.",
+                "واحد کمیت را مشخص می کند.");
 
             builder.AddOrUpdate("Admin.Configuration.Entity.Updated",
                 "The entity has been successfully updated.",
-                "Die Entität wurde erfolgreich aktualisiert.");
+                "Die Entität wurde erfolgreich aktualisiert.",
+                "با موفقیت به روز شد.");
 
             builder.AddOrUpdate("Admin.Configuration.Entity.Added",
                 "The entity has been successfully added.",
-                "Die Entität wurde erfolgreich hinzugefügt.");
+                "Die Entität wurde erfolgreich hinzugefügt.",
+                "با موفقیت اضافه شد.");
 
-            builder.AddOrUpdate("Common.Exit", "Exit", "Beenden");
-            builder.AddOrUpdate("Common.Empty", "Empty", "Leer");
-            builder.AddOrUpdate("Admin.Common.SaveChanges", "Save changes", "Änderungen speichern");
-            builder.AddOrUpdate("Admin.Common.EnvironmentVariables", "Environment variables", "Umgebungsvariablen");
-            builder.AddOrUpdate("Admin.System.Log.ClearLog.Confirm", "Are you sure that all log entries should be deleted?", "Sind Sie sicher, dass alle Log-Einträge gelöscht werden sollen?");
-            builder.AddOrUpdate("Admin.System.QueuedEmails.DeleteAll.Confirm", "Are you sure that all emails should be deleted?", "Sind Sie sicher, dass alle Emails gelöscht werden sollen?");
+            builder.AddOrUpdate("Common.Exit", "Exit", "Beenden", "خروج");
+            builder.AddOrUpdate("Common.Empty", "Empty", "Leer","خالی");
+            builder.AddOrUpdate("Admin.Common.SaveChanges", "Save changes", "Änderungen speichern","ذخیره تغییرات");
+            builder.AddOrUpdate("Admin.Common.EnvironmentVariables", "Environment variables", "Umgebungsvariablen", "متغیرهای محیطی");
+            builder.AddOrUpdate("Admin.System.Log.ClearLog.Confirm", 
+                "Are you sure that all log entries should be deleted?", 
+                "Sind Sie sicher, dass alle Log-Einträge gelöscht werden sollen?",
+                "آیا از حذف تمام ورودی های گزارش مطمئن هستید؟");
+            builder.AddOrUpdate("Admin.System.QueuedEmails.DeleteAll.Confirm", 
+                "Are you sure that all emails should be deleted?", 
+                "Sind Sie sicher, dass alle Emails gelöscht werden sollen?",
+                "آیا از حذف تمام ایمیل ها مطمئن هستید؟");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Categories.NoDuplicatesAllowed",
                 "This category has already been assigned to the product.",
-                "Diese Warengruppe wurde dem Produkt bereits zugeordnet.");
+                "Diese Warengruppe wurde dem Produkt bereits zugeordnet.",
+                "این دسته بندی قبلاً به محصول اختصاص داده شده است.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Manufacturers.NoDuplicatesAllowed",
                 "This manufacturer has already been assigned to the product.",
-                "Dieser Hersteller wurde dem Produkt bereits zugeordnet.");
+                "Dieser Hersteller wurde dem Produkt bereits zugeordnet.",
+                "این تولید کننده قبلاً به محصول اختصاص داده شده است.");
 
             builder.AddOrUpdate("Admin.Catalog.Categories.Products.NoDuplicatesAllowed",
                 "This product has already been assigned to the category.",
-                "Dieses Produkt wurde der Warengruppe bereits zugeordnet.");
+                "Dieses Produkt wurde der Warengruppe bereits zugeordnet.",
+                "این محصول قبلاً به دسته بندی اختصاص داده شده است.");
 
             builder.AddOrUpdate("BackInStockSubscriptions.Subscribed",
                 "You will be notified when this product is available again.",
-                "Sie erhalten eine Benachrichtigung, wenn dieses Produkt wieder lieferbar ist.");
+                "Sie erhalten eine Benachrichtigung, wenn dieses Produkt wieder lieferbar ist.",
+                "در صورتی که این محصول موجود شد به شما اطلاع داده خواهد شد.");
 
             builder.AddOrUpdate("BackInStockSubscriptions.Unsubscribed",
                 "The back in stock notification has been cancelled.",
-                "Die Benachrichtigung über Produktverfügbarkeit wurde storniert.");
+                "Die Benachrichtigung über Produktverfügbarkeit wurde storniert.",
+                "اعلان در دسترس بودن محصول لغو شده است.");
 
             builder.AddOrUpdate("Admin.Catalog.Categories.NoCategories",
                 "No categories found.",
-                "Es wurden keine Warengruppen gefunden.");
+                "Es wurden keine Warengruppen gefunden.",
+                "هیچ دسته بندی یافت نشد");
 
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchName",
                 "Name",
                 "Name",
+                "نام",
                 "Filters by the attribute name.",
-                "Filtert nach dem Attributnamen.");
+                "Filtert nach dem Attributnamen.",
+                "فیلتر بر اساس ویژگی نام");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchAlias",
                 "Alias",
                 "Alias",
+                "نام مستعار",
                 "Filters by the URL alias for search filters.",
-                "Filtert nach dem URL-Alias für Suchfilter.");
+                "Filtert nach dem URL-Alias für Suchfilter.",
+                "فیلترها بر اساس نام مستعار URL برای فیلترهای جستجو.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchAllowFiltering",
                 "Allow filtering",
                 "Filtern zulassen",
+                "اجازه فیلتر کردن",
                 "Filters attributes by which search results can be filtered.",
-                "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.");
+                "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.",
+                "ویژگی هایی فیلترها، با استفاده از آنها می توان نتایج جستجو را محدود کرد.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchName",
                 "Name",
                 "Name",
+                "نام",
                 "Filters by the attribute name.",
-                "Filtert nach dem Attributnamen.");
+                "Filtert nach dem Attributnamen.",
+                "با ویژی نام فیلتر می شود");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchAlias",
                 "Alias",

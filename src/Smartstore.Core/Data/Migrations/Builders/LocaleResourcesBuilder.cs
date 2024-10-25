@@ -96,12 +96,16 @@
         /// <param name="key">The key of the resource</param>
         /// <param name="value">Primary English (untranslated) value of the resource</param>
         /// <param name="deValue">German value of the resource</param>
-        public void AddOrUpdate(string key, string value, string deValue)
+        public void AddOrUpdate(string key, string value, string deValue,string faValue=null)
         {
             Guard.NotEmpty(key, nameof(key));
 
             _entries.Add(new LocaleResourceEntry { Key = key, Value = value });
             _entries.Add(new LocaleResourceEntry { Key = key, Value = deValue, Lang = "de" });
+            if (faValue != null)
+            {
+                _entries.Add(new LocaleResourceEntry { Key = key, Value = faValue, Lang = "fa" });
+            }
         }
 
         /// <summary>
@@ -119,7 +123,13 @@
             AddOrUpdate(key, value, deValue);
             AddOrUpdate(key + ".Hint", hint, deHint);
         }
+        public void AddOrUpdate(string key, string value, string deValue, string faValue, string hint, string deHint, string faHint)
+        {
+            Guard.NotEmpty(key, nameof(key));
 
+            AddOrUpdate(key, value, deValue, faValue);
+            AddOrUpdate(key + ".Hint", hint, deHint, faValue);
+        }
         internal void Reset()
         {
             _entries.Clear();
