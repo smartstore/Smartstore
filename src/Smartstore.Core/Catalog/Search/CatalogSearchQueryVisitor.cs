@@ -301,15 +301,15 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     if (af.FieldName == names.Sku)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, x => x.Translation.LocaleKey, af);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, x => x.Translation.LocaleValue, af);
                     }
                     else if (af.FieldName == names.Name)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Name, x => x.Translation.LocaleKey, af, languageId, parseSearchTerm);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Name, x => x.Translation.LocaleValue, af, languageId, parseSearchTerm);
                     }
                     else if (af.FieldName == names.ShortDescription)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, x => x.Translation.LocaleKey, af, languageId, parseSearchTerm);
+                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, x => x.Translation.LocaleValue, af, languageId, parseSearchTerm);
                     }
 
                     return null;
