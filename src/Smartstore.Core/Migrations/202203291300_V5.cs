@@ -634,37 +634,45 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
                 "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.",
-                "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
+                "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.",
+                "فایل پکیج افزونه (Smartstore.Module.*.zip) را که می خواهید در سرور آپلود کنید، انتخاب کنید. بسته به صورت خودکار آپلود شده، استخراج (باز) و نصب می شود. اگر نسخه قدیمی‌تری از افزونه قبلا نصب شده و وجود داردد، یک نسخه پشتیبان از آن تهیه کنید‌.");
 
             builder.AddOrUpdate("Admin.Packaging.Dialog.ThemeInfo",
                 "Choose the theme package file (Smartstore.Theme.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the theme already exists, it will be backed up for you.",
-                "Wählen Sie die Theme Paket-Datei (Smartstore.Theme.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Themes bereits existiert, wird eine Sicherungskopie davon erstellt.");
+                "Wählen Sie die Theme Paket-Datei (Smartstore.Theme.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Themes bereits existiert, wird eine Sicherungskopie davon erstellt.",
+                "فایل پکیج قالب (Smartstore.Theme.*.zip) را که می خواهید در سرور آپلود کنید، انتخاب کنید. بسته به صورت خودکار آپلود شده، استخراج (باز) و نصب می شود. اگر نسخه قدیمی‌تری از افزونه قبلا نصب شده و وجود داردد، یک نسخه پشتیبان از آن تهیه کنید‌.");
 
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
                 "Package '{0}' was uploaded and unzipped successfully. Please reload the list.",
-                "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte laden Sie die Liste neu.");
+                "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte laden Sie die Liste neu.",
+                "پکیج '{0}' آپلود شد و با موفقیت باز شد. لطفاً لیست را دوباره بارگیری کنید.");
 
             builder.AddOrUpdate("Admin.Packaging.InstallSuccess.Theme",
                 "Theme '{0}' was uploaded and installed successfully. Please reload the list.",
-                "Theme '{0}' wurde hochgeladen und erfolgreich installiert. Bitte laden Sie die Liste neu.");
+                "Theme '{0}' wurde hochgeladen und erfolgreich installiert. Bitte laden Sie die Liste neu.",
+                "قالب '{0}' با موفقیت آپلود و نصب شد. لطفاً لیست را دوباره بارگیری کنید.");
 
             builder.AddOrUpdate("Admin.Packaging.NotAPackage",
                 "Package file is invalid. Please upload a 'Smartstore.*.zip' file.",
-                "Paket-Datei ist ungültig. Bitte laden Sie eine 'Smartstore.*.zip' Datei hoch.");
+                "Paket-Datei ist ungültig. Bitte laden Sie eine 'Smartstore.*.zip' Datei hoch.",
+                "فایل پکیج نامعتبر است. لطفاً یک فایل 'Smartstore.*.zip' آپلود کنید.");
 
             builder.AddOrUpdate("Admin.Packaging.StreamError",
                 "Unable to create ZIP archive from stream.",
-                "Stream kann nicht in ein ZIP-Archiv konvertiert werden.");
+                "Stream kann nicht in ein ZIP-Archiv konvertiert werden.",
+                "از جریان نمی توان یک فایل بایگانی فشرده ZIP ساخت");
 
             builder.AddOrUpdate("Admin.Packaging.NotATheme",
                 "Package does not contain a theme.",
-                "Paket beinhaltet kein Theme.");
+                "Paket beinhaltet kein Theme.", 
+                "در پکیج قالب وجود ندارد");
 
             builder.AddOrUpdate("Admin.Packaging.NotAModule",
                 "Package does not contain a plugin.",
-                "Paket beinhaltet kein Plugin.");
+                "Paket beinhaltet kein Plugin.",
+                "افزونه در پکیج وجود ندارد.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.AllSettings.AllTypes", "All types", "Alle Typen");
+            builder.AddOrUpdate("Admin.Configuration.Settings.AllSettings.AllTypes", "All types", "Alle Typen", "همه انواع");
 
             #endregion
 
