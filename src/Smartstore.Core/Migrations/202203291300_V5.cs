@@ -295,7 +295,7 @@ namespace Smartstore.Core.Data.Migrations
                 "اجازه فیلتر کردن",
                 "Filters attributes by which search results can be filtered.",
                 "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.",
-                "ویژگی هایی فیلترها، با استفاده از آنها می توان نتایج جستجو را محدود کرد.");
+                "مشخصات را فیلتر می کند که با استفاده از آنها می توان نتایج جستجو را محدود کرد.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchName",
                 "Name",
@@ -303,262 +303,330 @@ namespace Smartstore.Core.Data.Migrations
                 "نام",
                 "Filters by the attribute name.",
                 "Filtert nach dem Attributnamen.",
-                "با ویژی نام فیلتر می شود");
+                "با مشخصات نام فیلتر می شود");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchAlias",
                 "Alias",
                 "Alias",
+                "نام مستعار",
                 "Filters by the URL alias for search filters.",
-                "Filtert nach dem URL-Alias für Suchfilter.");
+                "Filtert nach dem URL-Alias für Suchfilter.",
+                "فیلترها بر اساس نام مستعار URL برای فیلترهای جستجو.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchAllowFiltering",
                 "Allow filtering",
                 "Filtern zulassen",
+                "اجازه فیلتر کردن",
                 "Filters attributes by which search results can be filtered.",
-                "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.");
+                "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.",
+                "مشخصات هایی را فیلتر می کند که با استفاده از آنها می توان نتایج جستجو را فیلتر کرد.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchShowOnProductPage",
                 "Show on product page",
                 "Auf der Produktseite anzeigen",
+                "نمایش در صفحه محصول",
                 "Filters attributes that are displayed on the product detail page.",
-                "Filtert Attribute, die auf der Produktdetailseite angezeigt werden.");
+                "Filtert Attribute, die auf der Produktdetailseite angezeigt werden.",
+                "مشخصات هایی که در صفحه جزئیات محصول نمایش داده می شوند را فیلتر می کند.");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.List.Name",
                 "Name",
                 "Name",
+                "نام",
                 "Filters by discount name.",
-                "Filtert nach dem Rabattnamen.");
+                "Filtert nach dem Rabattnamen.",
+                "فیلتر با نام تخفیف");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.List.DiscountType",
                 "Discount type",
                 "Rabatttyp",
+                "نوع تخفیف",
                 "Filters by discount type.",
-                "Filtert nach dem Rabatttyp.");
+                "Filtert nach dem Rabatttyp.",
+                "فیلتر بر اساس نوع تخفیف");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.List.UsePercentage",
                 "Use percentage",
                 "Als Prozentwert",
+                "استفاده از درصد",
                 "Filters by percentage discounts.",
-                "Filtert nach prozentualen Rabatten.");
+                "Filtert nach prozentualen Rabatten.",
+                "فیلتر بر اساس درصد تخفیف.");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.List.RequiresCouponCode",
                 "Requires coupon code",
                 "Gutscheincode erforderlich",
+                "نیاز به کد کوپن",
                 "Filters discounts that require a coupon code.",
-                "Filtert Rabatte, bei denen ein Gutscheincode erforderlich ist.");
+                "Filtert Rabatte, bei denen ein Gutscheincode erforderlich ist.",
+                "تخفیف هایی که نیاز به کد کوپن دارند را فیلتر می کند.");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.AppliedToManufacturers.Hint",
                 "A list of manufacturers to which the discount is assigned. The assignment can be made on the manufacturer detail page.",
-                "Eine Liste von Herstellern, denen der Rabatt zugeordnet ist. Die Zuordnung kann auf der Hersteller-Detailseite vorgenommen werden.");
+                "Eine Liste von Herstellern, denen der Rabatt zugeordnet ist. Die Zuordnung kann auf der Hersteller-Detailseite vorgenommen werden.",
+                "لیستی از تولیدکنندگانی که تخفیف به آنها تعلق می گیرد. تخصیص را می توان در صفحه جزئیات تولید کننده انجام داد.");
 
             builder.AddOrUpdate("Admin.GiftCards.RecipientEmailInvalid",
                 "The recipient email is invalid.",
-                "Die E-Mail Adresse des Empfängers ist ungültig.");
+                "Die E-Mail Adresse des Empfängers ist ungültig.",
+                "ایمیل گیرنده نامعتبر است.");
 
             builder.AddOrUpdate("Admin.GiftCards.SenderEmailInvalid",
                 "The sender email is invalid.",
-                "Die E-Mail Adresse des Absenders ist ungültig.");
+                "Die E-Mail Adresse des Absenders ist ungültig.",
+                "ایمیل فرستنده نامعتبر است.");
 
-            builder.AddOrUpdate("Admin.Common.ViewObject", "View (#{0})", "Ansicht (#{0})");
-            builder.AddOrUpdate("Admin.Common.FileName", "File name", "Dateiname");
-            builder.AddOrUpdate("Admin.Common.FileSize", "File size", "Dateigröße");
-            builder.AddOrUpdate("Admin.Common.Print", "Print", "Drucken");
+            builder.AddOrUpdate("Admin.Common.ViewObject", "View (#{0})", "Ansicht (#{0})", "مشاهده (#{0})");
+            builder.AddOrUpdate("Admin.Common.FileName", "File name", "Dateiname","نام فایل");
+            builder.AddOrUpdate("Admin.Common.FileSize", "File size", "Dateigröße","اندازه فایل");
+            builder.AddOrUpdate("Admin.Common.Print", "Print", "Drucken","چاپ کردن");
 
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup", "Database backups", "Datenbanksicherungen");
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download database backup", "Datenbanksicherung herunterladen");
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.MatchesCurrentVersion", "Current version", "Aktuelle Version");
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Create", "Create backup", "Sicherung erstellen");
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Upload", "Upload backup", "Sicherung hochladen");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup", "Database backups", "Datenbanksicherungen", "پشتیبان گیری از پایگاه داده");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download database backup", "Datenbanksicherung herunterladen", "دانلود نسخه پشتیبان از پایگاه داده");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.MatchesCurrentVersion", "Current version", "Aktuelle Version", "نسخه فعلی");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Create", "Create backup", "Sicherung erstellen", "نسخه پشتیبان ایجاد کنید");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Upload", "Upload backup", "Sicherung hochladen", "آپلود پشتیبان");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupNotSupported",
                 "The database backup cannot be created because the data provider '{0}' does not support it.",
-                "Die Datenbanksicherung kann nicht erstellt werden, da der Daten-Provider '{0}' dies nicht unterstützt.");
+                "Die Datenbanksicherung kann nicht erstellt werden, da der Daten-Provider '{0}' dies nicht unterstützt.",
+                "از پایگاده داده نمی شود نسخه پشتیبان تهیه کرد چون ارائه کننده \"{0}\" از آن پشتیبانی نمی کند.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.RestoreNotSupported",
                 "The database cannot be restored because the data provider '{0}' does not support this.",
-                "Die Datenbank kann nicht wiederhergestellt werden, da der Daten-Provider '{0}' dies nicht unterstützt.");
+                "Die Datenbank kann nicht wiederhergestellt werden, da der Daten-Provider '{0}' dies nicht unterstützt.",
+                "پایگاه داده قابل بازیابی نیست زیرا ارائه دهنده داده \"{0}\" آنرا پشتیبانی نمی کند.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupCreated",
                 "The database backup was successfully created.",
-                "Das Datenbank wurde erfolgreich gesichert.");
+                "Das Datenbank wurde erfolgreich gesichert.",
+                "پشتیبان گیری از پایگاه داده با موفقیت ایجاد شد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.DatabaseRestored",
                 "The database was successfully restored.",
-                "Die Datenbank wurde erfolgreich wiederhergestellt.");
+                "Die Datenbank wurde erfolgreich wiederhergestellt.",
+                "پایگاه داده با موفقیت بازیابی شد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Restore",
                 "Restore",
                 "Wiederherstellen",
+                "بازیابی",
                 "Restore the database from this backup file.",
-                "Datenbank aus dieser Sicherungsdatei (Backup) wiederherstellen.");
+                "Datenbank aus dieser Sicherungsdatei (Backup) wiederherstellen.",
+                "پایگاه داده را از این فایل پشتیبان بازیابی کنید.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.RestoreVersionWarning",
                 "The backup was created with a different Smartstore version. Restoring it may cause unpredictable issues. Do you still want to proceed?",
-                "Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
+                "Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?",
+                "نسخه پشتیبان با نسخه فعلی فروشگاه متفاوت است، بازیابی آن ممکن است باعث مشکلات غیرقابل پیش بینی شود. آیا هنوز می خواهید ادامه دهید؟");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.InvalidBackup",
                 "The file \"{0}\" is not a valid database backup. The file name must have the format [database name]-[version]-[timestamp].",
-                "Bei der Datei \"{0}\" handelt es sich um keine gültige Datenbanksicherung. Der Dateiname muss das Format [Datenbankname]-[Version]-[Zeitstempel] haben.");
+                "Bei der Datei \"{0}\" handelt es sich um keine gültige Datenbanksicherung. Der Dateiname muss das Format [Datenbankname]-[Version]-[Zeitstempel] haben.",
+                "فایل \"{0}\" نسخه پشتیبان از پایگاه داده معتبر نیست. نام فایل باید دارای فرمت [نام پایگاه داده]-[نسخه]-[مهر زمان] باشد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploaded",
                 "The database backup was successfully uploaded.",
-                "Die Datenbanksicherung wurde erfolgreich hochgeladen.");
+                "Die Datenbanksicherung wurde erfolgreich hochgeladen.",
+                "نسخه پشتیبان پایگاه داده با موفقیت آپلود شد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploadNote",
                 "Uploading a database backup can take several minutes depending on the file size.",
-                "Der Upload einer Datenbanksicherung kann je nach Dateigröße mehrere Minuten in Anspruch nehmen.");
+                "Der Upload einer Datenbanksicherung kann je nach Dateigröße mehrere Minuten in Anspruch nehmen.",
+                "آپلود یک نسخه پشتیبان از پایگاه داده بسته به اندازه فایل ممکن است چند دقیقه طول بکشد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DeletedExportFilesAndFolders",
                 "{0} export files and {1} export folders have been deleted.",
-                "Es wurden {0} Exportdateien und {1} Exportordner gelöscht.");
+                "Es wurden {0} Exportdateien und {1} Exportordner gelöscht.",
+                "{0} فایل صادراتی و {1} پوشه صادراتی حذف شدند.");
 
             builder.AddOrUpdate("Admin.OrderNotice.RefundAmountError",
                 "The amount to be refunded must be greater than 0.",
-                "Der zu erstattende Betrag muss größer 0 sein.");
+                "Der zu erstattende Betrag muss größer 0 sein.",
+                "مبلغی که باید بازپرداخت شود باید بیشتر از 0 باشد.");
 
             builder.AddOrUpdate("Admin.Orders.Products.NotDownloadable",
                 "The product is not downloadable.",
-                "Das Produkt kann nicht heruntergeladen werden.");
+                "Das Produkt kann nicht heruntergeladen werden.",
+                "محصول قابل دانلود نیست.");
 
-            builder.AddOrUpdate("Admin.Orders.ProcessWithOrder", "Continue with order {0}?", "Mit Auftrag {0} fortfahren?");
+            builder.AddOrUpdate("Admin.Orders.ProcessWithOrder", "Continue with order {0}?", "Mit Auftrag {0} fortfahren?", "با سفارش {0} ادامه می دهید؟");
 
-            builder.AddOrUpdate(
-                "Admin.Orders.OrderItem.CannotDeleteAssociatedGiftCards",
+            builder.AddOrUpdate("Admin.Orders.OrderItem.CannotDeleteAssociatedGiftCards",
                 "The order item cannot be deleted because gift cards are assigned to it. Please delete the gift cards first.",
-                "Die Auftragsposition kann nicht gelöscht werden, weil ihr Geschenkgutscheine zugeordnet sind. Bitte löschen Sie zunächst die Geschenkgutscheine.");
+                "Die Auftragsposition kann nicht gelöscht werden, weil ihr Geschenkgutscheine zugeordnet sind. Bitte löschen Sie zunächst die Geschenkgutscheine.",
+                "سفارش را نمی توان حذف کرد زیرا کوپن های هدیه به آن اختصاص داده شده است. لطفا ابتدا کوپن های هدیه را حذف کنید.");
 
             builder.AddOrUpdate("Admin.RecurringPayments.List.CustomerEmail",
                 "Customer email address",
                 "Kunden-E-Mail",
+                "ایمیل مشتری",
                 "Filter list by customer email.",
-                "Liste nach der Kunden-E-Mail filtern.");
+                "Liste nach der Kunden-E-Mail filtern.",
+                "لیست را با ایمیل مشتری فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.RecurringPayments.List.CustomerName",
                 "Customer name",
                 "Kundenname",
+                "نام مشتری",
                 "Filter list by customer name.",
-                "Liste nach dem Kundennamen filtern.");
+                "Liste nach dem Kundennamen filtern.",
+                "لیست را بر اساس نام مشتری فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.RecurringPayments.List.InitialOrderNumber",
                 "Number of the initial order",
                 "Nummer des ursprünglichen Auftrages",
+                "شماره سفارش اولیه",
                 "Filter the list by the number of the initial order.",
-                "Liste nach der Nummer des ursprünglichen Auftrages filtern.");
+                "Liste nach der Nummer des ursprünglichen Auftrages filtern.",
+                "لیست را بر اساس شماره سفارش اصلی فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.Common.Search.StartDate",
                 "Start date",
                 "Anfangsdatum",
+                "تاریخ شروع",
                 "Sets the start date of the search.",
-                "Legt das Anfangsdatum der Suche fest.");
+                "Legt das Anfangsdatum der Suche fest.",
+                "تاریخ شروع جستجو را تنظیم می کند.");
 
             builder.AddOrUpdate("Admin.Common.Search.EndDate",
                 "End date",
                 "Enddatum",
+                "تاریخ پایان",
                 "Sets the end date of the search.",
-                "Legt das Enddatum der Suche fest.");
+                "Legt das Enddatum der Suche fest.",
+                "تاریخ پایان جستجو را مشخص می کند.");
 
             builder.AddOrUpdate("Admin.Configuration.Languages.Resources.List.Name",
                 "Resource name",
                 "Ressourcenname",
+                "نام منبع",
                 "Filter list by resource name.",
-                "Liste nach dem Ressourcenname filtern.");
+                "Liste nach dem Ressourcenname filtern.",
+                "لیست را بر اساس نام منبع فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.Languages.Resources.List.Value",
                 "Resource value",
                 "Ressourcenwert",
-                "Filter list by resource vvalue.",
-                "Liste nach dem Ressourcenwert filtern.");
+                "مقدار منبع",
+                "Filter list by resource value.",
+                "Liste nach dem Ressourcenwert filtern.", 
+                "لیست را بر اساس مقدار منبع فیلتر کنید.");
 
-            builder.AddOrUpdate("Admin.Configuration.Languages.Resources", "Resources", "Ressourcen");
+            builder.AddOrUpdate("Admin.Configuration.Languages.Resources", "Resources", "Ressourcen","منابع");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.HelpfulYesTotal",
                 "Helpful",
                 "Hilfreich",
+                "مفید است",
                 "The number of reviews rated as helpful.",
-                "Die Anzahl der als hilfreich eingestuften Bewertungen.");
+                "Die Anzahl der als hilfreich eingestuften Bewertungen.",
+                "تعداد نظراتی که به عنوان مفید رتبه بندی شده اند.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.HelpfulNoTotal",
                 "Not helpful",
                 "Nicht hilfreich",
+                "مفید نیست",
                 "The number of reviews rated as not helpful.",
-                "Die Anzahl der als nicht hilfreich eingestuften Bewertungen.");
+                "Die Anzahl der als nicht hilfreich eingestuften Bewertungen.",
+                "تعداد بررسی‌هایی که به‌عنوان غیرمفید رتبه‌بندی شده‌اند.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.List.Rating",
                 "Rating",
                 "Bewertung",
+                "ارزیابی",
                 "Filter list by rating.",
-                "Liste nach Bewertung filtern.");
+                "Liste nach Bewertung filtern.",
+                "لیست را بر اساس رتبه بندی فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.List.ProductName",
                 "Product name",
                 "Produktname",
+                "نام محصول",
                 "Filter list by product name.",
-                "Liste nach dem Produktnamen filtern.");
+                "Liste nach dem Produktnamen filtern.",
+                "لیست را بر اساس نام محصول فیلتر کنید.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberApprovedReviews",
                 "There were {0} product reviews approved.",
-                "Es wurden {0} Produkt Rezensionen genehmigt.");
+                "Es wurden {0} Produkt Rezensionen genehmigt.",
+                "{0} بررسی محصول تایید شده است.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberDisapprovedReviews",
                 "There were {0} product reviews disapproved.",
-                "Es wurden {0} Produkt Rezensionen abgelehnt.");
+                "Es wurden {0} Produkt Rezensionen abgelehnt.",
+                "{0} بررسی محصول رد شد.");
 
-            builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name.", "Ungültiger Dateiname.");
-            builder.AddOrUpdate("Common.UserProfile", "User profile", "Benutzerprofil");
+            builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name.", "Ungültiger Dateiname.", "نام فایل نامعتبر است.");
+            builder.AddOrUpdate("Common.UserProfile", "User profile", "Benutzerprofil","مضخصات کاربر");
 
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchDeliveryTime",
                 "Delivery time",
                 "Lieferzeit",
+                "زمان تحویل",
                 "Filter delivery time.",
-                "Lieferzeit eingrenzen.");
+                "Lieferzeit eingrenzen.",
+                "زمان تحویل را محدود کنید");
 
             builder.AddOrUpdate("Admin.Catalog.Products.BundleItems.CanBeBundleItemWarning",
                 "A bundle, grouped product, download or recurring product cannot be added to the bundle item list.",
-                "Ein Bundle, Gruppenprodukt, Abo oder Download kann der Stückliste nicht hinzugefügt werden.");
+                "Ein Bundle, Gruppenprodukt, Abo oder Download kann der Stückliste nicht hinzugefügt werden.",
+                "یک بسته، محصول گروه‌بندی‌شده، محصول قابل دانلود یا محصول تکرارشونده را نمی‌توان به فهرست آیتم‌های بسته اضافه کرد.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.SetAsPrimaryCurrency",
                 "Set as primary currency",
-                "Als Leitwährung festlegen");
+                "Als Leitwährung festlegen",
+                "به عنوان ارز کلیدی تنظیم کنید");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency",
                 "Set as exchange rate currency",
-                "Als Umrechnungswährung festlegen");
+                "Als Umrechnungswährung festlegen",
+                "به عنوان ارز تبدیل تنظیم کنید");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency",
                 "The primary currency \"{0}\" cannot be deleted. Set a different primary currency first.",
-                "Die Leitwährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Leitwährung fest.");
+                "Die Leitwährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Leitwährung fest.",
+                "ارز اصلی \"{0}\" قابل حذف نیست. ابتدا یک ارز کلیدی متفاوت تنظیم کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency",
                 "The exchange rate currency \"{0}\" cannot be deleted. Set a different exchange rate currency first.",
-                "Die Umrechnungswährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Umrechnungswährung fest.");
+                "Die Umrechnungswährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Umrechnungswährung fest.",
+                "ارز تبدیل \"{0}\" قابل حذف نیست. ابتدا یک ارز تبدیل متفاوت تنظیم کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.PublishedCurrencyRequired",
                 "At least one currency must be published.",
-                "Mindestens eine Währung muss veröffentlicht sein.");
+                "Mindestens eine Währung muss veröffentlicht sein.",
+                "حداقل یک ارز باید منتشر شود.");
 
             builder.AddOrUpdate("Admin.Orders.Fields.ID",
                 "Order ID",
                 "Auftrags-ID",
+                "شناسه سفارش",
                 "The unique ID for this order.",
-                "Die eindeutige ID für diesen Auftrag.");
+                "Die eindeutige ID für diesen Auftrag.",
+                "شناسه منحصر به فرد این سفارش");
 
             builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.IsSystemTopic",
                 "System topic",
                 "Systemseite",
+                "نام سیستمی صفحه",
                 "Topics predefined by the system cannot be deleted.",
-                "Vom System vorgegebene Seiten und Inhalte können nicht gelöscht werden.");
+                "Vom System vorgegebene Seiten und Inhalte können nicht gelöscht werden.",
+                "صفحات و محتوای مشخص شده توسط سیستم قابل حذف نیستند.");
 
             builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.CookieType",
                 "Cookie type",
                 "Art des Cookies",
+                "نوع کوکی",
                 "Sets whether this widget is displayed according to the customer's settings in the cookie manager. This option should be used if you add a third-party script that sets cookies.",
-                "Legt fest, ob dieses Widget in Abhängigkeit zur Kundeneinstellung im Cookie-Manager ausgegeben wird. Diese Option sollte verwendet werden, wenn Sie ein Script für einen Drittanbieter zufügen, das Cookies setzt.");
+                "Legt fest, ob dieses Widget in Abhängigkeit zur Kundeneinstellung im Cookie-Manager ausgegeben wird. Diese Option sollte verwendet werden, wenn Sie ein Script für einen Drittanbieter zufügen, das Cookies setzt.",
+                "تعیین می کند که آیا این ویجت بسته به تنظیمات مشتری در مدیر کوکی نمایش داده می شود یا خیر. این گزینه باید هنگام افزودن یک اسکریپت شخص ثالث که کوکی ها را تنظیم می کند استفاده شود.");
 
-            builder.AddOrUpdate("Permissions.DisplayName.EditExchangeRate", "Edit exchange rates", "Umrechnungskurse bearbeiten");
-            builder.AddOrUpdate("Permissions.DisplayName.ReadAddress", "Read addresses", "Adressen lesen");
-            builder.AddOrUpdate("Permissions.DisplayName.CreateAddress", "Create addresses", "Adressen erstellen");
-            builder.AddOrUpdate("Permissions.DisplayName.DeleteAddress", "Delete addresses", "Adressen löschen");
-            builder.AddOrUpdate("Permissions.DisplayName.CreateDeployment", "Create deployment profile", "Veröffentlichungsprofil erstellen");
+            builder.AddOrUpdate("Permissions.DisplayName.EditExchangeRate", "Edit exchange rates", "Umrechnungskurse bearbeiten", "ویرایش نرخ تبدیل");
+            builder.AddOrUpdate("Permissions.DisplayName.ReadAddress", "Read addresses", "Adressen lesen","خواندن آدرس ها");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateAddress", "Create addresses", "Adressen erstellen","ایجاد آدرس ها");
+            builder.AddOrUpdate("Permissions.DisplayName.DeleteAddress", "Delete addresses", "Adressen löschen","حذف ادرس ها");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateDeployment", "Create deployment profile", "Veröffentlichungsprofil erstellen", "گسترش پروفایل ایجاد شود");
 
             #endregion
 
