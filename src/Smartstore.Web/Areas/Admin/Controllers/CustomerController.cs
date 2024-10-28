@@ -226,7 +226,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
                 .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
 
-            ViewBag.IsAdmin = customer.IsAdmin() || customer.IsSuperAdmin();
+            ViewBag.IsAdmin = customer != null && (customer.IsAdmin() || customer.IsSuperAdmin());
 
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled && model.CountryId > 0)
