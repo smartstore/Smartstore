@@ -1662,26 +1662,6 @@ a.editable {
     box-shadow: none;
 }
 
-
-// Demoshop info
-// --------------------------------------------------------------
-
-#demoshop-info {
-    position: fixed;
-    left: auto;
-    top: 50%;
-    bottom: auto;
-    right: -3px;
-    font-size: inherit;
-    background-color: #fff;
-    color: var(--gray-700);
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    z-index: $zindex-dropdown - 1;
-    transform: rotate(90deg) translateX(100%);
-    transform-origin: right top;
-}
-
 // AI dropdown
 // --------------------------------------------------------------
 
