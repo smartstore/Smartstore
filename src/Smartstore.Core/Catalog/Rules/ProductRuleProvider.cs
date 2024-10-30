@@ -4,6 +4,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
@@ -14,26 +16,38 @@ namespace Smartstore.Core.Catalog.Rules
 {
     public partial class ProductRuleProvider : RuleProviderBase, IProductRuleProvider
     {
-        private readonly ICommonServices _services;
+        private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly IApplicationContext _appContext;
         private readonly IRuleService _ruleService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICategoryService _categoryService;
+        private readonly ICurrencyService _currencyService;
         private readonly ILocalizationService _localizationService;
         private readonly CatalogSettings _catalogSettings;
 
         public ProductRuleProvider(
-            ICommonServices services,
+            SmartDbContext db,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            IApplicationContext appContext,
             IRuleService ruleService,
             ICatalogSearchService catalogSearchService,
             ICategoryService categoryService,
+            ICurrencyService currencyService,
             ILocalizationService localizationService,
             CatalogSettings catalogSettings)
             : base(RuleScope.Product)
         {
-            _services = services;
+            _db = db;
+            _workContext = workContext;
+            _storeContext = storeContext;
+            _appContext = appContext;
             _ruleService = ruleService;
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
+            _currencyService = currencyService;
             _localizationService = localizationService;
             _catalogSettings = catalogSettings;
         }
@@ -73,8 +87,8 @@ namespace Smartstore.Core.Catalog.Rules
         {
             var searchQuery = new CatalogSearchQuery()
                 .OriginatesFrom("Rule/Search")
-                .WithLanguage(_services.WorkContext.WorkingLanguage)
-                .WithCurrency(_services.WorkContext.WorkingCurrency)
+                .WithLanguage(_workContext.WorkingLanguage)
+                .WithCurrency(_workContext.WorkingCurrency)
                 .BuildFacetMap(false)
                 .CheckSpelling(0)
                 .Slice(pageIndex * pageSize, pageSize)
@@ -105,11 +119,11 @@ namespace Smartstore.Core.Catalog.Rules
 
         protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
-            var language = _services.WorkContext.WorkingLanguage;
+            var language = _workContext.WorkingLanguage;
             var oneStarStr = T("Search.Facet.1StarAndMore").Value;
             var xStarsStr = T("Search.Facet.XStarsAndMore").Value;
 
-            var stores = _services.StoreContext.GetAllStores()
+            var stores = _storeContext.GetAllStores()
                 .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })
                 .ToArray();
 
@@ -427,7 +441,7 @@ namespace Smartstore.Core.Catalog.Rules
                 }
             };
 
-            if (_services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") != null)
+            if (_appContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") != null)
             {
                 ISearchFilter[] filters(string fieldName, int parentId, int[] valueIds)
                 {
@@ -436,7 +450,7 @@ namespace Smartstore.Core.Catalog.Rules
 
                 // Sort by display order!
                 var pageIndex = -1;
-                var variantsQuery = _services.DbContext.ProductAttributes
+                var variantsQuery = _db.ProductAttributes
                     .AsNoTracking()
                     .Where(x => x.AllowFiltering)
                     .OrderBy(x => x.DisplayOrder);
@@ -468,7 +482,7 @@ namespace Smartstore.Core.Catalog.Rules
                 }
 
                 pageIndex = -1;
-                var attributesQuery = _services.DbContext.SpecificationAttributes
+                var attributesQuery = _db.SpecificationAttributes
                     .AsNoTracking()
                     .Where(x => x.AllowFiltering)
                     .OrderBy(x => x.DisplayOrder);
@@ -500,7 +514,7 @@ namespace Smartstore.Core.Catalog.Rules
 
             descriptors
                 .Where(x => x.RuleType == RuleType.Money)
-                .Each(x => x.Metadata["postfix"] = _services.CurrencyService.PrimaryCurrency.CurrencyCode);
+                .Each(x => x.Metadata["postfix"] = _currencyService.PrimaryCurrency.CurrencyCode);
 
             return descriptors.Cast<RuleDescriptor>();
         }
