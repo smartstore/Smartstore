@@ -83,6 +83,49 @@ namespace Smartstore.Core.Catalog.Rules
             return group;
         }
 
+        public async Task<bool> MatchesAsync(
+            int productId,
+            IEnumerable<RuleSetEntity> ruleSets,
+            LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or)
+        {
+            Guard.NotZero(productId);
+
+            if (ruleSets.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            var filters = await ruleSets
+                .SelectAwait(x => _ruleService.CreateExpressionGroupAsync(x, this))
+                .Where(x => x != null)
+                .Cast<SearchFilterExpression>()
+                .ToArrayAsync();
+            if (filters.Length == 0)
+            {
+                return false;
+            }
+
+            var searchQuery = new CatalogSearchQuery().OriginatesFrom("Rule/Search");
+            SearchFilterExpressionGroup group;
+
+            if (filters.Length == 1 && filters[0] is SearchFilterExpressionGroup group2)
+            {
+                group = group2;
+            }
+            else
+            {
+                group = new SearchFilterExpressionGroup { LogicalOperator = logicalOperator };
+                group.AddExpressions(filters);
+            }
+
+            searchQuery = group.ApplyFilters(searchQuery);
+
+            var query = _catalogSearchService.PrepareQuery(searchQuery);
+            var match = await query.AnyAsync(x => x.Id == productId);
+
+            return match;
+        }
+
         public async Task<CatalogSearchResult> SearchAsync(SearchFilterExpression[] filters, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var searchQuery = new CatalogSearchQuery()
