@@ -389,7 +389,7 @@ namespace Smartstore.StripeElements.Controllers
                 var stripeEvent = EventUtility.ParseEvent(json, false);
                 stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret, throwOnApiVersionMismatch: false);
 
-                if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
+                if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
                 {
                     // Payment intent was captured in Stripe backend
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
@@ -406,7 +406,7 @@ namespace Smartstore.StripeElements.Controllers
                         await _db.SaveChangesAsync();
                     }
                 }
-                else if (stripeEvent.Type == Stripe.Events.ChargeRefunded)
+                else if (stripeEvent.Type == EventTypes.ChargeRefunded)
                 {
                     var charge = stripeEvent.Data.Object as Charge;
                     var order = await GetStripeOrderAsync(charge.PaymentIntentId);
@@ -428,7 +428,7 @@ namespace Smartstore.StripeElements.Controllers
                         await _db.SaveChangesAsync();
                     }
                 }
-                else if (stripeEvent.Type == Stripe.Events.PaymentIntentCanceled)
+                else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                     var order = await GetStripeOrderAsync(paymentIntent.Id);

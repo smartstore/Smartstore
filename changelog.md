@@ -111,6 +111,7 @@
 - URL sanitizer for last visited page tracking.
 - For security reasons, do not delete administrators via the customer grid. Double ask if administrators are deleted via the edit page.
 - Added filters to shipping by total and shipping by weight grids.
+- Stripe: Update to API version *2024-09-30.acacia * (Stripe.net 47.0.0)
 
 ### Bugfixes
 
