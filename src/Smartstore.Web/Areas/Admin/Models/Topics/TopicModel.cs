@@ -167,10 +167,12 @@ namespace Smartstore.Admin.Models.Topics
         public string SeName { get; set; }
     }
 
-    public partial class TopicValidator : AbstractValidator<TopicModel>
+    public partial class TopicValidator : SmartValidator<TopicModel>
     {
-        public TopicValidator(Localizer T)
+        public TopicValidator(SmartDbContext db, Localizer T)
         {
+            ApplyEntityRules<Topic>(db);
+
             RuleFor(x => x.SystemName).NotEmpty();
             RuleFor(x => x.HtmlId)
                 .Must(u => u.IsEmpty() || !u.Any(x => char.IsWhiteSpace(x)))
