@@ -63,6 +63,7 @@
 - #783 Add a field to shipment entity for the name of the cargo company.
 - #1176 Avoid duplicate assignment of description on the product page.
 - #528 Add an option to no longer allow posts on a forum topic.
+- #1204 Added settings to enable/disable the RSS feed in blogs and news.
 
 ### Improvements
 
