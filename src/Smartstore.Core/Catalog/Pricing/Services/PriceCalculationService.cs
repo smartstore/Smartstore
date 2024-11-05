@@ -466,6 +466,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 money = money.WithPostFormat(options.TaxFormat);
             }
 
+            // TODO: (mg) Improve "ApplyPriceRangeFormat" handling. Try to rely on "HasPriceRange" (calculators) to only display the suffix when relevant.
             if (isFinalPrice && (context.HasPriceRange || options.ApplyPriceRangeFormat))
             {
                 var finalPricePostFormat = money.PostFormat;
