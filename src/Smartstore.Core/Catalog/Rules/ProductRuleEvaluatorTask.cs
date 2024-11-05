@@ -89,7 +89,7 @@ namespace Smartstore.Core.Catalog.Rules
                             while (true)
                             {
                                 // Do not touch searchResult.Hits. We only need the product identifiers.
-                                var searchResult = await _productRuleProvider.SearchAsync([expression], ++pageIndex, pageSize);
+                                var searchResult = await _productRuleProvider.SearchAsync(new[] { expression }, ++pageIndex, pageSize);
                                 ruleSetProductIds.AddRange(searchResult.HitsEntityIds);
 
                                 if (pageIndex >= (searchResult.TotalHitsCount / pageSize))
