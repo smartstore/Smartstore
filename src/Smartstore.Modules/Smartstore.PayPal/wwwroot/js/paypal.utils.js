@@ -190,7 +190,7 @@
                         var err = self.hostedFieldsContainer.data("creditcard-error-message");
                         displayNotification(err, 'error');
 
-                        $.scrollTo($(".payment-method-item.active"), 400);
+                        $.scrollTo($(".payment-method-item.active"));
 
                         return false;
                     }

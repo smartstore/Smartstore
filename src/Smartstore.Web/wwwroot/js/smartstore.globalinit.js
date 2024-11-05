@@ -425,11 +425,11 @@ jQuery(function () {
     (function () {
         $(document).on('click', 'a.scrollto', function (e) {
             e.preventDefault();
-            var href = $(this).attr('href');
-            var target = href === '#' ? $('body') : $(href);
-            var offset = $(this).data('offset') || 0;
+            const href = $(this).attr('href');
+            const target = href === '#' ? $('body') : $(href);
+            const offset = $(this).data('offset') || 0;
 
-            $(window).scrollTo(target, { duration: 800, offset: offset });
+            $(window).scrollTo(target, { offset: offset });
             return false;
         });
 
