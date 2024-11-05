@@ -53,8 +53,9 @@
 - Page Builder
 	- Added **AudioPlayer** block
 - Product detail page
-  - #997 Added setting to disable display of product tags on the product detail page.
+  - #997 Added a setting to disable display of product tags on the product detail page.
   - #1127 Display reward points in product detail.
+  - #1201 Added a setting to display the price with the suffix "from" if no variant has yet been selected in product details.
 - #858 Implemented Paypal package tracking
 - #1100 Display customer generic attributes in backend
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly

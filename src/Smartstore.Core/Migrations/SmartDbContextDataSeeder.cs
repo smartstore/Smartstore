@@ -516,6 +516,12 @@ namespace Smartstore.Core.Data.Migrations
                 "To continue using this feature, please licence the plugin \"{0}\".",
                 "Bitte lizenzieren Sie das Plugin \"{0}\", um diese Funktion weiterhin nutzen zu können.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyPriceRangeFormatInProductDetails",
+                "Show \"from-price\" in product details",
+                "\"Ab-Preis\" in Produktdetails anzeigen",
+                "Specifies whether the price is displayed with the suffix \"from\" if no variant has yet been selected in product details.",
+                "Legt fest, ob der Preis mit dem Zusatz \"ab\" angezeigt wird, wenn in den Produktdetails noch keine Variante ausgewählt wurde.");
+
             AddAIResources(builder);
         }
 

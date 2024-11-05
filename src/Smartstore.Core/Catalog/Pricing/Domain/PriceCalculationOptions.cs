@@ -151,6 +151,12 @@ namespace Smartstore.Core.Catalog.Pricing
         public string PriceRangeFormat { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to apply <see cref="PriceRangeFormat"/>.
+        /// If <c>false</c>, the calculators determine whether the format is applied.
+        /// </summary>
+        public bool ApplyPriceRangeFormat { get; set; }
+
+        /// <summary>
         /// Gets or sets flags for discount requirements to be validated.
         /// </summary>
         /// <remarks>

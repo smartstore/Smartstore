@@ -196,7 +196,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     .Distinct()
                     .ToArray();
 
-                if (linkedProductIds.Any())
+                if (linkedProductIds.Length > 0)
                 {
                     var linkedProducts = await _db.Products
                         .AsNoTracking()
@@ -466,9 +466,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 money = money.WithPostFormat(options.TaxFormat);
             }
 
-            if (isFinalPrice && context.HasPriceRange)
+            if (isFinalPrice && (context.HasPriceRange || options.ApplyPriceRangeFormat))
             {
                 var finalPricePostFormat = money.PostFormat;
+
                 finalPricePostFormat = finalPricePostFormat == null
                     ? options.PriceRangeFormat
                     : string.Format(options.PriceRangeFormat, finalPricePostFormat);

@@ -41,6 +41,7 @@ namespace Smartstore.Web.Controllers
             {
                 Product = product,
                 VariantQuery = query,
+                HasInitiallySelectedVariants = query.Variants.Count > 0,
                 Customer = customer,
                 Store = store,
                 Currency = _services.WorkContext.WorkingCurrency,
