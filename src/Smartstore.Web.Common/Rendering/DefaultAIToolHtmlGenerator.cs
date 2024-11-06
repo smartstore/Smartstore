@@ -323,7 +323,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener icon.</returns>
         protected virtual TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("magic", htmlAttributes: new Dictionary<string, object>
+            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("stars", htmlAttributes: new Dictionary<string, object>
             {
                 ["class"] = "dropdown-icon bi-fw bi"
             });
