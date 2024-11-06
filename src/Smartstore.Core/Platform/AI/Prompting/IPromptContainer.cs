@@ -31,10 +31,10 @@ namespace Smartstore.Core.AI.Prompting
     }
 
     /// <summary>
-    /// Model interface for the text generation prompt UI.
+    /// Model interface for the suggestion generation prompt UI.
     /// </summary>
     public interface ISuggestionPromptContainer : IPromptContainer
     {
-        int? NumberOfSuggestions { get; }
+        int? NumSuggestions { get; }
     }
 }
