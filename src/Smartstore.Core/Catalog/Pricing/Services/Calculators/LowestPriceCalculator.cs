@@ -15,6 +15,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (!context.Options.DetermineLowestPrice || (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
             {
+                if (context.Options.ApplyPriceRangeFormat)
+                {
+                    await CheckPriceRange(context);
+                }
+
                 // Proceed with pipeline and omit this calculator, it is made for lowest price calculation only.
                 await next(context);
                 return;
@@ -48,16 +53,21 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             context.LowestPrice = context.FinalPrice;
 
+            await CheckPriceRange(context);
+        }
+
+        private static async Task CheckPriceRange(CalculatorContext context)
+        {
             // Check whether the product has a price range.
             if (!context.HasPriceRange)
             {
-                context.HasPriceRange = product.LowestAttributeCombinationPrice.HasValue;
-            }
+                context.HasPriceRange = context.Product.LowestAttributeCombinationPrice.HasValue;
 
-            if (!context.HasPriceRange)
-            {
-                var attributes = await context.Options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
-                context.HasPriceRange = attributes.Any(x => x.ProductVariantAttributeValues.Any(y => y.PriceAdjustment != decimal.Zero));
+                if (!context.HasPriceRange)
+                {
+                    var attributes = await context.Options.BatchContext.Attributes.GetOrLoadAsync(context.Product.Id);
+                    context.HasPriceRange = attributes.Any(x => x.ProductVariantAttributeValues.Any(y => y.PriceAdjustment != decimal.Zero));
+                }
             }
         }
     }

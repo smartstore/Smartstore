@@ -376,7 +376,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var taxRate = await _taxService.GetTaxRateAsync(context.Product, null, options.Customer);
 
             var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
-                .Concat(new[] { context.OfferEndDateUtc })
+                .Concat([context.OfferEndDateUtc])
                 .Where(x => x.HasValue && x > DateTime.UtcNow)
                 .ToArray();
 
@@ -466,8 +466,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 money = money.WithPostFormat(options.TaxFormat);
             }
 
-            // TODO: (mg) Improve "ApplyPriceRangeFormat" handling. Try to rely on "HasPriceRange" (calculators) to only display the suffix when relevant.
-            if (isFinalPrice && (context.HasPriceRange || options.ApplyPriceRangeFormat))
+            if (isFinalPrice && context.HasPriceRange)
             {
                 var finalPricePostFormat = money.PostFormat;
 
