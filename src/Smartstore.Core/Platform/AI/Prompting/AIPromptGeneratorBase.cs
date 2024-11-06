@@ -20,7 +20,7 @@ namespace Smartstore.Core.AI.Prompting
             => Task.FromResult(new AIChat(AIChatTopic.Text).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Text, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateSuggestionChatAsync(IAISuggestionModel model)
-            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.Input)));
+            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {

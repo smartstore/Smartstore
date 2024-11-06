@@ -29,4 +29,12 @@ namespace Smartstore.Core.AI.Prompting
         SelectList? AvailableStyles { get; }
         SelectList? AvailableTones { get; }
     }
+
+    /// <summary>
+    /// Model interface for the text generation prompt UI.
+    /// </summary>
+    public interface ISuggestionPromptContainer : IPromptContainer
+    {
+        int? NumberOfSuggestions { get; }
+    }
 }

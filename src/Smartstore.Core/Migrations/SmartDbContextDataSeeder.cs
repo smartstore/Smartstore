@@ -530,7 +530,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.CreateImage", "Generate image", "Bild erzeugen");
             builder.AddOrUpdate("Admin.AI.CreateText", "Generate text", "Text erzeugen");
             builder.AddOrUpdate("Admin.AI.TranslateText", "Translate", "Übersetzen");
-            builder.AddOrUpdate("Admin.AI.MakeSuggestion", "Make suggestions", "Vorschläge machen");
+            builder.AddOrUpdate("Admin.AI.MakeSuggestions", "Make suggestions", "Vorschläge machen");
 
             builder.AddOrUpdate("Admin.AI.CreateShortDesc", "Generate short description", "Kurzbeschreibung erzeugen");
             builder.AddOrUpdate("Admin.AI.CreateMetaTitle", "Generate title tag", "Title-Tag erzeugen");

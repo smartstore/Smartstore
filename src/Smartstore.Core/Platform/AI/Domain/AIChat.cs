@@ -1,9 +1,7 @@
 ﻿#nullable enable
 
 using System.Runtime.CompilerServices;
-using System;
 using Newtonsoft.Json;
-using System.Linq.Expressions;
 
 namespace Smartstore.Core.AI
 {
@@ -92,5 +90,8 @@ namespace Smartstore.Core.AI
 
         public override string ToString()
             => string.Join(" ", _messages.Select(x => x.ToString()));
+
+        public string ToUserPrompt()
+            => string.Join(" ", _messages.Where(x => x.Role == KnownAIMessageRoles.User).Select(x => x.ToString()));
     }
 }

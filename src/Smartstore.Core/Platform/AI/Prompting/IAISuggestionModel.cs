@@ -7,9 +7,8 @@ namespace Smartstore.Core.AI.Prompting
     /// </summary>
     public interface IAISuggestionModel
     {
+        string EntityName { get; }
         string TargetProperty { get; }
-        string Input { get; }
-        int NumberOfSuggestions { get; }
         int CharLimit { get; }
     }
 }

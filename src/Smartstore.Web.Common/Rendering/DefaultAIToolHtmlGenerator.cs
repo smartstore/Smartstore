@@ -399,7 +399,7 @@ namespace Smartstore.Web.Rendering
                 case AIChatTopic.Image:
                     return T("Admin.AI.CreateImage");
                 case AIChatTopic.Suggestion:
-                    return T("Admin.AI.MakeSuggestion");
+                    return T("Admin.AI.MakeSuggestions");
                 default:
                     throw new AIException($"Unknown chat topic {topic}.");
             }
