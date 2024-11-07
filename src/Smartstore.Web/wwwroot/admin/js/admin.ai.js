@@ -91,7 +91,7 @@
                 EntityName: tool.data('entity-type')
             };
 
-            openDialog(tool, params, true);
+            openDialog(tool, params, false);
         });
 
         // Suggestion
