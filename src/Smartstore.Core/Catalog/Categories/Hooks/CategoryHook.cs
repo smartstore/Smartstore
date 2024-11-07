@@ -51,26 +51,24 @@ namespace Smartstore.Core.Catalog.Categories
             // Validate category hierarchy.
             var invalidCategoryIds = new HashSet<int>();
             var modifiedCategories = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Modified)
+                .Where(x => x.InitialState == EntityState.Modified)
                 .Select(x => x.Entity)
                 .OfType<Category>()
                 .ToList();
 
             foreach (var category in modifiedCategories)
             {
-                var valid = await IsValidCategoryHierarchy(category.Id, category.ParentId, cancelToken);
-                if (!valid)
+                if (!await IsValidCategoryHierarchy(category.Id, category.ParentId, cancelToken))
                 {
                     invalidCategoryIds.Add(category.Id);
                 }
             }
 
-            if (invalidCategoryIds.Any())
+            if (invalidCategoryIds.Count > 0)
             {
-                var num = await _db.Categories
+                await _db.Categories
                     .Where(x => invalidCategoryIds.Contains(x.Id))
-                    .ExecuteUpdateAsync(
-                        x => x.SetProperty(p => p.ParentId, p => null));
+                    .ExecuteUpdateAsync(x => x.SetProperty(p => p.ParentId, p => null), cancelToken);
             }
 
             _requestCache.RemoveByPattern(CategoryService.CategoriesPatternKey);
