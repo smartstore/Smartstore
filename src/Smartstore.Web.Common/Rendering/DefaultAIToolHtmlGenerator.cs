@@ -330,8 +330,8 @@ namespace Smartstore.Web.Rendering
 
             var btnTag = new TagBuilder("a");
             btnTag.Attributes["href"] = "javascript:;";
-            btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron";
-            btnTag.Attributes["title"] = title;
+            btnTag.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle input-group-icon ai-dialog-opener no-chevron tooltip-toggle";
+            btnTag.Attributes["data-original-title"] = title;
             btnTag.AppendCssClass(isDropdown ? "dropdown-toggle" : additionalClasses);
 
             if (isDropdown)
@@ -393,13 +393,13 @@ namespace Smartstore.Web.Rendering
             {
                 case AIChatTopic.Text:
                 case AIChatTopic.RichText:
-                    return T("Admin.AI.CreateText");
+                    return T("Admin.AI.ToolTitle.CreateText");
                 case AIChatTopic.Translation:
-                    return T("Admin.AI.TranslateText");
+                    return T("Admin.AI.ToolTitle.TranslateText");
                 case AIChatTopic.Image:
-                    return T("Admin.AI.CreateImage");
+                    return T("Admin.AI.ToolTitle.CreateImage");
                 case AIChatTopic.Suggestion:
-                    return T("Admin.AI.MakeSuggestions");
+                    return T("Admin.AI.ToolTitle.MakeSuggestions");
                 default:
                     throw new AIException($"Unknown chat topic {topic}.");
             }
