@@ -350,8 +350,9 @@ namespace Smartstore
         /// Selects customer authorized orders from query.
         /// </summary>
         /// <param name="query">Order query from which to select.</param>
+        /// <param name="authorizedStoreIds">Ids of stores customer has access to</param>
         /// <returns><see cref="IQueryable"/> of <see cref="OrderDataPoint"/>.</returns>
-        public static IQueryable<Order> ApplyCustomerFilter(this IQueryable<Order> query, int[] authorizedStoreIds)
+        public static IQueryable<Order> ApplyCustomerStoreFilter(this IQueryable<Order> query, int[] authorizedStoreIds)
         {
             Guard.NotNull(query);
             if (!authorizedStoreIds.IsNullOrEmpty())

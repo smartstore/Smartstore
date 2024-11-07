@@ -23,11 +23,11 @@ namespace Smartstore.Admin.Components
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var authorizedStoreIds = await Services.StoreMappingService.GetAuthorizedStoreIdsAsync("Customer", customer.Id);
+            var authorizedStoreIds = await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync();
 
             var model = new DashboardLatestOrdersModel();
             var latestOrders = await _db.Orders
-                .ApplyCustomerFilter(authorizedStoreIds)
+                .ApplyCustomerStoreFilter(authorizedStoreIds)
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(x => x.Customer)
