@@ -589,9 +589,9 @@ namespace Smartstore.Core.Data.Migrations
                 " Der Titel erhält ein {1}-Tag." +
                 " Verlinke die einzelnen Punkte des Inhaltsverzeichnisses mit den jeweiligen Überschriften der Absätze.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeImages",
-                "After each paragraph, add another p-tag, which contains an i-tag with the CSS classes 'far fa-xl fa-file-image ai-preview-file'." +
+                "After each paragraph, add another div-tag, which contains an i-tag with the CSS classes 'far fa-xl fa-file-image ai-preview-file'." +
                 " The title attribute of the i-tag should be the heading of the respective paragraph.",
-                "Füge nach jedem Absatz ein weiteres p-Tag ein, das ein i-Tag mit den CSS-Klassen 'far fa-xl fa-file-image ai-preview-file' enthält." +
+                "Füge nach jedem Absatz ein weiteres div-Tag ein, das ein i-Tag mit den CSS-Klassen 'far fa-xl fa-file-image ai-preview-file' enthält." +
                 " Das title-Attribut des i-Tags soll die Überschrift des jeweiligen Absatzes sein.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.NoIntroImage",
                 "The intro does not receive a picture.",

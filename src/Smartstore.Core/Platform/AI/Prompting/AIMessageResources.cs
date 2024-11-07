@@ -238,7 +238,7 @@ namespace Smartstore.Core.AI.Prompting
         /// <summary>
         /// Instruction to include image placeholders in the text.
         /// </summary>
-        /// <returns>AI instruction: After each paragraph, add another p-tag, 
+        /// <returns>AI instruction: After each paragraph, add another div-tag, 
         /// which contains an i-tag with the classes 'far fa-xl fa-file-image ai-preview-file'.
         /// The title attribute of the i-tag should be the heading of the respective paragraph.</returns>
         public virtual string IncludeImages()
