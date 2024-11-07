@@ -4,8 +4,6 @@ using Smartstore.Core.AI;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (mh) (ai) Should the image tool still be rendered even if the entity id is 0 or null?
-    
     /// <summary>
     /// Renders a button or dropdown (depending on the number of active AI providers) to open a dialog for image creation.
     /// </summary>
@@ -31,6 +29,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
+
+            if (EntityName.IsEmpty())
+            {
+                return;
+            }
 
             var attributes = GetTagHelperAttributes();
             var tool = AIToolHtmlGenerator.GenerateImageCreationTool(attributes);
