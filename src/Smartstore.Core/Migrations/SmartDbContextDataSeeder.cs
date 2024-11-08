@@ -532,10 +532,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.TranslateText", "Translate", "Übersetzen");
             builder.AddOrUpdate("Admin.AI.MakeSuggestions", "Make suggestions", "Vorschläge machen");
 
-            builder.AddOrUpdate("Admin.AI.ToolTitle.CreateImage", "Generate image with AI", "Bild mit KI erzeugen");
-            builder.AddOrUpdate("Admin.AI.ToolTitle.CreateText", "Generate text with AI", "Text mit KI erzeugen");
+            builder.AddOrUpdate("Admin.AI.ToolTitle.CreateImage", "Generate image with AI ...", "Bild mit KI generieren ...");
+            builder.AddOrUpdate("Admin.AI.ToolTitle.CreateText", "Generate text with AI", "Text mit KI generieren und optimieren");
             builder.AddOrUpdate("Admin.AI.ToolTitle.TranslateText", "Translate with AI", "Mit KI übersetzen");
-            builder.AddOrUpdate("Admin.AI.ToolTitle.MakeSuggestions", "Let the AI make suggestions to you", "Lassen Sie sich von der KI Vorschläge machen");
+            builder.AddOrUpdate("Admin.AI.ToolTitle.MakeSuggestions", "Let the AI make suggestions to you ...", "Lassen Sie sich von der KI Vorschläge machen ...");
 
             builder.AddOrUpdate("Admin.AI.CreateShortDesc", "Generate short description", "Kurzbeschreibung erzeugen");
             builder.AddOrUpdate("Admin.AI.CreateMetaTitle", "Generate title tag", "Title-Tag erzeugen");
@@ -543,7 +543,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.AI.CreateMetaKeywords", "Generate meta keywords", "Meta Keywords erzeugen");
             builder.AddOrUpdate("Admin.AI.CreateFullDesc", "Generate full description", "Langtext erzeugen");
 
-            builder.AddOrUpdate("Admin.AI.TextCreation.CreateNew", "Create new", "Neu erstellen");
+            builder.AddOrUpdate("Admin.AI.TextCreation.CreateNew", "Generate new", "Neu generieren");
             builder.AddOrUpdate("Admin.AI.TextCreation.Summarize", "Summarize", "Zusammenfassen");
             builder.AddOrUpdate("Admin.AI.TextCreation.Improve", "Improve", "Schreibstil verbessern");
             builder.AddOrUpdate("Admin.AI.TextCreation.Simplify", "Simplify", "Vereinfachen");
