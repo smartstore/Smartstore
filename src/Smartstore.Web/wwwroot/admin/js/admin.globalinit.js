@@ -111,7 +111,7 @@
         })
     }
 
-    $(document).ready(function () {
+    $(document).ready(() => {
         var html = $("html");
 
         html.removeClass("not-ready").addClass("ready");

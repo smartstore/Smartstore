@@ -5,6 +5,15 @@
 /* PNOTIFY
 ------------------------------------*/
 
+.ui-pnotify {
+    --animate-timing: #{$ease-out-back};
+
+    &.fadeOutLeft,
+    &.fadeOutRight {
+        --animate-timing: #{$ease-in-back};
+    }
+}
+
 .alert.ui-pnotify-container {
     padding-inline-start: 70px !important;
     padding-inline-end: 2rem;

@@ -22,9 +22,10 @@ jQuery(function () {
             addclass: 'stack-bottom' + (rtl ? 'left' : 'right'),
             width: "500px",
             mobile: { swipe_dismiss: true, styling: true },
+            animate_speed: 350,
             animate: {
                 animate: true,
-                in_class: "fadeInDown",
+                in_class: "fadeInUp",
                 out_class: "fadeOut" + (rtl ? 'Left' : 'Right')
             }
         });
