@@ -157,6 +157,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool ApplyPriceRangeFormatInProductDetails { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore discounts assigned to products when a special price is applied.
+        /// </summary>
+        public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
+
         #endregion
     }
 }

@@ -111,7 +111,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             // Check discounts assigned to the product.
             // We use the property "HasDiscountsApplied" for performance optimization to avoid unnecessary database calls.
-            if (product.HasDiscountsApplied)
+            if (product.HasDiscountsApplied && !(_priceSettings.IgnoreProductDiscountsForSpecialPrices && context.OfferPrice != null))
             {
                 var collectionLoaded = _db.IsCollectionLoaded(product, x => x.AppliedDiscounts);
                 var appliedDiscounts = collectionLoaded ? product.AppliedDiscounts : await batchContext.AppliedDiscounts.GetOrLoadAsync(product.Id);

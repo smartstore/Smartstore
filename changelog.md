@@ -64,6 +64,7 @@
 - #1176 Avoid duplicate assignment of description on the product page.
 - #528 Add an option to no longer allow posts on a forum topic.
 - #1204 Added settings to enable/disable the RSS feed in blogs and news.
+- #1210 Add a setting to not apply a discount associated with a product when the special price of the product is applied.
 
 ### Improvements
 

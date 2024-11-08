@@ -522,6 +522,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether the price is displayed with the suffix \"from\" if no variant has yet been selected in product details.",
                 "Legt fest, ob der Preis mit dem Zusatz \"ab\" angezeigt wird, wenn in den Produktdetails noch keine Variante ausgewählt wurde.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.IgnoreProductDiscountsForSpecialPrices",
+                "Ignore product discounts for special prices",
+                "Produktrabatte bei Aktionspreisen ignorieren",
+                "Specifies whether to ignore discounts assigned to products when a special price is applied.",
+                "Legt fest, ob produktbezogene Rabatte ignoriert werden, wenn ein Aktionspreis gilt.");
+
             AddAIResources(builder);
         }
 
