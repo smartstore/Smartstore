@@ -7,11 +7,7 @@ namespace Smartstore.Threading
     {
         #region static
 
-        static readonly AsyncKeyedLocker<string> _asyncKeyedLock = new(o =>
-        {
-            o.PoolSize = 20;
-            o.PoolInitialFill = 1;
-        });
+        static readonly AsyncKeyedLocker<string> _asyncKeyedLock = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsLockHeld(string key)
@@ -22,13 +18,13 @@ namespace Smartstore.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ILockHandle Keyed(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            return new AsyncLockHandle(_asyncKeyedLock.Lock(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken, out _));
+            return new AsyncLockHandle(_asyncKeyedLock.LockOrNull(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task<ILockHandle> KeyedAsync(string key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            return new AsyncLockHandle(await _asyncKeyedLock.LockAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken).ConfigureAwait(false));
+            return new AsyncLockHandle(await _asyncKeyedLock.LockOrNullAsync(key, timeout ?? Timeout.InfiniteTimeSpan, cancelToken).ConfigureAwait(false));
         }
 
         #endregion
@@ -96,7 +92,7 @@ namespace Smartstore.Threading
             {
                 if (_lock == default)
                 {
-                    _asyncKeyedLockReleaser.Dispose();
+                    _asyncKeyedLockReleaser?.Dispose();
                 }
                 else
                 {
