@@ -54,6 +54,9 @@ namespace Smartstore.Core.Stores
         public virtual async Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds)
             where T : BaseEntity, IStoreRestricted
         {
+            Guard.NotNull(entity);
+            Guard.NotZero(entity.Id);
+
             selectedStoreIds ??= Array.Empty<int>();
 
             List<StoreMapping> lookup = null;
