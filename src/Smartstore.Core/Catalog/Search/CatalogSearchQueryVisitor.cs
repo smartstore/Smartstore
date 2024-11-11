@@ -592,6 +592,10 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
                 }
+                else
+                {
+                    return ApplyDefaultSorting(context, query);
+                }
             }
             else if (sorting.FieldName == names.CreatedOn)
             {
@@ -607,7 +611,11 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (sorting.FieldName == names.Price)
             {
-                query = OrderBy(query, x => x.Price, sorting.Descending);
+                return ApplyPriceSorting(query, sorting.Descending);
+            }
+            else
+            {
+                return ApplyDefaultSorting(context, query);
             }
 
             return query;
@@ -633,7 +641,37 @@ namespace Smartstore.Core.Catalog.Search
             return query.OrderBy(x => x.Id);
         }
 
-        private static IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
+        protected virtual IQueryable<Product> ApplyPriceSorting(IQueryable<Product> query, bool descending)
+        {
+            var now = DateTime.UtcNow;
+
+            // TODO: (mg) Do we need more database indexes for this?
+            // Results in "Oder by case when... else x.Price".
+            var priceQuery = query
+                .Select(x => new
+                {
+                    Price = x.SpecialPrice != null
+                        && (x.SpecialPriceStartDateTimeUtc == null || now >= x.SpecialPriceStartDateTimeUtc)
+                        && (x.SpecialPriceEndDateTimeUtc == null || now <= x.SpecialPriceEndDateTimeUtc)
+                        ? x.SpecialPrice.Value : x.Price,
+                    Product = x
+                });
+
+            if (descending)
+            {
+                return priceQuery
+                    .OrderByDescending(x => x.Price)
+                    .Select(x => x.Product);
+            }
+            else
+            {
+                return priceQuery
+                    .OrderBy(x => x.Price)
+                    .Select(x => x.Product);
+            }
+        }
+
+        protected virtual IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
         {
             if (byCategory)
             {

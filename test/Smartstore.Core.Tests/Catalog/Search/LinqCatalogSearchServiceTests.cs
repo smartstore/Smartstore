@@ -98,6 +98,33 @@ namespace Smartstore.Core.Tests.Catalog.Search
         }
 
         [Test]
+        public async Task LinqSearch_can_order_by_price()
+        {
+            var dtPast = new DateTime(2020, 1, 1);
+            var dtFuture = new DateTime(2999, 1, 1);
+
+            var products = new List<Product>
+            {
+                new SearchProduct(1) { Name = "a", Price = 36.89M },
+                new SearchProduct(2) { Name = "b", Price = 24.99M },
+                new SearchProduct(3) { Name = "c", Price = 19.10M },
+                new SearchProduct(4) { Name = "d", Price = 88.50M },
+                new SearchProduct(5) { Name = "e", Price = 100M, SpecialPrice = 29.99M },   // ok
+                new SearchProduct(6) { Name = "f", Price = 400M, SpecialPrice = 36.40M, SpecialPriceStartDateTimeUtc = dtPast },    // ok
+                new SearchProduct(7) { Name = "g", Price = 200M, SpecialPrice = 49.99M, SpecialPriceStartDateTimeUtc = dtFuture },  // nok
+                new SearchProduct(8) { Name = "h", Price = 300M, SpecialPrice = 55.00M, SpecialPriceEndDateTimeUtc = dtPast },      // nok
+                new SearchProduct(9) { Name = "i", Price = 500M, SpecialPrice = 59.89M, SpecialPriceStartDateTimeUtc = dtPast, SpecialPriceEndDateTimeUtc = dtFuture }, // ok
+            };
+
+            var ascIds = new int[] { 3, 2, 5, 6, 1, 9, 4, 7, 8 };
+            var ascResult = await SearchAsync(new CatalogSearchQuery().SortBy(ProductSortingEnum.PriceAsc), products);
+            Assert.That(ascResult.HitsEntityIds, Is.EquivalentTo(ascIds));
+
+            var descResult = await SearchAsync(new CatalogSearchQuery().SortBy(ProductSortingEnum.PriceDesc), products);
+            Assert.That(ascResult.HitsEntityIds, Is.EquivalentTo(ascIds.Reverse()));
+        }
+
+        [Test]
         public async Task LinqSearch_can_page_result()
         {
             var expectedSkus = new string[] { "11", "12", "13", "14", "15" };
