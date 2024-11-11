@@ -123,6 +123,7 @@
 - Fixed cart page shows 0 bundle item price if per-item pricing is deactivated.
 - #996 Limited to customer roles is not working for topics that are displayed as widgets.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
+- #1211 Sorting by price should consider the special price in LINQ search (including special price date).
 - Product attributes are lost when navigating to *Ask Question* page multiple times.
 - Checkout:
   - Fixed a new shipping address is used as the billing address in checkout.
