@@ -156,6 +156,7 @@
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
 - #1197 Product grid search form does not parse the search term expression.
 - Page Builder:
+  - Fixed: Creating a story can result in the deletion of another story's store mappings.
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
   - #991 topic target *homepage* was not imported correctly.
