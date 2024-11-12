@@ -925,7 +925,8 @@
 
         if (dropzone.options.maxFiles === 1) {
             // Reset dropzone for single file uploads, so other files can be uploaded again.
-            dropzone.removeAllFiles(true);
+            // INFO: commented out to fix #1185. May have other impacts. However, it seems to work.
+            //dropzone.removeAllFiles(true);
         }
     }
 
