@@ -465,9 +465,26 @@ jQuery(function () {
         }
     });
 
+    // Fix Dropdown & Tooltip UI "collision" issues
+    $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown', (e) => {
+        const tooltip = $(e.currentTarget).find('> .tooltip-toggle, > [data-toggle=tooltip]');
+        if (tooltip.data('bs.tooltip')) {
+            if (e.type === 'shown') {
+                // Hide tooltip if dropdown is shown...
+                tooltip.tooltip('hide');
+                // and disable it.
+                tooltip.tooltip('disable');
+            }
+            else {
+                // Re-enable tooltip if dropdown is hidden.
+                tooltip.tooltip('enable');
+            }
+        }
+    });
+
     // Modal stuff
-    $(document).on('hide.bs.modal', '.modal', function (e) { body.addClass('modal-hiding'); });
-    $(document).on('hidden.bs.modal', '.modal', function (e) { body.removeClass('modal-hiding'); });
+    $(document).on('hide.bs.modal', '.modal', () => { body.addClass('modal-hiding'); });
+    $(document).on('hidden.bs.modal', '.modal', () => { body.removeClass('modal-hiding'); });
 
     // Bootstrap Tooltip & Popover custom classes
     // TODO: Remove customization after BS4 has been updated to latest version or to BS5
