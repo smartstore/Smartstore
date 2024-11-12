@@ -178,6 +178,7 @@
 - Hitting the return key in the text field of a product variant resulted in a 404 status error.
 - Fixed *QuantityBelowStoreOwnerNotification* was sent twice.
 - #1001 MediaManager: fix *moov atom not found* ffmpeg issue in `VideoHandler`.
+- #1185 Image upload fails after selecting *Replace* or *Rename* in duplicate files dialog.
 - Fixed the e-mail subject was not transferred when sending an e-mail from customer edit page.
 - Fixed offcanvas problem whith mega sized page builder stories.
 - PayPal:
