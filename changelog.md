@@ -91,6 +91,7 @@
 - GMC
   - Only export images (not videos or other media types).
   - Export *out of stock* if inventory management and the buy button are deactivated.
+- Search Log: Added settings for the maximum search term length and the minimum number of search hits (to control which terms are logged).
 - #912 Add a setting to use the `CultureInfo.NativeName` in language selector instead of the language name maintained in backend.
 - #968 Allow to specify a language in which the notification is to be sent for manually created gift cards.
 - #1115 Use atomic transaction in PlaceOrder (save all or nothing).
@@ -99,7 +100,9 @@
 - (DEV) Database migrations: Long running data seeders can now be run during the request stage to overcome app startup timeout issues.
 - #965 Prevent adding of products to the shopping cart by system customers such as *builtin@search-engine-record.com*.
 - Increased the default maximum file size of an avatar and added a customer setting for this in backend.
-- Stripe: Update shipping address on confirm order.
+- Stripe: 
+  - Update shipping address on confirm order.
+  - Update to API version *2024-09-30.acacia * (Stripe.net 47.0.0).
 - Addresses: make first and last name optional if a company name has been specified.
 - #1012 Estimate shipping costs without rules if no shipping method was found with rules.
 - PayPal: Orders were canceled when capturing was declined, now they are being voided instead.
@@ -114,7 +117,6 @@
 - URL sanitizer for last visited page tracking.
 - For security reasons, do not delete administrators via the customer grid. Double ask if administrators are deleted via the edit page.
 - Added filters to shipping by total and shipping by weight grids.
-- Stripe: Update to API version *2024-09-30.acacia * (Stripe.net 47.0.0)
 
 ### Bugfixes
 
