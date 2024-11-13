@@ -7,16 +7,16 @@
             this.initPayPalScript(funding);
         }
 
-        PayPalButton.prototype.initPayPalScript = function (funding) {
+        PayPalButton.prototype.initPayPalScript = function (funding, refreshBtnContainer = false) {
             var self = this;
             if (typeof paypal !== 'undefined') {
-                self.initPayPalButton(funding, false);
+                self.initPayPalButton(funding, refreshBtnContainer);
             } else {
                 var script = document.getElementById("paypal-js");
 
                 if (script != null) {
                     script.onload = function () {
-                        self.initPayPalButton(funding, false);
+                        self.initPayPalButton(funding, refreshBtnContainer);
                     };
                 }
                 else {
