@@ -149,7 +149,7 @@ namespace Smartstore.StripeElements.Controllers
                     {
                         customer.Addresses.Add(address);
                         await _db.SaveChangesAsync();
-
+                        // TODO: (mh) You could set customer.Billing/ShippingAddress = address and call SaveChangesAsync() only once (?). Test and fix.
                         customer.BillingAddressId = address.Id;
                         customer.ShippingAddressId = address.Id;
                         await _db.SaveChangesAsync();
