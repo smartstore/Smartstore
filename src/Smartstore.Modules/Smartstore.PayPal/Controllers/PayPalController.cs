@@ -1,13 +1,10 @@
 ﻿using System.Globalization;
 using System.Net;
-using AngleSharp.Io;
-using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -28,6 +25,7 @@ namespace Smartstore.PayPal.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ICheckoutWorkflow _checkoutWorkflow;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IRoundingHelper _roundingHelper;
@@ -38,6 +36,7 @@ namespace Smartstore.PayPal.Controllers
         public PayPalController(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
+            ICheckoutWorkflow checkoutWorkflow,
             IShoppingCartService shoppingCartService,
             IOrderProcessingService orderProcessingService,
             IRoundingHelper roundingHelper,
@@ -47,6 +46,7 @@ namespace Smartstore.PayPal.Controllers
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _checkoutWorkflow = checkoutWorkflow;
             _shoppingCartService = shoppingCartService;
             _orderProcessingService = orderProcessingService;
             _roundingHelper = roundingHelper;
@@ -100,12 +100,21 @@ namespace Smartstore.PayPal.Controllers
             processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-
             await AddShippingAddressAsync(orderId);
+
+            // Get redirect URL if quick checkout is active.
+            var redirectUrl = string.Empty;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
+            if (result.ActionResult != null)
+            {
+                var redirectToAction = (RedirectToActionResult)result.ActionResult;
+                redirectUrl = Url.Action(redirectToAction.ActionName, redirectToAction.ControllerName, redirectToAction.RouteValues, Request.Scheme);
+            }
 
             success = true;
 
-            return Json(new { success, message });
+            return Json(new { success, message, redirectUrl });
         }
 
         [HttpPost]

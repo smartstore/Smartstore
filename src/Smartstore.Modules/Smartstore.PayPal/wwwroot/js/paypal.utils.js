@@ -256,7 +256,10 @@
             cache: false,
             success: function (resp) {
                 if (resp.success) {
-                    if (!container.data("skip-redirect-oninit")) {
+                    if (resp.redirectUrl) {
+                        location.href = resp.redirectUrl;
+                    }
+                    else if (!container.data("skip-redirect-oninit")) {
                         // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
                         location.href = container.data("forward-url");
                     }
