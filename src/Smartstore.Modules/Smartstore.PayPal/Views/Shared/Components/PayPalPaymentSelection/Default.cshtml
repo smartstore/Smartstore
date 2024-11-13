@@ -23,6 +23,7 @@
         var btnContainer = $("#paypal-button-container");
         
         // Listen for changes to the radio inputs.
+        // TODO: (mh) A very strange selector!? Listen on document.onchange?
         $(document, $("input[name='paymentmethod']")).on("change", function (e) {
             var isPayPal = false;
             var fundingSource = "paypal";

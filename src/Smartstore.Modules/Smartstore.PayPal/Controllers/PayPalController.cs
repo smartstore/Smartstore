@@ -187,17 +187,18 @@ namespace Smartstore.PayPal.Controllers
 
             if (shippingAddress == null || shippingName == null) return;
 
-
             var customer = Services.WorkContext.CurrentCustomer;
 
             var preferredBillingAddressFirstname = order.Payer.Name.GivenName;
             var preferredBillingAddressLastname = order.Payer.Name.SurName;
 
-            var fullname = SplitFullName(shippingName);
+            var nameParts = SplitFullName(shippingName);
 
             var country = await _db.Countries
                 .Where(x => x.TwoLetterIsoCode == shippingAddress.CountryCode)
                 .FirstOrDefaultAsync();
+
+            // TODO: (mh) "country" can be null here. Where are the checks?
 
             var stateProvince = await _db.StateProvinces
                 .Where(x => x.CountryId == country.Id && x.Abbreviation == shippingAddress.AdminArea1)
@@ -211,34 +212,33 @@ namespace Smartstore.PayPal.Controllers
                 City = shippingAddress.AdminArea2,
                 ZipPostalCode = shippingAddress.PostalCode,
                 CountryId = country?.Id,
-                StateProvinceId = stateProvince?.Id
+                StateProvinceId = stateProvince?.Id,
+                // INFO: Use the payer name for billing as it reflects the buyer's primary identity,
+                // and use the shipping address name for delivery, if specified, to account for possible different recipients.
+
+                // Add billing address if it doesn't exist yet.
+                FirstName = preferredBillingAddressFirstname.HasValue() ? preferredBillingAddressFirstname : nameParts.FirstName,
+                LastName = preferredBillingAddressLastname.HasValue() ? preferredBillingAddressLastname : nameParts.LastName
             };
-
-            // INFO: Use the payer name for billing as it reflects the buyer's primary identity,
-            // and use the shipping address name for delivery, if specified, to account for possible different recipients.
-
-            // Add billing address if it doesn't exist yet.
-            address.FirstName = preferredBillingAddressFirstname.HasValue() ? preferredBillingAddressFirstname : fullname.FirstName;
-            address.LastName = preferredBillingAddressLastname.HasValue() ? preferredBillingAddressLastname : fullname.LastName;
 
             if (customer.Addresses.FindAddress(address) == null)
             {
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
-
+                // TODO: (mh) You could set customer.BillingAddress = address and call SaveChangesAsync() only once (?). Test and fix.
                 customer.BillingAddressId = address.Id;
                 await _db.SaveChangesAsync();
             }
 
             // Add shipping address if it doesn't exist yet.
-            address.FirstName = fullname.FirstName;
-            address.LastName = fullname.LastName;
+            address.FirstName = nameParts.FirstName;
+            address.LastName = nameParts.LastName;
 
             if (customer.Addresses.FindAddress(address) == null)
             {
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
-
+                // TODO: (mh) You could set customer.BillingAddress = address and call SaveChangesAsync() only once (?). Test and fix. See above.
                 customer.ShippingAddressId = address.Id;
                 await _db.SaveChangesAsync();
             }
@@ -248,14 +248,15 @@ namespace Smartstore.PayPal.Controllers
         {
             if (string.IsNullOrWhiteSpace(fullName))
             {
-                return ("", "");
+                return (string.Empty, string.Empty);
             }
 
+            // TODO: (mh) Wrong approach: "Max Moritz Mustermann" produces [Max, Moritz Mustermann], but should produce [Max Moritz, Mustermann]
             var nameParts = fullName.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
 
             // If there is only one part, we will use this as the first name and leave the last name blank.
             var firstName = nameParts[0];
-            var lastName = nameParts.Length > 1 ? nameParts[1] : "";
+            var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
 
             return (firstName, lastName);
         }
