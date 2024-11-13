@@ -24,6 +24,9 @@
 - **Grouped product enhancements**
   - Optional presentation of associated products as collapsible/expandable panels.
   - Added paging for associated products.
+- **EU General Product Safety Regulation (GPSR)** plugin (commercial)
+  - Manufacturer information (postal address, responsible person) is displayed in product details.
+  - Warnings and safety instructions are added as text blocks and assigned to the product manually or automatically via product rules.
 - **MailChimp** plugin (commercial)
 - **Pixlr image editing** plugin (commercial)
   - Create and edit images directly in the Media Manager.
@@ -52,10 +55,10 @@
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 - Page Builder
 	- Added **AudioPlayer** block
-- Product detail page
-  - #997 Added a setting to disable display of product tags on the product detail page.
-  - #1127 Display reward points in product detail.
-  - #1201 Added a setting to display the price with the suffix "from" if no variant has yet been selected in product details.
+- Product details
+  - #997 Added a setting to disable display of product tags.
+  - #1127 Display reward points.
+  - #1201 Added a setting to display the price with the suffix "from" if no variant has yet been selected.
 - #858 Implemented Paypal package tracking
 - #1100 Display customer generic attributes in backend
 - #1129: Extend the PrivacySettings CookieConsentRequirement option to include Switzerland when choosing the option RequiredInEUCountriesOnly
