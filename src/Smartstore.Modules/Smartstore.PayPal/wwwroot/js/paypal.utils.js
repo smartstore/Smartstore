@@ -13,11 +13,11 @@
                 self.initPayPalButton(funding, refreshBtnContainer);
             } else {
                 var script = document.getElementById("paypal-js");
-
+                
                 if (script != null) {
-                    script.onload = function () {
+                    script.addEventListener("load", function () {
                         self.initPayPalButton(funding, refreshBtnContainer);
-                    };
+                    });
                 }
                 else {
                     // PayPal Scripts weren't loaded. This can occur e.g. when a third party consent tool or other JS blocking browser extensions are used.
@@ -59,7 +59,7 @@
 
         PayPalButton.prototype.initPayPalButton = function (fundingSource, refresh) {
             var self = this;
-
+            
             if (!paypal.isFundingEligible(fundingSource)) {
                 console.log("Not eligible: " + fundingSource);
                 return;
