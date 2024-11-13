@@ -169,7 +169,7 @@ namespace Smartstore.Web.Models.Cart
                         DefaultAttributeFormatOptions);
                 }
 
-                await cartItem.MapQuantityInputAsync(cartItemModel, mapUnitName: false);
+                await cartItem.MapQuantityInputAsync(cartItemModel);
 
                 if (cartItem.ChildItems != null && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
                 {
