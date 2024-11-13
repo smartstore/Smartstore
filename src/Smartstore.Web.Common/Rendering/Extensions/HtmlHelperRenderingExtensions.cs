@@ -748,10 +748,13 @@ namespace Smartstore.Web.Rendering
                 svg.Attributes["focusable"] = "false";
             }
 
-            // Use tag
-            var urlHelper = helper.ViewContext.HttpContext.RequestServices.GetService<IUrlHelper>();
+            var httpContext = helper.ViewContext.HttpContext;
+
+            // Use tag (with file version appended)
+            var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
+            var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, $"/lib/bi/bootstrap-icons.svg") + "#" + name;
             var symbol = new TagBuilder("use");
-            symbol.Attributes["xlink:href"] = urlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{name}");
+            symbol.Attributes["xlink:href"] = href;
 
             var el = symbol;
 
