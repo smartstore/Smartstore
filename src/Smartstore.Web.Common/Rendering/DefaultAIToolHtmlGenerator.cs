@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Localization;
 using Smartstore.Core.AI;
-using Smartstore.Web.Modelling;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering
 {
@@ -44,7 +44,7 @@ namespace Smartstore.Web.Rendering
             get
             {
                 CheckContextualized();
-                
+
                 if (_htmlHelper == null)
                 {
                     _htmlHelper = _viewContext.HttpContext.GetServiceScope().Resolve<IHtmlHelper>();
@@ -69,7 +69,7 @@ namespace Smartstore.Web.Rendering
             {
                 return null;
             }
-            
+
             // Model must implement ILocalizedModel<T> where T : ILocalizedLocaleModel
             var modelType = model.GetType();
             if (!modelType.IsClosedGenericTypeOf(typeof(ILocalizedModel<>)))
@@ -158,9 +158,9 @@ namespace Smartstore.Web.Rendering
         public virtual TagBuilder GenerateTextCreationTool(AttributeDictionary attributes, bool enabled = true)
             => GenerateTextToolOutput(attributes, AIChatTopic.Text, enabled);
 
-        public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes, bool enabled = true)    
+        public virtual TagBuilder GenerateRichTextTool(AttributeDictionary attributes, bool enabled = true)
             => GenerateTextToolOutput(attributes, AIChatTopic.RichText, enabled);
-    
+
         protected virtual TagBuilder GenerateTextToolOutput(AttributeDictionary attributes, AIChatTopic topic, bool enabled = true)
         {
             CheckContextualized();
@@ -247,9 +247,9 @@ namespace Smartstore.Web.Rendering
             }
 
             var subDropdown = CreateDropdownItem(
-                T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"), 
+                T(command == "change-style" ? "Admin.AI.MenuItemTitle.ChangeStyle" : "Admin.AI.MenuItemTitle.ChangeTone"),
                 true,
-                string.Empty, 
+                string.Empty,
                 iconName,
                 false);
             subDropdown.Attributes["class"] = "dropdown-group";
@@ -323,10 +323,7 @@ namespace Smartstore.Web.Rendering
         /// <returns>The dialog opener icon.</returns>
         protected virtual TagBuilder GenerateOpenerIcon(bool isDropdown, string additionalClasses = "", string title = "")
         {
-            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("stars", htmlAttributes: new Dictionary<string, object>
-            {
-                ["class"] = "dropdown-icon bi-fw bi"
-            });
+            var icon = $"<img src=\"{_urlHelper.Content("~/admin/images/ai-opener.svg")}\" alt=\"AI\" class=\"dropdown-icon bi-fw bi\"/>";
 
             var btnTag = new TagBuilder("a");
             btnTag.Attributes["href"] = "javascript:;";
@@ -338,7 +335,7 @@ namespace Smartstore.Web.Rendering
             {
                 btnTag.Attributes["data-toggle"] = "dropdown";
             }
-            
+
             btnTag.InnerHtml.AppendHtml(icon);
 
             return btnTag;
