@@ -99,7 +99,7 @@
                     displayNotification(err, 'error');
                 }
             })
-                .render(self.buttonContainer[0]);
+            .render(self.buttonContainer[0]);
         };
 
         return PayPalButton;

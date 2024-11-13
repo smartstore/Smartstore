@@ -87,15 +87,16 @@ namespace Smartstore.PayPal.Client
         #region Payment processing
 
         /// <summary>
-        /// Gets an order. (For testing purposes only)
+        /// Gets an order.
         /// </summary>
         public async Task<PayPalResponse> GetOrderAsync(string payPalOrderId, CancellationToken cancelToken = default)
         {
             var ordersGetRequest = new OrdersGetRequest(payPalOrderId);
             var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
-            var rawResponse = response.Body<object>().ToString();
 
-            dynamic jResponse = JObject.Parse(rawResponse);
+            // DEV: uncomment for response viewing 
+            //var rawResponse = response.Body<object>().ToString();
+            //dynamic jResponse = JObject.Parse(rawResponse);
 
             return response;
         }

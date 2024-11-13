@@ -36,6 +36,12 @@ namespace Smartstore.PayPal.Client.Messages
         public PaymentSource PaymentSource;
 
         /// <summary>
+        /// Holds information about the payer.
+        /// </summary>
+        [JsonProperty("payer", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Payer Payer;
+
+        /// <summary>
         /// Holds information about the payment method to be used.
         /// </summary>
         [JsonProperty("application_context", DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -289,6 +295,18 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("bic", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string BIC;
+    }
+
+    public class Payer
+    {
+        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public NameMessage Name;
+
+        [JsonProperty("email_address", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string EmailAddress;
+
+        [JsonProperty("payer_id", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string PayerId;
     }
 
     public class NameMessage

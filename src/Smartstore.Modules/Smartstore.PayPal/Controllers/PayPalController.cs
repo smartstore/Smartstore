@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
+using AngleSharp.Io;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +59,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public IActionResult InitTransaction(string orderId, string routeIdent)
+        public async Task<IActionResult> InitTransaction(string orderId, string routeIdent)
         {
             var success = false;
             var message = string.Empty;
@@ -98,6 +100,8 @@ namespace Smartstore.PayPal.Controllers
             processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+
+            await AddShippingAddressAsync(orderId);
 
             success = true;
 
@@ -162,6 +166,89 @@ namespace Smartstore.PayPal.Controllers
             dynamic jResponse = JObject.Parse(rawResponse);
 
             return Json(new { success = true, data = jResponse });
+        }
+
+        private async Task AddShippingAddressAsync(string payPalOrderId) 
+        {
+            var getOrderResponse = await _client.GetOrderAsync(payPalOrderId);
+            var order = getOrderResponse.Body<OrderMessage>();
+
+            var shippingAddress = order.PurchaseUnits[0].Shipping?.ShippingAddress;
+            var shippingName = order.PurchaseUnits[0].Shipping?.ShippingName?.FullName;
+
+            if (shippingAddress == null || shippingName == null) return;
+
+
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            var preferredBillingAddressFirstname = order.Payer.Name.GivenName;
+            var preferredBillingAddressLastname = order.Payer.Name.SurName;
+
+            var fullname = SplitFullName(shippingName);
+
+            var country = await _db.Countries
+                .Where(x => x.TwoLetterIsoCode == shippingAddress.CountryCode)
+                .FirstOrDefaultAsync();
+
+            var stateProvince = await _db.StateProvinces
+                .Where(x => x.CountryId == country.Id && x.Abbreviation == shippingAddress.AdminArea1)
+                .FirstOrDefaultAsync();
+
+            var address = new Address
+            {
+                Email = order.Payer?.EmailAddress,
+                Address1 = shippingAddress.AddressLine1,
+                Address2 = shippingAddress.AddressLine2,
+                City = shippingAddress.AdminArea2,
+                ZipPostalCode = shippingAddress.PostalCode,
+                CountryId = country?.Id,
+                StateProvinceId = stateProvince?.Id
+            };
+
+            // INFO: Use the payer name for billing as it reflects the buyer's primary identity,
+            // and use the shipping address name for delivery, if specified, to account for possible different recipients.
+
+            // Add billing address if it doesn't exist yet.
+            address.FirstName = preferredBillingAddressFirstname.HasValue() ? preferredBillingAddressFirstname : fullname.FirstName;
+            address.LastName = preferredBillingAddressLastname.HasValue() ? preferredBillingAddressLastname : fullname.LastName;
+
+            if (customer.Addresses.FindAddress(address) == null)
+            {
+                customer.Addresses.Add(address);
+                await _db.SaveChangesAsync();
+
+                customer.BillingAddressId = address.Id;
+                await _db.SaveChangesAsync();
+            }
+
+            // Add shipping address if it doesn't exist yet.
+            address.FirstName = fullname.FirstName;
+            address.LastName = fullname.LastName;
+
+            if (customer.Addresses.FindAddress(address) == null)
+            {
+                customer.Addresses.Add(address);
+                await _db.SaveChangesAsync();
+
+                customer.ShippingAddressId = address.Id;
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        private static (string FirstName, string LastName) SplitFullName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return ("", "");
+            }
+
+            var nameParts = fullName.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+
+            // If there is only one part, we will use this as the first name and leave the last name blank.
+            var firstName = nameParts[0];
+            var lastName = nameParts.Length > 1 ? nameParts[1] : "";
+
+            return (firstName, lastName);
         }
 
         /// <summary>
