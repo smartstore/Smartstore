@@ -198,11 +198,11 @@ namespace Smartstore.PayPal.Controllers
                 .Where(x => x.TwoLetterIsoCode == shippingAddress.CountryCode)
                 .FirstOrDefaultAsync();
 
-            // TODO: (mh) "country" can be null here. Where are the checks?
-
-            var stateProvince = await _db.StateProvinces
-                .Where(x => x.CountryId == country.Id && x.Abbreviation == shippingAddress.AdminArea1)
-                .FirstOrDefaultAsync();
+            var stateProvince = country != null
+                ? await _db.StateProvinces
+                    .Where(x => x.CountryId == country.Id && x.Abbreviation == shippingAddress.AdminArea1)
+                    .FirstOrDefaultAsync()
+                : null;
 
             var address = new Address
             {
@@ -213,35 +213,33 @@ namespace Smartstore.PayPal.Controllers
                 ZipPostalCode = shippingAddress.PostalCode,
                 CountryId = country?.Id,
                 StateProvinceId = stateProvince?.Id,
+
                 // INFO: Use the payer name for billing as it reflects the buyer's primary identity,
                 // and use the shipping address name for delivery, if specified, to account for possible different recipients.
-
-                // Add billing address if it doesn't exist yet.
                 FirstName = preferredBillingAddressFirstname.HasValue() ? preferredBillingAddressFirstname : nameParts.FirstName,
                 LastName = preferredBillingAddressLastname.HasValue() ? preferredBillingAddressLastname : nameParts.LastName
             };
 
+            // Add billing address if it doesn't exist yet.
             if (customer.Addresses.FindAddress(address) == null)
             {
                 customer.Addresses.Add(address);
-                await _db.SaveChangesAsync();
-                // TODO: (mh) You could set customer.BillingAddress = address and call SaveChangesAsync() only once (?). Test and fix.
-                customer.BillingAddressId = address.Id;
-                await _db.SaveChangesAsync();
             }
+
+            customer.BillingAddress = address;
 
             // Add shipping address if it doesn't exist yet.
             address.FirstName = nameParts.FirstName;
             address.LastName = nameParts.LastName;
-
+            
             if (customer.Addresses.FindAddress(address) == null)
             {
                 customer.Addresses.Add(address);
-                await _db.SaveChangesAsync();
-                // TODO: (mh) You could set customer.BillingAddress = address and call SaveChangesAsync() only once (?). Test and fix. See above.
-                customer.ShippingAddressId = address.Id;
-                await _db.SaveChangesAsync();
             }
+
+            customer.ShippingAddress = address;
+
+            await _db.SaveChangesAsync();
         }
 
         private static (string FirstName, string LastName) SplitFullName(string fullName)
@@ -251,12 +249,15 @@ namespace Smartstore.PayPal.Controllers
                 return (string.Empty, string.Empty);
             }
 
-            // TODO: (mh) Wrong approach: "Max Moritz Mustermann" produces [Max, Moritz Mustermann], but should produce [Max Moritz, Mustermann]
-            var nameParts = fullName.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            // If there is only one part, we will use this as the first name and leave the last name blank.
-            var firstName = nameParts[0];
-            var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+            if (nameParts.Length == 1)
+            {
+                return (nameParts[0], string.Empty);
+            }
+
+            var firstName = string.Join(' ', nameParts.Take(nameParts.Length - 1));
+            var lastName = nameParts[^1];
 
             return (firstName, lastName);
         }

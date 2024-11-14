@@ -148,10 +148,8 @@ namespace Smartstore.StripeElements.Controllers
                     if (customer.Addresses.FindAddress(address) == null)
                     {
                         customer.Addresses.Add(address);
-                        await _db.SaveChangesAsync();
-                        // TODO: (mh) You could set customer.Billing/ShippingAddress = address and call SaveChangesAsync() only once (?). Test and fix.
-                        customer.BillingAddressId = address.Id;
-                        customer.ShippingAddressId = address.Id;
+                        customer.BillingAddress = address;
+                        customer.ShippingAddress = address;
                         await _db.SaveChangesAsync();
                     }
                 }
