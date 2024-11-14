@@ -627,6 +627,7 @@ namespace Smartstore.Web.Rendering
                                 {
                                     @class = "locale-editor-content",
                                     data_lang = language.LanguageCulture,
+                                    data_lang_id = language.Id,
                                     data_rtl = language.Rtl.ToString().ToLower()
                                 });
                         }).GetAwaiter().GetResult();
