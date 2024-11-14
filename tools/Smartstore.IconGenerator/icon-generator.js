@@ -99,7 +99,7 @@ class IconGenerator {
 			
 			// Retrieve svg code without the namespace.
             for (const part of symbol.children) {
-				drawCode += "\n\t\t" + part.outerHTML.replaceAll(/xmlns="http:\/\/www.w3.org\/2000\/svg"/g, '');
+				drawCode += "\n\t\t" + part.outerHTML.replaceAll(/\s+xmlns="http:\/\/www.w3.org\/2000\/svg"/g, '');
 			}
 			
             // Check if the icon already exists in the set.
