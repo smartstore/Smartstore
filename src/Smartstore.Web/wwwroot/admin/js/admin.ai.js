@@ -114,6 +114,16 @@
             openDialog(tool, params, false);
         });
 
+        const checkScrollbar = (element) => {
+            $(element).closest('.ai-dialog-opener-root').toggleClass('has-scrollbar', element.scrollHeight > element.clientHeight);
+        };
+
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                checkScrollbar(entry.target);
+            }
+        });
+
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
         $('.ai-dialog-opener-root').each(function () {
             const root = $(this);
@@ -132,15 +142,13 @@
             }
 
             let textarea = root.find('> textarea');
-            let innerHeight = textarea.innerHeight();
-            if (textarea.length && innerHeight && textarea[0].scrollHeight > innerHeight) {
-                root.addClass('has-scrollbar');
+            if (textarea.length) {
+                resizeObserver.observe(textarea[0]);
             }
 
             let summernote = root.find('.note-editor-preview');
-            innerHeight = summernote.innerHeight();
-            if (summernote.length && innerHeight && summernote[0].scrollHeight > innerHeight) {
-                root.addClass('has-scrollbar');
+            if (summernote.length) {
+                resizeObserver.observe(summernote[0]);
             }
 
             // TODO: On summernote init shift ai-opener below toolbar.
