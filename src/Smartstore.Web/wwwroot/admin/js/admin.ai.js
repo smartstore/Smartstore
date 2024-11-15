@@ -117,7 +117,7 @@
         });
 
         const checkScrollbar = (element) => {
-            $(element).closest('.ai-dialog-opener-root').toggleClass('has-scrollbar', element.scrollHeight > element.clientHeight);
+            element.closest('.ai-dialog-opener-root')?.style?.setProperty('--scrollbar-width', (element.offsetWidth - element.clientWidth) + 'px');
         };
 
         const resizeObserver = new ResizeObserver(entries => {
