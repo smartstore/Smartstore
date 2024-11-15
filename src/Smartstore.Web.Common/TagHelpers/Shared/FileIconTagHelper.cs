@@ -79,7 +79,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (BadgeClass.HasValue())
             {
-                output.WrapHtmlInside($"<span class='badge{BadgeClass.LeftPad()}'>", "</span>");
+                output.PreElement.AppendHtml($"<span class='badge{BadgeClass.LeftPad()}'>");
+                output.PostElement.PrependHtml("</span>");
             }
         }
     }
