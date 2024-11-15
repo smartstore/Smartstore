@@ -84,6 +84,22 @@ namespace Smartstore.Web.Rendering
                 return null;
             }
 
+            if (entityId == 0)
+            {
+                // This means we are in the context of an entity which is not EntityModelBase and therefore has no ID e.g. PageBuilder
+                // Lets look in the route data for an ID
+                var routeData = _viewContext.RouteData;
+                if (routeData.Values.TryGetValue("id", out var id))
+                {
+                    entityId = id.Convert<int>();
+                }
+            }
+
+            if (entityId == 0) {
+                // If entityId still is 0, we can't determine the entity and therefore can't translate.
+                return null;
+            }
+
             var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
             if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
             {
