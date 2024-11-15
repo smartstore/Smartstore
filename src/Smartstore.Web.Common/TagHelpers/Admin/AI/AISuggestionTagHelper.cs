@@ -40,7 +40,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
 
-            output.WrapContentWith(tool);
+            output.WrapElementWith(InnerHtmlPosition.Append, tool);
         }
 
         protected override AttributeDictionary GetTagHelperAttributes()

@@ -267,7 +267,7 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Generates the output for the AI dialog openers.
         /// </summary>
-        /// <param name="attributes">The attributes of the taghelper.</param>
+        /// <param name="attributes">The attributes of the TagHelper.</param>
         /// <param name="feature">The <see cref="AIProviderFeatures"/> to be supported for the AI tool.</param>
         /// <param name="topic">The <see cref="AIChatTopic"/> of the AI tool.</param>
         /// <returns>
