@@ -59,7 +59,7 @@ namespace Smartstore.Web.Rendering
             }
         }
 
-        public virtual TagBuilder GenerateTranslationTool(ILocalizedModel model)
+        public virtual TagBuilder GenerateTranslationTool(ILocalizedModel model, string localizedEditorName)
         {
             Guard.NotNull(model);
 
@@ -142,6 +142,7 @@ namespace Smartstore.Web.Rendering
                 // For the translation dialog we use a different approach of determining the target field.
                 // The target property name is used to find the correct property in the localized editor.
                 attrs["data-target-property-name"] = name;
+                attrs["data-localized-editor-name"] = localizedEditorName;
 
                 if (entityTypeName.HasValue())
                 {

@@ -648,7 +648,7 @@ namespace Smartstore.Web.Rendering
                 var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
                 aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model);
+                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model, name);
                 if (translationTool != null)
                 {
                     wrapper.InnerHtml.AppendHtml(translationTool);

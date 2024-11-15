@@ -87,6 +87,7 @@
             let params = {
                 targetProperty: tool.data('target-property'),
                 targetPropertyName: tool.data('target-property-name'),
+                LocalizedEditorName: tool.data('localized-editor-name'),
                 ModalTitle: tool.data('modal-title'),
                 EntityId: tool.data('entity-id'),
                 EntityName: tool.data('entity-type')
