@@ -215,7 +215,7 @@
 - Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
 - Fixed orders of deleted customers were not displayed in order grid.
 - `ProductRuleEvaluatorTask` should also take unpublished categories into account.
-
+- PayPal: Only the frist refund executed from the backend was accepted by PayPal.
 
 ## Smartstore 5.1.0
 
