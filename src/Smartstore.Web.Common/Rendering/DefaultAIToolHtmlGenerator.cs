@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Autofac;
+using DotLiquid.Tags;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -138,6 +139,9 @@ namespace Smartstore.Web.Rendering
                 attrs["data-modal-url"] = dialogUrl;
                 attrs["data-modal-title"] = displayName;
                 attrs["data-target-property"] = id;
+                // For the translation dialog we use a different approach of determining the target field.
+                // The target property name is used to find the correct property in the localized editor.
+                attrs["data-target-property-name"] = name;
 
                 if (entityTypeName.HasValue())
                 {

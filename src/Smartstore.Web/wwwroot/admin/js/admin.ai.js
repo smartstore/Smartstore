@@ -86,6 +86,7 @@
 
             let params = {
                 targetProperty: tool.data('target-property'),
+                targetPropertyName: tool.data('target-property-name'),
                 ModalTitle: tool.data('modal-title'),
                 EntityId: tool.data('entity-id'),
                 EntityName: tool.data('entity-type')

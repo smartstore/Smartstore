@@ -53,8 +53,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attributes = new AttributeDictionary
             {
-                // INFO: We can't just use For.Name here, because the target property might be a nested property.
-                //["data-target-property"] = For.Name,
+                // INFO: We rely mainly on the full field id not just on For.Name, because the target property might be a nested property e.g. Block_Title.
                 ["data-target-property"] = GetHtmlId(),
                 ["data-entity-name"] = EntityName,
                 ["data-entity-type"] = EntityType,
