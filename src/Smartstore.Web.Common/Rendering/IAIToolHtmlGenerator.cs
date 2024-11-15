@@ -18,7 +18,7 @@ namespace Smartstore.Web.Rendering
         /// Creates the button to open the translation dialog.
         /// </summary>
         /// <param name="model">The localized model to be translated.</param>
-        /// <param name="localizedEditorName">The name of the localized editor.</param>
+        /// <param name="localizedEditorName">The unique name of the localized editor.</param>
         /// <returns>
         /// The icon button with a drop-down list to select the target property to be translated.
         /// <c>null</c> if there is no active <see cref="IAIProvider"/>.

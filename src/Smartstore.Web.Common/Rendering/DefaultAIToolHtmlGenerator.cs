@@ -86,13 +86,9 @@ namespace Smartstore.Web.Rendering
 
             if (entityId == 0)
             {
-                // This means we are in the context of an entity which is not EntityModelBase and therefore has no ID e.g. PageBuilder
-                // Lets look in the route data for an ID
-                var routeData = _viewContext.RouteData;
-                if (routeData.Values.TryGetValue("id", out var id))
-                {
-                    entityId = id.Convert<int>();
-                }
+                // We are in the context of an entity which is not EntityModelBase and therefore has no ID, e.g. PageBuilder.
+                // Lets look in the route data for an ID.
+                _viewContext.RouteData.Values.TryGetAndConvertValue("id", out entityId);
             }
 
             var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
