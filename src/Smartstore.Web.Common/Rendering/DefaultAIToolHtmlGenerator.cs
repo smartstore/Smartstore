@@ -95,11 +95,6 @@ namespace Smartstore.Web.Rendering
                 }
             }
 
-            if (entityId == 0) {
-                // If entityId still is 0, we can't determine the entity and therefore can't translate.
-                return null;
-            }
-
             var localesProperty = modelType.GetProperty("Locales", BindingFlags.Public | BindingFlags.Instance);
             if (localesProperty == null || !localesProperty.PropertyType.IsEnumerableType(out var localeModelType))
             {
