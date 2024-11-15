@@ -342,8 +342,7 @@ namespace Smartstore.PayPal.Client
             }
 
             var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId)
-                .WithBody(message)
-                .WithRequestId(request.Order.Id.ToString());
+                .WithBody(message);
 
             var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId, cancelToken);
 
