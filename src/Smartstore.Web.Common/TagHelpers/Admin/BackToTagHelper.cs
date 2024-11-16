@@ -23,7 +23,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
             
-            output.AppendCssClass("btn btn-outline-secondary btn-sm btn-icon mr-3");
+            output.AppendCssClass("btn btn-outline-secondary btn-sm btn-icon");
 
             if (!output.Attributes.ContainsName("title"))
             {

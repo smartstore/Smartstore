@@ -217,6 +217,7 @@ body {
         color: inherit;
         display: inline-flex;
         align-items: center;
+        gap: 0.75rem;
         // mimic .col
         flex-basis: 0;
         flex-grow: 1;
@@ -233,7 +234,6 @@ body {
         > img {
             max-height: var(--header-size);
             max-width: 120px;
-            margin-inline-end: 5px;
             vertical-align: top;
         }
 
