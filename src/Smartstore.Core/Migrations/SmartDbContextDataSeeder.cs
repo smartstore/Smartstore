@@ -700,6 +700,18 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.ProcessHtmlElementsIndividually",
                 "Process each HTML element individually.",
                 "Betrachte dabei jedes HTML-Element einzeln.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterLink",
+                "X link",
+                "X Link");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite",
+                "X Username",
+                "Benutzername auf X");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Hint",
+                "X username that gets displayed on X cards when a product, category and manufacturer page is shared on X. Starts with a '@'.",
+                "Benutzername auf X, der auf Karten von X angezeigt wird, wenn ein Produkt, eine Kategorie oder eine Herstellerseite auf X geteilt wird. Beginnt mit einem '@'.");
         }
     }
 }
