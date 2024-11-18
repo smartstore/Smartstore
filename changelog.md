@@ -92,6 +92,7 @@
   - #1004 Add captcha to password recovery form.
 - Add a setting for a maximum order age. For orders over this age, no more messages such as *shipped* or *delivered* may be sent to the buyer.
 - Skrill: added support for new parameter `website_id` (required for Giropay and iDeal payments).
+- PostFinance: Check whether an order already exists for a payment before an order is placed.
 - GMC
   - Only export images (not videos or other media types).
   - Export *out of stock* if inventory management and the buy button are deactivated.
@@ -163,7 +164,8 @@
 - Fixed offcanvas cart issue in mobile browsers (buttons in the footer were sometimes truncated).
 - #1197 Product grid search form does not parse the search term expression.
 - Page Builder:
-  - Fixed: Creating a story can result in the deletion of another story's store mappings.
+  - Creating a story can result in the deletion of another story's store mappings.
+  - Position of blocks can be lost in Page Builder editor.
   - Some radio button groups were not deselectable
   - Story min-height (medium | tall) often resulted in broken page layout
   - #991 topic target *homepage* was not imported correctly.
