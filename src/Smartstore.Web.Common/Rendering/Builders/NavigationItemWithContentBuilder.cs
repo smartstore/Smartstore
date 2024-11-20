@@ -33,6 +33,16 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
+        /// <summary>
+        /// Whether item output should be suppressed if result content is empty.
+        /// Has no effect if content is loaded via AJAX.
+        /// </summary>
+        public TBuilder HideIfEmpty(bool value = true)
+        {
+            Item.HideIfEmpty = value;
+            return (this as TBuilder);
+        }
+
         public TBuilder Content(string value)
         {
             if (value.IsEmpty())

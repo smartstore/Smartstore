@@ -104,7 +104,7 @@ namespace Smartstore.Web.Rendering.Builders
         public Task InsertBeforeAsync(string tabName, Action<TabItemBuilder> buildAction)
         {
             Guard.NotEmpty(tabName);
-            return InsertBeforeAnyAsync(new[] { tabName }, buildAction);
+            return InsertBeforeAnyAsync([tabName], buildAction);
         }
 
         /// <summary>
@@ -155,7 +155,8 @@ namespace Smartstore.Web.Rendering.Builders
                 BadgeText = item.BadgeText,
                 Icon = item.Icon,
                 ImageUrl = item.ImageUrl,
-                Position = position
+                Position = position,
+                HideIfEmpty = item.HideIfEmpty
             };
 
             if (item.IconLibrary == "bi" && tagHelper.Icon.HasValue())
