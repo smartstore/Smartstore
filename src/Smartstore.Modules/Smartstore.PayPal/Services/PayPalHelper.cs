@@ -13,6 +13,7 @@ namespace Smartstore.PayPal.Services
         static PayPalHelper()
         {
             _serializerSettings = JsonConvert.DefaultSettings();
+            //_serializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
             _serializerSettings.ContractResolver = new SmartContractResolver
             {
                 NamingStrategy = new SnakeCaseNamingStrategy()
