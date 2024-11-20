@@ -2,7 +2,7 @@
 
 <script src="~/lib/jquery/jquery.deserialize.js"></script>
 
-<script data-origin="stripe-confirm">
+<script data-origin="paypal-confirm">
     var isConfirmed = @(Model.IsConfirmed.ToString().ToLower());
     $(function () {
         // Confirmation flow.
@@ -22,7 +22,7 @@
                     success: function (response) {
                         if (response.success) {
                             if (response.redirectUrl){
-                                // Redirect to stripe to pay.
+                                // Redirect to paypal to pay.
                                 window.location = response.redirectUrl;
                             } else {
                                 isConfirmed = true;

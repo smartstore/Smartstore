@@ -58,10 +58,14 @@ namespace Smartstore.PayPal.Filters
 
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
+            // If the PayPal order must be updated, we need to ensure the Confirm partial is loaded, because there might be a redirect after another required payer action.
+            var checkoutState = _checkoutStateAccessor.CheckoutState;
+            var redirectRequired = checkoutState.CustomProperties.ContainsKey("PayPalPayerActionRequired");
+
             if (!await _payPalHelper.IsAnyProviderActiveAsync(
                 PayPalConstants.Standard,
                 PayPalConstants.PayLater,
-                PayPalConstants.Sepa))
+                PayPalConstants.Sepa) && !redirectRequired)
             {
                 await next();
                 return;
@@ -74,7 +78,6 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
-            var checkoutState = _checkoutStateAccessor.CheckoutState;
             var customer = _services.WorkContext.CurrentCustomer;
             var action = filterContext.RouteData.Values.GetActionName();
 
@@ -163,14 +166,12 @@ namespace Smartstore.PayPal.Filters
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
             {
-                if (IsApm(customer.GenericAttributes.SelectedPaymentMethod))
+                if (IsApm(customer.GenericAttributes.SelectedPaymentMethod) || redirectRequired)
                 {
-                    var state = _checkoutStateAccessor.CheckoutState;
-
-                    if (state.IsPaymentRequired)
+                    if (checkoutState.IsPaymentRequired)
                     {
                         _widgetProvider.Value.RegisterWidget("end",
-                            new PartialViewWidget("_CheckoutConfirm", state.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
+                            new PartialViewWidget("_CheckoutConfirm", checkoutState.GetCustomState<PayPalCheckoutState>(), "Smartstore.PayPal"));
                     }
                 }
             }

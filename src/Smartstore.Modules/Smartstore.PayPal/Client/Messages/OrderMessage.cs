@@ -159,6 +159,9 @@ namespace Smartstore.PayPal.Client.Messages
 
     public class PaymentSource
     {
+        [JsonProperty("paypal", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PaymentSourceWallet PaymentSourceWallet;
+
         [JsonProperty("pay_upon_invoice", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public PaymentSourceInvoice PaymentSourceInvoice;
 
@@ -256,6 +259,15 @@ namespace Smartstore.PayPal.Client.Messages
         [MaxLength(300)]
         [JsonProperty("postal_code", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string PostalCode;
+    }
+
+    public class PaymentSourceWallet
+    {
+        [JsonProperty("return_url", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string ReturnUrl;
+
+        [JsonProperty("cancel_url", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string CancelUrl;
     }
 
     public class PaymentSourceInvoice

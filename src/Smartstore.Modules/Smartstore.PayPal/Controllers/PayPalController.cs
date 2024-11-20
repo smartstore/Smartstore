@@ -72,6 +72,10 @@ namespace Smartstore.PayPal.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var checkoutState = _checkoutStateAccessor.CheckoutState;
 
+            // Remove unwanted custom properties that might be left from last checkout.
+            checkoutState.CustomProperties.Remove("PayPalPayerActionRequired");
+            checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
+            
             // Only set this if we're not on payment page.
             if (routeIdent != "Checkout.PaymentMethod")
             {
@@ -121,11 +125,11 @@ namespace Smartstore.PayPal.Controllers
         public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
             var customer = Services.WorkContext.CurrentCustomer;
+            var store = Services.StoreContext.CurrentStore;
 
             // Only save cart data when we're on shopping cart page.
             if (routeIdent == "ShoppingCart.Cart")
             {
-                var store = Services.StoreContext.CurrentStore;
                 var warnings = new List<string>();
                 var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
@@ -170,6 +174,21 @@ namespace Smartstore.PayPal.Controllers
             await customer.GenericAttributes.SaveChangesAsync();
 
             var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
+
+            orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
+            orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
+
+            var psw = new PaymentSourceWallet
+            {
+                ReturnUrl = orderMessage.AppContext.ReturnUrl,
+                CancelUrl = orderMessage.AppContext.CancelUrl
+            };
+
+            orderMessage.PaymentSource = new PaymentSource
+            {
+                PaymentSourceWallet = psw
+            };
+
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -298,14 +317,17 @@ namespace Smartstore.PayPal.Controllers
                     paymentRequest = new ProcessPaymentRequest();
                 }
 
-                await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
-
                 var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
+                if (state.ApmProviderSystemName.HasValue())
+                {
+                    await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
+                    paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
+                }
+                
                 paymentRequest.StoreId = store.Id;
                 paymentRequest.CustomerId = customer.Id;
-                paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
-
+                
                 // We must check here if an order can be placed to avoid creating unauthorized transactions.
                 var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
                 if (warnings.Count == 0)
@@ -420,6 +442,8 @@ namespace Smartstore.PayPal.Controllers
             if (state.PayPalOrderId != null)
             {
                 state.SubmitForm = true;
+
+                _checkoutStateAccessor.CheckoutState.CustomProperties["PayPalPayerActionRequired"] = true;
             }
             else
             {
