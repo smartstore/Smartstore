@@ -127,8 +127,8 @@
 </div>
 
 <div sm-if="Model.Id != 0">
-    <h4 class="my-4">
-        @Html.Raw(T("Admin.Rules.TestConditions", "<a id='execute-rules' class='btn btn-sm btn-primary align-top' href='" + Url.Action("Execute") + "'>", "</a>"))
+    <h4 class="my-4 hstack gap-2">
+        @Html.Raw(T("Admin.Rules.TestConditions", "<span class='vr'></span><a id='execute-rules' class='btn btn-sm btn-primary' href='" + Url.Action("Execute") + "'>", "</a>"))
     </h4>
     <div id="excute-result" class="alert alert-warning hide"></div>
 
