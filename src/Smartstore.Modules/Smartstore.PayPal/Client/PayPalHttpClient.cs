@@ -19,6 +19,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Services;
 using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.PayPal.Client
@@ -809,7 +810,7 @@ namespace Smartstore.PayPal.Client
 
             if (request.ContentType == "application/json")
             {
-                var json = JsonConvert.SerializeObject(request.Body);
+                var json = JsonConvert.SerializeObject(request.Body, PayPalHelper.SerializerSettings);
                 content = new StringContent(json, Encoding.UTF8, "application/json");
             }
             else if (request.ContentType == "application/x-www-form-urlencoded")
@@ -838,7 +839,7 @@ namespace Smartstore.PayPal.Client
             if (contentType.Contains("application/json"))
             {
                 var contentString = await content.ReadAsStringAsync();
-                var message = JsonConvert.DeserializeObject(contentString, responseType);
+                var message = JsonConvert.DeserializeObject(contentString, responseType, PayPalHelper.SerializerSettings);
                 return message;
             }
             else

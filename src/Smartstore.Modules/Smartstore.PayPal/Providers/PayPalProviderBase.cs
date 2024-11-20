@@ -7,6 +7,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
@@ -96,7 +97,7 @@ namespace Smartstore.PayPal.Providers
             catch (Exception ex) 
             {
                 // Cast exception 
-                var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message);
+                var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, PayPalHelper.SerializerSettings);
 
                 var payerActionRequiredIssue = exceptionMessage.Details.Where(x => x.Issue == "PAYER_ACTION_REQUIRED").FirstOrDefault();
                 if (payerActionRequiredIssue != null)

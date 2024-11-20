@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using Newtonsoft.Json.Serialization;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
@@ -6,6 +8,22 @@ namespace Smartstore.PayPal.Services
 {
     public class PayPalHelper : ICookiePublisher
     {
+        private static JsonSerializerSettings _serializerSettings;
+        
+        static PayPalHelper()
+        {
+            _serializerSettings = JsonConvert.DefaultSettings();
+            _serializerSettings.ContractResolver = new SmartContractResolver
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            };
+        }
+
+        public static JsonSerializerSettings SerializerSettings 
+        {
+            get => _serializerSettings;
+        }
+
         private readonly IStoreContext _storeContext;
         private readonly IPaymentService _paymentService;
         private readonly Localizer T;
