@@ -219,6 +219,7 @@
 - Fixed orders of deleted customers were not displayed in order grid.
 - `ProductRuleEvaluatorTask` should also take unpublished categories into account.
 - PayPal: Only the frist refund executed from the backend was accepted by PayPal.
+- PayPal: Fixed unhandled payer action required problem for wallet payment methods.
 
 ## Smartstore 5.1.0
 
