@@ -96,7 +96,7 @@ namespace Smartstore.PayPal.Providers
             catch (Exception ex) 
             {
                 // Cast exception 
-                ExceptionMessage exceptionMessage = (ExceptionMessage)JsonConvert.DeserializeObject(ex.Message, typeof(ExceptionMessage));
+                var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message);
 
                 var payerActionRequiredIssue = exceptionMessage.Details.Where(x => x.Issue == "PAYER_ACTION_REQUIRED").FirstOrDefault();
                 if (payerActionRequiredIssue != null)

@@ -336,11 +336,19 @@ namespace Smartstore.Core.Checkout.Orders
 
             CheckoutResult PaymentFailure(PaymentException ex)
             {
-                if (ex.RedirectRoute is RouteInfo redirectRoute)
+                if (ex.RedirectRoute is RouteInfo or RouteValueDictionary)
                 {
                     _logger.Error(ex);
                     _notifier.Error(ex.Message);
-                    return new(new RedirectToActionResult(redirectRoute.Action, redirectRoute.Controller, redirectRoute.RouteValues));
+                }
+
+                if (ex.RedirectRoute is RouteInfo routeInfo)
+                {
+                    return new(new RedirectToActionResult(routeInfo.Action, routeInfo.Controller, routeInfo.RouteValues));
+                }
+                else if (ex.RedirectRoute is RouteValueDictionary routeValues)
+                {
+                    return new(new RedirectToRouteResult(routeValues));
                 }
                 else if (ex.RedirectRoute is string redirectUrl)
                 {
