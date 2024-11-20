@@ -7,8 +7,6 @@
         protected RuleDescriptor(RuleScope scope)
         {
             Scope = scope;
-            Constraints = Array.Empty<IRuleConstraint>();
-            Metadata = new Dictionary<string, object>();
         }
 
         public RuleScope Scope { get; protected set; }
@@ -27,8 +25,8 @@
         /// </summary>
         public bool IsComparingSequences { get; set; }
 
-        public IEnumerable<IRuleConstraint> Constraints { get; set; }
-        public IDictionary<string, object> Metadata { get; }
+        public IEnumerable<IRuleConstraint> Constraints { get; set; } = [];
+        public IDictionary<string, object> Metadata { get; init; } = new Dictionary<string, object>();
 
         public RuleOperator[] Operators
         {
@@ -44,7 +42,7 @@
             : base(scope)
         {
             RuleType = RuleType.String;
-            Constraints = Array.Empty<IRuleConstraint>();
+            Constraints = [];
         }
     }
 }

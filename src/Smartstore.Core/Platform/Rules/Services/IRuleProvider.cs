@@ -33,6 +33,7 @@
             Guard.NotNull(expression);
 
             var descriptors = await GetRuleDescriptorsAsync();
+
             var descriptor = descriptors.FindDescriptor(entity.RuleType);
             if (descriptor == null)
             {
@@ -61,11 +62,14 @@
             if (_descriptors == null)
             {
                 var descriptors = await LoadDescriptorsAsync();
-                _descriptors = new RuleDescriptorCollection(descriptors);
+                _descriptors = CreateDescriptorCollection(descriptors);
             }
 
             return _descriptors;
         }
+
+        protected virtual RuleDescriptorCollection CreateDescriptorCollection(IEnumerable<RuleDescriptor> descriptors)
+            => new(descriptors);
 
         protected abstract Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync();
     }

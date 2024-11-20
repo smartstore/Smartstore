@@ -23,9 +23,7 @@ namespace Smartstore.Core.Catalog.Rules
     {
         public SearchFilterDescriptor(Func<SearchFilterContext, TValue, CatalogSearchQuery> filter)
         {
-            Guard.NotNull(filter, nameof(filter));
-
-            Filter = filter;
+            Filter = Guard.NotNull(filter);
         }
 
         public Func<SearchFilterContext, TValue, CatalogSearchQuery> Filter { get; protected set; }
