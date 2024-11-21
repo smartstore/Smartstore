@@ -9,13 +9,13 @@
             _createDate = DateTime.Now;
         }
 
-        [JsonProperty("access_token")]
+        [JsonProperty("access_token", DefaultValueHandling = DefaultValueHandling.Include)]
         public string Token;
 
-        [JsonProperty("token_type")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string TokenType;
 
-        [JsonProperty("expires_in")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public int ExpiresIn;
 
         public bool IsExpired()

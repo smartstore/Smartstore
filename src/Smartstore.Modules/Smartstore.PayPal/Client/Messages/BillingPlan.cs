@@ -8,14 +8,15 @@ namespace Smartstore.PayPal.Client.Messages
         /// REQUIRED.
         /// The plan name.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Name;
 
         /// <summary>
         /// REQUIRED.
         /// The plan description. Maximum length is 127 single-byte alphanumeric characters.
         /// </summary>
-        [JsonProperty("description"), MaxLength(127)]
+        [MaxLength(127)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Description;
 
         /// <summary>
@@ -25,14 +26,14 @@ namespace Smartstore.PayPal.Client.Messages
         /// FIXED:       The plan has a fixed number of payment cycles.
         /// INFINITE:    The plan has infinite, or 0, payment cycles.
         /// </summary>
-        [JsonProperty("type")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Type;
 
         /// <summary>
         /// A payment definition, which determines how often and for how long the customer is charged. 
         /// Includes the interval at which the customer is charged, the charge amount, and optional shipping fees and taxes.
         /// </summary>
-        [JsonProperty("payment_definitions")]
-        public List<PaymentDefinition> PaymentDefinitions = new();
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public List<PaymentDefinition> PaymentDefinitions = [];
     }
 }

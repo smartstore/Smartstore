@@ -10,7 +10,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(64)]
         [Required]
-        [JsonProperty("tracking_number")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string TrackingNumber;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(64)]
         [Required]
-        [JsonProperty("carrier_name_other")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string CarrierNameOther;
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(64)]
         [Required]
-        [JsonProperty("carrier")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Carrier;
 
         /// <summary>
@@ -39,20 +39,19 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(64)]
         [Required]
-        [JsonProperty("capture_id")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string CaptureId;
 
         /// <summary>
         /// boolean > Default: false
         /// If true, sends an email notification to the payer of the PayPal transaction.The email contains the tracking information that was uploaded through the API.
         /// </summary>
-        [JsonProperty("notify_payer")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public bool NotifyPayer;
 
         /// <summary>
         /// An array of details of items in the shipment.
         /// </summary>
-        [JsonProperty("items", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public ShipmentItem[] Items;
     }
 
@@ -63,7 +62,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(127)]
         [Required]
-        [JsonProperty("name", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Name;
 
         /// <summary>
@@ -71,14 +69,12 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(10)]
         [Required]
-        [JsonProperty("quantity", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Quantity;
 
         /// <summary>
         /// The stock keeping unit (SKU) for the item.
         /// </summary>
         [MaxLength(127)]
-        [JsonProperty("sku", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Sku;
     }
 }

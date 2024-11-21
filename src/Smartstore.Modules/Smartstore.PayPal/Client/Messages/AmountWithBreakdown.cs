@@ -12,14 +12,14 @@
         /// The breakdown of the amount. Breakdown provides details such as 
         /// total item amount, total tax amount, shipping, handling, insurance and discounts, if any.
         /// </summary>
-        [JsonProperty("breakdown")]
+        [JsonProperty("breakdown", DefaultValueHandling = DefaultValueHandling.Include)]
         public AmountBreakdown AmountBreakdown;
 
         /// <summary>
         /// REQUIRED.
         /// The three-character ISO-4217 currency code that identifies the currency.
         /// </summary>
-        [JsonProperty("currency_code")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string CurrencyCode;
 
         /// <summary>
@@ -28,7 +28,7 @@
         /// an integer for currencies like `JPY` that are not typically fractional. 
         /// Or a decimal fraction for currencies like `TND` that are subdivided into thousandths.
         /// </summary>
-        [JsonProperty("value")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Value;
     }
 }
