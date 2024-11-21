@@ -185,7 +185,7 @@
                         <smart-label asp-for="IconColor"/>
                     </div>
                     <div class="adminData">
-                        <select asp-for="IconColor" asp-items="@iconColors" class="icon-color-chooser" asp-placeholder="@T("Common.Unspecified")"></select>
+                        <select asp-for="IconColor" asp-items="@iconColors" class="theme-color-chooser" asp-placeholder="@T("Common.Unspecified")"></select>
                         <span asp-validation-for="IconColor"></span>
                     </div>
                 </div>
@@ -239,18 +239,3 @@
         </div>
     </tab>
 </tabstrip>
-
-<script sm-target-zone="scripts" data-origin="menu-item-create-or-update">
-    $(function () {
-        // Icon colors.
-        const colorVars = Smartstore.Admin.getThemeColorVars();
-        const colorChooser = $('.icon-color-chooser');
-
-        colorChooser.find('option').each(function () {
-            const option = $(this);
-            option.data("color", colorVars['--' + this.value]);
-        });
-
-        colorChooser.trigger('change');
-    });
-</script>

@@ -11,7 +11,10 @@
         },
         // select2 (generic)
         function (ctx) {
-            ctx.find("select:not(.noskin)").selectWrapper();
+            // Perf: First themeColorChooser and then selectWrapper to avoid trigger change.
+            const selectBoxes = ctx.find("select:not(.noskin)");
+            Smartstore.Admin.themeColorChooser(selectBoxes);
+            selectBoxes.selectWrapper();
         },
         // tooltips
         function (ctx) {

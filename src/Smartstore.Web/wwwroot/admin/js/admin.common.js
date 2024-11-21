@@ -158,6 +158,19 @@ Smartstore.Admin = {
         frameRoot.data('themeVars', themeVars);
         return themeVars;
     },
+    themeColorChooser: function (selector) {
+        const colorChoosers = $(selector);
+        if (colorChoosers.length) {
+            const colorVars = this.getThemeColorVars();
+
+            colorChoosers.each(function () {
+                const colorChooser = $(this);
+                colorChooser.find('option').each(function () {
+                    $(this).data('color', colorVars['--' + this.value]);
+                });
+            });
+        }
+    },
     TaskWatcher: (function () {
         var interval;
 
