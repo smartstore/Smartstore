@@ -695,8 +695,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Sei ein Experte für das Produkt: '{0}'.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.PreserveHtmlStructure",
-                "Be sure to preserve the HTML structure.",
-                "Erhalte unbedingt die HTML-Struktur.");
+                "Be sure to preserve the HTML structure and the attributes of all tags.",
+                "Erhalte unbedingt die HTML-Struktur und die Attribute aller Tags.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.ProcessHtmlElementsIndividually",
                 "Process each HTML element individually.",
                 "Betrachte dabei jedes HTML-Element einzeln.");
