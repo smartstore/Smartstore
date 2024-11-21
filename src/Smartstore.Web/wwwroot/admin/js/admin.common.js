@@ -159,6 +159,7 @@ Smartstore.Admin = {
         return themeVars;
     },
     themeColorChooser: function (selector) {
+        // TODO: (mg) Really BAD name: this is a function, it DOES something!
         const colorChoosers = $(selector);
         if (colorChoosers.length) {
             const colorVars = this.getThemeColorVars();
