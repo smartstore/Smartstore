@@ -9,13 +9,13 @@
                 Smartstore.Admin.togglePanel(el, false);
             });
         },
+        // Theme color chooser
+        function (ctx) {
+            Smartstore.Admin.initThemeColorChooser(ctx.find("select:not(.noskin).theme-color-chooser"));
+        },
         // select2 (generic)
         function (ctx) {
-            // Perf: First themeColorChooser and then selectWrapper to avoid trigger change.
-            // TODO: (mg) WTF is this?! You literally apply theme colors to EVERY selectbox! WHY?!!! Please separate! What's the point of having the class .theme-color-chooser now?
-            const selectBoxes = ctx.find("select:not(.noskin)");
-            Smartstore.Admin.themeColorChooser(selectBoxes);
-            selectBoxes.selectWrapper();
+            ctx.find("select:not(.noskin)").selectWrapper();
         },
         // tooltips
         function (ctx) {

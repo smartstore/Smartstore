@@ -158,8 +158,7 @@ Smartstore.Admin = {
         frameRoot.data('themeVars', themeVars);
         return themeVars;
     },
-    themeColorChooser: function (selector) {
-        // TODO: (mg) Really BAD name: this is a function, it DOES something!
+    initThemeColorChooser: function (selector) {
         const colorChoosers = $(selector);
         if (colorChoosers.length) {
             const colorVars = this.getThemeColorVars();
