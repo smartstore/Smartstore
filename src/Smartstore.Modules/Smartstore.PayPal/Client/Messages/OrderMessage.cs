@@ -95,7 +95,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(127)]
         [Required]
-        [JsonProperty("name")]
         public string Name;
 
         /// <summary>
@@ -103,46 +102,39 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [MaxLength(10)]
         [Required]
-        [JsonProperty("quantity")]
         public string Quantity;
 
         /// <summary>
         /// The item quantity. Must be a whole number.
         /// </summary>
-        [JsonProperty("tax_rate")]
         public string TaxRate;
         
         /// <summary>
         /// The item price or rate per unit. 
         /// </summary>
         [Required]
-        [JsonProperty("unit_amount")]
         public MoneyMessage UnitAmount;
 
         /// <summary>
         /// The item category type (possible values are DIGITAL_GOODS, PHYSICAL_GOODS & DONATION). 
         /// </summary>
-        [JsonProperty("category")]
         public ItemCategoryType Category;
 
         /// <summary>
         /// The detailed item description.
         /// </summary>
         [MaxLength(127)]
-        [JsonProperty("description")]
         public string Description;
 
         /// <summary>
         /// The stock keeping unit (SKU) for the item.
         /// </summary>
         [MaxLength(127)]
-        [JsonProperty("sku")]
         public string Sku;
 
         /// <summary>
         /// The item price or rate per unit. 
         /// </summary>
-        [JsonProperty("tax")]
         public MoneyMessage Tax;
     }
 
@@ -186,7 +178,6 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("address")]
         public ShippingAddress ShippingAddress;
-
     }
 
     public class ShippingName
@@ -202,7 +193,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// <summary>
         /// The two-character ISO 3166-1 code that identifies the country or region.
         /// </summary>
-        [JsonProperty("country_code")]
         public string CountryCode;
 
         /// <summary>
@@ -245,7 +235,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// Typically required for countries with a postal code or an equivalent. 
         /// </summary>
         [MaxLength(300)]
-        [JsonProperty("postal_code")]
         public string PostalCode;
     }
 
@@ -273,16 +262,9 @@ namespace Smartstore.PayPal.Client.Messages
 
     public class PaymentSourceApm
     {
-        [JsonProperty("name")]
         public string Name;
-
-        [JsonProperty("country_code")]
         public string CountryCode;
-
-        [JsonProperty("email")]
         public string Email;
-
-        [JsonProperty("bic")]
         public string BIC;
     }
 
