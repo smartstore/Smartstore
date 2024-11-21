@@ -96,24 +96,7 @@ namespace Smartstore.PayPal.Providers
             }
             catch (Exception ex) 
             {
-                // Cast exception 
-                var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, PayPalHelper.SerializerSettings);
-
-                var payerActionRequiredIssue = exceptionMessage.Details.Where(x => x.Issue == "PAYER_ACTION_REQUIRED").FirstOrDefault();
-                if (payerActionRequiredIssue != null)
-                {
-                    var redirectUrl = exceptionMessage.Links
-                        .Where(x => x.Rel == "payer-action")
-                        .FirstOrDefault()?.Href;
-
-                    // Redirect to PayPal for user action.
-                    var paymentException = new PaymentException(payerActionRequiredIssue.Description)
-                    {
-                        RedirectRoute = redirectUrl
-                    };
-
-                    throw paymentException;
-                }
+                PayPalHelper.HandlePayPalException(ex);
 
                 Logger.LogError(ex, "Authorization or capturing failed. User was redirected to payment selection.");
 

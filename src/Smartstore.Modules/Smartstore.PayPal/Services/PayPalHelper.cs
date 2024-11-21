@@ -3,6 +3,9 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Http;
+using Smartstore.PayPal.Client.Messages;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal.Services
 {
@@ -76,6 +79,32 @@ namespace Smartstore.PayPal.Services
             }
 
             return null;
+        }
+
+        public static void HandlePayPalException(Exception ex)
+        {
+            var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, SerializerSettings);
+
+            foreach (var detail in exceptionMessage.Details)
+            {
+                switch (detail.Issue)
+                {
+                    case "PAYER_ACTION_REQUIRED":
+                        // Redirect to PayPal for user action.
+                        var redirectUrl = exceptionMessage.Links.FirstOrDefault(x => x.Rel == "payer-action")?.Href;
+
+                        throw new PaymentException(detail.Description)
+                        {
+                            RedirectRoute = redirectUrl
+                        };
+
+                    case "COUNTRY_NOT_SUPPORTED_BY_PAYMENT_SOURCE":
+                        throw new PaymentException(detail.Description)
+                        {
+                            RedirectRoute = new RouteInfo(nameof(CheckoutController.PaymentMethod), "Checkout", (object)null)
+                        };
+                }
+            }
         }
     }
 }

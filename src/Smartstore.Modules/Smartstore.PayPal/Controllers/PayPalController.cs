@@ -14,6 +14,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
@@ -322,7 +323,15 @@ namespace Smartstore.PayPal.Controllers
 
                 if (state.ApmProviderSystemName.HasValue())
                 {
-                    await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
+                    try
+                    {
+                        await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
+                    } 
+                    catch (PayPalException ex)
+                    {
+                        PayPalHelper.HandlePayPalException(ex);
+                    }
+                    
                     paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
                 }
                 
