@@ -329,7 +329,7 @@ namespace Smartstore.PayPal.Controllers
                     } 
                     catch (PayPalException ex)
                     {
-                        PayPalHelper.HandlePayPalException(ex);
+                        PayPalHelper.HandleException(ex);
                     }
                     
                     paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;

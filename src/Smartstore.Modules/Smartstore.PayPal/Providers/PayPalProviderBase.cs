@@ -96,7 +96,7 @@ namespace Smartstore.PayPal.Providers
             }
             catch (Exception ex) 
             {
-                PayPalHelper.HandlePayPalException(ex);
+                PayPalHelper.HandleException(ex);
 
                 Logger.LogError(ex, "Authorization or capturing failed. User was redirected to payment selection.");
 

@@ -81,7 +81,7 @@ namespace Smartstore.PayPal.Services
             return null;
         }
 
-        public static void HandlePayPalException(Exception ex)
+        public static void HandleException(Exception ex)
         {
             var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, SerializerSettings);
 
