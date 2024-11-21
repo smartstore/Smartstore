@@ -265,6 +265,7 @@ namespace Smartstore.PayPal.Client.Messages
         public string Name;
         public string CountryCode;
         public string Email;
+        [JsonProperty("bic")] // INFO: Snake case will transform it to b_i_c otherwise
         public string BIC;
     }
 
