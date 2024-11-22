@@ -403,6 +403,11 @@
                 }
             };
 
+            if (sel.data('tags') && !sel.prop('multiple')) {
+                // The search input field is required to be able to enter custom tags.
+                opts.minimumResultsForSearch = 0;
+            }
+
             if (!options.lazy && sel.data("select-url")) {
                 opts.lazy = {
                     url: sel.data("select-url"),
