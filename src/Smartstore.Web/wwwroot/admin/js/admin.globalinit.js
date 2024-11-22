@@ -9,10 +9,6 @@
                 Smartstore.Admin.togglePanel(el, false);
             });
         },
-        // Theme color chooser
-        function (ctx) {
-            Smartstore.Admin.initThemeColorChooser(ctx.find("select:not(.noskin).theme-color-chooser"));
-        },
         // select2 (generic)
         function (ctx) {
             ctx.find("select:not(.noskin)").selectWrapper();

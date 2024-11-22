@@ -214,34 +214,45 @@
         var originalMatcher = $.fn.select2.defaults.defaults.matcher;
 
         return this.each(function () {
-            var sel = $(this);
+            let sel = $(this);
 
             if (sel.data("select2")) {
                 // skip process if select is skinned already
                 return;
             }
 
-            var placeholder = getPlaceholder();
+            let placeholder = getPlaceholder();
 
-            // following code only applicable to select boxes (not input:hidden)
-            var firstOption = sel.children("option").first();
-            var hasOptionLabel = firstOption.length &&
+            if (sel.is('.theme-color-chooser')) {
+                // Special handling for color chooser: read global theme colors and add them as data-color attributes to matching options.
+                const colorVars = Smartstore.Admin.getThemeColorVars();
+                sel.find('option:not([data-color])').each(function () {
+                    const colorVar = colorVars['--' + this.value];
+                    if (colorVar) {
+                        this.setAttribute('data-color', colorVar);
+                    }
+                });
+            }
+
+            // Following code only applicable to select boxes (not input:hidden)
+            let firstOption = sel.find("option:first-of-type");
+            let hasOptionLabel = firstOption.length &&
                 (firstOption[0].attributes['value'] === undefined || firstOption.val().isEmpty());
 
             if (placeholder && hasOptionLabel) {
-                // clear first option text in nullable dropdowns.
+                // Clear first option text in nullable dropdowns.
                 // "allowClear" doesn't work otherwise.
                 firstOption.text("");
             }
 
             if (placeholder && !hasOptionLabel && !sel.is('[multiple=multiple]')) {
-                // create empty first option
+                // Create empty first option
                 // "allowClear" doesn't work otherwise.
                 firstOption = $('<option></option>').prependTo(sel);
             }
 
             if (!placeholder && hasOptionLabel && firstOption.text() && !sel.data("tags")) {
-                // use first option text as placeholder
+                // Use first option text as placeholder
                 placeholder = firstOption.text();
                 firstOption.text("");
             }
@@ -266,7 +277,7 @@
                 try {
                     var option = $(item.element),
                         imageUrl = option.data('imageurl'),
-                        color = option.data('color'),
+                        color = option.attr('data-color'),
                         text = item.text,
                         title = '',
                         preHtml = '',
