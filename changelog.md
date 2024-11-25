@@ -127,7 +127,6 @@
 ### Bugfixes
 
 - Fixed only the first product attribute of list type attributes was displayed on the cart and order page.
-- Fixed an unavailable attribute was not grayed-out if the product has at least one non list-type attribute.
 - Fixed cart page shows 0 bundle item price if per-item pricing is deactivated.
 - #996 Limited to customer roles is not working for topics that are displayed as widgets.
 - #914 Featured sorting on category and manufacturer pages not applied when using standard search.
@@ -136,11 +135,14 @@
 - Checkout:
   - Fixed a new shipping address is used as the billing address in checkout.
   - #1105 Wrong sorting of shipping methods in checkout when multiple computation methods are active.
+- Product details:
+  - Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.  
+  - Fixed delivery time is not displayed when stock is empty.
+  - Fixed an unavailable attribute was not grayed-out if the product has at least one non list-type attribute.
 - Required products:
   - #1024 Apply preselected options of required attributes of added products when required products are automatically added to shopping cart.
   - Fixed `InvalidOperationException` when adding a required product to cart that is already on the wishlist.
   - Fixed the validation of required products was missing if they were not automatically added to the shopping cart.
-- Fixed a product can only be added to the shopping cart with a quantity of 1 if the stock quantity is below 0.
 - Fixed mini shopping cart displayed large placeholder images if the cart setting for bundle item images was deactivated.
 - Fixed cart settings for images on wishlist were always ignored.
 - Fixed the discount amount of an order can have an incorrect value if a discount rule was applied during the subtotal calculation.
