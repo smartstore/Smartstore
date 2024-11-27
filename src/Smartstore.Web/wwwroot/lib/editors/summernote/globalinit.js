@@ -94,7 +94,8 @@ var summernote_image_upload_url;
                 $(this).val(code);
             }
 		},
-		toolbar: [
+        toolbar: [
+            ['ai', ['ai']],
 			['text', ['bold', 'italic', 'underline', 'strikethrough', 'clear', 'cleaner']],
             //['font', ['forecolor', 'backcolor']],
             //['font', ['fontname', 'color', 'fontsize']],

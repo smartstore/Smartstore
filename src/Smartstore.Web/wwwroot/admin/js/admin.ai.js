@@ -153,7 +153,7 @@
                 resizeObserver.observe(summernote[0]);
             }
 
-            // TODO: On summernote init shift ai-opener below toolbar.
+            // TODO: (mh) (ai) On summernote init shift ai-opener below toolbar.
         });
     });
 

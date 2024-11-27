@@ -74,5 +74,11 @@ namespace Smartstore.Web.Rendering
         /// <param name="enabled">A value indicating whether to initially enable the command dropdown items.</param>
         /// <returns>The HTML content.</returns>
         IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true);
+
+        /// <summary>
+        /// Gets the URL of the dialog.
+        /// </summary>
+        /// <param name="topic">The <see cref="AIChatTopic"/> of the dialog.</param>
+        string GetDialogUrl(AIChatTopic topic);
     }
 }

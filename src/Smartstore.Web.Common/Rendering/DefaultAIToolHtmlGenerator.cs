@@ -355,11 +355,8 @@ namespace Smartstore.Web.Rendering
             return btnTag;
         }
 
-        /// <summary>
-        /// Gets the URL of the dialog.
-        /// </summary>
-        /// <param name="topic">The <see cref="AIChatTopic"/> of the dialog.</param>
-        protected virtual string GetDialogUrl(AIChatTopic topic)
+        /// <inheritdoc/>
+        public virtual string GetDialogUrl(AIChatTopic topic)
         {
             var action = topic switch
             {
