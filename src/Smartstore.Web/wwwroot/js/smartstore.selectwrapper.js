@@ -235,7 +235,7 @@
             }
 
             // Following code only applicable to select boxes (not input:hidden)
-            let firstOption = sel.find("option:first-of-type");
+            let firstOption = sel.children("option:first-of-type").first();
             let hasOptionLabel = firstOption.length &&
                 (firstOption[0].attributes['value'] === undefined || firstOption.val().isEmpty());
 
