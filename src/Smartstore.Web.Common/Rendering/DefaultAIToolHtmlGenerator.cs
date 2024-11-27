@@ -202,7 +202,7 @@ namespace Smartstore.Web.Rendering
             var resRoot = "Admin.AI.TextCreation.";
 
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}CreateNew"), true, "create-new", "repeat", false, className));
-            builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+            builder.AppendHtml("<li class=\"dropdown-divider\"></li>");
 
             // Add "Change style" & "Change tone" options from module settings.
             var styleDropdown = AddMenuItemsFromSetting(enabled, "change-style", className, "vector-pen");
@@ -212,7 +212,7 @@ namespace Smartstore.Web.Rendering
             {
                 builder.AppendHtml(styleDropdown);
                 builder.AppendHtml(toneDropdown);
-                builder.AppendHtml("<div class=\"dropdown-divider\"></div>");
+                builder.AppendHtml("<li class=\"dropdown-divider\"></li>");
             }
 
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Summarize"), enabled, "summarize", "highlighter", false, className));

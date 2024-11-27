@@ -93,7 +93,7 @@ var summernote_image_upload_url;
 				// only when switched back to editor
                 $(this).val(code);
             }
-		},
+        },
         toolbar: [
             ['ai', ['ai']],
 			['text', ['bold', 'italic', 'underline', 'strikethrough', 'clear', 'cleaner']],
@@ -133,7 +133,8 @@ var summernote_image_upload_url;
             'pre',
             'blockquote'
         ],
-		icons: {
+        icons: {
+            'ai': 'hello',
 			'align': 'fa fa-align-left',
 			'alignCenter': 'fa fa-align-center',
 			'alignJustify': 'fa fa-align-justify',
