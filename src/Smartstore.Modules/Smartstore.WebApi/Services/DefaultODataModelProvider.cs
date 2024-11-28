@@ -365,11 +365,14 @@ namespace Smartstore.Web.Api
                 .Action(nameof(OrdersController.PaymentCapture))
                 .ReturnsFromEntitySet(set);
 
-            set.EntityType
+            var paymentRefund = set.EntityType
                 .Action(nameof(OrdersController.PaymentRefund))
-                .ReturnsFromEntitySet(set)
-                .Parameter<bool>("online")
+                .ReturnsFromEntitySet(set);
+
+            paymentRefund.Parameter<bool>("online")
                 .Required();
+            paymentRefund.Parameter<decimal>("amountToRefund")
+                .Optional();
 
             set.EntityType
                 .Action(nameof(OrdersController.Cancel))
