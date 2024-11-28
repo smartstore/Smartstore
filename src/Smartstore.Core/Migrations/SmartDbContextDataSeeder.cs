@@ -528,6 +528,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to ignore discounts assigned to products when a special price is applied.",
                 "Legt fest, ob produktbezogene Rabatte ignoriert werden, wenn ein Aktionspreis gilt.");
 
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.VatNumberStatus", "Status of tax number", "Status der Steuernummer");
+
             AddAIResources(builder);
         }
 

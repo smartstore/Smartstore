@@ -55,6 +55,7 @@
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 - Page Builder
 	- Added **AudioPlayer** block
+- Rule Builder: Added rule for VAT number status.
 - Product details
   - #997 Added a setting to disable display of product tags.
   - #1127 Display reward points.

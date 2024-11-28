@@ -6,7 +6,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 {
     internal class WeekdayRule : IRule<CartRuleContext>
     {
-        public static RuleValueSelectListOption[] GetDefaultValues(Language language)
+        public static RuleValueSelectListOption[] GetDefaultOptions(Language language)
         {
             CultureHelper.TryGetCultureInfoForLocale(language.LanguageCulture, out var cultureInfo);
 
