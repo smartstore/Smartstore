@@ -17,7 +17,11 @@
 <script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
 
 <widget key="summernote" target-zone="scripts">
+    <script>
+        var ai_icon_svg = $(".ai-dialog-opener-root:first .ai-icon-stars-tricolor");
+    </script>
     <script src="~/bundle/js/summernote.js"></script>
+
     @* Find summernote localization file *@
     <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
     <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>

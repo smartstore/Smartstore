@@ -134,7 +134,7 @@ var summernote_image_upload_url;
             'blockquote'
         ],
         icons: {
-            'ai': 'hello',
+            'ai': ai_icon_svg || 'fa fa-wand-magic-sparkles',
 			'align': 'fa fa-align-left',
 			'alignCenter': 'fa fa-align-center',
 			'alignJustify': 'fa fa-align-justify',

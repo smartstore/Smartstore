@@ -336,7 +336,7 @@ namespace Smartstore.Web.Rendering
         {
             var icon = (TagBuilder)HtmlHelper.BootstrapIcon("stars-tricolor", htmlAttributes: new Dictionary<string, object>
             {
-                ["class"] = "dropdown-icon bi-fw bi"
+                ["class"] = "dropdown-icon ai-icon-stars-tricolor bi-fw bi"
             });
 
             var btnTag = new TagBuilder("a");
