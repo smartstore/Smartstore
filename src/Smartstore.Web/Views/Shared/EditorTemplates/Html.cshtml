@@ -1,4 +1,6 @@
 ﻿@using Smartstore.Utilities
+@using Smartstore.Core.AI
+@using Smartstore.Web.Rendering.Events
 
 @model string
 
@@ -25,6 +27,17 @@
     @* Find summernote localization file *@
     <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
     <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+</widget>
+
+<widget key="html-editor-additions" target-zone="end">
+    @{
+        var htmlEditorRenderingEvent = new HtmlEditorRenderingEvent();
+        await CommonServices.EventPublisher.PublishAsync(htmlEditorRenderingEvent);
+    }
+    @foreach (var widget in htmlEditorRenderingEvent.HtmlContents)
+    {
+        @await widget.InvokeAsync(ViewContext);
+    }
 </widget>
 
 <link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />
