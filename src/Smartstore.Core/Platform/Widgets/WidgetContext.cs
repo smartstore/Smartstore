@@ -16,7 +16,7 @@ namespace Smartstore.Core.Widgets
 
         public WidgetContext(ActionContext actionContext, object? model)
         {
-            ActionContext = Guard.NotNull(actionContext, nameof(actionContext));
+            ActionContext = Guard.NotNull(actionContext);
             Model = model;
 
             if (actionContext is ViewContext viewContext)

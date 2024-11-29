@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {

@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Utilities
 @using Smartstore.Core.AI
 @using Smartstore.Web.Rendering.Events
+@using Smartstore.Utilities.Html
 
 @model string
 
@@ -8,7 +9,7 @@
     var lazy = GetMetadata<bool?>("lazy") ?? true;
     var id = Html.IdForModel();
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
-    var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
+    var htmlIsEmpty = HtmlUtility.IsEmptyHtml(html);
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
@@ -29,14 +30,15 @@
     <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
 </widget>
 
-<widget key="html-editor-additions" target-zone="end">
+<widget key="summernote-resources" target-zone="end">
     @{
-        var htmlEditorRenderingEvent = new HtmlEditorRenderingEvent();
+        // This event is used to render additional widgets in the html editor, but only once per request, not per editor instance.
+        var htmlEditorRenderingEvent = new RichTextEditorRenderingEvent("summernote", ViewContext);
         await CommonServices.EventPublisher.PublishAsync(htmlEditorRenderingEvent);
-    }
-    @foreach (var widget in htmlEditorRenderingEvent.HtmlContents)
-    {
-        @await widget.InvokeAsync(ViewContext);
+        foreach (var widget in htmlEditorRenderingEvent.Widgets)
+        {
+            await widget.InvokeAsync(ViewContext);
+        }
     }
 </widget>
 
