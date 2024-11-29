@@ -320,22 +320,6 @@ namespace Smartstore.Core.Checkout.Rules
                 },
                 new()
                 {
-                    Name = "CartBillingCountry",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.BillingCountry"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(BillingCountryRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
-                },
-                new()
-                {
-                    Name = "CartShippingCountry",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCountry"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(ShippingCountryRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
-                },
-                new()
-                {
                     Name = "CartShippingMethod",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingMethod"),
                     RuleType = RuleType.IntArray,
@@ -488,6 +472,57 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(PurchasedFromManufacturerRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
                     IsComparingSequences = true
+                },
+
+                new()
+                {
+                    Name = "CartBillingCountry",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.BillingCountry"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(BillingCountryRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
+                },
+                new()
+                {
+                    Name = "CartBillingEu",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.BillingEu"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(BillingEuRule),
+                },
+                new()
+                {
+                    Name = "CartBillingCompany",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.BillingCompany"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(BillingCompanyRule),
+                },
+                new()
+                {
+                    Name = "CartShippingCountry",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCountry"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ShippingCountryRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
+                },
+                new()
+                {
+                    Name = "CartShippingEu",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ShippingEu"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(ShippingEuRule),
+                },
+                new()
+                {
+                    Name = "CartShippingCompany",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCompany"),
+                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(ShippingCompanyRule),
                 },
 
                 new()
