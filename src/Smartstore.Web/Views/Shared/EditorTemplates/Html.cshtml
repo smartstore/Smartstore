@@ -37,7 +37,7 @@
         await CommonServices.EventPublisher.PublishAsync(htmlEditorRenderingEvent);
         foreach (var widget in htmlEditorRenderingEvent.Widgets)
         {
-            await widget.InvokeAsync(ViewContext);
+            @await widget.InvokeAsync(ViewContext)
         }
     }
 </widget>

@@ -55,7 +55,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            if (Key.HasValue() && _widgetProvider.ContainsWidget(TargetZone, Key))
+            var hasKey = Key.HasValue();
+
+            if (hasKey && _widgetProvider.ContainsWidget(TargetZone, Key))
             {
                 output.SuppressOutput();
                 return;
@@ -82,8 +84,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             var content = await GetContentAsync(context, output);
 
             output.SuppressOutput();
-
-            if (content != null && !content.IsEmptyOrWhiteSpace)
+            
+            if (content != null && (hasKey || !content.IsEmptyOrWhiteSpace))
             {
                 var widget = new HtmlWidget(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
                 _widgetProvider.RegisterWidget(TargetZone, widget);
