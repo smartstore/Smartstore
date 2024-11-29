@@ -661,10 +661,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Start with a div tag.",
                 "Starte mit einem div-Tag.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.JustHtml",
-                "Just return the HTML you have created so that it can be integrated directly into a website. " +
+                "Just return the created HTML without using Markdown code blocks, so that it can be integrated directly into a website. " +
                 "Don't give explanations about what you have created or introductions like: 'Gladly, here is your HTML'. " +
                 "Do not include the generated HTML in any delimiters like: '```html'.",
-                "Gib nur das erstellte HTML-zurück, so dass es direkt in einer Webseite eingebunden werden kann. " +
+                "Gib nur das erstellte HTML zurück ohne Markdown-Codeblöcke zu verwenden, so dass es direkt in einer Webseite eingebunden werden kann. " +
                 "Mache keine Erklärungen dazu, was du erstellt hast oder Einleitungen wie: 'Gerne, hier ist dein HTML'. " +
                 "Schließe das erzeugte HTML auch nicht in irgendwelche Begrenzer ein wie: '```html'.");
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
