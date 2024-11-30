@@ -35,6 +35,10 @@ let summernote_image_upload_url;
         recordEveryKeystroke: false,
         // TODO: Turn on spellCheck again
         spellCheck: false,
+        colorButton: {
+            foreColor: '#424242',
+            backColor: '#CEE7F7',
+        },
         callbacks: {
             onBlurCodeview(code, e) {
                 // Summernote does not update WYSIWYG content on codable blur,
@@ -68,13 +72,17 @@ let summernote_image_upload_url;
                 return html;
             }
         },
+        icons: {
+            'ai': ai_icon_svg || 'fa fa-wand-magic-sparkles',
+        },
         toolbar: [
             ['edit', ['undo', 'redo']],
-            ['text', ['bold', 'italic', 'underline', 'moreFontStyles']],
+            ['text', ['bold', 'italic', 'underline', 'color', 'moreFontStyles']],
             //['color', ['forecolor', 'backcolor']],
             //['font', ['fontname', 'x-color', 'fontsize']],
-            ['para', ['style', 'cssclass', 'ul', 'ol', 'paragraph', 'clear', 'cleaner']],
+            ['para', ['ai', 'style', 'cssclass', 'ul', 'ol', 'paragraph', 'clear', 'cleaner']],
             ['insert', ['link', 'image', 'video', 'table', 'hr']],
+            //['ai', ['ai']],
             ['view', ['codeview', 'fullscreen', 'help']]
         ],
         popover: {
@@ -90,7 +98,7 @@ let summernote_image_upload_url;
             table: [
                 ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
                 ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
-                ['custom', ['tableStyles']]
+                //['custom', ['tableStyles']]
             ],
              air: [
                ['color', ['color']],
