@@ -2,7 +2,9 @@
 
 namespace Smartstore.Web.Rendering.Events
 {
-    // TODO: (mh) DESCRIBE please!
+    /// <summary>
+    /// Event that occurs when a rich text editor is being rendered. Can be used to inject custom widgets into the editor.
+    /// </summary>
     public class RichTextEditorRenderingEvent(string flavor, ViewContext viewContext)
     {
         /// <summary>
@@ -15,7 +17,9 @@ namespace Smartstore.Web.Rendering.Events
         /// </summary>
         public ViewContext ViewContext { get; } = Guard.NotNull(viewContext);
 
-        // TODO: (mh) DESCRIBE please!
+        /// <summary>
+        /// A list of widgets to be rendered within the rich text editor.
+        /// </summary>
         public List<Widget> Widgets { get; set; } = [];
     }
 }
