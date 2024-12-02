@@ -537,12 +537,12 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Enums.ImportEntityType.Manufacturer", "Manufacturer", "Hersteller");
             builder.Delete("Admin.DataExchange.Import.DefaultProfileNames");
-            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Product", "My product import {0}", "Mein Produktimport {0}");
-            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Category", "My category import {0}", "Mein Warengruppenimport {0}");
-            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Customer", "My customer import {0}", "Mein Kundenimport {0}");
-            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.NewsletterSubscription", "My newsletter subscription import {0}", "Mein Import von Newsletter-Abonnements {0}");
-            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Manufacturer", "My manufacturer import {0}", "Mein Herstellerimport {0}");
-            
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProductProfileName", "My product import {0}", "Mein Produktimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultCategoryProfileName", "My category import {0}", "Mein Warengruppenimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultCustomerProfileName", "My customer import {0}", "Mein Kundenimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultNewsletterSubscriptionProfileName", "My newsletter subscription import {0}", "Mein Import von Newsletter-Abonnements {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultManufacturerProfileName", "My manufacturer import {0}", "Mein Herstellerimport {0}");
+
             AddAIResources(builder);
         }
 
