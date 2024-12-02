@@ -152,8 +152,11 @@
             if (summernote.length) {
                 resizeObserver.observe(summernote[0]);
             }
+        });
 
-            // TODO: (mh) (ai) On summernote init shift ai-opener below toolbar.
+        $(document).on('click', '.note-editor-preview', function (e) {
+            var aiOpener = $(this).closest(".ai-dialog-opener-root").find(".ai-dialog-opener");
+            aiOpener.addClass("d-none");
         });
     });
 
