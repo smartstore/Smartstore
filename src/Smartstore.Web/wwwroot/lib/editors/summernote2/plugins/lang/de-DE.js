@@ -26,6 +26,9 @@ $.extend(true, $.summernote.lang, {
         imageShapes: {
             tooltip: 'Stil',
             tooltipShapeOptions: ['Responsiv', 'Rahmen', 'Abgerundet', 'Kreis', 'Thumbnail', 'Schatten (klein)', 'Schatten (mittel)', 'Schatten (gro&szlig)']
+        },
+        ai: {
+            ai: "Mit KI bearbeiten"
         }
     }
 });
