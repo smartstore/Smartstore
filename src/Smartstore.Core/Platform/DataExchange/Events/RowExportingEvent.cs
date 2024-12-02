@@ -2,10 +2,6 @@
 
 namespace Smartstore.Core.DataExchange.Export.Events
 {
-    // TODO: Another event message must be implemented, say 'ColumnsBuildingEvent'
-    // The consumer of this event (most likely a plugin) could push a list of specific column headers
-    // into the global export definition.
-
     /// <summary>
     /// An event that is fired before an entity is exported.
     /// </summary>

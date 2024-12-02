@@ -138,7 +138,6 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            // TODO: (mg) Import GPSR manufacturer data using ImportBatchExecutedEvent.
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Manufacturer>(context, batch), cancelToken);
         }
 
