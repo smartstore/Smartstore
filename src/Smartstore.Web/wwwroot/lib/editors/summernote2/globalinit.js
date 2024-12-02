@@ -45,21 +45,21 @@ let summernote_image_upload_url;
                 // only when switched back to editor
                 $(this).val(code);
             },
-            //onFileBrowse(e, mediaType, deferred) {
-            //    Smartstore.media.openFileManager({
-            //        el: e.target,
-            //        type: mediaType,
-            //        backdrop: false,
-            //        onSelect: (files) => {
-            //            if (!files.length) {
-            //                deferred.reject();
-            //            }
-            //            else {
-            //                deferred.resolve(files[0].url);
-            //            }
-            //        }
-            //    });
-            //},
+            onFileBrowse(e, mediaType, deferred) {
+                Smartstore.media.openFileManager({
+                    el: e.target,
+                    type: mediaType,
+                    backdrop: false,
+                    onSelect: (files) => {
+                        if (!files.length) {
+                            deferred.reject();
+                        }
+                        else {
+                            deferred.resolve(files[0].url);
+                        }
+                    }
+                });
+            },
             onImageUpload(files) {
                 if (summernote_image_upload_url) {
                     sendFile(files[0], this);
@@ -218,6 +218,9 @@ $(function () {
                 tooltip: "Table style",
                 stylesExclusive: ["Basic", "Bordered"],
                 stylesInclusive: ["Striped", "Condensed", "Hoverable"]
+            },
+            ai: {
+                tooltip: "Edit with AI"
             }
         }
     });
@@ -225,10 +228,17 @@ $(function () {
     // Custom events
     // Editor toggling
     $(document).on('click', '.note-editor-preview', function (e) {
-        var div = $(this);
-        var textarea = $(div.data("target"));
-        var lang = div.data("lang");
+        let div = $(this);
+        let textarea = $(div.data("target"));
+        let lang = div.data("lang");
+        let root = div.parent();
 
+        if (root.parent().is('.ai-provider-tool')) {
+            // Remove button and dropdown menu from DOM
+            root.nextAll().remove();
+        }
+
+        // Remove preview element
         div.remove();
         textarea
             .removeClass('d-none')

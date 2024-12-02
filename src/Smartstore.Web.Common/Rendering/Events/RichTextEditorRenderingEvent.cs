@@ -3,7 +3,9 @@
 namespace Smartstore.Web.Rendering.Events
 {
     /// <summary>
-    /// Event that occurs when a rich text editor is being rendered. Can be used to inject custom widgets into the editor.
+    /// Event that occurs when a rich text editor is being rendered. 
+    /// Can be used to inject custom widgets into the editor's common resources zone, 
+    /// which is located at the end of the document.
     /// </summary>
     public class RichTextEditorRenderingEvent(string flavor, ViewContext viewContext)
     {

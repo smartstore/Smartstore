@@ -153,11 +153,6 @@
                 resizeObserver.observe(summernote[0]);
             }
         });
-
-        $(document).on('click', '.note-editor-preview', function (e) {
-            var aiOpener = $(this).closest(".ai-dialog-opener-root").find(".ai-dialog-opener");
-            aiOpener.addClass("d-none");
-        });
     });
 
     function openDialog(opener, params, large) {
