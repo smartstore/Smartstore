@@ -37,6 +37,7 @@
 - **DevTools**: New widget zone preview panel
   - Lists all zones in a menu
   - Zones can be temporarily toggled
+- #371 Importer for manufacturers.
 - Toggle password visibility
 - New app setting for MS SQL Server compatibility level
 - Enhanced database optimization and vacuum operations

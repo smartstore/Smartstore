@@ -3,9 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Import;
 using Smartstore.Admin.Models.Scheduling;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Import;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.IO;
 using Smartstore.Scheduling;
@@ -599,6 +604,9 @@ namespace Smartstore.Admin.Controllers
                     case ImportEntityType.Category:
                         availableKeyFieldNames = CategoryImporter.SupportedKeyFields;
                         break;
+                    case ImportEntityType.Manufacturer:
+                        availableKeyFieldNames = ManufacturerImporter.SupportedKeyFields;
+                        break;
                     case ImportEntityType.Customer:
                         availableKeyFieldNames = CustomerImporter.SupportedKeyFields;
                         break;
@@ -606,7 +614,7 @@ namespace Smartstore.Admin.Controllers
                         availableKeyFieldNames = NewsletterSubscriptionImporter.SupportedKeyFields;
                         break;
                     default:
-                        availableKeyFieldNames = Array.Empty<string>();
+                        availableKeyFieldNames = [];
                         break;
                 }
 
@@ -617,8 +625,8 @@ namespace Smartstore.Admin.Controllers
 
                         if (x == "Id")
                             item.Text = T("Admin.Common.Entity.Fields.Id");
-                        else if (allProperties.ContainsKey(x))
-                            item.Text = allProperties[x];
+                        else if (allProperties.TryGetValue(x, out string label))
+                            item.Text = label;
 
                         return item;
                     })
@@ -765,14 +773,21 @@ namespace Smartstore.Admin.Controllers
 
         private static string[] GetDisabledDefaultFieldNames(ImportProfile profile)
         {
-            return profile.EntityType switch
+            switch (profile.EntityType)
             {
-                ImportEntityType.Product => new[] { "Name", "Sku", "ManufacturerPartNumber", "Gtin", "SeName" },
-                ImportEntityType.Category => new[] { "Name", "SeName" },
-                ImportEntityType.Customer => new[] { "CustomerGuid", "Email" },
-                ImportEntityType.NewsletterSubscription => new[] { "Email" },
-                _ => Array.Empty<string>(),
-            };
+                case ImportEntityType.Product:
+                    return [nameof(Product.Name), nameof(Product.Sku), nameof(Product.ManufacturerPartNumber), nameof(Product.Gtin), "SeName"];
+                case ImportEntityType.Category:
+                    return [nameof(Category.Name), "SeName"];
+                case ImportEntityType.Manufacturer:
+                    return [nameof(Manufacturer.Name), "SeName"];
+                case ImportEntityType.Customer:
+                    return [nameof(Customer.CustomerGuid), nameof(Customer.Email)];
+                case ImportEntityType.NewsletterSubscription:
+                    return [nameof(NewsletterSubscription.Email)];
+                default:
+                    return [];
+            }
         }
 
         #endregion

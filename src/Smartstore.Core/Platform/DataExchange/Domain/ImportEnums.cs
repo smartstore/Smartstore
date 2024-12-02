@@ -8,7 +8,8 @@
         Product = 0,
         Category,
         Customer,
-        NewsletterSubscription
+        NewsletterSubscription,
+        Manufacturer
     }
 
     public enum ImportFileType

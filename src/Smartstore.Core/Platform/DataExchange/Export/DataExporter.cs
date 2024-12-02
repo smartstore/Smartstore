@@ -363,6 +363,7 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.PriceLabels = await _db.PriceLabels.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
                 ctx.ProductTemplates = await _db.ProductTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
                 ctx.CategoryTemplates = await _db.CategoryTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
+                ctx.ManufacturerTemplates = await _db.ManufacturerTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
 
                 if (provider.EntityType == ExportEntityType.Product ||
                     provider.EntityType == ExportEntityType.Order ||
@@ -408,7 +409,7 @@ namespace Smartstore.Core.DataExchange.Export
                 int? storeId = ctx.Filter.StoreId == 0 ? ctx.Projection.StoreId : ctx.Filter.StoreId;
                 ctx.Store = ctx.Stores.Values.FirstOrDefault(x => x.Id == (storeId ?? _services.StoreContext.CurrentStore.Id));
 
-                result = new List<Store> { ctx.Store };
+                result = [ctx.Store];
             }
 
             // Get some metadata for each store.
@@ -573,6 +574,7 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.NewsletterSubscriptions.Clear();
                 ctx.ProductTemplates.Clear();
                 ctx.CategoryTemplates.Clear();
+                ctx.ManufacturerTemplates.Clear();
                 ctx.Countries.Clear();
                 ctx.StateProvinces.Clear();
                 ctx.Languages.Clear();
@@ -625,7 +627,7 @@ namespace Smartstore.Core.DataExchange.Export
             // Some entities need extra treatment.
             if (entityType == ExportEntityType.Product)
             {
-                productEntities = new List<Product>();
+                productEntities = [];
 
                 Multimap<int, Product> associatedProductsMap = null;
                 var products = entities.Cast<Product>();
@@ -992,12 +994,12 @@ namespace Smartstore.Core.DataExchange.Export
             switch (ctx.Request.Provider.Value.EntityType)
             {
                 case ExportEntityType.Product:
-                    types = new RelatedEntityType[]
-                    {
+                    types =
+                    [
                         RelatedEntityType.TierPrice,
                         RelatedEntityType.ProductVariantAttributeValue,
                         RelatedEntityType.ProductVariantAttributeCombination
-                    };
+                    ];
                     break;
                 default:
                     return Enumerable.Empty<ExportDataUnit>();

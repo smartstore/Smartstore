@@ -53,6 +53,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ProductUrlHelper>().InstancePerLifetimeScope();
             builder.RegisterType<ProductImporter>().Keyed<IEntityImporter>(ImportEntityType.Product).InstancePerLifetimeScope();
             builder.RegisterType<CategoryImporter>().Keyed<IEntityImporter>(ImportEntityType.Category).InstancePerLifetimeScope();
+            builder.RegisterType<ManufacturerImporter>().Keyed<IEntityImporter>(ImportEntityType.Manufacturer).InstancePerLifetimeScope();
 
             // Search.
             builder.RegisterType<CatalogSearchQueryVisitor>()

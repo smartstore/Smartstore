@@ -535,6 +535,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ShippingEu", "Shipping country in EU", "Lieferland in EU");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ShippingCompany", "Shipping to company", "Lieferung an Firma");
 
+            builder.AddOrUpdate("Enums.ImportEntityType.Manufacturer", "Manufacturer", "Hersteller");
+            builder.Delete("Admin.DataExchange.Import.DefaultProfileNames");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Product", "My product import {0}", "Mein Produktimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Category", "My category import {0}", "Mein Warengruppenimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Customer", "My customer import {0}", "Mein Kundenimport {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.NewsletterSubscription", "My newsletter subscription import {0}", "Mein Import von Newsletter-Abonnements {0}");
+            builder.AddOrUpdate("Admin.DataExchange.Import.DefaultProfileName.Manufacturer", "My manufacturer import {0}", "Mein Herstellerimport {0}");
+            
             AddAIResources(builder);
         }
 

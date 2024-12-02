@@ -74,6 +74,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public Dictionary<int, StateProvince> StateProvinces { get; set; } = [];
         public Dictionary<int, string> ProductTemplates { get; set; } = [];
         public Dictionary<int, string> CategoryTemplates { get; set; } = [];
+        public Dictionary<int, string> ManufacturerTemplates { get; set; } = [];
         public HashSet<string> NewsletterSubscriptions { get; set; } = [];
 
         /// <summary>
