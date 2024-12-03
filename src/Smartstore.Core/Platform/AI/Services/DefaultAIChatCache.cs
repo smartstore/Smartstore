@@ -31,8 +31,12 @@ namespace Smartstore.Core.AI
 
         public Task RemoveAsync(string token)
         {
-            Guard.NotEmpty(token);
-            return _cache.RemoveAsync(BuildCacheKey(token));
+            if (token.HasValue())
+            {
+                return _cache.RemoveAsync(BuildCacheKey(token));
+            }
+
+            return Task.CompletedTask;
         }
 
         private static string BuildCacheKey(string token)
