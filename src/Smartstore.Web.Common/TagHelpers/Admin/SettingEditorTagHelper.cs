@@ -91,7 +91,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 settingColDiv.Attributes["class"] = "col multi-store-setting-control";
 
                 output.PreContent.AppendHtml(overrideColDiv);
-                output.WrapContentInsideWith(settingColDiv);
+                output.WrapContentWith(settingColDiv);
             }
         }
 
