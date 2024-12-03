@@ -14,7 +14,7 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="DotLiquid" Version="2.2.692" />
         <PackageReference Include="ExcelDataReader" Version="3.7.0" />
-        <PackageReference Include="FluentFTP" Version="51.1.0" />
+        <PackageReference Include="FluentFTP" Version="52.0.0" />
         <PackageReference Include="FluentMigrator" Version="6.2.0" />
         <PackageReference Include="FluentMigrator.Runner.MySql" Version="6.2.0" />
         <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
