@@ -727,6 +727,7 @@ namespace Smartstore.Admin.Controllers
             var customer = _workContext.CurrentCustomer;
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productSlug = await product.GetActiveSlugAsync();
+            var index = Math.Max((command.Page - 1) * command.PageSize, 0);
 
             var allCombinations = await _db.ProductVariantAttributeCombinations
                 .AsNoTracking()
@@ -744,6 +745,7 @@ namespace Smartstore.Admin.Controllers
                 var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductPathAsync(product.Id, productSlug, x.AttributeSelection);
+                pvacModel.EntityIndex = index++;
                 pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
                     x.AttributeSelection, 
                     product,
@@ -788,7 +790,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = new ProductVariantAttributeCombinationModel();
-            await PrepareProductAttributeCombinationModelAsync(model, null, product);
+            await PrepareProductAttributeCombinationModel(model, null, product);
             PrepareViewBag(btnId, formId, false, false);
 
             return View(model);
@@ -835,7 +837,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            await PrepareProductAttributeCombinationModelAsync(model, null, product);
+            await PrepareProductAttributeCombinationModel(model, null, product);
             PrepareViewBag(btnId, formId, warnings.Count == 0, false);
 
             if (warnings.Count > 0)
@@ -847,14 +849,20 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> AttributeCombinationEditPopup(int id, string btnId, string formId)
+        public async Task<IActionResult> AttributeCombinationEditPopup(
+            int id, 
+            string btnId,
+            string formId,
+            int entityIndex)
         {
-            var model = await PrepareProductAttributeCombinationModelAsync(id);
+            var model = await PrepareProductAttributeCombinationModel(id);
             if (model == null)
             {
                 return NotFound();
             }
-            
+
+            model.EntityIndex = entityIndex;
+
             PrepareViewBag(btnId, formId);
 
             return View(model);
@@ -878,53 +886,51 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX.
+        [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> EditSiblingAttributeCombination(int currentId, int productId, bool next)
+        public async Task<IActionResult> EditSiblingAttributeCombination(
+            GridCommand command,
+            int productId,
+            int entityIndex,
+            int totalRecords,
+            bool next)
         {
-            var siblingCombinationId = await GetSiblingQuery(true).FirstOrDefaultAsync();
-            if (siblingCombinationId == 0)
+            // Update "entityIndex" to index of sibling.
+            entityIndex += next ? 1 : -1;
+            if (entityIndex < 0)
             {
-                siblingCombinationId = await GetSiblingQuery(false).FirstOrDefaultAsync();
+                entityIndex = totalRecords - 1;
+            }
+            else if (entityIndex >= totalRecords)
+            {
+                entityIndex = 0;
             }
 
-            var model = await PrepareProductAttributeCombinationModelAsync(siblingCombinationId);
+            // Same query as in ProductVariantAttributeCombinationList.
+            var query = _db.ProductVariantAttributeCombinations
+                .Where(x => x.ProductId == productId)
+                .OrderBy(x => x.Id)
+                .ApplyGridCommand(command, false)
+                .Select(x => x.Id);
+
+            if (entityIndex > 0)
+            {
+                query = query.Skip(entityIndex);
+            }
+
+            var siblingId = await query.Take(1).FirstOrDefaultAsync();
+            //$"- next:{next} id:{currentId} siblingId:{siblingId} skip:{entityIndex}".Dump();
+
             ViewBag.IsEdit = true;
 
-            var partial = model != null
-                ? await InvokePartialViewAsync("_CreateOrUpdateAttributeCombinationPopup", model)
-                : null;
-
-            return new JsonResult(new { partial });
-
-            IQueryable<int> GetSiblingQuery(bool applyIdClause)
+            var partial = string.Empty;
+            var model = await PrepareProductAttributeCombinationModel(siblingId);
+            if (model != null)
             {
-                var query = _db.ProductVariantAttributeCombinations
-                    .Where(x => x.ProductId == productId);
-
-                // TODO: (mg) consider grid sorting somehow. Requires different approach. Filtering by ID would not work anymore.
-                if (applyIdClause)
-                {
-                    if (next)
-                    {
-                        query = query.Where(x => x.Id > currentId);
-                    }
-                    else
-                    {
-                        query = query.Where(x => x.Id < currentId);
-                    }
-                }
-
-                if (next)
-                {
-                    query = query.OrderBy(x => x.Id);
-                }
-                else
-                {
-                    query = query.OrderByDescending(x => x.Id);
-                }
-
-                return query.Select(x => x.Id);
+                partial = await InvokePartialViewAsync("_CreateOrUpdateAttributeCombinationPopup", model);
             }
+
+            return new JsonResult(new { entityIndex, partial });
         }
 
         // AJAX.
@@ -1030,7 +1036,7 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        private async Task<ProductVariantAttributeCombinationModel> PrepareProductAttributeCombinationModelAsync(int id)
+        private async Task<ProductVariantAttributeCombinationModel> PrepareProductAttributeCombinationModel(int id)
         {
             var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
             if (combination != null)
@@ -1039,8 +1045,7 @@ namespace Smartstore.Admin.Controllers
                 if (product != null)
                 {
                     var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
-                    await PrepareProductAttributeCombinationModelAsync(model, combination, product, true);
-
+                    await PrepareProductAttributeCombinationModel(model, combination, product, true);
                     return model;
                 }
             }
@@ -1048,7 +1053,7 @@ namespace Smartstore.Admin.Controllers
             return null;
         }
 
-        private async Task PrepareProductAttributeCombinationModelAsync(
+        private async Task PrepareProductAttributeCombinationModel(
             ProductVariantAttributeCombinationModel model,
             ProductVariantAttributeCombination entity,
             Product product,
