@@ -261,7 +261,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public static string GetProductTypeLabel(this Product product, ILocalizationService localizationService)
         {
-            if (product != null && product.ProductType != ProductType.SimpleProduct)
+            if (product != null && product.ProductTypeId > (int)ProductType.SimpleProduct)
             {
                 var key = "Admin.Catalog.Products.ProductType.{0}.Label".FormatInvariant(product.ProductType.ToStringInvariant());
                 return localizationService.GetResource(key);
