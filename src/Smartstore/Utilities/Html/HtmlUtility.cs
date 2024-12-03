@@ -417,5 +417,38 @@ namespace Smartstore.Utilities.Html
 
             return doc.Body?.InnerHtml ?? string.Empty;
         }
+
+        /// <summary>
+        /// Very fast and simple check for html tags. 
+        /// </summary>
+        public static bool ContainsHtmlTags(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return false;
+
+            int index = 0;
+            while ((index = input.IndexOf('<', index)) != -1)
+            {
+                // Ensure there is a '>' after the '<'
+                int closeBracketIndex = input.IndexOf('>', index + 1);
+                if (closeBracketIndex == -1)
+                {
+                    // No closing '>' found, invalid tag structure
+                    break;
+                }
+
+                // Check if a closing tag '</' exists after the current '<'
+                int closingTagIndex = input.IndexOf("</", closeBracketIndex);
+                if (closingTagIndex != -1)
+                {
+                    return true;
+                }
+
+                // Move past the current '>' to continue searching
+                index = closeBracketIndex + 1;
+            }
+
+            return false;
+        }
     }
 }
