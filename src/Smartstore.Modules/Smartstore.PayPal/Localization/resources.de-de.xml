@@ -496,6 +496,9 @@
             <LocaleResource Name="FullName.NotEmpty">
                 <Value>Bitte geben Sie Ihren vollständigen Namen an.</Value>
             </LocaleResource>
+            <LocaleResource Name="Country.NotEmpty">
+                <Value>Bitte wählen Sie ein Land.</Value>
+            </LocaleResource>
             <LocaleResource Name="BIC">
                 <Value>BIC</Value>
             </LocaleResource>
