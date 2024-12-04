@@ -188,7 +188,6 @@ let summernote_image_upload_url;
 
 // Initialize summernote
 $(function () {
-
     // Extend base language
     $.extend(true, $.summernote.lang, {
         'en-US': {
@@ -218,9 +217,6 @@ $(function () {
                 tooltip: "Table style",
                 stylesExclusive: ["Basic", "Bordered"],
                 stylesInclusive: ["Striped", "Condensed", "Hoverable"]
-            },
-            ai: {
-                tooltip: "Edit with AI"
             }
         }
     });
