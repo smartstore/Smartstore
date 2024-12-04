@@ -98,7 +98,7 @@ let summernote_image_upload_url;
             table: [
                 ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
                 ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
-                //['custom', ['tableStyles']]
+                ['custom', ['tableStyles']]
             ],
              air: [
                ['color', ['color']],

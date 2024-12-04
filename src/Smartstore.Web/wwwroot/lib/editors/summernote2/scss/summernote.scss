@@ -274,7 +274,6 @@ $img-margin-right: 10px;
   flex-direction: column;
   row-gap: 8px;
   margin: 0;
-  //width: 160px;
 }
 
 .note-palette-title {
@@ -557,6 +556,8 @@ $img-margin-right: 10px;
 .note-toolbar {
   $btn-height: calc((#{$btn-line-height-sm} * 1em) + (#{$btn-padding-y-sm} * 2) + (#{$btn-border-width} * 2));
   $btn-height: 32.56px;
+
+  --note-btn-active-border-color: rgba(var(--primary-rgb), 0.3);
   --note-toolbar-gap: 5px;
   --note-toolbar-rowheight: calc(#{$btn-height} + (var(--note-toolbar-gap) * 2));
 
@@ -576,6 +577,10 @@ $img-margin-right: 10px;
     background-image: linear-gradient(rgba(0,0,0, 0.1) 1px, transparent 1px);
     background-size: 100% var(--note-toolbar-rowheight);
     background-position: 0 -1px;
+
+    > .note-toolgroup:last-of-type {
+      margin-inline-start: auto;
+    }
   }
 
   &:not(.dropdown-menu) {
@@ -584,64 +589,6 @@ $img-margin-right: 10px;
 
   &.dropdown-menu.show {
     display: flex;
-  }
-}
-
-.note-btn {
-  --btn-padding-x: 6px;
-  min-width: 32px;
-
-  //&:not(.dropdown-toggle) {
-    // Emulate .btn-icon
-    //width: var(--btn-height);
-  //}
-
-  >i,
-  >svg {
-    font-size: 16px !important;
-    fill: currentColor;
-  }
-
-  >svg {
-    height: 16px;
-  }
-}
-
-.note-toolbar {
-  > .note-btn-group {
-    column-gap: 2px;
-    border: 0 solid rgba($black, 0.12);
-    border-inline-end-width: 1px;
-    padding-inline-end: 5px;
-
-    &:last-of-type {
-      border-inline-end-width: 0;
-      padding-inline-end: 0;
-    }
-
-    >.note-btn,
-    >.note-btn-group>.note-btn {
-      @include button-flat();
-      // INFO: Must have high specificty, .btn-group will kill radius otherwise.
-      border-radius: var(--btn-border-radius) !important;
-      margin-inline-start: 0;
-
-      &:not(:hover) {
-        transition: none !important;
-      }
-
-      // Change color hover/active/pressed styling
-      --btn-active-bg: rgba(var(--primary-bg-subtle-rgb), 0.75);
-      --btn-active-color: var(--primary-text-emphasis);
-      --btn-active-border-color: transparent;
-      --btn-active-shadow: none;
-    }
-
-    .note-btn:active,
-    .note-btn-group.show>.note-btn {
-      --btn-active-bg: var(--primary-bg-subtle) !important;
-      --btn-active-border-color: rgba(var(--primary-rgb), 0.3) !important;
-    }
   }
 
   .scrollable-menu {
@@ -654,8 +601,62 @@ $img-margin-right: 10px;
   }
 }
 
-.note-toolbar-main > .note-btn-group:last-of-type {
-  margin-inline-start: auto;
+.note-toolgroup {
+  display: inline-flex;
+  position: relative;
+  column-gap: 2px;
+  border: 0 solid rgba($black, 0.12);
+  border-inline-end-width: 1px;
+  padding-inline-end: 5px;
+
+  &:last-of-type {
+    border-inline-end-width: 0;
+    padding-inline-end: 0;
+  }
+}
+
+.note-btn {
+  @include button-flat();
+  min-width: 32px;
+
+  // Change color hover/active/pressed styling
+  --btn-padding-x: 6px;
+  --btn-active-bg: rgba(var(--primary-bg-subtle-rgb), 0.75);
+  --btn-active-color: var(--primary-text-emphasis);
+  --btn-active-border-color: transparent;
+  --btn-active-shadow: none;
+
+  >i,
+  >svg {
+    font-size: 16px !important;
+    fill: currentColor;
+  }
+
+  >svg {
+    height: 16px;
+  }
+
+  // &:not(:hover) {
+  //   //transition: none !important;
+  // }
+
+  &:active,
+  .note-btn-group.show > & {
+    --btn-active-bg: var(--primary-bg-subtle) !important;
+    --btn-active-border-color: var(--note-btn-active-border-color) !important;
+  }
+}
+
+.btn-group-split {
+    // Split dropdown buttons, e.g. "Color"
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+    border-radius: $btn-border-radius-sm;
+
+    &:hover, 
+    &.show {
+      outline-color: var(--note-btn-active-border-color);
+    }
 }
 
 

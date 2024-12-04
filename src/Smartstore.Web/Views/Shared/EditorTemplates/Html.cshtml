@@ -27,7 +27,7 @@
 
     @* Find summernote localization file *@
     <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage" sm-if='WorkContext.WorkingLanguage.LanguageCulture != "en-US"'></script>
-    <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    @* <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script> *@
 </widget>
 
 <widget key="summernote-resources" target-zone="end">

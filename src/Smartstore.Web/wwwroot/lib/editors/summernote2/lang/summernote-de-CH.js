@@ -1,6 +1,6 @@
-(function ($) {
+(function($) {
   $.extend(true, $.summernote.lang, {
-    'de-DE': {
+    'de-CH': {
       font: {
         bold: 'Fett',
         italic: 'Kursiv',
@@ -11,14 +11,14 @@
         strikethrough: 'Durchgestrichen',
         subscript: 'Tiefgestellt',
         superscript: 'Hochgestellt',
-        size: 'Schriftgröße',
+        size: 'Schriftgrösse',
       },
       image: {
         image: 'Bild',
         insert: 'Bild einfügen',
-        resizeFull: 'Originalgröße',
-        resizeHalf: '1/2 Größe',
-        resizeQuarter: '1/4 Größe',
+        resizeFull: 'Originalgrösse',
+        resizeHalf: '1/2 Grösse',
+        resizeQuarter: '1/4 Grösse',
         floatLeft: 'Linksbündig',
         floatRight: 'Rechtsbündig',
         floatNone: 'Kein Textfluss',
@@ -29,8 +29,8 @@
         dragImageHere: 'Bild hierher ziehen',
         dropImage: 'Bild oder Text nehmen',
         selectFromFiles: 'Datei auswählen',
-        maximumFileSize: 'Maximale Dateigröße',
-        maximumFileSizeError: 'Maximale Dateigröße überschritten',
+        maximumFileSize: 'Maximale Dateigrösse',
+        maximumFileSizeError: 'Maximale Dateigrösse überschritten',
         url: 'Bild URL',
         remove: 'Bild entfernen',
         original: 'Original',
@@ -89,7 +89,7 @@
       paragraph: {
         paragraph: 'Absatz',
         outdent: 'Einzug verkleinern',
-        indent: 'Einzug vergrößern',
+        indent: 'Einzug vergrössern',
         left: 'Links ausrichten',
         center: 'Zentriert ausrichten',
         right: 'Rechts ausrichten',
@@ -107,7 +107,7 @@
       },
       shortcut: {
         shortcuts: 'Tastenkürzel',
-        close: 'Schließen',
+        close: 'Schliessen',
         textFormatting: 'Textformatierung',
         action: 'Aktion',
         paragraphFormatting: 'Absatzformatierung',
@@ -152,37 +152,5 @@
         select: 'Zeichen auswählen',
       },
     },
-  });
-
-  $.extend(true, $.summernote.lang, {
-    'de-DE': { /* German */
-      common: {
-        ok: 'OK',
-        cancel: 'Abbrechen'
-      },
-      font: {
-        code: 'Code'
-      },
-      attrs: {
-        cssClass: 'CSS Klasse',
-        cssStyle: 'CSS Stil',
-        rel: 'Rel',
-      },
-      link: {
-        browse: 'Durchsuchen'
-      },
-      image: {
-        imageProps: 'Bild Eigenschaften'
-      },
-      tableStyles: {
-        tooltip: "Tabellenstil",
-        stylesExclusive: ["Standard", "Eingerahmt"],
-        stylesInclusive: ["Streifen", "Kompakt", "Hover Effekt"]
-      },
-      imageShapes: {
-        tooltip: 'Stil',
-        tooltipShapeOptions: ['Responsiv', 'Rahmen', 'Abgerundet', 'Kreis', 'Thumbnail', 'Schatten (klein)', 'Schatten (mittel)', 'Schatten (gro&szlig)']
-      }
-    }
   });
 })(jQuery);
