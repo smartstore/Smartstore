@@ -197,6 +197,8 @@
 - PayPal:
   - Fixed payment discount problem (discount from a formerly choosen payment method was applied).
   - Fixed VAT exempt & currency conversion problems.
+  - Only the frist refund executed from the backend was accepted by PayPal.
+  - Fixed unhandled payer action required problem for wallet payment methods.  
 - #1042 Fixed broken roxy file manager.
 - #969 Promo badges are not rendered in frontend due to type mismatch.
 - Google Analytics: Fixed problem with single quotation mark in category name.
@@ -222,8 +224,7 @@
 - Fixed `SqlException` "String or binary data would be truncated" when generating URL slugs that are too long.
 - Fixed orders of deleted customers were not displayed in order grid.
 - `ProductRuleEvaluatorTask` should also take unpublished categories into account.
-- PayPal: Only the frist refund executed from the backend was accepted by PayPal.
-- PayPal: Fixed unhandled payer action required problem for wallet payment methods.
+- Fixed the generic attributes grid always displayed only one data page.
 
 ## Smartstore 5.1.0
 
