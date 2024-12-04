@@ -2,11 +2,28 @@
 /* Theme: Admin (RTL overrides)
 ======================================== */
 
-@import '_variables.scss';
-@import "../lib/bootstrap/scss/_functions.scss";
-@import "../lib/bootstrap/scss/_variables.scss";
-@import "../lib/bootstrap/scss/_mixins.scss";
-@import '../shared/_variables-shared.scss';
+//
+// Head
+// --------------------------------------------------
+
+// Bootstrap functions
+@import "../lib/bootstrap/scss/functions";
+
+// Shared Smartstore functions 
+@import '../shared/functions';
+
+// Shared Bootstrap variables
+@import '../shared/variables-shared-bootstrap';
+
+// Admin theme variables and overrides
+@import "variables";
+
+// Bootstrap head: vars, mixins, maps etc.
+@import "../lib/bootstrap/scss/bootstrap-head";
+
+// Shared Smartstore variables, mixins and :root
+//@import '../shared/variables-shared';
+//@import '../shared/mixins';
 
 
 //
