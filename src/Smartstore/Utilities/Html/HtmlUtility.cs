@@ -419,9 +419,13 @@ namespace Smartstore.Utilities.Html
         }
 
         /// <summary>
-        /// Very fast and simple check for html tags. 
+        /// Very fast and simple check whether <paramref name="input"/> is HTML.
         /// </summary>
-        public static bool ContainsHtmlTags(string input)
+        /// <remarks>
+        /// This method performs a very fast and simple check by looking for the presence of opening and closing HTML tags.
+        /// It does not perform a full HTML parse.
+        /// </remarks>
+        public static bool IsHtml(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return false;
