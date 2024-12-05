@@ -33,6 +33,7 @@ let summernote_image_upload_url;
         popatmouse: true,
         hideArrow: false,
         recordEveryKeystroke: false,
+        followingToolbar: false,
         // TODO: Turn on spellCheck again
         spellCheck: false,
         colorButton: {
