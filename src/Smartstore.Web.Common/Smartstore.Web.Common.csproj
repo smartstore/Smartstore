@@ -21,7 +21,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.1.1" />
 		<PackageReference Include="NUglify" Version="1.21.9" />
 		<PackageReference Include="SharpScss" Version="2.0.0" />
-		<PackageReference Include="Smartstore.Licensing" Version="5.0.4" />
+		<PackageReference Include="Smartstore.Licensing" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
