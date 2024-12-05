@@ -46,7 +46,7 @@
         <column for="StateProvinceName" readonly entity-member="StateProvinceId" />
         <column for="Zip" />
         <column for="TaxCategoryName" readonly entity-member="TaxCategoryId" />
-        <column for="Percentage" />
+        <column for="Percentage" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
@@ -105,7 +105,7 @@
                         <smart-label asp-for="Percentage" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="Percentage" />
+                        <editor asp-for="Percentage" />
                         <span asp-validation-for="Percentage"></span>
                     </div>
                 </div>

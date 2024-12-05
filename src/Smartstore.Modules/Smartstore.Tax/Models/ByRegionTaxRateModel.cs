@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Tax.Models
+﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Data;
+
+namespace Smartstore.Tax.Models
 {
     [LocalizedDisplay("Plugins.Tax.CountryStateZip.Fields.")]
     public class ByRegionTaxRateModel : EntityModelBase
@@ -23,5 +26,13 @@
 
         [LocalizedDisplay("*Percentage")]
         public decimal Percentage { get; set; }
+    }
+
+    public partial class ByRegionTaxRateModelValidator : SmartValidator<ByRegionTaxRateModel>
+    {
+        public ByRegionTaxRateModelValidator(SmartDbContext db)
+        {
+            ApplyEntityRules<ProductAttribute>(db);
+        }
     }
 }
