@@ -1,0 +1,747 @@
+﻿/// <reference path="../../../../shared/references.scss" />
+//@import 'summernote-icons.scss'; // Obsolete, we now use inline SVG icons for the missing ones
+
+$note-border-color: $input-border-color;
+$note-bg: #8080801d;
+
+$img-margin-left: 10px;
+$img-margin-right: 10px;
+
+
+// Wrapper & Preview
+// ------------------------------------------
+
+.note-editor-preview {
+	border: 1px solid $input-border-color;
+	min-height: 100px;
+	max-height: 350px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: $input-padding-y $input-padding-x;
+    border-radius: $input-border-radius;
+	cursor: default;
+
+	&.empty {
+		min-height: initial;
+		//color: $text-muted;
+	}
+}
+
+// Dropzone
+// ------------------------------------------
+
+.note-dropzone {
+    position: absolute;
+    display: none;
+    z-index: 100;
+    color: lightskyblue;
+    background-color: #fff;
+    opacity: 0.95;
+    border-radius: $input-border-radius;
+
+    .note-dropzone-message {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    &.hover {
+        color: var(--primary);
+    }
+
+    .note-editor.dragover & {
+        display: table;
+    }
+}
+
+
+// Editor
+// ------------------------------------------
+
+.note-editor {
+    position: relative;
+    border: 1px solid $note-border-color;
+    @include border-top-radius($input-border-radius);
+    @include border-bottom-radius($input-border-radius);
+
+    &:focus-within,
+    &:focus,
+    &.focus {
+        z-index: $zindex-sticky - 1;
+        border-color: $input-focus-border-color;
+    }
+
+    .note-placeholder {
+        padding: 10px;
+    }
+
+    &.note-airframe {
+        border-width: 0;
+    }
+}
+
+
+// Editing area
+// ------------------------------------------
+
+.note-editing-area {
+    position: relative;
+    overflow: hidden;
+}
+
+
+// Editable
+// ------------------------------------------
+
+.note-editable {
+    outline: none;
+    padding: 10px;
+    overflow: auto;
+    word-wrap: break-word;
+
+    a {
+        text-decoration: underline;
+    }
+
+    .note-airframe & {
+        padding: 0;
+    }
+
+    &[contenteditable="false"] {
+        background-color: $note-bg;
+    }
+
+    sup {
+        vertical-align: super;
+    }
+
+    sub {
+        vertical-align: sub;
+    }
+
+    img.note-float-left {
+        margin-right: $img-margin-right;
+    }
+
+    img.note-float-right {
+        margin-left: $img-margin-left;
+    }
+
+    // Alignment does not work with or without sequences
+    ul li,
+    ol li {
+        list-style-position: inside;
+    }
+
+	table:not(.table-bordered):not([border]),
+	table:not(.table-bordered)[border='0'] {
+		border-collapse: collapse;
+
+		td, th {
+			border: 1px dashed #bbb;
+		}
+	}
+}
+
+
+// Codeview
+// ------------------------------------------
+
+.note-editor.codeview {
+    .note-editable {
+        display: none;
+    }
+
+    .note-codable {
+        display: block;
+    }
+}
+
+
+// Codable
+// ------------------------------------------
+
+.note-codable {
+    display: none;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    box-shadow: none;
+    font-family: Menlo, Monaco, monospace, sans-serif;
+    font-size: 14px;
+    color: #ccc;
+    background-color: #222;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+
+// Fullscreen
+// ------------------------------------------
+
+.note-editor.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    border-radius: 0 !important;
+    border-color: $note-border-color !important;
+    z-index: $zindex-tooltip !important;
+
+    .note-resizebar {
+        display: none;
+    }
+}
+
+.note-fullscreen-body {
+    overflow: hidden !important;
+}
+
+
+// Notifications
+// ------------------------------------------
+
+.note-status-output {
+    display: block;
+    width: 100%;
+    font-size: 13px;
+    line-height: 1.2;
+    border: 0;
+    border-top: 1px solid $input-border-color;
+    padding: 4px 8px;
+    font-weight: 600;
+
+    &:empty {
+        height: 0;
+        padding: 0;
+        border-top-width: 0;
+    }
+}
+
+
+// Statusbar
+// ------------------------------------------
+
+.note-statusbar {
+    background-color: $note-bg;
+    border-top: 1px solid rgba($black, 0.15);
+
+    .note-resizebar {
+        padding-top: 1px;
+        height: 9px;
+        width: 100%;
+        cursor: ns-resize;
+
+        .note-icon-bar {
+            width: 20px;
+            margin: 1px auto;
+            border-top: 1px solid rgba($black, 0.2);
+        }
+    }
+
+    &.locked {
+        .note-resizebar {
+            cursor: default;
+
+            .note-icon-bar {
+                display: none;
+            }
+        }
+    }
+}
+
+
+// Color Palette
+// ------------------------------------------
+
+.note-palette {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    margin: 0;
+    width: 160px;
+}
+
+.note-palette-title {
+    font-size: 13px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.note-color-reset,
+.note-color-select {
+    font-size: 11px;
+    width: 100%;
+}
+
+.note-color-row {
+    height: 20px;
+}
+
+.note-color-select-btn {
+    display: none;
+}
+
+.note-holder-custom .note-color-btn {
+    border: 1px solid var(--gray-200) !important;
+}
+
+.note-color-palette {
+    line-height: 1;
+
+    .note-color-btn {
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .note-color-btn:hover {
+        transform: scale(1.2);
+        transition: all 0.2s;
+    }
+}
+
+
+// Placeholder
+// ------------------------------------------
+
+.note-placeholder {
+    position: absolute;
+    display: none;
+    color: var(--gray-600);
+}
+
+
+// Modal Dialog
+// ------------------------------------------
+
+.note-modal {
+    .form-group {
+        margin-inline: 0;
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .note-form-label {
+        margin-bottom: 0.25rem;
+    }
+
+    .note-modal-form {
+        margin: 0;
+    }
+
+    .modal-footer > .note-btn-primary {
+        min-width: 80px;
+    }
+}
+
+
+// Handle / Control selection
+// ------------------------------------------
+
+.note-control-selection {
+    position: absolute;
+    display: none;
+    border: 1px solid #000;
+
+    & > div {
+        position: absolute;
+    }
+}
+
+.note-control-selection-bg {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.3;
+}
+
+.note-control-handle {
+    width: 7px;
+    height: 7px;
+    border: 1px solid #000;
+}
+
+.note-control-holder {
+    @extend .note-control-handle;
+}
+
+.note-control-sizing {
+    @extend .note-control-handle;
+    background-color: #000;
+}
+
+.note-control-nw {
+    top: -5px;
+    left: -5px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.note-control-ne {
+    top: -5px;
+    right: -5px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.note-control-sw {
+    bottom: -5px;
+    left: -5px;
+    border-top: none;
+    border-right: none;
+}
+
+.note-control-se {
+    right: -5px;
+    bottom: -5px;
+    cursor: se-resize;
+}
+
+.note-control-se.note-control-holder {
+    cursor: default;
+    border-top: none;
+    border-left: none;
+}
+
+.note-control-selection-info {
+    right: 0;
+    bottom: 0;
+    padding: 5px;
+    margin: 5px;
+    color: #fff;
+    background-color: #000;
+    font-size: 12px;
+    opacity: 0.7;
+    border-radius: 5px;
+}
+
+
+// Hint popover
+// ------------------------------------------
+
+.note-hint-popover {
+    min-width: 100px;
+    padding: 2px;
+
+    .popover-content {
+        padding: 3px;
+        max-height: 150px;
+        overflow: auto;
+    }
+}
+
+.note-hint-group {
+    .note-hint-item {
+        display: block !important;
+        padding: 3px;
+
+        &.active, 
+        &:hover {
+            display: block;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.4;
+            color: white;
+            white-space: nowrap;
+            text-decoration: none;
+            background-color: #428bca;
+            outline: 0;
+            cursor: pointer;
+        }
+    }
+}
+
+
+// Dropdown menu for toolbar and popover
+// -------------------------------------
+
+.note-dropdown-menu {
+    > .dropdown-item > * {
+	    // Overwrite all reboot margins in Summernote dropdown items
+	    margin-bottom: 0;
+    }
+    
+    // dropdown-menu right position
+    // http://forrst.com/posts/Bootstrap_right_positioned_dropdown-2KB
+    &.right {
+        right: 0;
+        left: auto;
+
+        &:before {
+            right: 9px;
+            left: auto !important;
+        }
+
+        &:after {
+            right: 10px;
+            left: auto !important;
+        }
+    }
+
+    // dropdown-menu for selectbox
+    &.note-check {
+        min-width: initial;
+
+        > .dropdown-item {
+            justify-content: space-between;
+
+            > i {
+                color: var(--warning);
+                visibility: hidden;
+                order: 2;
+                margin-inline: 10px -4px !important;
+            }
+
+            &.checked {
+                font-weight: 600;
+
+                > i {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+}
+
+
+// Tools
+// ------------------------------------------
+
+.note-toolbar-wrapper {
+    position: relative;
+}
+
+.note-popover.popover {
+    display: none;
+    max-width: none;
+
+    .arrow {
+        left: 20px !important;
+    }
+}
+
+.popover-content, 
+.note-toolbar {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 5px;
+    gap: 5px;
+}
+
+.note-btn {
+    --btn-padding-x: 9px;
+    min-width: 32px;
+
+    > i,
+    > svg {
+        //font-size: 16px !important;
+        fill: currentColor;
+    }
+
+    > svg {
+        height: 14px;
+    }
+}
+
+.note-toolbar {
+    position: relative;
+}
+
+.note-editor > .note-toolbar {
+    // INFO: Must have high specificty, therefore .note-editor > .note-toolbar
+    // Apply flat style only to buttons in toolbar
+    > .note-btn-group {
+        column-gap: 1px;
+        border: 0 solid rgba($black, 0.12);
+        border-inline-end-width: 1px;
+        padding-inline-end: 5px;
+
+        &:last-of-type {
+            border-inline-end-width: 0;
+            padding-inline-end: 0;
+        }
+
+        > .note-btn,
+        > .note-btn-group > .note-btn {
+            @include button-flat();
+            margin-inline-start: 0;
+        }
+    }
+
+
+	.scrollable-menu {
+        --scrollbar-track-color: #fff;
+        --scrollbar-track-hover-color: #fff;
+		height: auto;
+		max-height: 340px;
+		min-width: 280px;
+		overflow-x: hidden;
+	}
+}
+
+
+// Para style dropdown
+// -------------------------------------
+
+.dropdown-style.dropdown-menu {
+    blockquote, pre {
+        margin: 0;
+    }
+
+    pre {
+        padding-block: 5px;
+        width: 100%;
+    }
+
+    h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+
+// Color dropdowns
+// -------------------------------------
+
+.note-color > .dropdown-toggle {
+    padding-inline: 6px;
+}
+
+.note-color-all > .note-dropdown-menu {
+    min-width: auto;
+    padding: 12px;
+    column-gap: 8px;
+
+    &.show {
+        display: flex;
+    }
+}
+
+
+// Table dropdown
+// -------------------------------------
+
+.note-table.dropdown-menu {
+    min-width: 0;
+    padding: 5px;
+}
+
+.note-dimension-picker {
+    font-size: 18px;
+}
+
+.note-dimension-picker-mousecatcher {
+    position: absolute !important;
+    z-index: 3;
+    width: 10em;
+    height: 10em;
+    cursor: pointer;
+}
+
+.note-dimension-picker-unhighlighted {
+    position: relative !important;
+    z-index: 1;
+    width: 5em;
+    height: 5em;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAgMAAAAroGbEAAAACVBMVEUAAIj4+Pjp6ekKlAqjAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfYAR0BKhmnaJzPAAAAG0lEQVQI12NgAAOtVatWMTCohoaGUY+EmIkEAEruEzK2J7tvAAAAAElFTkSuQmCC") repeat;
+}
+
+.note-dimension-picker-highlighted {
+    position: absolute !important;
+    z-index: 2;
+    width: 1em;
+    height: 1em;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAgMAAAAroGbEAAAACVBMVEUAAIjd6vvD2f9LKLW+AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfYAR0BKwNDEVT0AAAAG0lEQVQI12NgAAOtVatWMTCohoaGUY+EmIkEAEruEzK2J7tvAAAAAElFTkSuQmCC") repeat;
+}
+
+.note-recent-color {
+    display: inline-block;
+    border: 1px solid rgba($black, 0.12);
+    padding-inline: 2px;
+    border-radius: 3px;
+}
+
+
+// Misc
+// -----------------------
+
+.note-btn-group.note-list {
+    margin-left: 5px;
+}
+
+.note-fontsize-10 {
+    font-size: 10px;
+}
+
+.note-codeview-keep.active > .fa-expand:before {
+    // Swap icon: expand --> compress
+    content: "\f066";
+}
+
+.note-current-fontsize {
+    // Fix: the current font button width should not change (toolbar flickers)
+    display: inline-block;
+    width: 16px;
+}
+
+.note-para > .btn-group:last-child .dropdown-menu.show {
+	// Fix: the para popover button groups should not wrap
+	display: flex !important;
+}
+
+.note-font > .btn-group:first-child > .btn {
+	// Fix: the fontsize button width should not change (toolbar flickers)
+	padding-inline: 0.5rem;
+	width: 112px;
+    max-width: 112px;
+    justify-content: space-between;
+    font-weight: 400;
+
+    > .note-current-fontname {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.note-dropdown-menu {
+    &.dropdown-fontsize {
+        min-width: 92px;
+    }
+
+    &.dropdown-cssclass > .dropdown-item {
+	    position: relative;
+
+        > .d-block {
+            width: 100%;
+        }
+
+	    &.checked {
+		    order: -1;
+
+		    &:before {
+			    position: absolute;
+			    content: '';
+			    inset-inline-start: 0;
+			    top: 0;
+			    bottom: 0;
+			    width: 3px;
+			    background-color: var(--warning);
+		    }
+	    }
+    }
+}
