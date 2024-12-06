@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 5.2.0
+## Smartstore 6.0.0
 
 ### Breaking Changes
 - Removed Sofort provider from PayPal module (disabled by PayPal on 18.04.2024)
