@@ -48,15 +48,18 @@
   - Setting to place the search hits of unavailable products further back in the search list.
   - Finding products by keywords (e.g. product compatibility list). Also added product meta keywords to the search index.
   - Added price calculation options for the price to be indexed.
-- Affiliates
-  - #896 Added a cart rule for affiliates.
-  - Added a button to remove the assignment of a customer to an affiliate on customer edit page.
+- Affiliates: Added a button to remove the assignment of a customer to an affiliate on customer edit page.
 - Import news from RSS news feeds.
-- #971 Add a cart rule to check if the current customer is authenticated with a certain external authentication method.
 - Reverse proxy: added support for `X-Forwarded-Prefix` header (for `PathBase` resolution)
 - Page Builder
 	- Added **AudioPlayer** block
-- Rule Builder: Added rules for VAT number status, billing/shipping to EU and billing/shipping to company.
+- Added cart rules to Rule Builder
+  - #971 Customer's external authentication method
+  - #896 Customer is an affiliate
+  - VAT number status
+  - Tax exempt
+  - Billing/shipping to EU
+  - Billing/shipping to company
 - Product details
   - #997 Added a setting to disable display of product tags.
   - #1127 Display reward points.

@@ -286,40 +286,6 @@ namespace Smartstore.Core.Checkout.Rules
 
                 new()
                 {
-                    Name = "CustomerRole",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.IsInCustomerRole"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(CustomerRoleRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CustomerRole) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "CustomerVatNumberStatus",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.VatNumberStatus"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(CustomerVatNumberStatusRule),
-                    SelectList = new LocalRuleValueSelectList(vatNumberStatus) { Multiple = true }
-                },
-                new()
-                {
-                    Name = "CustomerAuthentication",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.Authentication"),
-                    RuleType = RuleType.StringArray,
-                    ProcessorType = typeof(CustomerAuthenticationRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AuthenticationMethod) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "Affiliate",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.Affiliate"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(CustomerAffiliateRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Affiliate) { Multiple = true }
-                },
-                new()
-                {
                     Name = "CartShippingMethod",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingMethod"),
                     RuleType = RuleType.IntArray,
@@ -476,9 +442,56 @@ namespace Smartstore.Core.Checkout.Rules
 
                 new()
                 {
+                    Name = "CustomerRole",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.IsInCustomerRole"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(CustomerRoleRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CustomerRole) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "CustomerTaxExempt",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.TaxExempt"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(CustomerTaxExemptRule)
+                },
+                new()
+                {
+                    Name = "CustomerVatNumberStatus",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.VatNumberStatus"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(CustomerVatNumberStatusRule),
+                    SelectList = new LocalRuleValueSelectList(vatNumberStatus) { Multiple = true }
+                },
+                new()
+                {
+                    Name = "CustomerAuthentication",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.Authentication"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.StringArray,
+                    ProcessorType = typeof(CustomerAuthenticationRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AuthenticationMethod) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "Affiliate",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.Affiliate"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(CustomerAffiliateRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Affiliate) { Multiple = true }
+                },
+
+                new()
+                {
                     Name = "CartBillingCountry",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BillingCountry"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.IntArray,
                     ProcessorType = typeof(BillingCountryRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
@@ -487,7 +500,7 @@ namespace Smartstore.Core.Checkout.Rules
                 {
                     Name = "CartBillingEu",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BillingEu"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.Boolean,
                     ProcessorType = typeof(BillingEuRule),
                 },
@@ -495,7 +508,7 @@ namespace Smartstore.Core.Checkout.Rules
                 {
                     Name = "CartBillingCompany",
                     DisplayName = T("Admin.Rules.FilterDescriptor.BillingCompany"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.Boolean,
                     ProcessorType = typeof(BillingCompanyRule),
                 },
@@ -503,7 +516,7 @@ namespace Smartstore.Core.Checkout.Rules
                 {
                     Name = "CartShippingCountry",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCountry"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.IntArray,
                     ProcessorType = typeof(ShippingCountryRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Country) { Multiple = true }
@@ -512,7 +525,7 @@ namespace Smartstore.Core.Checkout.Rules
                 {
                     Name = "CartShippingEu",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingEu"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.Boolean,
                     ProcessorType = typeof(ShippingEuRule),
                 },
@@ -520,7 +533,7 @@ namespace Smartstore.Core.Checkout.Rules
                 {
                     Name = "CartShippingCompany",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ShippingCompany"),
-                    GroupKey = "Admin.Rules.FilterDescriptor.Group.Addresses",
+                    GroupKey = "Common.Entity.Addresses",
                     RuleType = RuleType.Boolean,
                     ProcessorType = typeof(ShippingCompanyRule),
                 },

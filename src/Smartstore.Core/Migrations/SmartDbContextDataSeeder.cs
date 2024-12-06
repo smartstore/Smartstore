@@ -528,7 +528,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to ignore discounts assigned to products when a special price is applied.",
                 "Legt fest, ob produktbezogene Rabatte ignoriert werden, wenn ein Aktionspreis gilt.");
 
-            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.Group.Addresses", "Addresses", "Adressen");
+            builder.AddOrUpdate("Common.Entity.Addresses", "Addresses", "Adressen");
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.TaxExempt", "Tax exempt", "Mehrwertsteuerfrei");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.VatNumberStatus", "Status of tax number", "Status der Steuernummer");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.BillingEu", "Billing country in EU", "Rechnungsland in EU");
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.BillingCompany", "Billing to company", "Rechnung an Firma");
