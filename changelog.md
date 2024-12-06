@@ -1,5 +1,11 @@
 # Release Notes
 
+## Smartstore 6.0.1
+
+### Bugfixes
+
+- The bootstrap-icons.svg path resolution is missing the base path.
+
 ## Smartstore 6.0.0
 
 ### Breaking Changes
