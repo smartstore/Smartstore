@@ -3,7 +3,7 @@ name: Publish release Docker image
 on:
   push:
     branches:
-      - '5.1.0.x' # << Change this for new versions.
+      - '6.0.0.x' # << Change this for new versions.
   workflow_dispatch:
 
 env:
