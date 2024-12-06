@@ -61,7 +61,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var resolveResult = _fileResolver.Resolve(Language.UniqueSeoCode, src, true, FallbackCulture);
+            var resolveResult = _fileResolver.Resolve(Language.LanguageCulture, src, true, FallbackCulture);
 
             if (resolveResult?.Success == true)
             {
