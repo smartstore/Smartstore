@@ -123,7 +123,7 @@ let summernote_image_upload_url;
     };
 
     if (CodeMirror?.hint) {
-        const cmOptions = summernote_global_config.codemirror = {
+        summernote_global_config.codemirror = {
             mode: "htmlmixed",
             theme: "eclipse",
             lineNumbers: true,
@@ -139,11 +139,8 @@ let summernote_image_upload_url;
             hintOptions: {
                 closeCharacters: /[\s()\[\]{};:>,.|%]/,
                 completeSingle: false
-            }
-        };
-
-        if (CodeMirror?.hint) {
-            cmOptions.extraKeys = {
+            },
+            extraKeys: {
                 "'.'": CodeMirror.hint.completeAfter,
                 "'<'": CodeMirror.hint.completeAfter,
                 "'/'": CodeMirror.hint.completeIfAfterLt,
@@ -153,7 +150,7 @@ let summernote_image_upload_url;
                 "F11": function (cm) { cm.setOption("fullScreen", !cm.getOption("fullScreen")); },
                 "Esc": function (cm) { if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false); }
             }
-        }
+        };
     }
 
     function sendFile(file, editor, welEditable) {
