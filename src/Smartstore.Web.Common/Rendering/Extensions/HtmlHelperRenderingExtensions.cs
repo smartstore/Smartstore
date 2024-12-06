@@ -750,10 +750,12 @@ namespace Smartstore.Web.Rendering
             }
 
             var httpContext = helper.ViewContext.HttpContext;
+            var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
+            var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
 
             // Use tag (with file version appended)
-            var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
-            var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, $"/lib/bi/bootstrap-icons.svg") + "#" + name;
+            var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
+            var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath) + "#" + name;
             var symbol = new TagBuilder("use");
             symbol.Attributes["xlink:href"] = href;
 
