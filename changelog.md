@@ -5,6 +5,7 @@
 ### Bugfixes
 
 - The bootstrap-icons.svg path resolution is missing the base path.
+- AI: HTMLeditor does not record undo after answer is applied.
 
 ## Smartstore 6.0.0
 
