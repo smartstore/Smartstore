@@ -36,7 +36,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * :mega: **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * :earth_americas: **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
-* :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118583/Getting+Started)
+* :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET60/pages/2511044691/Getting+Started)
 * ▶️ **Azure Marketplace:** [https://azuremarketplace.microsoft.com](https://azuremarketplace.microsoft.com/marketplace/apps/smartstore-ag.smartstorenet?tab=Overview)
 <p>&nbsp;</p>
 
@@ -198,4 +198,4 @@ We have set up a live online demo for you to test Smartstore without a local ins
 
 Smartstore Community Edition is released under the [AGPL license](https://www.gnu.org/licenses/agpl-3.0.de.html).
 
-**Add a star to our new repository** to stay up-to-date, get involved or just watch how we're doing. Learn about the latest developments, actively participate and don't miss out on new releases.
+**Add a star to our repository** to stay up-to-date, get involved or just watch how we're doing. Learn about the latest developments, actively participate and don't miss out on new releases.
