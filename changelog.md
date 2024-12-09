@@ -8,6 +8,8 @@
 - Summernote HTML editor:
   - Code sync adds a line break after caret position (caused by outdated beautify library).
   - AI: HTMLeditor does not record undo after answer is applied.
+- Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
+
 
 ## Smartstore 6.0.0
 
