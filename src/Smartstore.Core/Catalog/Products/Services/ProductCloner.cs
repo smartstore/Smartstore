@@ -223,7 +223,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 string name = product.GetLocalized(x => x.Name, lang, false, false);
 
-                await _urlService.SaveSlugAsync(clone, string.Empty, name, false, lang.Id, true);
+                await _urlService.SaveSlugAsync(clone, string.Empty, name, false, lang.Id);
             }
         }
 
