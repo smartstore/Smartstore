@@ -44,14 +44,14 @@ namespace Smartstore.Core.Catalog.Brands
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets a description displayed at the bottom of the manufacturer page.
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         [LocalizedProperty]
         public string BottomDescription { get; set; }
 
