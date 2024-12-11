@@ -65,7 +65,6 @@ $img-margin-right: 10px;
     border: 1px solid $note-border-color;
     @include border-top-radius($input-border-radius);
     @include border-bottom-radius($input-border-radius);
-    --note-sticky-toolbar-offset: 0px;
     --note-sticky-toolbar-zindex: #{$zindex-sticky - 1};
 
     &:focus-within,
