@@ -34,7 +34,7 @@ namespace Smartstore.Web.Razor
                     if (context.Values.TryGetValue(ThemeViewLocationExpander.ParamKey, out var themeName)) // HP
                     {
                         var themeModule = _moduleCatalog.GetModuleByTheme(themeName);
-                        if (themeModule != null && themeModule.DependsOn.Contains(module.SystemName)) 
+                        if (themeModule?.DependsOn?.Contains(module.SystemName) == true)
                         {
                             // Current theme's companion module depends on current module
                             var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
