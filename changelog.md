@@ -4,6 +4,7 @@
 
 ### Bugfixes
 
+- Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Summernote HTML editor:
   - Code sync adds a line break after caret position (caused by outdated beautify library).
