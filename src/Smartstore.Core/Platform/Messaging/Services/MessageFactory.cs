@@ -148,11 +148,22 @@ namespace Smartstore.Core.Messaging
 
             if (modelTreeJson != messageTemplate.LastModelTree)
             {
-                messageContext.MessageTemplate.LastModelTree = modelTreeJson;
+                messageTemplate.LastModelTree = modelTreeJson;
                 if (!messageTemplate.IsTransientRecord())
                 {
-                    _db.TryUpdate(messageContext.MessageTemplate);
-                    await _db.SaveChangesAsync();
+                    try
+                    {
+                        _db.TryUpdate(messageTemplate);
+                        await _db.SaveChangesAsync();
+                    }
+                    catch (InvalidOperationException ioe)
+                    {
+                        // Ignore exception. "LastModelTree" is not essential for message creation/processing.
+                        if (!ioe.IsAlreadyAttachedEntityException())
+                        {
+                            throw;
+                        }
+                    }
                 }
             }
 
