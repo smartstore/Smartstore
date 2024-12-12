@@ -2,6 +2,10 @@
 
 ## Smartstore 6.0.1
 
+### New Features
+
+- MegaSearch: Added setting to indicate whether to split compound words.
+
 ### Bugfixes
 
 - Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.
@@ -12,10 +16,7 @@
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
 - Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
-
-### New Features
-
-- MegaSearch: Added setting to indicate whether to split compound words.
+- MegaMenu did not clear the output cache when any settings were changed.
 
 
 ## Smartstore 6.0.0
