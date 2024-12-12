@@ -11,6 +11,7 @@
   - AI: HTMLeditor does not record undo after answer is applied.
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
+- Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
 
 ### New Features
 
