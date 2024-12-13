@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Dynamic;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -146,7 +147,7 @@ namespace Smartstore.Core.Messaging
             return result;
         }
 
-        private void SanitizeModelDictionary(IDictionary<string, object> dict, bool ignoreNullMembers, params string[] ignoreMemberNames)
+        private static void SanitizeModelDictionary(IDictionary<string, object> dict, bool ignoreNullMembers, params string[] ignoreMemberNames)
         {
             if (ignoreNullMembers || ignoreMemberNames.Length > 0)
             {
@@ -876,7 +877,7 @@ namespace Smartstore.Core.Messaging
 
         public async Task<TreeNode<ModelTreeMember>> GetLastModelTreeAsync(string messageTemplateName)
         {
-            Guard.NotEmpty(messageTemplateName, nameof(messageTemplateName));
+            Guard.NotEmpty(messageTemplateName);
 
             var template = await _db.MessageTemplates
                 .AsNoTracking()
@@ -901,7 +902,7 @@ namespace Smartstore.Core.Messaging
                 return null;
             }
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<TreeNode<ModelTreeMember>>(template.LastModelTree);
+            return JsonConvert.DeserializeObject<TreeNode<ModelTreeMember>>(template.LastModelTree);
         }
 
         public TreeNode<ModelTreeMember> BuildModelTree(TemplateModel model)
@@ -922,6 +923,7 @@ namespace Smartstore.Core.Messaging
         {
             var t = instance?.GetType();
             TreeNode<ModelTreeMember> node;
+
             if (t == null || t.IsBasicOrNullableType())
             {
                 node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = modelName, Kind = ModelTreeMemberKind.Primitive });
@@ -989,10 +991,7 @@ namespace Smartstore.Core.Messaging
                 }
                 else if (pi.PropertyType.IsClass)
                 {
-                    if (instanceLookup == null)
-                    {
-                        instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance) { instance };
-                    }
+                    instanceLookup ??= new HashSet<object>(ReferenceEqualityComparer.Instance) { instance };
 
                     var childInstance = prop.GetValue(instance);
                     if (childInstance != null)
