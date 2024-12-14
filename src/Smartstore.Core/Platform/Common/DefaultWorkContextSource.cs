@@ -8,6 +8,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Data.Hooks;
@@ -53,6 +54,7 @@ namespace Smartstore.Core
         private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
         private readonly IGeoCountryLookup _geoCountryLookup;
+        private readonly IOverloadProtector _overloadProtector;
 
         public DefaultWorkContextSource(
             SmartDbContext db,
@@ -66,7 +68,8 @@ namespace Smartstore.Core
             ICacheManager cache,
             IUserAgent userAgent,
             IWebHelper webHelper,
-            IGeoCountryLookup geoCountryLookup)
+            IGeoCountryLookup geoCountryLookup,
+            IOverloadProtector overloadProtector)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
@@ -80,6 +83,7 @@ namespace Smartstore.Core
             _cache = cache;
             _webHelper = webHelper;
             _geoCountryLookup = geoCountryLookup;
+            _overloadProtector = overloadProtector;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -114,7 +118,8 @@ namespace Smartstore.Core
                 Db = _db,
                 HttpContext = _httpContextAccessor.HttpContext,
                 UserAgent = _userAgent,
-                WebHelper = _webHelper
+                WebHelper = _webHelper,
+                OverloadProtector = _overloadProtector
             };
 
             try
@@ -164,6 +169,12 @@ namespace Smartstore.Core
 
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
+                if (await _overloadProtector.ForbidNewGuestAsync())
+                {
+                    // DDoS attack? Prevent new guest account creation and throw to block the request.
+                    throw new HttpResponseException(StatusCodes.Status403Forbidden, "Forbidden");
+                }
+
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
                 // Create new record in these cases.
@@ -414,15 +425,25 @@ namespace Smartstore.Core
             public ICustomerService CustomerService { get; init; }
             public IUserAgent UserAgent { get; init; }
             public IWebHelper WebHelper { get; init; }
+            public IOverloadProtector OverloadProtector { get; init; }
 
             public Guid? CustomerGuid { get; set; }
             public string ClientIdent { get; set; }
             public ILockHandle LockHandle { get; set; }
         }
 
-        private static Task<Customer> DetectAuthenticated(DetectCustomerContext context)
+        private static async Task<Customer> DetectAuthenticated(DetectCustomerContext context)
         {
-            return context.CustomerService.GetAuthenticatedCustomerAsync();
+            var customer = await context.CustomerService.GetAuthenticatedCustomerAsync();
+            if (customer != null)
+            {
+                if (await context.OverloadProtector.DenyCustomerAsync())
+                {
+                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
+                }
+            }
+
+            return customer;
         }
 
         private static Task<Customer> DetectTaskScheduler(DetectCustomerContext context)
@@ -445,14 +466,19 @@ namespace Smartstore.Core
             return Task.FromResult<Customer>(null);
         }
 
-        private static Task<Customer> DetectBot(DetectCustomerContext context)
+        private static async Task<Customer> DetectBot(DetectCustomerContext context)
         {
             if (context.UserAgent.IsBot())
             {
-                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+                if (await context.OverloadProtector.DenyBotAsync())
+                {
+                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
+                }
+
+                return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
-            return Task.FromResult<Customer>(null);
+            return null;
         }
 
         private static async Task<Customer> DetectWebhookEndpoint(DetectCustomerContext context)
@@ -502,6 +528,11 @@ namespace Smartstore.Core
 
                 if (customer != null && !customer.IsRegistered())
                 {
+                    if (await context.OverloadProtector.DenyGuestAsync())
+                    {
+                        throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
+                    }
+
                     // Don't treat registered customers as guests.
                     return customer;
                 }
@@ -510,17 +541,22 @@ namespace Smartstore.Core
             return null;
         }
 
-        private static Task<Customer> DetectBotForMedia(DetectCustomerContext context)
+        private static async Task<Customer> DetectBotForMedia(DetectCustomerContext context)
         {
             // Don't overstress the system with guest detection for media files.
             // If there's no endpoint, it's most likely a media file request.
             // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
             if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
             {
-                return context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+                if (await context.OverloadProtector.DenyBotAsync())
+                {
+                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
+                }
+
+                return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
-            return Task.FromResult<Customer>(null);
+            return null;
         }
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
