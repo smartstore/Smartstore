@@ -59,7 +59,7 @@ namespace Smartstore.Core.Migrations
             try
             {
                 var migrator = new AttributesMigrator(_db, _logger);
-                var numUpdated = await migrator.CreateAttributeCombinationHashCodesAsync(cancelToken);
+                var numUpdated = await migrator.CreateAttributeCombinationHashCodesAsync(false, cancelToken);
 
                 _logger.Debug($"Created hash codes for {numUpdated} attribute combinations.");
             }
