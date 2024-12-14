@@ -36,7 +36,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Pictures")]
         public int[] AssignedPictureIds { get; set; } = Array.Empty<int>();
 
-        public List<PictureSelectItemModel> AssignablePictures { get; set; } = new();
+        public List<PictureSelectItemModel> AssignablePictures { get; set; } = [];
 
         [LocalizedDisplay("Admin.Catalog.Products.Fields.Length")]
         public decimal? Length { get; set; }
@@ -56,7 +56,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Common.IsActive")]
         public bool IsActive { get; set; }
 
-        public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
+        public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = [];
 
         [LocalizedDisplay("*Attributes")]
         public string AttributesXml { get; set; }
@@ -64,9 +64,10 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Common.Product")]
         public string ProductUrl { get; set; }
 
-        public List<string> Warnings { get; set; } = new();
+        public List<string> Warnings { get; set; } = [];
 
         public int ProductId { get; set; }
+        public int EntityIndex { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
         public string BaseDimensionIn { get; set; }
 

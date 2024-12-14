@@ -2,16 +2,22 @@
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Smartstore.Core.Platform.AI.Prompting
+namespace Smartstore.Core.AI.Prompting
 {
     /// <summary>
-    /// Model interface for the text generation prompt UI.
+    /// Model interface for prompt UI.
     /// </summary>
     public interface IPromptContainer
     {
         string? EntityName { get; }
         string? Prompt { get; }
+    }
 
+    /// <summary>
+    /// Model interface for the text generation prompt UI.
+    /// </summary>
+    public interface ITextPromptContainer : IPromptContainer
+    {
         int? WordLimit { get; }
         string? Style { get; }
         string? Tone { get; }
@@ -22,5 +28,13 @@ namespace Smartstore.Core.Platform.AI.Prompting
 
         SelectList? AvailableStyles { get; }
         SelectList? AvailableTones { get; }
+    }
+
+    /// <summary>
+    /// Model interface for the suggestion generation prompt UI.
+    /// </summary>
+    public interface ISuggestionPromptContainer : IPromptContainer
+    {
+        int? NumSuggestions { get; }
     }
 }

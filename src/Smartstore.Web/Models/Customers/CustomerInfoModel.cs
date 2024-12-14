@@ -127,7 +127,7 @@ namespace Smartstore.Web.Models.Customers
     {
         public CustomerInfoValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings)
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddressStrict();
 
             //form fields
             if (customerSettings.FirstNameRequired)
@@ -135,14 +135,14 @@ namespace Smartstore.Web.Models.Customers
                 RuleFor(x => x.FirstName).NotEmpty();
             }
 
-            RuleFor(x => x.FirstName).ValidName(T);
+            RuleFor(x => x.FirstName).ValidPersonName(T);
 
             if (customerSettings.LastNameRequired)
             {
                 RuleFor(x => x.LastName).NotEmpty();
             }
 
-            RuleFor(x => x.LastName).ValidName(T);
+            RuleFor(x => x.LastName).ValidPersonName(T);
 
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
             {

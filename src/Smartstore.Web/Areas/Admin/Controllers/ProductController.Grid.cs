@@ -94,10 +94,12 @@ namespace Smartstore.Admin.Controllers
                 query = query.WithCategoryIds(null, model.SearchCategoryId);
             }
 
-            if (model.SearchDeliveryTimeIds?.Any() ?? false)
+            if (!model.SearchDeliveryTimeIds.IsNullOrEmpty())
             {
                 query = query.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
             }
+
+            query.ParseSearchTerm = !useCatalogSearch;
 
             if (useCatalogSearch)
             {

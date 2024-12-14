@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     public static partial class AIChatExtensions
     {

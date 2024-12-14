@@ -11,5 +11,19 @@
 
         [LocalizedDisplay("*IncludeWeightOfFreeShippingProducts")]
         public bool IncludeWeightOfFreeShippingProducts { get; set; }
+
+
+        [LocalizedDisplay("*Zip")]
+        public string SearchZip { get; set; }
+
+        [LocalizedDisplay("*Country")]
+        public int SearchCountryId { get; set; }
+
+        [LocalizedDisplay("*ShippingMethod")]
+        public int SearchShippingMethodId { get; set; }
+
+        [UIHint("Stores")]
+        [LocalizedDisplay("Admin.Common.Store.SearchFor")]
+        public int SearchStoreId { get; set; }
     }
 }

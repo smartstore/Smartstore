@@ -41,6 +41,7 @@ namespace Smartstore.Web.Controllers
             {
                 Product = product,
                 VariantQuery = query,
+                HasInitiallySelectedVariants = query.Variants.Count > 0,
                 Customer = customer,
                 Store = store,
                 Currency = _services.WorkContext.WorkingCurrency,
@@ -1027,7 +1028,11 @@ namespace Smartstore.Web.Controllers
             // Delivery Time.
             var deliveryPresentation = _catalogSettings.DeliveryTimesInProductDetail;
 
-            if (model.IsAvailable)
+            model.IsShippingEnabled = product.IsShippingEnabled;
+            model.DeliveryTimesPresentation = deliveryPresentation;
+            model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+
+            if (model.IsAvailable || model.DisplayDeliveryTimeAccordingToStock)
             {
                 var deliveryTime = await _deliveryTimeService.GetDeliveryTimeAsync(product, _catalogSettings);
                 if (deliveryTime != null)
@@ -1041,10 +1046,6 @@ namespace Smartstore.Web.Controllers
                     }
                 }
             }
-
-            model.IsShippingEnabled = product.IsShippingEnabled;
-            model.DeliveryTimesPresentation = deliveryPresentation;
-            model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
             if (!model.IsAvailable && model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
             {

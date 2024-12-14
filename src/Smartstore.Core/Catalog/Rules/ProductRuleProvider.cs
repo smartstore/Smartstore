@@ -4,6 +4,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
@@ -14,26 +16,41 @@ namespace Smartstore.Core.Catalog.Rules
 {
     public partial class ProductRuleProvider : RuleProviderBase, IProductRuleProvider
     {
-        private readonly ICommonServices _services;
+        internal const string VariantPrefix = "Variant";
+        internal const string AttributePrefix = "Attribute";
+
+        private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly IApplicationContext _appContext;
         private readonly IRuleService _ruleService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICategoryService _categoryService;
+        private readonly ICurrencyService _currencyService;
         private readonly ILocalizationService _localizationService;
         private readonly CatalogSettings _catalogSettings;
 
         public ProductRuleProvider(
-            ICommonServices services,
+            SmartDbContext db,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            IApplicationContext appContext,
             IRuleService ruleService,
             ICatalogSearchService catalogSearchService,
             ICategoryService categoryService,
+            ICurrencyService currencyService,
             ILocalizationService localizationService,
             CatalogSettings catalogSettings)
             : base(RuleScope.Product)
         {
-            _services = services;
+            _db = db;
+            _workContext = workContext;
+            _storeContext = storeContext;
+            _appContext = appContext;
             _ruleService = ruleService;
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
+            _currencyService = currencyService;
             _localizationService = localizationService;
             _catalogSettings = catalogSettings;
         }
@@ -69,12 +86,55 @@ namespace Smartstore.Core.Catalog.Rules
             return group;
         }
 
+        public async Task<bool> MatchesAsync(
+            int productId,
+            IEnumerable<RuleSetEntity> ruleSets,
+            LogicalRuleOperator logicalOperator = LogicalRuleOperator.Or)
+        {
+            Guard.NotZero(productId);
+
+            if (ruleSets.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            var filters = await ruleSets
+                .SelectAwait(x => _ruleService.CreateExpressionGroupAsync(x, this))
+                .Where(x => x != null)
+                .Cast<SearchFilterExpression>()
+                .ToArrayAsync();
+            if (filters.Length == 0)
+            {
+                return false;
+            }
+
+            var searchQuery = new CatalogSearchQuery().OriginatesFrom("Rule/Search");
+            SearchFilterExpressionGroup group;
+
+            if (filters.Length == 1 && filters[0] is SearchFilterExpressionGroup group2)
+            {
+                group = group2;
+            }
+            else
+            {
+                group = new SearchFilterExpressionGroup { LogicalOperator = logicalOperator };
+                group.AddExpressions(filters);
+            }
+
+            searchQuery = group.ApplyFilters(searchQuery);
+
+            var query = _catalogSearchService.PrepareQuery(searchQuery);
+            var match = await query.AnyAsync(x => x.Id == productId);
+
+            return match;
+        }
+
         public async Task<CatalogSearchResult> SearchAsync(SearchFilterExpression[] filters, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var searchQuery = new CatalogSearchQuery()
                 .OriginatesFrom("Rule/Search")
-                .WithLanguage(_services.WorkContext.WorkingLanguage)
-                .WithCurrency(_services.WorkContext.WorkingCurrency)
+                .WithLanguage(_workContext.WorkingLanguage)
+                .WithCurrency(_workContext.WorkingCurrency)
                 .BuildFacetMap(false)
                 .CheckSpelling(0)
                 .Slice(pageIndex * pageSize, pageSize)
@@ -105,11 +165,11 @@ namespace Smartstore.Core.Catalog.Rules
 
         protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
-            var language = _services.WorkContext.WorkingLanguage;
+            var language = _workContext.WorkingLanguage;
             var oneStarStr = T("Search.Facet.1StarAndMore").Value;
             var xStarsStr = T("Search.Facet.XStarsAndMore").Value;
 
-            var stores = _services.StoreContext.GetAllStores()
+            var stores = _storeContext.GetAllStores()
                 .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })
                 .ToArray();
 
@@ -353,7 +413,8 @@ namespace Smartstore.Core.Catalog.Rules
                 {
                     Name = "Price",
                     DisplayName = T("Admin.Catalog.Products.Fields.Price"),
-                    RuleType = RuleType.Money
+                    RuleType = RuleType.Money,
+                    Metadata = new Dictionary<string, object> { ["postfix"] = _currencyService.PrimaryCurrency.CurrencyCode }
                 },
                 new SearchFilterDescriptor<DateTime>(createdFilter)
                 {
@@ -427,82 +488,101 @@ namespace Smartstore.Core.Catalog.Rules
                 }
             };
 
-            if (_services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") != null)
+            return descriptors.Cast<RuleDescriptor>();
+        }
+
+        protected internal IEnumerable<RuleDescriptor> LoadVariantDescriptors()
+        {
+            // INFO: Has to be sync unfortunately. We don't wanna break contracts.
+            if (_appContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") == null)
             {
-                ISearchFilter[] filters(string fieldName, int parentId, int[] valueIds)
-                {
-                    return valueIds.Select(id => SearchFilter.ByField(fieldName, id).ExactMatch().NotAnalyzed().HasParent(parentId)).ToArray();
-                }
-
-                // Sort by display order!
-                var pageIndex = -1;
-                var variantsQuery = _services.DbContext.ProductAttributes
-                    .AsNoTracking()
-                    .Where(x => x.AllowFiltering)
-                    .OrderBy(x => x.DisplayOrder);
-
-                while (true)
-                {
-                    var variants = await variantsQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
-                    foreach (var variant in variants)
-                    {
-                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("variantvalueid", filters("variantvalueid", variant.Id, x))))
-                        {
-                            Name = $"Variant{variant.Id}",
-                            DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
-                            GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
-                            RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
-                            Operators = [RuleOperator.In]
-                        };
-                        descriptor.Metadata["ParentId"] = variant.Id;
-                        descriptor.Metadata["AllowFiltering"] = true;
-                        descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
-
-                        descriptors.Add(descriptor);
-                    }
-                    if (!variants.HasNextPage)
-                    {
-                        break;
-                    }
-                }
-
-                pageIndex = -1;
-                var attributesQuery = _services.DbContext.SpecificationAttributes
-                    .AsNoTracking()
-                    .Where(x => x.AllowFiltering)
-                    .OrderBy(x => x.DisplayOrder);
-
-                while (true)
-                {
-                    var attributes = await attributesQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
-                    foreach (var attribute in attributes)
-                    {
-                        var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("attrvalueid", filters("attrvalueid", attribute.Id, x))))
-                        {
-                            Name = $"Attribute{attribute.Id}",
-                            DisplayName = attribute.GetLocalized(x => x.Name, language, true, false),
-                            GroupKey = "Admin.Catalog.Attributes.SpecificationAttributes",
-                            RuleType = RuleType.IntArray,
-                            SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AttributeOption) { Multiple = true },
-                            Operators = [RuleOperator.In]
-                        };
-                        descriptor.Metadata["ParentId"] = attribute.Id;
-
-                        descriptors.Add(descriptor);
-                    }
-                    if (!attributes.HasNextPage)
-                    {
-                        break;
-                    }
-                }
+                yield break;
             }
 
-            descriptors
-                .Where(x => x.RuleType == RuleType.Money)
-                .Each(x => x.Metadata["postfix"] = _services.CurrencyService.PrimaryCurrency.CurrencyCode);
+            // Sort by display order!
+            var language = _workContext.WorkingLanguage;
+            var pageIndex = -1;
+            var query = _db.ProductAttributes
+                .AsNoTracking()
+                .Where(x => x.AllowFiltering)
+                .OrderBy(x => x.DisplayOrder);
 
-            return descriptors.Cast<RuleDescriptor>();
+            while (true)
+            {
+                var variants = query.ToPagedList(++pageIndex, 1000).Load();
+                foreach (var variant in variants)
+                {
+                    var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("variantvalueid", CreateSearchFilter("variantvalueid", variant.Id, x))))
+                    {
+                        Name = $"{VariantPrefix}{variant.Id}",
+                        DisplayName = variant.GetLocalized(x => x.Name, language, true, false),
+                        GroupKey = "Admin.Catalog.Attributes.ProductAttributes",
+                        RuleType = RuleType.IntArray,
+                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.VariantValue) { Multiple = true },
+                        Operators = [RuleOperator.In]
+                    };
+                    descriptor.Metadata["ParentId"] = variant.Id;
+                    descriptor.Metadata["AllowFiltering"] = true;
+                    descriptor.Metadata["ValueType"] = ProductVariantAttributeValueType.Simple;
+
+                    yield return descriptor;
+                }
+
+                if (!variants.HasNextPage)
+                {
+                    yield break;
+                }
+            }
+        }
+
+        protected override RuleDescriptorCollection CreateDescriptorCollection(IEnumerable<RuleDescriptor> descriptors)
+            => new ProductRuleDescriptorCollection(this, descriptors);
+
+        protected internal IEnumerable<RuleDescriptor> LoadAttributeDescriptors()
+        {
+            // INFO: Has to be sync unfortunately. We don't wanna break contracts.
+            if (_appContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") == null)
+            {
+                yield break;
+            }
+
+            // Sort by display order!
+            var language = _workContext.WorkingLanguage;
+            var pageIndex = -1;
+            var query = _db.SpecificationAttributes
+                .AsNoTracking()
+                .Where(x => x.AllowFiltering)
+                .OrderBy(x => x.DisplayOrder);
+
+            while (true)
+            {
+                var attributes = query.ToPagedList(++pageIndex, 1000).Load();
+                foreach (var attribute in attributes)
+                {
+                    var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined("attrvalueid", CreateSearchFilter("attrvalueid", attribute.Id, x))))
+                    {
+                        Name = $"{AttributePrefix}{attribute.Id}",
+                        DisplayName = attribute.GetLocalized(x => x.Name, language, true, false),
+                        GroupKey = "Admin.Catalog.Attributes.SpecificationAttributes",
+                        RuleType = RuleType.IntArray,
+                        SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.AttributeOption) { Multiple = true },
+                        Operators = [RuleOperator.In]
+                    };
+                    descriptor.Metadata["ParentId"] = attribute.Id;
+
+                    yield return descriptor;
+                }
+
+                if (!attributes.HasNextPage)
+                {
+                    yield break;
+                }
+            }
+        }
+
+        private static ISearchFilter[] CreateSearchFilter(string fieldName, int parentId, int[] valueIds)
+        {
+            return valueIds.Select(id => SearchFilter.ByField(fieldName, id).ExactMatch().NotAnalyzed().HasParent(parentId)).ToArray();
         }
     }
 }

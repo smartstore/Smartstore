@@ -31,7 +31,7 @@ namespace Smartstore.Core.Checkout.Payment
         public const string ProductDetailPaymentIcons = "productdetail:paymenticons:{0}";
         public const string ProductDetailPaymentIconsPatternKey = "productdetail:paymenticons:*";
 
-        private readonly static Lock _lock = new();
+        private readonly static object _lock = new();
         private static IList<Type> _paymentMethodFilterTypes = null;
 
         private readonly SmartDbContext _db;

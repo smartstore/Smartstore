@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -30,9 +32,20 @@ namespace Smartstore.Core.Bootstrapping
         {
             return app.Use(async (context, next) =>
             {
-                var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
-                await workContext.InitializeAsync();
-                await next();
+                try
+                {
+                    var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
+                    await workContext.InitializeAsync();
+                    await next();
+                }
+                catch (HttpResponseException ex)
+                {
+                    context.Response.StatusCode = ex.StatusCode;
+                    if (!string.IsNullOrEmpty(ex.Message))
+                    {
+                        await context.Response.WriteAsync(ex.Message);
+                    }
+                }
             });
         }
 

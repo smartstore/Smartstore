@@ -75,9 +75,9 @@ namespace Smartstore.Core.Messaging
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.Action(action, controller, routeValues);
         }
 
-        public async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
+        public Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
         {
-            await _eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
+            return _eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
         }
 
         public async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
@@ -160,21 +160,17 @@ namespace Smartstore.Core.Messaging
             if (attrSelection != null)
             {
                 var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attrSelection);
-
                 if (combination != null)
                 {
                     var fileIds = combination.GetAssignedMediaIds();
-                    if (fileIds?.Any() ?? false)
+                    if (!fileIds.IsNullOrEmpty())
                     {
                         file = await _mediaService.GetFileByIdAsync(fileIds[0], MediaLoadFlags.AsNoTracking);
                     }
                 }
             }
 
-            if (file == null)
-            {
-                file = await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0, MediaLoadFlags.AsNoTracking);
-            }
+            file ??= await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0, MediaLoadFlags.AsNoTracking);
 
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)
             {

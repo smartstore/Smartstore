@@ -13,29 +13,26 @@ namespace Smartstore.Web.Controllers
     {
         #region Details price modelling
 
-        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext ctx, int selectedQuantity)
         {
             using var chronometer = _services.Chronometer.Step("PrepareProductPriceModel");
 
             var priceModel = model.Price;
-            var customer = modelContext.Customer;
-            var currency = modelContext.Currency;
-            var product = modelContext.Product;
-            var productBundleItem = modelContext.ProductBundleItem;
-            var bundleItemId = productBundleItem?.Id;
+            var product = ctx.Product;
+            var bundleItem = ctx.ProductBundleItem;
             var isBundle = product.ProductType == ProductType.BundledProduct;
-            var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
-            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundleItemPricing = bundleItem != null && bundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundlePricing = bundleItem != null && !bundleItem.BundleProduct.BundlePerItemPricing;
             var computeRewardAmount = _rewardPointsSettings.Enabled
                 && _rewardPointsSettings.ShowPointsForProductPurchase
                 && _rewardPointsSettings.PointsForPurchases_Amount > decimal.Zero 
-                && !customer.IsGuest();
+                && !ctx.Customer.IsGuest();
 
-            priceModel.HidePrices = !modelContext.DisplayPrices;
-            priceModel.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
+            priceModel.HidePrices = !ctx.DisplayPrices;
+            priceModel.ShowLoginNote = !ctx.DisplayPrices && bundleItem == null && _priceSettings.ShowLoginForPriceNote;
             priceModel.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
 
-            if (!modelContext.DisplayPrices)
+            if (!ctx.DisplayPrices)
             {
                 return;
             }
@@ -46,36 +43,38 @@ namespace Smartstore.Web.Controllers
                 return;
             }
 
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, ctx.Currency, ctx.BatchContext);            
+            calculationOptions.ApplyPriceRangeFormat = _priceSettings.ApplyPriceRangeFormatInProductDetails && !ctx.HasInitiallySelectedVariants;
+
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
-                AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = productBundleItem
+                AssociatedProducts = ctx.AssociatedProducts,
+                BundleItem = bundleItem
             };
 
             // Apply price adjustments of attributes.
-            if (modelContext.SelectedAttributes != null)
+            if (ctx.SelectedAttributes != null)
             {
                 // Apply price adjustments of selected attributes.
-                calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
+                calculationContext.AddSelectedAttributes(ctx.SelectedAttributes, product.Id, bundleItem?.Id);
             }
-            else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Count > 0)
+            else if (isBundle && product.BundlePerItemPricing && ctx.VariantQuery.Variants.Count > 0)
             {
                 // Apply price adjustments of selected bundle items attributes.
-                // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
-                calculationContext.BundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+                // INFO: bundles themselves don't have attributes, that's why ctx.SelectedAttributes is null.
+                calculationContext.BundleItems = await ctx.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
 
-                modelContext.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
+                ctx.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
 
-                foreach (var bundleItem in calculationContext.BundleItems)
+                foreach (var item in calculationContext.BundleItems)
                 {
-                    var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
-                    var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(modelContext.VariantQuery, bundleItemAttributes, bundleItem.ProductId, bundleItem.Id, false);
+                    var bundleItemAttributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(item.ProductId);
+                    var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(ctx.VariantQuery, bundleItemAttributes, item.ProductId, item.Id, false);
 
-                    calculationContext.AddSelectedAttributes(selection, bundleItem.ProductId, bundleItem.Id);
+                    calculationContext.AddSelectedAttributes(selection, item.ProductId, item.Id);
 
                     // Apply attribute combination price if any.
-                    await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Product, selection);
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, selection);
                 }
             }
             else
@@ -149,7 +148,7 @@ namespace Smartstore.Web.Controllers
             else
             {
                 // Tier prices are ignored for bundles with per-item pricing
-                await PrepareTierPriceModelAsync(priceModel, modelContext);
+                await PrepareTierPriceModelAsync(priceModel, ctx);
             }
         }
 

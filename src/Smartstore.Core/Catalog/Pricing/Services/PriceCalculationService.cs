@@ -196,7 +196,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     .Distinct()
                     .ToArray();
 
-                if (linkedProductIds.Any())
+                if (linkedProductIds.Length > 0)
                 {
                     var linkedProducts = await _db.Products
                         .AsNoTracking()
@@ -376,7 +376,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var taxRate = await _taxService.GetTaxRateAsync(context.Product, null, options.Customer);
 
             var endDates = context.AppliedDiscounts.Select(x => x.EndDateUtc)
-                .Concat(new[] { context.OfferEndDateUtc })
+                .Concat([context.OfferEndDateUtc])
                 .Where(x => x.HasValue && x > DateTime.UtcNow)
                 .ToArray();
 
@@ -469,6 +469,7 @@ namespace Smartstore.Core.Catalog.Pricing
             if (isFinalPrice && context.HasPriceRange)
             {
                 var finalPricePostFormat = money.PostFormat;
+
                 finalPricePostFormat = finalPricePostFormat == null
                     ? options.PriceRangeFormat
                     : string.Format(options.PriceRangeFormat, finalPricePostFormat);

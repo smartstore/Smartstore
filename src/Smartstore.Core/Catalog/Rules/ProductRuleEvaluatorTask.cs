@@ -62,7 +62,7 @@ namespace Smartstore.Core.Catalog.Rules
                 }
 
                 var categories = await categoryQuery
-                    .Where(x => x.Published && x.RuleSets.Any(y => y.IsActive))
+                    .Where(x => x.RuleSets.Any(y => y.IsActive))
                     .ToListAsync(cancelToken);
 
                 numCategories = categories.Count;
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Catalog.Rules
                             while (true)
                             {
                                 // Do not touch searchResult.Hits. We only need the product identifiers.
-                                var searchResult = await _productRuleProvider.SearchAsync(new[] { expression }, ++pageIndex, pageSize);
+                                var searchResult = await _productRuleProvider.SearchAsync([expression], ++pageIndex, pageSize);
                                 ruleSetProductIds.AddRange(searchResult.HitsEntityIds);
 
                                 if (pageIndex >= (searchResult.TotalHitsCount / pageSize))
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Catalog.Rules
                     }
 
                     // Add mappings.
-                    if (ruleSetProductIds.Any())
+                    if (ruleSetProductIds.Count > 0)
                     {
                         foreach (var chunk in ruleSetProductIds.Chunk(500))
                         {

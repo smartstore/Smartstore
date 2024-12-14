@@ -111,7 +111,7 @@
         })
     }
 
-    $(document).ready(function () {
+    $(document).ready(() => {
         var html = $("html");
 
         html.removeClass("not-ready").addClass("ready");
@@ -169,8 +169,16 @@
                 }
                 if (sectionHeaderHasButtons === true) {
                     var y = $(this).scrollTop();
-                    sectionHeader.toggleClass("sticky", y >= navbarHeight);
-                    $(document.body).toggleClass("sticky-header", y >= navbarHeight);
+                    if (y >= navbarHeight) {
+                        sectionHeader.addClass("sticky");
+                        $(document.body).addClass("sticky-header");
+                        $(document.body).css('--content-offset', sectionHeader.outerHeight() + 'px');
+                    }
+                    else {
+                        sectionHeader.removeClass("sticky");
+                        $(document.body).removeClass("sticky-header");
+                        $(document.body).css('--content-offset', '');
+                    }
                 }
             }).trigger('resize');
         }

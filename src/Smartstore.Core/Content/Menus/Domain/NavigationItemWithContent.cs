@@ -40,6 +40,8 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
+        public bool HideIfEmpty { get; set; }
+
         public bool HasContent
         {
             get => _content != null || _widget != null;
@@ -47,7 +49,7 @@ namespace Smartstore.Core.Content.Menus
 
         public Task<IHtmlContent> GetContentAsync(ViewContext viewContext)
         {
-            Guard.NotNull(viewContext, nameof(viewContext));
+            Guard.NotNull(viewContext);
 
             if (_content != null)
             {

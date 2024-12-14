@@ -59,14 +59,17 @@ namespace Smartstore.Core.Search
                 query = query.Distinct();
             }
 
-            // Sorting
-            foreach (var sorting in context.SearchQuery.Sorting)
+            // Sorting.
+            var sortings = context.SearchQuery.Sorting;
+            if (sortings.Count > 0)
             {
-                query = VisitSorting(sorting, context, query);
+                foreach (var sorting in sortings)
+                {
+                    // "query" is not necessarily of type IOrderedQueryable.
+                    query = VisitSorting(sorting, context, query);
+                }
             }
-
-            // Default sorting
-            if (query.Expression.Type != typeof(IOrderedQueryable<TEntity>))
+            else
             {
                 query = ApplyDefaultSorting(context, query);
             }

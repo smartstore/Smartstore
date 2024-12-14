@@ -7,17 +7,17 @@
             this.initPayPalScript(funding);
         }
 
-        PayPalButton.prototype.initPayPalScript = function (funding) {
+        PayPalButton.prototype.initPayPalScript = function (funding, refreshBtnContainer = false) {
             var self = this;
             if (typeof paypal !== 'undefined') {
-                self.initPayPalButton(funding, false);
+                self.initPayPalButton(funding, refreshBtnContainer);
             } else {
                 var script = document.getElementById("paypal-js");
-
+                
                 if (script != null) {
-                    script.onload = function () {
-                        self.initPayPalButton(funding, false);
-                    };
+                    script.addEventListener("load", function () {
+                        self.initPayPalButton(funding, refreshBtnContainer);
+                    });
                 }
                 else {
                     // PayPal Scripts weren't loaded. This can occur e.g. when a third party consent tool or other JS blocking browser extensions are used.
@@ -59,7 +59,7 @@
 
         PayPalButton.prototype.initPayPalButton = function (fundingSource, refresh) {
             var self = this;
-
+            
             if (!paypal.isFundingEligible(fundingSource)) {
                 console.log("Not eligible: " + fundingSource);
                 return;
@@ -99,7 +99,7 @@
                     displayNotification(err, 'error');
                 }
             })
-                .render(self.buttonContainer[0]);
+            .render(self.buttonContainer[0]);
         };
 
         return PayPalButton;
@@ -190,7 +190,7 @@
                         var err = self.hostedFieldsContainer.data("creditcard-error-message");
                         displayNotification(err, 'error');
 
-                        $.scrollTo($(".payment-method-item.active"), 400);
+                        $.scrollTo($(".payment-method-item.active"));
 
                         return false;
                     }
@@ -256,7 +256,10 @@
             cache: false,
             success: function (resp) {
                 if (resp.success) {
-                    if (!container.data("skip-redirect-oninit")) {
+                    if (resp.redirectUrl) {
+                        location.href = resp.redirectUrl;
+                    }
+                    else if (!container.data("skip-redirect-oninit")) {
                         // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
                         location.href = container.data("forward-url");
                     }

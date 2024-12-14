@@ -1100,7 +1100,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> RewardPointsHistoryList(int customerId, GridCommand command)
         {
-            var rphs = await _db.RewardPointsHistory
+            var entities = await _db.RewardPointsHistory
                 .AsNoTracking()
                 .Where(x => x.CustomerId == customerId)
                 .OrderByDescending(rph => rph.CreatedOnUtc)
@@ -1108,23 +1108,22 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var gridModel = new GridModel<CustomerModel.RewardPointsHistoryModel>
-            {
-                Rows = rphs.Select(x =>
+            var rows = entities
+                .Select(x => new CustomerModel.RewardPointsHistoryModel
                 {
-                    return new CustomerModel.RewardPointsHistoryModel
-                    {
-                        Id = x.Id,
-                        Points = x.Points,
-                        PointsBalance = x.PointsBalance,
-                        Message = x.Message,
-                        CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
-                    };
-                }),
-                Total = await rphs.GetTotalCountAsync()
-            };
+                    Id = x.Id,
+                    Points = x.Points,
+                    PointsBalance = x.PointsBalance,
+                    Message = x.Message,
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                })
+                .ToList();
 
-            return Json(gridModel);
+            return Json(new GridModel<CustomerModel.RewardPointsHistoryModel>
+            {
+                Rows = rows,
+                Total = await entities.GetTotalCountAsync()
+            });
         }
 
         [HttpPost]

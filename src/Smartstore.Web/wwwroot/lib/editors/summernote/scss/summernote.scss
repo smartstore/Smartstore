@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../../shared/references.scss" />
+/// <reference path="../../../../shared/references.scss" />
 //@import 'summernote-icons.scss'; // Obsolete, we now use inline SVG icons for the missing ones
 
 $note-border-color: $input-border-color;
@@ -12,19 +12,19 @@ $img-margin-right: 10px;
 // ------------------------------------------
 
 .note-editor-preview {
-	border: 1px solid $input-border-color;
-	min-height: 100px;
-	max-height: 350px;
-	overflow-x: hidden;
-	overflow-y: auto;
-	padding: $input-padding-y $input-padding-x;
+    border: 1px solid $input-border-color;
+    min-height: 100px;
+    max-height: 350px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: $input-padding-y $input-padding-x;
     border-radius: $input-border-radius;
-	cursor: default;
+    cursor: default;
 
-	&.empty {
-		min-height: initial;
-		//color: $text-muted;
-	}
+    &.empty {
+        min-height: initial;
+        //color: $text-muted;
+    }
 }
 
 // Dropzone
@@ -65,6 +65,7 @@ $img-margin-right: 10px;
     border: 1px solid $note-border-color;
     @include border-top-radius($input-border-radius);
     @include border-bottom-radius($input-border-radius);
+    --note-sticky-toolbar-zindex: #{$zindex-sticky - 1};
 
     &:focus-within,
     &:focus,
@@ -100,6 +101,10 @@ $img-margin-right: 10px;
     padding: 10px;
     overflow: auto;
     word-wrap: break-word;
+    // Reset
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
 
     a {
         text-decoration: underline;
@@ -128,21 +133,21 @@ $img-margin-right: 10px;
     img.note-float-right {
         margin-left: $img-margin-left;
     }
-
     // Alignment does not work with or without sequences
     ul li,
     ol li {
         list-style-position: inside;
     }
 
-	table:not(.table-bordered):not([border]),
-	table:not(.table-bordered)[border='0'] {
-		border-collapse: collapse;
+    table:not(.table-bordered):not([border]),
+    table:not(.table-bordered)[border='0'] {
+        border-collapse: collapse;
 
-		td, th {
-			border: 1px dashed #bbb;
-		}
-	}
+        td,
+        th {
+            border: 1px dashed #bbb;
+        }
+    }
 }
 
 
@@ -192,6 +197,13 @@ $img-margin-right: 10px;
     border-radius: 0 !important;
     border-color: $note-border-color !important;
     z-index: $zindex-tooltip !important;
+
+    > .note-toolbar {
+        position: relative !important;
+        z-index: auto !important;
+        top: 0 !important;
+        width: 100% !important;
+    }
 
     .note-resizebar {
         display: none;
@@ -259,28 +271,28 @@ $img-margin-right: 10px;
 // Color Palette
 // ------------------------------------------
 
+.note-color > .dropdown-toggle {
+    min-width: initial;
+}
+
 .note-palette {
     display: flex;
     flex-direction: column;
     row-gap: 8px;
     margin: 0;
-    width: 160px;
 }
 
 .note-palette-title {
     font-size: 13px;
-    text-align: center;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .note-color-reset,
 .note-color-select {
-    font-size: 11px;
-    width: 100%;
-}
-
-.note-color-row {
-    height: 20px;
+    --btn-height: 24px !important;
 }
 
 .note-color-select-btn {
@@ -292,20 +304,30 @@ $img-margin-right: 10px;
 }
 
 .note-color-palette {
+    --note-color-gap: 4px;
+    --note-color-size: 18px;
     line-height: 1;
+    display: flex;
+    flex-flow: column;
+    row-gap: var(--note-color-gap);
+
+    .note-color-row {
+        display: flex;
+        column-gap: var(--note-color-gap);
+    }
 
     .note-color-btn {
-        width: 20px;
-        height: 20px;
+        width: var(--note-color-size);
+        height: var(--note-color-size);
         padding: 0;
         margin: 0;
         border: 0;
         border-radius: 0;
+        transition: transform 0.12s;
     }
 
-    .note-color-btn:hover {
+    .note-color-btn:hover:not(:active) {
         transform: scale(1.2);
-        transition: all 0.2s;
     }
 }
 
@@ -447,7 +469,7 @@ $img-margin-right: 10px;
         display: block !important;
         padding: 3px;
 
-        &.active, 
+        &.active,
         &:hover {
             display: block;
             clear: both;
@@ -469,10 +491,9 @@ $img-margin-right: 10px;
 
 .note-dropdown-menu {
     > .dropdown-item > * {
-	    // Overwrite all reboot margins in Summernote dropdown items
-	    margin-bottom: 0;
+        // Overwrite all reboot margins in Summernote dropdown items
+        margin-bottom: 0;
     }
-    
     // dropdown-menu right position
     // http://forrst.com/posts/Bootstrap_right_positioned_dropdown-2KB
     &.right {
@@ -489,7 +510,6 @@ $img-margin-right: 10px;
             left: auto !important;
         }
     }
-
     // dropdown-menu for selectbox
     &.note-check {
         min-width: initial;
@@ -526,71 +546,126 @@ $img-margin-right: 10px;
 .note-popover.popover {
     display: none;
     max-width: none;
+    border-color: var(--gray-300);
+    z-index: $zindex-tooltip + 1;
 
     .arrow {
-        left: 20px !important;
+        //left: 20px !important;
+        &:before {
+            border-bottom-color: var(--gray-300);
+        }
     }
 }
 
-.popover-content, 
 .note-toolbar {
+    $btn-height: calc((#{$btn-line-height-sm} * 1em) + (#{$btn-padding-y-sm} * 2) + (#{$btn-border-width} * 2));
+    $btn-height: 32.56px;
+
+    --note-btn-active-border-color: rgba(var(--primary-rgb), 0.3);
+    --note-toolbar-gap: 5px;
+    --note-toolbar-rowheight: calc(#{$btn-height} + (var(--note-toolbar-gap) * 2));
     margin: 0;
-    display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    padding: 5px;
-    gap: 5px;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: var(--note-toolbar-gap);
+    column-gap: var(--note-toolbar-gap);
+    row-gap: calc(var(--note-toolbar-gap) * 2);
+
+    &.note-toolbar-main {
+        // Main toolbar
+        position: relative;
+        flex-wrap: wrap;
+        border-bottom-width: 0;
+        background-image: linear-gradient(rgba(0,0,0, 0.1) 1px, transparent 1px);
+        background-size: 100% var(--note-toolbar-rowheight);
+        background-position: 0 -1px;
+        background-color: var(--gray-100);
+        @include border-top-radius($input-border-radius);
+
+        > .note-toolgroup:last-of-type {
+            margin-inline-start: auto;
+        }
+    }
+
+    &.note-toolbar-sticky {
+        // Main toolbar
+        position: sticky;
+        z-index: var(--note-sticky-toolbar-zindex);
+    }
+
+    &:not(.dropdown-menu) {
+        display: flex;
+    }
+
+    &.dropdown-menu.show {
+        display: flex;
+    }
+
+    .scrollable-menu {
+        --scrollbar-track-color: #fff;
+        --scrollbar-track-hover-color: #fff;
+        height: auto;
+        max-height: 340px;
+        min-width: 280px;
+        overflow-x: hidden;
+    }
+}
+
+.note-toolgroup {
+    display: inline-flex;
+    position: relative;
+    column-gap: 2px;
+    border: 0 solid rgba($black, 0.12);
+    border-inline-end-width: 1px;
+    padding-inline-end: 5px;
+
+    &:last-of-type {
+        border-inline-end-width: 0;
+        padding-inline-end: 0;
+    }
 }
 
 .note-btn {
-    --btn-padding-x: 9px;
+    @include button-flat();
     min-width: 32px;
+    // Change color hover/active/pressed styling
+    --btn-padding-x: 6px;
+    --btn-active-bg: rgba(var(--primary-bg-subtle-rgb), 0.75);
+    --btn-active-color: var(--primary-text-emphasis);
+    --btn-active-border-color: transparent;
+    --btn-active-shadow: none;
 
     > i,
     > svg {
-        //font-size: 16px !important;
+        font-size: 16px !important;
         fill: currentColor;
     }
 
     > svg {
-        height: 14px;
+        height: 16px;
+    }
+    // &:not(:hover) {
+    //   //transition: none !important;
+    // }
+
+    &:active,
+    .note-btn-group.show > & {
+        --btn-active-bg: var(--primary-bg-subtle) !important;
+        --btn-active-border-color: var(--note-btn-active-border-color) !important;
     }
 }
 
-.note-toolbar {
-    position: relative;
-}
+.btn-group-split {
+    // Split dropdown buttons, e.g. "Color"
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+    border-radius: $btn-border-radius-sm;
 
-.note-editor > .note-toolbar {
-    // INFO: Must have high specificty, therefore .note-editor > .note-toolbar
-    // Apply flat style only to buttons in toolbar
-    > .note-btn-group {
-        column-gap: 1px;
-        border: 0 solid rgba($black, 0.12);
-        border-inline-end-width: 1px;
-        padding-inline-end: 5px;
-
-        &:last-of-type {
-            border-inline-end-width: 0;
-            padding-inline-end: 0;
-        }
-
-        > .note-btn,
-        > .note-btn-group > .note-btn {
-            @include button-flat();
-            margin-inline-start: 0;
-        }
+    &:hover,
+    &.show {
+        outline-color: var(--note-btn-active-border-color);
     }
-
-
-	.scrollable-menu {
-        --scrollbar-track-color: #fff;
-        --scrollbar-track-hover-color: #fff;
-		height: auto;
-		max-height: 340px;
-		min-width: 280px;
-		overflow-x: hidden;
-	}
 }
 
 
@@ -598,7 +673,9 @@ $img-margin-right: 10px;
 // -------------------------------------
 
 .dropdown-style.dropdown-menu {
-    blockquote, pre {
+
+    blockquote,
+    pre {
         margin: 0;
     }
 
@@ -607,7 +684,13 @@ $img-margin-right: 10px;
         width: 100%;
     }
 
-    h1, h2, h3, h4, h5, h6, p {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
         margin: 0;
         padding: 0;
     }
@@ -624,7 +707,7 @@ $img-margin-right: 10px;
 .note-color-all > .note-dropdown-menu {
     min-width: auto;
     padding: 12px;
-    column-gap: 8px;
+    column-gap: 16px;
 
     &.show {
         display: flex;
@@ -668,28 +751,25 @@ $img-margin-right: 10px;
     background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAgMAAAAroGbEAAAACVBMVEUAAIjd6vvD2f9LKLW+AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfYAR0BKwNDEVT0AAAAG0lEQVQI12NgAAOtVatWMTCohoaGUY+EmIkEAEruEzK2J7tvAAAAAElFTkSuQmCC") repeat;
 }
 
-.note-recent-color {
-    display: inline-block;
-    border: 1px solid rgba($black, 0.12);
-    padding-inline: 2px;
-    border-radius: 3px;
+.note-current-color-button {
+    --btn-padding-x: 4px;
+    --btn-padding-y: 4px;
+
+    > .note-recent-color {
+        display: inline-block;
+        outline: 1px solid rgba($black, 0.1);
+        outline-offset: -1px;
+        padding: 2px;
+        border-radius: 3px;
+    }
 }
 
 
 // Misc
 // -----------------------
 
-.note-btn-group.note-list {
-    margin-left: 5px;
-}
-
 .note-fontsize-10 {
     font-size: 10px;
-}
-
-.note-codeview-keep.active > .fa-expand:before {
-    // Swap icon: expand --> compress
-    content: "\f066";
 }
 
 .note-current-fontsize {
@@ -699,14 +779,14 @@ $img-margin-right: 10px;
 }
 
 .note-para > .btn-group:last-child .dropdown-menu.show {
-	// Fix: the para popover button groups should not wrap
-	display: flex !important;
+    // Fix: the para popover button groups should not wrap
+    display: flex !important;
 }
 
 .note-font > .btn-group:first-child > .btn {
-	// Fix: the fontsize button width should not change (toolbar flickers)
-	padding-inline: 0.5rem;
-	width: 112px;
+    // Fix: the fontsize button width should not change (toolbar flickers)
+    padding-inline: 0.5rem;
+    width: 112px;
     max-width: 112px;
     justify-content: space-between;
     font-weight: 400;
@@ -724,24 +804,24 @@ $img-margin-right: 10px;
     }
 
     &.dropdown-cssclass > .dropdown-item {
-	    position: relative;
+        position: relative;
 
         > .d-block {
             width: 100%;
         }
 
-	    &.checked {
-		    order: -1;
+        &.checked {
+            order: -1;
 
-		    &:before {
-			    position: absolute;
-			    content: '';
-			    inset-inline-start: 0;
-			    top: 0;
-			    bottom: 0;
-			    width: 3px;
-			    background-color: var(--warning);
-		    }
-	    }
+            &:before {
+                position: absolute;
+                content: '';
+                inset-inline-start: 0;
+                top: 0;
+                bottom: 0;
+                width: 3px;
+                background-color: var(--warning);
+            }
+        }
     }
 }

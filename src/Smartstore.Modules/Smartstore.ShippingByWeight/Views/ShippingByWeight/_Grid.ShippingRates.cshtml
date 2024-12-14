@@ -1,5 +1,9 @@
 ﻿@model ByWeightModel
 
+@{
+    var parentModel = ViewData["Parent"] as ByWeightListModel;
+}
+
 <datagrid id="shipping-rates-byweight-grid" class="h-100"
           allow-resize="true"
           allow-row-selection="true"
@@ -16,6 +20,11 @@
         <sort by="From" />
     </sorting>
     <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
         <toolbar-group>
             <a class="btn btn-primary btn-flat" href="#addrecord-window" data-toggle="modal">
                 <i class="fa fa-plus"></i>
@@ -39,6 +48,9 @@
             </button>
         </toolbar-group>
     </toolbar>
+    <search-panel>
+        <partial name="_Grid.ShippingRates.Search" model="parentModel" />
+    </search-panel>
     <columns>
         @*INFO: I don't want to hide any columns here so the shop admin doesn't miss any oportunities to configure his rates.*@
         <column for="StoreName" readonly entity-member="StoreId" />

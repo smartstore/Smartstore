@@ -162,6 +162,7 @@ namespace Smartstore.Google.Analytics.Components
             var consented = !_settings.RenderWithUserConsentOnly || await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Analytics);
             if (!consented)
             {
+                rootScript = rootScript.Replace("<script>", "<script type=\"text/plain\">");
                 rootScript = rootScript.Replace("<script", "<script data-consent=\"analytics\"");
                 rootScript = rootScript.Replace("src=", "data-src=");
             }

@@ -7,6 +7,25 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers
 {
+    /// <summary>
+    /// <see cref="TagBuilder.InnerHtml"/> position when wrapping an element.
+    /// </summary>
+    public enum InnerHtmlPosition
+    {
+        /// <summary>
+        /// Don't include inner HTML in the wrapping command.
+        /// </summary>
+        Exclude,
+        /// <summary>
+        /// Prepend inner HTML to the target element or content.
+        /// </summary>
+        Prepend,
+        /// <summary>
+        /// Append inner HTML to the target element or content.
+        /// </summary>
+        Append
+    }
+    
     public static class TagHelperOutputExtensions
     {
         #region CSS
@@ -51,8 +70,8 @@ namespace Smartstore.Web.TagHelpers
 
         public static void AddCssStyle(this TagHelperOutput output, string expression, object value)
         {
-            Guard.NotEmpty(expression, nameof(expression));
-            Guard.NotNull(value, nameof(value));
+            Guard.NotEmpty(expression);
+            Guard.NotNull(value);
 
             var style = expression + ": " + Convert.ToString(value, CultureInfo.InvariantCulture);
             AddCssStyles(output, style);
@@ -60,7 +79,7 @@ namespace Smartstore.Web.TagHelpers
 
         public static void AddCssStyles(this TagHelperOutput output, string styles)
         {
-            Guard.NotEmpty(styles, nameof(styles));
+            Guard.NotEmpty(styles);
 
             if (output.Attributes.TryGetAttribute("style", out var attribute))
             {
@@ -79,7 +98,7 @@ namespace Smartstore.Web.TagHelpers
 
         public static void MergeAttribute(this TagHelperOutput output, string name, object value, bool replace = false)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(name);
 
             if (output.Attributes.ContainsName(name) && replace)
             {
@@ -109,8 +128,8 @@ namespace Smartstore.Web.TagHelpers
         /// </summary>
         public static void CopyTo(this TagHelperOutput output, IHtmlContentBuilder destination)
         {
-            Guard.NotNull(output, nameof(output));
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(output);
+            Guard.NotNull(destination);
 
             // Copy PreElement
             output.PreElement.CopyTo(destination);
@@ -128,8 +147,8 @@ namespace Smartstore.Web.TagHelpers
         /// </summary>
         public static void MoveTo(this TagHelperOutput output, IHtmlContentBuilder destination)
         {
-            Guard.NotNull(output, nameof(output));
-            Guard.NotNull(destination, nameof(destination));
+            Guard.NotNull(output);
+            Guard.NotNull(destination);
 
             // Copy PreElement
             output.PreElement.MoveTo(destination);
@@ -232,206 +251,146 @@ namespace Smartstore.Web.TagHelpers
         #region Wrap
 
         /// <summary>
-        /// Wraps a series of tags around the element, where the first tag will be rendered as the outermost parent,
-        /// and the last one as the direct element parent.
+        /// Wraps a series of tags around the PRE and POST element.
+        /// The <see cref="TagBuilder.InnerHtml"/> will be rendered right after the opening tag.
         /// </summary>
-        /// <param name="tags">The tags to wrap the element with.</param>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
         public static TagHelperOutput WrapElementWith(this TagHelperOutput output, params TagBuilder[] tags)
-        {
-            Guard.NotNull(output, nameof(output));
-
-            return WrapWithCore(output, true, tags);
-        }
+            => InternalWrapWith(output, tags, InnerHtmlPosition.Prepend, wrapElement: true, inside: false);
 
         /// <summary>
-        /// Wraps a series of tags around the element's inner content, where the first tag will be rendered as the outermost parent,
-        /// and the last one as the direct content parent.
+        /// Wraps a series of tags around the element.
+        /// The <see cref="TagBuilder.InnerHtml"/> will be rendered right after the opening tag.
         /// </summary>
-        /// <param name="tags">The tags to wrap the content with.</param>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapElementInsideWith(this TagHelperOutput output, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, InnerHtmlPosition.Prepend, wrapElement: true, inside: true);
+
+        /// <summary>
+        /// Wraps a series of tags around the PRE and POST element.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapElementWith(this TagHelperOutput output, InnerHtmlPosition innerHtmlPosition, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, innerHtmlPosition, wrapElement: true, inside: false);
+
+        /// <summary>
+        /// Wraps a series of tags around the element.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapElementInsideWith(this TagHelperOutput output, InnerHtmlPosition innerHtmlPosition, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, innerHtmlPosition, wrapElement: true, inside: true);
+
+        /// <summary>
+        /// Wraps a series of tags around the element's child PRE and POST content.
+        /// The <see cref="TagBuilder.InnerHtml"/> will be rendered right after the opening tag.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
         public static TagHelperOutput WrapContentWith(this TagHelperOutput output, params TagBuilder[] tags)
-        {
-            Guard.NotNull(output, nameof(output));
+            => InternalWrapWith(output, tags, InnerHtmlPosition.Prepend, wrapElement: false, inside: false);
 
-            return WrapWithCore(output, false, tags);
-        }
+        /// <summary>
+        /// Wraps a series of tags around the element's child content.
+        /// The <see cref="TagBuilder.InnerHtml"/> will be rendered right after the opening tag.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapContentInsideWith(this TagHelperOutput output, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, InnerHtmlPosition.Prepend, wrapElement: false, inside: true);
 
-        private static TagHelperOutput WrapWithCore(TagHelperOutput output, bool wrapElement, TagBuilder[] tags)
+        /// <summary>
+        /// Wraps a series of tags around the element's child PRE and POST content.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapContentWith(this TagHelperOutput output, InnerHtmlPosition innerHtmlPosition, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, innerHtmlPosition, wrapElement: false, inside: false);
+
+        /// <summary>
+        /// Wraps a series of tags around the element's child content.
+        /// </summary>
+        /// <inheritdoc cref="InternalWrapWith(TagHelperOutput, TagBuilder[], InnerHtmlPosition, bool, bool)" />
+        public static TagHelperOutput WrapContentInsideWith(this TagHelperOutput output, InnerHtmlPosition innerHtmlPosition, params TagBuilder[] tags)
+            => InternalWrapWith(output, tags, innerHtmlPosition, wrapElement: false, inside: true);
+
+        /// <summary>
+        /// Wraps a series of tags around the content.
+        /// </summary>
+        /// <remarks>
+        /// The first tag will be rendered as the outermost parent, and the last one as the direct content parent.
+        /// </remarks>
+        /// <param name="tags">The tags to wrap the output with.</param>
+        /// <param name="innerHtmlPosition">Specifies where the inner HTML of <paramref name="tags"/> should be placed in relation to the wrapped output.</param>
+        private static TagHelperOutput InternalWrapWith(
+            TagHelperOutput output,
+            TagBuilder[] tags,
+            InnerHtmlPosition innerHtmlPosition,
+            bool wrapElement, // Wraps content otherwise
+            bool inside) // Wraps outside otherwise (inside = After Pre / Before Post, outside = Before Pre / After Post)
         {
+            Guard.NotNull(output);
+
             if (tags.Length == 0)
             {
                 return output;
             }
 
-            var pre = wrapElement ? output.PreElement : output.PreContent;
-            var post = wrapElement ? output.PostElement : output.PostContent;
+            var openingContainer = new HtmlContentBuilder();
+            var closingContainer = new HtmlContentBuilder();
 
+            // Build container for "start tags".
+            // --> <tag1><tag2><tag3>
             for (var i = 0; i < tags.Length; i++)
             {
-                pre.AppendHtml(tags[i].RenderStartTag());
-                if (tags[i].HasInnerHtml)
+                openingContainer.AppendHtml(tags[i].RenderStartTag());
+                if (tags[i].HasInnerHtml && innerHtmlPosition == InnerHtmlPosition.Prepend)
                 {
-                    pre.AppendHtml(tags[i].RenderBody());
+                    // --> <tag1><span>inner</span> [...]
+                    openingContainer.AppendHtml(tags[i].RenderBody());
                 }
             }
 
-            for (var i = tags.Length - 1; i >= 0; i--)
+            // Append/Prepend start container to the output.
+            if (inside)
             {
-                post.AppendHtml(tags[i].RenderEndTag());
+                if (wrapElement) 
+                    output.PreElement.AppendHtml(openingContainer); 
+                else 
+                    output.PreContent.AppendHtml(openingContainer);
+            }
+            else
+            {
+                if (wrapElement) 
+                    output.PreElement.PrependHtml(openingContainer); 
+                else 
+                    output.PreContent.PrependHtml(openingContainer);
             }
 
-            return output;
-        }
+            // Build container for "end tags", now vice versa.
+            // --> </tag3></tag2></tag1>
+            for (var i = tags.Length - 1; i >= 0; i--)
+            {
+                if (tags[i].HasInnerHtml && innerHtmlPosition == InnerHtmlPosition.Append)
+                {
+                    // --> [...] <span>inner</span></tag3>
+                    closingContainer.AppendHtml(tags[i].RenderBody());
+                }
+                closingContainer.AppendHtml(tags[i].RenderEndTag());
+            }
 
-        /// <summary>
-        ///     Wraps a <see cref="builder" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
-        ///     inside the <see cref="output" /> will be inside of the <see cref="builder" />.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
-        /// </summary>
-        public static TagHelperOutput WrapContentOutside(this TagHelperOutput output, TagBuilder tag)
-        {
-            output.PreContent.PrependHtml(tag.RenderStartTag());
-            output.PostContent.AppendHtml(tag.RenderEndTag());
-            return output;
-        }
+            // Append/Prepend end container to the output.
+            if (inside)
+            {
+                if (wrapElement) 
+                    output.PostElement.PrependHtml(closingContainer); 
+                else 
+                    output.Content.AppendHtml(closingContainer);
+            }
+            else
+            {
+                if (wrapElement) 
+                    output.PostElement.AppendHtml(closingContainer); 
+                else 
+                    output.PostContent.AppendHtml(closingContainer);
+            }
 
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
-        ///     inside the <see cref="output" /> will be inside of the <see cref="string" />s.
-        /// </summary>
-        public static TagHelperOutput WrapContentOutside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreContent.Prepend(startTag);
-            output.PostContent.Append(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
-        ///     inside the <see cref="output" /> will be inside of the <see cref="string" />s. <see cref="startTag" /> and
-        ///     <see cref="endTag" /> will not be encoded.
-        /// </summary>
-        public static TagHelperOutput WrapHtmlContentOutside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreContent.PrependHtml(startTag);
-            output.PostContent.AppendHtml(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps a <see cref="builder" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
-        /// </summary>
-        public static TagHelperOutput WrapContentInside(this TagHelperOutput output, TagBuilder tag)
-        {
-            output.PreContent.AppendHtml(tag.RenderStartTag());
-            output.PostContent.PrependHtml(tag.RenderEndTag());
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included. The current contents of
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
-        /// </summary>
-        public static TagHelperOutput WrapContentInside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreContent.Append(startTag);
-            output.PostContent.Prepend(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included. The current contents of
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
-        ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
-        /// </summary>
-        public static TagHelperOutput WrapHtmlContentInside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreContent.AppendHtml(startTag);
-            output.PostContent.PrependHtml(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps a <see cref="builder" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
-        /// </summary>
-        public static TagHelperOutput WrapOutside(this TagHelperOutput output, TagBuilder tag)
-        {
-            output.PreElement.PrependHtml(tag.RenderStartTag());
-            output.PostElement.AppendHtml(tag.RenderEndTag());
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
-        /// </summary>
-        public static TagHelperOutput WrapOutside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreElement.Prepend(startTag);
-            output.PostElement.Append(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
-        ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
-        /// </summary>
-        public static TagHelperOutput WrapHtmlOutside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreElement.PrependHtml(startTag);
-            output.PostElement.AppendHtml(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps a <see cref="builder" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
-        /// </summary>
-        public static TagHelperOutput WrapInside(this TagHelperOutput output, TagBuilder tag)
-        {
-            output.PreElement.AppendHtml(tag.RenderStartTag());
-            output.PostElement.PrependHtml(tag.RenderEndTag());
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
-        /// </summary>
-        public static TagHelperOutput WrapInside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreElement.Append(startTag);
-            output.PostElement.Prepend(endTag);
-            return output;
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
-        ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
-        /// </summary>
-        public static TagHelperOutput WrapHtmlInside(this TagHelperOutput output, string startTag, string endTag)
-        {
-            output.PreElement.AppendHtml(startTag);
-            output.PostElement.PrependHtml(endTag);
             return output;
         }
 

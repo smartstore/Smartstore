@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 	<PropertyGroup>
-		<Product>Smartstore Smartstore.ShippingByWeight</Product>
+		<Product>Smartstore Shipping by weight</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.ShippingByWeight</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>

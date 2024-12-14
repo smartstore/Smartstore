@@ -41,7 +41,7 @@ namespace Smartstore.PayPal.Models
 
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .EmailAddress()
+                .EmailAddressStrict()
                 .When(x => x.Funding == "p24" || x.Funding == "blik");
 
             RuleFor(x => x.CountryId)

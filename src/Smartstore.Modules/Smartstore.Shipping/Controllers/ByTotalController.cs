@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Shipping.Settings;
@@ -19,36 +20,33 @@ namespace Smartstore.Shipping.Controllers
     public class ByTotalController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICurrencyService _currencyService;
         private readonly IProviderManager _providerManager;
         private readonly ShippingByTotalSettings _shippingByTotalSettings;
 
         public ByTotalController(
             SmartDbContext db,
-            ICurrencyService currencyService,
             IProviderManager providerManager,
             ShippingByTotalSettings shippingByTotalSettings)
         {
             _db = db;
-            _currencyService = currencyService;
             _providerManager = providerManager;
             _shippingByTotalSettings = shippingByTotalSettings;
         }
 
         private async Task PrepareViewBagAsync()
         {
-            var shippingMethods = await _db.ShippingMethods
-                .AsNoTracking()
-                .ToDictionaryAsync(x => x.Id);
+            var shippingMethods = await _db.ShippingMethods.AsNoTracking().ToListAsync();
+            var countries = await _db.Countries.AsNoTracking().ToListAsync();
 
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
-            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            })
-            .ToList();
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            ViewBag.AvailableShippingMethods = shippingMethods
+                .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name), Value = x.Id.ToStringInvariant() })
+                .ToList();
+
+            ViewBag.Countries = countries.ToSelectListItems();
 
             ViewBag.Provider = _providerManager.GetProvider("Shipping.ByTotal").Metadata;
         }
@@ -84,10 +82,28 @@ namespace Smartstore.Shipping.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Read)]
-        public async Task<IActionResult> ShippingRateByTotalList(GridCommand command)
+        public async Task<IActionResult> ShippingRateByTotalList(GridCommand command, ByTotalListModel model)
         {
-            var shippingRates = await _db.ShippingRatesByTotal()
-                .AsNoTracking()
+            var query = _db.ShippingRatesByTotal().AsNoTracking();
+
+            if (model.SearchZip.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Zip, model.SearchZip);
+            }
+            if (model.SearchCountryId != 0)
+            {
+                query = query.Where(x => x.CountryId == model.SearchCountryId);
+            }
+            if (model.SearchShippingMethodId != 0)
+            {
+                query = query.Where(x => x.ShippingMethodId == model.SearchShippingMethodId);
+            }
+            if (model.SearchStoreId != 0)
+            {
+                query = query.Where(x => x.StoreId == model.SearchStoreId);
+            }
+
+            var shippingRates = await query
                 .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)

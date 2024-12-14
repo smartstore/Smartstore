@@ -10,13 +10,13 @@ namespace Smartstore.Web.Models.Cart
 {
     public static partial class CartItemQuantityInputMappingExtensions
     {
-        public static Task MapQuantityInputAsync(this OrganizedShoppingCartItem item, IQuantityInput to, bool mapUnitName = true)
+        public static Task MapQuantityInputAsync(this OrganizedShoppingCartItem item, IQuantityInput to)
         {
             Guard.NotNull(item);
             Guard.NotNull(to);
 
             var mapper = MapperFactory.GetMapper<OrganizedShoppingCartItem, IQuantityInput>();
-            return mapper.MapAsync(item, to, new { MapUnitName = mapUnitName });
+            return mapper.MapAsync(item, to);
         }
     }
 
@@ -52,15 +52,11 @@ namespace Smartstore.Web.Models.Cart
 
             MapCustomQuantities(model, product.ParseAllowedQuantities());
 
-            var mapUnitName = parameters?.MapUnitName == true;
-            if (mapUnitName)
+            var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
+            if (quantityUnit != null)
             {
-                var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
-                if (quantityUnit != null)
-                {
-                    model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
-                    model.QuantityUnitNamePlural = quantityUnit.GetLocalized(x => x.NamePlural);
-                }
+                model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
+                model.QuantityUnitNamePlural = quantityUnit.GetLocalized(x => x.NamePlural);
             }
         }
     }

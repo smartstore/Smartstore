@@ -10,6 +10,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Events;
+using Smartstore.Http;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Checkout.Orders
@@ -335,12 +336,23 @@ namespace Smartstore.Core.Checkout.Orders
 
             CheckoutResult PaymentFailure(PaymentException ex)
             {
-                _logger.Error(ex);
-                _notifier.Error(ex.Message);
-
-                if (ex.RedirectRoute != null)
+                if (ex.RedirectRoute is RouteInfo or RouteValueDictionary)
                 {
-                    return new(new RedirectToActionResult(ex.RedirectRoute.Action, ex.RedirectRoute.Controller, ex.RedirectRoute.RouteValues));
+                    _logger.Error(ex);
+                    _notifier.Error(ex.Message);
+                }
+
+                if (ex.RedirectRoute is RouteInfo routeInfo)
+                {
+                    return new(new RedirectToActionResult(routeInfo.Action, routeInfo.Controller, routeInfo.RouteValues));
+                }
+                else if (ex.RedirectRoute is RouteValueDictionary routeValues)
+                {
+                    return new(new RedirectToRouteResult(routeValues));
+                }
+                else if (ex.RedirectRoute is string redirectUrl)
+                {
+                    return new(new RedirectResult(redirectUrl));
                 }
 
                 var paymentStep = _checkoutFactory.GetCheckoutStep(CheckoutActionNames.PaymentMethod);

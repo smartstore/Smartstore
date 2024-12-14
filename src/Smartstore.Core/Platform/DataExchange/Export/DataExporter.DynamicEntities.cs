@@ -457,6 +457,8 @@ namespace Smartstore.Core.DataExchange.Export
                 result.MetaDescription = ctx.GetTranslation(manufacturer, nameof(manufacturer.MetaDescription), manufacturer.MetaDescription);
                 result.MetaTitle = ctx.GetTranslation(manufacturer, nameof(manufacturer.MetaTitle), manufacturer.MetaTitle);
 
+                result._ManufacturerTemplateViewPath = ctx.ManufacturerTemplates.TryGetValue(manufacturer.ManufacturerTemplateId, out string templatePath) ? templatePath : string.Empty;
+
                 result._Localized = GetLocalized(ctx, manufacturer,
                     x => x.Name,
                     x => x.Description,
@@ -491,9 +493,7 @@ namespace Smartstore.Core.DataExchange.Export
                 result.MetaDescription = ctx.GetTranslation(category, nameof(category.MetaDescription), category.MetaDescription);
                 result.MetaTitle = ctx.GetTranslation(category, nameof(category.MetaTitle), category.MetaTitle);
 
-                result._CategoryTemplateViewPath = ctx.CategoryTemplates.ContainsKey(category.CategoryTemplateId)
-                    ? ctx.CategoryTemplates[category.CategoryTemplateId]
-                    : string.Empty;
+                result._CategoryTemplateViewPath = ctx.CategoryTemplates.TryGetValue(category.CategoryTemplateId, out string templatePath) ? templatePath : string.Empty;
 
                 result._Localized = GetLocalized(ctx, category,
                     x => x.Name,

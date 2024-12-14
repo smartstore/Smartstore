@@ -31,6 +31,7 @@ namespace Smartstore.Web.Models.Catalog
             Store = other.Store;
             Currency = other.Currency;
             DisplayPrices = other.DisplayPrices;
+            HasInitiallySelectedVariants = false;
 
             AssociatedProducts = other.AssociatedProducts;
             GroupedProductConfiguration = other.GroupedProductConfiguration;
@@ -55,6 +56,11 @@ namespace Smartstore.Web.Models.Catalog
         /// The selected attributes based on <see cref="VariantQuery"/>. <c>null</c> if none have been selected (then the preselected attributes are used).
         /// </summary>
         public ProductVariantAttributeSelection SelectedAttributes { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether processing was started with initially selected variants.
+        /// </summary>
+        public bool HasInitiallySelectedVariants { get; init; }
     }
 
     public partial class ProductDetailsModel : EntityModelBase

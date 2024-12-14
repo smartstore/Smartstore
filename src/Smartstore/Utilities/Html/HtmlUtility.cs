@@ -417,5 +417,42 @@ namespace Smartstore.Utilities.Html
 
             return doc.Body?.InnerHtml ?? string.Empty;
         }
+
+        /// <summary>
+        /// Very fast and simple check whether <paramref name="input"/> is HTML.
+        /// </summary>
+        /// <remarks>
+        /// This method performs a very fast and simple check by looking for the presence of opening and closing HTML tags.
+        /// It does not perform a full HTML parse.
+        /// </remarks>
+        public static bool IsHtml(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return false;
+
+            int index = 0;
+            while ((index = input.IndexOf('<', index)) != -1)
+            {
+                // Ensure there is a '>' after the '<'
+                int closeBracketIndex = input.IndexOf('>', index + 1);
+                if (closeBracketIndex == -1)
+                {
+                    // No closing '>' found, invalid tag structure
+                    break;
+                }
+
+                // Check if a closing tag '</' exists after the current '<'
+                int closingTagIndex = input.IndexOf("</", closeBracketIndex);
+                if (closingTagIndex != -1)
+                {
+                    return true;
+                }
+
+                // Move past the current '>' to continue searching
+                index = closeBracketIndex + 1;
+            }
+
+            return false;
+        }
     }
 }

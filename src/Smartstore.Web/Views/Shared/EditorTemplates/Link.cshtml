@@ -17,6 +17,8 @@
     var hideQueryString = GetMetadata<bool>("hideQueryString");
     var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
     var allowedSchemas = arr.Any() ? arr : metadata.Keys;
+    var size = GetMetadata<string>("size");
+    var gutterSize = size == "sm" ? 1 : 2;
 }
 
 <div id="link-builder-@rnd" class="link-builder edit-control"
@@ -25,13 +27,13 @@
      data-current-type="@(Value != null ? expression.Schema : string.Empty)">
 
     @* Template control that receives the link expression. *@
-    <input asp-for="@Model" type="hidden" value="@Value" />
+    <input asp-for="@Model" type="hidden" value="@Value" attr-class='(size.HasValue(), "form-control-" + size)' />
 
-    <div class="row flex-nowrap xs-gutters">
+    <div class="row flex-nowrap g-@gutterSize">
 
         @* 1. prepend type selector. *@
         <div class="link-type-container col-auto">
-            <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" data-toggle="dropdown" title="">
+            <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" attr-class='(size.HasValue(), "btn-" + size)' data-toggle="dropdown" title="">
                 <i class="fa fa-link"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
@@ -62,7 +64,7 @@
                 }
                 else if (schema == DefaultLinkProvider.SchemaProduct)
                 {
-                    <div class="input-group">
+                    <div class="input-group" attr-class='(size.HasValue(), "input-group-" + size)'>
                         <input type="text" class="form-control resettable product-picker-input bg-white text-muted" value="@label" readonly />
                         <div class="input-group-append">
                             <entity-picker max-items="1"
@@ -77,6 +79,7 @@
                 else if (schema == DefaultLinkProvider.SchemaCategory)
                 {
                     <select class="form-control transferable resettable"
+                            attr-class='(size.HasValue(), "form-control-" + size)'
                             data-select-url="@Url.Action("AllCategories", "Category", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
@@ -84,6 +87,7 @@
                 else if (schema == DefaultLinkProvider.SchemaManufacturer)
                 {
                     <select class="form-control transferable resettable"
+                            attr-class='(size.HasValue(), "form-control-" + size)'
                             data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
@@ -91,17 +95,18 @@
                 else if (schema == DefaultLinkProvider.SchemaTopic)
                 {
                     <select class="form-control transferable resettable"
+                            attr-class='(size.HasValue(), "form-control-" + size)'
                             data-select-url="@Url.Action("AllTopics", "Topic", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
                 else if (schema == "url")
                 {
-                    <input type="text" class="form-control transferable resettable" value="@value" />
+                    <input type="text" class="form-control transferable resettable" attr-class='(size.HasValue(), "form-control-" + size)' value="@value" />
                 }
                 else if (schema == "file")
                 {
-                    <div class="input-group">
+                    <div class="input-group" attr-class='(size.HasValue(), "input-group-" + size)'>
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
                         <div class="input-group-append">
                             <a href="javascript:;" class="btn btn-secondary browse-files" data-file-manager-url="@Display.GetFileManagerUrl()" data-field-id="lb-file-url-@rnd">
@@ -116,7 +121,7 @@
 
         @* 4. append additional buttons. *@
         <div class="col-auto">
-            <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
+            <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
                 <i class="fa fa-unlink"></i>
             </button>
             @if (!hideQueryString)
@@ -127,7 +132,11 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <div class="px-2">
-                        <input type="text" class="form-control transferable resettable query-string" value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" style="width: 350px;" />
+                        <input type="text" 
+                            class="form-control transferable resettable query-string"
+                            attr-class='(size.HasValue(), "form-control-" + size)'
+                            value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" 
+                            style="width: 350px;" />
                     </div>
                 </div>
             }

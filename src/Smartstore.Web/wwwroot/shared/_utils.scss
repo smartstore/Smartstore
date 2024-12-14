@@ -269,35 +269,68 @@ table th {
 	@extend .text-muted;
 }
 
+
+//
+// Animation shims
+// ------------------------------------------------------
+
+:root {
+  --animate-duration: 0.5s;
+  --animate-delay: 0;
+  --animate-repeat: 1;
+  --animate-way: 50%;
+  --animate-timing: ease;
+}
+
 .animated {
-    animation-duration: 0.5s;
+    animation-duration: var(--animate-duration);
+    animation-timing-function: var(--animate-timing);
+    animation-delay: var(--animate-delay);
+    animation-iteration-count: var(--animate-repeat);
     animation-fill-mode: both;
+
+    &.faster {
+        animation-duration: calc(var(--animate-duration) / 2);
+    }
+
+    &.fast {
+        animation-duration: calc(var(--animate-duration) * 0.8);
+    }
+
+    &.slow {
+        animation-duration: calc(var(--animate-duration) * 2);
+    }
+
+    &.slower {
+        animation-duration: calc(var(--animate-duration) * 3);
+    }
 }
 
 @keyframes fadeInUp {
-    from  { opacity: 0; transform: translate3d(0, 20px, 0); }
+    from  { opacity: 0; transform: translate3d(0, var(--animate-way), 0); }
     to    { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes fadeInDown {
-    from  { opacity: 0; transform: translate3d(0, -20px, 0); }
+    from  { opacity: 0; transform: translate3d(0, calc(var(--animate-way) * -1), 0); }
     to    { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes fadeOutLeft {
     from  { opacity: 1; }
-    to    { opacity: 0; transform: translate3d(-20px, 0, 0); }
+    to    { opacity: 0; transform: translate3d(calc(var(--animate-way) * -1), 0, 0); }
 }
 
 @keyframes fadeOutRight {
     from  { opacity: 1; }
-    to    { opacity: 0; transform: translate3d(20px, 0, 0); }
+    to    { opacity: 0; transform: translate3d(var(--animate-way), 0, 0); }
 }
 
 .fadeOutLeft    { animation-name: fadeOutLeft; }
 .fadeOutRight   { animation-name: fadeOutRight; }
 .fadeInUp		{ animation-name: fadeInUp; }
 .fadeInDown     { animation-name: fadeInDown; }
+
 
 //
 // Profiler sucks on small screens

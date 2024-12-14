@@ -162,13 +162,19 @@
 
         // OnError
         if (!ajaxOptions.error) {
-            ajaxOptions.error = function (xml) {
+            ajaxOptions.error = function (xhr) {
                 try {
-                    if (!_.isEmpty(xml?.responseText)) {
-                        if (_.isTrue(ajaxOptions.consoleError))
-                            console.error(xml.responseText);
-                        else
-                            EventBroker.publish("message", { title: xml.responseText, type: "error" });
+                    if (!_.isEmpty(xhr?.responseText)) {
+                        if (_.isTrue(ajaxOptions.consoleError)) {
+                            console.error(xhr.responseText);
+                        }
+                        else {
+                            EventBroker.publish("message", {
+                                title: xhr.statusText,
+                                text: xhr.responseText,
+                                type: "error"
+                            });
+                        }   
                     }
                 }
                 catch (e)

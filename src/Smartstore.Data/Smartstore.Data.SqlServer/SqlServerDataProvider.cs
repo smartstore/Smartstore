@@ -16,11 +16,7 @@ namespace Smartstore.Data.SqlServer
 {
     public class SqlServerDataProvider : DataProvider
     {
-        private const long EXPRESS_EDITION_ID = -1592396055L;
-        private const long EXPRESS_ADVANCED_EDITION_ID = -133711905L;
-
         private static long? _editionId = null;
-
         private readonly static ConcurrentDictionary<string, bool> _marsCache = new();
 
         private readonly static FrozenSet<int> _transientErrorCodes = new[]
@@ -349,7 +345,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 catch
                 {
                     // Fallback to "Express" edition (entry-level, free database).
-                    _editionId = EXPRESS_EDITION_ID;
+                    _editionId = -1592396055L;
                 }
             }
 
@@ -358,16 +354,24 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         private string CreateBackupSql()
         {
+            // Backup compression is not supported by some editions.
+            // https://expressdb.io/sql-server-express-feature-comparison.html
+            // https://learn.microsoft.com/de-de/sql/t-sql/functions/serverproperty-transact-sql
+            var notCompressionSupportingEditionIds = new long[]
+            {
+                -1592396055L    /*Express*/,
+                -133711905L     /*Express Advanced*/,
+                1293598313L     /*Web*/
+            };
+
+            var editionId = GetSqlServerEdition();
             var sql = "BACKUP DATABASE [" + DatabaseName + "] TO DISK = {0} WITH FORMAT";
 
-            // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
-            // https://expressdb.io/sql-server-express-feature-comparison.html
-            var editionId = GetSqlServerEdition();
-            if (editionId != EXPRESS_EDITION_ID && editionId != EXPRESS_ADVANCED_EDITION_ID)
+            if (!notCompressionSupportingEditionIds.Contains(editionId))
             {
                 sql += ", COMPRESSION";
             }
-           
+
             return sql;
         }
 

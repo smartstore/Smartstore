@@ -278,7 +278,7 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (filter is IAttributeSearchFilter af)
             {
-                filters = new[] { af };
+                filters = [af];
             }
 
             if (filters.IsNullOrEmpty())
@@ -288,6 +288,7 @@ namespace Smartstore.Core.Catalog.Search
 
             var names = CatalogSearchQuery.KnownFilters;
             var languageId = context.SearchQuery.LanguageId ?? 0;
+            var parseSearchTerm = context.SearchQuery.ParseSearchTerm;
 
             var baseQuery =
                 from p in query
@@ -300,15 +301,15 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     if (af.FieldName == names.Sku)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, af);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Sku, x => x.Translation.LocaleValue, af);
                     }
                     else if (af.FieldName == names.Name)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.Name, af, languageId);
+                        return TermSearchProduct.CreateFilter(x => x.Product.Name, x => x.Translation.LocaleValue, af, languageId, parseSearchTerm);
                     }
                     else if (af.FieldName == names.ShortDescription)
                     {
-                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, af, languageId);
+                        return TermSearchProduct.CreateFilter(x => x.Product.ShortDescription, x => x.Translation.LocaleValue, af, languageId, parseSearchTerm);
                     }
 
                     return null;
@@ -325,9 +326,10 @@ namespace Smartstore.Core.Catalog.Search
 
             var group = expressions.Length == 1 && expressions[0] is FilterExpressionGroup group2
                 ? group2
-                : new FilterExpressionGroup(typeof(TermSearchProduct), expressions.ToArray()) { LogicalOperator = op };
+                : new FilterExpressionGroup(typeof(TermSearchProduct), [.. expressions]) { LogicalOperator = op };
 
             baseQuery = baseQuery.Where(group).Cast<TermSearchProduct>();
+            //baseQuery.Select(x => x.Product).ToQueryString().Dump();
 
             return baseQuery.Select(x => x.Product);
         }
@@ -590,6 +592,10 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
                 }
+                else
+                {
+                    return ApplyDefaultSorting(context, query);
+                }
             }
             else if (sorting.FieldName == names.CreatedOn)
             {
@@ -605,7 +611,11 @@ namespace Smartstore.Core.Catalog.Search
             }
             else if (sorting.FieldName == names.Price)
             {
-                query = OrderBy(query, x => x.Price, sorting.Descending);
+                return ApplyPriceSorting(query, sorting.Descending);
+            }
+            else
+            {
+                return ApplyDefaultSorting(context, query);
             }
 
             return query;
@@ -631,7 +641,37 @@ namespace Smartstore.Core.Catalog.Search
             return query.OrderBy(x => x.Id);
         }
 
-        private static IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
+        protected virtual IQueryable<Product> ApplyPriceSorting(IQueryable<Product> query, bool descending)
+        {
+            var now = DateTime.UtcNow;
+
+            // TODO: (mg) Do we need more database indexes for this?
+            // Results in "Oder by case when... else x.Price".
+            var priceQuery = query
+                .Select(x => new
+                {
+                    Price = x.SpecialPrice != null
+                        && (x.SpecialPriceStartDateTimeUtc == null || now >= x.SpecialPriceStartDateTimeUtc)
+                        && (x.SpecialPriceEndDateTimeUtc == null || now <= x.SpecialPriceEndDateTimeUtc)
+                        ? x.SpecialPrice.Value : x.Price,
+                    Product = x
+                });
+
+            if (descending)
+            {
+                return priceQuery
+                    .OrderByDescending(x => x.Price)
+                    .Select(x => x.Product);
+            }
+            else
+            {
+                return priceQuery
+                    .OrderBy(x => x.Price)
+                    .Select(x => x.Product);
+            }
+        }
+
+        protected virtual IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
         {
             if (byCategory)
             {

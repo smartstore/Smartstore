@@ -8,6 +8,7 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
     public class ProductAttributeOptionModel : EntityModelBase, ILocalizedModel<ProductAttributeOptionLocalizedModel>
     {
+        public Type GetEntityType() => typeof(ProductAttributeOption);
         public int ProductId { get; set; }
         public int ProductVariantAttributeId { get; set; }
         public int ProductAttributeOptionsSetId { get; set; }

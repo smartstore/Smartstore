@@ -560,7 +560,7 @@
             function setPreviewIcon(file, small) {
                 var el = $(file.previewTemplate);
                 var elIcon = el.find('.file-icon');
-                var elImage = el.find('.file-figure > img').addClass("hide");
+                var elImage = el.find('.file-figure > img').addClass("d-none");
 
                 // Convert dz file property to sm file property if not already set.
                 if (!file.mime)
@@ -925,7 +925,8 @@
 
         if (dropzone.options.maxFiles === 1) {
             // Reset dropzone for single file uploads, so other files can be uploaded again.
-            dropzone.removeAllFiles(true);
+            // INFO: commented out to fix #1185. May have other impacts. However, it seems to work.
+            //dropzone.removeAllFiles(true);
         }
     }
 

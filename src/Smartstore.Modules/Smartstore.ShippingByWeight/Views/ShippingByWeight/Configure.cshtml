@@ -3,6 +3,9 @@
 @{
     Layout = "_ConfigureProvider";
     ViewBag.IsGrid = true;
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <widget target-zone="admin_button_toolbar_before">
@@ -14,7 +17,7 @@
 
 <tabstrip id="shipping-by-weight-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleGrid")" sm-selected="true" sm-adaptive-height="true">
-        <partial name="_Grid.ShippingRates" model="null" />
+        <partial name="_Grid.ShippingRates" model="null" view-data="gridViewData" />
         <partial name="_CreateShippingRatePopup" model="new ByWeightModel()" />
     </tab>
     <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleSettings")">

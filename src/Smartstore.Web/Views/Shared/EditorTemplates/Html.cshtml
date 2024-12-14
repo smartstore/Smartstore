@@ -1,4 +1,7 @@
 ﻿@using Smartstore.Utilities
+@using Smartstore.Core.AI
+@using Smartstore.Web.Rendering.Events
+@using Smartstore.Utilities.Html
 
 @model string
 
@@ -6,7 +9,7 @@
     var lazy = GetMetadata<bool?>("lazy") ?? true;
     var id = Html.IdForModel();
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
-    var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
+    var htmlIsEmpty = HtmlUtility.IsEmptyHtml(html);
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
@@ -17,10 +20,25 @@
 <script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
 
 <widget key="summernote" target-zone="scripts">
+    <script>
+        var ai_icon_svg = $(".ai-dialog-opener-root:first .ai-icon-stars-tricolor");
+    </script>
     <script src="~/bundle/js/summernote.js"></script>
+
     @* Find summernote localization file *@
-    <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
-    <script src="~/lib/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    <script src="~/lib/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage" sm-if='WorkContext.WorkingLanguage.LanguageCulture != "en-US"'></script>
+</widget>
+
+<widget key="summernote-resources" target-zone="end">
+    @{
+        // This event is used to render additional widgets in the html editor, but only once per request, not per editor instance.
+        var htmlEditorRenderingEvent = new RichTextEditorRenderingEvent("summernote", ViewContext);
+        await CommonServices.EventPublisher.PublishAsync(htmlEditorRenderingEvent);
+        foreach (var widget in htmlEditorRenderingEvent.Widgets)
+        {
+            @await widget.InvokeAsync(ViewContext)
+        }
+    }
 </widget>
 
 <link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />

@@ -36,7 +36,7 @@
                 try {
                     setBuyButtonState(false);
                     $.throbber.hide(true);
-                    $.scrollTo(warnings, 800, { offset: -20 });
+                    $.scrollTo(warnings, { offset: -20 });
                 }
                 catch (e) { }
             }
@@ -92,7 +92,7 @@
                 else if (!$(this).is(':checked')) {
                     userAgreementsOk = false;
                     displayNotification(@T("Checkout.DownloadUserAgreement.PleaseAgree").JsValue);
-                    $.scrollTo(cartItems, 800, { offset: -20 });
+                    $.scrollTo(cartItems, { offset: -20 });
                     return false;
                 }
             });
@@ -107,7 +107,7 @@
                     else if (!$(this).is(':checked')) {
                         esdRevocationWaiverOk = false;
                         displayNotification(@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").JsValue);
-                        $.scrollTo(cartItems, 800, { offset: -20 });
+                        $.scrollTo(cartItems, { offset: -20 });
                         return false;
                     }
                 });

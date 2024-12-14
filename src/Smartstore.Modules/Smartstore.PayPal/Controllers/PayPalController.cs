@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -15,8 +14,10 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Services;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -26,6 +27,7 @@ namespace Smartstore.PayPal.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ICheckoutWorkflow _checkoutWorkflow;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IRoundingHelper _roundingHelper;
@@ -36,6 +38,7 @@ namespace Smartstore.PayPal.Controllers
         public PayPalController(
             SmartDbContext db,
             ICheckoutStateAccessor checkoutStateAccessor,
+            ICheckoutWorkflow checkoutWorkflow,
             IShoppingCartService shoppingCartService,
             IOrderProcessingService orderProcessingService,
             IRoundingHelper roundingHelper,
@@ -45,6 +48,7 @@ namespace Smartstore.PayPal.Controllers
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _checkoutWorkflow = checkoutWorkflow;
             _shoppingCartService = shoppingCartService;
             _orderProcessingService = orderProcessingService;
             _roundingHelper = roundingHelper;
@@ -57,7 +61,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
-        public IActionResult InitTransaction(string orderId, string routeIdent)
+        public async Task<IActionResult> InitTransaction(string orderId, string routeIdent)
         {
             var success = false;
             var message = string.Empty;
@@ -70,6 +74,10 @@ namespace Smartstore.PayPal.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var checkoutState = _checkoutStateAccessor.CheckoutState;
 
+            // Remove unwanted custom properties that might be left from last checkout.
+            checkoutState.CustomProperties.Remove("PayPalPayerActionRequired");
+            checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
+            
             // Only set this if we're not on payment page.
             if (routeIdent != "Checkout.PaymentMethod")
             {
@@ -98,21 +106,32 @@ namespace Smartstore.PayPal.Controllers
             processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+            await AddShippingAddressAsync(orderId);
+
+            // Get redirect URL if quick checkout is active.
+            var redirectUrl = string.Empty;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
+            if (result.ActionResult != null)
+            {
+                var redirectToAction = (RedirectToActionResult)result.ActionResult;
+                redirectUrl = Url.Action(redirectToAction.ActionName, redirectToAction.ControllerName, redirectToAction.RouteValues, Request.Scheme);
+            }
 
             success = true;
 
-            return Json(new { success, message });
+            return Json(new { success, message, redirectUrl });
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
             var customer = Services.WorkContext.CurrentCustomer;
+            var store = Services.StoreContext.CurrentStore;
 
             // Only save cart data when we're on shopping cart page.
             if (routeIdent == "ShoppingCart.Cart")
             {
-                var store = Services.StoreContext.CurrentStore;
                 var warnings = new List<string>();
                 var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
@@ -157,11 +176,111 @@ namespace Smartstore.PayPal.Controllers
             await customer.GenericAttributes.SaveChangesAsync();
 
             var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
+
+            orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
+            orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
+
+            var psw = new PaymentSourceWallet
+            {
+                ReturnUrl = orderMessage.AppContext.ReturnUrl,
+                CancelUrl = orderMessage.AppContext.CancelUrl
+            };
+
+            orderMessage.PaymentSource = new PaymentSource
+            {
+                PaymentSourceWallet = psw
+            };
+
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
 
             return Json(new { success = true, data = jResponse });
+        }
+
+        private async Task AddShippingAddressAsync(string payPalOrderId) 
+        {
+            var getOrderResponse = await _client.GetOrderAsync(payPalOrderId);
+            var order = getOrderResponse.Body<OrderMessage>();
+
+            var shippingAddress = order.PurchaseUnits[0].Shipping?.ShippingAddress;
+            var shippingName = order.PurchaseUnits[0].Shipping?.ShippingName?.FullName;
+
+            if (shippingAddress == null || shippingName == null) return;
+
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            var preferredBillingAddressFirstname = order.Payer.Name.GivenName;
+            var preferredBillingAddressLastname = order.Payer.Name.SurName;
+
+            var nameParts = SplitFullName(shippingName);
+
+            var country = await _db.Countries
+                .Where(x => x.TwoLetterIsoCode == shippingAddress.CountryCode)
+                .FirstOrDefaultAsync();
+
+            var stateProvince = country != null
+                ? await _db.StateProvinces
+                    .Where(x => x.CountryId == country.Id && x.Abbreviation == shippingAddress.AdminArea1)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            var address = new Address
+            {
+                Email = order.Payer?.EmailAddress,
+                Address1 = shippingAddress.AddressLine1,
+                Address2 = shippingAddress.AddressLine2,
+                City = shippingAddress.AdminArea2,
+                ZipPostalCode = shippingAddress.PostalCode,
+                CountryId = country?.Id,
+                StateProvinceId = stateProvince?.Id,
+
+                // INFO: Use the payer name for billing as it reflects the buyer's primary identity,
+                // and use the shipping address name for delivery, if specified, to account for possible different recipients.
+                FirstName = preferredBillingAddressFirstname.HasValue() ? preferredBillingAddressFirstname : nameParts.FirstName,
+                LastName = preferredBillingAddressLastname.HasValue() ? preferredBillingAddressLastname : nameParts.LastName
+            };
+
+            // Add billing address if it doesn't exist yet.
+            if (customer.Addresses.FindAddress(address) == null)
+            {
+                customer.Addresses.Add(address);
+            }
+
+            customer.BillingAddress = address;
+
+            // Add shipping address if it doesn't exist yet.
+            address.FirstName = nameParts.FirstName;
+            address.LastName = nameParts.LastName;
+            
+            if (customer.Addresses.FindAddress(address) == null)
+            {
+                customer.Addresses.Add(address);
+            }
+
+            customer.ShippingAddress = address;
+
+            await _db.SaveChangesAsync();
+        }
+
+        private static (string FirstName, string LastName) SplitFullName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (nameParts.Length == 1)
+            {
+                return (nameParts[0], string.Empty);
+            }
+
+            var firstName = string.Join(' ', nameParts.Take(nameParts.Length - 1));
+            var lastName = nameParts[^1];
+
+            return (firstName, lastName);
         }
 
         /// <summary>
@@ -200,14 +319,25 @@ namespace Smartstore.PayPal.Controllers
                     paymentRequest = new ProcessPaymentRequest();
                 }
 
-                await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
-
                 var state = _checkoutStateAccessor.CheckoutState.GetCustomState<PayPalCheckoutState>();
 
+                if (state.ApmProviderSystemName.HasValue())
+                {
+                    try
+                    {
+                        await CreateOrderApmAsync(paymentRequest.OrderGuid.ToString());
+                    } 
+                    catch (PayPalException ex)
+                    {
+                        PayPalHelper.HandleException(ex);
+                    }
+                    
+                    paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
+                }
+                
                 paymentRequest.StoreId = store.Id;
                 paymentRequest.CustomerId = customer.Id;
-                paymentRequest.PaymentMethodSystemName = state.ApmProviderSystemName;
-
+                
                 // We must check here if an order can be placed to avoid creating unauthorized transactions.
                 var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
                 if (warnings.Count == 0)
@@ -322,6 +452,8 @@ namespace Smartstore.PayPal.Controllers
             if (state.PayPalOrderId != null)
             {
                 state.SubmitForm = true;
+
+                _checkoutStateAccessor.CheckoutState.CustomProperties["PayPalPayerActionRequired"] = true;
             }
             else
             {
@@ -357,7 +489,7 @@ namespace Smartstore.PayPal.Controllers
 
                 if (rawRequest.HasValue())
                 {
-                    var webhookEvent = JsonConvert.DeserializeObject<WebhookEvent<WebhookResource>>(rawRequest);
+                    var webhookEvent = JsonConvert.DeserializeObject<WebhookEvent<WebhookResource>>(rawRequest, PayPalHelper.SerializerSettings);
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
 

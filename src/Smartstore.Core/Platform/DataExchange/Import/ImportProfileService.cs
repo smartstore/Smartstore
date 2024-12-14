@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -12,7 +15,7 @@ namespace Smartstore.Core.DataExchange.Import
     {
         const string ImportFileRoot = "ImportProfiles";
 
-        private static readonly Lock _lock = new();
+        private static readonly object _lock = new();
         private static Dictionary<ImportEntityType, Dictionary<string, string>> _entityProperties = null;
 
         private readonly SmartDbContext _db;
@@ -100,12 +103,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         public virtual async Task<string> GetNewProfileNameAsync(ImportEntityType entityType)
         {
-            var defaultNamesStr = _localizationService.GetResource("Admin.DataExchange.Import.DefaultProfileNames");
-            var defaultNames = defaultNamesStr.SplitSafe(';').ToArray();
+            var entityTypeName = entityType.ToString();
             var profileCount = 1 + await _db.ImportProfiles.CountAsync(x => x.EntityTypeId == (int)entityType);
+            var name = _localizationService.GetResource($"Admin.DataExchange.Import.Default{entityTypeName}ProfileName").NullEmpty() ?? entityTypeName;
 
-            var result = defaultNames.ElementAtOrDefault((int)entityType).NullEmpty() ?? entityType.ToString();
-            return result + " " + profileCount.ToString();
+            return name.FormatInvariant(profileCount.ToString("N0"));
         }
 
         public virtual async Task<ImportProfile> InsertImportProfileAsync(string fileName, string name, ImportEntityType entityType)
@@ -143,6 +145,9 @@ namespace Smartstore.Core.DataExchange.Import
                     break;
                 case ImportEntityType.Category:
                     profile.KeyFieldNames = string.Join(',', CategoryImporter.DefaultKeyFields);
+                    break;
+                case ImportEntityType.Manufacturer:
+                    profile.KeyFieldNames = string.Join(',', ManufacturerImporter.DefaultKeyFields);
                     break;
                 case ImportEntityType.Customer:
                     profile.KeyFieldNames = string.Join(',', CustomerImporter.DefaultKeyFields);
@@ -242,8 +247,43 @@ namespace Smartstore.Core.DataExchange.Import
 
                         var localizableProperties = new Dictionary<ImportEntityType, string[]>
                         {
-                            { ImportEntityType.Product, [ "Name", "ShortDescription", "FullDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" ] },
-                            { ImportEntityType.Category, [ "Name", "FullName", "Description", "BottomDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" ] },
+                            { 
+                                ImportEntityType.Product,
+                                [
+                                    nameof(Product.Name),
+                                    nameof(Product.ShortDescription),
+                                    nameof(Product.FullDescription),
+                                    nameof(Product.MetaKeywords),
+                                    nameof(Product.MetaDescription),
+                                    nameof(Product.MetaTitle),
+                                    "SeName"
+                                ]
+                            },
+                            { 
+                                ImportEntityType.Category,
+                                [ 
+                                    nameof(Category.Name),
+                                    nameof(Category.FullName),
+                                    nameof(Category.Description),
+                                    nameof(Category.BottomDescription),
+                                    nameof(Category.MetaKeywords),
+                                    nameof(Category.MetaDescription),
+                                    nameof(Category.MetaTitle),
+                                    "SeName"
+                                ]
+                            },
+                            { 
+                                ImportEntityType.Manufacturer, 
+                                [
+                                    nameof(Manufacturer.Name), 
+                                    nameof(Manufacturer.Description),
+                                    nameof(Manufacturer.BottomDescription),
+                                    nameof(Manufacturer.MetaKeywords),
+                                    nameof(Manufacturer.MetaDescription),
+                                    nameof(Manufacturer.MetaTitle),
+                                    "SeName"
+                                ]
+                            },
                             { ImportEntityType.Customer, [] },
                             { ImportEntityType.NewsletterSubscription, [] }
                         };
@@ -278,6 +318,9 @@ namespace Smartstore.Core.DataExchange.Import
                                 case ImportEntityType.Category:
                                     names["SeName"] = string.Empty;
                                     names["TreePath"] = "Category tree path";
+                                    break;
+                                case ImportEntityType.Manufacturer:
+                                    names["SeName"] = string.Empty;
                                     break;
                                 case ImportEntityType.Customer:
                                     foreach (var property in addressProperties)
@@ -339,6 +382,9 @@ namespace Smartstore.Core.DataExchange.Import
                     break;
                 case ImportEntityType.Category:
                     key = "Admin.Catalog.Categories.Fields." + property;
+                    break;
+                case ImportEntityType.Manufacturer:
+                    key = "Admin.Catalog.Manufacturers.Fields." + property;
                     break;
                 case ImportEntityType.Customer:
                     key = (property.StartsWith("BillingAddress.") || property.StartsWith("ShippingAddress."))

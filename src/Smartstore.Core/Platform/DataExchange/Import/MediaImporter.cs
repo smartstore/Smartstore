@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
@@ -287,7 +288,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     if (item.Url.HasValue() && !item.Success)
                     {
-                        await Download(new[] { item }, downloadedItems, cancelToken);
+                        await Download([item], downloadedItems, cancelToken);
                     }
 
                     if (!Succeeded(item))
@@ -560,7 +561,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var category = (Category)item.Entity;
                 if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
                 {
-                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { assignedFile }, true);
+                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, [assignedFile], true);
                     if (isEqualData.Success)
                     {
                         return true;
@@ -573,6 +574,57 @@ namespace Smartstore.Core.DataExchange.Import
             static void AssignMediaFile(DownloadManagerItem item, int fileId)
             {
                 ((Category)item.Entity).MediaFileId = fileId;
+            }
+        }
+
+        public async Task<int> ImportManufacturerImagesAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default)
+        {
+            var itemsArr = items?.Where(x => x != null)?.ToArray();
+            if (itemsArr.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            var existingFileIds = itemsArr
+                .Select(x => x.Entity as Manufacturer)
+                .Where(x => x != null && x.MediaFileId > 0)
+                .ToDistinctArray(x => x.MediaFileId.Value);
+
+            var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
+            var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
+
+            return await ImportMediaFilesAsync<Manufacturer>(
+                scope,
+                items,
+                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value,
+                AssignMediaFile,
+                CheckAssignedFile,
+                true,
+                duplicateFileHandling,
+                cancelToken);
+
+            async Task<bool> CheckAssignedFile(DownloadManagerItem item, Stream stream)
+            {
+                var manufacturer = (Manufacturer)item.Entity;
+                if (manufacturer.MediaFileId.HasValue && existingFiles.TryGetValue(manufacturer.MediaFileId.Value, out var assignedFile))
+                {
+                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, [assignedFile], true);
+                    if (isEqualData.Success)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            static void AssignMediaFile(DownloadManagerItem item, int fileId)
+            {
+                ((Manufacturer)item.Entity).MediaFileId = fileId;
             }
         }
 

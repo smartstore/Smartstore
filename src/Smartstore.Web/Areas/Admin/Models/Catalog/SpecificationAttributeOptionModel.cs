@@ -8,6 +8,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
     public class SpecificationAttributeOptionModel : EntityModelBase, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
     {
+        public Type GetEntityType() => typeof(SpecificationAttributeOption);
+
         public int SpecificationAttributeId { get; set; }
 
         [LocalizedDisplay("*Name")]

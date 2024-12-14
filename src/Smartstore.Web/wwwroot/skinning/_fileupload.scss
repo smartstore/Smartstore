@@ -187,13 +187,7 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
 
     .fu-remove {
         display: none;
-        min-width: 1.25rem;
-        width: 1.25rem;
-        height: 1.25rem;
-
-        &:hover {
-            background-color: rgba($danger, .2);
-        }
+        --btn-height: 24px;
 
         .fu-remove-icon {
             margin-top: -2px;

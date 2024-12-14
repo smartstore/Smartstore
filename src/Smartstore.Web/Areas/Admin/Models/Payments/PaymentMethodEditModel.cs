@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Payments
@@ -6,7 +7,8 @@ namespace Smartstore.Admin.Models.Payments
     [LocalizedDisplay("Admin.Configuration.Payment.Methods.")]
     public class PaymentMethodEditModel : TabbableModel, ILocalizedModel<PaymentMethodLocalizedModel>
     {
-        public List<PaymentMethodLocalizedModel> Locales { get; set; } = new();
+        public Type GetEntityType() => typeof(PaymentMethod);
+        public List<PaymentMethodLocalizedModel> Locales { get; set; } = [];
         public string IconUrl { get; set; }
 
         [LocalizedDisplay("Common.SystemName")]

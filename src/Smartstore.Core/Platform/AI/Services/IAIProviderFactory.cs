@@ -2,7 +2,7 @@
 
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Responsible for resolving <see cref="IAIProvider"/> instances.

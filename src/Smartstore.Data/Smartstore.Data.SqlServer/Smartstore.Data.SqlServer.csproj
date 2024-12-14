@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.11.2" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" GeneratePathProperty="true" />
+        <PackageReference Include="Azure.Identity" Version="1.13.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" GeneratePathProperty="true" />
         <None Include="$(PkgMicrosoft_EntityFrameworkCore_SqlServer)\lib\net8.0\*.dll" CopyToOutputDirectory="PreserveNewest">
             <Visible>false</Visible>
         </None>

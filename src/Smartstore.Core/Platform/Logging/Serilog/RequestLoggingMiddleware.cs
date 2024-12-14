@@ -40,7 +40,7 @@ namespace Smartstore.Core.Logging
                 () => !workContext.IsInitialized ? null : workContext.CurrentCustomer?.Id);
 
             var userNameEnricher = new DelegatingPropertyEnricher("UserName",
-                () => httpContext.User?.Identity?.Name);
+                () => !workContext.IsInitialized ? null : httpContext.User?.Identity?.Name);
 
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
             using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))

@@ -269,16 +269,16 @@ namespace Smartstore.Admin.Controllers
 
         [MaintenanceAction]
         [Permission(Permissions.System.Maintenance.Execute)]
-        public IActionResult CreateAttributeCombinationHashCodes()
+        public IActionResult CreateAttributeCombinationHashCodes(bool force = false)
         {
-            _ = _asyncRunner.RunTask(CreateAttributeCombinationHashCodesInternal);
+            _ = _asyncRunner.RunTask((scope, ct, state) => CreateAttributeCombinationHashCodesInternal((bool)state, scope, ct), force);
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
 
             return RedirectToAction(nameof(Warnings));
         }
 
-        private static async Task CreateAttributeCombinationHashCodesInternal(ILifetimeScope scope, CancellationToken cancelToken)
+        private static async Task CreateAttributeCombinationHashCodesInternal(bool force, ILifetimeScope scope, CancellationToken cancelToken)
         {
             var db = scope.Resolve<SmartDbContext>();
             var logger = scope.Resolve<ILogger>();
@@ -286,7 +286,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var migrator = new AttributesMigrator(db, logger);
-                _ = await migrator.CreateAttributeCombinationHashCodesAsync(cancelToken);
+                _ = await migrator.CreateAttributeCombinationHashCodesAsync(force, cancelToken);
             }
             catch (Exception ex)
             {

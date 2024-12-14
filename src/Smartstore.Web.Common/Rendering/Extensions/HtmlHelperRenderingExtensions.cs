@@ -627,6 +627,7 @@ namespace Smartstore.Web.Rendering
                                 {
                                     @class = "locale-editor-content",
                                     data_lang = language.LanguageCulture,
+                                    data_lang_id = language.Id,
                                     data_rtl = language.Rtl.ToString().ToLower()
                                 });
                         }).GetAwaiter().GetResult();
@@ -647,7 +648,7 @@ namespace Smartstore.Web.Rendering
                 var aiHtmlGenerator = services.GetRequiredService<IAIToolHtmlGenerator>();
                 aiHtmlGenerator.Contextualize(helper.ViewContext);
 
-                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model);
+                var translationTool = aiHtmlGenerator.GenerateTranslationTool(helper.ViewData.Model, name);
                 if (translationTool != null)
                 {
                     wrapper.InnerHtml.AppendHtml(translationTool);
@@ -748,10 +749,15 @@ namespace Smartstore.Web.Rendering
                 svg.Attributes["focusable"] = "false";
             }
 
-            // Use tag
-            var urlHelper = helper.ViewContext.HttpContext.RequestServices.GetService<IUrlHelper>();
+            var httpContext = helper.ViewContext.HttpContext;
+            var urlHelper = httpContext.RequestServices.GetService<IUrlHelper>();
+            var fileVersionProvider = httpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
+
+            // Use tag (with file version appended)
+            var filePath = urlHelper.Content("~/lib/bi/bootstrap-icons.svg");
+            var href = fileVersionProvider.AddFileVersionToPath(httpContext.Request.PathBase, filePath) + "#" + name;
             var symbol = new TagBuilder("use");
-            symbol.Attributes["xlink:href"] = urlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{name}");
+            symbol.Attributes["xlink:href"] = href;
 
             var el = symbol;
 

@@ -87,14 +87,14 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool AlwaysDisplayRetailPrice { get; set; } = true;
 
         /// <summary>
-        /// Sets the offer remaining time (in hours) from which a countdown should be displayed in product detail,
+        /// Sets the offer remaining time (in hours) from which a countdown should be displayed in product details,
         /// e.g. "ends in 3 hours, 23 min.". To hide the countdown, set this to NULL.
         /// Only applies to limited time offers with a non-null end date.
         /// </summary>
         public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
 
         /// <summary>
-        /// If TRUE, displays a badge if an offer price is active.
+        /// <c>true</c> to display a badge if an offer price is active.
         /// </summary>
         public bool ShowOfferBadge { get; set; } = true;
 
@@ -127,7 +127,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public string LimitedOfferBadgeStyle { get; set; } = "dark";
 
         /// <summary>
-        /// If TRUE, displays the compare price label's short name in product lists.
+        /// <c>true</c> to display the compare price label's short name in product lists.
         /// </summary>
         public bool ShowPriceLabelInLists { get; set; } = true;
 
@@ -151,6 +151,16 @@ namespace Smartstore.Core.Catalog.Pricing
         /// In this case no discount is applied because the customer could earn money through that.
         /// </summary>
         public bool ValidateDiscountGiftCardsInLists { get; set; }
+
+        /// <summary>
+        /// <c>true</c> to initially apply the price range format (e.g. "from {0}") in product details.
+        /// </summary>
+        public bool ApplyPriceRangeFormatInProductDetails { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore discounts assigned to products when a special price is applied.
+        /// </summary>
+        public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
 
         #endregion
     }

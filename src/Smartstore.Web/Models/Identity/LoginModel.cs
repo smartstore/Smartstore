@@ -39,7 +39,7 @@ namespace Smartstore.Web.Models.Identity
 
             if (loginType == CustomerLoginType.Email)
             {
-                RuleFor(x => x.Email).NotEmpty().EmailAddress();
+                RuleFor(x => x.Email).NotEmpty().EmailAddressStrict();
             }
             else if (loginType == CustomerLoginType.Username)
             {

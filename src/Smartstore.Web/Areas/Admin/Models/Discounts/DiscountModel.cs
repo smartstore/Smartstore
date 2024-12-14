@@ -9,6 +9,8 @@ namespace Smartstore.Admin.Models.Discounts
     [LocalizedDisplay("Admin.Promotions.Discounts.Fields.")]
     public class DiscountModel : EntityModelBase, ILocalizedModel<DiscountLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Discount);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

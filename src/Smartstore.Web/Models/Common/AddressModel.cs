@@ -144,8 +144,8 @@ namespace Smartstore.Web.Models.Common
             Localizer T, 
             AddressSettings addressSettings)
         {
-            RuleFor(x => x.FirstName).ValidName(T);
-            RuleFor(x => x.LastName).ValidName(T);
+            RuleFor(x => x.FirstName).ValidPersonName(T);
+            RuleFor(x => x.LastName).ValidPersonName(T);
 
             When(x => x.Company.IsEmpty(), () =>
             {
@@ -209,13 +209,12 @@ namespace Smartstore.Web.Models.Common
                 RuleFor(x => x.FaxNumber).NotEmpty();
             }
 
-            RuleFor(x => x.Email).EmailAddress();
+            RuleFor(x => x.Email).EmailAddressStrict();
 
             if (addressSettings.ValidateEmailAddress)
             {
                 RuleFor(x => x.EmailMatch)
                     .NotEmpty()
-                    .EmailAddress()
                     .Equal(x => x.Email)
                     .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
             }

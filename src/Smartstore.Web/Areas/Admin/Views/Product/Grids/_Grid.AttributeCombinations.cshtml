@@ -45,10 +45,11 @@
         </toolbar-group>
     </toolbar>
     <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
         <column for="AttributesXml" hideable="false" width="4fr" sortable="false">
             <display-template>
                 <div class="flex-row flex-column-reverse">
-                    <a href="#" class="text-truncate grid-edit-attribute-combination" :data-key="item.row.Id" v-html="item.value"></a>
+                    <a href="#" class="text-truncate grid-edit-attribute-combination" :data-key="item.row.Id" :data-index="item.row.EntityIndex" v-html="item.value"></a>
                     <div v-if="item.row.Warnings.length > 0" style="color: red">
                         <div v-for="item in item.row.Warnings">
                             {{ item }}
@@ -85,8 +86,11 @@
         $(document).on('click', '.grid-edit-attribute-combination', function (e) {
             e.preventDefault();
 
-            var id = $(this).data('key');
-            openPopup('@(Url.Action("AttributeCombinationEditPopup").EnsureEndsWith('/'))' + id + '?btnId=btnRefreshCombinations&formId=product-form');
+            const self = $(this);
+            const id = self.data('key');
+            const queryString = '?btnId=btnRefreshCombinations&formId=product-form&entityIndex=' + self.data('index');
+
+            openPopup('@(Url.Action("AttributeCombinationEditPopup").EnsureEndsWith('/'))' + id + queryString);
             return false;
         });
 

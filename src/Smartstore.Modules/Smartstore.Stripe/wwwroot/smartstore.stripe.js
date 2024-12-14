@@ -163,10 +163,9 @@
                                 if (data.success) {
                                     // Close stripe terminal.
                                     ev.complete('success');
-
-                                    // Redirect to billing address.
-                                    location.href = paymentRequestButton.data("redirect-url");
-                                } else {
+                                    location.href = data.redirectUrl || paymentRequestButton.data("redirect-url");
+                                }
+                                else {
                                     // Display error in stripe terminal.
                                     ev.complete('fail');
                                 }

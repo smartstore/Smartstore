@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿#nullable enable
+
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
@@ -16,7 +19,7 @@ namespace Smartstore
         /// <returns>The value for the key. This will be either the existing value for the key if the
         /// key is already in the dictionary, or the new value for the key as returned by <paramref name="valueFactory"/>
         /// if the key was not in the dictionary.</returns>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, Func<TKey, TValue> valueFactory)
+        public static TValue? GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue?> source, TKey key, Func<TKey, TValue> valueFactory) where TKey : notnull
         {
             Guard.NotNull(source);
             Guard.NotNull(key);
@@ -43,7 +46,7 @@ namespace Smartstore
         /// <returns>
         /// true if the key/value pair was added to the dictionary successfully; otherwise, false.
         /// </returns>
-        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists)
+        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue?> source, TKey key, TValue value, bool updateIfExists) where TKey : notnull
         {
             if (source == null || key == null)
             {
@@ -54,6 +57,8 @@ namespace Smartstore
             {
                 return concurrentDict.TryAdd(key, value);
             }
+
+            Guard.NotNull(source);
 
             if (updateIfExists)
             {
@@ -75,7 +80,7 @@ namespace Smartstore
         /// dictionary or the default value of <typeparamref name="TValue"/> if the operation failed.
         /// </param>
         /// <returns>true if an object was removed successfully; otherwise, false.</returns>
-        public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, out TValue value)
+        public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, [MaybeNullWhen(false)] out TValue? value) where TKey : notnull
         {
             value = default;
 
@@ -89,6 +94,8 @@ namespace Smartstore
                 return concurrentDict.TryRemove(key, out value);
             }
 
+            Guard.NotNull(source);
+
             if (source.TryGetValue(key, out value))
             {
                 source.Remove(key);
@@ -98,8 +105,11 @@ namespace Smartstore
             return false;
         }
 
-        public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> values, IEnumerable<KeyValuePair<TKey, TValue>> other)
+        public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue?> values, IEnumerable<KeyValuePair<TKey, TValue?>> other) where TKey : notnull
         {
+            Guard.NotNull(values);
+            Guard.NotNull(other);
+
             foreach (var kvp in other)
             {
                 if (values.ContainsKey(kvp.Key))
@@ -111,8 +121,10 @@ namespace Smartstore
             }
         }
 
-        public static IDictionary<string, object> Merge(this IDictionary<string, object> source, string key, object value, bool replaceExisting = true)
+        public static IDictionary<string, object?> Merge(this IDictionary<string, object?> source, string key, object? value, bool replaceExisting = true)
         {
+            Guard.NotNull(source);
+
             if (replaceExisting || !source.ContainsKey(key))
             {
                 source[key] = value;
@@ -122,12 +134,12 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, object> Merge(this IDictionary<string, object> source, object values, bool replaceExisting = true)
+        public static IDictionary<string, object?> Merge(this IDictionary<string, object?> source, object? values, bool replaceExisting = true)
         {
             return source.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
         }
 
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true) where TKey : notnull
         {
             Guard.NotNull(instance);
             Guard.NotNull(from);
@@ -143,7 +155,7 @@ namespace Smartstore
             return instance;
         }
 
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue value, bool replaceExisting = true)
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue value, bool replaceExisting = true) where TKey : notnull
         {
             Guard.NotNull(instance);
             Guard.NotNull(key);
@@ -156,7 +168,7 @@ namespace Smartstore
             return instance;
         }
 
-        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, Func<TValue> valueAccessor, bool replaceExisting = true)
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, Func<TValue> valueAccessor, bool replaceExisting = true) where TKey : notnull
         {
             Guard.NotNull(instance);
             Guard.NotNull(key);
@@ -171,13 +183,12 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
+        public static TValue? Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key) where TKey : notnull
         {
-            Guard.NotNull(instance);
-            return instance.TryGetValue(key, out var val) ? val : default;
+            return Guard.NotNull(instance).TryGetValue(key, out var val) ? val : default;
         }
 
-        public static bool TryGetValueAs<TValue>(this IDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetValueAs<TValue>(this IDictionary<string, object?> source, string key, [MaybeNullWhen(false)] out TValue? value)
         {
             Guard.NotNull(source);
 
@@ -191,7 +202,7 @@ namespace Smartstore
             return false;
         }
 
-        public static bool TryGetAndConvertValue<TValue>(this IDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetAndConvertValue<TValue>(this IDictionary<string, object?> source, string key, [MaybeNullWhen(false)] out TValue? value)
         {
             Guard.NotNull(source);
 
@@ -204,13 +215,13 @@ namespace Smartstore
             return false;
         }
 
-        public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source, bool castIfPossible = false)
+        public static ExpandoObject ToExpandoObject(this IDictionary<string, object?> source, bool castIfPossible = false)
         {
             Guard.NotNull(source);
 
-            if (castIfPossible && source is ExpandoObject)
+            if (castIfPossible && source is ExpandoObject expandoObj)
             {
-                return source as ExpandoObject;
+                return expandoObj;
             }
 
             var result = new ExpandoObject();
@@ -220,19 +231,21 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string> AppendInValue(this IDictionary<string, string> instance, string key, char separator, string value)
+        public static IDictionary<string, string?> AppendInValue(this IDictionary<string, string?> instance, string key, char separator, string value)
         {
             return AddInValue(instance, key, separator, value, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string> PrependInValue(this IDictionary<string, string> instance, string key, char separator, string value)
+        public static IDictionary<string, string?> PrependInValue(this IDictionary<string, string?> instance, string key, char separator, string value)
         {
             return AddInValue(instance, key, separator, value, true);
         }
 
-        internal static IDictionary<string, string> AddInValue(this IDictionary<string, string> instance, string key, char separator, string value, bool prepend = false)
+        internal static IDictionary<string, string?> AddInValue(this IDictionary<string, string?> instance, string key, char separator, string value, bool prepend = false)
         {
+            Guard.NotNull(instance);
+            Guard.NotNull(value);
             Guard.NotEmpty(key);
 
             value = value.Trim(separator);
@@ -257,24 +270,26 @@ namespace Smartstore
             return instance;
         }
 
-        internal static bool TryAddInValue(string value, string currentValue, char separator, bool prepend, out string mergedValue)
+        internal static bool TryAddInValue(string value, string? currentValue, char separator, bool prepend, [MaybeNullWhen(false)] out string? mergedValue)
         {
             mergedValue = null;
 
-            if (currentValue.IsEmpty())
+            if (string.IsNullOrWhiteSpace(currentValue))
             {
+                // Quick check to handle empty or identical values
                 mergedValue = value;
             }
             else
             {
                 currentValue = currentValue.Trim(separator);
 
-                var manyCurrentValues = currentValue.Contains(separator);
-                var manyValues = value.Contains(separator);
+                var hasManyCurrentValues = currentValue.Contains(separator);
+                var hasManyAttemptedValues = value.Contains(separator);
 
-                if (!manyCurrentValues && !manyValues)
+                if (!hasManyCurrentValues && !hasManyAttemptedValues)
                 {
-                    if (value != currentValue)
+                    // Quick check to handle single values on both sides
+                    if (!string.Equals(value, currentValue, StringComparison.Ordinal))
                     {
                         mergedValue = prepend
                             ? value + separator + currentValue
@@ -283,11 +298,13 @@ namespace Smartstore
                 }
                 else
                 {
-                    var currentValues = manyCurrentValues
+                    // Split the current values
+                    var currentValues = hasManyCurrentValues
                         ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         : [currentValue];
 
-                    var attemptedValues = manyValues
+                    // Split the new values
+                    var attemptedValues = hasManyAttemptedValues
                         ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         : [value];
 

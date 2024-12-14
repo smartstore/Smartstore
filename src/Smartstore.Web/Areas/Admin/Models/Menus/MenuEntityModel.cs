@@ -10,6 +10,8 @@ namespace Smartstore.Admin.Models.Menus
     [LocalizedDisplay("Admin.ContentManagement.Menus.")]
     public class MenuEntityModel : TabbableModel, ILocalizedModel<MenuEntityLocalizedModel>
     {
+        public Type GetEntityType() => typeof(MenuEntity);
+
         [LocalizedDisplay("*SystemName")]
         public string SystemName { get; set; }
 

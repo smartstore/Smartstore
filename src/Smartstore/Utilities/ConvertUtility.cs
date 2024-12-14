@@ -114,7 +114,7 @@ namespace Smartstore.Utilities
         /// This method translates underscores to dashes and removes '@' 
         /// in each source property to comply with HTML attribute spec.
         /// </remarks>
-        public static IDictionary<string, object?> ObjectToDictionary(object obj)
+        public static IDictionary<string, object?> ObjectToDictionary(object? obj)
         {
             return ObjectToDictionary(obj, HtmlAttributeKeySelector);
         }
@@ -124,7 +124,7 @@ namespace Smartstore.Utilities
         /// This method translates underscores to dashes and removes '@' 
         /// in each source property to comply with HTML attribute spec.
         /// </remarks>
-        public static IDictionary<string, string?> ObjectToStringDictionary(object obj)
+        public static IDictionary<string, string?> ObjectToStringDictionary(object? obj)
         {
             return ObjectToDictionary(obj, HtmlAttributeKeySelector).ToDictionary(key => key.Key, el => el.Value?.ToString());
         }

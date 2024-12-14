@@ -14,7 +14,6 @@
 		<PreserveCompilationContext>false</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
 		<MvcRazorExcludeRefAssembliesFromPublish>true</MvcRazorExcludeRefAssembliesFromPublish>
-        <LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -46,6 +46,15 @@
             <span asp-validation-for="PriceSettings.DisplayTextForZeroPrices"></span>
         </div>
     </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.ApplyPriceRangeFormatInProductDetails" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.ApplyPriceRangeFormatInProductDetails"></setting-editor>
+            <span asp-validation-for="PriceSettings.ApplyPriceRangeFormatInProductDetails"></span>
+        </div>
+    </div>
 
     <div class="adminRow">
         <div class="admin-config-group">
@@ -109,6 +118,15 @@
         <div class="adminData">
             <setting-editor asp-for="PriceSettings.ValidateDiscountGiftCardsInLists"></setting-editor>
             <span asp-validation-for="PriceSettings.ValidateDiscountGiftCardsInLists"></span>
+        </div>
+    </div>
+    <div class="adminRow pricing-discounts">
+        <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.IgnoreProductDiscountsForSpecialPrices" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.IgnoreProductDiscountsForSpecialPrices"></setting-editor>
+            <span asp-validation-for="PriceSettings.IgnoreProductDiscountsForSpecialPrices"></span>
         </div>
     </div>
     <div class="adminRow pricing-discounts">

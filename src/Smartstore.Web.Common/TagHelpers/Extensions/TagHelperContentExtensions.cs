@@ -14,9 +14,19 @@ namespace Smartstore.Web.TagHelpers
         public static TagHelperContent Prepend(this TagHelperContent content, string unencoded)
         {
             if (content.IsEmptyOrWhiteSpace)
+            {
                 return content.SetContent(unencoded);
+            }
             else
-                return content.SetContent(unencoded + content.GetContent());
+            {
+                var builder = new HtmlContentBuilder(2);
+                // Add new content first
+                builder.Append(unencoded);
+                // Then append current content and clear source
+                content.MoveTo(builder);
+
+                return content.SetHtmlContent(builder);
+            }
         }
 
         /// <summary>
@@ -34,7 +44,13 @@ namespace Smartstore.Web.TagHelpers
             }
             else
             {
-                content.SetHtmlContent(encoded + content.GetContent());
+                var builder = new HtmlContentBuilder(2);
+                // Add new content first
+                builder.AppendHtml(encoded);
+                // Then append current content and clear source
+                content.MoveTo(builder);
+
+                content.SetHtmlContent(builder);
             }
 
             return content;
@@ -54,7 +70,13 @@ namespace Smartstore.Web.TagHelpers
             }
             else
             {
-                content.SetHtmlContent(htmlContent + content.GetContent());
+                var builder = new HtmlContentBuilder(2);
+                // Add new content first
+                builder.AppendHtml(htmlContent);
+                // Then append current content and clear source
+                content.MoveTo(builder);
+
+                content.SetHtmlContent(builder);
             }
 
             return content;
@@ -69,12 +91,12 @@ namespace Smartstore.Web.TagHelpers
         }
 
         /// <summary>
-        /// Wraps <see cref="builder"/> around <see cref="content"/>. <see cref="TagBuilder.InnerHtml"/> will be ignored.
+        /// Wraps <see cref="tagBuilder"/> around <see cref="content"/>. <see cref="TagBuilder.InnerHtml"/> will be ignored.
         /// </summary>
-        public static TagHelperContent WrapWith(this TagHelperContent content, TagBuilder builder)
+        public static TagHelperContent WrapWith(this TagHelperContent content, TagBuilder tagBuilder)
         {
-            content.PrependHtml(builder.RenderStartTag());
-            content.AppendHtml(builder.RenderEndTag());
+            content.PrependHtml(tagBuilder.RenderStartTag());
+            content.AppendHtml(tagBuilder.RenderEndTag());
 
             return content;
         }

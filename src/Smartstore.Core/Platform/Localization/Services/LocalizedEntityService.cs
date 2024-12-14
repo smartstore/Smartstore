@@ -251,7 +251,7 @@ namespace Smartstore.Core.Localization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task ApplyLocalizedValueAsync<T>(
+        public virtual Task<LocalizedProperty> ApplyLocalizedValueAsync<T>(
             T entity,
             Expression<Func<T, string>> keySelector,
             string value,
@@ -261,7 +261,7 @@ namespace Smartstore.Core.Localization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task ApplyLocalizedValueAsync<T, TPropType>(
+        public virtual Task<LocalizedProperty> ApplyLocalizedValueAsync<T, TPropType>(
             T entity,
             Expression<Func<T, TPropType>> keySelector,
             TPropType value,
@@ -271,7 +271,7 @@ namespace Smartstore.Core.Localization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task ApplyLocalizedSettingAsync<TSetting, TPropType>(
+        public virtual Task<LocalizedProperty> ApplyLocalizedSettingAsync<TSetting, TPropType>(
             TSetting settings,
             Expression<Func<TSetting, TPropType>> keySelector,
             TPropType value,
@@ -282,7 +282,7 @@ namespace Smartstore.Core.Localization
             return ApplyLocalizedValueAsync(settings, storeId, typeof(TSetting).Name, keySelector, value, languageId);
         }
 
-        public virtual void ApplyLocalizedValue(
+        public virtual LocalizedProperty ApplyLocalizedValue(
             LocalizedProperty localizedProperty,
             int entityId,
             string localeKeyGroup,
@@ -333,9 +333,11 @@ namespace Smartstore.Core.Localization
                     _db.LocalizedProperties.Add(localizedProperty);
                 }
             }
+
+            return localizedProperty;
         }
 
-        protected virtual async Task ApplyLocalizedValueAsync<T, TPropType>(
+        protected virtual async Task<LocalizedProperty> ApplyLocalizedValueAsync<T, TPropType>(
             T obj,
             int id, // T is BaseEntity = EntityId, T is ISetting = StoreId
             string keyGroup,
@@ -351,13 +353,11 @@ namespace Smartstore.Core.Localization
                 .ApplyStandardFilter(languageId, id, keyGroup, propInfo.Name)
                 .FirstOrDefaultAsync();
 
-            ApplyLocalizedValue(entity, id, keyGroup, propInfo.Name, value, languageId);
+            return ApplyLocalizedValue(entity, id, keyGroup, propInfo.Name, value, languageId);
         }
 
         public virtual Task ClearCacheAsync()
-        {
-            return _cache.RemoveByPatternAsync(LOCALIZEDPROPERTY_ALLSEGMENTS_PATTERN);
-        }
+            => _cache.RemoveByPatternAsync(LOCALIZEDPROPERTY_ALLSEGMENTS_PATTERN);
 
         #endregion
 

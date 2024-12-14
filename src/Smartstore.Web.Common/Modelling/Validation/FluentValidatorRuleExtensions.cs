@@ -8,7 +8,7 @@ namespace FluentValidation
     {
         private const string InvalidNameChars = "<>@#$€?!";
 
-        public static IRuleBuilderOptions<T, string> ValidName<T>(this IRuleBuilder<T, string> ruleBuilder, Localizer localizer)
+        public static IRuleBuilderOptions<T, string> ValidPersonName<T>(this IRuleBuilder<T, string> ruleBuilder, Localizer localizer)
         {
             var invalidNameChars = string.Join(" ", InvalidNameChars.ToCharArray());
 
@@ -16,10 +16,28 @@ namespace FluentValidation
                 .WithMessage(localizer("Admin.Address.Fields.Name.InvalidChars", invalidNameChars));
         }
 
+        /// <summary>
+        /// Defines a CVV number validator on the current rule builder for string properties.
+        /// Validation will fail if the value returned by the lambda is not a valid credit card CVV number.
+        /// </summary>
+        /// <typeparam name="T">Type of object being validated</typeparam>
+        /// <param name="ruleBuilder">The rule builder on which the validator should be defined</param>
         public static IRuleBuilderOptions<T, string> CreditCardCvvNumber<T>(this IRuleBuilder<T, string> ruleBuilder)
-        {
-            return ruleBuilder.Matches(RegularExpressions.IsCvv);
-        }
+            => ruleBuilder.Matches(RegularExpressions.IsCvv);
+
+        /// <summary>
+        /// Defines a strict regex based email validator on the current rule builder for string properties.
+        /// Validation will fail if the value returned by the lambda is not a valid email address.
+        /// </summary>
+        /// <typeparam name="T">Type of object being validated</typeparam>
+        /// <param name="ruleBuilder">The rule builder on which the validator should be defined</param>
+        /// <remarks>
+        /// The regex used is the same as in EmailAddressAttribute in .NET 4.x
+        /// </remarks>
+        public static IRuleBuilderOptions<T, string> EmailAddressStrict<T>(this IRuleBuilder<T, string> ruleBuilder)
+#pragma warning disable CS0618 // Type or member is obsolete
+            => ruleBuilder.EmailAddress(Validators.EmailValidationMode.Net4xRegex);
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         /// Specifies a condition limiting when the validator should run. 

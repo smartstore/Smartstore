@@ -9,7 +9,7 @@ namespace Smartstore.Core.Checkout.Shipping
     {
         // TODO: (mg) (core) Implement a shipment tracker for DHL!
         private static Type[] _trackerTypes = null;
-        private readonly static Lock _lock = new();
+        private readonly static object _lock = new();
 
         private readonly ITypeScanner _typeScanner;
 

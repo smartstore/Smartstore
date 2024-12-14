@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Platform.AI
+﻿namespace Smartstore.Core.AI
 {
     /// <summary>
     /// Respresents a message role.

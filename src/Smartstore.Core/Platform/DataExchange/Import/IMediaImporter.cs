@@ -131,6 +131,18 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default);
 
         /// <summary>
+        /// Imports a batch of manufacturer images.
+        /// </summary>
+        /// <param name="items">Collection of manufacturer images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of new images.</returns>
+        Task<int> ImportManufacturerImagesAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem>? items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default);
+
+        /// <summary>
         /// Imports a batch of customer avatars.
         /// </summary>
         /// <param name="items">Collection of customer avatars to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>

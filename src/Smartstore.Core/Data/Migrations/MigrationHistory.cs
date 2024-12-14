@@ -33,7 +33,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public bool OwnsSchema => true;
 
-        public object ApplicationContext { get; set; }
+        public bool CreateWithPrimaryKey => false;
 
         #endregion
     }

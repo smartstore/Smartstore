@@ -29,9 +29,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 context.MinTierPrice = amount;
                 tierPriceEntity = tp;
 
-                if (context.Options.DetermineLowestPrice && !context.HasPriceRange)
+                if (!context.HasPriceRange && (options.DetermineLowestPrice || options.ApplyPriceRangeFormat))
                 {
-                    context.HasPriceRange = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices.First().Quantity <= 1);
+                    context.HasPriceRange = tierPrices.Count > 0 && !(tierPrices.Count == 1 && tierPrices.First().Quantity <= 1);
                 }
             }
 

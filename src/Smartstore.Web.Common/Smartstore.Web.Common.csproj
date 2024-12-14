@@ -11,17 +11,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
-		<PackageReference Include="AutoprefixerHost" Version="3.0.35" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+		<PackageReference Include="AutoprefixerHost" Version="3.0.36" />
 		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.24.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.0.0" />
-		<PackageReference Include="NUglify" Version="1.21.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.1.1" />
+		<PackageReference Include="NUglify" Version="1.21.9" />
 		<PackageReference Include="SharpScss" Version="2.0.0" />
-		<PackageReference Include="Smartstore.Licensing" Version="5.0.4" />
+		<PackageReference Include="Smartstore.Licensing" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

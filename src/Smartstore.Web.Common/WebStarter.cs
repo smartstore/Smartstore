@@ -107,8 +107,7 @@ namespace Smartstore.Web
             services.AddResponseCompression(o =>
             {
                 o.EnableForHttps = true;
-                o.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "image/svg+xml" });
+                o.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["image/svg+xml"]);
             });
         }
 

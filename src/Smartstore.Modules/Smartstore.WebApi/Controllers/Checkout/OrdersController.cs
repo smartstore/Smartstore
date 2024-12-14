@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.OData.Formatter;
+﻿using Microsoft.AspNetCore.OData.Formatter;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
@@ -45,7 +44,10 @@ namespace Smartstore.Web.Api.Controllers
         [Permission(Permissions.Order.Read)]
         public IQueryable<Order> Get()
         {
-            return Entities.AsNoTracking();
+            return Entities
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(x => !x.Deleted);
         }
 
         [HttpGet("Orders({key})"), ApiQueryable]
@@ -407,29 +409,25 @@ namespace Smartstore.Web.Api.Controllers
         /// <summary>
         /// Refunds the paid amount.
         /// </summary>
-        /// <param name="online" example="false">
-        /// A value indicating whether to refund online (refunding via payment provider) 
-        /// or offline (just mark as refunded without calling the payment provider).
-        /// </param>
         [HttpPost("Orders({key})/PaymentRefund"), ApiQueryable]
         [Permission(Permissions.Order.Update)]
         [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(Order), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> PaymentRefund(int key,
-            [FromODataBody, Required] bool online)
+        public async Task<IActionResult> PaymentRefund(int key, [FromBody] PaymentRefundModel model)
         {
             try
             {
-                // TODO: (mg) decimal parameter "amountToRefund" (FromODataBody) always 0.
-                decimal amountToRefund = 0;
-
+                // INFO: We use PaymentRefundModel here because a decimal such as AmountToRefund
+                // is not bound by FromODataBody > ODataBodyModelBinder. Its value would always be 0.
+                // IODataDeserializerProvider, IODataEdmTypeDeserializer, IODataDeserializer required?
+                var amount = model.AmountToRefund;
                 var entity = await GetRequiredById(key);
 
-                if (online)
+                if (model.Online)
                 {
-                    if (amountToRefund == 0)
+                    if (amount == 0)
                     {
                         if (await _orderProcessingService.Value.CanRefundAsync(entity))
                         {
@@ -438,15 +436,15 @@ namespace Smartstore.Web.Api.Controllers
                     }
                     else
                     {
-                        if (await _orderProcessingService.Value.CanPartiallyRefundAsync(entity, amountToRefund))
+                        if (await _orderProcessingService.Value.CanPartiallyRefundAsync(entity, amount))
                         {
-                            await _orderProcessingService.Value.PartiallyRefundAsync(entity, amountToRefund);
+                            await _orderProcessingService.Value.PartiallyRefundAsync(entity, amount);
                         }
                     }
                 }
                 else
                 {
-                    if (amountToRefund == 0)
+                    if (amount == 0)
                     {
                         if (entity.CanRefundOffline())
                         {
@@ -455,9 +453,9 @@ namespace Smartstore.Web.Api.Controllers
                     }
                     else
                     {
-                        if (entity.CanPartiallyRefundOffline(amountToRefund))
+                        if (entity.CanPartiallyRefundOffline(amount))
                         {
-                            await _orderProcessingService.Value.PartiallyRefundOfflineAsync(entity, amountToRefund);
+                            await _orderProcessingService.Value.PartiallyRefundOfflineAsync(entity, amount);
                         }
                     }
                 }

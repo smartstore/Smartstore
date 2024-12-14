@@ -96,9 +96,9 @@
 
 <script sm-target-zone="scripts" data-origin="manufacturer-all">
     $(function () {
-        $('.manufacturer-nav .nav-link').click(function (e) {
+        $('.manufacturer-nav .nav-link').on('click', (e) => {
             e.preventDefault();
-            $.scrollTo(e.target.getAttribute('href'), 800);
+            $.scrollTo(e.target.getAttribute('href'));
             return false;
         });
     });

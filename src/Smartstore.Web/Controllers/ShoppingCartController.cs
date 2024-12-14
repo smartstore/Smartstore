@@ -312,6 +312,12 @@ namespace Smartstore.Web.Controllers
 
             if (delete)
             {
+                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, x =>
+                {
+                    return x.Include(y => y.Product)
+                        .ThenInclude(y => y.ProductVariantAttributes);
+                });
+
                 var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == model.CartItemId);
                 if (item == null)
                 {

@@ -130,10 +130,11 @@ namespace Smartstore.Admin.Controllers
 
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 model.IsSystemAccount = systemCustomer != null;
-                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin" });
 
                 if (systemCustomer != null)
                 {
+                    model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin" });
+
                     if (systemCustomer.IsBot())
                     {
                         model.SystemAccountName = T("Admin.System.SystemCustomerNames.SearchEngine");

@@ -8,6 +8,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.")]
     public class DeliveryTimeModel : EntityModelBase, ILocalizedModel<DeliveryTimeLocalizedModel>
     {
+        public Type GetEntityType() => typeof(DeliveryTime);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
         public string DeliveryInfo { get; set; }

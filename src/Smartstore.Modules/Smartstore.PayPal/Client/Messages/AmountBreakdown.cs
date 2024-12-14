@@ -5,43 +5,43 @@
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("discount")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage Discount;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("handling")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage Handling;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("insurance")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage Insurance;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("item_total")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage ItemTotal;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("shipping")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage Shipping;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("shipping_discount")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage ShippingDiscount;
 
         /// <summary>
         /// The currency and amount for a financial transaction, such as a balance or payment due.
         /// </summary>
-        [JsonProperty("tax_total")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public MoneyMessage TaxTotal;
     }
 }

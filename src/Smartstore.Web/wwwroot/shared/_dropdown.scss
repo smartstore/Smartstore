@@ -70,22 +70,16 @@
     align-items: center;
     font-weight: $dropdown-font-weight;
     font-size: $dropdown-font-size;
+    gap:  cssmax(8px, calc(var(--dropdown-item-padding-x) * 0.75));
 
 	&.disabled {
 		cursor: default;
 	}
 
-	> i, 
-    > svg, 
-    > img {
-		margin-inline-start: calc(var(--dropdown-item-padding-x) / 4 * -1);
-        margin-inline-end: cssmax(8px, calc(var(--dropdown-item-padding-x) / 2));
-	}
-
 	&:not(.disabled) {
 		> i, 
         > svg {
-			color: lighten($dropdown-link-color, 15%);
+			color: $dropdown-link-color;
 		}
 
 		.dropdown-group.show > & > i,
@@ -158,7 +152,8 @@
     }
 }
 
-.navbar.navbar-slide .dropdown-menu {
+.navbar.navbar-slide .dropdown-menu,
+.dropdown-menu-slide {
 	@include sliding-dropdown-menu();
 }
 

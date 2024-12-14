@@ -7,6 +7,8 @@ namespace Smartstore.Admin.Models.Common
     [LocalizedDisplay("Admin.Configuration.Countries.Fields.")]
     public class CountryModel : TabbableModel, ILocalizedModel<CountryLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Country);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

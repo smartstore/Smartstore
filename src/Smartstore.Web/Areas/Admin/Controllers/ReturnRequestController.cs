@@ -328,7 +328,11 @@ namespace Smartstore.Admin.Controllers
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.UpdatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = returnRequest.Id });
-            model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = returnRequest.CustomerId });
+
+            if (customer != null)
+            {
+                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = returnRequest.CustomerId });
+            }
 
             if (orderItem != null)
             {

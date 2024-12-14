@@ -57,8 +57,10 @@ namespace Smartstore.Core.Stores
         public virtual async Task<bool> ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds)
             where T : BaseEntity, IStoreRestricted
         {
+            Guard.NotNull(entity);
+            Guard.NotZero(entity.Id);
             var customerAuthorizedStores = await GetCustomerAuthorizedStoreIdsAsync();
-            selectedStoreIds ??= (!_workContext.CurrentCustomer.IsSuperAdmin() ? customerAuthorizedStores : []) ;
+            selectedStoreIds ??= (!_workContext.CurrentCustomer.IsSuperAdmin() ? customerAuthorizedStores : Array.Empty<int>();) ;
             if (!_workContext.CurrentCustomer.IsSuperAdmin() && customerAuthorizedStores.Length > 0 && selectedStoreIds.Any(ssId => !customerAuthorizedStores.Any(cas => ssId == cas)))
             {
                 //Trying to select a store not in the list of authorized stores of the customer making this change

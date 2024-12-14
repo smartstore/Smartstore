@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.Core.Checkout.Attributes;
 
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Catalog.Attributes.CheckoutAttributes.Values.Fields.")]
     public class CheckoutAttributeValueModel : EntityModelBase, ILocalizedModel<CheckoutAttributeValueLocalizedModel>
     {
+        public Type GetEntityType() => typeof(CheckoutAttributeValue);
         public int CheckoutAttributeId { get; set; }
 
         [LocalizedDisplay("*Name")]

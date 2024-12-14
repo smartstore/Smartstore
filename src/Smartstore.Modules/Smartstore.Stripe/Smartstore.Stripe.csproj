@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 	<PropertyGroup>
-		<Product>SmartStore AG Stripe</Product>
+		<Product>Smartstore Stripe</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Stripe</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
@@ -12,6 +12,6 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Stripe.net" Version="43.9.0" />
+        <PackageReference Include="Stripe.net" Version="47.0.0" />
     </ItemGroup>
  </Project>

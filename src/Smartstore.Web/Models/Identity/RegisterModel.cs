@@ -129,7 +129,7 @@ namespace Smartstore.Web.Models.Identity
     {
         public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings)
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddressStrict();
             RuleFor(x => x.Password).NotEmpty();
             RuleFor(x => x.ConfirmPassword).NotEmpty().Equal(x => x.Password).WithMessage(T("Identity.Error.PasswordMismatch"));
 
@@ -139,14 +139,14 @@ namespace Smartstore.Web.Models.Identity
                 RuleFor(x => x.FirstName).NotEmpty();
             }
 
-            RuleFor(x => x.FirstName).ValidName(T);
+            RuleFor(x => x.FirstName).ValidPersonName(T);
 
             if (customerSettings.LastNameRequired)
             {
                 RuleFor(x => x.LastName).NotEmpty();
             }
 
-            RuleFor(x => x.LastName).ValidName(T);
+            RuleFor(x => x.LastName).ValidPersonName(T);
 
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
             {

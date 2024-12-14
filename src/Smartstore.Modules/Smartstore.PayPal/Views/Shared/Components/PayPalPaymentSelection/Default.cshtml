@@ -21,9 +21,9 @@
         var ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
         var btnNext = $(".payment-method-next-step-button");
         var btnContainer = $("#paypal-button-container");
-
-        // Listen for changes to the radio fields.
-        $(document, "input[name='paymentmethod']").on("change", function (e) {
+        
+        // Listen for changes to the radio inputs.
+        $(document).on("change", "input[name='paymentmethod']", (e) => {
             var isPayPal = false;
             var fundingSource = "paypal";
 
@@ -40,7 +40,7 @@
             }
 
             if (isPayPal) {
-                ppButton.initPayPalButton(fundingSource, true)
+                ppButton.initPayPalScript(fundingSource, true)
                 btnNext[0].style.display = 'none';
                 btnContainer[0].style.display = 'block';
             }
@@ -49,6 +49,8 @@
                 btnContainer[0].style.display = 'none';
             }
         });
+
+        $("input[name='paymentmethod']:checked").trigger("change");
     });
 </script>
 

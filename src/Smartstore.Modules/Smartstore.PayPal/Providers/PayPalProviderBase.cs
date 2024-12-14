@@ -7,6 +7,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
@@ -74,7 +75,8 @@ namespace Smartstore.PayPal.Providers
             // INFO: Only update order when express button was used.
             // Shipping fee or discounts may have changed the total value of the order.
             var updateOrder = _checkoutStateAccessor.CheckoutState.CustomProperties.ContainsKey("UpdatePayPalOrder");
-            if (updateOrder)
+            var redirected = checkoutState.CustomProperties.ContainsKey("PayPalPayerActionRequired");
+            if (updateOrder && !redirected)
             {
                 _ = await _client.UpdateOrderAsync(request, result);
             }
@@ -94,11 +96,14 @@ namespace Smartstore.PayPal.Providers
             }
             catch (Exception ex) 
             {
+                PayPalHelper.HandleException(ex);
+
                 Logger.LogError(ex, "Authorization or capturing failed. User was redirected to payment selection.");
 
                 // Delete properties for backward navigation.
                 checkoutState.CustomProperties.Remove("PayPalButtonUsed");
                 checkoutState.CustomProperties.Remove("UpdatePayPalOrder");
+                checkoutState.CustomProperties.Remove("PayPalPayerActionRequired");
 
                 throw new PayPalException(T("Plugins.Smartstore.PayPal.OrderUpdateFailed"));
             }

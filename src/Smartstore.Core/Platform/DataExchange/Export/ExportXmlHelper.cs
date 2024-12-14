@@ -12,7 +12,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Core.Platform.DataExchange.Export
+namespace Smartstore.Core.DataExchange.Export
 {
     /// <summary>
     /// Allows to exclude XML nodes from export.
@@ -463,6 +463,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Manufacturer.Description), ((string)manufacturer.Description).RemoveInvalidXmlChars());
             _writer.WriteElementString(nameof(Manufacturer.BottomDescription), ((string)manufacturer.BottomDescription).RemoveInvalidXmlChars());
             _writer.WriteElementString(nameof(Manufacturer.ManufacturerTemplateId), entity.ManufacturerTemplateId.ToString());
+            _writer.WriteElementString("ManufacturerTemplateViewPath", (string)manufacturer._ManufacturerTemplateViewPath);
             _writer.WriteElementString(nameof(Manufacturer.MetaKeywords), (string)manufacturer.MetaKeywords);
             _writer.WriteElementString(nameof(Manufacturer.MetaDescription), (string)manufacturer.MetaDescription);
             _writer.WriteElementString(nameof(Manufacturer.MetaTitle), (string)manufacturer.MetaTitle);

@@ -150,7 +150,7 @@ Smartstore.Admin = {
         let arr = colors.split(",");
 
         themeVars = {};
-        $.each(arr, (i, val) => {
+        $.each(arr, (_i, val) => {
             val = val.trim();
             themeVars[val] = styles.getPropertyValue(val);
         });

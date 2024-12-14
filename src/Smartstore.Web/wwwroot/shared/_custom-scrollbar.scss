@@ -7,6 +7,7 @@
     --overflow-x: hidden;
     --overflow-y: auto;
     --scrollbar-size: 18px;
+    --scrollbar-thumb-padding: 4px;
     --scrollbar-base-color-rgb: 0, 0, 0;
     --scrollbar-track-color: rgba(var(--scrollbar-base-color-rgb), 0);
     --scrollbar-track-hover-color: rgba(var(--scrollbar-base-color-rgb), 0.025);
@@ -74,7 +75,7 @@
     background-color: var(--scrollbar-thumb-color);
     background-clip: padding-box;
     border-radius: 50em;
-    border: 4px solid transparent;
+    border: var(--scrollbar-thumb-padding) solid transparent;
     min-height: 36px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {

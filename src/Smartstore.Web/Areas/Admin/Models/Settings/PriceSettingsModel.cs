@@ -40,7 +40,7 @@ namespace Smartstore.Admin.Models
 
         #endregion
 
-        #region New in V5.0.1
+        #region New
 
         [LocalizedDisplay("*DefaultComparePriceLabelId")]
         public int? DefaultComparePriceLabelId { get; set; }
@@ -91,6 +91,12 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*ValidateDiscountGiftCardsInLists")]
         public bool ValidateDiscountGiftCardsInLists { get; set; }
+
+        [LocalizedDisplay("*ApplyPriceRangeFormatInProductDetails")]
+        public bool ApplyPriceRangeFormatInProductDetails { get; set; }
+
+        [LocalizedDisplay("*IgnoreProductDiscountsForSpecialPrices")]
+        public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
 
         #endregion
     }

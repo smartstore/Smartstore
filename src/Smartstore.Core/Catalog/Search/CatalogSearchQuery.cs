@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 
 namespace Smartstore.Core.Catalog.Search
@@ -130,6 +131,11 @@ namespace Smartstore.Core.Catalog.Search
                 return hasActiveFilter;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to parse the search term using <see cref="FilterExpressionParser"/>.
+        /// </summary>
+        public bool ParseSearchTerm { get; set; }
 
         // Using Func<> properties in bindable models significantly reduces response time
         // due to a "bug" in the MVC model binding/validation system: https://github.com/dotnet/aspnetcore/issues/27709

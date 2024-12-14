@@ -89,15 +89,16 @@
     .select2-item-btn {
         position: absolute;
         z-index: $zindex-popover;
-        inset-block-start: -3px;
+        inset-block-start: 2px;
         inset-inline-end: 6px;
-        opacity: 0.0;
+        opacity: 0;
         transition: opacity 0.05s linear;
 
         > a.btn {
             color: unset;
-            width: 25px;
-            height: 25px;
+            --btn-height: 24px;
+            width: 24px;
+            height: 24px;
 
             > i {
                 width: unset;

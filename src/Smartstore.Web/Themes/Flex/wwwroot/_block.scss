@@ -20,6 +20,10 @@
 
     .block-body {
         padding-top: 1rem;
+
+        > *:last-child {
+            margin-bottom: 0;
+        }
     }
 
     &.block-boxed {

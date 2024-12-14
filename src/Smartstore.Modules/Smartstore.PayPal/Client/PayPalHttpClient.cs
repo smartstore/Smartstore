@@ -19,6 +19,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.PayPal.Services;
 using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.PayPal.Client
@@ -87,15 +88,16 @@ namespace Smartstore.PayPal.Client
         #region Payment processing
 
         /// <summary>
-        /// Gets an order. (For testing purposes only)
+        /// Gets an order.
         /// </summary>
         public async Task<PayPalResponse> GetOrderAsync(string payPalOrderId, CancellationToken cancelToken = default)
         {
             var ordersGetRequest = new OrdersGetRequest(payPalOrderId);
             var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
-            var rawResponse = response.Body<object>().ToString();
 
-            dynamic jResponse = JObject.Parse(rawResponse);
+            // DEV: uncomment for response viewing 
+            //var rawResponse = response.Body<object>().ToString();
+            //dynamic jResponse = JObject.Parse(rawResponse);
 
             return response;
         }
@@ -341,8 +343,7 @@ namespace Smartstore.PayPal.Client
             }
 
             var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId)
-                .WithBody(message)
-                .WithRequestId(request.Order.Id.ToString());
+                .WithBody(message);
 
             var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId, cancelToken);
 
@@ -809,7 +810,7 @@ namespace Smartstore.PayPal.Client
 
             if (request.ContentType == "application/json")
             {
-                var json = JsonConvert.SerializeObject(request.Body);
+                var json = JsonConvert.SerializeObject(request.Body, PayPalHelper.SerializerSettings);
                 content = new StringContent(json, Encoding.UTF8, "application/json");
             }
             else if (request.ContentType == "application/x-www-form-urlencoded")
@@ -838,7 +839,7 @@ namespace Smartstore.PayPal.Client
             if (contentType.Contains("application/json"))
             {
                 var contentString = await content.ReadAsStringAsync();
-                var message = JsonConvert.DeserializeObject(contentString, responseType);
+                var message = JsonConvert.DeserializeObject(contentString, responseType, PayPalHelper.SerializerSettings);
                 return message;
             }
             else

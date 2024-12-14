@@ -101,6 +101,7 @@ namespace Smartstore.Core.Checkout.Cart
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
             Guard.NotNull(ctx);
+            Guard.NotNull(ctx.Product);
 
             // This is called when customer adds a product to cart
             ctx.Customer ??= _workContext.CurrentCustomer;
@@ -136,7 +137,7 @@ namespace Smartstore.Core.Checkout.Cart
                 ctx.RawAttributes = selection.AsJson();
             }
 
-            if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.AttributeSelection.AttributesMap.Any())
+            if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.AttributeSelection.HasAttributes)
             {
                 ctx.Warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
 

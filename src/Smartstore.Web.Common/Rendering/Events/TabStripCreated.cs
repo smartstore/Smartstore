@@ -27,10 +27,10 @@ namespace Smartstore.Web.Rendering.Events
         public object Model { get; }
 
         /// <summary>
-        /// Gets the number of tabs of the tabstrip.
+        /// Gets the names of the tabs.
         /// </summary>
-        public int NumberOfTabs
-            => TabStrip.Tabs.Count;
+        public string[] TabNames
+            => TabStrip.Tabs.Select(x => x.TabName).ToArray();
 
         /// <summary>
         /// Renders a widget into a dynamically created special tab called 'Plugins'.

@@ -37,12 +37,12 @@
     </div>
 </div>
 
-<script sm-target-zone="scripts" data-origin="payment-method">
+<script sm-target-zone="scripts" sm-minify="true" data-origin="payment-method">
     $(function () {
         var validationSummary = $('#payment-info-validation-summary');
 
         if (validationSummary.length) {
-            $.scrollTo(validationSummary, 600, { offset: -100 });
+            $.scrollTo(validationSummary, { offset: -100 });
         }
 
         $('.payment-method-next-step-button').on('click', function () {

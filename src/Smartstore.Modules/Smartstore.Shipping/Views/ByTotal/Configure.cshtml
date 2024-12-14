@@ -5,6 +5,9 @@
 
     // TODO: (core) Find a way to make spa-layout work for grids within tabs.
     ViewBag.IsGrid = true;
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <widget target-zone="admin_button_toolbar_before">
@@ -15,7 +18,7 @@
 </widget>
 <tabstrip id="shipping-method-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleGrid")" sm-selected="true" sm-adaptive-height="true">
-        <partial name="_Grid.ShippingRates" model="null" />
+        <partial name="_Grid.ShippingRates" model="null" view-data="gridViewData" />
         <partial name="_CreateShippingRatePopup" model="new ByTotalModel()" />
     </tab>
     <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleSettings")">

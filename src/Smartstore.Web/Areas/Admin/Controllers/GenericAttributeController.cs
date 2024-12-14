@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Topics;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -9,7 +10,6 @@ namespace Smartstore.Admin.Controllers
 {
     public class GenericAttributeController : AdminController
     {
-
         private readonly SmartDbContext _db;
         private readonly IGenericAttributeService _genericAttributeService;
 
@@ -30,18 +30,17 @@ namespace Smartstore.Admin.Controllers
 
             if (entityName.HasValue() && entityId > 0)
             {
-                var (readPermission, _) = GetGenericAttributesInfos(entityName);
+                var (readPermission, _) = GetPermissionNames(entityName);
 
                 if (readPermission.IsEmpty() || Services.Permissions.Authorize(readPermission))
                 {
                     var allAttributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
-
                     var attributes = allAttributes
                         .AsQueryable()
                         .Where(x => x.StoreId == storeId || x.StoreId == 0)
                         .ApplyGridCommand(command, true);
 
-                    totalCount = attributes.Count();
+                    totalCount = allAttributes.Count(x => x.StoreId == storeId || x.StoreId == 0);
 
                     attributesItems = attributes
                         .Select(x => new GenericAttributeModel
@@ -73,7 +72,7 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var storeId = Services.StoreContext.CurrentStore.Id;
-                var (readPermission, updatePermission) = GetGenericAttributesInfos(entityName);
+                var (readPermission, updatePermission) = GetPermissionNames(entityName);
                 if (updatePermission.HasValue() && !Services.Permissions.Authorize(updatePermission))
                 {
                     NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
@@ -124,7 +123,7 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var storeId = Services.StoreContext.CurrentStore.Id;
-                var (readPermission, updatePermission) = GetGenericAttributesInfos(model.EntityName);
+                var (readPermission, updatePermission) = GetPermissionNames(model.EntityName);
 
                 if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
                 {
@@ -174,7 +173,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var (readPermission, updatePermission) = GetGenericAttributesInfos(entityName);
+                var (readPermission, updatePermission) = GetPermissionNames(entityName);
 
                 if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
                 {
@@ -190,23 +189,22 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        private static (string ReadPermission, string UpdatePermission) GetGenericAttributesInfos(string entityName)
+        private static (string ReadPermission, string UpdatePermission) GetPermissionNames(string entityName)
         {
-            string readPermission = null;
-            string updatePermission = null;
-
             if (entityName.EqualsNoCase(nameof(Order)))
             {
-                readPermission = Permissions.Order.Read;
-                updatePermission = Permissions.Order.Update;
+                return (Permissions.Order.Read, Permissions.Order.Update);
             }
             else if (entityName.EqualsNoCase(nameof(Topic)))
             {
-                readPermission = Permissions.Cms.Topic.Read;
-                updatePermission = Permissions.Cms.Topic.Update;
+                return (Permissions.Cms.Topic.Read, Permissions.Cms.Topic.Update);
+            }
+            else if (entityName.EqualsNoCase(nameof(Customer)))
+            {
+                return (Permissions.Customer.Read, Permissions.Customer.Update);
             }
 
-            return (readPermission, updatePermission);
+            return (null, null);
         }
     }
 }

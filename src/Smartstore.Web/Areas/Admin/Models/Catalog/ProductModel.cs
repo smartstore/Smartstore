@@ -17,6 +17,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
     public class ProductModel : ProductOverviewModel, ILocalizedModel<ProductLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Product);
+
         [LocalizedDisplay("*AssociatedToProductName")]
         public int AssociatedToProductId { get; set; }
 
@@ -541,6 +543,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.")]
         public class ProductVariantAttributeValueModel : EntityModelBase, ILocalizedModel<ProductVariantAttributeValueLocalizedModel>
         {
+            public Type GetEntityType() => typeof(ProductVariantAttributeValue);
             public int ProductId { get; set; }
             public int ProductVariantAttributeId { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -48,14 +49,15 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
 
+            var enabled = !HtmlUtility.IsEmptyHtml(For?.Model?.ToString());
             var attributes = GetTagHelperAttributes();
-            var tool = AIToolHtmlGenerator.GenerateRichTextTool(attributes);
+            var tool = AIToolHtmlGenerator.GenerateRichTextTool(attributes, enabled);
             if (tool == null)
             {
                 return;
             }
 
-            output.WrapContentWith(tool);
+            output.WrapElementWith(InnerHtmlPosition.Append, tool);
         }
 
         protected override AttributeDictionary GetTagHelperAttributes()

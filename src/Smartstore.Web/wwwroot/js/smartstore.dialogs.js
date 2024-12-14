@@ -82,7 +82,7 @@
         var html = [
             '<div id="modal-{0}-shared" class="modal fade modal-box modal-{0}" data-backdrop="{1}" role="dialog" aria-hidden="true">'.format(type, toBool(opts.backdrop, true)),
             '<div class="{0}" role="document">'.format(dialogClass),
-            '<div class="modal-content rounded-lg">',
+            '<div class="modal-content">',
             '<div class="modal-body">',
             '<div class="modal-box-body d-flex{0}">'.format(centerContent || type === 'prompt' ? '' : ' flex-nowrap'),
             !opts.message ? '' : '<div class="modal-box-message">{0}</div>'.format(opts.message),
@@ -347,7 +347,7 @@
             modal.find('.modal-body').append(spinner);
 
             iframe = modal.find('.modal-body > iframe');
-            iframe.on('load', function (e) {
+            iframe.on('load', () => {
                 modal.find('.modal-body > .spinner-container').removeClass('active');
             });
         }

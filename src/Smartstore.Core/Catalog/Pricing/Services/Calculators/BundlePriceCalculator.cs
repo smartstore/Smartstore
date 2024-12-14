@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (product.BundlePerItemPricing)
             {
-                if (context.Options.DetermineLowestPrice)
+                if (context.Options.DetermineLowestPrice || context.Options.ApplyPriceRangeFormat)
                 {
                     context.HasPriceRange = true;
                 }
@@ -75,12 +75,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var options = context.Options;
 
-            if (context.BundleItems == null)
-            {
-                context.BundleItems = (await options.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id))
-                    .Where(x => x != null)
-                    .ToList();
-            }
+            context.BundleItems ??= (await options.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id))
+                .Where(x => x != null)
+                .ToList();
 
             if (options.ChildProductsBatchContext == null && context.BundleItems.Any(x => x.Product != null))
             {

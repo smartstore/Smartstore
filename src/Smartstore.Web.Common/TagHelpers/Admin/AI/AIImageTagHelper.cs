@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Platform.AI;
+using Smartstore.Core.AI;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -30,6 +30,11 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
 
+            if (EntityName.IsEmpty())
+            {
+                return;
+            }
+
             var attributes = GetTagHelperAttributes();
             var tool = AIToolHtmlGenerator.GenerateImageCreationTool(attributes);
             if (tool == null)
@@ -37,7 +42,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
 
-            output.WrapContentWith(tool);
+            output.WrapElementWith(InnerHtmlPosition.Append, tool);
         }
 
         protected override AttributeDictionary GetTagHelperAttributes()

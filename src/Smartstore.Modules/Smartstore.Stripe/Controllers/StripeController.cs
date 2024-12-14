@@ -29,6 +29,7 @@ namespace Smartstore.StripeElements.Controllers
         private readonly SmartDbContext _db;
         private readonly StripeSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly ICheckoutWorkflow _checkoutWorkflow;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ITaxService _taxService;
         private readonly IPriceCalculationService _priceCalculationService;
@@ -43,6 +44,7 @@ namespace Smartstore.StripeElements.Controllers
             SmartDbContext db, 
             StripeSettings settings, 
             ICheckoutStateAccessor checkoutStateAccessor,
+            ICheckoutWorkflow checkoutWorkflow,
             IShoppingCartService shoppingCartService,
             ITaxService taxService,
             IPriceCalculationService priceCalculationService,
@@ -56,6 +58,7 @@ namespace Smartstore.StripeElements.Controllers
             _db = db;
             _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _checkoutWorkflow = checkoutWorkflow;
             _shoppingCartService = shoppingCartService;
             _taxService = taxService;
             _priceCalculationService = priceCalculationService;
@@ -94,6 +97,7 @@ namespace Smartstore.StripeElements.Controllers
         public async Task<IActionResult> CreatePaymentIntent(string eventData, StripePaymentRequest paymentRequest)
         {
             var success = false;
+            var redirectUrl = string.Empty;
 
             try
             {
@@ -144,13 +148,20 @@ namespace Smartstore.StripeElements.Controllers
                     if (customer.Addresses.FindAddress(address) == null)
                     {
                         customer.Addresses.Add(address);
-                        await _db.SaveChangesAsync();
-
-                        customer.BillingAddressId = address.Id;
+                        customer.BillingAddress = address;
+                        customer.ShippingAddress = address;
                         await _db.SaveChangesAsync();
                     }
                 }
-                
+
+                var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+                var result = await _checkoutWorkflow.AdvanceAsync(new(cart, HttpContext, Url));
+                if (result.ActionResult != null)
+                {
+                    var redirectToAction = (RedirectToActionResult)result.ActionResult;
+                    redirectUrl = Url.Action(redirectToAction.ActionName, redirectToAction.ControllerName, redirectToAction.RouteValues, Request.Scheme);
+                }
+
                 success = true;
             }
             catch (Exception ex)
@@ -158,7 +169,7 @@ namespace Smartstore.StripeElements.Controllers
                 Logger.LogError(ex, ex.Message);
             }
 
-            return Json(new { success });
+            return Json(new { success, redirectUrl });
         }
 
         [HttpPost]
@@ -389,7 +400,7 @@ namespace Smartstore.StripeElements.Controllers
                 var stripeEvent = EventUtility.ParseEvent(json, false);
                 stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret, throwOnApiVersionMismatch: false);
 
-                if (stripeEvent.Type == Stripe.Events.PaymentIntentSucceeded)
+                if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
                 {
                     // Payment intent was captured in Stripe backend
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
@@ -406,7 +417,7 @@ namespace Smartstore.StripeElements.Controllers
                         await _db.SaveChangesAsync();
                     }
                 }
-                else if (stripeEvent.Type == Stripe.Events.ChargeRefunded)
+                else if (stripeEvent.Type == EventTypes.ChargeRefunded)
                 {
                     var charge = stripeEvent.Data.Object as Charge;
                     var order = await GetStripeOrderAsync(charge.PaymentIntentId);
@@ -428,7 +439,7 @@ namespace Smartstore.StripeElements.Controllers
                         await _db.SaveChangesAsync();
                     }
                 }
-                else if (stripeEvent.Type == Stripe.Events.PaymentIntentCanceled)
+                else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                     var order = await GetStripeOrderAsync(paymentIntent.Id);

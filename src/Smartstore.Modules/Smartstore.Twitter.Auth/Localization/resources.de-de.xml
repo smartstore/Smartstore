@@ -1,16 +1,16 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
     <LocaleResource Name="Plugins.FriendlyName.Smartstore.Twitter.Auth" AppendRootKey="false">
-        <Value>X (Twitter) Login</Value>
+        <Value>X Login</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Login-Funktion von X (Twitter).</Value>
+        <Value>Erweitert den Shop um die Login-Funktion von X.</Value>
     </LocaleResource>
     <LocaleResource Name="AdminInstruction">
         <Value>
             <![CDATA[
-				<p>So richten Sie die X (Twitter) Authentifizierungen ein:</p>
+				<p>So richten Sie die X Authentifizierungen ein:</p>
 				<ul>
-					<li>Erstellen Sie bei <a href="https://developer.twitter.com/en/apps">X (Twitter)</a> eine neue App.</li>
+					<li>Erstellen Sie bei <a href="https://developer.twitter.com/en/apps">X</a> eine neue App.</li>
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
 					<li>Unter <b>Apps &gt; App settings &gt; Authentication settings &gt; Callback URLs</b> wird die unten aufgeführte URL eingetragen.</li>
 					<li>Aktivieren Sie die Option <b>Request email address from users</b></li>
@@ -19,7 +19,7 @@
         </Value>
     </LocaleResource>
     <LocaleResource Name="Login">
-        <Value>Mit X (Twitter) anmelden</Value>
+        <Value>Mit X anmelden</Value>
     </LocaleResource>
     <LocaleResource Name="ConsumerKey">
         <Value>API Key</Value>
@@ -37,6 +37,6 @@
         <Value>Weiterleitungs URL (OAuth Redirect URI)</Value>
     </LocaleResource>
     <LocaleResource Name="RedirectUri.Hint">
-        <Value>Die bei X (Twitter) einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
+        <Value>Die bei X einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
     </LocaleResource>
 </Language>

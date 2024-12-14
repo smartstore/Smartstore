@@ -20,6 +20,11 @@ namespace Smartstore.Caching
         event EventHandler<CacheEntryExpiredEventArgs> Expired;
 
         /// <summary>
+        /// Gets a value indicating whether the any cache store is distributed (e.g. REDIS).
+        /// </summary>
+        bool IsDistributed { get; }
+
+        /// <summary>
         /// Gets a cache item associated with the specified key
         /// </summary>
         /// <typeparam name="T">The type of the item to get</typeparam>

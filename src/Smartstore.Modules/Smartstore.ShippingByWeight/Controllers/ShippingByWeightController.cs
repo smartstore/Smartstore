@@ -4,6 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.ShippingByWeight.Settings;
@@ -33,21 +34,20 @@ namespace Smartstore.ShippingByWeight.Controllers
 
         private async Task PrepareViewBagAsync()
         {
-            var shippingMethods = await _db.ShippingMethods
-                .AsNoTracking()
-                .ToListAsync();
-
             var baseWeighMeasure = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseWeightId).FirstOrDefaultAsync();
+            var shippingMethods = await _db.ShippingMethods.AsNoTracking().ToListAsync();
+            var countries = await _db.Countries.AsNoTracking().ToListAsync();
 
             ViewBag.BaseWeightIn = baseWeighMeasure?.GetLocalized(x => x.Name) ?? string.Empty;
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
-            ViewBag.AvailableShippingMethods = shippingMethods.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            })
-            .ToList();
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            ViewBag.AvailableShippingMethods = shippingMethods
+                .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name), Value = x.Id.ToStringInvariant() })
+                .ToList();
+
+            ViewBag.Countries = countries.ToSelectListItems();
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.ShippingByWeight").Metadata;
         }
@@ -84,10 +84,28 @@ namespace Smartstore.ShippingByWeight.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Read), AuthorizeAdmin]
-        public async Task<IActionResult> ShippingRateByWeightList(GridCommand command)
+        public async Task<IActionResult> ShippingRateByWeightList(GridCommand command, ByWeightListModel model)
         {
-            var shippingRates = await _db.ShippingRatesByWeight()
-                .AsNoTracking()
+            var query = _db.ShippingRatesByWeight().AsNoTracking();
+
+            if (model.SearchZip.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Zip, model.SearchZip);
+            }
+            if (model.SearchCountryId != 0)
+            {
+                query = query.Where(x => x.CountryId == model.SearchCountryId);
+            }
+            if (model.SearchShippingMethodId != 0)
+            {
+                query = query.Where(x => x.ShippingMethodId == model.SearchShippingMethodId);
+            }
+            if (model.SearchStoreId != 0)
+            {
+                query = query.Where(x => x.StoreId == model.SearchStoreId);
+            }
+
+            var shippingRates = await query
                 .OrderBy(x => x.StoreId)
                 .ThenBy(x => x.CountryId)
                 .ThenBy(x => x.ShippingMethodId)

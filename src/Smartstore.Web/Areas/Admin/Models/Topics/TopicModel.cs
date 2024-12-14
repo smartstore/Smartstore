@@ -13,8 +13,8 @@ namespace Smartstore.Admin.Models.Topics
     {
         public TopicModel()
         {
-            AvailableTitleTags.AddRange(new[]
-            {
+            AvailableTitleTags.AddRange(
+            [
                 new SelectListItem { Text = "h1", Value = "h1" },
                 new SelectListItem { Text = "h2", Value = "h2" },
                 new SelectListItem { Text = "h3", Value = "h3" },
@@ -23,8 +23,10 @@ namespace Smartstore.Admin.Models.Topics
                 new SelectListItem { Text = "h6", Value = "h6" },
                 new SelectListItem { Text = "div", Value = "div" },
                 new SelectListItem { Text = "span", Value = "span" }
-            });
+            ]);
         }
+
+        public Type GetEntityType() => typeof(Topic);
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]
@@ -165,10 +167,12 @@ namespace Smartstore.Admin.Models.Topics
         public string SeName { get; set; }
     }
 
-    public partial class TopicValidator : AbstractValidator<TopicModel>
+    public partial class TopicValidator : SmartValidator<TopicModel>
     {
-        public TopicValidator(Localizer T)
+        public TopicValidator(SmartDbContext db, Localizer T)
         {
+            ApplyEntityRules<Topic>(db);
+
             RuleFor(x => x.SystemName).NotEmpty();
             RuleFor(x => x.HtmlId)
                 .Must(u => u.IsEmpty() || !u.Any(x => char.IsWhiteSpace(x)))

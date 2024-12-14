@@ -10,6 +10,8 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Manufacturers.Fields.")]
     public class ManufacturerModel : TabbableModel, ILocalizedModel<ManufacturerLocalizedModel>
     {
+        public Type GetEntityType() => typeof(Manufacturer);
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

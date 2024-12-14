@@ -217,7 +217,10 @@ namespace Smartstore.Admin.Controllers
         {
             var success = false;
             var count = 0;
-            var entities = await _db.Menus.GetManyAsync(selection.GetEntityIds(), true);
+            var ids = selection.GetEntityIds();
+            var entities = await _db.Menus
+                .Where(x => ids.Contains(x.Id) && !x.IsSystemMenu)
+                .ToListAsync();
 
             if (entities.Count > 0)
             {
@@ -334,7 +337,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cms.Menu.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var menu = await _db.Menus.FindByIdAsync(id);
+            var menu = await _db.Menus.FirstOrDefaultAsync(x => x.Id == id && !x.IsSystemMenu);
             if (menu == null)
             {
                 return NotFound();

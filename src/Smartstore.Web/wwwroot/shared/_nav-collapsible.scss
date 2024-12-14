@@ -1,5 +1,23 @@
 /// <reference path="references.scss" />
 
+@mixin nav-toggler() {
+    position: relative;
+
+    &:after {
+        @include fontawesome("\f077", $variant: light); // chevron-up
+        position: absolute;
+        inset-inline-end: var(--nav-collapsible-padding-x, 1rem);
+        top: 50%;
+        font-size: 85%;
+        transform: translateY(-50%) rotate(180deg);
+        transition: transform 0.35s ease;
+    }
+
+    &.collapsed:after {
+        transform: translateY(-50%) rotate(0deg);
+    }
+}
+
 //
 // Responsive collapse
 // ------------------------------------------------------
@@ -13,21 +31,7 @@
         position: relative;
 
         .nav-toggler {
-            position: relative;
-
-            &:after {
-                @include fontawesome("\f077", $variant: light); // chevron-up
-                position: absolute;
-                inset-inline-end: var(--nav-collapsible-padding-x);
-                top: 50%;
-                font-size: 85%;
-                transform: translateY(-50%) rotate(180deg);
-                transition: transform 0.35s ease;
-            }
-
-            &.collapsed:after {
-                transform: translateY(-50%) rotate(0deg);
-            }
+            @include nav-toggler();
 
             &.card-header.collapsed {
                 // Remove card header bottom border when collapsed (otherwise we have double border) 
@@ -59,4 +63,13 @@
         display: block !important;
         height: auto !important;
     }
+}
+
+
+//
+// Toggler chevron for .card-header even if not responsive
+// -------------------------------------------------------
+
+.card:not(.nav-collapsible) > .nav-toggler {
+    @include nav-toggler();
 }

@@ -148,11 +148,22 @@ namespace Smartstore.Core.Messaging
 
             if (modelTreeJson != messageTemplate.LastModelTree)
             {
-                messageContext.MessageTemplate.LastModelTree = modelTreeJson;
+                messageTemplate.LastModelTree = modelTreeJson;
                 if (!messageTemplate.IsTransientRecord())
                 {
-                    _db.TryUpdate(messageContext.MessageTemplate);
-                    await _db.SaveChangesAsync();
+                    try
+                    {
+                        _db.TryUpdate(messageTemplate);
+                        await _db.SaveChangesAsync();
+                    }
+                    catch (InvalidOperationException ioe)
+                    {
+                        // Ignore exception. "LastModelTree" is not essential for message creation/processing.
+                        if (!ioe.IsAlreadyAttachedEntityException())
+                        {
+                            throw;
+                        }
+                    }
                 }
             }
 
@@ -211,7 +222,7 @@ namespace Smartstore.Core.Messaging
                 if (required || parsed.HasValue())
                 {
                     var parsedEmails = parsed
-                        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         .Select(e => e.Convert<MailAddress>())
                         .Where(e => e != null)
                         .ToList();
@@ -227,7 +238,7 @@ namespace Smartstore.Core.Messaging
             {
                 if (ctx.TestMode)
                 {
-                    return new() { new("john@doe.com", "John Doe") };
+                    return [new("john@doe.com", "John Doe")];
                 }
 
                 var ex2 = new InvalidOperationException($"Failed to parse email address for variable '{email}'. Value was '{parsed.EmptyNull()}': {ex.Message}", ex);
@@ -246,7 +257,7 @@ namespace Smartstore.Core.Messaging
             return _templateEngine.RenderAsync(template, ctx.Model, ctx.FormatProvider);
         }
 
-        private async Task<string> RenderBodyTemplateAsync(MessageContext ctx)
+        private Task<string> RenderBodyTemplateAsync(MessageContext ctx)
         {
             var key = BuildTemplateKey(ctx);
             var source = ctx.MessageTemplate.GetLocalized((x) => x.Body, ctx.Language);
@@ -261,7 +272,7 @@ namespace Smartstore.Core.Messaging
                 _templateManager.Put(key, template);
             }
 
-            return await template.RenderAsync(ctx.Model, ctx.FormatProvider);
+            return template.RenderAsync(ctx.Model, ctx.FormatProvider);
 
             string GetBodyTemplate()
             {
@@ -311,12 +322,12 @@ namespace Smartstore.Core.Messaging
                 .Distinct()
                 .ToArray();
 
-            if (fileIds.Any())
+            if (fileIds.Length > 0)
             {
                 var files = await _mediaService.GetFilesByIdsAsync(fileIds, MediaLoadFlags.AsNoTracking);
                 foreach (var file in files)
                 {
-                    queuedEmail.Attachments.Add(new QueuedEmailAttachment
+                    queuedEmail.Attachments.Add(new()
                     {
                         StorageLocation = EmailAttachmentStorageLocation.FileReference,
                         MediaFileId = file.Id,
@@ -485,29 +496,25 @@ namespace Smartstore.Core.Messaging
 
         public virtual async Task<object[]> GetTestModelsAsync(MessageContext messageContext)
         {
-            var templateName = messageContext.MessageTemplate?.Name ?? messageContext.MessageTemplateName;
-
-            if (_testModelFactories == null)
+            _testModelFactories ??= new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
             {
-                _testModelFactories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { nameof(Product), () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
-                    { nameof(Customer), () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
-                    { nameof(Order), () => GetRandomEntity<Order>(x => !x.Deleted) },
-                    { nameof(Shipment), () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
-                    { nameof(OrderNote), () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
-                    { nameof(RecurringPayment), () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
-                    { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
-                    { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
-                    { nameof(ReturnRequest), () => GetRandomEntity<ReturnRequest>(x => true) },
-                    { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
-                    { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
-                    { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
-                    { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }
-                };
-            }
+                { nameof(Product), () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
+                { nameof(Customer), () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
+                { nameof(Order), () => GetRandomEntity<Order>(x => !x.Deleted) },
+                { nameof(Shipment), () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
+                { nameof(OrderNote), () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
+                { nameof(RecurringPayment), () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
+                { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
+                { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
+                { nameof(ReturnRequest), () => GetRandomEntity<ReturnRequest>(x => true) },
+                { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
+                { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
+                { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
+                { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }
+            };
 
-            var modelNames = messageContext.MessageTemplate.ModelTypes.SplitSafe(',').Distinct().ToArray();
+            var template = messageContext.MessageTemplate;
+            var modelNames = template.ModelTypes.SplitSafe(',').Distinct().ToArray();
             var models = new Dictionary<string, object>();
             var result = new List<object>();
 
@@ -521,10 +528,10 @@ namespace Smartstore.Core.Messaging
             }
 
             // Some models are special.
-            var isTransientTemplate = messageContext.MessageTemplate != null && messageContext.MessageTemplate.IsTransientRecord();
-
+            var isTransientTemplate = template != null && template.IsTransientRecord();
             if (!isTransientTemplate)
             {
+                var templateName = template?.Name ?? messageContext.MessageTemplateName;
                 switch (templateName)
                 {
                     case MessageTemplateNames.SystemContactUs:
@@ -579,7 +586,7 @@ namespace Smartstore.Core.Messaging
                 }
             }
 
-            return result.ToArray();
+            return [.. result];
         }
 
         private async Task<object> GetModelFromExpressionAsync(string expression, IDictionary<string, object> models, Dictionary<string, Func<Task<object>>> factories)

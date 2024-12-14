@@ -48,6 +48,15 @@
     <LocaleResource Name="RenderWithUserConsentOnly.Hint">
         <Value>Specifies whether the Analytics script is loaded only after the customer consents to analytic cookies.</Value>
     </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds">
+        <Value>Show consent to Google Ads</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds.Hint">
+        <Value>
+            Specifies whether consent to personalization and data sharing is displayed in the cookie manager.
+            Only activate this option if you also use Google Ads.
+        </Value>
+    </LocaleResource>
     <LocaleResource Name="TrackingScript">
         <Value>Tracking code with {ECOMMERCE} line</Value>
     </LocaleResource>

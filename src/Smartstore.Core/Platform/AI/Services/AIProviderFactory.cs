@@ -1,6 +1,6 @@
 ﻿using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Platform.AI
+namespace Smartstore.Core.AI
 {
     public partial class AIProviderFactory : IAIProviderFactory
     {
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Platform.AI
             => _providers.Value;
 
         public IReadOnlyList<Provider<IAIProvider>> GetProviders(AIProviderFeatures feature)
-            => _providers.Value.Where(x => x.Value.Supports(feature)).ToList();
+            => _providers.Value.Where(x => x.Value.Supports(feature) && x.Value.IsActive()).ToList();
 
         public Provider<IAIProvider> GetFirstProvider(AIProviderFeatures feature)
             => GetProviders(feature).FirstOrDefault();

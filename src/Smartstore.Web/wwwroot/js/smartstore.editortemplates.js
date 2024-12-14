@@ -70,11 +70,11 @@
     // Replace datetimepicker internal _place() method with our own, because the original is really badly fucked up!
     // TODO: (core) Move $.fn.datetimepicker.Constructor.prototype._place() to applicable place when bundling is available.
     $.fn.datetimepicker.Constructor.prototype._place = function (e) {
-        const self = e && e.data && e.data.picker || this,
+        const self = e?.data?.picker || this,
             parent = document.body,
-            component = (self.component && self.component.length ? self.component : self._element).get(0),
+            component = (self.component?.length ? self.component : self._element).get(0),
             position = component.getBoundingClientRect(),
-            widget = self.widget.get(0),
+            widget = self.widget[0],
             scrollTop = document.documentElement.scrollTop;
         let vpos = "bottom",
             hpos = "right";

@@ -25,7 +25,7 @@
 
         public static string GetEntityName(Type entityType)
         {
-            Guard.NotNull(entityType, nameof(entityType));
+            Guard.NotNull(entityType);
 
             if (entityType.HasDefaultConstructor() && typeof(INamedEntity).IsAssignableFrom(entityType))
             {

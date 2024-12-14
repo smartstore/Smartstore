@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace Smartstore.Core.Platform.AI.Prompting
+namespace Smartstore.Core.AI.Prompting
 {
     public abstract class AIPromptGeneratorBase(AIMessageBuilder messageBuilder) : IAIPromptGenerator
     {
@@ -20,12 +20,13 @@ namespace Smartstore.Core.Platform.AI.Prompting
             => Task.FromResult(new AIChat(AIChatTopic.Text).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Text, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateSuggestionChatAsync(IAISuggestionModel model)
-            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.Input)));
+            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {
             var chat = new AIChat(AIChatTopic.Image)
-                .User(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName));
+                .User(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName))
+                .UseModel(model?.ModelName);
 
             // Enhance prompt for image creation from model.
             _messageBuilder.BuildImagePrompt(model, chat);

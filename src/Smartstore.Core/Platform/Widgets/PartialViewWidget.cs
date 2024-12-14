@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="module">Optional: system name of a module to additionally search for view files in.</param>
         public PartialViewWidget(string viewName, string? module = null)
         {
-            Guard.NotEmpty(viewName, nameof(viewName));
+            Guard.NotEmpty(viewName);
 
             ViewName = viewName;
             Module = module;
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="module">Optional: system name of a module to additionally search for view files in.</param>
         public PartialViewWidget(string viewName, object? model, string? module = null)
         {
-            Guard.NotEmpty(viewName, nameof(viewName));
+            Guard.NotEmpty(viewName);
 
             ViewName = viewName;
             Module = module;

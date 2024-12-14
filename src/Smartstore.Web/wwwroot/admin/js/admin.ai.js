@@ -6,13 +6,15 @@
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
+            if (tool.length === 0) {
+                return;
+            }
 
             // Set the title used for the modal dialog title. 
             // For direct openers the title is set else we take the text of the dropdown item.
             let title = this.getAttribute("title") || el.html();
             
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 entityName: tool.data('entity-name'),
                 type: tool.data('entity-type'),
@@ -21,7 +23,7 @@
                 mediaFolder: tool.data('media-folder')
             };
 
-            openDialog(tool, params, false);
+            openDialog(tool, params, true);
         });
 
         // Text creation
@@ -30,36 +32,32 @@
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
-            let isRichText = tool.data('is-rich-text');
-
-            if (!isRichText) {
-                // Get chosen provider tool.
-                tool = el.closest(".ai-dialog-opener-root").find("button.active");
-            }
-
             if (tool.length === 0) {
                 return;
             }
 
+            let isRichText = tool.data('is-rich-text');
+            const cmd = el.data('command');
+
             let params = {
-                providerSystemName: tool.data('provider-systemname'),
                 entityName: tool.data('entity-name'),
                 Type: tool.data('entity-type'),
                 targetProperty: tool.data('target-property'),
-                charLimit: tool.data('char-limit')
+                charLimit: tool.data('char-limit'),
+                // INFO: This is the optimization command of the clicked item.
+                optimizationCommand: el.data('command'),
+                // INFO: This is important for change style and tone items. We must know how to change the present text. 
+                // For command "change-style" e.g.professional, casual, friendly, etc.
+                changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
+                displayWordLimit: tool.data('display-word-limit'),
+                displayStyle: tool.data('display-style'),
+                displayTone: tool.data('display-tone'),
             };
-
+            
             if (!isRichText) {
-                const cmd = el.data('command');
                 Object.assign(params, {
-                    // INFO: This is the optimization command of the clicked item.
-                    optimizationCommand: el.data('command'),
-                    // INFO: This is important for change style and tone items. We must know how to change the present text. 
-                    // For command "change-style" e.g.professional, casual, friendly, etc.
-                    changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
-                    displayWordLimit: tool.data('display-word-limit'),
-                    displayStyle: tool.data('display-style'),
-                    displayTone: tool.data('display-tone'),
+                    // TODO: (mh) (ai) Is this still needed? Originally it was used to supress optimization options in the dialog (e.g. For SEO-Meta-Properties).
+                    // Seems like it isn't used anymore.
                     displayOptimizationOptions: tool.data('display-optimization-options')
                 });
             }
@@ -76,34 +74,26 @@
             openDialog(tool, params, isRichText);
         });
 
-        // Prevent dropdown from closing when a provider is choosen.
-        $(document).on("click", ".btn-ai-provider-chooser", function (e) {
-            e.stopPropagation();
-
-            let el = $(this);
-
-            // Swap active class of button group
-            let btnGroup = el.closest('.btn-group');
-            btnGroup.find('button').removeClass('active');
-            el.addClass('active');
-
-            return false;
-        });
-
         // Translation
         $(document).on('click', '.ai-provider-tool .ai-translator', function (e) {
             e.preventDefault();
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
+            if (tool.length === 0) {
+                return;
+            }
 
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
-                ModalTitle: tool.data('modal-title')
+                targetPropertyName: tool.data('target-property-name'),
+                LocalizedEditorName: tool.data('localized-editor-name'),
+                ModalTitle: tool.data('modal-title'),
+                EntityId: tool.data('entity-id'),
+                EntityName: tool.data('entity-type')
             };
 
-            openDialog(tool, params, true);
+            openDialog(tool, params, false);
         });
 
         // Suggestion
@@ -112,9 +102,11 @@
 
             let el = $(this);
             let tool = el.closest(".ai-provider-tool");
+            if (tool.length === 0) {
+                return;
+            }
 
             let params = {
-                providerSystemname: tool.data('provider-systemname'),
                 targetProperty: tool.data('target-property'),
                 type: tool.data('entity-type'),
                 mandatoryEntityFields: tool.data('mandatory-entity-fields'),
@@ -122,6 +114,16 @@
             };
 
             openDialog(tool, params, false);
+        });
+
+        const checkScrollbar = (element) => {
+            element.closest('.ai-dialog-opener-root')?.style?.setProperty('--scrollbar-width', (element.offsetWidth - element.clientWidth) + 'px');
+        };
+
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                checkScrollbar(entry.target);
+            }
         });
 
         // Set a class to apply margin if the dialog opener contains a textarea with scrollbar.
@@ -142,18 +144,14 @@
             }
 
             let textarea = root.find('> textarea');
-            let innerHeight = textarea.innerHeight();
-            if (textarea.length && innerHeight && textarea[0].scrollHeight > innerHeight) {
-                root.addClass('has-scrollbar');
+            if (textarea.length) {
+                resizeObserver.observe(textarea[0]);
             }
 
             let summernote = root.find('.note-editor-preview');
-            innerHeight = summernote.innerHeight();
-            if (summernote.length && innerHeight && summernote[0].scrollHeight > innerHeight) {
-                root.addClass('has-scrollbar');
+            if (summernote.length) {
+                resizeObserver.observe(summernote[0]);
             }
-
-            // TODO: On summernote init shift ai-opener below toolbar.
         });
     });
 

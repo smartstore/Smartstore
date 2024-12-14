@@ -151,6 +151,13 @@ namespace Smartstore.Core.Catalog.Pricing
         public string PriceRangeFormat { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to apply <see cref="PriceRangeFormat"/>.
+        /// Only applied if the product has child products, tier prices, attribute combination prices or attribute price adjustments.
+        /// May have impact on performance.
+        /// </summary>
+        public bool ApplyPriceRangeFormat { get; set; }
+
+        /// <summary>
         /// Gets or sets flags for discount requirements to be validated.
         /// </summary>
         /// <remarks>
@@ -160,7 +167,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Coupon codes and date ranges are always validated.
         /// </remarks>
         public DiscountValidationFlags DiscountValidationFlags { get; set; } = DiscountValidationFlags.All;
-        //public bool CheckDiscountValidity { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the lowest possible price should be determined
