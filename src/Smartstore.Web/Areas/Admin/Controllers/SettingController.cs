@@ -753,14 +753,17 @@ namespace Smartstore.Admin.Controllers
             PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
 
             // Common facets.
+            model.CategoryFacet.Sorting = settings.CategorySorting;
             model.BrandFacet.Disabled = settings.BrandDisabled;
             model.BrandFacet.DisplayOrder = settings.BrandDisplayOrder;
+            model.BrandFacet.Sorting = settings.BrandSorting;
             model.PriceFacet.Disabled = settings.PriceDisabled;
             model.PriceFacet.DisplayOrder = settings.PriceDisplayOrder;
             model.RatingFacet.Disabled = settings.RatingDisabled;
             model.RatingFacet.DisplayOrder = settings.RatingDisplayOrder;
             model.DeliveryTimeFacet.Disabled = settings.DeliveryTimeDisabled;
             model.DeliveryTimeFacet.DisplayOrder = settings.DeliveryTimeDisplayOrder;
+            model.DeliveryTimeFacet.Sorting = settings.DeliveryTimeSorting;
             model.AvailabilityFacet.Disabled = settings.AvailabilityDisabled;
             model.AvailabilityFacet.DisplayOrder = settings.AvailabilityDisplayOrder;
             model.AvailabilityFacet.IncludeNotAvailable = settings.IncludeNotAvailable;
@@ -835,8 +838,12 @@ namespace Smartstore.Admin.Controllers
                 await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings);
             }
 
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("CategoryFacet.Sorting", nameof(SearchSettings.CategorySorting), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("BrandFacet.Sorting", nameof(SearchSettings.BrandSorting), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("DeliveryTimeFacet.Sorting", nameof(SearchSettings.DeliveryTimeSorting), settings);
+
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", nameof(SearchSettings.IncludeNotAvailable), settings);
 
             return View(model);
         }
@@ -862,14 +869,17 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(model, settings);
 
             // Common facets.
+            settings.CategorySorting = model.CategoryFacet.Sorting;
             settings.BrandDisabled = model.BrandFacet.Disabled;
             settings.BrandDisplayOrder = model.BrandFacet.DisplayOrder;
+            settings.BrandSorting = model.BrandFacet.Sorting;
             settings.PriceDisabled = model.PriceFacet.Disabled;
             settings.PriceDisplayOrder = model.PriceFacet.DisplayOrder;
             settings.RatingDisabled = model.RatingFacet.Disabled;
             settings.RatingDisplayOrder = model.RatingFacet.DisplayOrder;
             settings.DeliveryTimeDisabled = model.DeliveryTimeFacet.Disabled;
             settings.DeliveryTimeDisplayOrder = model.DeliveryTimeFacet.DisplayOrder;
+            settings.DeliveryTimeSorting = model.DeliveryTimeFacet.Sorting;
             settings.AvailabilityDisabled = model.AvailabilityFacet.Disabled;
             settings.AvailabilityDisplayOrder = model.AvailabilityFacet.DisplayOrder;
             settings.IncludeNotAvailable = model.AvailabilityFacet.IncludeNotAvailable;
@@ -886,10 +896,14 @@ namespace Smartstore.Admin.Controllers
                     await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form);
                     await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form);
                 }
+
+                await _multiStoreSettingHelper.ApplySettingAsync("CategoryFacet.Sorting", nameof(SearchSettings.CategorySorting), settings, form);
+                await _multiStoreSettingHelper.ApplySettingAsync("BrandFacet.Sorting", nameof(SearchSettings.BrandSorting), settings, form);
+                await _multiStoreSettingHelper.ApplySettingAsync("DeliveryTimeFacet.Sorting", nameof(SearchSettings.DeliveryTimeSorting), settings, form);
             }
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, form);
+            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", nameof(SearchSettings.IncludeNotAvailable), settings, form);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var num = 0;
@@ -1666,6 +1680,16 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailableSearchFields = availableSearchFields;
             ViewBag.AvailableSearchModes = availableSearchModes;
             ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
+
+            var facetSortings = Enum.GetValues(typeof(FacetSorting)).Cast<FacetSorting>();
+            if (!model.IsMegaSearchInstalled)
+            {
+                facetSortings = facetSortings.Where(x => x != FacetSorting.HitsDesc);
+            }
+
+            ViewBag.FacetSortings = facetSortings
+                .Select(x => new SelectListItem { Text = Services.Localization.GetLocalizedEnum(x), Value = ((int)x).ToString() })
+                .ToList();
         }
 
         private SelectListItem ResToSelectListItem(string resourceKey)

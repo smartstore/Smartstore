@@ -5,6 +5,7 @@
 ### New Features
 
 - MegaSearch: Added setting to indicate whether to split compound words.
+- #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 
 ### Bugfixes
 

@@ -367,7 +367,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, [.. ids]);
             }
 
-            AddFacet(query, FacetGroupKind.Category, true, FacetSorting.HitsDesc, descriptor =>
+            AddFacet(query, FacetGroupKind.Category, true, _searchSettings.CategorySorting, descriptor =>
             {
                 if (ids != null)
                 {
@@ -417,7 +417,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 query.WithManufacturerIds(null, [.. ids]);
             }
 
-            AddFacet(query, FacetGroupKind.Brand, true, FacetSorting.LabelAsc, descriptor =>
+            AddFacet(query, FacetGroupKind.Brand, true, _searchSettings.BrandSorting, descriptor =>
             {
                 if (ids != null)
                 {
@@ -595,7 +595,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 query.WithDeliveryTimeIds([.. ids]);
             }
 
-            AddFacet(query, FacetGroupKind.DeliveryTime, true, FacetSorting.DisplayOrder, descriptor =>
+            AddFacet(query, FacetGroupKind.DeliveryTime, true, _searchSettings.DeliveryTimeSorting, descriptor =>
             {
                 if (ids != null)
                 {

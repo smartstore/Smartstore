@@ -1,37 +1,67 @@
-﻿@model CommonFacetSettingsModel
+﻿@using Smartstore.Core.Search.Facets
+
+@model CommonFacetSettingsModel
 
 @{
     var fieldPrefix = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
 
-<div sm-if='fieldPrefix != "CategoryFacet"' class="adminContent">
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Disabled" />
+<div class="adminContent">
+    @if (fieldPrefix != "CategoryFacet")
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Disabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Disabled"></setting-editor>
+                <span asp-validation-for="Disabled"></span>
+            </div>
         </div>
-        <div class="adminData">
-            <setting-editor asp-for="Disabled"></setting-editor>
-            <span asp-validation-for="Disabled"></span>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisplayOrder" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayOrder"></setting-editor>
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
         </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="DisplayOrder" />
+        <div sm-if='fieldPrefix == "BrandFacet" || fieldPrefix == "DeliveryTimeFacet"' class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Sorting" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Sorting">
+                    <select asp-for="Sorting" asp-items="ViewBag.FacetSortings"></select>
+                </setting-editor>
+                <span asp-validation-for="Sorting"></span>
+            </div>
         </div>
-        <div class="adminData">
-            <setting-editor asp-for="DisplayOrder"></setting-editor>
-            <span asp-validation-for="DisplayOrder"></span>
+        <div sm-if='fieldPrefix == "AvailabilityFacet"' class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IncludeNotAvailable" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="IncludeNotAvailable"></setting-editor>
+                <span asp-validation-for="IncludeNotAvailable"></span>
+            </div>
         </div>
-    </div>
-    <div sm-if='fieldPrefix == "AvailabilityFacet"' class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="IncludeNotAvailable" />
+    }
+    else
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Sorting" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Sorting">
+                    <select asp-for="Sorting" asp-items="ViewBag.FacetSortings"></select>
+                </setting-editor>
+                <span asp-validation-for="Sorting"></span>
+            </div>
         </div>
-        <div class="adminData">
-            <setting-editor asp-for="IncludeNotAvailable"></setting-editor>
-            <span asp-validation-for="IncludeNotAvailable"></span>
-        </div>
-    </div>
+    }
 </div>
 
 @if (Model.Locales.Count == 1)

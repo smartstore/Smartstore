@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
+using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Admin.Models
 {
@@ -61,10 +62,13 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
+        [LocalizedDisplay("Admin.Configuration.Settings.Search.CommonFacet.Sorting")]
+        public FacetSorting Sorting { get; set; }
+
         [LocalizedDisplay("Admin.Configuration.Settings.Search.IncludeNotAvailable")]
         public bool IncludeNotAvailable { get; set; }
 
-        public List<CommonFacetSettingsLocalizedModel> Locales { get; set; } = new();
+        public List<CommonFacetSettingsLocalizedModel> Locales { get; set; } = [];
     }
 
     public class CommonFacetSettingsLocalizedModel : ILocalizedLocaleModel
