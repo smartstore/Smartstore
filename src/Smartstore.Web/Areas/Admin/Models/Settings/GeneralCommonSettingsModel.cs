@@ -236,6 +236,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*PdfLetterPageSizeEnabled")]
             public bool LetterPageSizeEnabled { get; set; }
 
+            [LocalizedDisplay("*MaxItemsToPrint")]
+            public int MaxItemsToPrint { get; set; }
+
             [LocalizedDisplay("*PdfLogo")]
             [UIHint("Media"), AdditionalMetadata("album", "content"), AdditionalMetadata("transientUpload", true)]
             public int LogoPictureId { get; set; }

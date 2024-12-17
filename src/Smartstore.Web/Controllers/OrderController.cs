@@ -5,6 +5,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -25,6 +26,7 @@ namespace Smartstore.Web.Controllers
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
         private readonly OrderSettings _orderSettings;
+        private readonly PdfSettings _pdfSettings;
 
         public OrderController(
             SmartDbContext db,
@@ -35,7 +37,8 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper,
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            PdfSettings pdfSettings)
         {
             _db = db;
             _orderProcessingService = orderProcessingService;
@@ -46,6 +49,7 @@ namespace Smartstore.Web.Controllers
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
             _orderSettings = orderSettings;
+            _pdfSettings = pdfSettings;
         }
 
         public async Task<IActionResult> Details(int id)
@@ -99,7 +103,6 @@ namespace Smartstore.Web.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> PrintMany(string ids = null, bool pdf = false)
         {
-            const int maxOrders = 500;
             IList<Order> orders = null;
             var totalCount = 0;
 
@@ -126,7 +129,7 @@ namespace Smartstore.Web.Controllers
                     .ToPagedList(0, 1)
                     .GetTotalCountAsync();
 
-                if (totalCount > 0 && totalCount <= maxOrders)
+                if (totalCount > 0 && totalCount <= _pdfSettings.MaxItemsToPrint)
                 {
                     orders = await orderQuery
                         .ApplyStandardFilter()
@@ -141,9 +144,9 @@ namespace Smartstore.Web.Controllers
                 return RedirectToReferrer();
             }
 
-            if (totalCount > maxOrders)
+            if (totalCount > _pdfSettings.MaxItemsToPrint)
             {
-                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems"));
+                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems", _pdfSettings.MaxItemsToPrint.ToString("N0"), totalCount.ToString("N0")));
                 return RedirectToReferrer();
             }
 

@@ -362,7 +362,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
         {
             var ids = selectedIds.ToIntArray();
-            if (!all && !ids.Any())
+            if (!all && ids.IsNullOrEmpty())
             {
                 NotifyInfo(T("Admin.Common.ExportNoData"));
                 return RedirectToReferrer();
@@ -374,13 +374,10 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Order.ShippingAddress.StateProvince)
                 .AsQueryable();
 
-            var expectedShipments = all
-                ? await query.CountAsync()
-                : ids.Length;
-
-            if (expectedShipments > 500)
+            var expectedShipments = all ? await query.CountAsync() : ids.Length;
+            if (expectedShipments > _pdfSettings.MaxItemsToPrint)
             {
-                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems"));
+                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems", _pdfSettings.MaxItemsToPrint.ToString("N0"), expectedShipments.ToString("N0")));
                 return RedirectToReferrer();
             }
 
