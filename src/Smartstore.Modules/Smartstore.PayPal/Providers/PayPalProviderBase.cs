@@ -76,7 +76,8 @@ namespace Smartstore.PayPal.Providers
             // Shipping fee or discounts may have changed the total value of the order.
             var updateOrder = _checkoutStateAccessor.CheckoutState.CustomProperties.ContainsKey("UpdatePayPalOrder");
             var redirected = checkoutState.CustomProperties.ContainsKey("PayPalPayerActionRequired");
-            if (updateOrder && !redirected)
+            var payPalButtonUsed = checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed");
+            if ((updateOrder || payPalButtonUsed) && !redirected)
             {
                 _ = await _client.UpdateOrderAsync(request, result);
             }
