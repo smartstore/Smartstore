@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -132,6 +133,29 @@ namespace Smartstore.Core.Tests.Catalog
 
             var variant2 = await DbContext.ProductVariantAttributeCombinations.ApplyHashCodeFilter(TestNumber, hashCode2);
             Assert.That(variant2, Is.Null);
+        }
+
+        [Test]
+        public void Can_create_consistent_attribute_combination_hashcodes()
+        {
+            var selection = new ProductVariantAttributeSelection(null);
+            selection.AddAttribute(1234, [987654]);
+            selection.AddAttribute(556677, [1234, 56789]);
+
+            var expectedHashCodes = new Dictionary<string, int>
+            {
+                ["{\"Attributes\":[{\"Key\":5141,\"Value\":[7546]}]}"] = 2063729868,
+                ["{\"Attributes\":[{\"Key\":5141,\"Value\":[7547]}]}"] = -1960489098,
+                ["{\"Attributes\":[{\"Key\":5141,\"Value\":[7569]}]}"] = -2032748638,
+                ["{\"Attributes\":[{\"Key\":5141,\"Value\":[7570]}]}"] = -755678158,
+                [selection.AsJson()] = -1989637677
+            };
+
+            foreach (var pair in expectedHashCodes)
+            {
+                var hashCode = new ProductVariantAttributeSelection(pair.Key).GetHashCode();
+                Assert.That(hashCode, Is.EqualTo(pair.Value));
+            }
         }
 
         private static ProductVariantAttributeSelection CreateAttributeSelection(
