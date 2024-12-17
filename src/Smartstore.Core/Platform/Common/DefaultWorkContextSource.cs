@@ -169,10 +169,16 @@ namespace Smartstore.Core
 
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
-                if (await _overloadProtector.ForbidNewGuestAsync())
+                if (await context.OverloadProtector.ForbidNewGuestAsync(context.HttpContext))
                 {
                     // DDoS attack? Prevent new guest account creation and throw to block the request.
                     throw new HttpResponseException(StatusCodes.Status403Forbidden, "Forbidden");
+                }
+
+                context.DenyGuest ??= await context.OverloadProtector.DenyGuestAsync();
+                if (context.DenyGuest == true)
+                {
+                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
                 }
 
                 // No record yet or account deleted/deactivated.
@@ -425,7 +431,10 @@ namespace Smartstore.Core
             public ICustomerService CustomerService { get; init; }
             public IUserAgent UserAgent { get; init; }
             public IWebHelper WebHelper { get; init; }
+            
             public IOverloadProtector OverloadProtector { get; init; }
+            public bool? DenyGuest { get; set; }
+            public bool? DenyBot { get; set; }
 
             public Guid? CustomerGuid { get; set; }
             public string ClientIdent { get; set; }
@@ -470,7 +479,8 @@ namespace Smartstore.Core
         {
             if (context.UserAgent.IsBot())
             {
-                if (await context.OverloadProtector.DenyBotAsync())
+                context.DenyBot ??= await context.OverloadProtector.DenyBotAsync();
+                if (context.DenyBot == true)
                 {
                     throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
                 }
@@ -528,7 +538,8 @@ namespace Smartstore.Core
 
                 if (customer != null && !customer.IsRegistered())
                 {
-                    if (await context.OverloadProtector.DenyGuestAsync())
+                    context.DenyGuest = await context.OverloadProtector.DenyGuestAsync();
+                    if (context.DenyGuest == true)
                     {
                         throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
                     }
@@ -548,7 +559,8 @@ namespace Smartstore.Core
             // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
             if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
             {
-                if (await context.OverloadProtector.DenyBotAsync())
+                context.DenyBot ??= await context.OverloadProtector.DenyBotAsync();
+                if (context.DenyBot == true)
                 {
                     throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
                 }
