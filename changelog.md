@@ -16,7 +16,9 @@
 - #1229 Sending an order placed message with the order attached as a PDF always causes an HTTP client timeout .
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Summernote HTML editor:
+  - Toolbar is now sticky when editor has focus.
   - Code sync adds a line break after caret position (caused by outdated beautify library).
+  - Fixed various focus handling and popover issues.
   - AI: HTMLeditor does not record undo after answer is applied.
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
