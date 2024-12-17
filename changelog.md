@@ -18,6 +18,7 @@
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
 - Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
 - MegaMenu did not clear the output cache when any settings were changed.
+- MegaSearch: The names of unpublished product tags were not indexed.
 
 
 ## Smartstore 6.0.0
