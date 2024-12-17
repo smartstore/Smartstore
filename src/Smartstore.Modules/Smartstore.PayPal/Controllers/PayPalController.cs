@@ -211,7 +211,7 @@ namespace Smartstore.PayPal.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             var preferredBillingAddressFirstname = order.Payer.Name.GivenName;
-            var preferredBillingAddressLastname = order.Payer.Name.SurName;
+            var preferredBillingAddressLastname = order.Payer.Name.Surname;
 
             var nameParts = SplitFullName(shippingName);
 

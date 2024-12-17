@@ -283,7 +283,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         public string GivenName;
 
-        public string SurName;
+        public string Surname;
     }
 
     public class PhoneMessage
