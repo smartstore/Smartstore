@@ -142,7 +142,7 @@ namespace Smartstore.PayPal.Client
                         Name = new NameMessage
                         {
                             GivenName = customer.BillingAddress.FirstName,
-                            SurName = customer.BillingAddress.LastName
+                            Surname = customer.BillingAddress.LastName
                         },
                         Email = customer.BillingAddress.Email,
                         BirthDate = birthDate,
