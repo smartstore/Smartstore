@@ -153,11 +153,24 @@ namespace Smartstore.Core.Identity
                     {
                         var consentCookie = JsonConvert.DeserializeObject<ConsentCookie>(value);
 
-                        // If date is not set it's a cookie that was saved pre 5.2.0 and thus is HttpOnly.
-                        // We must remove it and set a new one with HttpOnly = false because we need to read it in JS from 5.2.0 on.
-                        if (consentCookie.ConsentedOn == null)
+                        // INFO: With the release of 6.0.0 we convert the existing cookie to our current ConsentCookie data structure. 
+                        // Unfortunatelly we have not set AllowRequired to true to which was implicitly consented pre 6.0.0
+                        // To hotfix this for updated shops we set the cookie again if the ConsentedOn date is less then the bugfix date.
+
+                        // This problem effects only shops which were updated in the time span of 2024/12/06 and 2024/12/18
+                        // and customers of these shops which have visited the shop in this period and have visited the shop already pre 6.0.0
+
+                        // TODO: Remove this at latest in 2025/12/18. By then the few which are effected by this error should have migrated
+                        // their cookies simply by visting the shop or their cookie has expired. 
+                        var bugfixDate = new DateTime(2024, 12, 18);
+
+                        // If date is not set it's a cookie that was saved pre 6.0.0 and thus is HttpOnly.
+                        // We must remove it and set a new one with HttpOnly = false because we need to read it in JS from 6.0.0 on.
+                        if (consentCookie.ConsentedOn == null || consentCookie.ConsentedOn <= bugfixDate)
                         {
                             consentCookie.ConsentedOn = DateTime.UtcNow;
+                            // AllowRequired wasn't there pre 6.0.0 but implicitly consented to. Thus we must set it to true.
+                            consentCookie.AllowRequired = true;
                             SetConsentCookieCore(consentCookie);
                         }
 
