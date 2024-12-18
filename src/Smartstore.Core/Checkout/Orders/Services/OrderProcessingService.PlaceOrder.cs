@@ -112,6 +112,10 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else
                 {
+                    // INFO: Messages may not be sent within the transaction scope.
+                    // PdfInvoiceHttpClient always fails with an HTTP client timeout (TaskCanceledException).
+                    await SendOrderMessages(ctx);
+
                     // Events
                     await _eventPublisher.PublishOrderPlacedAsync(ctx.Order);
 
@@ -997,10 +1001,34 @@ namespace Smartstore.Core.Checkout.Orders
 
         private async Task FinalizeOrderPlacement(PlaceOrderContext ctx)
         {
-            var order = ctx.Order;
-            var notes = new List<string> { T("Admin.OrderNotice.OrderPlaced") };
+            _db.OrderNotes.Add(new()
+            {
+                OrderId = ctx.Order.Id,
+                Note = T("Admin.OrderNotice.OrderPlaced"),
+                CreatedOnUtc = DateTime.UtcNow
+            });
 
-            // Messages and order notes.
+            // Log activity.
+            if (!ctx.PaymentRequest.IsRecurringPayment)
+            {
+                _activityLogger.LogActivity(KnownActivityLogTypes.PublicStorePlaceOrder, T("ActivityLog.PublicStore.PlaceOrder"), ctx.Order.GetOrderNumber());
+            }
+
+            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
+            {
+                ctx.Customer.ResetCheckoutData(ctx.PaymentRequest.StoreId, true, true, true, true, true, true);
+                await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
+            }
+
+            // INFO: DeleteCartAsync or CheckOrderStatusAsync perform commits.
+        }
+
+        private async Task SendOrderMessages(PlaceOrderContext ctx)
+        {
+            var order = ctx.Order;
+            var notes = new List<string>();
+
+            // Messages.
             var msg = await _messageFactory.SendOrderPlacedStoreOwnerNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
             if (msg?.Email?.Id != null)
             {
@@ -1024,21 +1052,11 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            AddOrderNotes(order, [.. notes]);
-
-            // Log activity.
-            if (!ctx.PaymentRequest.IsRecurringPayment)
+            if (notes.Count > 0)
             {
-                _activityLogger.LogActivity(KnownActivityLogTypes.PublicStorePlaceOrder, T("ActivityLog.PublicStore.PlaceOrder"), order.GetOrderNumber());
+                AddOrderNotes(order, [.. notes]);
+                await _db.SaveChangesAsync();
             }
-
-            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
-            {
-                ctx.Customer.ResetCheckoutData(ctx.PaymentRequest.StoreId, true, true, true, true, true, true);
-                await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
-            }
-
-            // INFO: DeleteCartAsync or CheckOrderStatusAsync perform commits.
         }
 
         class PlaceOrderContext
