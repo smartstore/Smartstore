@@ -8,6 +8,7 @@
 - MegaSearch: Added setting to indicate whether to split compound words.
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.
+- Fixed number of attachments always 0 in queued email list.
 
 ### Bugfixes
 
