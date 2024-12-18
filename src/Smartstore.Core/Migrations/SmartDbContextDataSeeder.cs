@@ -145,6 +145,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             #endregion
 
             builder.AddOrUpdate("Tax.LegalInfoShort3", "Prices {0}, {1}", "Preise {0}, {1}");
+			
+			builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.CalculateShippingAtCheckout",
+                "Calculate shipping costs during checkout",
+                "Versandkosten während des Checkouts berechnen",
+                "Specifies whether shipping costs are displayed on the shopping cart page as long as the customer has not yet entered a shipping address. If activated, a note appears instead that the calculation will only take place at checkout.",
+                "Legt fest, ob Versandkosten auf der Warenkorbseite angezeigt werden, solange der Kunde noch keine Lieferanschrift eingegeben hat. Wenn aktiviert, erscheint stattdessen ein Hinweis, dass die Berechnung erst beim Checkout erfolgt.");
         }
     }
 }

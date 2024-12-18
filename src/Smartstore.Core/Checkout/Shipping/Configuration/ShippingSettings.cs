@@ -7,7 +7,8 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets system names of active shipping rate computation methods
         /// </summary>
-        public List<string> ActiveShippingRateComputationMethodSystemNames { get; set; } = new() { "Shipping.FixedRate" };
+        public List<string> ActiveShippingRateComputationMethodSystemNames { get; set; } = ["Shipping.FixedRate"];
+
         /// <summary>
         /// Gets or sets a value indicating whether 'Free shipping over X' is enabled
         /// </summary>
@@ -43,6 +44,13 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Gets or sets a value indicating whether we should return valid options if there are any (no matter of the errors returned by other shipping rate compuation methods).
         /// </summary>
         public bool ReturnValidOptionsIfThereAreAny { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to calculate shipping at checkout.
+        /// If <c>true</c>, the shipping costs and the order total amount will not be displayed on the shopping cart page
+        /// if a shipping address has not yet been entered.
+        /// </summary>
+        public bool CalculateShippingAtCheckout { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to skip the shipping selection during checkout, if only one shipping method is available.
