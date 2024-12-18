@@ -9,13 +9,11 @@ namespace Smartstore.Core.Security
         public TimeSpan LongTrafficWindow { get; set; } = TimeSpan.FromMinutes(1);
         public TimeSpan PeakTrafficWindow { get; set; } = TimeSpan.FromSeconds(2);
 
-        public int? LongTrafficLimitCustomer { get; set; } = 500;
-        public int? LongTrafficLimitGuest { get; set; } = 300;
-        public int? LongTrafficLimitBot { get; set; } = 200;
+        public int? LongTrafficLimitGuest { get; set; } = 600;
+        public int? LongTrafficLimitBot { get; set; } = 400;
 
-        public int? PeakTrafficLimitCustomer { get; set; } = 50;
-        public int? PeakTrafficLimitGuest { get; set; } = 20;
-        public int? PeakTrafficLimitBot { get; set; } = 10;
+        public int? PeakTrafficLimitGuest { get; set; } = 50;
+        public int? PeakTrafficLimitBot { get; set; } = 30;
 
         public int? LongTrafficLimitGlobal { get; set; } = 1000;
         public int? PeakTrafficLimitGlobal { get; set; } = 80;

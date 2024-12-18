@@ -1,27 +1,24 @@
 ﻿using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http;
-using Smartstore.Caching;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Security
 {
     public class OverloadProtector : IOverloadProtector
     {
         private readonly ResiliencySettings _settings;
-        private readonly ICacheManager _cache;
 
         // Type-specific limiters
-        private RateLimiter _guestLongLimiter;
-        private RateLimiter _guestPeakLimiter;
+        private readonly RateLimiter _guestLongLimiter;
+        private readonly RateLimiter _guestPeakLimiter;
 
-        private RateLimiter _customerLongLimiter;
-        private RateLimiter _customerPeakLimiter;
-
-        private RateLimiter _botLongLimiter;
-        private RateLimiter _botPeakLimiter;
+        private readonly RateLimiter _botLongLimiter;
+        private readonly RateLimiter _botPeakLimiter;
 
         // Global limiters that are more generous
-        private RateLimiter _globalLongLimiter;
-        private RateLimiter _globalPeakLimiter;
+        private readonly RateLimiter _globalLongLimiter;
+        private readonly RateLimiter _globalPeakLimiter;
 
         public OverloadProtector(ResiliencySettings settings)
         {
@@ -29,11 +26,9 @@ namespace Smartstore.Core.Security
 
             // Create type-specific limiters
             _guestLongLimiter = CreateTokenBucket(settings.LongTrafficLimitGuest, settings.LongTrafficWindow);
-            _customerLongLimiter = CreateTokenBucket(settings.LongTrafficLimitCustomer, settings.LongTrafficWindow);
-            _botLongLimiter = CreateTokenBucket(settings.LongTrafficLimitBot, settings.LongTrafficWindow);
-
             _guestPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitGuest, settings.PeakTrafficWindow);
-            _customerPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitCustomer, settings.PeakTrafficWindow);
+
+            _botLongLimiter = CreateTokenBucket(settings.LongTrafficLimitBot, settings.LongTrafficWindow);
             _botPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitBot, settings.PeakTrafficWindow);
 
             // Create global limiters with more generous limits
@@ -41,16 +36,13 @@ namespace Smartstore.Core.Security
             _globalPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitGlobal, settings.PeakTrafficWindow);
         }
 
-        public Task<bool> DenyGuestAsync()
+        public virtual Task<bool> DenyGuestAsync(Customer customer = null)
             => Task.FromResult(CheckDeny(UserType.Guest));
 
-        public Task<bool> DenyCustomerAsync()
-            => Task.FromResult(CheckDeny(UserType.Customer));
-
-        public Task<bool> DenyBotAsync()
+        public virtual Task<bool> DenyBotAsync(IUserAgent userAgent)
             => Task.FromResult(CheckDeny(UserType.Bot));
 
-        public Task<bool> ForbidNewGuestAsync(HttpContext httpContext)
+        public virtual Task<bool> ForbidNewGuestAsync(HttpContext httpContext)
         {
             var forbid = _settings.EnableOverloadProtection && _settings.ForbidNewGuestsIfAjaxOrPost && httpContext != null;
             if (forbid)
@@ -146,7 +138,6 @@ namespace Smartstore.Core.Security
         {
             return userType switch
             {
-                UserType.Customer   => peak ? _customerPeakLimiter : _customerLongLimiter,
                 UserType.Guest      => peak ? _guestPeakLimiter : _guestLongLimiter,
                 _                   => peak ? _botPeakLimiter : _botLongLimiter
             };
@@ -154,7 +145,6 @@ namespace Smartstore.Core.Security
 
         enum UserType
         {
-            Customer,
             Guest,
             Bot
         }

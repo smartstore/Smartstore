@@ -175,11 +175,7 @@ namespace Smartstore.Core
                     throw new HttpResponseException(StatusCodes.Status403Forbidden, "Forbidden");
                 }
 
-                context.DenyGuest ??= await context.OverloadProtector.DenyGuestAsync();
-                if (context.DenyGuest == true)
-                {
-                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
-                }
+                await CheckGuestDeniedAsync(context);
 
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
@@ -441,18 +437,9 @@ namespace Smartstore.Core
             public ILockHandle LockHandle { get; set; }
         }
 
-        private static async Task<Customer> DetectAuthenticated(DetectCustomerContext context)
+        private static Task<Customer> DetectAuthenticated(DetectCustomerContext context)
         {
-            var customer = await context.CustomerService.GetAuthenticatedCustomerAsync();
-            if (customer != null)
-            {
-                if (await context.OverloadProtector.DenyCustomerAsync())
-                {
-                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
-                }
-            }
-
-            return customer;
+            return context.CustomerService.GetAuthenticatedCustomerAsync();
         }
 
         private static Task<Customer> DetectTaskScheduler(DetectCustomerContext context)
@@ -479,12 +466,7 @@ namespace Smartstore.Core
         {
             if (context.UserAgent.IsBot())
             {
-                context.DenyBot ??= await context.OverloadProtector.DenyBotAsync();
-                if (context.DenyBot == true)
-                {
-                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
-                }
-
+                await CheckBotDeniedAsync(context);
                 return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
@@ -536,15 +518,10 @@ namespace Smartstore.Core
                     .Where(c => c.CustomerGuid == customerGuid)
                     .FirstOrDefaultAsync();
 
+                // Don't treat registered customers as guests.
                 if (customer != null && !customer.IsRegistered())
                 {
-                    context.DenyGuest = await context.OverloadProtector.DenyGuestAsync();
-                    if (context.DenyGuest == true)
-                    {
-                        throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
-                    }
-
-                    // Don't treat registered customers as guests.
+                    await CheckGuestDeniedAsync(context, customer);
                     return customer;
                 }
             }
@@ -559,12 +536,7 @@ namespace Smartstore.Core
             // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
             if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
             {
-                context.DenyBot ??= await context.OverloadProtector.DenyBotAsync();
-                if (context.DenyBot == true)
-                {
-                    throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
-                }
-
+                await CheckBotDeniedAsync(context);
                 return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
@@ -616,6 +588,24 @@ namespace Smartstore.Core
             {
                 await context.LockHandle.ReleaseAsync();
                 context.LockHandle = null;
+            }
+        }
+
+        private static async Task CheckGuestDeniedAsync(DetectCustomerContext context, Customer customer = null)
+        {
+            context.DenyGuest ??= await context.OverloadProtector.DenyGuestAsync(customer);
+            if (context.DenyGuest == true)
+            {
+                throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
+            }
+        }
+
+        private static async Task CheckBotDeniedAsync(DetectCustomerContext context)
+        {
+            context.DenyBot ??= await context.OverloadProtector.DenyBotAsync(context.UserAgent);
+            if (context.DenyBot == true)
+            {
+                throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
             }
         }
 
