@@ -94,10 +94,10 @@ namespace Smartstore.Admin.Models.Messages
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            MiniMapper.Map(from, to);
-
             await _db.LoadReferenceAsync(from, x => x.EmailAccount);
             await _db.LoadCollectionAsync(from, x => x.Attachments);
+
+            MiniMapper.Map(from, to);
 
             to.EmailAccountName = from.EmailAccount?.FriendlyName ?? string.Empty;
             to.AttachmentsCount = from.Attachments?.Count ?? 0;
