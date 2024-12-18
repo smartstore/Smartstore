@@ -334,6 +334,7 @@ namespace Smartstore.Web.Controllers
 
         protected void MapPriceBase(CalculatedPrice price, PriceModel model, bool mapBasePrice = true)
         {
+            model.Tax = price.Tax;
             model.FinalPrice = price.FinalPrice;
             model.CallForPrice = price.PricingType == PricingType.CallForPrice;
             model.CustomerEntersPrice = price.PricingType == PricingType.CustomerEnteredPrice;
