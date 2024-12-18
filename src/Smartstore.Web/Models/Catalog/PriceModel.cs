@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Catalog
@@ -8,6 +9,7 @@ namespace Smartstore.Web.Models.Catalog
         public Money FinalPrice { get; set; }
         public ComparePriceModel RegularPrice { get; set; }
         public ComparePriceModel RetailPrice { get; set; }
+        public Tax? Tax { get; set; }
         public Money? ShippingSurcharge { get; set; }
 
         public DateTime? ValidUntilUtc { get; set; }
