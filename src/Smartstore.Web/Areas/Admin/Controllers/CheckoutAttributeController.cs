@@ -2,6 +2,7 @@
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
@@ -59,6 +60,9 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<CheckoutAttributeModel>();
 
             var checkoutAttributes = await _db.CheckoutAttributes
+                .ApplyCustomerStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(CheckoutAttribute), [.. _db.CheckoutAttributes.Select(x => x.Id)]))
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ApplyGridCommand(command)
@@ -165,6 +169,12 @@ namespace Smartstore.Admin.Controllers
             if (checkoutAttribute == null)
             {
                 return NotFound();
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(checkoutAttribute))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<CheckoutAttribute, CheckoutAttributeModel>(checkoutAttribute);

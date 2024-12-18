@@ -65,6 +65,9 @@ namespace Smartstore.Admin.Controllers
                 : dtHelper.ConvertToUtcTime(model.CreatedOnTo.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
             var query = _db.ProductReviews
+                .ApplyReviewStoreFilter(
+                    await Services.StoreMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await Services.StoreMappingService.GetStoreMappingCollectionAsync(nameof(Product), [.. _db.ProductReviews.Select(x => x.ProductId)]))
                 .AsSplitQuery()
                 .Include(x => x.Product)
                 .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
@@ -178,6 +181,12 @@ namespace Smartstore.Admin.Controllers
             if (productReview == null)
             {
                 return NotFound();
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(productReview))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var model = new ProductReviewModel();
