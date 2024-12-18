@@ -31,6 +31,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShippingOriginAddress")]
         public AddressModel ShippingOriginAddress { get; set; } = new();
 
+        [LocalizedDisplay("*CalculateShippingAtCheckout")]
+        public bool CalculateShippingAtCheckout { get; set; }
+
         [LocalizedDisplay("*SkipShippingIfSingleOption")]
         public bool SkipShippingIfSingleOption { get; set; }
 

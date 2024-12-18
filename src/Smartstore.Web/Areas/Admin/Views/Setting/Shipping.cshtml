@@ -73,6 +73,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="CalculateShippingAtCheckout" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CalculateShippingAtCheckout"></setting-editor>
+                <span asp-validation-for="CalculateShippingAtCheckout"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="SkipShippingIfSingleOption" />
             </div>
             <div class="adminData">
