@@ -9,6 +9,7 @@
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always 0 in queued email list.
+- EmailReminder: Added task to send bonus points reminder.
 
 ### Bugfixes
 
@@ -26,6 +27,7 @@
 - MegaMenu did not clear the output cache when any settings were changed.
 - MegaSearch: The names of unpublished product tags were not indexed.
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
+- Fixed Cookie migration problem
 
 
 ## Smartstore 6.0.0
