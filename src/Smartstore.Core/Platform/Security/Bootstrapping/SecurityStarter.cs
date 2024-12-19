@@ -11,10 +11,13 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<HttpsUrlFilter>().As<IUrlFilter>().SingleInstance();
             builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();
-            builder.RegisterType<OverloadProtector>().As<IOverloadProtector>().SingleInstance();
             builder.RegisterType<HoneypotProtector>().SingleInstance();
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
+
+            // Resiliency
+            builder.RegisterType<TrafficRateLimiters>().AsSelf().SingleInstance();
+            builder.RegisterType<OverloadProtector>().As<IOverloadProtector>().InstancePerLifetimeScope();
         }
     }
 }
