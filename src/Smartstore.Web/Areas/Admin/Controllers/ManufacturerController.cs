@@ -130,9 +130,12 @@ namespace Smartstore.Admin.Controllers
             {
                 query = query.ApplySearchFilterFor(x => x.Name, model.SearchManufacturerName);
             }
-
+            
             var manufacturers = await query
                 .ApplyStandardFilter(true, null, model.SearchStoreId)
+                .ApplyCustomerStoreFilter(
+                    await _storeMappingService.GetCustomerAuthorizedStoreIdsAsync(),
+                    await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Manufacturer), [.. query.Select(x => x.Id)]))
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -238,6 +241,12 @@ namespace Smartstore.Admin.Controllers
             if (manufacturer == null)
             {
                 return NotFound();
+            }
+
+            if (!await Services.Permissions.CanAccessEntity(manufacturer))
+            {
+                NotifyAccessDenied();
+                return RedirectToAction(nameof(List));
             }
 
             var mapper = MapperFactory.GetMapper<Manufacturer, ManufacturerModel>();

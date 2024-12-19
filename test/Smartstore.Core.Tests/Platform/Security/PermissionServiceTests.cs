@@ -7,6 +7,7 @@ using Smartstore.Caching;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Tests.Platform.Security
 {
@@ -17,6 +18,7 @@ namespace Smartstore.Core.Tests.Platform.Security
         private ILocalizationService _localizationService;
         private IWorkContext _workContext;
         private ICacheManager _cacheManager;
+        private IStoreMappingService _storeMappingService;
 
         private readonly CustomerRole _rAdmin = new() { Id = 10, Active = true, SystemName = "Administrators", Name = "Administrators" };
         private readonly CustomerRole _rModerator = new() { Id = 20, Active = true, SystemName = "Moderators", Name = "Moderators" };
@@ -43,7 +45,8 @@ namespace Smartstore.Core.Tests.Platform.Security
                 DbContext,
                 new Lazy<IWorkContext>(() => _workContext),
                 _localizationService,
-                _cacheManager);
+                _cacheManager,
+                _storeMappingService);
         }
 
         [Test]

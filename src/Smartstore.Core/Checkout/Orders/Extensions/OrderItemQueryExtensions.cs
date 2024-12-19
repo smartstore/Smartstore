@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 
 namespace Smartstore
@@ -188,6 +189,22 @@ namespace Smartstore
             };
 
             return selector;
+        }
+
+        /// <summary>
+        /// Selects order items that the currently authenticated customer is authorized to access.
+        /// </summary>
+        /// <param name="query">Order items query to filter from.</param>
+        /// <param name="authorizedStoreIds">Ids of stores customer has access to</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="OrderItem"/>.</returns>
+        public static IQueryable<OrderItem> ApplyCustomerStoreFilter(this IQueryable<OrderItem> query, int[] authorizedStoreIds)
+        {
+            Guard.NotNull(query);
+            if (!authorizedStoreIds.IsNullOrEmpty())
+            {
+                query = query.Where(oi => authorizedStoreIds.Contains(oi.Order.StoreId));
+            }
+            return query;
         }
     }
 }

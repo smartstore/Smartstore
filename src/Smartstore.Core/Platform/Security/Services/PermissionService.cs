@@ -1,16 +1,25 @@
 ﻿using System.Text;
 using Smartstore.Caching;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Security
 {
-    public partial class PermissionService : AsyncDbSaveHook<CustomerRole>, IPermissionService
+    public partial class PermissionService(
+        SmartDbContext db,
+        Lazy<IWorkContext> workContext,
+        ILocalizationService localizationService,
+        ICacheManager cache,
+        IStoreMappingService storeMappingService) : AsyncDbSaveHook<CustomerRole>, IPermissionService
     {
         // {0} = roleId
         private readonly static CompositeFormat PERMISSION_TREE_KEY = CompositeFormat.Parse("permission:tree-{0}");
@@ -90,24 +99,13 @@ namespace Smartstore.Core.Security
             { "rule", "Common.Rules" },
         };
 
-        private readonly SmartDbContext _db;
-        private readonly Lazy<IWorkContext> _workContext;
-        private readonly ILocalizationService _localizationService;
-        private readonly ICacheManager _cache;
+        private readonly SmartDbContext _db = db;
+        private readonly Lazy<IWorkContext> _workContext = workContext;
+        private readonly ILocalizationService _localizationService = localizationService;
+        private readonly ICacheManager _cache = cache;
+        private readonly IStoreMappingService _storeMappingService = storeMappingService;
 
         private string _hookErrorMessage;
-
-        public PermissionService(
-            SmartDbContext db,
-            Lazy<IWorkContext> workContext,
-            ILocalizationService localizationService,
-            ICacheManager cache)
-        {
-            _db = db;
-            _workContext = workContext;
-            _localizationService = localizationService;
-            _cache = cache;
-        }
 
         #region Hook
 
@@ -328,7 +326,7 @@ namespace Smartstore.Core.Security
         public virtual async Task<string> GetDisplayNameAsync(string permissionSystemName)
         {
             var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Any())
+            if (tokens.Length != 0)
             {
                 var resourcesLookup = await GetDisplayNameLookup(_workContext.Value.WorkingLanguage.Id);
 
@@ -352,7 +350,6 @@ namespace Smartstore.Core.Security
             {
                 return;
             }
-
             var allPermissionNames = await _db.PermissionRecords
                 .AsQueryable()
                 .Select(x => x.SystemName)
@@ -365,7 +362,7 @@ namespace Smartstore.Core.Security
             var log = existing.Any();
             var clearCache = false;
 
-            if (existing.Any())
+            if (existing.Count != 0)
             {
                 var permissionsMigrated = existing.Contains(Permissions.System.AccessShop) && !existing.Contains("PublicStoreAllowNavigation");
                 if (!permissionsMigrated)
@@ -689,6 +686,84 @@ namespace Smartstore.Core.Security
             });
 
             return displayNames;
+        }
+
+        #endregion
+
+        #region Store restricted utilities
+
+        public bool ValidateSuperAdmin(int[] selectedCustomerRoleIds)
+        {
+            var superAdminRole = _db.CustomerRoles.FirstOrDefault(x => x.SystemName == SystemCustomerRoleNames.SuperAdministrators);
+
+            // Only if there is currently no super admin, allow an admin customer to set itself as super admin. 
+            if (!_workContext.Value.CurrentCustomer.IsSuperAdmin() && selectedCustomerRoleIds.Any(x => x == superAdminRole?.Id))
+            {
+                var superAdminExists = _db.Customers.Any(
+                customer => customer.CustomerRoleMappings.Any(
+                    mapping => mapping.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators));
+                if (superAdminExists)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public async Task<bool> CanAccessEntity<T>(T entity) where T : BaseEntity
+        {
+            var customerAuthorizedStores = await _storeMappingService.GetCustomerAuthorizedStoreIdsAsync();
+            if (_workContext.Value.CurrentCustomer.IsSuperAdmin() || customerAuthorizedStores.Length == 0)
+            {
+                return true;
+            }
+
+            switch (typeof(T).Name)
+            {
+                case "Order":
+                    var order = entity as Order;
+                    if (!customerAuthorizedStores.Any(casId => order.StoreId == casId))
+                    {
+                        return false;
+                    }
+                    break;
+                case "Shipment":
+                    var shipment = entity as Shipment;
+                    if (!customerAuthorizedStores.Any(casId => shipment.Order.StoreId == casId))
+                    {
+                        return false;
+                    }
+                    break;
+                case "ProductReview":
+                    var productReview = entity as ProductReview;
+                    var prStoreMappings = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Product), [productReview.ProductId]);
+                    if (prStoreMappings.Count != 0 && !customerAuthorizedStores.Any(casId => prStoreMappings.Any(storeMapping => storeMapping.StoreId == casId)))
+                    {
+                        return false;
+                    }
+                    break;
+                default:
+                    var storeMappings = await _storeMappingService.GetStoreMappingCollectionAsync(typeof(T).Name, [entity.Id]);
+                    if (storeMappings.Count != 0 && !customerAuthorizedStores.Any(casId => storeMappings.Any(storeMapping => storeMapping.StoreId == casId)))
+                    {
+                        return false;
+                    }
+                    break;
+            }
+
+            try
+            {
+                var customer = (Customer)Convert.ChangeType(entity, typeof(Customer));
+                if ((customer.IsAdmin() && !_workContext.Value.CurrentCustomer.IsAdmin()) || (customer.IsSuperAdmin() && !_workContext.Value.CurrentCustomer.IsSuperAdmin()))
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
         }
 
         #endregion

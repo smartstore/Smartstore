@@ -33,6 +33,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
+        private readonly IWorkContext _workContext;
 
         public CustomerRoleController(
             SmartDbContext db,
@@ -54,6 +55,7 @@ namespace Smartstore.Admin.Controllers
 
         /// <summary>
         /// (AJAX) Gets a list of all available customer roles. 
+        /// Exclude super admin role from list if there is already a super admin and currently logged in customer is not super admin.
         /// </summary>
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>
@@ -66,6 +68,17 @@ namespace Smartstore.Admin.Controllers
             if (!(includeSystemRoles ?? true))
             {
                 query = query.Where(x => !x.IsSystemRole);
+            }
+
+            if (!Services.WorkContext.CurrentCustomer.IsSuperAdmin())
+            {
+                var superAdminExists = _db.Customers.Any(
+                    customer => customer.CustomerRoleMappings.Any(
+                        mapping => mapping.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators));
+                if (superAdminExists)
+                {
+                    query = query.Where(x => x.SystemName != SystemCustomerRoleNames.SuperAdministrators);
+                }
             }
 
             query = query.ApplyStandardFilter(true);
@@ -116,9 +129,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> RoleList(GridCommand command)
         {
+            var isSuperAdmin = Services.WorkContext.CurrentCustomer.IsSuperAdmin();
             var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
+                .Where(x => isSuperAdmin || x.SystemName != SystemCustomerRoleNames.SuperAdministrators)
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)

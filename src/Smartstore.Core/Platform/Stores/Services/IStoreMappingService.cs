@@ -12,7 +12,8 @@
         /// <typeparam name="T">Entity type</typeparam>
         /// <param name="entity">The entity</param>
         /// <param name="selectedStoreIds">Array of selected store ids</param>
-        Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted;
+        /// Returns false if customer user tries to add stores it has no access to, otherwise true.  
+        Task<bool> ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted;
 
         /// <summary>
         /// Creates and adds a <see cref="StoreMapping"/> entity to the change tracker.
@@ -44,6 +45,12 @@
         /// <param name="entityId">Entity id to check</param>
         /// <returns>Store identifiers</returns>
         Task<int[]> GetAuthorizedStoreIdsAsync(string entityName, int entityId);
+
+        /// <summary>
+        /// Finds store identifiers which currently authenticated customer has been granted access to
+        /// </summary>
+        /// <returns>Store identifiers</returns>
+        Task<int[]> GetCustomerAuthorizedStoreIdsAsync();
 
         /// <summary>
         /// Prefetches a collection of store mappings for a range of entities in one go
