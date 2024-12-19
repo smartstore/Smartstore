@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json.Serialization;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
