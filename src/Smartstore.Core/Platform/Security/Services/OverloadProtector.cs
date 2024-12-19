@@ -8,32 +8,12 @@ namespace Smartstore.Core.Security
     public class OverloadProtector : IOverloadProtector
     {
         private readonly ResiliencySettings _settings;
+        private readonly TrafficRateLimiters _rateLimiters;
 
-        // Type-specific limiters
-        private readonly RateLimiter _guestLongLimiter;
-        private readonly RateLimiter _guestPeakLimiter;
-
-        private readonly RateLimiter _botLongLimiter;
-        private readonly RateLimiter _botPeakLimiter;
-
-        // Global limiters that are more generous
-        private readonly RateLimiter _globalLongLimiter;
-        private readonly RateLimiter _globalPeakLimiter;
-
-        public OverloadProtector(ResiliencySettings settings)
+        public OverloadProtector(ResiliencySettings settings, TrafficRateLimiters rateLimiters)
         {
             _settings = settings;
-
-            // Create type-specific limiters
-            _guestLongLimiter = CreateTokenBucket(settings.LongTrafficLimitGuest, settings.LongTrafficWindow);
-            _guestPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitGuest, settings.PeakTrafficWindow);
-
-            _botLongLimiter = CreateTokenBucket(settings.LongTrafficLimitBot, settings.LongTrafficWindow);
-            _botPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitBot, settings.PeakTrafficWindow);
-
-            // Create global limiters with more generous limits
-            _globalLongLimiter = CreateTokenBucket(settings.LongTrafficLimitGlobal, settings.LongTrafficWindow);
-            _globalPeakLimiter = CreateTokenBucket(settings.PeakTrafficLimitGlobal, settings.PeakTrafficWindow);
+            _rateLimiters = rateLimiters;
         }
 
         public virtual Task<bool> DenyGuestAsync(Customer customer = null)
@@ -44,34 +24,21 @@ namespace Smartstore.Core.Security
 
         public virtual Task<bool> ForbidNewGuestAsync(HttpContext httpContext)
         {
-            var forbid = _settings.EnableOverloadProtection && _settings.ForbidNewGuestsIfAjaxOrPost && httpContext != null;
+            var forbid = _settings.EnableOverloadProtection && _settings.ForbidNewGuestsIfSubRequest && httpContext != null;
             if (forbid)
             {
-                forbid = !httpContext.Request.IsNonAjaxGet();
+                forbid = IsSubRequest(httpContext);
             }
             
             return Task.FromResult(forbid);
         }
 
-        private static TokenBucketRateLimiter CreateTokenBucket(int? limit, TimeSpan period)
+        private static bool IsSubRequest(HttpContext httpContext)
         {
-            if (limit == null || limit <= 0)
-            {
-                // No rate limiting (unlimited access)
-                return null; 
-            } 
-
-            // Creates a TokenBucket with ‘limit’ tokens per ‘period’.
-            // The quota is completely refilled every period.
-            return new TokenBucketRateLimiter(
-                new TokenBucketRateLimiterOptions
-                {
-                    TokenLimit = limit.Value,
-                    TokensPerPeriod = limit.Value,
-                    ReplenishmentPeriod = period,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    QueueLimit = 0 // No queue
-                });
+            return
+                httpContext.GetEndpoint() == null ||
+                httpContext.Request.IsGet() == false ||
+                httpContext.Request.IsAjax() == true;  
         }
 
         private bool CheckDeny(UserType userType)
@@ -82,26 +49,20 @@ namespace Smartstore.Core.Security
                 return false;
             }
 
-            // First check type-specific peak limit
-            if (!TryAcquireFromType(userType, peak: true))
+            // Check both global and type-specific limits for peak usage
+            var peakAllowed = TryAcquireFromGlobal(peak: true) && TryAcquireFromType(userType, peak: true);
+            if (!peakAllowed)
             {
-                // If category peak fails, try global peak
-                if (!TryAcquireFromGlobal(peak: true))
-                {
-                    // If even global peak fails (if ever), deny
-                    return true;
-                }
+                // Deny the request if either limit fails
+                return true;
             }
 
-            // Now check type-specific long window
-            if (!TryAcquireFromType(userType, peak: false))
+            // Check both global and type-specific limits for long usage
+            var longAllowed = TryAcquireFromGlobal(peak: false) && TryAcquireFromType(userType, peak: false);
+            if (!longAllowed)
             {
-                // If type long fails, try global long
-                if (!TryAcquireFromGlobal(peak: false))
-                {
-                    // If even global long fails (should never happen with huge config), deny
-                    return true;
-                }
+                // Deny the request if either limit fails
+                return true;
             }
 
             // If we got here, either type or global allowed it
@@ -123,7 +84,7 @@ namespace Smartstore.Core.Security
 
         private bool TryAcquireFromGlobal(bool peak)
         {
-            var limiter = peak ? _globalPeakLimiter : _globalLongLimiter;
+            var limiter = peak ? _rateLimiters.GlobalPeakLimiter : _rateLimiters.GlobalLongLimiter;
             if (limiter != null)
             {
                 var lease = limiter.AttemptAcquire(1);
@@ -138,8 +99,8 @@ namespace Smartstore.Core.Security
         {
             return userType switch
             {
-                UserType.Guest      => peak ? _guestPeakLimiter : _guestLongLimiter,
-                _                   => peak ? _botPeakLimiter : _botLongLimiter
+                UserType.Guest  => peak ? _rateLimiters.GuestPeakLimiter : _rateLimiters.GuestLongLimiter,
+                _               => peak ? _rateLimiters.BotPeakLimiter : _rateLimiters.BotLongLimiter
             };
         }
 

@@ -1473,6 +1473,40 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> Performance(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
+        {
+            var model = new PerformanceSettingsModel();
+
+            // Map entities to model
+            await MapperFactory.MapAsync(performanceSettings, model.PerformanceSettings);
+            await MapperFactory.MapAsync(resiliencySettings, model.ResiliencySettings);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting, FormValueRequired("save")]
+        public async Task<IActionResult> Performance(
+            PerformanceSettingsModel model,
+            PerformanceSettings performanceSettings, 
+            ResiliencySettings resiliencySettings)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await Performance(performanceSettings, resiliencySettings);
+            }
+
+            ModelState.Clear();
+
+            // Map model to entities
+            await MapperFactory.MapAsync(model.PerformanceSettings, performanceSettings);
+            await MapperFactory.MapAsync(model.ResiliencySettings, resiliencySettings);
+
+            return NotifyAndRedirect(nameof(Performance));
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
         [HttpPost, LoadSetting]
         public IActionResult TestSeoNameCreation(SeoSettings settings, GeneralCommonSettingsModel model)
         {
