@@ -267,6 +267,17 @@
                     Please confirm the total amount again with PayPal.
                 </Value>
             </LocaleResource>
+
+            <LocaleResource Name="GenericErrorMessage">
+                <Value>
+                    An error has occurred with the payment method. Please select another payment method.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentSourceCouldNotBeVerified">
+                <Value>
+                    The payment was rejected by PayPal because the payment information could not be verified. Please check your details and try again.
+                </Value>
+            </LocaleResource>
             
             <LocaleResource Name="UseSandbox">
                 <Value>Use sandbox</Value>

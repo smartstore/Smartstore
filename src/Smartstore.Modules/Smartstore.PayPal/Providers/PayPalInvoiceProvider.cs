@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
@@ -9,6 +11,7 @@ using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Components;
+using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Providers
 {
@@ -33,6 +36,8 @@ namespace Smartstore.PayPal.Providers
             _checkoutStateAccessor = checkoutStateAccessor;
             _validator = validator;
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "PayPal", new { area = "Admin" });
@@ -111,7 +116,18 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            var response = await _client.CreateOrderForInvoiceAsync(request);
+            try
+            {
+                var response = await _client.CreateOrderForInvoiceAsync(request);
+            }
+            catch (Exception ex)
+            {
+                PayPalHelper.HandleException(ex, T);
+
+                Logger.LogError(ex, "PayPay pay upon invoice failed.");
+
+                throw new PaymentException(T("Plugins.Smartstore.PayPal.GenericErrorMessage"));
+            }
 
             return result;
         }

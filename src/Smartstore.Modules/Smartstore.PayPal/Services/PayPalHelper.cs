@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Serialization;
 using Smartstore.ComponentModel;
+using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
@@ -81,7 +82,7 @@ namespace Smartstore.PayPal.Services
             return null;
         }
 
-        public static void HandleException(Exception ex)
+        public static void HandleException(Exception ex, Localizer T = null)
         {
             var exceptionMessage = JsonConvert.DeserializeObject<ExceptionMessage>(ex.Message, SerializerSettings);
 
@@ -102,6 +103,18 @@ namespace Smartstore.PayPal.Services
                         throw new PaymentException(detail.Description)
                         {
                             RedirectRoute = new RouteInfo(nameof(CheckoutController.PaymentMethod), "Checkout", (object)null)
+                        };
+
+                    case "BILLING_ADDRESS_INVALID":
+                        throw new PaymentException(detail.Description)
+                        {
+                            RedirectRoute = new RouteInfo(nameof(CheckoutController.BillingAddress), "Checkout", (object)null)
+                        };
+
+                    case "PAYMENT_SOURCE_INFO_CANNOT_BE_VERIFIED":
+                        throw new PaymentException(T("Plugins.Smartstore.PayPal.PaymentSourceCouldNotBeVerified"))
+                        {
+                            RedirectRoute = new RouteInfo(nameof(CheckoutController.Confirm), "Checkout", (object)null)
                         };
                 }
             }

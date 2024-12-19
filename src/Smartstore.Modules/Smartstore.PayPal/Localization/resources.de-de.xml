@@ -269,6 +269,17 @@
                 </Value>
             </LocaleResource>
 
+            <LocaleResource Name="GenericErrorMessage">
+                <Value>
+                    Bei der Zahlart ist ein Fehler aufgetreten. Bitte wählen Sie eine andere Zahlart.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentSourceCouldNotBeVerified">
+                <Value>
+                    Die Zahlung wurde von PayPal abgelehnt, weil die Zahlungsinformationen nicht verifiziert werden konnten. Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.
+                </Value>
+            </LocaleResource>
+
             <LocaleResource Name="UseSandbox">
                 <Value>Sandbox nutzen</Value>
             </LocaleResource>
