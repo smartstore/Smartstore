@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 
 namespace Smartstore.Web.Filters
@@ -16,22 +17,26 @@ namespace Smartstore.Web.Filters
 
         class GdprConsentFilter : IAsyncActionFilter, IResultFilter
         {
-            private readonly ICommonServices _services;
+            private readonly IWorkContext _workContext;
             private readonly IWidgetProvider _widgetProvider;
             private readonly PrivacySettings _privacySettings;
             private readonly INotifier _notifier;
 
             public GdprConsentFilter(
-                ICommonServices services,
+                IWorkContext workContext,
                 IWidgetProvider widgetProvider,
                 PrivacySettings privacySettings,
-                INotifier notifier)
+                INotifier notifier,
+                Localizer localizer)
             {
-                _services = services;
+                _workContext = workContext;
                 _widgetProvider = widgetProvider;
                 _privacySettings = privacySettings;
                 _notifier = notifier;
+                T = localizer;
             }
+
+            public Localizer T { get; set; } = NullLocalizer.Instance;
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
@@ -41,35 +46,30 @@ namespace Smartstore.Web.Filters
                     return;
                 }
 
-                var httpContext = context.HttpContext;
-
-                if (httpContext.Request.IsPost())
+                var request = context.HttpContext.Request;
+                if (request.IsPost() && request.HasFormContentType)
                 {
-                    var hasConsentedToGdpr = httpContext.Request.Form["GdprConsent"].ToString();
-
+                    var hasConsentedToGdpr = request.Form["GdprConsent"].ToString();
                     if (hasConsentedToGdpr.HasValue())
                     {
-                        var customer = _services.WorkContext.CurrentCustomer;
-
-                        // Set flag which can be accessed in corresponding action
-                        httpContext.Items.Add("GdprConsent", hasConsentedToGdpr.Contains("true"));
+                        // Set flag which can be accessed in corresponding action.
+                        context.HttpContext.Items.Add("GdprConsent", hasConsentedToGdpr.Contains("true"));
 
                         if (hasConsentedToGdpr.Contains("true"))
                         {
+                            var customer = _workContext.CurrentCustomer;
                             customer.GenericAttributes.HasConsentedToGdpr = true;
                             await customer.GenericAttributes.SaveChangesAsync();
                         }
                         else
                         {
-                            if (!httpContext.Request.IsAjax())
+                            if (!request.IsAjax())
                             {
-                                // Add a validation message
-                                context.ModelState.AddModelError(string.Empty, _services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
+                                context.ModelState.AddModelError(string.Empty, T("Gdpr.Consent.ValidationMessage"));
                             }
                             else
                             {
-                                // Notify
-                                _notifier.Error(_services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
+                                _notifier.Error(T("Gdpr.Consent.ValidationMessage"));
                             }
                         }
                     }
