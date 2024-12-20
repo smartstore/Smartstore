@@ -1,13 +1,15 @@
 ﻿@model RuleSetModel
 
 @{
+    var returnUrl = ((string)ViewBag.ReturnUrl).NullEmpty() ?? Url.Action("List");
+
     ViewBag.Title = T("Admin.Rules.EditRuleSet") + " - " + Model.Name;
 }
 
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            <a sm-backto asp-action="List"></a>
+            <a sm-backto href="@returnUrl" title="@T("Common.Back")"></a>
             <i class="fa fa-filter"></i>
             <span>@ViewBag.Title</span>
         </div>

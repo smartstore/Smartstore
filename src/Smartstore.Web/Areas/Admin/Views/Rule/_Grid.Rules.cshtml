@@ -1,12 +1,16 @@
 ﻿@model RuleSetModel
 
+@{
+    var parentModel = ViewData["Parent"] as RuleListModel;
+}
+
 <datagrid id="rules-grid"
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true"
           preserve-grid-state="true"
           onrowclass="rulesGrid_onRowClass">
-    <datasource read="@Url.Action("RuleSetList")" delete="@Url.Action("RuleSetDelete")" />
+    <datasource read="@Url.Action("RuleSetList", new { scope = parentModel.Scope })" delete="@Url.Action("RuleSetDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="true">
         <sort by="IsActive" descending="true" />

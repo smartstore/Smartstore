@@ -9,10 +9,11 @@
 
         <siteMapNode id="dashboard" title="Dashboard" resKey="Admin.Dashboard" controller="Home" action="Index" area="Admin" icon="icm icm-home" />
 
-        <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="icm icm-cube" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute">
+        <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" icon="icm icm-cube" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute, system.rule">
             <siteMapNode id="categories-list" icon="bi:diagram-3" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" permissionNames="catalog.category" />
             <siteMapNode id="products" icon="bi:box" title="Manage products" resKey="Admin.Catalog.Products.Manage" controller="Product" action="List" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="reviews" icon="bi:star-half" title="Product reviews" resKey="Admin.Catalog.ProductReviews" controller="ProductReview" action="List" area="Admin" permissionNames="catalog.productreview" />
+            <siteMapNode id="rulesets" icon="bi:funnel" title="Product rules" resKey="Common.ProductRules" permissionNames="system.rule" controller="Rule" action="ProductRules" area="Admin" />
             <siteMapNode id="manufacturers" icon="bi:building" title="Manufacturers" resKey="Admin.Catalog.Manufacturers" controller="Manufacturer" action="List" area="Admin" permissionNames="catalog.manufacturer" />
             <siteMapNode id="tags" icon="bi:tags" title="Product tags" resKey="Admin.Catalog.ProductTags" controller="Product" action="ProductTags" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="stockreport" icon="bi:sort-numeric-down" title="Low stock report" resKey="Admin.Catalog.LowStockReport" controller="Product" action="LowStockReport" area="Admin" permissionNames="catalog.product" />
@@ -38,8 +39,9 @@
             <siteMapNode id="flopsellers" icon="bi:hand-thumbs-down" title="Products never purchased" resKey="Admin.SalesReport.NeverSold" permissionNames="order" controller="Order" action="NeverSoldReport" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, configuration.authentication, configuration.activitylog" icon="icm icm-users2">
+        <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, system.rule, configuration.authentication, configuration.activitylog" icon="icm icm-users2">
             <siteMapNode id="customers" icon="bi:person" title="Customers" resKey="Admin.Customers.Customers" permissionNames="customer" controller="Customer" action="List" area="Admin" />
+            <siteMapNode id="rulesets" icon="bi:funnel" title="Customer rules" resKey="Common.CustomerRules" permissionNames="system.rule" controller="Rule" action="CustomerRules" area="Admin" />
             <siteMapNode id="customer-roles" icon="bi:people" title="Customer roles" resKey="Admin.Customers.CustomerRoles" permissionNames="customer.role" controller="CustomerRole" action="List" area="Admin" />
             <siteMapNode id="online-customers" icon="bi:box-arrow-in-right" title="Online customers" resKey="Admin.Customers.OnlineCustomers" permissionNames="customer" controller="Customer" action="OnlineCustomers" area="Admin" />
             <siteMapNode id="customer-reports" icon="bi:bar-chart-line" title="Customer reports" resKey="Admin.Customers.Reports" permissionNames="customer" controller="Customer" action="Reports" area="Admin" />
@@ -49,7 +51,8 @@
             <siteMapNode id="activity-log" icon="bi:eye" title="Activity Log" resKey="Admin.Configuration.ActivityLog.ActivityLog" permissionNames="configuration.activitylog" controller="ActivityLog" action="ActivityLogs" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion" icon="icm icm-bullhorn">
+        <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion, system.rule" icon="icm icm-bullhorn">
+            <siteMapNode id="rulesets" icon="bi:funnel" title="Cart rules" resKey="Common.CartRules" permissionNames="system.rule" controller="Rule" action="CartRules" area="Admin" />
             <siteMapNode id="discounts" icon="bi:percent" title="Discounts" resKey="Admin.Promotions.Discounts" permissionNames="promotion.discount" controller="Discount" action="List" area="Admin" />
             <siteMapNode id="affiliates" icon="bi:people-fill" title="Affiliates" resKey="Admin.Affiliates" permissionNames="promotion.affiliate" controller="Affiliate" action="List" area="Admin" />
             <siteMapNode id="newsletter-subscribers" icon="bi:envelope-open-heart" title="Newsletter subscriptions" resKey="Admin.Promotions.NewsletterSubscriptions" permissionNames="promotion.newsletter" controller="NewsletterSubscription" action="List" area="Admin" />

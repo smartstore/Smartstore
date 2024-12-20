@@ -11,6 +11,10 @@
 - Fixed number of attachments always 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminder.
 
+### Improvements
+
+- #214 Add backend menu entry for each Rule Builder scope.
+
 ### Bugfixes
 
 - Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.

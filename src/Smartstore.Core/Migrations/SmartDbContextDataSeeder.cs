@@ -44,6 +44,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Versandkosten während des Checkouts berechnen",
                 "Specifies whether shipping costs are displayed on the shopping cart page as long as the customer has not yet entered a shipping address. If activated, a note appears instead that the calculation will only take place at checkout.",
                 "Legt fest, ob Versandkosten auf der Warenkorbseite angezeigt werden, solange der Kunde noch keine Lieferanschrift eingegeben hat. Wenn aktiviert, erscheint stattdessen ein Hinweis, dass die Berechnung erst beim Checkout erfolgt.");
+
+            builder.AddOrUpdate("Common.CartRules", "Cart rules", "Warenkorbregeln");
+            builder.AddOrUpdate("Common.CustomerRules", "Customer rules", "Kundenregeln");
+            builder.AddOrUpdate("Common.ProductRules", "Product rules", "Produktregeln");
         }
     }
 }

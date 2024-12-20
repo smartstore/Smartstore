@@ -98,16 +98,55 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Rule.Read)]
         public IActionResult List()
         {
-            return View();
+            return View(new RuleListModel());
         }
 
         [Permission(Permissions.System.Rule.Read)]
-        public async Task<IActionResult> RuleSetList(GridCommand command)
+        public IActionResult CartRules()
         {
+            var model = CreateListModel(RuleScope.Cart);
+            return View(nameof(List), model);
+        }
+
+        [Permission(Permissions.System.Rule.Read)]
+        public IActionResult CustomerRules()
+        {
+            var model = CreateListModel(RuleScope.Customer);
+            return View(nameof(List), model);
+        }
+
+        [Permission(Permissions.System.Rule.Read)]
+        public IActionResult ProductRules()
+        {
+            var model = CreateListModel(RuleScope.Product);
+            return View(nameof(List), model);
+        }
+
+        [Permission(Permissions.System.Rule.Read)]
+        public async Task<IActionResult> RuleSetList(GridCommand command, RuleScope? scope)
+        {
+            TempData["RuleScope"] = scope;
+
+            switch (scope)
+            {
+                case RuleScope.Cart:
+                    TempData["ReturnUrl"] = Url.Action(nameof(CartRules));
+                    break;
+                case RuleScope.Customer:
+                    TempData["ReturnUrl"] = Url.Action(nameof(CustomerRules));
+                    break;
+                case RuleScope.Product:
+                    TempData["ReturnUrl"] = Url.Action(nameof(ProductRules));
+                    break;
+                default:
+                    TempData.Remove("ReturnUrl");
+                    break;
+            }
+
             var mapper = MapperFactory.GetMapper<RuleSetEntity, RuleSetModel>();
             var ruleSets = await _db.RuleSets
                 .AsNoTracking()
-                .ApplyStandardFilter(null, false, true)
+                .ApplyStandardFilter(scope, false, true)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -153,11 +192,15 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Rule.Create)]
-        public async Task<IActionResult> Create(RuleScope? scope)
+        public async Task<IActionResult> Create()
         {
-            var model = new RuleSetModel();
+            TempData.TryGetAndConvertValue<RuleScope?>("RuleScope", out var scope);
 
+            var model = new RuleSetModel();
             await PrepareModel(model, null, scope);
+
+            TempData.TryGetValueAs<string>("ReturnUrl", out var returnUrl);
+            ViewBag.ReturnUrl = returnUrl;
 
             return View(model);
         }
@@ -195,8 +238,10 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await MapperFactory.MapAsync<RuleSetEntity, RuleSetModel>(ruleSet);
-
             await PrepareModel(model, ruleSet);
+
+            TempData.TryGetValueAs<string>("ReturnUrl", out var returnUrl);
+            ViewBag.ReturnUrl = returnUrl;
 
             return View(model);
         }
@@ -639,6 +684,29 @@ namespace Smartstore.Admin.Controllers
                 hasMoreData = options.HasMoreData,
                 results = data
             });
+        }
+
+        private RuleListModel CreateListModel(RuleScope scope)
+        {
+            var model = new RuleListModel
+            {
+                Scope = scope
+            };
+
+            switch (scope)
+            {
+                case RuleScope.Cart:
+                    model.ScopeName = T("Common.CartRules");
+                    break;
+                case RuleScope.Customer:
+                    model.ScopeName = T("Common.CustomerRules");
+                    break;
+                case RuleScope.Product:
+                    model.ScopeName = T("Common.ProductRules");
+                    break;
+            }
+
+            return model;
         }
 
         private async Task<bool> IsProductAttributeRuleSetMissing(RuleCommand command)
