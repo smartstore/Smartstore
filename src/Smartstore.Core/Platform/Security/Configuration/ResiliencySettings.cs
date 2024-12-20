@@ -18,7 +18,7 @@ namespace Smartstore.Core.Security
 
         /// <summary>
         /// Gets or sets a value indicating whether NEW guest users should be forbidden 
-        /// if the request is a sub/secondary-request, e.g., an AJAX request, POST,
+        /// if the request is a sub/secondary request, e.g., an AJAX request, POST,
         /// script, media file, etc.
         /// </summary>
         /// <remarks>

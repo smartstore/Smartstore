@@ -27,18 +27,10 @@ namespace Smartstore.Core.Security
             var forbid = _settings.EnableOverloadProtection && _settings.ForbidNewGuestsIfSubRequest && httpContext != null;
             if (forbid)
             {
-                forbid = IsSubRequest(httpContext);
+                forbid = httpContext.Request.IsSubRequest();
             }
             
             return Task.FromResult(forbid);
-        }
-
-        private static bool IsSubRequest(HttpContext httpContext)
-        {
-            return
-                httpContext.GetEndpoint() == null ||
-                httpContext.Request.IsGet() == false ||
-                httpContext.Request.IsAjax() == true;  
         }
 
         private bool CheckDeny(UserType userType)
