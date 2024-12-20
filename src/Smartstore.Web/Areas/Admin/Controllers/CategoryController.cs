@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
@@ -8,6 +10,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
@@ -166,6 +169,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
         {
             var languageId = Services.WorkContext.WorkingLanguage.Id;
+            var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
             var query = _db.Categories.AsNoTracking();
 
             if (model.SearchCategoryName.HasValue())
@@ -183,20 +187,15 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await categories.SelectAwait(async x => new CategoryModel
+            var rows = await categories.SelectAwait(async x =>
             {
-                Id = x.Id,
-                Name = x.Name,
-                FullName = x.FullName,
-                Alias = x.Alias,
-                Published = x.Published,
-                DisplayOrder = x.DisplayOrder,
-                LimitedToStores = x.LimitedToStores,
-                ShowOnHomePage = x.ShowOnHomePage,
-                EditUrl = Url.Action(nameof(Edit), "Category", new { id = x.Id, area = "Admin" }),
-                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
-                Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>")
+                var model = await mapper.MapAsync(x);
+                model.EditUrl = Url.Action(nameof(Edit), "Category", new { id = x.Id, area = "Admin" });
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
+                model.Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>");
+
+                return model;
             })
             .AsyncToList();
 

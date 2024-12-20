@@ -48,13 +48,14 @@
         <column for="Alias" />
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
-		@if (!isSingleStoreMode)
-		{
-			<column for="LimitedToStores" halign="center" />
-		}
+        @if (!isSingleStoreMode)
+        {
+            <column for="LimitedToStores" halign="center" />
+        }
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
         <column for="ShowOnHomePage" halign="center" visible="false" />
+        <column for="IgnoreInMenus" halign="center" visible="false" />
     </columns>
 </datagrid>
 

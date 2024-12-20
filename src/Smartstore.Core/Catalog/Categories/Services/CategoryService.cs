@@ -18,8 +18,8 @@ namespace Smartstore.Core.Catalog.Categories
     {
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
-        // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId
-        internal readonly static CompositeFormat CategoryTreeKey = CompositeFormat.Parse("category:tree-{0}-{1}-{2}");
+        // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId, {3} ignored in menus
+        internal readonly static CompositeFormat CategoryTreeKey = CompositeFormat.Parse("category:tree-{0}-{1}-{2}-{3}");
         internal const string CategoryTreePatternKey = "category:tree-*";
 
         // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
@@ -459,22 +459,31 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(int rootCategoryId = 0, bool includeHidden = false, int storeId = 0)
+        public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(
+            int rootCategoryId = 0, 
+            bool includeHidden = false, 
+            int storeId = 0,
+            bool? ignoreInMenus = null)
         {
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? "0" : storeId.ToString();
             var rolesToken = _db.QuerySettings.IgnoreAcl || includeHidden ? "0" : string.Join(",", rolesIds);
-            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
+            var ignoreInMenusToken = ignoreInMenus == null ? string.Empty : ignoreInMenus.Value.ToString().ToLower();
+            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken, ignoreInMenusToken);
 
             var root = await _cache.GetAsync(cacheKey, async o =>
             {
                 o.ExpiresIn(CategoryTreeCacheDuration);
 
-                var categoryQuery = _db.Categories
-                    .ApplyStandardFilter(includeHidden, includeHidden ? null : rolesIds, includeHidden ? 0 : storeId);
+                var query = _db.Categories.AsQueryable();
+                if (ignoreInMenus != null)
+                {
+                    query = query.Where(x => x.IgnoreInMenus == ignoreInMenus.Value);
+                }
 
                 // (Perf) don't fetch every field from db.
-                var query = categoryQuery
+                var categories = await query
+                    .ApplyStandardFilter(includeHidden, includeHidden ? null : rolesIds, includeHidden ? 0 : storeId)
                     .Select(x => new
                     {
                         x.Id,
@@ -490,9 +499,9 @@ namespace Smartstore.Core.Catalog.Categories
                         x.BadgeStyle,
                         x.LimitedToStores,
                         x.SubjectToAcl
-                    });
+                    })
+                    .ToListAsync();
 
-                var categories = await query.ToListAsync();
                 var unsortedNodes = categories.Select(x => new CategoryNode
                 {
                     Id = x.Id,

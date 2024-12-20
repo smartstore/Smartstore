@@ -19,17 +19,13 @@ namespace Smartstore.Core.Catalog.Categories
         Localization,
         StoreMapping,
         Acl,
-        Hierarchy
+        Hierarchy,
+        IgnoreInMenus
     }
 
-    public class CategoryTreeChangedEvent
+    public class CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
     {
-        public CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
-        {
-            Reason = reason;
-        }
-
-        public CategoryTreeChangeReason Reason { get; private set; }
+        public CategoryTreeChangeReason Reason { get; private set; } = reason;
     }
 
     internal class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
@@ -37,31 +33,32 @@ namespace Smartstore.Core.Catalog.Categories
         #region static
 
         // Hierarchy affecting category prop names.
-        private static readonly string[] _h = new string[]
-        {
+        private static readonly string[] _h =
+        [
             nameof(Category.ParentId),
             nameof(Category.Published),
             nameof(Category.Deleted),
             nameof(Category.DisplayOrder)
-        };
+        ];
 
         // Visibility affecting category prop names.
-        private static readonly string[] _a = new string[]
-        {
+        private static readonly string[] _a =
+        [
             nameof(Category.LimitedToStores),
-            nameof(Category.SubjectToAcl)
-        };
+            nameof(Category.SubjectToAcl),
+            nameof(Category.IgnoreInMenus)
+        ];
 
         // Data affecting category prop names.
-        private static readonly string[] _d = new string[]
-        {
+        private static readonly string[] _d =
+        [
             nameof(Category.Name),
             nameof(Category.Alias),
             nameof(Category.ExternalLink),
             nameof(Category.MediaFileId),
             nameof(Category.BadgeText),
             nameof(Category.BadgeStyle)
-        };
+        ];
 
         #endregion
 
@@ -69,7 +66,7 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly ICacheManager _cache;
         private readonly IEventPublisher _eventPublisher;
 
-        private readonly bool[] _handledReasons = new bool[(int)CategoryTreeChangeReason.Hierarchy + 1];
+        private readonly bool[] _handledReasons = new bool[(int)CategoryTreeChangeReason.IgnoreInMenus + 1];
         private bool _invalidated;
 
         public CategoryTreeChangeHook(
@@ -128,17 +125,22 @@ namespace Smartstore.Core.Catalog.Categories
                 }
                 else if (modProps.Keys.Any(x => _a.Contains(x)))
                 {
-                    if (modProps.ContainsKey("LimitedToStores"))
+                    if (modProps.ContainsKey(nameof(Category.LimitedToStores)))
                     {
                         // Don't nuke store agnostic trees.
                         await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "*", "[^0]*"));
                         await PublishEvent(CategoryTreeChangeReason.StoreMapping);
                     }
-                    if (modProps.ContainsKey("SubjectToAcl"))
+                    if (modProps.ContainsKey(nameof(Category.SubjectToAcl)))
                     {
                         // Don't nuke ACL agnostic trees.
                         await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "[^0]*", "*"));
                         await PublishEvent(CategoryTreeChangeReason.Acl);
+                    }
+                    if (modProps.ContainsKey(nameof(Category.IgnoreInMenus)))
+                    {
+                        await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "*", "*", "[^0]*"));
+                        await PublishEvent(CategoryTreeChangeReason.IgnoreInMenus);
                     }
                 }
                 else if (modProps.Keys.Any(x => _d.Contains(x)))
@@ -301,9 +303,13 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private static string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*")
+        private static string BuildCacheKeyPattern(
+            string includeHiddenToken = "*", 
+            string rolesToken = "*", 
+            string storeToken = "*",
+            string ignoredInMenusToken = "*")
         {
-            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
+            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken, ignoredInMenusToken);
         }
     }
 }

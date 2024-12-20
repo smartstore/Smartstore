@@ -64,6 +64,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(ParentId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(TreePath), Name = "IX_Category_TreePath")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
+    [Index(nameof(IgnoreInMenus), Name = "IX_Category_IgnoreInMenus")]
     [LocalizedEntity("Published and !Deleted")]
     public partial class Category : 
         EntityWithDiscounts,
@@ -232,6 +233,11 @@ namespace Smartstore.Core.Catalog.Categories
         /// Gets or sets a value indicating whether to show the category on home page.
         /// </summary>
         public bool ShowOnHomePage { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore the category in menus.
+        /// </summary>
+        public bool IgnoreInMenus { get; set; }
 
         /// <inheritdoc/>
         public bool LimitedToStores { get; set; }

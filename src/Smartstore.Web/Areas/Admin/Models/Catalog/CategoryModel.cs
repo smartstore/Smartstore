@@ -77,6 +77,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ShowOnHomePage")]
         public bool ShowOnHomePage { get; set; }
 
+        [LocalizedDisplay("*IgnoreInMenus")]
+        public bool IgnoreInMenus { get; set; }
+
         [LocalizedDisplay("*Published")]
         public bool Published { get; set; }
 

@@ -98,6 +98,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <param name="rootCategoryId">Specifies which node to return as root.</param>
         /// <param name="includeHidden"><c>false</c> excludes unpublished and ACL-inaccessible categories.</param>
         /// <param name="storeId">&gt; 0 = apply store mapping, 0 to bypass store mapping.</param>
+        /// <param name="ignoreInMenus">Applies a filter by <see cref="Category.IgnoreInMenus"/> if not <c>null</c>.</param>
         /// <returns>The category tree representation.</returns>
         /// <remarks>
         /// This method puts the tree result into application cache, so subsequent calls are very fast.
@@ -108,6 +109,7 @@ namespace Smartstore.Core.Catalog.Categories
         Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(
             int rootCategoryId = 0,
             bool includeHidden = false,
-            int storeId = 0);
+            int storeId = 0,
+            bool? ignoreInMenus = null);
     }
 }
