@@ -478,6 +478,8 @@ namespace Smartstore.Core.Catalog.Categories
                 var query = _db.Categories.AsQueryable();
                 if (ignoreInMenus != null)
                 {
+                    // TODO: (mg) Filter by IgnoreInMenus in memory AFTER fetching data. Remove the index.
+                    // TODO: (mg) Don't forget to update changelog.
                     query = query.Where(x => x.IgnoreInMenus == ignoreInMenus.Value);
                 }
 

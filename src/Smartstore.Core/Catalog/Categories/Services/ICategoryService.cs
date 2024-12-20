@@ -110,6 +110,7 @@ namespace Smartstore.Core.Catalog.Categories
             int rootCategoryId = 0,
             bool includeHidden = false,
             int storeId = 0,
+            // TODO: (mg) Don't expose this setting in contract or elsewhere. If a category is ignored, it is simply hidden, so that it is handled by includeHidden.
             bool? ignoreInMenus = null);
     }
 }
