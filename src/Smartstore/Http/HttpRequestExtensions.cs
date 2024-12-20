@@ -159,5 +159,58 @@ namespace Smartstore
             // Requests to .map files may end with a semicolon
             return MimeTypes.TryMapNameToMimeType(request.Path.Value.TrimEnd(';'), out _);
         }
+
+        /// <summary>
+        /// Checks if the request has a referrer header and if that referrer
+        /// points to an external resource (i.e., not the current server).
+        /// </summary>
+        /// <returns>
+        /// True if the referrer is external, false otherwise.
+        /// If no referrer is present or i it is relatie, returns false.
+        /// </returns>
+        public static bool IsExternalReferrer(this HttpRequest request)
+        {
+            if (request is null)
+                return false;
+
+            var referrerHeader = UrlReferrer(request);
+
+            // If there's no Referrer header, we assume it's not external.
+            if (string.IsNullOrWhiteSpace(referrerHeader))
+            {
+                return false;
+            }
+
+            if (!Uri.TryCreate(referrerHeader, UriKind.Absolute, out var referrerUri))
+            {
+                // If the Referer header is not a valid URI, treat it as non-external.
+                return false;
+            }
+
+            // Compare the host of the referrer with the current request's host.
+            // If they don't match, the referrer is external.
+            return request.Host.Host != referrerUri.Host;
+        }
+
+        /// <summary>
+        /// Returns true if the requested resource is a sub/secondary request, 
+        /// e.g., an AJAX request, POST, script, stylesheet, media file, etc.
+        /// If the referrer points to an external resource, the request is NOT considered a sub-request.
+        /// </summary>
+        public static bool IsSubRequest(this HttpRequest request)
+        {
+            if (request is null)
+                return false;
+
+            if (IsExternalReferrer(request))
+            {
+                return false;
+            }
+
+            return
+                request.HttpContext.GetEndpoint() == null ||
+                IsGet(request) == false ||
+                IsAjax(request) == true;
+        }
     }
 }
