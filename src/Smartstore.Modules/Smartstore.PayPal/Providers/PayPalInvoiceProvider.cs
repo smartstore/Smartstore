@@ -124,7 +124,7 @@ namespace Smartstore.PayPal.Providers
             {
                 PayPalHelper.HandleException(ex, T);
 
-                Logger.LogError(ex, "PayPay pay upon invoice failed.");
+                Logger.LogError(ex, "PayPal pay upon invoice failed.");
 
                 throw new PaymentException(T("Plugins.Smartstore.PayPal.GenericErrorMessage"));
             }
