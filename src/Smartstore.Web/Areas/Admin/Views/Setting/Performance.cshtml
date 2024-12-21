@@ -1,0 +1,193 @@
+﻿@model PerformanceSettingsModel
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.Performance").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Performance">
+
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.Settings.Performance")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="performancesettings-edit" sm-nav-style="Material">
+        <tab sm-title="Overload protection" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ResiliencySettings.EnableOverloadProtection" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="ResiliencySettings.EnableOverloadProtection" data-toggler-for="#resiliency-settings" />
+                    </div>
+                </div>
+                <div id="resiliency-settings">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.ForbidNewGuestsIfSubRequest" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.ForbidNewGuestsIfSubRequest" />
+                        </div>
+                    </div>
+
+                    <div class="adminRow">
+                        <div class="admin-config-group">
+                            <div class="title">
+                                @T("Admin.Configuration.Settings.Resiliency.LongTraffic")
+                            </div>
+                            <div class="text-muted">
+                                @T("Admin.Configuration.Settings.Resiliency.LongTrafficNotes")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.LongTrafficWindow" />
+                        </div>
+                        <div class="adminData">
+                            <input type="time" step="1" asp-for="ResiliencySettings.LongTrafficWindow" />
+                            <span asp-validation-for="ResiliencySettings.LongTrafficWindow"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.LongTrafficLimitGuest" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.LongTrafficLimitGuest" />
+                            <span asp-validation-for="ResiliencySettings.LongTrafficLimitGuest"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.LongTrafficLimitBot" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.LongTrafficLimitBot" />
+                            <span asp-validation-for="ResiliencySettings.LongTrafficLimitBot"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.LongTrafficLimitGlobal" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.LongTrafficLimitGlobal" />
+                            <span asp-validation-for="ResiliencySettings.LongTrafficLimitGlobal"></span>
+                        </div>
+                    </div>
+
+                    <div class="adminRow">
+                        <div class="admin-config-group">
+                            <div class="title">
+                                @T("Admin.Configuration.Settings.Resiliency.PeakTraffic")
+                            </div>
+                            <div class="text-muted">
+                                @T("Admin.Configuration.Settings.Resiliency.PeakTrafficNotes")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.PeakTrafficWindow" />
+                        </div>
+                        <div class="adminData">
+                            <input type="time" step="1" asp-for="ResiliencySettings.PeakTrafficWindow" />
+                            <span asp-validation-for="ResiliencySettings.PeakTrafficWindow"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.PeakTrafficLimitGuest" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.PeakTrafficLimitGuest" />
+                            <span asp-validation-for="ResiliencySettings.PeakTrafficLimitGuest"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.PeakTrafficLimitBot" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.PeakTrafficLimitBot" />
+                            <span asp-validation-for="ResiliencySettings.PeakTrafficLimitBot"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ResiliencySettings.PeakTrafficLimitGlobal" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="ResiliencySettings.PeakTrafficLimitGlobal" />
+                            <span asp-validation-for="ResiliencySettings.PeakTrafficLimitGlobal"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="Cache">
+            <div class="alert alert-warning alert-dismissible fade show">
+                Lorem ipsum
+                <button type="button" class="btn-close" data-dismiss="alert"></button>
+            </div>
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.AlwaysPrefetchTranslations" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.AlwaysPrefetchTranslations" />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.AlwaysPrefetchUrlSlugs" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.AlwaysPrefetchUrlSlugs" />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.CacheSegmentSize" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.CacheSegmentSize" />
+                        <span asp-validation-for="PerformanceSettings.CacheSegmentSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.MediaDupeDetectorMaxCacheSize" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.MediaDupeDetectorMaxCacheSize" />
+                        <span asp-validation-for="PerformanceSettings.MediaDupeDetectorMaxCacheSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.MaxUnavailableAttributeCombinations" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.MaxUnavailableAttributeCombinations" />
+                        <span asp-validation-for="PerformanceSettings.MaxUnavailableAttributeCombinations"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+
+</form>

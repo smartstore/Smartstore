@@ -14,7 +14,7 @@ namespace Smartstore.Core.Security
         /// When set to <c>true</c>, the system applies the defined traffic limits and overload protection policies.
         /// If set to <c>false</c>, overload protection is disabled, and no traffic limits are enforced.
         /// </summary>
-        public bool EnableOverloadProtection { get; set; } = false;
+        public bool EnableOverloadProtection { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether NEW guest users should be forbidden 
