@@ -151,16 +151,16 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     ControllerName = "Setting",
                     ActionName = "DataExchange"
                 },
-                //new MenuItem
-                //{
-                //    Id = "performance",
-                //    Text = "Leistung",
-                //    IconLibrary = "bi",
-                //    Icon = "speedometer2",
-                //    PermissionNames = perm,
-                //    ControllerName = "Setting",
-                //    ActionName = "Performance"
-                //},
+                new MenuItem
+                {
+                    Id = "performance",
+                    Text = "Performance",
+                    IconLibrary = "bi",
+                    Icon = "speedometer2",
+                    PermissionNames = perm,
+                    ControllerName = "Setting",
+                    ActionName = "Performance"
+                },
                 new MenuItem
                 {
                     IsGroupHeader = true,
