@@ -245,6 +245,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.ShowOnHomePage);
                 row.SetProperty(context.Result, (x) => x.HasDiscountsApplied);
                 row.SetProperty(context.Result, (x) => x.Published, true);
+                row.SetProperty(context.Result, (x) => x.IgnoreInMenus);
                 row.SetProperty(context.Result, (x) => x.DisplayOrder);
                 row.SetProperty(context.Result, (x) => x.Alias);
                 row.SetProperty(context.Result, (x) => x.DefaultViewMode);

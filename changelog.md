@@ -5,6 +5,7 @@
 ### New Features
 
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
+- #501 Make a category option for ignoring a category in menus.
 - MegaSearch: Added setting to indicate whether to split compound words.
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.

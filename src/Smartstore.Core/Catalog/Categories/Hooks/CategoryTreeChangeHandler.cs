@@ -19,8 +19,7 @@ namespace Smartstore.Core.Catalog.Categories
         Localization,
         StoreMapping,
         Acl,
-        Hierarchy,
-        IgnoreInMenus
+        Hierarchy
     }
 
     public class CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
@@ -38,15 +37,15 @@ namespace Smartstore.Core.Catalog.Categories
             nameof(Category.ParentId),
             nameof(Category.Published),
             nameof(Category.Deleted),
-            nameof(Category.DisplayOrder)
+            nameof(Category.DisplayOrder),
+            nameof(Category.IgnoreInMenus)
         ];
 
         // Visibility affecting category prop names.
         private static readonly string[] _a =
         [
             nameof(Category.LimitedToStores),
-            nameof(Category.SubjectToAcl),
-            nameof(Category.IgnoreInMenus)
+            nameof(Category.SubjectToAcl)
         ];
 
         // Data affecting category prop names.
@@ -66,7 +65,7 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly ICacheManager _cache;
         private readonly IEventPublisher _eventPublisher;
 
-        private readonly bool[] _handledReasons = new bool[(int)CategoryTreeChangeReason.IgnoreInMenus + 1];
+        private readonly bool[] _handledReasons = new bool[(int)CategoryTreeChangeReason.Hierarchy + 1];
         private bool _invalidated;
 
         public CategoryTreeChangeHook(
@@ -136,11 +135,6 @@ namespace Smartstore.Core.Catalog.Categories
                         // Don't nuke ACL agnostic trees.
                         await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "[^0]*", "*"));
                         await PublishEvent(CategoryTreeChangeReason.Acl);
-                    }
-                    if (modProps.ContainsKey(nameof(Category.IgnoreInMenus)))
-                    {
-                        await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "*", "*", "[^0]*"));
-                        await PublishEvent(CategoryTreeChangeReason.IgnoreInMenus);
                     }
                 }
                 else if (modProps.Keys.Any(x => _d.Contains(x)))
@@ -306,10 +300,9 @@ namespace Smartstore.Core.Catalog.Categories
         private static string BuildCacheKeyPattern(
             string includeHiddenToken = "*", 
             string rolesToken = "*", 
-            string storeToken = "*",
-            string ignoredInMenusToken = "*")
+            string storeToken = "*")
         {
-            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken, ignoredInMenusToken);
+            return CategoryService.CategoryTreeKey.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
         }
     }
 }

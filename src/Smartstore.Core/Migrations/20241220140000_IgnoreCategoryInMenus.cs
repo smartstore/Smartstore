@@ -9,33 +9,18 @@ namespace Smartstore.Core.Data.Migrations
     {
         const string TableName = nameof(Category);
         const string IgnoreInMenus = nameof(Category.IgnoreInMenus);
-        const string IndexName = "IX_Category_IgnoreInMenus";
 
         public override void Up()
         {
             if (!Schema.Table(TableName).Column(IgnoreInMenus).Exists())
             {
                 Create.Column(IgnoreInMenus).OnTable(TableName).AsBoolean().NotNullable().WithDefaultValue(false);
-
-                Create.Index(IndexName)
-                    .OnTable(TableName)
-                    .OnColumn(IgnoreInMenus)
-                    .Ascending()
-                    .WithOptions()
-                    .NonClustered();
             }
         }
 
         public override void Down()
         {
-            var table = Schema.Table(TableName);
-
-            if (table.Index(IndexName).Exists())
-            {
-                Delete.Index(IndexName).OnTable(TableName);
-            }
-
-            if (table.Column(IgnoreInMenus).Exists())
+            if (Schema.Table(TableName).Column(IgnoreInMenus).Exists())
             {
                 Delete.Column(IgnoreInMenus).FromTable(TableName);
             }
@@ -54,8 +39,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Categories.Fields.IgnoreInMenus",
                 "Ignore in menus",
                 "In Menüs ignorieren",
-                "Specifies whether the category is ignored in menus.",
-                "Legt fest, ob die Warengruppe in Menüs ignoriert wird.");
+                "Specifies whether the category is ignored in menus. In comparison to unpublished categories, products remain visible if this option and \"Include products from subcategories\" are activated.",
+                "Legt fest, ob die Warengruppe in Menüs ignoriert wird. Im Gegensatz zu unveröffentlichten Warengruppen bleiben Produkte sichtbar, wenn diese Option und \"Produkte von Unterkategorien einschließen\" aktiviert sind.");
         }
     }
 }

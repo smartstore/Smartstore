@@ -18,8 +18,8 @@ namespace Smartstore.Core.Catalog.Categories
     {
         internal static TimeSpan CategoryTreeCacheDuration = TimeSpan.FromHours(6);
 
-        // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId, {3} ignored in menus
-        internal readonly static CompositeFormat CategoryTreeKey = CompositeFormat.Parse("category:tree-{0}-{1}-{2}-{3}");
+        // {0} = IncludeHidden, {1} = CustomerRoleIds, {2} = StoreId
+        internal readonly static CompositeFormat CategoryTreeKey = CompositeFormat.Parse("category:tree-{0}-{1}-{2}");
         internal const string CategoryTreePatternKey = "category:tree-*";
 
         // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
@@ -462,29 +462,19 @@ namespace Smartstore.Core.Catalog.Categories
         public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(
             int rootCategoryId = 0, 
             bool includeHidden = false, 
-            int storeId = 0,
-            bool? ignoreInMenus = null)
+            int storeId = 0)
         {
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? "0" : storeId.ToString();
             var rolesToken = _db.QuerySettings.IgnoreAcl || includeHidden ? "0" : string.Join(",", rolesIds);
-            var ignoreInMenusToken = ignoreInMenus == null ? string.Empty : ignoreInMenus.Value.ToString().ToLower();
-            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken, ignoreInMenusToken);
+            var cacheKey = CategoryTreeKey.FormatInvariant(includeHidden.ToString().ToLower(), rolesToken, storeToken);
 
             var root = await _cache.GetAsync(cacheKey, async o =>
             {
                 o.ExpiresIn(CategoryTreeCacheDuration);
 
-                var query = _db.Categories.AsQueryable();
-                if (ignoreInMenus != null)
-                {
-                    // TODO: (mg) Filter by IgnoreInMenus in memory AFTER fetching data. Remove the index.
-                    // TODO: (mg) Don't forget to update changelog.
-                    query = query.Where(x => x.IgnoreInMenus == ignoreInMenus.Value);
-                }
-
                 // (Perf) don't fetch every field from db.
-                var categories = await query
+                var categories = await _db.Categories
                     .ApplyStandardFilter(includeHidden, includeHidden ? null : rolesIds, includeHidden ? 0 : storeId)
                     .Select(x => new
                     {
@@ -500,26 +490,33 @@ namespace Smartstore.Core.Catalog.Categories
                         x.BadgeText,
                         x.BadgeStyle,
                         x.LimitedToStores,
-                        x.SubjectToAcl
+                        x.SubjectToAcl,
+                        x.IgnoreInMenus
                     })
                     .ToListAsync();
 
-                var unsortedNodes = categories.Select(x => new CategoryNode
+                if (!includeHidden)
                 {
-                    Id = x.Id,
-                    ParentId = x.ParentId,
-                    Name = x.Name,
-                    ExternalLink = x.ExternalLink,
-                    Alias = x.Alias,
-                    MediaFileId = x.MediaFileId,
-                    Published = x.Published,
-                    DisplayOrder = x.DisplayOrder,
-                    UpdatedOnUtc = x.UpdatedOnUtc,
-                    BadgeText = x.BadgeText,
-                    BadgeStyle = x.BadgeStyle,
-                    LimitedToStores = x.LimitedToStores,
-                    SubjectToAcl = x.SubjectToAcl
-                });
+                    categories = categories.Where(x => !x.IgnoreInMenus).ToList();
+                }
+
+                var unsortedNodes = categories
+                    .Select(x => new CategoryNode
+                    {
+                        Id = x.Id,
+                        ParentId = x.ParentId,
+                        Name = x.Name,
+                        ExternalLink = x.ExternalLink,
+                        Alias = x.Alias,
+                        MediaFileId = x.MediaFileId,
+                        Published = x.Published,
+                        DisplayOrder = x.DisplayOrder,
+                        UpdatedOnUtc = x.UpdatedOnUtc,
+                        BadgeText = x.BadgeText,
+                        BadgeStyle = x.BadgeStyle,
+                        LimitedToStores = x.LimitedToStores,
+                        SubjectToAcl = x.SubjectToAcl
+                    });
 
                 var nodeMap = unsortedNodes.ToMultimap(x => x.ParentId.GetValueOrDefault(), x => x);
                 var curParent = new TreeNode<ICategoryNode>(new CategoryNode { Name = "Home" });

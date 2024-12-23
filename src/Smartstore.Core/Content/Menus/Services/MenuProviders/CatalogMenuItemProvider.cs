@@ -36,7 +36,7 @@ namespace Smartstore.Core.Content.Menus
             }
             else
             {
-                var tree = await _categoryService.GetCategoryTreeAsync(0, false, _storeContext.CurrentStore.Id, false);
+                var tree = await _categoryService.GetCategoryTreeAsync(0, false, _storeContext.CurrentStore.Id);
                 var randomId = CommonHelper.GenerateRandomInteger(0, 1000000);
 
                 if (request.Entity.BeginGroup)

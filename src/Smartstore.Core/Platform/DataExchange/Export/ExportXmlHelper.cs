@@ -426,6 +426,7 @@ namespace Smartstore.Core.DataExchange.Export
                 _writer.WriteElementString(nameof(Category.ShowOnHomePage), entity.ShowOnHomePage.ToString());
                 _writer.WriteElementString(nameof(Category.HasDiscountsApplied), entity.HasDiscountsApplied.ToString());
                 _writer.WriteElementString(nameof(Category.Published), entity.Published.ToString());
+                _writer.WriteElementString(nameof(Category.IgnoreInMenus), entity.IgnoreInMenus.ToString());
                 _writer.WriteElementString(nameof(Category.Deleted), entity.Deleted.ToString());
                 _writer.WriteElementString(nameof(Category.DisplayOrder), entity.DisplayOrder.ToString());
                 _writer.WriteElementString(nameof(Category.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));

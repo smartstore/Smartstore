@@ -74,14 +74,14 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*PageSizeOptions")]
         public string PageSizeOptions { get; set; }
 
-        [LocalizedDisplay("*ShowOnHomePage")]
-        public bool ShowOnHomePage { get; set; }
+        [LocalizedDisplay("*Published")]
+        public bool Published { get; set; }
 
         [LocalizedDisplay("*IgnoreInMenus")]
         public bool IgnoreInMenus { get; set; }
 
-        [LocalizedDisplay("*Published")]
-        public bool Published { get; set; }
+        [LocalizedDisplay("*ShowOnHomePage")]
+        public bool ShowOnHomePage { get; set; }
 
         [LocalizedDisplay("*Deleted")]
         public bool Deleted { get; set; }
