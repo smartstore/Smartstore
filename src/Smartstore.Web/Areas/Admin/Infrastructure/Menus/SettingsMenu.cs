@@ -154,7 +154,7 @@ namespace Smartstore.Admin.Infrastructure.Menus
                 new MenuItem
                 {
                     Id = "performance",
-                    Text = "Performance",
+                    Text = T("Admin.Configuration.Settings.Performance"),
                     IconLibrary = "bi",
                     Icon = "speedometer2",
                     PermissionNames = perm,

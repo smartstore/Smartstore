@@ -41,9 +41,16 @@
                         </div>
                     </div>
 
+                    <div class="adminRow mb-0 mt-4">
+                        <div class="alert alert-warning w-100 m-0 alert-dismissible fade show">
+                            Änderungen an den folgenden Einstellungen werden erst nach einem Neustart der Anwendung wirksam.
+                            <button type="button" class="btn-close" data-dismiss="alert"></button>
+                        </div>
+                    </div>
+
                     <div class="adminRow">
                         <div class="admin-config-group">
-                            <div class="title">
+                            <div class="title mt-0 pt-0">
                                 @T("Admin.Configuration.Settings.Resiliency.LongTraffic")
                             </div>
                             <div class="text-muted">
@@ -139,7 +146,7 @@
         </tab>
         <tab sm-title="Cache">
             <div class="alert alert-warning alert-dismissible fade show">
-                Lorem ipsum
+                @T("Admin.Configuration.Settings.Performance.Hint")
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
             </div>
             <div class="adminContent">

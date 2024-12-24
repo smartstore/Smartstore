@@ -39,19 +39,12 @@ namespace Smartstore.Core.Security
         public TimeSpan LongTrafficWindow { get; set; } = TimeSpan.FromMinutes(1);
 
         /// <summary>
-        /// Gets or sets the duration of the peak traffic observation window.
-        /// The peak traffic window defines the shorter period used for detecting sudden traffic spikes.
-        /// This setting is useful for reacting to bursts of traffic that occur in a matter of seconds.
-        /// </summary>
-        public TimeSpan PeakTrafficWindow { get; set; } = TimeSpan.FromSeconds(2);
-
-        /// <summary>
         /// Gets or sets the long traffic limit for guest users.
         /// This limit represents the maximum number of requests allowed from guest users 
         /// within the duration of the <see cref="LongTrafficWindow"/>.
         /// A value of <c>null</c> means there is no limit applied for guest users.
         /// </summary>
-        public int? LongTrafficLimitGuest { get; set; } = 600;
+        public int? LongTrafficLimitGuest { get; set; } = 300;
 
         /// <summary>
         /// Gets or sets the long traffic limit for bots.
@@ -59,27 +52,11 @@ namespace Smartstore.Core.Security
         /// within the duration of the <see cref="LongTrafficWindow"/>.
         /// A value of <c>null</c> means there is no limit applied for bots.
         /// </summary>
-        public int? LongTrafficLimitBot { get; set; } = 400;
-
-        /// <summary>
-        /// Gets or sets the peak traffic limit for guest users.
-        /// This limit represents the maximum number of requests allowed from guest users 
-        /// within the duration of the <see cref="PeakTrafficWindow"/>.
-        /// A value of <c>null</c> means there is no limit applied for guest users during peak windows.
-        /// </summary>
-        public int? PeakTrafficLimitGuest { get; set; } = 50;
-
-        /// <summary>
-        /// Gets or sets the peak traffic limit for bots.
-        /// This limit represents the maximum number of requests allowed from bots 
-        /// within the duration of the <see cref="PeakTrafficWindow"/>.
-        /// A value of <c>null</c> means there is no limit applied for bots during peak windows.
-        /// </summary>
-        public int? PeakTrafficLimitBot { get; set; } = 30;
+        public int? LongTrafficLimitBot { get; set; } = 200;
 
         /// <summary>
         /// Gets or sets the global traffic limit for both guests and bots together, 
-        /// within the duration of the <see cref="PeakTrafficWindow"/>.
+        /// within the duration of the <see cref="LongTrafficWindow"/>.
         /// </summary>
         /// <remarks>
         /// This global limit applies to the combined traffic from guests and bots.
@@ -96,7 +73,30 @@ namespace Smartstore.Core.Security
         ///   `LongTrafficLimitGlobal` (e.g., 800) requests are processed in total.
         /// - If this property is <c>null</c>, no global limit is enforced for the long traffic window.
         /// </remarks>
-        public int? LongTrafficLimitGlobal { get; set; } = 1000;
+        public int? LongTrafficLimitGlobal { get; set; } = 500;
+
+        /// <summary>
+        /// Gets or sets the duration of the peak traffic observation window.
+        /// The peak traffic window defines the shorter period used for detecting sudden traffic spikes.
+        /// This setting is useful for reacting to bursts of traffic that occur in a matter of seconds.
+        /// </summary>
+        public TimeSpan PeakTrafficWindow { get; set; } = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// Gets or sets the peak traffic limit for guest users.
+        /// This limit represents the maximum number of requests allowed from guest users 
+        /// within the duration of the <see cref="PeakTrafficWindow"/>.
+        /// A value of <c>null</c> means there is no limit applied for guest users during peak windows.
+        /// </summary>
+        public int? PeakTrafficLimitGuest { get; set; } = 30;
+
+        /// <summary>
+        /// Gets or sets the peak traffic limit for bots.
+        /// This limit represents the maximum number of requests allowed from bots 
+        /// within the duration of the <see cref="PeakTrafficWindow"/>.
+        /// A value of <c>null</c> means there is no limit applied for bots during peak windows.
+        /// </summary>
+        public int? PeakTrafficLimitBot { get; set; } = 20;
 
         /// <summary>
         /// Gets or sets the global peak traffic limit for both guests and bots together, 
@@ -118,6 +118,6 @@ namespace Smartstore.Core.Security
         /// This property is particularly useful in scenarios where the system needs to prioritize overall stability over 
         /// individual user type fairness.
         /// </remarks>
-        public int? PeakTrafficLimitGlobal { get; set; } = 80;
+        public int? PeakTrafficLimitGlobal { get; set; } = 50;
     }
 }
