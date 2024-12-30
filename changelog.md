@@ -32,7 +32,8 @@
 - MegaMenu did not clear the output cache when any settings were changed.
 - MegaSearch: The names of unpublished product tags were not indexed.
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
-- Fixed Cookie migration problem
+- Fixed Cookie migration problem.
+- Forum: Do not include posts of deleted customers in page navigator.
 
 
 ## Smartstore 6.0.0
