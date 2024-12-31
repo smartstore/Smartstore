@@ -21,7 +21,7 @@
     <div asp-validation-summary="All"></div>
 
     <tabstrip id="performancesettings-edit" sm-nav-style="Material">
-        <tab sm-title="Overload protection" sm-selected="true">
+        <tab sm-title="@T("Admin.Configuration.Settings.Performance.Resiliency")" sm-selected="true">
             <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
@@ -43,7 +43,7 @@
 
                     <div class="adminRow mb-0 mt-4">
                         <div class="alert alert-warning w-100 m-0 alert-dismissible fade show">
-                            Änderungen an den folgenden Einstellungen werden erst nach einem Neustart der Anwendung wirksam.
+                            @T("Admin.Common.RestartHint")
                             <button type="button" class="btn-close" data-dismiss="alert"></button>
                         </div>
                     </div>
@@ -144,12 +144,22 @@
                 </div>
             </div>
         </tab>
-        <tab sm-title="Cache">
+        <tab sm-title="@T("Admin.Configuration.Settings.Performance.Cache")">
             <div class="alert alert-warning alert-dismissible fade show">
                 @T("Admin.Configuration.Settings.Performance.Hint")
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
             </div>
             <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerformanceSettings.Yodele" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerformanceSettings.Yodele" />
+                        <span asp-validation-for="PerformanceSettings.Yodele"></span>
+                    </div>
+                </div>
+
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="PerformanceSettings.AlwaysPrefetchTranslations" />
