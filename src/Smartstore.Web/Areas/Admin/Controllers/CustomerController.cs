@@ -897,6 +897,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 _db.Customers.Remove(customer);
+                await _db.SaveChangesAsync();
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomer, T("ActivityLog.DeleteCustomer", customer.Id));
                 NotifySuccess(T("Admin.Customers.Customers.Deleted"));
