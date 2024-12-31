@@ -4,6 +4,7 @@
 
 ### New Features
 
+- #1142 Implement configurable Content-Security-Policy (CSP) HTTP header.
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
 - #501 New category option for ignoring a category in menus.
 - MegaSearch: Added setting to indicate whether to split compound words.

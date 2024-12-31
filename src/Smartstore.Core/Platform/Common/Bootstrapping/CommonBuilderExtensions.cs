@@ -57,19 +57,32 @@ namespace Smartstore.Core.Bootstrapping
             return app.Use(async (context, next) =>
             {
                 // Add X-Powered-By header
-                context.Response.Headers["X-Powered-By"] = $"Smartstore {SmartstoreVersion.CurrentVersion}";
+                context.Response.Headers.XPoweredBy = $"Smartstore {SmartstoreVersion.CurrentVersion}";
                 await next(context);
             });
         }
 
         /// <summary>
-        /// Adds X-Frame-Options = "SAMEORIGIN" HTTP header.
+        /// Adds the "Content-Security-Policy" HTTP header or "Content-Security-Policy-Report-Only"
+        /// if <see cref="SmartConfiguration.ContentSecurityPolicyConfiguration.Report"/> is set to <c>true</c>.
         /// </summary>
-        public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
+        public static IApplicationBuilder UseContentSecurityHeaders(this IApplicationBuilder app, IApplicationContext appContext)
         {
             return app.Use(async (context, next) =>
             {
-                context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+                var policy = appContext.AppConfiguration.ContentSecurityPolicy;
+                if (policy?.Enabled ?? false)
+                {
+                    if (policy.Report)
+                    {
+                        context.Response.Headers.ContentSecurityPolicyReportOnly = policy.ToString();
+                    }
+                    else
+                    {
+                        context.Response.Headers.ContentSecurityPolicy = policy.ToString();
+                    }
+                }
+
                 await next(context);
             });
         }

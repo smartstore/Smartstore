@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Smartstore.Engine
@@ -189,6 +188,8 @@ namespace Smartstore.Engine
         /// </summary>
         public ProxyConfiguration ReverseProxy { get; set; } = new();
 
+        public ContentSecurityPolicyConfiguration ContentSecurityPolicy { get; set; } = new();
+
         public class GoogleConfiguration
         {
             public string RecaptchaWidgetUrl { get; set; } = "https://www.google.com/recaptcha/api.js";
@@ -262,6 +263,63 @@ namespace Smartstore.Engine
             /// </list>
             /// </remarks>
             public string[]? AllowedHosts { get; set; }
+        }
+
+        /// <summary>
+        /// Specifies Content Security Policy (CSP) directives that helps to prevent or minimize the risk of certain types of security threats.
+        /// </summary>
+        /// <remarks>
+        /// The settings only contain a small part of all CSP directives. Settings for resource loading like "default-src" cannot be offered 
+        /// because the application would not work correctly and the admin would be confronted with too many problems.
+        /// </remarks>
+        public class ContentSecurityPolicyConfiguration
+        {
+            /// <summary>
+            /// <c>true</c> to apply Content Security Policy (CSP) directives.
+            /// </summary>
+            public bool Enabled { get; set; }
+
+            /// <summary>
+            /// Specifies that the policy is not enforced, but the browser will receive and act upon the policy
+            /// and displays the results in its console. Default is <c>false</c>.
+            /// </summary>
+            /// <remarks>
+            /// If <c>true</c> the "Content-Security-Policy-Report-Only" HTTP header is used instead of "Content-Security-Policy".
+            /// </remarks>
+            public bool Report { get; set; }
+
+            /// <summary>
+            /// Specifies valid parents that may embed a page using <c>frame</c>, <c>iframe</c>, <c>object</c>, or <c>embed</c>.
+            /// Helps defending against clickjacking. Default is 'self'.
+            /// </summary>
+            /// <remarks>
+            /// Replaces the obsolete "X-Frame-Options" HTTP header.
+            /// Setting frame ancestors to 'none' is similar to "X-Frame-Options" <c>deny</c>.
+            /// </remarks>
+            public string[]? FrameAncestors { get; set; }
+
+            /// <summary>
+            /// Instructs browsers to treat all of a site's insecure URLs (those served over HTTP)
+            /// as though they have been replaced with secure URLs (those served over HTTPS).
+            /// Default is <c>false</c>.
+            /// </summary>
+            public bool UpgradeInsecureRequests { get; set; }
+
+            public override string ToString()
+            {
+                var directives = new Dictionary<string, string>
+                {
+                    //["default-src"] = "'self' 'unsafe-eval' 'unsafe-inline'" + (Report ? " 'report-sample'" : string.Empty),
+                    ["frame-ancestors"] = FrameAncestors != null ? string.Join(' ', FrameAncestors) : null!,
+                    ["upgrade-insecure-requests"] = UpgradeInsecureRequests ? string.Empty : null!
+                };
+
+                var policy = string.Join("; ", directives
+                    .Where(x => x.Value != null)
+                    .Select(x => x.Value == string.Empty ? x.Key : $"{x.Key} {x.Value}"));
+
+                return policy;
+            }
         }
     }
 }

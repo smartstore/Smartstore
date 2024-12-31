@@ -181,7 +181,7 @@ namespace Smartstore.Web
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
             {
                 app.UsePoweredBy();
-                app.UseSecurityHeaders();
+                app.UseContentSecurityHeaders(appContext);
             });
 
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
