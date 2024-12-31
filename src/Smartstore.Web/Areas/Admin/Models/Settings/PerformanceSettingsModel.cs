@@ -2,16 +2,18 @@
 
 namespace Smartstore.Admin.Models
 {
-    public partial class PerformanceSettingsModel
+    public partial class PerformanceSettingsModel : ModelBase
     {
         public PerformanceModel PerformanceSettings { get; set; } = new();
         public ResiliencyModel ResiliencySettings { get; set; } = new();
 
         [LocalizedDisplay("Admin.Configuration.Settings.Performance.")]
-        public partial class PerformanceModel
+        public class PerformanceModel
         {
             [LocalizedDisplay("*CacheSegmentSize")]
             public int CacheSegmentSize { get; set; }
+
+            public string Yodele { get; set; }
 
             [LocalizedDisplay("*AlwaysPrefetchTranslations")]
             public bool AlwaysPrefetchTranslations { get; set; }
@@ -30,7 +32,7 @@ namespace Smartstore.Admin.Models
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.Resiliency.")]
-        public partial class ResiliencyModel
+        public class ResiliencyModel
         {
             [LocalizedDisplay("*EnableOverloadProtection")]
             public bool EnableOverloadProtection { get; set; }
@@ -38,28 +40,28 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*ForbidNewGuestsIfSubRequest")]
             public bool ForbidNewGuestsIfSubRequest { get; set; }
 
-            [LocalizedDisplay("*LongTrafficWindow")]
+            [LocalizedDisplay("*TrafficTimeWindow")]
             public TimeSpan LongTrafficWindow { get; set; }
 
-            [LocalizedDisplay("*PeakTrafficWindow")]
-            public TimeSpan PeakTrafficWindow { get; set; }
-
-            [LocalizedDisplay("*LongTrafficLimitGuest")]
+            [LocalizedDisplay("*TrafficLimitGuest")]
             public int? LongTrafficLimitGuest { get; set; }
 
-            [LocalizedDisplay("*LongTrafficLimitBot")]
+            [LocalizedDisplay("*TrafficLimitBot")]
             public int? LongTrafficLimitBot { get; set; }
 
-            [LocalizedDisplay("*PeakTrafficLimitGuest")]
-            public int? PeakTrafficLimitGuest { get; set; }
-
-            [LocalizedDisplay("*PeakTrafficLimitBot")]
-            public int? PeakTrafficLimitBot { get; set; }
-
-            [LocalizedDisplay("*LongTrafficLimitGlobal")]
+            [LocalizedDisplay("*TrafficLimitGlobal")]
             public int? LongTrafficLimitGlobal { get; set; }
 
-            [LocalizedDisplay("*PeakTrafficLimitGlobal")]
+            [LocalizedDisplay("*TrafficTimeWindow")]
+            public TimeSpan PeakTrafficWindow { get; set; }
+
+            [LocalizedDisplay("*TrafficLimitGuest")]
+            public int? PeakTrafficLimitGuest { get; set; }
+
+            [LocalizedDisplay("*TrafficLimitBot")]
+            public int? PeakTrafficLimitBot { get; set; }
+
+            [LocalizedDisplay("*TrafficLimitGlobal")]
             public int? PeakTrafficLimitGlobal { get; set; }
         }
     }
@@ -68,9 +70,10 @@ namespace Smartstore.Admin.Models
     {
         public PerformanceModelValidator()
         {
-            RuleFor(x => x.CacheSegmentSize).GreaterThan(0);
-            RuleFor(x => x.MaxUnavailableAttributeCombinations).GreaterThan(0);
-            RuleFor(x => x.MediaDupeDetectorMaxCacheSize).GreaterThan(0);
+            RuleFor(x => x.Yodele).Length(2, 4);
+            RuleFor(x => x.CacheSegmentSize).GreaterThan(100).LessThan(1000);
+            RuleFor(x => x.MaxUnavailableAttributeCombinations).GreaterThan(100);
+            RuleFor(x => x.MediaDupeDetectorMaxCacheSize).GreaterThan(100);
         }
     }
 

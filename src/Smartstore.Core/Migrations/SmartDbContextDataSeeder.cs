@@ -52,11 +52,17 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.CustomerRules", "Customer rules", "Kundenregeln");
             builder.AddOrUpdate("Common.ProductRules", "Product rules", "Produktregeln");
 
+            builder.AddOrUpdate("Admin.Common.RestartHint",
+                "Changes to the following settings only take effect after the application has been restarted.",
+                "Änderungen an den folgenden Einstellungen werden erst nach einem Neustart der Anwendung wirksam.");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";
 
             builder.AddOrUpdate($"{prefix}", "Performance", "Leistung");
+            builder.AddOrUpdate($"{prefix}.Resiliency", "Overload protection", "Überlastungsschutz");
+            builder.AddOrUpdate($"{prefix}.Cache", "Cache", "Cache");
 
             builder.AddOrUpdate($"{prefix}.Hint",
                 "For technically experienced users only. Pay attention to the CPU and memory usage when changing these settings.",
@@ -91,6 +97,49 @@ namespace Smartstore.Core.Data.Migrations
                 "Max. Cache-Größe für Medien-Duplikat-Detektor",
                 "Maximum number of MediaFile entities to cache for duplicate file detection. If a media folder contains more files, no caching is done for scalability reasons and the MediaFile entities are loaded directly from the database.",
                 "Maximale Anzahl der MediaFile-Entitäten, die für die Duplikat-Erkennung zwischengespeichert werden. Enthält ein Medienordner mehr Dateien, erfolgt aus Gründen der Skalierbarkeit keine Zwischenspeicherung und die MediaFile-Entitäten werden direkt aus der Datenbank geladen.");
+
+            prefix = "Admin.Configuration.Settings.Resiliency";
+
+            builder.AddOrUpdate($"{prefix}.LongTraffic", "Traffic limit", "Besucherlimit");
+            builder.AddOrUpdate($"{prefix}.LongTrafficNotes", "TBD", "TBD");
+            builder.AddOrUpdate($"{prefix}.PeakTraffic", "Peak", "Lastspitzen");
+            builder.AddOrUpdate($"{prefix}.PeakTrafficNotes", "TBD", "TBD");
+
+            builder.AddOrUpdate($"{prefix}.TrafficTimeWindow",
+                "Time window",
+                "Zeitfenster",
+                "TBD",
+                "TBD");
+
+            builder.AddOrUpdate($"{prefix}.TrafficLimitGuest",
+                "Guest limit",
+                "Gäste-Grenzwert",
+                "TBD",
+                "TBD");
+
+            builder.AddOrUpdate($"{prefix}.TrafficLimitBot",
+                "Bot limit",
+                "Bot-Grenzwert",
+                "TBD",
+                "TBD");
+
+            builder.AddOrUpdate($"{prefix}.TrafficLimitGlobal",
+                "Global limit",
+                "Globaler Grenzwert",
+                "TBD",
+                "TBD");
+
+            builder.AddOrUpdate($"{prefix}.EnableOverloadProtection",
+                "Enable overload protection",
+                "Überlastungsschutz aktivieren",
+                "TBD",
+                "TBD");
+
+            builder.AddOrUpdate($"{prefix}.ForbidNewGuestsIfSubRequest",
+                "If sub request, forbid \"new\" guests",
+                "Wenn Sub-Request, \"neue\" Gäste blockieren",
+                "TBD",
+                "TBD");
 
             #endregion
         }
