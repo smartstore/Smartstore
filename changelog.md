@@ -34,6 +34,7 @@
 - MegaSearch: The names of unpublished product tags were not indexed.
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
 - Fixed Cookie migration problem.
+- #1233 Forum: Posts from customers marked as deleted must be displayed.
 
 
 ## Smartstore 6.0.0
