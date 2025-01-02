@@ -284,7 +284,7 @@ namespace Smartstore.Core.Catalog.Products
                             newDisableWishlistButton = product.MinStockQuantity >= result.StockQuantityNew;
                             break;
                         case LowStockActivity.Unpublish:
-                            newPublished = product.MinStockQuantity <= result.StockQuantityNew;
+                            newPublished = product.MinStockQuantity < result.StockQuantityNew;
                             break;
                     }
 
