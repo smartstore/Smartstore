@@ -4,7 +4,7 @@
 
 ### New Features
 
-- #1142 Implement configurable Content-Security-Policy (CSP) HTTP header.
+- #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
 - #501 New category option for ignoring a category in menus.
 - MegaSearch: Added setting to indicate whether to split compound words.
@@ -20,8 +20,8 @@
 ### Bugfixes
 
 - Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.
-- #1229 Sending an order placed message with the order attached as a PDF always causes an HTTP client timeout.
-- #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to "unpublish".
+- #1229 Sending an *order placed* message with the order attached as a PDF always causes an HTTP client timeout.
+- #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to *unpublish*.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus.
