@@ -41,7 +41,9 @@
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
-                var bundleItemsWithImages = item.BundleItems.Where(x => x.ImageModel.HasImage()).ToArray();
+                var bundleItemsWithImages = item.BundleItems
+                    .Where(x => x.ImageModel?.HasImage() == true)
+                    .ToArray();
 
                 <div class="offcanvas-cart-item@(!item.Active ? " offcanvas-cart-item-inactive" : string.Empty)">
                     <div class="row sm-gutters">
