@@ -24,6 +24,13 @@
         <tab sm-title="@T("Admin.Configuration.Settings.Performance.Resiliency")" sm-selected="true">
             <div class="adminContent">
                 <div class="adminRow">
+                    <div class="alert alert-info w-100 m-0 alert-dismissible fade show">
+                        @T("Admin.Configuration.Settings.Resiliency.Description")
+                        <button type="button" class="btn-close" data-dismiss="alert"></button>
+                    </div>
+                </div>
+
+                <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="ResiliencySettings.EnableOverloadProtection" />
                     </div>
