@@ -116,11 +116,11 @@ Limits gelten nur für Gastkonten und Bots, nicht für registrierte User.");
             builder.AddOrUpdate($"{prefix}.PeakTraffic", "Peak", "Lastspitzen");
             builder.AddOrUpdate($"{prefix}.PeakTrafficNotes",
                 "The peak traffic window defines the shorter period used for detecting sudden traffic spikes. These settings are useful for reacting to bursts of traffic that occur in a matter of seconds.",
-                "Den kürzere Zeitraum, der für die Erkennung plötzlicher Lastspitzen verwendet wird. Diese Einstellungen sind nützlich, um auf Lastspitzen zu reagieren, die innerhalb weniger Sekunden auftreten.");
+                "Der kürzere Zeitraum, der für die Erkennung plötzlicher Lastspitzen verwendet wird. Diese Einstellungen sind nützlich, um auf Lastspitzen zu reagieren, die innerhalb weniger Sekunden auftreten.");
 
             builder.AddOrUpdate($"{prefix}.TrafficTimeWindow",
-                "Time window",
-                "Zeitfenster",
+                "Time window (hh:mm:ss)",
+                "Zeitfenster (hh:mm:ss)",
                 "The duration of the traffic window, which defines the period of time during which sustained traffic is measured.",
                 "Die Dauer des Zeitfensters, das den Zeitraum definiert, in dem der anhaltende Traffic gemessen wird.");
 
