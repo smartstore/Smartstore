@@ -854,7 +854,8 @@ legend {
     }
 }
 
-.adminData .adminRow:first-child {
+.adminData .adminRow:first-child,
+.collapsible > .adminRow:first-child {
     margin-top: 0;
 }
 

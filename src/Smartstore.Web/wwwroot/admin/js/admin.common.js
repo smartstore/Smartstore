@@ -111,9 +111,14 @@ Smartstore.Admin = {
             pnl.addClass('collapsible');
             if (isGroup) pnl.addClass('collapsible-group');
 
+            //if (!pnl.data('bs.collapse')) {
+            //    pnl.collapse();
+            //}
+
             if (showPanel) {
                 if (!isGroup) {
                     pnl.show(duration, afterShow);
+                    //pnl.collapse('show');
                 }
                 else {
                     var targets = pnl.children()
@@ -126,6 +131,7 @@ Smartstore.Admin = {
             else {
                 if (!isGroup) {
                     pnl.hide(duration, afterHide);
+                    //pnl.collapse('hide');
                 }
                 else {
                     // hide all children (animated)
