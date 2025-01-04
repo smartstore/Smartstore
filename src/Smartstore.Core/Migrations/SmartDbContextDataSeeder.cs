@@ -128,13 +128,13 @@ Limits gelten nur für Gastkonten und Bots, nicht für registrierte User.");
                 "Guest limit",
                 "Gäste-Grenzwert",
                 "The maximum number of requests allowed from guest users within the duration of the defined time window. Empty value means there is no limit applied for guest users.",
-                "Die maximale Anzahl von Gastbenutzern innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet, dass für Gastbenutzer keine Begrenzung gilt.");
+                "Die maximale Anzahl von Gastbenutzern innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet: keine Begrenzung.");
 
             builder.AddOrUpdate($"{prefix}.TrafficLimitBot",
                 "Bot limit",
                 "Bot-Grenzwert",
                 "The maximum number of requests allowed from bots within the duration of the defined time window. Empty value means there is no limit applied for bots.",
-                "Die maximale Anzahl von Bots innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet, dass für Bots keine Begrenzung gilt.");
+                "Die maximale Anzahl von Bots innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet: keine Begrenzung.");
 
             builder.AddOrUpdate($"{prefix}.TrafficLimitGlobal",
                 "Global limit",
@@ -147,7 +147,7 @@ within the observation window, additional requests may be denied, even if type-s
 Es stellt sicher, dass die Gesamtsystemlast innerhalb akzeptabler Schwellenwerte bleibt, unabhängig von der Verteilung der Anfragen auf bestimmte Benutzertypen. 
 Im Gegensatz zu Gast- oder Bot-Limitern dient dieses globale Limit als Schutz für das gesamte System. 
 Wenn die kumulierten Anfragen beider Typen dieses Limit innerhalb des Beobachtungsfensters überschreiten, werden weitere Anfragen abgelehnt, 
-auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bedeutet, dass es keine globale Begrenzung gibt.");
+auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bedeutet: keine Begrenzung.");
 
             builder.AddOrUpdate($"{prefix}.EnableOverloadProtection",
                 "Enable overload protection",

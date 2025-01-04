@@ -22,7 +22,7 @@ namespace Smartstore.Web.Modelling
         /// <returns>The property value or null</returns>
         public TProperty Get<TProperty>(string key)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             if (TryGetCustomContextProperties(false, out var dict) && dict.TryGetValue(key, out var value))
             {

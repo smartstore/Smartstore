@@ -14,7 +14,7 @@ namespace FluentValidation
             genericParameterCount: 2,
             bindingAttr: BindingFlags.Static | BindingFlags.Public,
             binder: null,
-            types: new[] { typeof(ParsingConfig), typeof(bool), typeof(string), typeof(object[]) },
+            types: [typeof(ParsingConfig), typeof(bool), typeof(string), typeof(object[])],
             modifiers: null);
 
         //  AbstractValidator<T>
@@ -130,10 +130,10 @@ namespace FluentValidation
 
             // Make IRuleBuilder<TModel, TProperty>.SetValidator(IPropertyValidator<T, TProperty> validator)
             var propertyValidatorType = typeof(IPropertyValidator<,>).MakeGenericType(typeof(TModel), modelProp.Property.PropertyType);
-            var setValidatorMethod = rule.GetType().GetMethod("SetValidator", new[] { propertyValidatorType });
+            var setValidatorMethod = rule.GetType().GetMethod("SetValidator", [propertyValidatorType]);
 
             // Call SetValidator method of property rule builder
-            setValidatorMethod.Invoke(rule, new object[] { validator });
+            setValidatorMethod.Invoke(rule, [validator]);
         }
     }
 }
