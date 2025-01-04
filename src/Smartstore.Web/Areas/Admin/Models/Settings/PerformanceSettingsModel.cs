@@ -8,12 +8,10 @@ namespace Smartstore.Admin.Models
         public ResiliencyModel ResiliencySettings { get; set; } = new();
 
         [LocalizedDisplay("Admin.Configuration.Settings.Performance.")]
-        public class PerformanceModel
+        public partial class PerformanceModel
         {
             [LocalizedDisplay("*CacheSegmentSize")]
             public int CacheSegmentSize { get; set; }
-
-            public string Yodele { get; set; }
 
             [LocalizedDisplay("*AlwaysPrefetchTranslations")]
             public bool AlwaysPrefetchTranslations { get; set; }
@@ -32,7 +30,7 @@ namespace Smartstore.Admin.Models
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.Resiliency.")]
-        public class ResiliencyModel
+        public partial class ResiliencyModel
         {
             [LocalizedDisplay("*EnableOverloadProtection")]
             public bool EnableOverloadProtection { get; set; }
@@ -66,22 +64,41 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public partial class PerformanceModelValidator : AbstractValidator<PerformanceSettingsModel.PerformanceModel>
+    public class PerformanceSettingsModelValidator : AbstractValidator<PerformanceSettingsModel>
     {
-        public PerformanceModelValidator()
+        public PerformanceSettingsModelValidator()
         {
-            RuleFor(x => x.Yodele).Length(2, 4);
-            RuleFor(x => x.CacheSegmentSize).GreaterThan(100).LessThan(1000);
-            RuleFor(x => x.MaxUnavailableAttributeCombinations).GreaterThan(100);
-            RuleFor(x => x.MediaDupeDetectorMaxCacheSize).GreaterThan(100);
+            RuleFor(x => x.PerformanceSettings).SetValidator(new PerformanceModelValidator());
+            RuleFor(x => x.ResiliencySettings).SetValidator(new ResiliencyModelValidator());
         }
-    }
 
-    public partial class ResiliencyModelValidator : AbstractValidator<PerformanceSettingsModel.ResiliencyModel>
-    {
-        public ResiliencyModelValidator()
+        class PerformanceModelValidator : AbstractValidator<PerformanceSettingsModel.PerformanceModel>
         {
-            // TODO: Implement validation rules for ResiliencyModel
+            public PerformanceModelValidator()
+            {
+                RuleFor(x => x.CacheSegmentSize).GreaterThan(0);
+                RuleFor(x => x.MaxUnavailableAttributeCombinations).GreaterThan(0);
+                RuleFor(x => x.MediaDupeDetectorMaxCacheSize).GreaterThan(0);
+            }
+        }
+
+        class ResiliencyModelValidator : AbstractValidator<PerformanceSettingsModel.ResiliencyModel>
+        {
+            public ResiliencyModelValidator()
+            {
+                RuleFor(x => x.LongTrafficWindow)
+                    .GreaterThan(TimeSpan.FromSeconds(0))
+                    .GreaterThan(x => x.PeakTrafficWindow);
+
+                RuleFor(x => x.PeakTrafficWindow).GreaterThan(TimeSpan.FromSeconds(0));
+
+                RuleFor(x => x.LongTrafficLimitBot).GreaterThan(0);
+                RuleFor(x => x.LongTrafficLimitGuest).GreaterThan(0);
+                RuleFor(x => x.LongTrafficLimitGlobal).GreaterThan(0);
+                RuleFor(x => x.PeakTrafficLimitBot).GreaterThan(0);
+                RuleFor(x => x.PeakTrafficLimitGuest).GreaterThan(0);
+                RuleFor(x => x.PeakTrafficLimitGlobal).GreaterThan(0);
+            }
         }
     }
 }
