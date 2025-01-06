@@ -293,6 +293,9 @@ namespace Smartstore.Core.Catalog.Products
                     product.DisableWishlistButton = newDisableWishlistButton;
                     product.Published = newPublished;
 
+                    // INFO: Force change detection if this is called after a batch commit of the ProductImporter.
+                    _db.TryChangeState(product, EfState.Modified);
+
                     // SaveChanges is not necessary because SendQuantityBelowStoreOwnerNotificationAsync
                     // does not reload anything that has been changed in the meantime.
 
