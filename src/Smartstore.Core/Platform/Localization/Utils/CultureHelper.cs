@@ -109,6 +109,16 @@ namespace Smartstore.Core.Localization
             return null;
         }
 
+        public static string GetLanguageDisplayName(string locale)
+        {
+            if (TryGetCultureInfoForLocale(locale, out var culture))
+            {
+                return culture.Parent?.DisplayName ?? culture.DisplayName;
+            }
+
+            return null;
+        }
+
         public static string NormalizeLanguageDisplayName(string languageName, bool stripRegion = false, CultureInfo culture = null)
         {
             if (string.IsNullOrEmpty(languageName) || languageName.Length == 0)

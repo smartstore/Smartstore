@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Admin.Models.Localization
+﻿namespace Smartstore.Core.Localization
 {
     [Serializable]
     public class CheckAvailableResourcesResult
@@ -6,11 +6,11 @@
         public string Version { get; set; }
         public int ResourceCount { get; set; }
 
-        public List<AvailableResourcesModel> Resources { get; set; } = new();
+        public List<AvailableResources> Resources { get; set; } = [];
     }
 
     [Serializable]
-    public class AvailableResourcesModel
+    public class AvailableResources
     {
         public int Id { get; set; }
         public int? PreviousSetId { get; set; }
@@ -30,10 +30,10 @@
         public int UpdatedCount { get; set; }
         public int DeletedCount { get; set; }
 
-        public LanguageModel Language { get; set; }
+        public ResourcesLanguage Language { get; set; }
 
         [Serializable]
-        public class LanguageModel
+        public class ResourcesLanguage
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -41,12 +41,5 @@
             public string TwoLetterIsoCode { get; set; }
             public bool Rtl { get; set; }
         }
-    }
-
-    [Serializable]
-    public class LastResourcesImportInfo
-    {
-        public decimal TranslatedPercentage { get; set; }
-        public DateTime ImportedOn { get; set; }
     }
 }

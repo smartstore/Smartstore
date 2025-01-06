@@ -10,6 +10,8 @@ namespace Smartstore.Core.Localization
     /// </summary>
     public partial interface IXmlResourceManager
     {
+        #region Import/export
+
         /// <summary>
         /// Export language resources to xml
         /// </summary>
@@ -65,5 +67,29 @@ namespace Smartstore.Core.Localization
         /// <param name="moduleDescriptor">Descriptor of the module</param>
         /// <returns>The hasher impl or <c>null</c> if the localization directory does not exist.</returns>
         DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor);
+
+        #endregion
+
+        #region Download
+
+        /// <summary>
+        /// Gets information about the last resources import.
+        /// <returns>Key: language identifier. Value: <see cref="LastResourcesImportInfo"/></returns>
+        Task<Dictionary<int, LastResourcesImportInfo>> GetLastResourcesImportInfosAsync();
+
+        /// <summary>
+        /// Loads information about all available resources from the endpoint specified by <see cref="SmartConfiguration.TranslateCheckUrl"/>.
+        /// </summary>
+        Task<CheckAvailableResourcesResult> GetAvailableResourcesAsync(CancellationToken cancelToken = default);
+
+        /// <summary>
+        /// Downloads and imports string resources.
+        /// </summary>
+        /// <param name="stringResourcesSetId">Identifier of the resources set to be downloaded.</param>
+        /// <param name="availableResources">Infos about all available resources (e.g. download URL). See <see cref="GetAvailableResourcesAsync(CancellationToken)"/>.</param>
+        /// <returns><c>true</c> if the resources were successfully downloaded and imported. Otherwise <c>false</c>.</returns>
+        Task<bool> DownloadAsync(int stringResourcesSetId, CheckAvailableResourcesResult availableResources, CancellationToken cancelToken = default);
+
+        #endregion
     }
 }

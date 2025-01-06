@@ -35,10 +35,10 @@ namespace Smartstore.Core.Installation
             ILogger logger)
             : base(appContext, logger)
         {
-            Guard.NotNull(migrator, nameof(migrator));
-            Guard.NotNull(configuration, nameof(configuration));
-            Guard.NotNull(configuration.Language, "SeedDataConfiguration.Language");
-            Guard.NotNull(configuration.Data, "SeedDataConfiguration.SeedData");
+            Guard.NotNull(migrator);
+            Guard.NotNull(configuration);
+            Guard.NotNull(configuration.Language);
+            Guard.NotNull(configuration.Data);
 
             _migrator = migrator;
             _messageTemplateService = messageTemplateService;
@@ -50,14 +50,17 @@ namespace Smartstore.Core.Installation
         {
             get
             {
-                if (_xmlResourceManager == null)
-                {
-                    _xmlResourceManager = new XmlResourceManager(
-                        Context,
-                        NullRequestCache.Instance,
-                        null /* ILanguageService: not needed during install */,
-                        null /* ILocalizationService: not needed during install */);
-                }
+                // Some dependencies are "null" because they are not needed during installation.
+                _xmlResourceManager ??= new XmlResourceManager(
+                    Context,
+                    NullRequestCache.Instance,
+                    null,
+                    null,
+                    Logger,
+                    null,
+                    null,
+                    ApplicationContext,
+                    null);
 
                 return _xmlResourceManager;
             }

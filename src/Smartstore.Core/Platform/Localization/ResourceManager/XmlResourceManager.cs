@@ -1,18 +1,29 @@
 ﻿using System.Collections;
 using System.Globalization;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
+using Smartstore.Core.Stores;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
 {
     public partial class XmlResourceManager : IXmlResourceManager
     {
+        const string LastResourcesImportInfoKey = "LastResourcesImportInfo";
+
         [GeneratedRegex("^resources.(.+?).xml$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
         private static partial Regex FileNameRegEx();
         private static readonly Regex _rgFileName = FileNameRegEx();
@@ -21,20 +32,35 @@ namespace Smartstore.Core.Localization
         private readonly IRequestCache _requestCache;
         private readonly ILanguageService _languageService;
         private readonly ILocalizationService _localizationService;
+        private readonly ILogger _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IStoreContext _storeContext;
+        private readonly IApplicationContext _appContext;
+        private readonly IAsyncState _asyncState;
 
         public XmlResourceManager(
             SmartDbContext db,
             IRequestCache requestCache,
             ILanguageService languageService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            ILogger logger,
+            IHttpClientFactory httpClientFactory,
+            IStoreContext storeContext,
+            IApplicationContext appContext,
+            IAsyncState asyncState)
         {
             _db = db;
             _requestCache = requestCache;
             _languageService = languageService;
             _localizationService = localizationService;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _storeContext = storeContext;
+            _appContext = appContext;
+            _asyncState = asyncState;
         }
 
-        #region Resource Manager
+        #region Import/export
 
         public virtual async Task<string> ExportResourcesToXmlAsync(Language language)
         {
@@ -154,7 +180,6 @@ namespace Smartstore.Core.Localization
             List<Language> filterLanguages = null)
         {
             var directory = moduleDescriptor.ContentRoot.GetDirectory("Localization");
-
             if (!directory.Exists)
                 return;
 
@@ -164,7 +189,6 @@ namespace Smartstore.Core.Localization
             }
 
             var unprocessedLanguages = new List<Language>();
-
             var defaultLanguageId = _languageService != null
                 ? await _languageService.GetMasterLanguageIdAsync()
                 : (await _db.Languages.FirstOrDefaultAsync()).Id;
@@ -286,10 +310,6 @@ namespace Smartstore.Core.Localization
             return result;
         }
 
-        #endregion
-
-        #region Resource Manager Utils
-
         private async Task<string> ImportModuleResourcesForLanguageAsync(
             Language language,
             string fileCode,
@@ -359,10 +379,10 @@ namespace Smartstore.Core.Localization
 
         private static IEnumerable<string> GetResourceFileCodeCandidates(string code, IDirectory directory, bool canFallBackToAnyResourceFile)
         {
-            // exact match (de-DE)
+            // Exact match (de-DE).
             yield return code;
 
-            // neutral culture (de)
+            // Neutral culture (de).
             var ci = CultureInfo.GetCultureInfo(code);
             if (ci.Parent != null && !ci.IsNeutralCulture)
             {
@@ -370,7 +390,7 @@ namespace Smartstore.Core.Localization
                 yield return code;
             }
 
-            // any other region with same language (de-*)
+            // Any other region with same language (de-*).
             foreach (var fi in directory.EnumerateFiles($"resources.{code}-*.xml"))
             {
                 code = _rgFileName.Match(fi.Name).Groups[1].Value;
@@ -400,27 +420,27 @@ namespace Smartstore.Core.Localization
             // The value isn't actually used, but the name is used to create a namespace.
             if (resource.IsPersistable)
             {
-                writer.WriteStartElement("LocaleResource", "");
+                writer.WriteStartElement("LocaleResource", string.Empty);
 
-                writer.WriteStartAttribute("Name", "");
+                writer.WriteStartAttribute("Name", string.Empty);
                 writer.WriteString(resource.NameWithNamespace);
                 writer.WriteEndAttribute();
 
                 if (resource.AppendRootKey.HasValue)
                 {
-                    writer.WriteStartAttribute("AppendRootKey", "");
+                    writer.WriteStartAttribute("AppendRootKey", string.Empty);
                     writer.WriteString(resource.AppendRootKey.Value ? "true" : "false");
                     writer.WriteEndAttribute();
                     parentAppendRootKey = resource.AppendRootKey;
                 }
                 else if (parentAppendRootKey.HasValue)
                 {
-                    writer.WriteStartAttribute("AppendRootKey", "");
+                    writer.WriteStartAttribute("AppendRootKey", string.Empty);
                     writer.WriteString(parentAppendRootKey.Value ? "true" : "false");
                     writer.WriteEndAttribute();
                 }
 
-                writer.WriteStartElement("Value", "");
+                writer.WriteStartElement("Value", string.Empty);
                 writer.WriteString(resource.ResourceValue);
                 writer.WriteEndElement();
 
@@ -488,7 +508,7 @@ namespace Smartstore.Core.Localization
 
             public string Namespace { get; set; }
 
-            public IList<LocaleStringResourceParent> ChildLocaleStringResources = new List<LocaleStringResourceParent>();
+            public IList<LocaleStringResourceParent> ChildLocaleStringResources = [];
 
             public bool IsPersistable { get; set; }
 
@@ -526,6 +546,191 @@ namespace Smartstore.Core.Localization
             {
                 return _comparison((T)o1, (T)o2);
             }
+        }
+
+        #endregion
+
+        #region Download
+
+        public async Task<Dictionary<int, LastResourcesImportInfo>> GetLastResourcesImportInfosAsync()
+        {
+            Dictionary<int, LastResourcesImportInfo> result = null;
+
+            try
+            {
+                var attributes = await _db.GenericAttributes
+                    .AsNoTracking()
+                    .Where(x => x.Key == LastResourcesImportInfoKey && x.KeyGroup == nameof(Language))
+                    .ToListAsync();
+
+                result = attributes.ToDictionarySafe(x => x.EntityId, x => JsonConvert.DeserializeObject<LastResourcesImportInfo>(x.Value));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return result ?? [];
+        }
+
+        public async Task<CheckAvailableResourcesResult> GetAvailableResourcesAsync(CancellationToken cancelToken = default)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromMilliseconds(10000);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
+            client.DefaultRequestHeaders.Add("Authorization-Key", _storeContext.CurrentStore.GetBaseUrl().TrimEnd('/'));
+
+            var url = _appContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(SmartstoreVersion.CurrentFullVersion);
+            var response = await client.GetAsync(url, cancelToken);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync(cancelToken);
+                if (jsonString.HasValue())
+                {
+                    return JsonConvert.DeserializeObject<CheckAvailableResourcesResult>(jsonString);
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<bool> DownloadAsync(int stringResourcesSetId, CheckAvailableResourcesResult availableResources, CancellationToken cancelToken = default)
+        {
+            Guard.NotZero(stringResourcesSetId);
+            Guard.NotNull(availableResources);
+
+            if (availableResources.Resources.Count == 0)
+            {
+                return true;
+            }
+
+            var success = false;
+
+            try
+            {
+                var state = new LanguageDownloadState
+                {
+                    Id = stringResourcesSetId,
+                    Step = LanguageDownloadStep.DownloadResources
+                };
+
+                await _asyncState.CreateAsync(state, null, false, CancellationTokenSource.CreateLinkedTokenSource(cancelToken));
+
+                // 1. Download resources.
+                var client = _httpClientFactory.CreateClient();
+                var source = availableResources.Resources.First(x => x.Id == stringResourcesSetId);
+                var xmlDoc = await DownloadAvailableResources(client, source.DownloadUrl, _storeContext.CurrentStore.GetBaseUrl(), cancelToken);
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return false;
+                }
+
+                using var dbScope = new DbContextScope(_db, minHookImportance: HookImportance.Essential);
+                await _asyncState.UpdateAsync<LanguageDownloadState>(state => state.Step = LanguageDownloadStep.ImportResources);
+
+                // 2. Create language entity (if required).
+                var language = await _db.Languages
+                    .Include(x => x.LocaleStringResources)
+                    .Where(x => x.LanguageCulture == source.Language.Culture)
+                    .FirstOrDefaultAsync(cancelToken);
+
+                if (language == null)
+                {
+                    language = new Language
+                    {
+                        LanguageCulture = source.Language.Culture,
+                        UniqueSeoCode = source.Language.TwoLetterIsoCode,
+                        Name = CultureHelper.GetLanguageDisplayName(source.Language.Culture) ?? source.Name,
+                        Rtl = source.Language.Rtl,
+                        Published = false,
+                        DisplayOrder = ((await _db.Languages.MaxAsync(x => (int?)x.DisplayOrder, cancelToken)) ?? 0) + 1
+                    };
+
+                    var parts = source.Language.Culture.SplitSafe('-').ToArray();
+                    if (parts.Length > 0)
+                    {
+                        var fileName = parts[^1].EmptyNull().ToLowerInvariant() + ".png";
+                        if (_appContext.WebRoot.FileExists("images/flags/" + fileName))
+                        {
+                            language.FlagImageFileName = fileName;
+                        }
+                    }
+
+                    _db.Languages.Add(language);
+                    await dbScope.CommitAsync(cancelToken);
+                }
+
+                // 3. Import resources.
+                await ImportResourcesFromXmlAsync(language, xmlDoc);
+
+                // 4. Save import info.
+                var result = new LastResourcesImportInfo
+                {
+                    TranslatedPercentage = source.TranslatedPercentage,
+                    ImportedOn = DateTime.UtcNow
+                };
+
+                var attribute = await _db.GenericAttributes.FirstOrDefaultAsync(x =>
+                    x.Key == LastResourcesImportInfoKey &&
+                    x.KeyGroup == nameof(Language) &&
+                    x.EntityId == language.Id &&
+                    x.StoreId == 0,
+                    cancelToken);
+
+                if (attribute == null)
+                {
+                    _db.GenericAttributes.Add(new()
+                    {
+                        Key = LastResourcesImportInfoKey,
+                        KeyGroup = nameof(Language),
+                        EntityId = language.Id,
+                        StoreId = 0,
+                        Value = JsonConvert.SerializeObject(result)
+                    });
+                }
+                else
+                {
+                    attribute.Value = JsonConvert.SerializeObject(result);
+                }
+
+                await dbScope.CommitAsync(cancelToken);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.ErrorsAll(ex);
+            }
+            finally
+            {
+                if (_asyncState.Contains<LanguageDownloadState>())
+                {
+                    _asyncState.Remove<LanguageDownloadState>();
+                }
+            }
+
+            return success;
+        }
+
+        private static async Task<XmlDocument> DownloadAvailableResources(
+            HttpClient client,
+            string downloadUrl,
+            string storeUrl,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotEmpty(downloadUrl);
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Text.Xml));
+            client.DefaultRequestHeaders.Add("Authorization-Key", storeUrl.EmptyNull().TrimEnd('/'));
+
+            using var inStream = await client.GetStreamAsync(downloadUrl, cancelToken);
+            var document = new XmlDocument();
+            document.Load(inStream);
+
+            return document;
         }
 
         #endregion
