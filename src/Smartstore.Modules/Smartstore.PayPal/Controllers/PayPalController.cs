@@ -106,7 +106,16 @@ namespace Smartstore.PayPal.Controllers
             processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
-            await AddShippingAddressAsync(orderId);
+
+            // If adding shipping address fails, just log it and continue.
+            try
+            {
+                await AddShippingAddressAsync(orderId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Info("Adding of shipping address has failed.", ex);
+            }
 
             // Get redirect URL if quick checkout is active.
             var redirectUrl = string.Empty;
