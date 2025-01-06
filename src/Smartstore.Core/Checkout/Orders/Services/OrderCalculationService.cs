@@ -551,7 +551,7 @@ namespace Smartstore.Core.Checkout.Orders
                 && _rewardPointsSettings.PointsForPurchases_Amount > 0
                 && _rewardPointsSettings.PointsForPurchases_Points != 0)
             {
-                var rewardAmount = amount / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+                var rewardAmount = Math.Floor(amount / _rewardPointsSettings.PointsForPurchases_Amount) * _rewardPointsSettings.PointsForPurchases_Points;
 
                 if (toDecreasePointsBalanceHistory)
                 {
