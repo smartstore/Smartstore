@@ -28,187 +28,192 @@
     }
 }
 
-<div asp-validation-summary="ModelOnly"></div>
+<tabstrip id="attribute-combinations-popup" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations")" sm-selected="true">
+        <div asp-validation-summary="ModelOnly"></div>
 
-<input type="hidden" asp-for="Id" />
-<input type="hidden" asp-for="ProductId" />
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ProductId" />
 
-@if (ViewBag.IsEdit)
-{
-    <div class="well d-flex flex-nowrap">
-        @{ TableFormattedVariantAttributes(Model.AttributesXml); }
-    </div>
-}
-else
-{
-    <div sm-if="Model.ProductVariantAttributes.Count > 0" id="ProductVariantAttributeContainer" class="well">
-        <partial name="_ProductAttributes" model="Model" />
-    </div>
-}
-
-<div sm-if="!ViewBag.IsEdit" id="CombinationExistenceNote">
-    <div sm-if="Model.Warnings.Count > 0" class="alert alert-warning">
-        @foreach (var warning in Model.Warnings)
+        @if (ViewBag.IsEdit)
         {
-            <p>@warning</p>
+            <div class="well d-flex flex-nowrap">
+                @{ TableFormattedVariantAttributes(Model.AttributesXml); }
+            </div>
         }
-    </div>
-</div>
+        else
+        {
+            <div sm-if="Model.ProductVariantAttributes.Count > 0" id="ProductVariantAttributeContainer" class="well">
+                <partial name="_ProductAttributes" model="Model" />
+            </div>
+        }
 
-<div class="adminContent">
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="IsActive" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="IsActive" />
-            <span asp-validation-for="IsActive"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminSeparator"><hr /></div>
-    </div>
-    <div sm-if="Model.AssignablePictures.Count > 0" class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AssignedPictureIds" />
-        </div>
-        <div class="adminData">
-            <ul class="choice-box-group choice-box-group-xl mb-1" id="assigned-pictures">
-                @foreach (var x in Model.AssignablePictures)
+        <div sm-if="!ViewBag.IsEdit" id="CombinationExistenceNote">
+            <div sm-if="Model.Warnings.Count > 0" class="alert alert-warning">
+                @foreach (var warning in Model.Warnings)
                 {
-                    <li class="choice-box choice-box-mediafile">
-                        <label class="choice-box-label">
-                            <input type="checkbox" class="choice-box-control-native" name="AssignedPictureIds" value="@x.Id" attr-checked='(x.IsAssigned, "checked")' />
-                            <span class="choice-box-content">
-                                <img sm-file="x.Media" sm-size="MediaSettings.ThumbnailSizeMd" class="choice-box-element" />
-                            </span>
-                        </label>
-                    </li>
+                    <p>@warning</p>
                 }
-            </ul>
+            </div>
         </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Sku" />
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsActive" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IsActive" />
+                    <span asp-validation-for="IsActive"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
+            </div>
+            <div sm-if="Model.AssignablePictures.Count > 0" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AssignedPictureIds" />
+                </div>
+                <div class="adminData">
+                    <ul class="choice-box-group choice-box-group-xl mb-1" id="assigned-pictures">
+                        @foreach (var x in Model.AssignablePictures)
+                        {
+                            <li class="choice-box choice-box-mediafile">
+                                <label class="choice-box-label">
+                                    <input type="checkbox" class="choice-box-control-native" name="AssignedPictureIds" value="@x.Id" attr-checked='(x.IsAssigned, "checked")' />
+                                    <span class="choice-box-content">
+                                        <img sm-file="x.Media" sm-size="MediaSettings.ThumbnailSizeMd" class="choice-box-element" />
+                                    </span>
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Sku" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Sku" />
+                    <span asp-validation-for="Sku"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ManufacturerPartNumber" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="ManufacturerPartNumber" />
+                    <span asp-validation-for="ManufacturerPartNumber"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Gtin" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Gtin" />
+                    <span asp-validation-for="Gtin"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Price" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                    <span asp-validation-for="Price"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DeliveryTimeId" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DeliveryTimeId" />
+                    <span asp-validation-for="DeliveryTimeId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="QuantityUnitId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="QuantityUnitId" asp-items="ViewBag.QuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
+                    <span asp-validation-for="QuantityUnitId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="BasePriceBaseAmount" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="BasePriceBaseAmount" />
+                    <span asp-validation-for="BasePriceBaseAmount"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="BasePriceAmount" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="BasePriceAmount" />
+                    <span asp-validation-for="BasePriceAmount"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
+            </div>
+            <div class="adminRow" id="pnlLength">
+                <div class="adminTitle">
+                    <smart-label asp-for="Length" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Length" sm-postfix="@Model.BaseDimensionIn" />
+                    <span asp-validation-for="Length"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlWidth">
+                <div class="adminTitle">
+                    <smart-label asp-for="Width" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Width" sm-postfix="@Model.BaseDimensionIn" />
+                    <span asp-validation-for="Width"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlHeight">
+                <div class="adminTitle">
+                    <smart-label asp-for="Height" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Height" sm-postfix="@Model.BaseDimensionIn" />
+                    <span asp-validation-for="Height"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="StockQuantity" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="StockQuantity" />
+                    <span asp-validation-for="StockQuantity"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AllowOutOfStockOrders" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="AllowOutOfStockOrders" />
+                    <span asp-validation-for="AllowOutOfStockOrders"></span>
+                </div>
+            </div>
         </div>
-        <div class="adminData">
-            <input asp-for="Sku" />
-            <span asp-validation-for="Sku"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="ManufacturerPartNumber" />
-        </div>
-        <div class="adminData">
-            <input asp-for="ManufacturerPartNumber" />
-            <span asp-validation-for="ManufacturerPartNumber"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Gtin" />
-        </div>
-        <div class="adminData">
-            <input asp-for="Gtin" />
-            <span asp-validation-for="Gtin"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="Price" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
-            <span asp-validation-for="Price"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="DeliveryTimeId" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="DeliveryTimeId" />
-            <span asp-validation-for="DeliveryTimeId"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="QuantityUnitId" />
-        </div>
-        <div class="adminData">
-            <select asp-for="QuantityUnitId" asp-items="ViewBag.QuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
-            <span asp-validation-for="QuantityUnitId"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="BasePriceBaseAmount" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="BasePriceBaseAmount" />
-            <span asp-validation-for="BasePriceBaseAmount"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="BasePriceAmount" />
-        </div>
-        <div class="adminData">
-            <input asp-for="BasePriceAmount" />
-            <span asp-validation-for="BasePriceAmount"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminSeparator"><hr /></div>
-    </div>
-    <div class="adminRow" id="pnlLength">
-        <div class="adminTitle">
-            <smart-label asp-for="Length" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="Length" sm-postfix="@Model.BaseDimensionIn" />
-            <span asp-validation-for="Length"></span>
-        </div>
-    </div>
-    <div class="adminRow" id="pnlWidth">
-        <div class="adminTitle">
-            <smart-label asp-for="Width" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="Width" sm-postfix="@Model.BaseDimensionIn" />
-            <span asp-validation-for="Width"></span>
-        </div>
-    </div>
-    <div class="adminRow" id="pnlHeight">
-        <div class="adminTitle">
-            <smart-label asp-for="Height" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="Height" sm-postfix="@Model.BaseDimensionIn" />
-            <span asp-validation-for="Height"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminSeparator"><hr /></div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="StockQuantity" />
-        </div>
-        <div class="adminData">
-            <editor asp-for="StockQuantity" />
-            <span asp-validation-for="StockQuantity"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="AllowOutOfStockOrders" />
-        </div>
-        <div class="adminData">
-            <input asp-for="AllowOutOfStockOrders" />
-            <span asp-validation-for="AllowOutOfStockOrders"></span>
-        </div>
-    </div>
-</div>
+
+    </tab>
+</tabstrip>
