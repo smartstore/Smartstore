@@ -1442,5 +1442,21 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 .Setup(x => x.GetAllDiscountsAsync(type, It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<Discount> { discount });
         }
+
+        [TestCase(50, 10, 2, false, 10)] // Checking with exact values
+        [TestCase(35, 10, 3, false, 9)]  // Check with rounding
+        [TestCase(35, 10, 3, true, 9)]  // Checking using RoundingHelper
+        public void GetRewardPointsForPurchase_MultipleCases(decimal amount, decimal pointsForAmount, int points, bool toDecrease, int expected)
+        {
+            // Arrange
+            _rewardPointsSettings.PointsForPurchases_Amount = pointsForAmount;
+            _rewardPointsSettings.PointsForPurchases_Points = points;
+
+            // Act
+            var result = _orderCalcService.GetRewardPointsForPurchase(amount, toDecrease);
+
+            // Assert
+            result.ShouldEqual(expected);
+        }
     }
 }
