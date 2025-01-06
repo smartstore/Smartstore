@@ -12,7 +12,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            //await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
         }
 
