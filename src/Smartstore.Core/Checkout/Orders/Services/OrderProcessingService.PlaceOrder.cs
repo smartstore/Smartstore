@@ -304,7 +304,7 @@ namespace Smartstore.Core.Checkout.Orders
                     Total = new(initialOrder.OrderTotal, _primaryCurrency)
                 };
 
-                paymentRequired = cartTotal.Total.Value != decimal.Zero && cart.Requirements.HasFlag(CheckoutRequirements.Payment);
+                paymentRequired = cartTotal.Total.Value != decimal.Zero;
                 paymentSystemName = initialOrder.PaymentMethodSystemName;
 
                 // Address validations.
@@ -575,8 +575,10 @@ namespace Smartstore.Core.Checkout.Orders
             var order = ctx.Order;
             var io = ctx.InitialOrder;
             var pr = ctx.PaymentRequest;
-            var billingAddressRequired = ctx.Cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
-            var paymentRequired = ctx.CartTotal.Total.Value != decimal.Zero && ctx.Cart.Requirements.HasFlag(CheckoutRequirements.Payment);
+            var total = ctx.CartTotal.Total.Value;
+            var paymentRequired = !pr.IsRecurringPayment
+                ? total != decimal.Zero && ctx.Cart.Requirements.HasFlag(CheckoutRequirements.Payment)
+                : total != decimal.Zero;
 
             if (paymentRequired)
             {
@@ -590,6 +592,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!pr.IsRecurringPayment)
             {
+                var billingAddressRequired = ctx.Cart.Requirements.HasFlag(CheckoutRequirements.BillingAddress);
+
                 order.BillingAddress = billingAddressRequired ? (Address)ctx.Customer.BillingAddress?.Clone() : null;
                 order.ShippingAddress = ctx.CartRequiresShipping ? (Address)ctx.Customer.ShippingAddress?.Clone() : null;
 
@@ -604,7 +608,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
             else
             {
-                order.BillingAddress = billingAddressRequired ? (Address)io.BillingAddress?.Clone() : null;
+                order.BillingAddress = (Address)io.BillingAddress?.Clone();
                 order.ShippingAddress = ctx.CartRequiresShipping ? (Address)io.ShippingAddress?.Clone() : null;
                 
                 ctx.IsRecurringCart = true;
