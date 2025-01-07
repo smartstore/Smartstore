@@ -30,6 +30,7 @@
   - Fixed various focus handling and popover issues.
   - AI: HTMLeditor does not record undo after answer is applied.
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
+- #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
 - Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
 - MegaMenu did not clear the output cache when any settings were changed.
