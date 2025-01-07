@@ -82,17 +82,19 @@ namespace Smartstore.Core.Identity
 
         private void DoTrack(ActionExecutingContext context)
         {
-            if (!context.HttpContext.Request.IsNonAjaxGet())
+            var now = DateTime.UtcNow;
+            var customer = _workContext.CurrentCustomer;
+            if (customer == null || customer.Deleted || customer.IsSystemAccount)
             {
                 return;
             }
 
-            var now = DateTime.UtcNow;
-            var customer = _workContext.CurrentCustomer;
-            if (customer == null || customer.Deleted || customer.IsSystemAccount)
+            if (context.HttpContext.Request.IsSubRequest())
+            {
                 return;
+            }
 
-            bool dirty = false;
+            var dirty = false;
 
             // Last activity date
             if (_attribute.TrackDate && customer.LastActivityDateUtc.AddMinutes(1.0) < now)
