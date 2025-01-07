@@ -256,7 +256,7 @@ bool IsDbSource(LogEvent e)
 bool IsFileSource(LogEvent e)
 {
     var source = e.GetSourceContext();
-    return source != null && (source.Equals("File", StringComparison.OrdinalIgnoreCase) || source.StartsWith("File/", StringComparison.OrdinalIgnoreCase));
+    return source != null && (source.EqualsNoCase("File") || source.StartsWithNoCase("File/"));
 }
 
 bool IsApiQueryWarning(LogEvent e)

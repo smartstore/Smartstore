@@ -16,8 +16,8 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
 
             // Resiliency
+            builder.RegisterType<OverloadProtector>().As<IOverloadProtector>().SingleInstance();
             builder.RegisterType<TrafficRateLimiters>().AsSelf().SingleInstance();
-            builder.RegisterType<OverloadProtector>().As<IOverloadProtector>().InstancePerLifetimeScope();
         }
     }
 }
