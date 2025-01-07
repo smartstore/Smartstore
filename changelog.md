@@ -12,6 +12,7 @@
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminder.
+- Setting to round the amount of reward points for a purchase.
 
 ### Improvements
 
