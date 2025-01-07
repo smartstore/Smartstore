@@ -119,6 +119,15 @@
                     <div id="PointsForPurchasesInfo" class="text-muted mt-1"></div>
                 </div>
             </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundDownPointsForPurchasedAmount" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="RoundDownPointsForPurchasedAmount"></setting-editor>
+                    <span asp-validation-for="RoundDownPointsForPurchasedAmount"></span>
+                </div>
+            </div>
             <div id="pnlPointsForProductPurchase" class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="ShowPointsForProductPurchase" />

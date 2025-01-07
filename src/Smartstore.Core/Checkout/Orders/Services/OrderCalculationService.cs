@@ -547,21 +547,26 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual int GetRewardPointsForPurchase(decimal amount, bool toDecreasePointsBalanceHistory = false)
         {
-            if (amount != 0m
-                && _rewardPointsSettings.PointsForPurchases_Amount > 0
-                && _rewardPointsSettings.PointsForPurchases_Points != 0)
-            {
-                var rewardAmount = amount / _rewardPointsSettings.PointsForPurchases_Amount * _rewardPointsSettings.PointsForPurchases_Points;
+            var amountForPurchase = _rewardPointsSettings.PointsForPurchases_Amount;
+            var pointsForPurchase = _rewardPointsSettings.PointsForPurchases_Points;
 
+            if (amount != 0 && amountForPurchase > 0 && pointsForPurchase != 0)
+            {
+                if (_rewardPointsSettings.RoundDownPointsForPurchasedAmount)
+                {
+                    return (int)Math.Truncate(amount / amountForPurchase) * pointsForPurchase;
+                }
+
+                var rewardPoints = amount / amountForPurchase * pointsForPurchase;
                 if (toDecreasePointsBalanceHistory)
                 {
                     // We use IRoundingHelper here because "Truncate" increases the risk of inaccuracy of rounding.
-                    return (int)_roundingHelper.Round(rewardAmount, 0, _primaryCurrency.MidpointRounding);
+                    return (int)_roundingHelper.Round(rewardPoints, 0, _primaryCurrency.MidpointRounding);
                 }
                 else
                 {
                     // INFO: "Truncate" returns the same as "Floor" for positive amounts.
-                    return (int)Math.Truncate(rewardAmount);
+                    return (int)Math.Truncate(rewardPoints);
                 }
             }
 

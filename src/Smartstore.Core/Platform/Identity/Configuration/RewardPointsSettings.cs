@@ -46,6 +46,11 @@ namespace Smartstore.Core.Identity
         public int PointsForPurchases_Points { get; set; } = 1;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to truncate the decimal places of the amount calculated for reward points awarded for a purchase.
+        /// </summary>
+        public bool RoundDownPointsForPurchasedAmount { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to show reward points (including amount) to receive for purchasing a product on product detail page.
         /// </summary>
         public bool ShowPointsForProductPurchase { get; set; }

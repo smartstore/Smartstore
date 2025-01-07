@@ -33,6 +33,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*PointsForPurchases_Amount")]
         public decimal PointsForPurchases_Amount { get; set; }
 
+        [LocalizedDisplay("*RoundDownPointsForPurchasedAmount")]
+        public bool RoundDownPointsForPurchasedAmount { get; set; }
+
         [LocalizedDisplay("*ShowPointsForProductPurchase")]
         public bool ShowPointsForProductPurchase { get; set; }
 

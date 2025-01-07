@@ -1432,6 +1432,29 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _orderCalcService.ConvertAmountToRewardPoints(new Money(100, _currency)).ShouldEqual(7);
         }
 
+        [TestCase(50, 10, 2, false, false, 10)]
+        [TestCase(50, 10, 2, false, true, 10)]
+        [TestCase(35, 10, 3, false, false, 10)]
+        [TestCase(35, 10, 3, false, true, 9)]
+        [TestCase(35, 10, 3, true, false, 11)]
+        [TestCase(35, 10, 3, true, true, 9)]
+        [TestCase(-35, 10, 3, false, false, -10)]
+        [TestCase(-35, 10, 3, false, true, -9)]
+        public void Can_get_reward_points_for_purchase(
+            decimal amount, 
+            decimal amountForPurchase, 
+            int pointsForPurchase, 
+            bool toDecreasePointsBalanceHistory,
+            bool roundDown,
+            int result)
+        {
+            _rewardPointsSettings.PointsForPurchases_Amount = amountForPurchase;
+            _rewardPointsSettings.PointsForPurchases_Points = pointsForPurchase;
+            _rewardPointsSettings.RoundDownPointsForPurchasedAmount = roundDown;
+
+            _orderCalcService.GetRewardPointsForPurchase(amount, toDecreasePointsBalanceHistory).ShouldEqual(result);
+        }
+
         private void InitDiscountServiceMock(Discount discount, DiscountType type)
         {
             _discountServiceMock
@@ -1440,7 +1463,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             _discountServiceMock
                 .Setup(x => x.GetAllDiscountsAsync(type, It.IsAny<string>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<Discount> { discount });
+                .ReturnsAsync([discount]);
         }
     }
 }

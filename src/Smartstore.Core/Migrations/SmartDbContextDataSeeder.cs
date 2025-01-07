@@ -56,6 +56,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Changes to the following settings only take effect after the application has been restarted.",
                 "Änderungen an den folgenden Einstellungen werden erst nach einem Neustart der Anwendung wirksam.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.RewardPoints.RoundDownPointsForPurchasedAmount",
+                "Round down the amount of points for a purchase",
+                "Betrag bei Punkten für einen Einkauf abrunden",
+                "Specifies whether to round down the amount when calculating the reward points awarded for a product purchase.",
+                "Legt fest, ob der Betrag bei der Berechnung der Bonuspunkte, die für den Kauf eines Produkts gewährt werden, abgerundet werden soll.");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";
