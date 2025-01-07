@@ -36,7 +36,8 @@ namespace Smartstore.Core
             DetectPdfConverter,
             DetectAuthenticated,
             DetectGuest,
-            DetectBotForMedia,
+            // INFO: We rely on overload protector's ForbidNewGuestsIfSubRequest policy for now.
+            //DetectBotForMedia,
             DetectBot,
             DetectWebhookEndpoint,
             DetectByClientIdent
@@ -536,7 +537,15 @@ namespace Smartstore.Core
             // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
             if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
             {
-                await CheckBotDeniedAsync(context);
+                if (context.UserAgent.IsBot())
+                {
+                    await CheckBotDeniedAsync(context);
+                }
+                else
+                {
+                    await CheckGuestDeniedAsync(context);
+                }
+
                 return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 

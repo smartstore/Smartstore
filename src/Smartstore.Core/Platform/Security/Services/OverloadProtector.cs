@@ -7,14 +7,21 @@ namespace Smartstore.Core.Security
 {
     public class OverloadProtector : IOverloadProtector
     {
-        private readonly ResiliencySettings _settings;
+        private readonly Work<ResiliencySettings> _settings;
         private readonly TrafficRateLimiters _rateLimiters;
 
-        public OverloadProtector(ResiliencySettings settings, TrafficRateLimiters rateLimiters)
+        public OverloadProtector(
+            Work<ResiliencySettings> settings, 
+            TrafficRateLimiters rateLimiters,
+            ILoggerFactory loggerFactory)
         {
             _settings = settings;
             _rateLimiters = rateLimiters;
+
+            Logger = loggerFactory.CreateLogger("File/App_Data/Logs/overloadprotector-.log");
         }
+
+        public ILogger Logger { get; }
 
         public virtual Task<bool> DenyGuestAsync(Customer customer = null)
             => Task.FromResult(CheckDeny(UserType.Guest));
@@ -24,10 +31,14 @@ namespace Smartstore.Core.Security
 
         public virtual Task<bool> ForbidNewGuestAsync(HttpContext httpContext)
         {
-            var forbid = _settings.EnableOverloadProtection && _settings.ForbidNewGuestsIfSubRequest && httpContext != null;
+            var forbid = _settings.Value.EnableOverloadProtection && _settings.Value.ForbidNewGuestsIfSubRequest && httpContext != null;
             if (forbid)
             {
                 forbid = httpContext.Request.IsSubRequest();
+                if (forbid)
+                {
+                    Logger.Warn("New guest forbidden due to policy (ForbidNewGuestsIfSubRequest).");
+                }
             }
             
             return Task.FromResult(forbid);
@@ -35,7 +46,7 @@ namespace Smartstore.Core.Security
 
         private bool CheckDeny(UserType userType)
         {
-            if (!_settings.EnableOverloadProtection)
+            if (!_settings.Value.EnableOverloadProtection)
             {
                 // Allowed, because protection is turned off.
                 return false;
@@ -66,7 +77,13 @@ namespace Smartstore.Core.Security
             var limiter = GetTypeLimiter(userType, peak);
             if (limiter != null)
             {
-                var lease = limiter.AttemptAcquire(1);
+                using var lease = limiter.AttemptAcquire(1);
+
+                if (!lease.IsAcquired)
+                {
+                    Logger.Warn("Rate limit exceeded. UserType: {0}, Peak: {1}", userType, peak);
+                }
+
                 return lease.IsAcquired;
             }
 
@@ -76,10 +93,16 @@ namespace Smartstore.Core.Security
 
         private bool TryAcquireFromGlobal(bool peak)
         {
-            var limiter = peak ? _rateLimiters.GlobalPeakLimiter : _rateLimiters.GlobalLongLimiter;
+            var limiter = peak ? _rateLimiters.PeakGlobalLimiter : _rateLimiters.LongGlobalLimiter;
             if (limiter != null)
             {
-                var lease = limiter.AttemptAcquire(1);
+                using var lease = limiter.AttemptAcquire(1);
+
+                if (!lease.IsAcquired)
+                {
+                    Logger.Warn("Global rate limit exceeded. Peak: {0}", peak);
+                }
+
                 return lease.IsAcquired;
             }
 
@@ -91,8 +114,8 @@ namespace Smartstore.Core.Security
         {
             return userType switch
             {
-                UserType.Guest  => peak ? _rateLimiters.GuestPeakLimiter : _rateLimiters.GuestLongLimiter,
-                _               => peak ? _rateLimiters.BotPeakLimiter : _rateLimiters.BotLongLimiter
+                UserType.Guest  => peak ? _rateLimiters.PeakGuestLimiter : _rateLimiters.LongGuestLimiter,
+                _               => peak ? _rateLimiters.PeakBotLimiter : _rateLimiters.LongBotLimiter
             };
         }
 
