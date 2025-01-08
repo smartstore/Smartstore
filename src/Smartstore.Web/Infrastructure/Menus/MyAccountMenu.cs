@@ -3,14 +3,17 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Infrastructure
 {
     public partial class MyAccountMenu : IMenu
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly Work<IUrlHelper> _urlHelper;
+        private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
+        private readonly IEventPublisher _eventPublisher;
         private readonly CustomerSettings _customerSettings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -21,15 +24,17 @@ namespace Smartstore.Web.Infrastructure
 
         public MyAccountMenu(
             SmartDbContext db,
-            ICommonServices services,
-            Work<IUrlHelper> urlHelper,
+            IStoreContext storeContext,
+            IWorkContext workContext,
+            IEventPublisher eventPublisher,
             CustomerSettings customerSettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
-            _services = services;
-            _urlHelper = urlHelper;
+            _storeContext = storeContext;
+            _workContext = workContext;
+            _eventPublisher = eventPublisher;
             _customerSettings = customerSettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
@@ -48,7 +53,7 @@ namespace Smartstore.Web.Infrastructure
             if (_root == null)
             {
                 _root = await BuildAsync();
-                await _services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, _root));
+                await _eventPublisher.PublishAsync(new MenuBuiltEvent(Name, _root));
             }
 
             return _root;
@@ -84,17 +89,13 @@ namespace Smartstore.Web.Infrastructure
 
         protected virtual async Task<TreeNode<MenuItem>> BuildAsync()
         {
-            var store = _services.StoreContext.CurrentStore;
-            var customer = _services.WorkContext.CurrentCustomer;
-            var urlHelper = _urlHelper.Value;
-
-            var root = new TreeNode<MenuItem>(new MenuItem ())
+            var root = new TreeNode<MenuItem>(new())
             {
                 Id = Name
             };
 
-            root.AppendRange(new[] 
-            {
+            root.AppendRange(
+            [
                 new MenuItem
                 {
                     Id = "info",
@@ -110,31 +111,32 @@ namespace Smartstore.Web.Infrastructure
                     Icon = "fal fa-address-book",
                     ActionName = "Addresses",
                     ControllerName = "Customer"
-                },
-                new MenuItem
+                }
+            ]);
+
+            if (!_customerSettings.HideMyAccountOrders)
+            {
+                root.Append(new MenuItem
                 {
                     Id = "orders",
                     Text = T("Account.CustomerOrders"),
                     Icon = "fal fa-file-lines",
                     ActionName = "Orders",
                     ControllerName = "Customer"
-                }
-            });
+                });
+            }
 
-            if (_orderSettings.ReturnRequestsEnabled)
+            if (_orderSettings.ReturnRequestsEnabled
+                && await _db.ReturnRequests.ApplyStandardFilter(null, _workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id).AnyAsync())
             {
-                var hasReturnRequests = await _db.ReturnRequests.ApplyStandardFilter(customerId: customer.Id, storeId: store.Id).AnyAsync();
-                if (hasReturnRequests)
+                root.Append(new MenuItem
                 {
-                    root.Append(new MenuItem
-                    {
-                        Id = "returnrequests",
-                        Text = T("Account.CustomerReturnRequests"),
-                        Icon = "fal fa-truck",
-                        ActionName = "ReturnRequests",
-                        ControllerName = "Customer"
-                    });
-                }
+                    Id = "returnrequests",
+                    Text = T("Account.CustomerReturnRequests"),
+                    Icon = "fal fa-truck",
+                    ActionName = "ReturnRequests",
+                    ControllerName = "Customer"
+                });
             }
 
             if (!_customerSettings.HideDownloadableProductsTab)

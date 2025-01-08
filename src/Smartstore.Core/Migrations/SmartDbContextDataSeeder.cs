@@ -62,6 +62,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to round down the amount when calculating the reward points awarded for a product purchase.",
                 "Legt fest, ob der Betrag bei der Berechnung der Bonuspunkte, die für den Kauf eines Produkts gewährt werden, abgerundet werden soll.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.HideMyAccountOrders",
+                "Hide orders in the \"My account\" area",
+                "Bestellungen im Bereich \"Mein Konto\" ausblenden");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";

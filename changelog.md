@@ -13,6 +13,7 @@
 - Fixed number of attachments always 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminder.
 - Setting to round the amount of reward points for a purchase.
+- #1150 Add a setting to hide orders in *my account*.
 
 ### Improvements
 

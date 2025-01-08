@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
@@ -6,8 +7,10 @@ using Smartstore.Web.Rendering.Builders;
 
 namespace Smartstore.Web.Components
 {
-    public class AccountDropdownViewComponent : SmartViewComponent
+    public class AccountDropdownViewComponent(CustomerSettings customerSettings) : SmartViewComponent
     {
+        private readonly CustomerSettings _customerSettings = customerSettings;
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -29,12 +32,15 @@ namespace Smartstore.Web.Components
                 .Text(T("Account.MyAccount"))
                 .AsItem());
 
-            model.MenuItems.Add(new MenuItem().ToBuilder()
+            if (!_customerSettings.HideMyAccountOrders)
+            {
+                model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Action("Orders", "Customer")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })
                 .Icon("fal fa-file-lines fa-fw")
                 .Text(T("Account.MyOrders"))
                 .AsItem());
+            }
 
             if (model.DisplayAdminLink)
             {

@@ -10,7 +10,7 @@ namespace Smartstore.Admin.Models
         public CustomerSettingsModel CustomerSettings { get; set; } = new();
         public AddressSettingsModel AddressSettings { get; set; } = new();
         public PrivacySettingsModel PrivacySettings { get; set; } = new();
-        public List<CustomerUserSettingsLocalizedModel> Locales { get; set; } = new();
+        public List<CustomerUserSettingsLocalizedModel> Locales { get; set; } = [];
 
         #region Nested classes
 
@@ -57,6 +57,9 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*NotifyNewCustomerRegistration")]
             public bool NotifyNewCustomerRegistration { get; set; }
+
+            [LocalizedDisplay("*HideMyAccountOrders")]
+            public bool HideMyAccountOrders { get; set; }
 
             [LocalizedDisplay("*HideDownloadableProductsTab")]
             public bool HideDownloadableProductsTab { get; set; }

@@ -118,7 +118,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Info()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -135,7 +134,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Info(CustomerInfoModel model)
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -526,8 +524,12 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Orders(int? page, int? recurringPaymentsPage)
         {
-            var customer = Services.WorkContext.CurrentCustomer;
+            if (_customerSettings.HideMyAccountOrders)
+            {
+                return RedirectToAction(nameof(Info));
+            }
 
+            var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -602,7 +604,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ReturnRequests()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -652,7 +653,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> DownloadableProducts()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -765,16 +765,15 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Avatar()
         {
-            var customer = Services.WorkContext.CurrentCustomer;
-
-            if (!customer.IsRegistered())
-            {
-                return ChallengeOrForbid();
-            }
-
             if (!_customerSettings.AllowCustomersToUploadAvatars)
             {
                 return RedirectToAction(nameof(Info));
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return ChallengeOrForbid();
             }
 
             var model = new CustomerAvatarEditModel
@@ -836,7 +835,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> RemoveAvatar()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
             {
                 var avatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
@@ -860,16 +858,15 @@ namespace Smartstore.Web.Controllers
 
         public IActionResult RewardPoints()
         {
-            var customer = Services.WorkContext.CurrentCustomer;
+            if (!_rewardPointsSettings.Enabled)
+            {
+                return RedirectToAction(nameof(Info));
+            }
 
+            var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
-            }
-
-            if (!_rewardPointsSettings.Enabled)
-            {
-                return RedirectToAction("Info");
             }
 
             var model = new CustomerRewardPointsModel();
@@ -900,10 +897,10 @@ namespace Smartstore.Web.Controllers
         {
             if (_customerSettings.HideBackInStockSubscriptionsTab)
             {
-                return RedirectToAction("Info");
+                return RedirectToAction(nameof(Info));
             }
 
-            int pageIndex = 0;
+            var pageIndex = 0;
             if (page > 0)
             {
                 pageIndex = page.Value - 1;
@@ -942,6 +939,11 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("StockSubscriptions")]
         public async Task<IActionResult> StockSubscriptionsPOST()
         {
+            if (_customerSettings.HideBackInStockSubscriptionsTab)
+            {
+                return RedirectToAction(nameof(Info));
+            }
+
             var form = HttpContext.Request.Form;
             var customerId = Services.WorkContext.CurrentCustomer.Id;
 
@@ -966,7 +968,7 @@ namespace Smartstore.Web.Controllers
 
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("StockSubscriptions");
+            return RedirectToAction(nameof(StockSubscriptions));
         }
 
         #endregion

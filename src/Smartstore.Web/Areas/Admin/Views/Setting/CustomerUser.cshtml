@@ -206,6 +206,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.HideMyAccountOrders" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.HideMyAccountOrders"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.HideMyAccountOrders"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="CustomerSettings.HideDownloadableProductsTab" />
                     </div>
                     <div class="adminData">
