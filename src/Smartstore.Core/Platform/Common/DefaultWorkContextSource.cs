@@ -168,19 +168,36 @@ namespace Smartstore.Core
                     : (customer, null);
             }
 
+            if (customer != null)
+            {
+                if (customer.IsBot())
+                {
+                    // Check traffic limit for bots.
+                    await CheckBotDeniedAsync(context);
+                }
+                else if (customer.IsGuest())
+                {
+                    // Check traffic limit for guests.
+                    await CheckGuestDeniedAsync(context, customer);
+                }
+            }
+
             if (customer == null || (customer.IsGuest() && customer.IsRegistered()))
             {
-                if (await context.OverloadProtector.ForbidNewGuestAsync(context.HttpContext))
-                {
-                    // DDoS attack? Prevent new guest account creation and throw to block the request.
-                    throw new HttpResponseException(StatusCodes.Status403Forbidden, "Forbidden");
-                }
-
-                await CheckGuestDeniedAsync(context);
-
                 // No record yet or account deleted/deactivated.
                 // Also dont' treat registered customers as guests.
                 // Create new record in these cases.
+
+                if (await context.OverloadProtector.ForbidNewGuestAsync(context.HttpContext))
+                {
+                    // DDoS attack? Prevent new guest session and throw to block the request.
+                    throw new HttpResponseException(StatusCodes.Status403Forbidden, "Forbidden");
+                }
+
+                // Check traffic limit before creating new guest session.
+                await CheckGuestDeniedAsync(context);
+
+                // Create guest session
                 customer = await CreateGuestCustomerAsync(context.ClientIdent);
             }
 
@@ -467,7 +484,6 @@ namespace Smartstore.Core
         {
             if (context.UserAgent.IsBot())
             {
-                await CheckBotDeniedAsync(context);
                 return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
             }
 
@@ -512,7 +528,7 @@ namespace Smartstore.Core
             {
                 context.CustomerGuid = customerGuid;
                 
-                // Cookie present. Try to load guest customer by it's value.
+                // Cookie present. Try to load guest customer by its value.
                 var customer = await context.Db.Customers
                     //.IncludeShoppingCart()
                     .IncludeCustomerRoles()
@@ -522,7 +538,6 @@ namespace Smartstore.Core
                 // Don't treat registered customers as guests.
                 if (customer != null && !customer.IsRegistered())
                 {
-                    await CheckGuestDeniedAsync(context, customer);
                     return customer;
                 }
             }
@@ -530,27 +545,27 @@ namespace Smartstore.Core
             return null;
         }
 
-        private static async Task<Customer> DetectBotForMedia(DetectCustomerContext context)
-        {
-            // Don't overstress the system with guest detection for media files.
-            // If there's no endpoint, it's most likely a media file request.
-            // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
-            if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
-            {
-                if (context.UserAgent.IsBot())
-                {
-                    await CheckBotDeniedAsync(context);
-                }
-                else
-                {
-                    await CheckGuestDeniedAsync(context);
-                }
+        //private static async Task<Customer> DetectBotForMedia(DetectCustomerContext context)
+        //{
+        //    // Don't overstress the system with guest detection for media files.
+        //    // If there's no endpoint, it's most likely a media file request.
+        //    // Bad bots don't accept cookies anyway. If there is no visitor cookie, it's a bot.
+        //    if (context.CustomerGuid == null && context.HttpContext.GetEndpoint() == null)
+        //    {
+        //        if (context.UserAgent.IsBot())
+        //        {
+        //            await CheckBotDeniedAsync(context);
+        //        }
+        //        else
+        //        {
+        //            await CheckGuestDeniedAsync(context);
+        //        }
 
-                return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
-            }
+        //        return await context.CustomerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot);
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         private static async Task<Customer> DetectByClientIdent(DetectCustomerContext context)
         {
