@@ -26,12 +26,7 @@ namespace Smartstore
             {
                 var role = mapping.CustomerRole;
 
-                if (string.IsNullOrEmpty(role?.SystemName))
-                {
-                    continue;
-                }
-
-                if (!onlyActiveRoles || role.Active)
+                if (role != null && !string.IsNullOrEmpty(role.SystemName) && (!onlyActiveRoles || role.Active))
                 {
                     yield return role.SystemName;
                 }
@@ -112,42 +107,29 @@ namespace Smartstore
         public static bool IsGuest(this Customer customer, bool onlyActiveRoles = true)
         {
             // Hot path code!
-            var roleNames = GetRoleNames(customer, onlyActiveRoles).ToArray();
+            var isGuest = false;
+            var isRegistered = false;
 
-            if (roleNames.Length == 0)
+            // A registered user is NOT a guest.
+            foreach (var roleName in GetRoleNames(customer, onlyActiveRoles))
             {
-                return false;
-            }
-            else if (roleNames.Length == 1)
-            {
-                return roleNames[0].Equals(SystemCustomerRoleNames.Guests, StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                var isGuest = false;
-                var isRegistered = false;
-                
-                // A registered user is NOT a guest.
-                for (var i = 0; i < roleNames.Length; i++)
+                if (!isGuest && string.Equals(roleName, SystemCustomerRoleNames.Guests, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!isGuest && roleNames[i].Equals(SystemCustomerRoleNames.Guests, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isGuest = true;
-                    }
+                    isGuest = true;
+                }
                     
-                    if (!isRegistered && roleNames[i].Equals(SystemCustomerRoleNames.Registered, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isRegistered = true;
-                    }
-
-                    if (isGuest && isRegistered)
-                    {
-                        break;
-                    }
+                if (!isRegistered && string.Equals(roleName, SystemCustomerRoleNames.Registered, StringComparison.OrdinalIgnoreCase))
+                {
+                    isRegistered = true;
                 }
 
-                return isGuest && !isRegistered;
+                if (isGuest && isRegistered)
+                {
+                    break;
+                }
             }
+
+            return isGuest && !isRegistered;
         }
 
         /// <summary>
