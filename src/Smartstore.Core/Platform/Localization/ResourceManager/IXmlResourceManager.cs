@@ -5,6 +5,13 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.Localization
 {
+    [Serializable]
+    public record ResourceSetImportInfo
+    {
+        public decimal TranslatedPercentage { get; set; }
+        public DateTime ImportedOn { get; set; }
+    }
+
     /// <summary>
     /// Responsible for importing and exporting locale string resources from and to XML.
     /// </summary>
@@ -73,22 +80,22 @@ namespace Smartstore.Core.Localization
         #region Download
 
         /// <summary>
-        /// Gets information about the last resources import.
-        /// <returns>Key: language identifier. Value: <see cref="LastResourcesImportInfo"/></returns>
-        Task<Dictionary<int, LastResourcesImportInfo>> GetLastResourcesImportInfosAsync();
+        /// Gets information about the last resource set import.
+        /// <returns>Key: Language identifier. Value: <see cref="ResourceSetImportInfo"/></returns>
+        Task<Dictionary<int, ResourceSetImportInfo>> GetLastResourceSetImportInfosAsync();
 
         /// <summary>
-        /// Loads information about all available resources from the endpoint specified by <see cref="SmartConfiguration.TranslateCheckUrl"/>.
+        /// Loads information about all available resource sets from the endpoint specified by <see cref="SmartConfiguration.TranslateCheckUrl"/>.
         /// </summary>
-        Task<CheckAvailableResourcesResult> GetAvailableResourcesAsync(CancellationToken cancelToken = default);
+        Task<ResourceSetsResponse> GetOnlineResourceSetsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Downloads and imports string resources.
+        /// Downloads and imports string resources for a given resource set.
         /// </summary>
-        /// <param name="stringResourcesSetId">Identifier of the resources set to be downloaded.</param>
-        /// <param name="availableResources">Infos about all available resources (e.g. download URL). See <see cref="GetAvailableResourcesAsync(CancellationToken)"/>.</param>
+        /// <param name="setId">Identifier of the resource set to be downloaded.</param>
+        /// <param name="response">Infos about all available online resource sets (e.g. download URL). See <see cref="GetOnlineResourceSetsAsync(CancellationToken)"/>.</param>
         /// <returns><c>true</c> if the resources were successfully downloaded and imported. Otherwise <c>false</c>.</returns>
-        Task<bool> DownloadAsync(int stringResourcesSetId, CheckAvailableResourcesResult availableResources, CancellationToken cancelToken = default);
+        Task<bool> DownloadResourceSetAsync(int setId, ResourceSetsResponse response, CancellationToken cancelToken = default);
 
         #endregion
     }

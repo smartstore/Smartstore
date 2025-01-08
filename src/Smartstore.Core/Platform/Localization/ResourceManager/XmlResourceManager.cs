@@ -552,9 +552,9 @@ namespace Smartstore.Core.Localization
 
         #region Download
 
-        public async Task<Dictionary<int, LastResourcesImportInfo>> GetLastResourcesImportInfosAsync()
+        public async Task<Dictionary<int, ResourceSetImportInfo>> GetLastResourceSetImportInfosAsync()
         {
-            Dictionary<int, LastResourcesImportInfo> result = null;
+            Dictionary<int, ResourceSetImportInfo> result = null;
 
             try
             {
@@ -563,7 +563,7 @@ namespace Smartstore.Core.Localization
                     .Where(x => x.Key == LastResourcesImportInfoKey && x.KeyGroup == nameof(Language))
                     .ToListAsync();
 
-                result = attributes.ToDictionarySafe(x => x.EntityId, x => JsonConvert.DeserializeObject<LastResourcesImportInfo>(x.Value));
+                result = attributes.ToDictionarySafe(x => x.EntityId, x => JsonConvert.DeserializeObject<ResourceSetImportInfo>(x.Value));
             }
             catch (Exception ex)
             {
@@ -573,7 +573,7 @@ namespace Smartstore.Core.Localization
             return result ?? [];
         }
 
-        public async Task<CheckAvailableResourcesResult> GetAvailableResourcesAsync(CancellationToken cancelToken = default)
+        public async Task<ResourceSetsResponse> GetOnlineResourceSetsAsync(CancellationToken cancelToken = default)
         {
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromMilliseconds(10000);
@@ -589,19 +589,19 @@ namespace Smartstore.Core.Localization
                 var jsonString = await response.Content.ReadAsStringAsync(cancelToken);
                 if (jsonString.HasValue())
                 {
-                    return JsonConvert.DeserializeObject<CheckAvailableResourcesResult>(jsonString);
+                    return JsonConvert.DeserializeObject<ResourceSetsResponse>(jsonString);
                 }
             }
 
             return null;
         }
 
-        public async Task<bool> DownloadAsync(int stringResourcesSetId, CheckAvailableResourcesResult availableResources, CancellationToken cancelToken = default)
+        public async Task<bool> DownloadResourceSetAsync(int setId, ResourceSetsResponse response, CancellationToken cancelToken = default)
         {
-            Guard.NotZero(stringResourcesSetId);
-            Guard.NotNull(availableResources);
+            Guard.NotZero(setId);
+            Guard.NotNull(response);
 
-            if (availableResources.Resources.Count == 0)
+            if (response.Resources.Count == 0)
             {
                 return true;
             }
@@ -612,7 +612,7 @@ namespace Smartstore.Core.Localization
             {
                 var state = new LanguageDownloadState
                 {
-                    Id = stringResourcesSetId,
+                    Id = setId,
                     Step = LanguageDownloadStep.DownloadResources
                 };
 
@@ -620,8 +620,8 @@ namespace Smartstore.Core.Localization
 
                 // 1. Download resources.
                 var client = _httpClientFactory.CreateClient();
-                var source = availableResources.Resources.First(x => x.Id == stringResourcesSetId);
-                var xmlDoc = await DownloadAvailableResources(client, source.DownloadUrl, _storeContext.CurrentStore.GetBaseUrl(), cancelToken);
+                var source = response.Resources.First(x => x.Id == setId);
+                var xmlDoc = await DownloadResourceSetInternal(client, source.DownloadUrl, _storeContext.CurrentStore.GetBaseUrl(), cancelToken);
 
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -667,7 +667,7 @@ namespace Smartstore.Core.Localization
                 await ImportResourcesFromXmlAsync(language, xmlDoc);
 
                 // 4. Save import info.
-                var result = new LastResourcesImportInfo
+                var result = new ResourceSetImportInfo
                 {
                     TranslatedPercentage = source.TranslatedPercentage,
                     ImportedOn = DateTime.UtcNow
@@ -714,7 +714,7 @@ namespace Smartstore.Core.Localization
             return success;
         }
 
-        private static async Task<XmlDocument> DownloadAvailableResources(
+        private static async Task<XmlDocument> DownloadResourceSetInternal(
             HttpClient client,
             string downloadUrl,
             string storeUrl,

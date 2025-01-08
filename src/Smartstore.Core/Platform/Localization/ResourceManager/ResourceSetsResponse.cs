@@ -1,16 +1,16 @@
 ﻿namespace Smartstore.Core.Localization
 {
     [Serializable]
-    public class CheckAvailableResourcesResult
+    public class ResourceSetsResponse
     {
         public string Version { get; set; }
         public int ResourceCount { get; set; }
 
-        public List<AvailableResources> Resources { get; set; } = [];
+        public List<ResourceSet> Resources { get; set; } = [];
     }
 
     [Serializable]
-    public class AvailableResources
+    public class ResourceSet
     {
         public int Id { get; set; }
         public int? PreviousSetId { get; set; }

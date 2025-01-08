@@ -57,7 +57,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Language.Read)]
         public async Task<IActionResult> List()
         {
-            var lastImportInfos = await _resourceManager.GetLastResourcesImportInfosAsync();
+            var lastImportInfos = await _resourceManager.GetLastResourceSetImportInfosAsync();
             var languages = _languageService.GetAllLanguages(true);
             var masterLanguageId = _languageService.GetMasterLanguageId();
             var mapper = MapperFactory.GetMapper<Language, LanguageModel>();
@@ -103,7 +103,7 @@ namespace Smartstore.Admin.Controllers
             var languages = _languageService.GetAllLanguages(true);
             var languageDic = languages.ToDictionarySafe(x => x.LanguageCulture, StringComparer.OrdinalIgnoreCase);
             var downloadState = await _asyncState.GetAsync<LanguageDownloadState>();
-            var lastImportInfos = await _resourceManager.GetLastResourcesImportInfosAsync();
+            var lastImportInfos = await _resourceManager.GetLastResourceSetImportInfosAsync();
 
             var availableResources = await CheckAvailableResources(enforce);
             if (availableResources != null)
@@ -511,7 +511,7 @@ namespace Smartstore.Admin.Controllers
                     var availableResources = await CheckAvailableResources();
                     if (availableResources != null)
                     {
-                        if (await _resourceManager.DownloadAsync(availableLanguageSetId.Value, availableResources))
+                        if (await _resourceManager.DownloadResourceSetAsync(availableLanguageSetId.Value, availableResources))
                         {
                             NotifySuccess(T("Admin.Configuration.Languages.Imported"));
                         }
@@ -549,7 +549,7 @@ namespace Smartstore.Admin.Controllers
                 _ = _asyncRunner.RunTask((scope, ct, state) =>
                 {
                     var ctx = (DownloadContext)state;
-                    return scope.Resolve<IXmlResourceManager>().DownloadAsync(ctx.StringResourcesSetId, ctx.AvailableResources, ct);
+                    return scope.Resolve<IXmlResourceManager>().DownloadResourceSetAsync(ctx.StringResourcesSetId, ctx.AvailableResources, ct);
                 }, context);
             }
             else
@@ -592,10 +592,10 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        private async Task<CheckAvailableResourcesResult> CheckAvailableResources(bool enforce = false)
+        private async Task<ResourceSetsResponse> CheckAvailableResources(bool enforce = false)
         {
             const string cacheKey = "admin:language:checkavailableresourcesresult";
-            CheckAvailableResourcesResult result = null;
+            ResourceSetsResponse result = null;
             string jsonString = null;
 
             if (!enforce)
@@ -607,7 +607,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    result = await _resourceManager.GetAvailableResourcesAsync();
+                    result = await _resourceManager.GetOnlineResourceSetsAsync();
                     if (result != null)
                     {
                         jsonString = JsonConvert.SerializeObject(result);
@@ -622,7 +622,7 @@ namespace Smartstore.Admin.Controllers
 
             if (result == null && jsonString.HasValue())
             {
-                result = JsonConvert.DeserializeObject<CheckAvailableResourcesResult>(jsonString);
+                result = JsonConvert.DeserializeObject<ResourceSetsResponse>(jsonString);
             }
 
             result?.Resources
@@ -636,7 +636,7 @@ namespace Smartstore.Admin.Controllers
         {
             var twoLetterLanguageCodes = new List<SelectListItem>();
             var countryFlags = new List<SelectListItem>();
-            var lastImportInfos = await _resourceManager.GetLastResourcesImportInfosAsync();
+            var lastImportInfos = await _resourceManager.GetLastResourceSetImportInfosAsync();
 
             var allCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
                 .OrderBy(x => x.DisplayName)
@@ -770,8 +770,8 @@ namespace Smartstore.Admin.Controllers
         }
 
         private AvailableLanguageModel CreateAvailableLanguageModel(
-            AvailableResources resources,
-            Dictionary<int, LastResourcesImportInfo> lastImportInfos,
+            ResourceSet resources,
+            Dictionary<int, ResourceSetImportInfo> lastImportInfos,
             Language language = null,
             LanguageDownloadState state = null)
         {
@@ -808,7 +808,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            if (language != null && lastImportInfos.TryGetValue(language.Id, out LastResourcesImportInfo info))
+            if (language != null && lastImportInfos.TryGetValue(language.Id, out ResourceSetImportInfo info))
             {
                 // Only show percent at last import if it's less than the current percentage.
                 var percentAtLastImport = Math.Round(info.TranslatedPercentage, 2);
@@ -835,7 +835,7 @@ namespace Smartstore.Admin.Controllers
         class DownloadContext
         {
             public int StringResourcesSetId { get; set; }
-            public CheckAvailableResourcesResult AvailableResources { get; set; }
+            public ResourceSetsResponse AvailableResources { get; set; }
         }
     }
 }
