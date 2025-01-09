@@ -516,10 +516,20 @@ namespace Smartstore.Web.Controllers
 
             item.MinPriceProductId = contextProduct.Id;
             item.Sku = contextProduct.Sku;
-            item.LegalInfo = product.IsTaxExempt ? ctx.TaxExemptLegalInfo : ctx.LegalInfo;
             item.RatingSum = product.ApprovedRatingSum;
             item.TotalReviews = product.ApprovedTotalReviews;
             item.IsShippingEnabled = contextProduct.IsShippingEnabled;
+
+            if (!product.IsShippingEnabled || product.IsFreeShipping)
+            {
+                item.LegalInfo += product.IsTaxExempt
+                    ? T("Common.FreeShipping")
+                    : T("Tax.LegalInfoShort3", T(options.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT"), T("Common.FreeShipping"));
+            }
+            else
+            {
+                item.LegalInfo = product.IsTaxExempt ? ctx.TaxExemptLegalInfo : ctx.LegalInfo;
+            }
 
             // INFO: we cannot include ManageInventoryMethod.ManageStockByAttributes here because it's only functional with MergeWithCombination.
             item.DeliveryTime = await PrepareDeliveryTimeModel(product, settings, product.ManageInventoryMethod == ManageInventoryMethod.ManageStock);

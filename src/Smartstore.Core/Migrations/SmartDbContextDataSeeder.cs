@@ -179,6 +179,8 @@ insbesondere wenn er seine Client-IP-Adresse und den User-Agent-String bei jeder
 Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blockiert.");
 
             #endregion
+
+            builder.AddOrUpdate("Tax.LegalInfoShort3", "Prices {0}, {1}", "Preise {0}, {1}");
         }
     }
 }
