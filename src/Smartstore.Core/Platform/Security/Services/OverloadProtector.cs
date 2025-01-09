@@ -37,7 +37,7 @@ namespace Smartstore.Core.Security
                 forbid = httpContext.Request.IsSubRequest();
                 if (forbid)
                 {
-                    Logger.Warn("New guest forbidden due to policy (ForbidNewGuestsIfSubRequest).");
+                    Logger.Warn("New guest forbidden due to policy 'ForbidNewGuestsIfSubRequest'.");
                 }
             }
             

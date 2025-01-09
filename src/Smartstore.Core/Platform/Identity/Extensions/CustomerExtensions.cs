@@ -26,7 +26,7 @@ namespace Smartstore
             {
                 var role = mapping.CustomerRole;
 
-                if (role != null && !string.IsNullOrEmpty(role.SystemName) && (!onlyActiveRoles || role.Active))
+                if (role != null && (!onlyActiveRoles || role.Active) && !string.IsNullOrEmpty(role.SystemName))
                 {
                     yield return role.SystemName;
                 }
@@ -46,8 +46,18 @@ namespace Smartstore
         public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
         {
             Guard.NotEmpty(roleSystemName);
-            return GetRoleNames(customer, onlyActiveRoles)
-                .Any(x => x.Equals(roleSystemName, StringComparison.OrdinalIgnoreCase));
+
+            foreach (var mapping in customer.CustomerRoleMappings)
+            {
+                var role = mapping.CustomerRole;
+
+                if (role != null && (!onlyActiveRoles || role.Active) && roleSystemName.Equals(role.SystemName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -61,8 +71,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAdmin(this Customer customer, bool onlyActiveRoles = true)
         {
-            return GetRoleNames(customer, onlyActiveRoles)
-                .Any(x => x.Equals(SystemCustomerRoleNames.Administrators, StringComparison.OrdinalIgnoreCase));
+            return IsInRole(customer, SystemCustomerRoleNames.Administrators, onlyActiveRoles);
         }
 
         /// <summary>
@@ -76,8 +85,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSuperAdmin(this Customer customer, bool onlyActiveRoles = true)
         {
-            return GetRoleNames(customer, onlyActiveRoles)
-                .Any(x => x.Equals(SystemCustomerRoleNames.SuperAdministrators, StringComparison.OrdinalIgnoreCase));
+            return IsInRole(customer, SystemCustomerRoleNames.SuperAdministrators, onlyActiveRoles);
         }
 
         /// <summary>
@@ -91,8 +99,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsRegistered(this Customer customer, bool onlyActiveRoles = true)
         {
-            return GetRoleNames(customer, onlyActiveRoles)
-                .Any(x => x.Equals(SystemCustomerRoleNames.Registered, StringComparison.OrdinalIgnoreCase));
+            return IsInRole(customer, SystemCustomerRoleNames.Registered, onlyActiveRoles);
         }
 
         /// <summary>
@@ -139,12 +146,12 @@ namespace Smartstore
         {
             Guard.NotNull(customer);
 
-            if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            if (!customer.IsSystemAccount)
             {
                 return false;
             }
 
-            return customer.SystemName.EqualsNoCase(SystemCustomerNames.BackgroundTask);
+            return SystemCustomerNames.BackgroundTask.EqualsNoCase(customer.SystemName);
         }
 
         /// <summary>
@@ -154,12 +161,12 @@ namespace Smartstore
         {
             Guard.NotNull(customer);
 
-            if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            if (!customer.IsSystemAccount)
             {
                 return false;
             }
 
-            return customer.SystemName.EqualsNoCase(SystemCustomerNames.Bot);
+            return SystemCustomerNames.Bot.Equals(customer.SystemName, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -169,12 +176,12 @@ namespace Smartstore
         {
             Guard.NotNull(customer);
 
-            if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
+            if (!customer.IsSystemAccount)
             {
                 return false;
             }
 
-            return customer.SystemName.EqualsNoCase(SystemCustomerNames.PdfConverter);
+            return SystemCustomerNames.PdfConverter.Equals(customer.SystemName, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion

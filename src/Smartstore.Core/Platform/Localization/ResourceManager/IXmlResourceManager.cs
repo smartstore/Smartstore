@@ -81,6 +81,7 @@ namespace Smartstore.Core.Localization
 
         /// <summary>
         /// Gets information about the last resource set import.
+        /// </summary>
         /// <returns>Key: Language identifier. Value: <see cref="ResourceSetImportInfo"/></returns>
         Task<Dictionary<int, ResourceSetImportInfo>> GetLastResourceSetImportInfosAsync();
 
