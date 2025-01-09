@@ -30,13 +30,13 @@ namespace Smartstore.Data.PostgreSql.Translators
 
         private static readonly bool[][] TrueArrays =
         {
-            Array.Empty<bool>(),
-            new[] { true },
-            new[] { true, true }
+            [],
+            [true],
+            [true, true]
         };
 
         private readonly NpgsqlSqlExpressionFactory _sqlExpressionFactory;
-        private readonly SqlConstantExpression _whitespace;
+        private readonly SqlExpression _whitespace;
         private readonly RelationalTypeMapping _textTypeMapping;
 
         public PostgreSqlLikeTranslator(

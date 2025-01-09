@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Smartstore.Data.Providers;
 
@@ -15,8 +16,8 @@ namespace Smartstore.Data.SqlServer.Translators
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Pending")]
     internal class SqlServerMappingMethodCallTranslatorProvider : SqlServerMethodCallTranslatorProvider
     {
-        public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
-            : base(dependencies)
+        public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies, ISqlServerSingletonOptions options)
+            : base(dependencies, options)
         {
         }
 

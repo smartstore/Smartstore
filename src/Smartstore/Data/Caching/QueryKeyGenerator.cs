@@ -79,11 +79,7 @@ namespace Smartstore.Data.Caching
         {
             var queryContext = _queryContextFactory.Create();
 
-            expression = _queryCompiler.ExtractParameters(
-                expression,
-                queryContext,
-                _logger,
-                parameterize: false);
+            expression = _queryCompiler.ExtractParameters(expression, queryContext, _logger);
 
             var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
             var combiner = new HashCodeCombiner(hashCode);

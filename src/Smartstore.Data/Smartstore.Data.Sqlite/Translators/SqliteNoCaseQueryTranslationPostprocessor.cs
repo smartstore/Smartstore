@@ -28,7 +28,7 @@ namespace Smartstore.Data.Sqlite.Translators
             => new SqliteNoCaseQueryTranslationPostprocessor(
                 _dependencies,
                 _relationalDependencies,
-                queryCompilationContext,
+                (RelationalQueryCompilationContext)queryCompilationContext,
                 _typeMappingSource);
     }
 
@@ -39,8 +39,8 @@ namespace Smartstore.Data.Sqlite.Translators
 
         public SqliteNoCaseQueryTranslationPostprocessor(
             QueryTranslationPostprocessorDependencies dependencies, 
-            RelationalQueryTranslationPostprocessorDependencies relationalDependencies, 
-            QueryCompilationContext queryCompilationContext,
+            RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+            RelationalQueryCompilationContext queryCompilationContext,
             IRelationalTypeMappingSource typeMappingSource)
             : base(dependencies, relationalDependencies, queryCompilationContext)
         {
