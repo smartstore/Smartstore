@@ -26,7 +26,7 @@ namespace Smartstore.Core.Security
         /// A <see cref="Task{TResult}"/> representing the asynchronous operation, 
         /// containing a <see cref="bool"/> that indicates whether the guest user should be denied.
         /// </returns>
-        Task<bool> DenyGuestAsync(Customer? customer = null);
+        Task<bool> DenyGuestAsync(HttpContext httpContext, Customer? customer = null);
 
         /// <summary>
         /// Determines if a bot should be denied access due to exceeding the allowed 
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Security
         /// A <see cref="Task{TResult}"/> representing the asynchronous operation, 
         /// containing a <see cref="bool"/> that indicates whether the bot should be denied.
         /// </returns>
-        Task<bool> DenyBotAsync(IUserAgent userAgent);
+        Task<bool> DenyBotAsync(HttpContext httpContext, IUserAgent userAgent);
 
         /// <summary>
         /// Determines if access for new guest users should be forbidden based on the current resiliency policy.

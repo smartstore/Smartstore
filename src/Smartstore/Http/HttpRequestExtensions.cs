@@ -202,15 +202,18 @@ namespace Smartstore
             if (request is null)
                 return false;
 
-            if (IsExternalReferrer(request))
+            return request.HttpContext.GetItem("IsSubRequest", () => 
             {
-                return false;
-            }
+                if (IsExternalReferrer(request))
+                {
+                    return false;
+                }
 
-            return
-                request.HttpContext.GetEndpoint() == null ||
-                IsGet(request) == false ||
-                IsAjax(request) == true;
+                return
+                    request.HttpContext.GetEndpoint() == null ||
+                    IsGet(request) == false ||
+                    IsAjax(request) == true;
+            });
         }
     }
 }

@@ -23,10 +23,10 @@ namespace Smartstore.Core.Security
 
         public ILogger Logger { get; }
 
-        public virtual Task<bool> DenyGuestAsync(Customer customer = null)
+        public virtual Task<bool> DenyGuestAsync(HttpContext httpContext, Customer customer = null)
             => Task.FromResult(CheckDeny(UserType.Guest));
 
-        public virtual Task<bool> DenyBotAsync(IUserAgent userAgent)
+        public virtual Task<bool> DenyBotAsync(HttpContext httpContext, IUserAgent userAgent)
             => Task.FromResult(CheckDeny(UserType.Bot));
 
         public virtual Task<bool> ForbidNewGuestAsync(HttpContext httpContext)
