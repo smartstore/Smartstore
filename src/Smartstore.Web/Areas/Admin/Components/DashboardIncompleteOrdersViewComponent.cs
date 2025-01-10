@@ -117,6 +117,12 @@ namespace Smartstore.Admin.Components
             {
                 for (var i = periodState; i < model.Count; i++)
                 {
+                    // Don't add data for this year, when dataPoint was created in the last year.
+                    if (dataPoint.CreatedOn.Year < Now.Year && i == 3)
+                    {
+                        continue;
+                    }
+
                     model[i].Quantity++;
                     model[i].Amount += dataPoint.OrderTotal;
                 }
