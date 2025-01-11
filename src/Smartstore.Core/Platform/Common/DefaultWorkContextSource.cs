@@ -600,6 +600,9 @@ namespace Smartstore.Core
                 else
                 {
                     customer.DetectedByClientIdent = true;
+
+                    // Try to append visitor cookie to better identify visitor on next (sub)-request
+                    context.CustomerService.AppendVisitorCookie(customer);
                 }
             }
 
@@ -617,7 +620,7 @@ namespace Smartstore.Core
 
         private static async Task CheckGuestDeniedAsync(DetectCustomerContext context, Customer customer = null)
         {
-            context.DenyGuest ??= await context.OverloadProtector.DenyGuestAsync(customer);
+            context.DenyGuest ??= !context.HttpContext.Request.IsSubRequest() && await context.OverloadProtector.DenyGuestAsync(context.HttpContext, customer);
             if (context.DenyGuest == true)
             {
                 throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
@@ -626,7 +629,7 @@ namespace Smartstore.Core
 
         private static async Task CheckBotDeniedAsync(DetectCustomerContext context)
         {
-            context.DenyBot ??= await context.OverloadProtector.DenyBotAsync(context.UserAgent);
+            context.DenyBot ??= !context.HttpContext.Request.IsSubRequest() && await context.OverloadProtector.DenyBotAsync(context.HttpContext, context.UserAgent);
             if (context.DenyBot == true)
             {
                 throw new HttpResponseException(StatusCodes.Status429TooManyRequests, "Too many requests");
