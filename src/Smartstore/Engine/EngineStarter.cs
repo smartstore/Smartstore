@@ -131,7 +131,7 @@ namespace Smartstore.Engine
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             var app = _engine.Application;
 

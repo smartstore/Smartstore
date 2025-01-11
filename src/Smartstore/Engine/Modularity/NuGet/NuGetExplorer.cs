@@ -221,8 +221,7 @@ namespace Smartstore.Engine.Modularity.NuGet
                         .Equals(UserAgent.UserAgentString, StringComparison.Ordinal))
                 {
                     // Set the user agent string if it was not already set.
-                    var userAgent = new UserAgentStringBuilder($"Smartstore {SmartstoreVersion.CurrentFullVersion}")
-                        .WithOSDescription(_appContext.RuntimeInfo.OSDescription);
+                    var userAgent = new UserAgentStringBuilder($"Smartstore {SmartstoreVersion.CurrentFullVersion}");
                     UserAgent.SetUserAgentString(userAgent);
                 }
             }

@@ -80,11 +80,11 @@ namespace Smartstore
 
                     if (async)
                     {
-                        await stream.ReadAsync(buffer.AsMemory(0, (int)len));
+                        await stream.ReadExactlyAsync(buffer.AsMemory(0, (int)len));
                     }
                     else
                     {
-                        stream.Read(buffer, 0, (int)len);
+                        stream.ReadExactly(buffer, 0, (int)len);
                     }
 
                     return buffer;
