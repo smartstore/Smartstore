@@ -48,7 +48,7 @@ namespace Smartstore.Web.Tests.Common.Controllers
             var attr = new FormValueRequiredAttribute(FormValueRequirementOperator.Equal, FormValueRequirementMatch.MatchAll, values);
             Assert.That(attr.IsValidForRequest(_form), Is.True);
 
-            values = new string[] { "val2", "VAL1", "NOTAVAIL", "Cancel.First" };
+            values = ["val2", "VAL1", "NOTAVAIL", "Cancel.First"];
             attr = new FormValueRequiredAttribute(FormValueRequirementOperator.Equal, FormValueRequirementMatch.MatchAll, values);
             Assert.That(attr.IsValidForRequest(_form), Is.False);
         }
@@ -60,7 +60,7 @@ namespace Smartstore.Web.Tests.Common.Controllers
             var attr = new FormValueRequiredAttribute(FormValueRequirementOperator.StartsWith, FormValueRequirementMatch.MatchAny, values);
             Assert.That(attr.IsValidForRequest(_form), Is.True);
 
-            values = new string[] { "NOTAVAIL", "NOTAVAIL2" };
+            values = ["NOTAVAIL", "NOTAVAIL2"];
             attr = new FormValueRequiredAttribute(FormValueRequirementOperator.StartsWith, FormValueRequirementMatch.MatchAny, values);
             Assert.That(attr.IsValidForRequest(_form), Is.False);
         }
@@ -72,7 +72,7 @@ namespace Smartstore.Web.Tests.Common.Controllers
             var attr = new FormValueRequiredAttribute(FormValueRequirementOperator.StartsWith, FormValueRequirementMatch.MatchAll, values);
             Assert.That(attr.IsValidForRequest(_form), Is.True);
 
-            values = new string[] { "SUBMIT", "Cancel.", "VAL", "notavail" };
+            values = ["SUBMIT", "Cancel.", "VAL", "notavail"];
             attr = new FormValueRequiredAttribute(FormValueRequirementOperator.StartsWith, FormValueRequirementMatch.MatchAll, values);
             Assert.That(attr.IsValidForRequest(_form), Is.False);
         }
