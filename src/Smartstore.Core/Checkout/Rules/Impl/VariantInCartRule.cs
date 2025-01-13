@@ -22,6 +22,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             {
                 if (item.AttributeSelection.HasAttributes)
                 {
+                    // TODO: (mg) Do you really want to merge here? Can't you just pick the SKU from item or selection and add it to the skus list?
                     await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, item.AttributeSelection, null);
                     if (item.Product.Sku.HasValue())
                     {
