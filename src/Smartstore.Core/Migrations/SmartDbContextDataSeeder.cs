@@ -66,6 +66,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Hide orders in the \"My account\" area",
                 "Bestellungen im Bereich \"Mein Konto\" ausblenden");
 
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.VariantInCart", "Product with SKU in cart", "Produkt mit SKU im Warenkorb");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";

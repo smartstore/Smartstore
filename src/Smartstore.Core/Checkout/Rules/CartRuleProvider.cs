@@ -335,6 +335,14 @@ namespace Smartstore.Core.Checkout.Rules
                 },
                 new()
                 {
+                    Name = "VariantInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.VariantInCart"),
+                    RuleType = RuleType.StringArray,
+                    ProcessorType = typeof(VariantInCartRule),
+                    IsComparingSequences = true
+                },
+                new()
+                {
                     Name = "ProductFromCategoryInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromCategoryInCart"),
                     RuleType = RuleType.IntArray,
