@@ -173,7 +173,8 @@ namespace Smartstore.Core.Installation
                 Model = routeTemplate.FormatInvariant("CookieManager"),
                 Title = "Cookie Manager",
                 DisplayOrder = ++order,
-                CssClass = "cookie-manager"
+                CssClass = "cookie-manager",
+                NoFollow = true
             });
 
             order = 0;
