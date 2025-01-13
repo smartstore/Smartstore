@@ -139,7 +139,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         [NotMapped]
         public bool IsFreeShipping
-            => Product?.IsFreeShipping ?? false;
+            => Product?.IsFreeShipping == true;
 
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is ship enabled
@@ -153,7 +153,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         [NotMapped]
         public bool IsTaxExempt
-            => Product?.IsTaxExempt ?? false;
+            => Product?.IsTaxExempt == true;
 
         #region Compare
 
