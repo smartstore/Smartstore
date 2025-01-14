@@ -30,6 +30,7 @@
   - Toolbar is now sticky when editor has focus.
   - Code sync adds a line break after caret position (caused by outdated beautify library).
   - Fixed various focus handling and popover issues.
+  - Fixed various code sync issues
   - AI: HTMLeditor does not record undo after answer is applied.
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
