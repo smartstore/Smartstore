@@ -32,24 +32,26 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets a value indicating whether the cart includes products matching the condition.
         /// </summary>
         /// <param name="matcher">The condition to match cart items.</param>
+        /// <param name="activeOnly">
+        /// A value indicating whether to check active items.
+        /// <c>true</c> (default) to only check active, <c>false</c> to only check inactive items. <c>null</c> to check all items.
+        /// </param>
         /// <returns><c>True</c> if any product matches the condition, otherwise <c>false</c>.</returns>
-        public static bool IncludesMatchingItems(this ShoppingCart cart, Func<Product, bool> matcher)
+        public static bool IncludesMatchingItems(this ShoppingCart cart, Func<Product, bool> matcher, bool? activeOnly = true)
         {
             Guard.NotNull(cart);
 
-            return cart.Items.Where(x => x.Item.Product != null && matcher(x.Item.Product)).Any();
+            return cart.Items.Any(x => 
+                x.Item.Product != null 
+                && matcher(x.Item.Product) 
+                && (activeOnly == null || x.Active == activeOnly.Value));
         }
 
         /// <summary>
-        /// Gets a value indicating whether the shopping cart contains a recurring item.
+        /// Gets a value indicating whether the shopping cart contains any recurring item.
         /// </summary>
-        /// <returns>A value indicating whether the shopping cart contains a recurring item.</returns>
 		public static bool ContainsRecurringItem(this ShoppingCart cart)
-        {
-            Guard.NotNull(cart);
-
-            return cart.Items.Where(x => x.Item.Product?.IsRecurring ?? false).Any();
-        }
+            => cart.IncludesMatchingItems(x => x.IsRecurring);
 
         /// <summary>
         /// Gets the recurring cycle information.
