@@ -42,6 +42,7 @@
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
 - Fixed Cookie migration problem.
 - #1233 Forum: Posts from customers marked as deleted must be displayed.
+- PayPal: Fixed updating of order state when receiving webhook notifications and capture settings are set to direct capture 
 
 
 ## Smartstore 6.0.0
