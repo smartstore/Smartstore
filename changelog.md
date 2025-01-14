@@ -42,6 +42,7 @@
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
 - Fixed Cookie migration problem.
 - #1233 Forum: Posts from customers marked as deleted must be displayed.
+- Shopping cart validation must not take inactive items into account when checking recurring/non-recurring products.
 
 
 ## Smartstore 6.0.0
