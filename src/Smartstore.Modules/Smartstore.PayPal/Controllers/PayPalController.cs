@@ -626,10 +626,19 @@ namespace Smartstore.PayPal.Controllers
                     break;
 
                 case "declined":
-                    if (order.CanVoidOffline())
+                    var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(order.StoreId);
+                    order.CaptureTransactionResult = status;
+                    if (settings.Intent == PayPalTransactionType.Authorize)
                     {
-                        order.CaptureTransactionResult = status;
-                        await _orderProcessingService.VoidOfflineAsync(order);
+                        if (order.CanVoidOffline())
+                        {
+                            await _orderProcessingService.VoidOfflineAsync(order);
+                        }
+                    }
+                    else
+                    {   
+                        order.PaymentStatus = PaymentStatus.Voided;
+                        await _orderProcessingService.CancelOrderAsync(order, true);
                     }
                     break;
 
