@@ -22,9 +22,6 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             {
                 if (item.AttributeSelection.HasAttributes)
                 {
-                    // TODO: (mg) Do you really want to merge here? Can't you just pick the SKU from item or selection and add it to the skus list?
-                    // RE: No because it has not been merged anywhere before. Otherwise item.Product.Sku would contain the SKU of the attribute combination,
-                    // but it does not. If you want to take it from the cart, you would always have to merge in GetCartAsync, even if the SKU is not needed.
                     await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, item.AttributeSelection, null);
                     if (item.Product.Sku.HasValue())
                     {
