@@ -447,7 +447,7 @@ namespace Smartstore.Core.Checkout.Orders
                         order.ShippingMethod = shippingOption.Name;
                         order.ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName;
 
-                        if (order.ShippingMethod.IsEmpty() && shippingOption.ShippingMethodId != 0)
+                        if (order.ShippingMethod.IsEmpty() && shippingOption.ShippingMethodId > 0)
                         {
                             order.ShippingMethod = await _db.ShippingMethods
                                 .Where(x => x.Id == shippingOption.ShippingMethodId)
