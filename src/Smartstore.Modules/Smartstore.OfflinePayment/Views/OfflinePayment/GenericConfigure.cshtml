@@ -17,10 +17,19 @@
     <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="TransactMode" />
+            </div>
+            <div class="adminData">
+                <select asp-for="TransactMode" asp-items="ViewBag.TransactModes"></select>
+                <span asp-validation-for="TransactMode"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="AdditionalFee" />
             </div>
             <div class="adminData">
-                <editor asp-for="AdditionalFee" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                <editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
                 <span asp-validation-for="AdditionalFee"></span>
             </div>
         </div>

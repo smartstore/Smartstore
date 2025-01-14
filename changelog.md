@@ -15,6 +15,7 @@
 - Setting to round the amount of reward points for a purchase.
 - #1150 Add a setting to hide orders in *my account*.
 - #1242 Rule Builder: Add a cart rule that is fulfilled if the cart contains a product with a certain SKU.
+- #509 Add payment status setting for offline payment.
 
 ### Improvements
 

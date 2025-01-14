@@ -3,7 +3,7 @@
 namespace Smartstore.OfflinePayment.Settings
 {
     /// <summary>
-    /// Represents manual payment processor transaction mode
+    /// Represents the payment status after order completion.
     /// </summary>
     public enum TransactMode
     {
@@ -27,6 +27,8 @@ namespace Smartstore.OfflinePayment.Settings
     {
         public decimal AdditionalFee { get; set; }
         public bool AdditionalFeePercentage { get; set; }
+
+        public TransactMode TransactMode { get; set; }
     }
 
     public class CashOnDeliveryPaymentSettings : PaymentSettingsBase, ISettings
@@ -43,13 +45,11 @@ namespace Smartstore.OfflinePayment.Settings
 
     public class ManualPaymentSettings : PaymentSettingsBase, ISettings
     {
-        public TransactMode TransactMode { get; set; }
         public string ExcludedCreditCards { get; set; }
     }
 
     public class PurchaseOrderNumberPaymentSettings : PaymentSettingsBase, ISettings
     {
-        public TransactMode TransactMode { get; set; }
     }
 
     public class PayInStorePaymentSettings : PaymentSettingsBase, ISettings

@@ -26,9 +26,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<CashOnDeliveryPaymentSettings, CashOnDeliveryConfigurationModel>(settings);
             model.PostActionName = nameof(CashOnDeliveryConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.CashOnDelivery").Metadata;
+            PrepareViewBag("Payments.CashOnDelivery");
 
             return View("GenericConfigure", model);
         }
@@ -56,9 +55,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<InvoicePaymentSettings, InvoiceConfigurationModel>(settings);
             model.PostActionName = nameof(InvoiceConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.Invoice").Metadata;
+            PrepareViewBag("Payments.Invoice");
 
             return View("GenericConfigure", model);
         }
@@ -86,9 +84,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<PayInStorePaymentSettings, PayInStoreConfigurationModel>(settings);
             model.PostActionName = nameof(PayInStoreConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.PayInStore").Metadata;
+            PrepareViewBag("Payments.PayInStore");
 
             return View("GenericConfigure", model);
         }
@@ -116,9 +113,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<PrepaymentPaymentSettings, PrepaymentConfigurationModel>(settings);
             model.PostActionName = nameof(PrepaymentConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.Prepayment").Metadata;
+            PrepareViewBag("Payments.Prepayment");
 
             return View("GenericConfigure", model);
         }
@@ -146,9 +142,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<DirectDebitPaymentSettings, DirectDebitConfigurationModel>(settings);
             model.PostActionName = nameof(DirectDebitConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.DirectDebit").Metadata;
+            PrepareViewBag("Payments.DirectDebit");
 
             return View("GenericConfigure", model);
         }
@@ -176,9 +171,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var model = MiniMapper.Map<PurchaseOrderNumberPaymentSettings, PurchaseOrderNumberConfigurationModel>(settings);
             model.PostActionName = nameof(PurchaseOrderNumberConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.PurchaseOrderNumber").Metadata;
+            PrepareViewBag("Payments.PurchaseOrderNumber");
 
             return View("GenericConfigure", model);
         }
@@ -205,16 +199,8 @@ namespace Smartstore.OfflinePayment.Controllers
         public IActionResult ManualConfigure(ManualPaymentSettings settings)
         {
             var model = MiniMapper.Map<ManualPaymentSettings, ManualConfigurationModel>(settings);
-
-            model.TransactModeValues = new List<SelectListItem>
-            {
-                new() { Text = T("Enums.PaymentStatus.Pending"), Value = ((int)TransactMode.Pending).ToString() },
-                new() { Text = T("Enums.PaymentStatus.Authorized"), Value = ((int)TransactMode.Authorize).ToString() },
-                new() { Text = T("Enums.PaymentStatus.Paid"), Value = ((int)TransactMode.Paid).ToString() }
-            };
-
+            model.PostActionName = nameof(ManualConfigure);
             model.ExcludedCreditCards = settings.ExcludedCreditCards.SplitSafe(',').ToArray();
-
             model.AvailableCreditCards = ManualProvider.GetCreditCardBrands(T)
                 .Select(x => new SelectListItem
                 {
@@ -224,12 +210,9 @@ namespace Smartstore.OfflinePayment.Controllers
                 })
                 .ToList();
 
-            model.PostActionName = nameof(ManualConfigure);
-            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            PrepareViewBag("Payments.Manual");
 
-            ViewBag.Provider = _providerManager.GetProvider("Payments.Manual").Metadata;
-
-            return View("ManualConfigure", model);
+            return View(nameof(ManualConfigure), model);
         }
 
         [HttpPost, SaveSetting, AuthorizeAdmin]
@@ -237,17 +220,28 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.Manual").Metadata;
-                return View(model);
+                return ManualConfigure(settings);
             }
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
-            settings.ExcludedCreditCards = string.Join(',', model.ExcludedCreditCards ?? new string[0]);
+            settings.ExcludedCreditCards = string.Join(',', model.ExcludedCreditCards ?? []);
 
             return RedirectToAction(nameof(ManualConfigure));
         }
 
         #endregion
+
+        private void PrepareViewBag(string providerSystemName)
+        {
+            ViewBag.Provider = _providerManager.GetProvider(providerSystemName).Metadata;
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            ViewBag.TransactModes = new List<SelectListItem>
+            {
+                new() { Text = T("Enums.PaymentStatus.Pending"), Value = ((int)TransactMode.Pending).ToString() },
+                new() { Text = T("Enums.PaymentStatus.Authorized"), Value = ((int)TransactMode.Authorize).ToString() },
+                new() { Text = T("Enums.PaymentStatus.Paid"), Value = ((int)TransactMode.Paid).ToString() }
+            };
+        }
     }
 }
