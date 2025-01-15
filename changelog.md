@@ -17,7 +17,7 @@
 - #1242 Rule Builder: Add a cart rule that is fulfilled if the cart contains a product with a certain SKU.
 - #509 Add payment status setting for offline payment.
 - PayPal: 
-	- Added option to let the shop admin decide how handle orders for which the payment was declined 
+	- Added option to let the shop admin decide how to handle orders for which the payment was declined 
 	- Removed Giropay provider 
 	- Added Trustly provider 
 
