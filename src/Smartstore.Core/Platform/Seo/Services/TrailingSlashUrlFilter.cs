@@ -29,9 +29,10 @@ namespace Smartstore.Core.Seo
                 return;
             }
 
-            if (!policy.Path.Value.HasValue())
+            var pathValue = policy.Path.Value;
+            if (string.IsNullOrEmpty(pathValue) || pathValue == "/" || pathValue.StartsWithNoCase("odata"))
             {
-                // Don't apply rule to homepage.
+                // Don't apply rule to homepage or Web API endpoints.
                 return;
             }
 
