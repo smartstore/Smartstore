@@ -23,7 +23,6 @@ $img-margin-right: 10px;
 
     &.empty {
         min-height: initial;
-        //color: $text-muted;
     }
 }
 
@@ -363,7 +362,7 @@ $img-margin-right: 10px;
         margin: 0;
     }
 
-    .modal-footer > .note-btn-primary {
+    .modal-footer > .btn {
         min-width: 80px;
     }
 }
@@ -645,9 +644,6 @@ $img-margin-right: 10px;
     > svg {
         height: 16px;
     }
-    // &:not(:hover) {
-    //   //transition: none !important;
-    // }
 
     &:active,
     .note-btn-group.show > & {
