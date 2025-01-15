@@ -560,6 +560,7 @@
             function setPreviewIcon(file, small) {
                 var el = $(file.previewTemplate);
                 var elIcon = el.find('.file-icon');
+                // TODO: (mh) I don't remember why I changed this back then, but it had a profound reason. Please check thoroughly for any issues!!!
                 var elImage = el.find('.file-figure > img').addClass("hide");
 
                 // Convert dz file property to sm file property if not already set.
