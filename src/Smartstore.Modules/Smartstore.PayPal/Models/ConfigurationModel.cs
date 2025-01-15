@@ -65,6 +65,9 @@ namespace Smartstore.PayPal.Models
 
         [LocalizedDisplay("*TransmitTrackingNumbers")]
         public bool TransmitTrackingNumbers { get; set; }
+
+        [LocalizedDisplay("*CancelOrdersForDeclinedPayments")]
+        public bool CancelOrdersForDeclinedPayments { get; set; }
     }
 
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]

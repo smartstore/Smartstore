@@ -90,5 +90,10 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether to transmit tracking numbers to PayPal.
         /// </summary>
         public bool TransmitTrackingNumbers { get; set; }
+
+        /// <summary>
+        /// Specifies whether to cancel orders when notifications for declined credit card payments are received.
+        /// </summary>
+        public bool CancelOrdersForDeclinedPayments { get; set; }
     }
 }

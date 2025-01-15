@@ -637,8 +637,15 @@ namespace Smartstore.PayPal.Controllers
                     }
                     else
                     {   
-                        order.PaymentStatus = PaymentStatus.Voided;
-                        await _orderProcessingService.CancelOrderAsync(order, true);
+                        if (settings.CancelOrdersForDeclinedPayments)
+                        {
+                            order.PaymentStatus = PaymentStatus.Voided;
+                            await _orderProcessingService.CancelOrderAsync(order, true);
+                        }
+                        else
+                        {
+                            order.PaymentStatus = PaymentStatus.Pending;
+                        }
                     }
                     break;
 
