@@ -34,6 +34,7 @@ let summernote_image_upload_url;
         hideArrow: false,
         recordEveryKeystroke: false,
         followingToolbar: false,
+        linkTargetBlank: false,
         // TODO: Turn on spellCheck again
         spellCheck: false,
         colorButton: {
