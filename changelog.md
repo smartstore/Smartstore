@@ -52,6 +52,7 @@
 - PayPal: Fixed updating of order state when receiving webhook notifications and capture settings are set to direct capture 
 - Shopping cart validation must not take inactive items into account when checking recurring/non-recurring products.
 - Do not apply `TrailingSlashRule` to URLs of Web API endpoints (may lead to a HTTP 401 error).
+- #1245 Missing image preview after drag'n'drop in product detail configuration 
 
 
 ## Smartstore 6.0.0
