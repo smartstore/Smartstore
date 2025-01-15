@@ -560,7 +560,7 @@
             function setPreviewIcon(file, small) {
                 var el = $(file.previewTemplate);
                 var elIcon = el.find('.file-icon');
-                var elImage = el.find('.file-figure > img').addClass("d-none");
+                var elImage = el.find('.file-figure > img').addClass("hide");
 
                 // Convert dz file property to sm file property if not already set.
                 if (!file.mime)
