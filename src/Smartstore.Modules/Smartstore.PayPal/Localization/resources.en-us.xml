@@ -25,8 +25,8 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalCreditCard" AppendRootKey="false">
         <Value>PayPal Creditcard</Value>
     </LocaleResource>
-    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGiroPay" AppendRootKey="false">
-        <Value>Giropay</Value>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalTrustly" AppendRootKey="false">
+        <Value>Trustly</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBancontact" AppendRootKey="false">
         <Value>Bancontact</Value>
@@ -86,10 +86,10 @@
             ]]>
         </Value>
     </LocaleResource>
-    <LocaleResource Name="Plugins.Description.Payments.PayPalGiroPay" AppendRootKey="false">
+    <LocaleResource Name="Plugins.Description.Payments.PayPalTrustly" AppendRootKey="false">
         <Value>
             <![CDATA[
-                After completing the order, the customer is redirected directly to GiroPay to complete the payment process.
+                After completing the order, the customer is redirected directly to Trustly to complete the payment process.
             ]]>
         </Value>
     </LocaleResource>
@@ -178,10 +178,10 @@
                       ]]>
                 </Value>
             </LocaleResource>
-            <LocaleResource Name="PayPalGiroPay" AppendRootKey="false">
+            <LocaleResource Name="PayPalTrustly" AppendRootKey="false">
                 <Value>
                     <![CDATA[
-                        You will be redirected to the Giropay website to complete the payment.
+                        You will be redirected to the Trustly website to complete the payment.
                       ]]>
                 </Value>
             </LocaleResource>
@@ -407,11 +407,11 @@
                 </Value>
             </LocaleResource>
             <LocaleResource Name="CancelOrdersForDeclinedPayments">
-                <Value>Cancel orders for declined credit card payments</Value>
+                <Value>Cancel orders for declined payments</Value>
             </LocaleResource>
             <LocaleResource Name="CancelOrdersForDeclinedPayments.Hint">
                 <Value>
-                    Defines whether orders for declined credit card payments should be cancelled.
+                    Defines whether orders for declined payments should be cancelled.
                 </Value>
             </LocaleResource>
             <LocaleResource Name="Capture">

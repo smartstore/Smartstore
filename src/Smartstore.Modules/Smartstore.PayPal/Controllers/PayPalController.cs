@@ -426,8 +426,8 @@ namespace Smartstore.PayPal.Controllers
 
             switch (checkoutState.ApmProviderSystemName)
             {
-                case PayPalConstants.Giropay:
-                    paymentSource.PaymentSourceGiroPay = apmPaymentSource;
+                case PayPalConstants.Trustly:
+                    paymentSource.PaymentSourceTrustly = apmPaymentSource;
                     break;
                 case PayPalConstants.Bancontact:
                     paymentSource.PaymentSourceBancontact = apmPaymentSource;

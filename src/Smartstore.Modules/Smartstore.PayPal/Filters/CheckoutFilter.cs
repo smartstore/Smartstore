@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Widgets;
@@ -18,7 +17,7 @@ namespace Smartstore.PayPal.Filters
     {
         private static readonly string[] _apms =
         {
-            PayPalConstants.Giropay,
+            PayPalConstants.Trustly,
             PayPalConstants.Bancontact,
             PayPalConstants.Blik,
             PayPalConstants.Eps,

@@ -146,8 +146,8 @@ namespace Smartstore.PayPal.Client.Messages
         [JsonProperty("pay_upon_invoice")]
         public PaymentSourceInvoice PaymentSourceInvoice;
 
-        [JsonProperty("giropay")]
-        public PaymentSourceApm PaymentSourceGiroPay;
+        [JsonProperty("trustly")]
+        public PaymentSourceApm PaymentSourceTrustly;
 
         [JsonProperty("bancontact")]
         public PaymentSourceApm PaymentSourceBancontact;
