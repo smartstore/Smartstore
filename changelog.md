@@ -28,11 +28,14 @@
 - #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to *unpublish*.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Summernote HTML editor:
-  - Toolbar is now sticky when editor has focus.
-  - Code sync adds a line break after caret position (caused by outdated beautify library).
-  - Fixed various focus handling and popover issues.
+  - Toolbar is now sticky when editor has focus
+  - Code sync adds a line break after caret position (caused by outdated beautify library)
+  - Fixed various focus handling and popover issues
   - Fixed various code sync issues
-  - AI: HTMLeditor does not record undo after answer is applied.
+  - AI: HTMLeditor does not record undo after answer is applied
+  - LinkDialog did not apply target attribute correctly
+  - After resetting settings, LinkDialog did not update anchor correctly
+  - Fixed various dialog layout issues
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
 - GPSR: Fixed in rare cases, the manufacturer information was not displayed.
