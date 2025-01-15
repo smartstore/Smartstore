@@ -108,8 +108,6 @@ namespace Smartstore.Web.Models.Checkout
                 to.PaymentMethods.Add(pmModel);
             }
 
-            state.CustomProperties["HasOnlyOneActivePaymentMethod"] = to.PaymentMethods.Count == 1;
-
             // Find a selected (previously) payment method.
             var selected = false;
             var selectedPaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;

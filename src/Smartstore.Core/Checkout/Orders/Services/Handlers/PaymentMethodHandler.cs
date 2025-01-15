@@ -91,23 +91,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
             var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
             state.IsPaymentRequired = cartTotal.GetValueOrDefault() != decimal.Zero;
 
-            if (state.IsPaymentRequired)
-            {
-                if (_paymentSettings.SkipPaymentSelectionIfSingleOption)
-                {
-                    providers ??= await GetPaymentMethods(cart);
-
-                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = providers.Count == 1;
-                    state.IsPaymentSelectionSkipped = providers.Count == 1 && !providers[0].Value.RequiresPaymentSelection;
-
-                    if (state.IsPaymentSelectionSkipped)
-                    {
-                        ga.SelectedPaymentMethod  = providers[0].Metadata.SystemName;
-                        await ga.SaveChangesAsync();
-                    }
-                }
-            }
-            else
+            if (!state.IsPaymentRequired)
             {
                 state.IsPaymentSelectionSkipped = true;
 
@@ -120,7 +104,31 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 return new(true, null, true);
             }
 
-            // INFO: "skip" is only set to "true" if the payment selection is always skipped without any exception.
+            state.CustomProperties["HasOnlyOneActivePaymentMethod"] = false;
+            state.IsPaymentSelectionSkipped = false;
+
+            if (_paymentSettings.SkipPaymentSelectionIfSingleOption)
+            {
+                providers ??= await GetPaymentMethods(cart);
+                if (providers.Count == 1)
+                {
+                    var pm = providers[0].Value;
+
+                    // Offer link to payment page if the one payment method requires any interaction.
+                    // Customer must be able to correct his input.
+                    state.CustomProperties["HasOnlyOneActivePaymentMethod"] = !pm.RequiresInteraction;
+
+                    // Only skip payment page if the payment selection can always be skipped without any exception.
+                    state.IsPaymentSelectionSkipped = !pm.RequiresInteraction && !pm.RequiresPaymentSelection;
+
+                    if (state.IsPaymentSelectionSkipped)
+                    {
+                        ga.SelectedPaymentMethod = providers[0].Metadata.SystemName;
+                        await ga.SaveChangesAsync();
+                    }
+                }
+            }
+
             var skip = state.IsPaymentSelectionSkipped;
 
             if (_shoppingCartSettings.QuickCheckoutEnabled && ga.SelectedPaymentMethod.IsEmpty())
