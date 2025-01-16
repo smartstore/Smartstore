@@ -30,7 +30,7 @@ namespace Smartstore.Core.Seo
             }
 
             var pathValue = policy.Path.Value;
-            if (string.IsNullOrEmpty(pathValue) || pathValue == "/" || httpContext.IsODataRequest())
+            if (string.IsNullOrEmpty(pathValue) || pathValue == "/" || httpContext.Request.IsODataRequest())
             {
                 // Don't apply rule to homepage or Web API endpoints.
                 return;
