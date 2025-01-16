@@ -108,25 +108,31 @@ namespace Smartstore.Core.Catalog.Rules
                 return false;
             }
 
-            var searchQuery = new CatalogSearchQuery().OriginatesFrom("Rule/Search");
-            SearchFilterExpressionGroup group;
-
-            if (filters.Length == 1 && filters[0] is SearchFilterExpressionGroup group2)
+            foreach (var filter in filters)
             {
-                group = group2;
+                if (filter is not SearchFilterExpressionGroup group)
+                {
+                    group = new SearchFilterExpressionGroup { LogicalOperator = logicalOperator };
+                    group.AddExpressions([filter]);
+                }
+
+                var searchQuery = new CatalogSearchQuery()
+                    .OriginatesFrom("Rule/Search")
+                    .WithLanguage(_workContext.WorkingLanguage)
+                    .WithCurrency(_workContext.WorkingCurrency)
+                    .BuildFacetMap(false)
+                    .CheckSpelling(0);
+
+                searchQuery = group.ApplyFilters(searchQuery);
+
+                var productQuery = _catalogSearchService.PrepareQuery(searchQuery);
+                if (await productQuery.AnyAsync(x => x.Id == productId))
+                {
+                    return true;
+                }
             }
-            else
-            {
-                group = new SearchFilterExpressionGroup { LogicalOperator = logicalOperator };
-                group.AddExpressions(filters);
-            }
 
-            searchQuery = group.ApplyFilters(searchQuery);
-
-            var query = _catalogSearchService.PrepareQuery(searchQuery);
-            var match = await query.AnyAsync(x => x.Id == productId);
-
-            return match;
+            return false;
         }
 
         public async Task<CatalogSearchResult> SearchAsync(SearchFilterExpression[] filters, int pageIndex = 0, int pageSize = int.MaxValue)
