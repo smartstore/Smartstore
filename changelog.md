@@ -42,7 +42,9 @@
   - Fixed various dialog layout issues
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
 - #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
-- GPSR: Fixed in rare cases, the manufacturer information was not displayed.
+- GPSR: 
+  - Fixed `NullReferenceException` if more than one product rule is assigned to a text block.
+  - Fixed in rare cases, the manufacturer information was not displayed.
 - Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
 - MegaMenu did not clear the output cache when any settings were changed.
 - MegaSearch: The names of unpublished product tags were not indexed.
