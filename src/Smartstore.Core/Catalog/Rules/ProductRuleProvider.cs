@@ -116,6 +116,10 @@ namespace Smartstore.Core.Catalog.Rules
                     group.AddExpressions([filter]);
                 }
 
+                // INFO: Same logic as in ProductRuleEvaluatorTask, one search per rule set.
+                // If you want to implement this with a single search, you would have to use ICombinedSearchFilter and
+                // logically combine the filters in exactly the opposite way to the way ICombinedSearchFilter is combined now
+                // (AND-combine IAttributeSearchFilter and OR-combine the ICombinedSearchFilter).
                 var searchQuery = new CatalogSearchQuery()
                     .OriginatesFrom("Rule/Search")
                     .WithLanguage(_workContext.WorkingLanguage)
