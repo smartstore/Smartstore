@@ -403,7 +403,6 @@
             <LocaleResource Name="TransmitTrackingNumbers.Hint">
                 <Value>
                     Specifies whether tracking numbers should be sent to PayPal as soon as they are entered or updated in the shipment.
-                    If this option is disabled, only the payment status of the order will be set to 'Pending'.
                 </Value>
             </LocaleResource>
             <LocaleResource Name="CancelOrdersForDeclinedPayments">
@@ -412,6 +411,7 @@
             <LocaleResource Name="CancelOrdersForDeclinedPayments.Hint">
                 <Value>
                     Defines whether orders for declined payments should be cancelled.
+                    If this option is disabled, only the payment status of the order will be set to 'Pending'.
                 </Value>
             </LocaleResource>
             <LocaleResource Name="Capture">
