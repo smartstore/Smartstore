@@ -30,8 +30,7 @@ namespace Smartstore.Core.Seo
             }
 
             var pathValue = policy.Path.Value;
-            // TODO: (mg) Implement an extension method for HttpContext (e.g. IsODataRequest). Find a way to reliably determine whether the RouteEndpoint is an OData endpoint. Call the method instead of checking for URL prefix.
-            if (string.IsNullOrEmpty(pathValue) || pathValue == "/" || pathValue.StartsWithNoCase("odata"))
+            if (string.IsNullOrEmpty(pathValue) || pathValue == "/" || httpContext.IsODataRequest())
             {
                 // Don't apply rule to homepage or Web API endpoints.
                 return;

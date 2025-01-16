@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -106,6 +107,26 @@ namespace Smartstore
                     return default;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current request refers to an OData endpoint.
+        /// </summary>
+        public static bool IsODataRequest(this HttpContext httpContext)
+        {
+            if (httpContext.GetEndpoint() is RouteEndpoint endpoint
+                && endpoint?.RoutePattern?.PathSegments?.Count > 0)
+            {
+                var segment = endpoint.RoutePattern.PathSegments[0];
+                if (segment.IsSimple
+                    && segment.Parts.Count > 0
+                    && segment.Parts[0] is RoutePatternLiteralPart contentPart)
+                {
+                    return contentPart?.Content?.EqualsNoCase("odata") == true;
+                }
+            }
+
+            return false;
         }
     }
 }
