@@ -21,7 +21,7 @@
         !isBundleItem &&
         (showStatusLabel || showDeliveryDate) &&
         (Model.IsShippingEnabled && deliveryPresentation != DeliveryTimesPresentation.None) && 
-        (!displayStock || (displayStock && Model.IsAvailable));
+        (!displayStock || (displayStock && Model.IsAvailable) || Model.DisplayDeliveryTimeAccordingToStock);
 
     var showAttributes = showDeliveryInfos || displayStock || Model.DisplayBackInStockSubscription;
     if (!showAttributes)
