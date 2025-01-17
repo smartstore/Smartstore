@@ -82,6 +82,8 @@ namespace Smartstore.Web
             mvcBuilder
                 .AddMvcOptions(o =>
                 {
+                    o.Conventions.Add(new ConditionalFilterModelConvention());
+
                     o.Filters.Add<ModulePopulatorFilter>(int.MinValue);
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
                     
