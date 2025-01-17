@@ -68,6 +68,21 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.VariantInCart", "Product with SKU in cart", "Produkt mit SKU im Warenkorb");
 
+            builder.AddOrUpdate("Admin.RecurringPayments.History")
+                .Value("de", "Historie");
+            builder.AddOrUpdate("Admin.RecurringPayments.Fields.CyclesRemaining")
+                .Value("de", "Verbleibende Zahlungen");
+            builder.AddOrUpdate("Admin.RecurringPayments.Fields.CyclesRemaining.Hint")
+                .Value("de", "Die Anzahl der verbleibenden Zahlungen");
+
+            builder.AddOrUpdate("Admin.RecurringPayments.List.RemainingCycles",
+                "Remaining payments",
+                "Verbleibende Zahlungen",
+                "Filter list by remaining payments.",
+                "Liste nach verbleibenden Zahlungen filtern.");
+
+            builder.Delete("Admin.RecurringPayments.History.OrderStatus", "Admin.RecurringPayments.History.PaymentStatus", "Admin.RecurringPayments.History.ShippingStatus");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";
