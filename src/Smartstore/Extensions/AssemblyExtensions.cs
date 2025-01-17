@@ -16,7 +16,7 @@ namespace Smartstore
         /// </returns>
         public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
         {
-            Guard.NotNull(assembly, nameof(assembly));
+            Guard.NotNull(assembly);
 
             try
             {

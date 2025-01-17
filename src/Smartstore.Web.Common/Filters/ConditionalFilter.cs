@@ -8,7 +8,7 @@ namespace Smartstore.Web.Filters
 
         public DefaultConditionalFilter(Func<ActionContext, bool> condition)
         {
-            _condition = Guard.NotNull(condition, nameof(condition));
+            _condition = Guard.NotNull(condition);
         }
 
         public override bool Match(ActionContext context)

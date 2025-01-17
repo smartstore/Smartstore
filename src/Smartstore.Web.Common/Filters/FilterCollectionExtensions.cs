@@ -12,8 +12,8 @@ namespace Smartstore
         public static IFilterMetadata AddConditional<TFilterType>(this FilterCollection filters, Func<ActionContext, bool> condition, int order = 0)
             where TFilterType : IFilterMetadata
         {
-            Guard.NotNull(filters, nameof(filters));
-            Guard.NotNull(condition, nameof(condition));
+            Guard.NotNull(filters);
+            Guard.NotNull(condition);
 
             var filter = new DefaultConditionalFilter<TFilterType>(condition) { Order = order };
             filters.Add(filter);
