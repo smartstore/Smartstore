@@ -107,14 +107,17 @@ namespace Smartstore.PayPal.Controllers
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
-            // If adding shipping address fails, just log it and continue.
-            try
+            if (customer.BillingAddress == null)
             {
-                await AddShippingAddressAsync(orderId);
-            }
-            catch (Exception ex)
-            {
-                Logger.Info("Adding of shipping address has failed.", ex);
+                // If adding shipping address fails, just log it and continue.
+                try
+                {
+                    await AddAddressesAsync(orderId);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info("Adding of shipping address has failed.", ex);
+                }
             }
 
             // Get redirect URL if quick checkout is active.
@@ -207,7 +210,7 @@ namespace Smartstore.PayPal.Controllers
             return Json(new { success = true, data = jResponse });
         }
 
-        private async Task AddShippingAddressAsync(string payPalOrderId) 
+        private async Task AddAddressesAsync(string payPalOrderId) 
         {
             var getOrderResponse = await _client.GetOrderAsync(payPalOrderId);
             var order = getOrderResponse.Body<OrderMessage>();
