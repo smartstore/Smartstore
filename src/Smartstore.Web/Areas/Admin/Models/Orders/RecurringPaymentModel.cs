@@ -38,21 +38,21 @@
                     var now = DateTime.UtcNow;
                     var dt = NextPaymentDateUtc.Value;
 
+                    // Do not make the next payment yet.
+                    var color = "danger";
+
                     if (dt <= now)
                     {
                         // Make the next payment.
-                        return "fa fa-fw fa-circle text-success";
+                        color = "success";
                     }
                     else if (dt.Day == now.Day && dt.Month == now.Month && dt.Year == now.Year)
                     {
                         // Possibly make the next payment.
-                        return "fa fa-fw fa-circle text-warning";
+                        color = "warning";
                     }
-                    else
-                    {
-                        // Do not make the next payment yet.
-                        return "fa fa-fw fa-circle text-danger";
-                    }
+
+                    return $"fa fa-fw fa-circle text-{color}";
                 }
                  
                 return "fa fa-fw icon-active-false";
