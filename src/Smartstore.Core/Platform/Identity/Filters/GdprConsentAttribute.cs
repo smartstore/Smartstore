@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core.Identity;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Widgets;
 
-namespace Smartstore.Web.Filters
+namespace Smartstore.Core.Identity
 {
     /// <summary>
     /// Requires GDPR consent for the current action.

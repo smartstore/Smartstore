@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Identity
