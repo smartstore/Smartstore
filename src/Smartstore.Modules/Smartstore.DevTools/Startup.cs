@@ -66,14 +66,9 @@ namespace Smartstore.DevTools
                     o.Filters.Remove(originalFilter);
                 }
 
-                o.Filters.AddConditional<MiniProfilerFilter>(
-                    context => context.ControllerIs<SmartController>() && ShouldProfile(context.HttpContext.Request));
-
-                o.Filters.AddConditional<MachineNameFilter>(
-                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
-
-                o.Filters.AddConditional<WidgetZoneFilter>(
-                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
+                o.Filters.AddEndpointFilter<MiniProfilerFilter, SmartController>().When(context => ShouldProfile(context.HttpContext.Request));
+                o.Filters.AddEndpointFilter<MachineNameFilter, SmartController>().WhenNonAjaxGet();
+                o.Filters.AddEndpointFilter<WidgetZoneFilter, SmartController>().WhenNonAjaxGet();
 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
                 //    context => context.ControllerIs<ProductController>());
