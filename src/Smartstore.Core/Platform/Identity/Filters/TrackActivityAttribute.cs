@@ -84,26 +84,26 @@ namespace Smartstore.Core.Identity
         {
             var now = DateTime.UtcNow;
             var customer = _workContext.CurrentCustomer;
-            if (customer == null || customer.Deleted || customer.IsSystemAccount)
+            if (customer == null || customer.Deleted /*|| customer.IsSystemAccount*/)
             {
                 return;
             }
 
-            var forceTrack = false;
+            var forceTrack = true; // false;
 
-            if (context.HttpContext.Request.IsSubRequest())
-            {
-                var isNewGuest = (now - customer.CreatedOnUtc) < TimeSpan.FromSeconds(2) && customer.IsGuest();
-                if (!isNewGuest)
-                {
-                    // Only get out in sub requests if the customer is NOT a new guest. We WANT to track new guests to check for abuse.
-                    return;
-                }
-                else
-                {
-                    forceTrack = true;
-                }
-            }
+            //if (context.HttpContext.Request.IsSubRequest())
+            //{
+            //    var isNewGuest = (now - customer.CreatedOnUtc) < TimeSpan.FromSeconds(2) && customer.IsGuest();
+            //    if (!isNewGuest)
+            //    {
+            //        // Only get out in sub requests if the customer is NOT a new guest. We WANT to track new guests to check for abuse.
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        forceTrack = true;
+            //    }
+            //}
 
             var dirty = false;
 
