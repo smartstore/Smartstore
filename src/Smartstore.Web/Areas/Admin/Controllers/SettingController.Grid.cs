@@ -2,6 +2,7 @@
 using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
@@ -120,21 +121,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Setting.Delete)]
         public async Task<IActionResult> SettingDelete(GridSelection selection)
         {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
+            var entities = await _db.Settings.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var settings = await _db.Settings.GetManyAsync(ids, true);
+                _db.Settings.RemoveRange(entities);
+                await _db.SaveChangesAsync();
 
-                _db.Settings.RemoveRange(settings);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteSetting,
+                    T("ActivityLog.DeleteSetting"),
+                    string.Join(", ", entities.Select(x => x.Name)));                
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = true, entities.Count });
         }
     }
 }

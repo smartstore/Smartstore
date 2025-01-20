@@ -154,23 +154,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Variant.Delete)]
         public async Task<IActionResult> ProductAttributeDelete(GridSelection selection)
         {
-            var success = false;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
+            var entities = await _db.ProductAttributes.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var attributes = await _db.ProductAttributes.GetManyAsync(ids, true);
-                var deletedNames = string.Join(", ", attributes.Select(x => x.Name));
-
-                _db.ProductAttributes.RemoveRange(attributes);
-
+                _db.ProductAttributes.RemoveRange(entities);
                 await _db.SaveChangesAsync();
-                success = true;
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProductAttribute, T("ActivityLog.DeleteProductAttribute"), deletedNames);
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteProductAttribute, 
+                    T("ActivityLog.DeleteProductAttribute"),
+                    string.Join(", ", entities.Select(x => x.Name)));
             }
 
-            return Json(new { Success = success });
+            return Json(new { Success = true, entities.Count });
         }
 
         [Permission(Permissions.Catalog.Variant.Create)]

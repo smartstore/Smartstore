@@ -233,21 +233,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cart.CheckoutAttribute.Delete)]
         public async Task<IActionResult> CheckoutAttributeDelete(GridSelection selection)
         {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
+            var entities = await _db.CheckoutAttributes.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
+            {                
+                _db.CheckoutAttributes.RemoveRange(entities);
+                await _db.SaveChangesAsync();
 
-            if (ids.Any())
-            {
-                var checkoutAttributes = await _db.CheckoutAttributes.GetManyAsync(ids, true);
-
-                _db.CheckoutAttributes.RemoveRange(checkoutAttributes);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
+                _activityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteCheckoutAttribute, 
+                    T("ActivityLog.DeleteCheckoutAttribute"), 
+                    string.Join(", ", entities.Select(x => x.Name)));
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = true, entities.Count });
         }
 
         #endregion

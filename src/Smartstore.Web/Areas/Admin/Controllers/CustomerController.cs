@@ -915,17 +915,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Delete)]
         public async Task<IActionResult> CustomerDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
-            var numDeleted = 0;
-
-            if (ids.Any())
+            var entities = await _db.Customers
+                .IncludeCustomerRoles()
+                .GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var toDelete = await _db.Customers
-                    .IncludeCustomerRoles()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                var adminIds = toDelete
+                var adminIds = entities
                     .Where(c => c.CustomerRoleMappings.Any(rm => 
                         rm.CustomerRole.IsSystemRole && 
                         rm.CustomerRole.Active && 
@@ -936,13 +931,16 @@ namespace Smartstore.Admin.Controllers
                 if (adminIds.Count > 0)
                 {
                     // Do not delete administrators here for security reasons.
-                    toDelete = toDelete.Where(x => !adminIds.Contains(x.Id)).ToList();
+                    entities = entities.Where(x => !adminIds.Contains(x.Id)).ToList();
                 }
 
-                _db.Customers.RemoveRange(toDelete);
+                _db.Customers.RemoveRange(entities);
                 await _db.SaveChangesAsync();
 
-                numDeleted = toDelete.Count;
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteCustomer, 
+                    T("ActivityLog.DeleteCustomer", 
+                    string.Join(", ", entities.Select(x => x.Id))));
 
                 if (adminIds.Count > 0)
                 {
@@ -950,7 +948,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return Json(new { Success = true, Count = numDeleted });
+            return Json(new { Success = true, entities.Count });
         }
 
         [HttpPost]
