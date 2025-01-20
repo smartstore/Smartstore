@@ -467,6 +467,9 @@
             <LocaleResource Name="Error.Refund.NoTransactionId">
                 <Value>Für diese Bestellung wurde keine Transaktions-ID hinterlegt. Bitte prüfen Sie die Anbindung Ihres Webhooks.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.CannotBeZeroOrNegative">
+                <Value>Da sich keine kostenpflichtigen Produkte im Warenkorb befinden, ist keine Zahlung erforderlich. Bitte überprüfen Sie Ihren Warenkorb.</Value>
+            </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Die Zugangsdaten wurden hinterlegt.</Value>
             </LocaleResource>

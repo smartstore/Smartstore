@@ -189,6 +189,11 @@ namespace Smartstore.PayPal.Controllers
 
             var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
 
+            if (orderMessage.PurchaseUnits[0].Amount.Value.Convert<decimal>() <= 0)
+            {
+                return Json(new { success = false, message = T("Plugins.Smartstore.PayPal.Error.CannotBeZeroOrNegative") });
+            }
+
             orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
             orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
 

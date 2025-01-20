@@ -483,6 +483,9 @@
             <LocaleResource Name="Error.Refund.NoTransactionId">
                 <Value>No transaction ID was stored for this order. Please check the connection of your webhook.</Value>
             </LocaleResource>
+            <LocaleResource Name="Error.CannotBeZeroOrNegative">
+                <Value>As there are no payable products in the shopping cart, no payment is required. Please check your shopping cart.</Value>
+            </LocaleResource>
             <LocaleResource Name="HasCredentials.True">
                 <Value>Credentials have been stored.</Value>
             </LocaleResource>
