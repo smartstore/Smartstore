@@ -2164,6 +2164,19 @@ namespace Smartstore.Admin.Controllers
                 giftCardIdsMap = giftCards.ToMultimap(x => x.OrderItemId, x => x.Id);
             }
 
+            var recurringPaymentIds = new Dictionary<int, int>();
+            var rpOrderIds = order.OrderItems
+                .Where(x => x.Product.IsRecurring)
+                .ToDistinctArray(x => x.OrderId);
+            if (rpOrderIds.Length > 0)
+            {
+                recurringPaymentIds = (await _db.RecurringPayments
+                    .Where(x => rpOrderIds.Contains(x.InitialOrderId))
+                    .Select(x => new { x.Id, x.InitialOrderId })
+                    .ToListAsync())
+                    .ToDictionarySafe(x => x.InitialOrderId, x => x.Id);
+            }
+
             foreach (var item in order.OrderItems)
             {
                 var product = item.Product;
@@ -2187,8 +2200,8 @@ namespace Smartstore.Admin.Controllers
 
                 if (product.IsRecurring)
                 {
-                    var period = Services.Localization.GetLocalizedEnum(product.RecurringCyclePeriod);
-                    model.RecurringInfo = T("Admin.Orders.Products.RecurringPeriod", product.RecurringCycleLength, period);
+                    model.RecurringPaymentId = recurringPaymentIds.Get(item.OrderId);
+                    model.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
                 }
 
                 if (returnRequestsMap.ContainsKey(item.Id))

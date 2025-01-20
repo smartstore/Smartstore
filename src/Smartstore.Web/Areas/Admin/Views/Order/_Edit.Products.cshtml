@@ -79,7 +79,9 @@
                                     @Html.Raw(item.AttributeDescription)
                                 </div>
                                 <div sm-if="item.RecurringInfo.HasValue()">
-                                    @Html.Raw(item.RecurringInfo)
+                                    <a href="@Url.Action("Edit", "RecurringPayment", new { id = Model.RecurringPaymentId, area = "Admin" })">
+                                        @Html.Raw(item.RecurringInfo)
+                                    </a>
                                 </div>
                                 <div sm-if="item.Sku.HasValue()">
                                     <span class="fwm">@T("Admin.Orders.Products.SKU")</span>: @item.Sku

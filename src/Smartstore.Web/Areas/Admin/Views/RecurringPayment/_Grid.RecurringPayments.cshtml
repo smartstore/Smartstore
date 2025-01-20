@@ -43,11 +43,11 @@
             </display-template>
         </column>
         <column for="CyclesRemaining" halign="center" sortable="false" />
-        <column for="NextPaymentDate" halign="center" sortable="false">
+        <column for="NextPaymentDate" sortable="false">
             <display-template>
                 <div class="dg-cell-value">
-                    <i :class="item.row.NextPaymentLabelClass" :title="item.row.NextPaymentDateString"></i>
-                    <span class="text-truncate">{{ item.row.NextPaymentDateString }}</span>
+                    <i :class="item.row.NextPaymentLabelClass"></i>
+                    <span class="text-truncate" :title="item.row.NextPaymentDateString">{{ item.row.NextPaymentDateFriendly }}</span>
                 </div>
             </display-template>
         </column>

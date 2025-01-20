@@ -26,8 +26,12 @@
         [LocalizedDisplay("*NextPaymentDate")]
         public DateTime? NextPaymentDate { get; set; }
         public DateTime? NextPaymentDateUtc { get; set; }
+
         public string NextPaymentDateString
             => NextPaymentDate?.ToString("g");
+
+        public string NextPaymentDateFriendly
+            => NextPaymentDate?.ToHumanizedString(false);
 
         public string NextPaymentLabelClass
         {

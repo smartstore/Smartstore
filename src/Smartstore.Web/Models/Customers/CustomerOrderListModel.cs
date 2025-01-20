@@ -1,4 +1,5 @@
 ﻿using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Web.Models.Customers
 {
@@ -6,7 +7,6 @@ namespace Smartstore.Web.Models.Customers
     {
         public IPagedList<OrderDetailsModel> Orders { get; set; }
         public IPagedList<RecurringPaymentModel> RecurringPayments { get; set; }
-        public List<string> CancelRecurringPaymentErrors { get; set; } = new();
 
         public int? OrdersPage { get; set; }
         public int? RecurringPaymentsPage { get; set; }
@@ -22,12 +22,18 @@ namespace Smartstore.Web.Models.Customers
 
         public partial class RecurringPaymentModel : EntityModelBase
         {
-            public DateTime StartDate { get; set; }
-            public string CycleInfo { get; set; }
-            public DateTime? NextPayment { get; set; }
-            public int TotalCycles { get; set; }
-            public int CyclesRemaining { get; set; }
             public int InitialOrderId { get; set; }
+            public string InitialOrderNumber { get; set; }
+            public DateTime StartDate { get; set; }
+
+            public int CyclesRemaining { get; set; }
+            public DateTime? NextPayment { get; set; }
+
+            public int CycleLength { get; set; }
+            public RecurringProductCyclePeriod CyclePeriod { get; set; }
+            public string CyclePeriodString { get; set; }
+            public int TotalCycles { get; set; }
+
             public bool CanCancel { get; set; }
         }
     }

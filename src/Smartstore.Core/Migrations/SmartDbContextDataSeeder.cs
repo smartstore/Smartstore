@@ -81,7 +81,26 @@ namespace Smartstore.Core.Data.Migrations
                 "Filter list by remaining payments.",
                 "Liste nach verbleibenden Zahlungen filtern.");
 
-            builder.Delete("Admin.RecurringPayments.History.OrderStatus", "Admin.RecurringPayments.History.PaymentStatus", "Admin.RecurringPayments.History.ShippingStatus");
+            // Frontend renaming: "Wiederkehrende Zahlung" -> "Regelm‰ﬂige Lieferung".
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.Cancel", "Cancel repeat delivery", "Regelm‰ﬂige Lieferung abbrechen");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders", "Repeat deliveries", "Regelm‰ﬂige Lieferungen");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.TotalCycles", "Total deliveries", "Lieferungen insgesamt");
+            builder.AddOrUpdate("ShoppingCart.RecurringPeriod", "[Repeat deliveries every {0} {1}]", "[Regelm‰ﬂige Lieferung alle {0} {1}]");
+
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CancelDelivery",
+                "Would you like to cancel the repeat delivery?",
+                "Mˆchten Sie die regelm‰ﬂige Lieferung abbrechen?");
+
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.SuccessfullyCanceled",
+                "The repeat delivery was successfully canceled.",
+                "Die regelm‰ﬂige Lieferung wurde erfolgreich abgebrochen.");
+
+            builder.Delete(
+                "Admin.RecurringPayments.History.OrderStatus",
+                "Admin.RecurringPayments.History.PaymentStatus",
+                "Admin.RecurringPayments.History.ShippingStatus",
+                "Admin.Orders.Products.RecurringPeriod",
+                "Account.CustomerOrders.RecurringOrders.ViewInitialOrder");
 
             #region Performance settings
 
