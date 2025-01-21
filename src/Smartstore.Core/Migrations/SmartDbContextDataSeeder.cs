@@ -102,6 +102,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Orders.Products.RecurringPeriod",
                 "Account.CustomerOrders.RecurringOrders.ViewInitialOrder");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
+                "{0} of {1} products have been permanently deleted.",
+                "Es wurden {0} von {1} Produkten entgültig gelöscht.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult",
+                "{0} of {1} products have been permanently deleted. {2} Products were skipped as they are assigned to orders and cannot be permanently deleted.",
+                "{0} von {1} Produkten wurden entgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";

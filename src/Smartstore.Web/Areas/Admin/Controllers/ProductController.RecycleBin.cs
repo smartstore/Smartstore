@@ -82,10 +82,19 @@ namespace Smartstore.Admin.Controllers
         {
             var result = await _productService.DeleteProductsPermanentAsync(productIds);
 
-            NotifyInfo(T("Admin.Catalog.Products.RecycleBin.DeleteProductsResult", 
-                result.DeletedRecords.ToString("N0"), 
-                productIds.Length.ToString("N0"), 
-                result.SkippedRecords.ToString("N0")));
+            if (result.SkippedRecords > 0)
+            {
+                NotifyInfo(T("Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult",
+                    result.DeletedRecords.ToString("N0"),
+                    productIds.Length.ToString("N0"),
+                    result.SkippedRecords.ToString("N0")));
+            }
+            else
+            {
+                NotifyInfo(T("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
+                    result.DeletedRecords.ToString("N0"),
+                    productIds.Length.ToString("N0")));
+            }
 
             result.Errors.Take(3).Each(x => NotifyError(x));
         }
