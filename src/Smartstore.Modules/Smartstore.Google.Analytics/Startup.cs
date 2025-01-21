@@ -19,8 +19,9 @@ namespace Smartstore.Google.Analytics
 
                 services.Configure<MvcOptions>(o =>
                 {
-                    o.Filters.AddConditional<CheckoutFilter>(
-                        context => context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax());
+                    o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>()
+                        .ForAction(x => x.Confirm())
+                        .WhenNonAjax();
                 });
             }
         }
