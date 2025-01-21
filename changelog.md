@@ -8,7 +8,9 @@
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
 - Shipping by total: Added a setting to let the shipping origin determine the shipping cost if the shipping address is missing.
 - #501 New category option for ignoring a category in menus.
-- MegaSearch: Added setting to indicate whether to split compound words.
+- MegaSearch: 
+  - Added setting to indicate whether to split compound words.
+  - Setting to include/exclude the meta keywords of products in the search index.
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always 0 in queued email list.
