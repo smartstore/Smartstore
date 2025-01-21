@@ -72,5 +72,12 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
         Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingProviderSystemName = null);
+
+        /// <summary>
+        /// Gets the origin address for shipping.
+        /// The address is specified by <see cref="ShippingSettings.ShippingOriginAddressId"/>.
+        /// </summary>
+        /// <returns>Shipping origin address. <c>null</c> if not specified.</returns>
+        Task<Address> GetShippingOriginAddressAsync();
     }
 }

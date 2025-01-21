@@ -17,6 +17,9 @@ namespace Smartstore.Shipping.Models
         [LocalizedDisplay("*CalculateTotalIncludingTax")]
         public bool CalculateTotalIncludingTax { get; set; }
 
+        [LocalizedDisplay("*UseShippingOriginIfShippingAddressMissing")]
+        public bool UseShippingOriginIfShippingAddressMissing { get; set; }
+
 
         [LocalizedDisplay("*Zip")]
         public string SearchZip { get; set; }

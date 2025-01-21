@@ -91,7 +91,13 @@
             <LocaleResource Name="Fields.CalculateTotalIncludingTax.Hint">
                 <Value>Specifies whether to calculate the order total including or excluding taxes.</Value>
             </LocaleResource>
-
+            <LocaleResource Name="Fields.UseShippingOriginIfShippingAddressMissing">
+                <Value>Shipping origin determines shipping costs if shipping address is missing</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.UseShippingOriginIfShippingAddressMissing.Hint">
+                <Value>Specifies that the shipping costs of the location from which the shipment is made is used, if the customer has never gone through the checkout and his shipping address is unknown. See "Shipping Origin" in the shipping settings.</Value>
+            </LocaleResource>
+            
             <LocaleResource Name="Fields.BaseCharge">
                 <Value>Base fee</Value>
             </LocaleResource>
