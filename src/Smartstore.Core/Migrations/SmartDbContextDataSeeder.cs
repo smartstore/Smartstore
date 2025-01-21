@@ -104,11 +104,11 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
                 "{0} of {1} products have been permanently deleted.",
-                "Es wurden {0} von {1} Produkten entgültig gelöscht.");
+                "Es wurden {0} von {1} Produkten endgültig gelöscht.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult",
                 "{0} of {1} products have been permanently deleted. {2} Products were skipped as they are assigned to orders and cannot be permanently deleted.",
-                "{0} von {1} Produkten wurden entgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
+                "{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
 
             #region Performance settings
 
