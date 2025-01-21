@@ -6,18 +6,18 @@ namespace Smartstore.Web.Filters
     {
         public void Apply(ApplicationModel application)
         {
-            var filters = application.Filters.OfType<EndpointFilterMetadata>().ToArray();
+            var endpointFilters = application.Filters.OfType<EndpointFilterMetadata>().ToArray();
 
-            foreach (var filter in filters)
+            foreach (var endpointFilter in endpointFilters)
             {
-                application.Filters.Remove(filter);
+                application.Filters.Remove(endpointFilter);
 
-                var isControllerFilter = filter.ActionMethods.IsNullOrEmpty();
-                var actualFilter = filter.GetFilter();
+                var isControllerFilter = endpointFilter.IsControllerFilter();
+                var actualFilter = endpointFilter.GetFilter();
 
                 foreach (var controller in application.Controllers)
                 {
-                    if (filter.ControllerType.IsAssignableFrom(controller.ControllerType))
+                    if (endpointFilter.MatchController(controller))
                     {
                         if (isControllerFilter)
                         {
@@ -27,7 +27,7 @@ namespace Smartstore.Web.Filters
                         {
                             foreach (var action in controller.Actions)
                             {
-                                if (filter.ActionMethods.Contains(action.ActionMethod))
+                                if (endpointFilter.MatchAction(action))
                                 {
                                     action.Filters.Add(actualFilter);
                                 }

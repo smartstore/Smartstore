@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Smartstore.Web.Filters
@@ -16,21 +17,13 @@ namespace Smartstore.Web.Filters
 
         public EndpointFilterMetadata<TFilter, TController> ForAction(Expression<Func<TController, Task<IActionResult>>> actionSelector)
         {
-            Guard.NotNull(actionSelector);
-
-            _actionMethods ??= [];
-            _actionMethods.Add(actionSelector.ExtractMethodInfo());
-
+            ForAction(Guard.NotNull(actionSelector).ExtractMethodInfo());
             return this;
         }
 
         public EndpointFilterMetadata<TFilter, TController> ForAction(Expression<Func<TController, IActionResult>> actionSelector)
         {
-            Guard.NotNull(actionSelector);
-
-            _actionMethods ??= [];
-            _actionMethods.Add(actionSelector.ExtractMethodInfo());
-
+            ForAction(Guard.NotNull(actionSelector).ExtractMethodInfo());
             return this;
         }
 
@@ -48,8 +41,9 @@ namespace Smartstore.Web.Filters
 
     public abstract class EndpointFilterMetadata : IOrderedFilter
     {
+        protected List<object>? _controllers;
+        protected List<object>? _actions;
         protected Func<ActionContext, bool>? _condition;
-        protected List<MethodInfo>? _actionMethods;
 
         public EndpointFilterMetadata(Type filterType, Type controllerType)
         {
@@ -76,31 +70,143 @@ namespace Smartstore.Web.Filters
         /// </summary>
         public Type ControllerType { get; }
 
-        /// <summary>
-        /// Methods of the controller that the filter is applied to.
-        /// </summary>
-        public IReadOnlyList<MethodInfo>? ActionMethods 
+        public EndpointFilterMetadata ForController(string controllerName)
         {
-            get => _actionMethods;
+            Guard.NotEmpty(controllerName);
+
+            _controllers ??= [];
+            _controllers.Add(controllerName);
+
+            return this;
+        }
+
+        public EndpointFilterMetadata ForController(Func<ControllerModel, bool> selector)
+        {
+            Guard.NotNull(selector);
+
+            _controllers ??= [];
+            _controllers.Add(selector);
+
+            return this;
+        }
+
+        public bool MatchController(ControllerModel controllerModel)
+        {
+            Guard.NotNull(controllerModel);
+
+            var isAssignable = ControllerType.IsAssignableFrom(controllerModel.ControllerType);
+
+            if (_controllers == null || _controllers.Count == 0)
+            {
+                return isAssignable;
+            }
+
+            foreach (var controller in _controllers)
+            {
+                if (controller is string controllerName)
+                {
+                    if (controllerName.EqualsNoCase(controllerModel.ControllerName))
+                    {
+                        return true;
+                    }
+                }
+                else if (controller is Func<ControllerModel, bool> selector)
+                {
+                    if (selector(controllerModel))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public EndpointFilterMetadata ForAction(string actionName)
+        {
+            Guard.NotEmpty(actionName);
+
+            _actions ??= [];
+            _actions.Add(actionName);
+
+            return this;
         }
 
         public EndpointFilterMetadata ForAction(MethodInfo method)
         {
             Guard.NotNull(method);
 
-            _actionMethods ??= [];
-            _actionMethods.Add(method);
+            _actions ??= [];
+            _actions.Add(method);
 
             return this;
         }
 
+        public EndpointFilterMetadata ForAction(Func<ActionModel, bool> selector)
+        {
+            Guard.NotNull(selector);
+
+            _actions ??= [];
+            _actions.Add(selector);
+
+            return this;
+        }
+
+        public bool IsControllerFilter()
+            => _actions.IsNullOrEmpty();
+
+        public bool MatchAction(ActionModel actionModel)
+        {
+            Guard.NotNull(actionModel);
+
+            if (_actions == null || _actions.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var action in _actions)
+            {
+                if (action is MethodInfo method)
+                {
+                    if (method == actionModel.ActionMethod)
+                    {
+                        return true;
+                    }
+                }
+                if (action is string actionName)
+                {
+                    if (actionName.EqualsNoCase(actionModel.ActionName))
+                    {
+                        return true;
+                    }
+                }
+                else if (action is Func<ActionModel, bool> selector)
+                {
+                    if (selector(actionModel))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
-        /// Sets a condition that must be met for the filter to be executed
+        /// Sets a condition that must be met for the filter to be executed.
         /// </summary>
         public EndpointFilterMetadata When(Func<ActionContext, bool> condition)
         {
             _condition = Guard.NotNull(condition);
             return this;
+        }
+
+        /// <summary>
+        /// Executes filter only when the request is a non-ajax request.
+        /// </summary>
+        public EndpointFilterMetadata WhenNonAjax()
+        {
+            return When(context => !context.HttpContext.Request.IsAjax());
         }
 
         /// <summary>

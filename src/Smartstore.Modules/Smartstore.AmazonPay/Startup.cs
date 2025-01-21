@@ -26,11 +26,10 @@ namespace Smartstore.AmazonPay
 
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
-                    context => context.RouteData?.Values?.IsSameRoute("ShoppingCart", nameof(ShoppingCartController.OffCanvasShoppingCart)) ?? false);
-
-                o.Filters.AddConditional<CheckoutFilter>(
-                    context => context.ControllerIs<CheckoutController>() && !context.HttpContext.Request.IsAjax());
+                o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>().WhenNonAjax();
+                o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, SmartController>()
+                    .ForController("ShoppingCart")
+                    .ForAction(nameof(ShoppingCartController.OffCanvasShoppingCart));
             });
         }
     }

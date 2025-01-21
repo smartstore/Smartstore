@@ -14,15 +14,14 @@ namespace Smartstore.StripeElements
         {
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
-                    context => context.RouteData?.Values?.IsSameRoute("ShoppingCart", nameof(ShoppingCartController.OffCanvasShoppingCart)) ?? false);
-
-                o.Filters.AddConditional<CheckoutFilter>(
-                    context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax()
-                    || context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax(), 200);
-
-                o.Filters.AddConditional<StripeScriptIncludeFilter>(
-                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
+                o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, SmartController>()
+                    .ForController("ShoppingCart")
+                    .ForAction(nameof(ShoppingCartController.OffCanvasShoppingCart));
+                o.Filters.AddEndpointFilter<StripeScriptIncludeFilter, PublicController>().WhenNonAjax();
+                o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>(order: 200)
+                    .ForAction(x => x.PaymentMethod())
+                    .ForAction(x => x.Confirm())
+                    .WhenNonAjax();
             });
 
             if (appContext.IsInstalled)

@@ -108,7 +108,7 @@ namespace Smartstore.Core.Identity
             var dirty = false;
 
             // Last activity date
-            if (forceTrack && (forceTrack || customer.LastActivityDateUtc.AddMinutes(1.0) < now))
+            if (forceTrack || customer.LastActivityDateUtc.AddMinutes(1.0) < now)
             {
                 customer.LastActivityDateUtc = now;
                 dirty = true;
