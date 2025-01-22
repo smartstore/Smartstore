@@ -4,6 +4,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -216,6 +217,99 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = true, Count = numDeleted });
+        }
+
+        [MaintenanceAction]
+        [Permission(Permissions.System.UrlRecord.Delete)]
+        public async Task<IActionResult> Cleanup(int batchSize = 128)
+        {
+            var numTotalDeleted = 0;
+
+            try
+            {
+                // TyepScanner too dangerous in a deleting scenario.
+                //var slugSupportedTypes = Services.ApplicationContext.TypeScanner.FindTypes(typeof(ISlugSupported));
+                var entitySets = new Dictionary<string, IQueryable<ISlugSupported>>
+                {
+                    ["Product"] = _db.Products,
+                    ["Category"] = _db.Categories,
+                    ["Manufacturer"] = _db.Manufacturers
+                    // TODO: Not found entity types. Cleanup using SQL?
+                    //["BlogPost"] = GetEntityQueryByName("BlogPost"),
+                    //["NewsItem"] = GetEntityQueryByName("NewsItem"),
+                    //["Forum"] = GetEntityQueryByName("Forum"),
+                    //["ForumGroup"] = GetEntityQueryByName("ForumGroup")
+                };
+
+                foreach (var pair in entitySets)
+                {
+                    IQueryable<UrlRecord> query = null;
+                    var entityName = pair.Key;
+                    var entitySet = pair.Value;
+
+                    query =
+                        from ur in _db.UrlRecords
+                        join e in entitySet.IgnoreQueryFilters() on ur.EntityId equals e.Id into urp
+                        from e in urp.DefaultIfEmpty()
+                        where e == null && ur.EntityName == entityName
+                        select ur;
+                    if (query == null)
+                    {
+                        continue;
+                    }
+
+                    var idsQuery = query
+                        .OrderBy(x => x.Id)
+                        .Select(x => x.Id)
+                        .Take(batchSize);
+
+                    while (true)
+                    {
+                        var ids = await idsQuery.ToListAsync();
+                        if (ids.Count == 0)
+                        {
+                            break;
+                        }
+
+                        var numDeleted = await _db.UrlRecords
+                            .Where(x => ids.Contains(x.Id))
+                            .ExecuteDeleteAsync();
+                        if (numDeleted == 0)
+                        {
+                            break;
+                        }
+
+                        numTotalDeleted += numDeleted;
+                    }
+
+                    if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
+                    {
+                        var tableName = _db.Model.FindEntityType(typeof(UrlRecord)).GetTableName();
+                        await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Content($"ERROR: {ex.Message}");
+            }
+
+            return Content(T("Admin.System.Maintenance.CleanupOrphanedRecords", numTotalDeleted.ToString("N0"), nameof(UrlRecord)));
+
+            //IQueryable<ISlugSupported> GetEntityQueryByName(string entityName)
+            //{
+            //    var entityType = (_db.Model.GetEntityTypes().FirstOrDefault(e => e.ClrType.Name == entityName)?.ClrType)
+            //        ?? throw new ArgumentException("Entity type not found.", nameof(entityName));
+
+            //    var dbSetProperty = _db.GetType().GetProperties().FirstOrDefault(p =>
+            //            p.PropertyType.IsGenericType
+            //            && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
+            //            && p.PropertyType.GetGenericArguments()[0] == entityType)
+            //        ?? throw new ArgumentException($"DbSet for entity {entityName} not found.", nameof(entityName));
+
+            //    return dbSetProperty.GetValue(_db) as IQueryable<ISlugSupported>;
+            //}
         }
 
         private async Task PrepareAvailableLanguages()
