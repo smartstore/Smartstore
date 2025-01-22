@@ -9,6 +9,7 @@ namespace Smartstore
         /// Adds a filter that is instantiated and invoked only when <paramref name="condition"/> is <c>true</c>.
         /// </summary>
         /// <param name="filterType">Type representing an <see cref="IFilterMetadata"/>.</param>
+        [Obsolete("Use AddEndpointFilter<TFilter, TController>().When(x => x...) instead.")]
         public static ConditionalFilter AddConditional<TFilter>(this FilterCollection filters, Func<ActionContext, bool> condition, int order = 0)
             where TFilter : IFilterMetadata
         {
