@@ -648,6 +648,7 @@ namespace Smartstore.PayPal.Controllers
                         else
                         {
                             order.PaymentStatus = PaymentStatus.Pending;
+                            order.OrderStatus = OrderStatus.Pending;
                         }
                     }
                     break;
