@@ -46,13 +46,11 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                     return new(false);
                 }
 
+                var oldPreferredPaymentMethod = ga.PreferredPaymentMethod;
+
+                // SelectedPaymentMethod must be set before validation.
                 ga.SelectedPaymentMethod = systemName;
-
-                if (!provider.Value.RequiresPaymentSelection)
-                {
-                    ga.PreferredPaymentMethod = systemName;
-                }
-
+                ga.PreferredPaymentMethod = systemName;
                 await ga.SaveChangesAsync();
 
                 var form = context.HttpContext.Request.Form;
@@ -80,6 +78,13 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 }
                 else
                 {
+                    if (!ga.PreferredPaymentMethod.EqualsNoCase(oldPreferredPaymentMethod))
+                    {
+                        // Reset.
+                        ga.PreferredPaymentMethod = oldPreferredPaymentMethod;
+                        await ga.SaveChangesAsync();
+                    }
+
                     var errors = validationResult.Errors
                         .Select(x => new CheckoutError(x.PropertyName, x.ErrorMessage))
                         .ToArray();
@@ -133,6 +138,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             if (_shoppingCartSettings.QuickCheckoutEnabled && ga.SelectedPaymentMethod.IsEmpty())
             {
+                // Apply preferred method if it does not require payment selection page.
                 providers ??= await GetPaymentMethods(cart);
 
                 var applyMethod = true;
