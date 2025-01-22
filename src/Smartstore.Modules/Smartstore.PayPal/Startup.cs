@@ -24,7 +24,6 @@ namespace Smartstore.PayPal
             {
                 o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, ShoppingCartController>()
                     .ForAction(x => x.OffCanvasShoppingCart());
-                // TODO: (filter) (mh) Check if this can be scoped somehow.
                 o.Filters.AddEndpointFilter<PayPalScriptIncludeFilter, PublicController>().WhenNonAjax();
                 o.Filters.AddEndpointFilter<ProductDetailFilter, ProductController>()
                     .ForAction(x => x.ProductDetails(0, null));
