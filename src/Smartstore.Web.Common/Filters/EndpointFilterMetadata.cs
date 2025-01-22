@@ -6,28 +6,52 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Smartstore.Web.Filters
 {
+    /// <summary>
+    /// Represents metadata for an endpoint filter that applies to a specific controller type and, optionally, actions.
+    /// </summary>
+    /// <typeparam name="TFilter">The type of the filter.</typeparam>
+    /// <typeparam name="TController">The type of the controller. By default, any controller that inherits from TController is matched.</typeparam>
     public class EndpointFilterMetadata<TFilter, TController> : EndpointFilterMetadata
         where TFilter : IFilterMetadata
         where TController : Controller
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndpointFilterMetadata{TFilter, TController}"/> class.
+        /// </summary>
         public EndpointFilterMetadata()
             : base(typeof(TFilter), typeof(TController))
         {
         }
 
+        /// <summary>
+        /// Specifies the action method to which the filter applies.
+        /// Multiple calls to <c>ForAction</c> are additive. If no actions are specified, the filter applies to all actions (added at controller level).
+        /// </summary>
+        /// <param name="actionSelector">An expression that selects the action method.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata{TFilter, TController}"/> instance.</returns>
         public EndpointFilterMetadata<TFilter, TController> ForAction(Expression<Func<TController, Task<IActionResult>>> actionSelector)
         {
             ForAction(Guard.NotNull(actionSelector).ExtractMethodInfo());
             return this;
         }
 
+        /// <summary>
+        /// Specifies the action method to which the filter applies.
+        /// Multiple calls to <c>ForAction</c> are additive. If no actions are specified, the filter applies to all actions (added at controller level).
+        /// </summary>
+        /// <param name="actionSelector">An expression that selects the action method.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata{TFilter, TController}"/> instance.</returns>
         public EndpointFilterMetadata<TFilter, TController> ForAction(Expression<Func<TController, IActionResult>> actionSelector)
         {
             ForAction(Guard.NotNull(actionSelector).ExtractMethodInfo());
             return this;
         }
 
-        public override IFilterMetadata GetFilter()
+        /// <summary>
+        /// Gets the actual filter (either <see cref="ConditionalFilter" /> or <see cref="TypeFilterAttribute" />, depending on configuration).
+        /// </summary>
+        /// <returns>The filter metadata.</returns>
+        internal override IFilterMetadata GetFilter()
         {
             if (_condition != null)
             {
@@ -39,6 +63,9 @@ namespace Smartstore.Web.Filters
     }
 
 
+    /// <summary>
+    /// Represents metadata for an endpoint filter.
+    /// </summary>
     public abstract class EndpointFilterMetadata : IOrderedFilter
     {
         protected List<object>? _controllers;
@@ -61,6 +88,10 @@ namespace Smartstore.Web.Filters
         /// <inheritdoc />
         public int Order { get; set; }
 
+        /// <summary>
+        /// Marks the filter as reusable.
+        /// </summary>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata IsReusable()
         {
             _isReusable = true;
@@ -68,15 +99,22 @@ namespace Smartstore.Web.Filters
         }
 
         /// <summary>
-        /// Type of filter implementation.
+        /// Gets the type of the filter implementation.
         /// </summary>
         public Type FilterType { get; internal set; }
 
         /// <summary>
-        /// Type of controller that the filter is applied to.
+        /// Gets the type of the controller that the filter is applied to.
         /// </summary>
         public Type ControllerType { get; }
 
+        /// <summary>
+        /// Specifies the controller to which the filter applies.
+        /// Multiple calls to <c>ForController</c> are additive. If no controllers are specified, 
+        /// the filter applies to all controllers that are assignable from <see cref="ControllerType"/>.
+        /// </summary>
+        /// <param name="controllerName">The name of the controller.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata ForController(string controllerName)
         {
             Guard.NotEmpty(controllerName);
@@ -87,6 +125,13 @@ namespace Smartstore.Web.Filters
             return this;
         }
 
+        /// <summary>
+        /// Specifies the controller to which the filter applies.
+        /// Multiple calls to <c>ForController</c> are additive. If no controllers are specified, 
+        /// the filter applies to all controllers that are assignable from <see cref="ControllerType"/>.
+        /// </summary>
+        /// <param name="selector">A function that selects applicable controllers.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata ForController(Func<ControllerModel, bool> selector)
         {
             Guard.NotNull(selector);
@@ -97,7 +142,12 @@ namespace Smartstore.Web.Filters
             return this;
         }
 
-        public bool MatchController(ControllerModel controllerModel)
+        /// <summary>
+        /// Determines whether the filter matches the specified controller model.
+        /// </summary>
+        /// <param name="controllerModel">The controller model.</param>
+        /// <returns><c>true</c> if the filter matches the controller model; otherwise, <c>false</c>.</returns>
+        internal bool MatchController(ControllerModel controllerModel)
         {
             Guard.NotNull(controllerModel);
 
@@ -108,20 +158,23 @@ namespace Smartstore.Web.Filters
                 return isAssignable;
             }
 
-            foreach (var controller in _controllers)
+            if (isAssignable)
             {
-                if (controller is string controllerName)
+                foreach (var controller in _controllers)
                 {
-                    if (controllerName.EqualsNoCase(controllerModel.ControllerName))
+                    if (controller is string controllerName)
                     {
-                        return true;
+                        if (controllerName.EqualsNoCase(controllerModel.ControllerName))
+                        {
+                            return true;
+                        }
                     }
-                }
-                else if (controller is Func<ControllerModel, bool> selector)
-                {
-                    if (selector(controllerModel))
+                    else if (controller is Func<ControllerModel, bool> selector)
                     {
-                        return true;
+                        if (selector(controllerModel))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -129,6 +182,12 @@ namespace Smartstore.Web.Filters
             return false;
         }
 
+        /// <summary>
+        /// Specifies the action method to which the filter applies.
+        /// Multiple calls to <c>ForAction</c> are additive. If no actions are specified, the filter applies to all actions (added at controller level).
+        /// </summary>
+        /// <param name="actionName">The name of the action method.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata ForAction(string actionName)
         {
             Guard.NotEmpty(actionName);
@@ -139,6 +198,12 @@ namespace Smartstore.Web.Filters
             return this;
         }
 
+        /// <summary>
+        /// Specifies the action method to which the filter applies.
+        /// Multiple calls to <c>ForAction</c> are additive. If no actions are specified, the filter applies to all actions (added at controller level).
+        /// </summary>
+        /// <param name="method">The method information of the action method.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata ForAction(MethodInfo method)
         {
             Guard.NotNull(method);
@@ -149,6 +214,12 @@ namespace Smartstore.Web.Filters
             return this;
         }
 
+        /// <summary>
+        /// Specifies the action method to which the filter applies.
+        /// Multiple calls to <c>ForAction</c> are additive. If no actions are specified, the filter applies to all actions (added at controller level).
+        /// </summary>
+        /// <param name="selector">A function that selects applicable action methods.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata ForAction(Func<ActionModel, bool> selector)
         {
             Guard.NotNull(selector);
@@ -159,10 +230,19 @@ namespace Smartstore.Web.Filters
             return this;
         }
 
-        public bool IsControllerFilter()
+        /// <summary>
+        /// Determines whether the filter is a controller filter.
+        /// </summary>
+        /// <returns><c>true</c> if the filter is a controller filter (has no actions); otherwise, <c>false</c>.</returns>
+        internal bool IsControllerFilter()
             => _actions.IsNullOrEmpty();
 
-        public bool MatchAction(ActionModel actionModel)
+        /// <summary>
+        /// Determines whether the filter matches the specified action model.
+        /// </summary>
+        /// <param name="actionModel">The action model.</param>
+        /// <returns><c>true</c> if the filter matches the action model; otherwise, <c>false</c>.</returns>
+        internal bool MatchAction(ActionModel actionModel)
         {
             Guard.NotNull(actionModel);
 
@@ -202,6 +282,8 @@ namespace Smartstore.Web.Filters
         /// <summary>
         /// Sets a condition that must be met for the filter to be executed.
         /// </summary>
+        /// <param name="condition">A function that defines the condition.</param>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata When(Func<ActionContext, bool> condition)
         {
             _condition = Guard.NotNull(condition);
@@ -209,16 +291,18 @@ namespace Smartstore.Web.Filters
         }
 
         /// <summary>
-        /// Executes filter only when the request is a non-ajax request.
+        /// Executes the filter only when the request is a non-ajax request.
         /// </summary>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata WhenNonAjax()
         {
             return When(context => !context.HttpContext.Request.IsAjax());
         }
 
         /// <summary>
-        /// Executes filter only when the request is a non-ajax GET request.
+        /// Executes the filter only when the request is a non-ajax GET request.
         /// </summary>
+        /// <returns>The current <see cref="EndpointFilterMetadata"/> instance.</returns>
         public EndpointFilterMetadata WhenNonAjaxGet()
         {
             return When(context => context.HttpContext.Request.IsNonAjaxGet());
@@ -227,6 +311,7 @@ namespace Smartstore.Web.Filters
         /// <summary>
         /// Gets the actual filter.
         /// </summary>
-        public abstract IFilterMetadata GetFilter();
+        /// <returns>The filter metadata.</returns>
+        internal abstract IFilterMetadata GetFilter();
     }
 }

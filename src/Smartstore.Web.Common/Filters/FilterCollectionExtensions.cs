@@ -21,7 +21,8 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// TODO: Add summary
+        /// Adds a filter that is applied to a specific endpoint when the application starts. Other than <see cref="AddConditional{TFilter}"/>,
+        /// which always adds a global filter, this method allows to add a filter that is applied to specific controllers and actions.
         /// </summary>
         /// <param name="filterType">Type representing an <see cref="IFilterMetadata"/>.</param>
         public static EndpointFilterMetadata<TFilter, TController> AddEndpointFilter<TFilter, TController>(this FilterCollection filters, int order = 0)
