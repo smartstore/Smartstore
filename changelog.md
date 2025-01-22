@@ -26,6 +26,7 @@
 
 ### Improvements
 
+- Quick-Checkout: Allow all payment methods to be specified as the preferred payment method.
 - #214 Add backend menu entry for each Rule Builder scope.
 - Improvements in the processing of recurring payments.
 
