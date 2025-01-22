@@ -6,15 +6,15 @@ namespace Smartstore.Core.Widgets
     {
         public static bool IsWidgetActive(this Provider<IActivatableWidget> widget, WidgetSettings widgetSettings)
         {
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(widget);
 
             return widget.ToLazy().IsWidgetActive(widgetSettings);
         }
 
         public static bool IsWidgetActive(this Lazy<IActivatableWidget, ProviderMetadata> widget, WidgetSettings widgetSettings)
         {
-            Guard.NotNull(widget, nameof(widget));
-            Guard.NotNull(widgetSettings, nameof(widgetSettings));
+            Guard.NotNull(widget);
+            Guard.NotNull(widgetSettings);
 
             if (widgetSettings.ActiveWidgetSystemNames == null)
             {
