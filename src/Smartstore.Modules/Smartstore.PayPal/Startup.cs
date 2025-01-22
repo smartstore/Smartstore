@@ -10,7 +10,6 @@ using Smartstore.PayPal.Filters;
 using Smartstore.PayPal.Services;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Filters;
 
 namespace Smartstore.PayPal
 {
@@ -23,14 +22,17 @@ namespace Smartstore.PayPal
         {
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, ShoppingCartController>().ForAction(x => x.OffCanvasShoppingCart());
-                o.Filters.AddEndpointFilter<PayPalScriptIncludeFilter, PublicController>().When(context => !context.HttpContext.Request.IsAjax());
-                o.Filters.AddEndpointFilter<ProductDetailFilter, ProductController>().ForAction(x => x.ProductDetails(0, null));
+                o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, ShoppingCartController>()
+                    .ForAction(x => x.OffCanvasShoppingCart());
+                // TODO: (filter) (mh) Check if this can be scoped somehow.
+                o.Filters.AddEndpointFilter<PayPalScriptIncludeFilter, PublicController>().WhenNonAjax();
+                o.Filters.AddEndpointFilter<ProductDetailFilter, ProductController>()
+                    .ForAction(x => x.ProductDetails(0, null));
                 o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>(order: 200)
                     .ForAction(x => x.PaymentMethod())
                     .ForAction(x => x.Confirm())
                     .ForAction(x => x.BillingAddress())
-                    .When(context => !context.HttpContext.Request.IsAjax());
+                    .WhenNonAjax();
             });
 
             services.AddHttpClient<PayPalHttpClient>()

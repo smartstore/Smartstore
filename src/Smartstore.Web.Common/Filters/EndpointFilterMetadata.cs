@@ -31,10 +31,10 @@ namespace Smartstore.Web.Filters
         {
             if (_condition != null)
             {
-                return new DefaultConditionalFilter<TFilter>(_condition) { Order = Order };
+                return new DefaultConditionalFilter<TFilter>(_condition) { Order = Order, IsReusable = _isReusable };
             }
 
-            return new TypeFilterAttribute(FilterType) { Order = Order };
+            return new TypeFilterAttribute(FilterType) { Order = Order, IsReusable = _isReusable };
         }
     }
 
@@ -44,6 +44,7 @@ namespace Smartstore.Web.Filters
         protected List<object>? _controllers;
         protected List<object>? _actions;
         protected Func<ActionContext, bool>? _condition;
+        protected bool _isReusable;
 
         public EndpointFilterMetadata(Type filterType, Type controllerType)
         {
@@ -59,6 +60,12 @@ namespace Smartstore.Web.Filters
 
         /// <inheritdoc />
         public int Order { get; set; }
+
+        public EndpointFilterMetadata IsReusable()
+        {
+            _isReusable = true;
+            return this;
+        }
 
         /// <summary>
         /// Type of filter implementation.

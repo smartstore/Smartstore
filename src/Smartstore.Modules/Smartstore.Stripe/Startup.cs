@@ -17,6 +17,7 @@ namespace Smartstore.StripeElements
                 o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, SmartController>()
                     .ForController("ShoppingCart")
                     .ForAction(nameof(ShoppingCartController.OffCanvasShoppingCart));
+                // TODO: (filter) (mh) Check if this can be scoped somehow.
                 o.Filters.AddEndpointFilter<StripeScriptIncludeFilter, PublicController>().WhenNonAjax();
                 o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>(order: 200)
                     .ForAction(x => x.PaymentMethod())
