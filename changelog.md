@@ -46,6 +46,7 @@
   - After resetting settings, LinkDialog did not update anchor correctly
   - Fixed various dialog layout issues
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
+- A negative payment method fee must not result in a negative total tax amount.
 - #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
 - GPSR: 
   - Fixed `NullReferenceException` if more than one product rule is assigned to a text block.
