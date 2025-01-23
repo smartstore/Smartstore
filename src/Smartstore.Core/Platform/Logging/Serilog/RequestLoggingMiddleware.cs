@@ -107,13 +107,13 @@ namespace Smartstore.Core.Logging
                 }
 
                 // Last-in (correctly) wins...
-                var properties = collectedProperties.Concat(new[]
-                {
+                var properties = collectedProperties.Concat(
+                [
                     new LogEventProperty("RequestPath", new ScalarValue(httpContext.Request.Path.Value)),
                     new LogEventProperty("StatusCode", new ScalarValue(statusCode)),
                     new LogEventProperty("Elapsed", new ScalarValue(elapsedMs)),
                     new LogEventProperty("HttpMethod", new ScalarValue(httpContext.Request.Method))
-                });
+                ]);
 
                 var evt = new LogEvent(DateTimeOffset.Now, level, ex, _messageTemplate, properties);
                 logger.Write(evt);

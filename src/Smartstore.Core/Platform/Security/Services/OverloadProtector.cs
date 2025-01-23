@@ -10,6 +10,14 @@ namespace Smartstore.Core.Security
         private readonly Work<ResiliencySettings> _settings;
         private readonly TrafficRateLimiters _rateLimiters;
 
+        private readonly RateLimiter _logRateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+        {
+            QueueLimit = 1,
+            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+            TokensPerPeriod = 10,
+            TokenLimit = 50
+        });
+
         public OverloadProtector(
             Work<ResiliencySettings> settings, 
             TrafficRateLimiters rateLimiters,
@@ -37,7 +45,7 @@ namespace Smartstore.Core.Security
                 forbid = httpContext.Request.IsSubRequest();
                 if (forbid)
                 {
-                    Logger.Warn("New guest forbidden due to policy 'ForbidNewGuestsIfSubRequest'.");
+                    TryLog(httpContext, "New guest forbidden due to policy.");
                 }
             }
             
@@ -117,6 +125,25 @@ namespace Smartstore.Core.Security
                 UserType.Guest  => peak ? _rateLimiters.PeakGuestLimiter : _rateLimiters.LongGuestLimiter,
                 _               => peak ? _rateLimiters.PeakBotLimiter : _rateLimiters.LongBotLimiter
             };
+        }
+
+        private void TryLog(HttpContext httpContext, string message)
+        {
+            using var logLease = _logRateLimiter.AttemptAcquire();
+            if (logLease.IsAcquired)
+            {
+                if (httpContext != null)
+                {
+                    var webHelper = httpContext.RequestServices.GetRequiredService<IWebHelper>();
+                    var userAgent = httpContext.RequestServices.GetRequiredService<IUserAgent>();
+
+                    var ipAddress = webHelper.GetClientIpAddress().ToString();
+                    var ua = userAgent.UserAgent;
+                    message += $" IP: {ipAddress}, UA: {ua}";
+                }
+
+                Logger.Warn(message);
+            }       
         }
 
         enum UserType
