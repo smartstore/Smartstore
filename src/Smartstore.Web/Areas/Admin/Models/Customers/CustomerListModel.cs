@@ -11,6 +11,12 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*CustomerRoles")]
         public int[] SearchCustomerRoleIds { get; set; }
 
+        [LocalizedDisplay("Admin.Common.Search.StartDate")]
+        public DateTime? StartDate { get; set; }
+
+        [LocalizedDisplay("Admin.Common.Search.EndDate")]
+        public DateTime? EndDate { get; set; }
+
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchDayOfBirth { get; set; }
         [LocalizedDisplay("*SearchDateOfBirth")]

@@ -437,7 +437,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> CustomerList(GridCommand command, CustomerListModel model)
         {
-            var searchQuery = _db.Customers
+            var dtHelper = Services.DateTimeHelper;
+            var query = _db.Customers
                 .AsNoTracking()
                 .Include(x => x.BillingAddress)
                 .Include(x => x.ShippingAddress)
@@ -445,39 +446,49 @@ namespace Smartstore.Admin.Controllers
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber)
                 .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt());
 
+            if (model.StartDate != null)
+            {
+                var dt = dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+                query = query.Where(x => x.CreatedOnUtc >= dt);
+            }
+            if (model.EndDate != null)
+            {
+                var dt = dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+                query = query.Where(x => x.CreatedOnUtc <= dt);
+            }
+
             if (model.SearchCustomerRoleIds != null)
             {
-                searchQuery = searchQuery.ApplyRolesFilter(model.SearchCustomerRoleIds);
+                query = query.ApplyRolesFilter(model.SearchCustomerRoleIds);
             }
 
             if (model.SearchPhone.HasValue())
             {
-                searchQuery = searchQuery.ApplyPhoneFilter(model.SearchPhone);
+                query = query.ApplyPhoneFilter(model.SearchPhone);
             }
 
             if (model.SearchTerm.HasValue())
             {
-                searchQuery = searchQuery.ApplySearchTermFilter(model.SearchTerm);
+                query = query.ApplySearchTermFilter(model.SearchTerm);
             }
 
             if (model.SearchZipPostalCode.HasValue())
             {
-                searchQuery = searchQuery.ApplyZipPostalCodeFilter(model.SearchZipPostalCode);
+                query = query.ApplyZipPostalCodeFilter(model.SearchZipPostalCode);
             }
 
             if (model.SearchActiveOnly != null)
             {
-                searchQuery = searchQuery.Where(x => x.Active == model.SearchActiveOnly);
+                query = query.Where(x => x.Active == model.SearchActiveOnly);
             }
 
-            var customers = await searchQuery
+            var customers = await query
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             string guestStr = T("Admin.Customers.Guest");
-            var dtHelper = Services.DateTimeHelper;
 
             var rows = customers
                 .Select(x => new CustomerModel
