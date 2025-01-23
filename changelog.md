@@ -63,6 +63,7 @@
 - #1245 Missing image preview after drag'n drop in product detail configuration.
 - Fixed delivery time according to `DeliveryTimeIdForEmptyStock` is not displayed if the product is out of stock.
 - #1249 If an activity is logged when deleting an entity from the edit page, it should also be logged when deleting from the datagrid.
+- The AmazonPay Logout button may be displayed on the checkout completion page, even though the payment was not made using AmazonPay.
 
 
 ## Smartstore 6.0.0
