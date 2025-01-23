@@ -285,6 +285,7 @@ bots:
 
   - match: Google Favicon
   - match: Baiduspider
+  - match: Bytespider
   - match: PetalBot
   - match: BingBot
   - match: Slurp
@@ -296,6 +297,7 @@ bots:
   - match: GoogleOther
   - match: Google-Extended
   - match: Google-InspectionTool
+  - match: StartmeBot
     name: $1
 
   - match: AdsBot-Google-Mobile
@@ -314,6 +316,9 @@ bots:
   - match: AdScanner
   - match: AhrefsBot
     name: $1
+
+  - match: Owler+
+    name: OWLer - Open Web Crawler
   
   # Common tools, readers & apps
   - match: python/
