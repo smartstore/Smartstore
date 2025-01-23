@@ -224,8 +224,24 @@ namespace Smartstore.Core
 
         protected virtual async Task<Customer> CreateGuestCustomerAsync(string clientIdent)
         {
-            var customer = await _customerService.CreateGuestCustomerAsync(clientIdent);
+            var customer = await _customerService.CreateGuestCustomerAsync(clientIdent, c =>
+            {
+                try
+                {
+                    c.LastIpAddress = _webHelper.GetClientIpAddress().ToString();
+                    c.LastUserAgent = _userAgent.UserAgent.EmptyNull().Truncate(255);
+                    c.LastUserDeviceType = _userAgent.Device.IsUnknown() ? _userAgent.Platform.Name : _userAgent.Device.Name;
 
+                    var currentUrl = _webHelper.GetCurrentPageUrl(withQueryString: true);
+                    c.LastVisitedPage = TrackActivityFilter.SanitizeUrl(ref currentUrl) 
+                        ? currentUrl
+                        : currentUrl.Truncate(2048);
+                }
+                catch
+                {
+                }
+            });
+            
             _customerService.AppendVisitorCookie(customer);
 
             return customer;
