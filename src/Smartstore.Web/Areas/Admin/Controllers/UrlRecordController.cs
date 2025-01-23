@@ -219,7 +219,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [MaintenanceAction]
+        //[MaintenanceAction]
         [Permission(Permissions.System.UrlRecord.Delete)]
         public async Task<IActionResult> Cleanup(int batchSize = 128)
         {
@@ -282,11 +282,11 @@ namespace Smartstore.Admin.Controllers
                         numTotalDeleted += numDeleted;
                     }
 
-                    if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
-                    {
-                        var tableName = _db.Model.FindEntityType(typeof(UrlRecord)).GetTableName();
-                        await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
-                    }
+                    //if (numTotalDeleted > 500 && _db.DataProvider.CanOptimizeTable)
+                    //{
+                    //    var tableName = _db.Model.FindEntityType(typeof(UrlRecord)).GetTableName();
+                    //    await CommonHelper.TryAction(() => _db.DataProvider.OptimizeTableAsync(tableName));
+                    //}
                 }
             }
             catch (Exception ex)
