@@ -4,7 +4,7 @@
     {
         private readonly static IDictionary<string, string[]> _defaultExtensionsMap = new Dictionary<string, string[]>
         {
-            ["image"] = ["png", "jpg", "jpeg", "jfif", "gif", "webp", "bmp", "svg", "ico"],
+            ["image"] = ["png", "jpg", "jpeg", "jfif", "gif", "webp", "bmp", "avif", "svg", "ico"],
             ["video"] = ["mp4", "m4v", "mkv", "wmv", "avi", "asf", "mpg", "mpeg", "webm", "flv", "ogv", "mov", "3gp"],
             ["audio"] = ["mp3", "wav", "wma", "aac", "flac", "oga", "wav", "m4a", "ogg"],
             ["document"] = ["pdf", "doc", "docx", "ppt", "pptx", "pps", "ppsx", "docm", "odt", "ods", "dot", "dotx", "dotm", "psd", "xls", "xlsx", "rtf"],
