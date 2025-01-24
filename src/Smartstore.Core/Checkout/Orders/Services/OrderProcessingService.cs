@@ -290,6 +290,12 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
+
+            if (order.OrderStatus != OrderStatus.Complete)
+            {
+                var message = order.PaymentStatus != PaymentStatus.Paid ? T("Order.CannotCompleteUnpaidOrder") : T("Order.CannotMarkCompleted");
+                throw new InvalidOperationException(message);
+            }
         }
 
         public virtual async Task DeleteOrderAsync(Order order)

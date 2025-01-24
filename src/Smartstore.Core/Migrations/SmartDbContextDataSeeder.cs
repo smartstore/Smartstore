@@ -110,6 +110,10 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} of {1} products have been permanently deleted. {2} Products were skipped as they are assigned to orders and cannot be permanently deleted.",
                 "{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
 
+            builder.AddOrUpdate("Order.CannotCompleteUnpaidOrder", 
+                "An unpaid order cannot be completed.",
+                "Ein unbezahlter Auftrag kann nicht abgeschlossen werden.");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";
