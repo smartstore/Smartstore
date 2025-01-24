@@ -23,10 +23,7 @@ namespace Smartstore.Core.Logging
         /// <param name="append"><c>true</c> to append log entries to the file; <c>false</c> to overwrite the file.</param>
         public TraceLogger(IFile file, bool? append = null)
         {
-            Guard.NotNull(file, nameof(file));
-
-            File = file;
-
+            File = Guard.NotNull(file);
             Init(append ?? file.Exists);
         }
 

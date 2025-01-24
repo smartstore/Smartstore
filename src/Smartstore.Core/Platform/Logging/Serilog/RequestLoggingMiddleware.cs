@@ -46,6 +46,7 @@ namespace Smartstore.Core.Logging
             using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
             using (LogContext.PushProperty("HttpMethod", httpContext.Request.Method))
             using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
+            using (LogContext.PushProperty("UserAgent", httpContext.Request.UserAgent()))
             using (LogContext.Push(customerIdEnricher))
             using (LogContext.Push(userNameEnricher))
             {
@@ -105,7 +106,7 @@ namespace Smartstore.Core.Logging
                 {
                     collectedProperties = Array.Empty<LogEventProperty>();
                 }
-
+                
                 // Last-in (correctly) wins...
                 var properties = collectedProperties.Concat(
                 [
