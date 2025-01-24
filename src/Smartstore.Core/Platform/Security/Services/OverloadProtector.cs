@@ -13,9 +13,9 @@ namespace Smartstore.Core.Security
         private readonly RateLimiter _logRateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
         {
             QueueLimit = 1,
-            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
-            TokensPerPeriod = 10,
-            TokenLimit = 50
+            ReplenishmentPeriod = TimeSpan.FromSeconds(5),
+            TokensPerPeriod = 100,
+            TokenLimit = 200
         });
 
         public OverloadProtector(
@@ -45,7 +45,7 @@ namespace Smartstore.Core.Security
                 forbid = httpContext.Request.IsSubRequest();
                 if (forbid)
                 {
-                    TryLog(httpContext, "New guest forbidden due to policy.");
+                    TryLogThrottled(httpContext, "Sub-request blocked due to overload protection policy.");
                 }
             }
             
@@ -127,7 +127,7 @@ namespace Smartstore.Core.Security
             };
         }
 
-        private void TryLog(HttpContext httpContext, string message)
+        private void TryLogThrottled(HttpContext httpContext, string message)
         {
             using var logLease = _logRateLimiter.AttemptAcquire();
             if (logLease.IsAcquired)
@@ -135,11 +135,9 @@ namespace Smartstore.Core.Security
                 if (httpContext != null)
                 {
                     var webHelper = httpContext.RequestServices.GetRequiredService<IWebHelper>();
-                    var userAgent = httpContext.RequestServices.GetRequiredService<IUserAgent>();
-
                     var ipAddress = webHelper.GetClientIpAddress().ToString();
-                    var ua = userAgent.UserAgent;
-                    message += $" IP: {ipAddress}, UA: {ua}";
+
+                    message += $" IP: {ipAddress}, Path: {httpContext.Request.Path}.";
                 }
 
                 Logger.Warn(message);
