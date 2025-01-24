@@ -3,10 +3,7 @@
     [LocalizedDisplay("Admin.Orders.List.")]
     public class OrderListModel : ModelBase
     {
-        [LocalizedDisplay("*StartDate")]
         public DateTime? StartDate { get; set; }
-
-        [LocalizedDisplay("*EndDate")]
         public DateTime? EndDate { get; set; }
 
         [LocalizedDisplay("*CustomerEmail")]

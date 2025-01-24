@@ -114,6 +114,36 @@ namespace Smartstore.Core.Data.Migrations
                 "An unpaid order cannot be completed.",
                 "Ein unbezahlter Auftrag kann nicht abgeschlossen werden.");
 
+            builder.Delete(
+                "Admin.Orders.List.StartDate",
+                "Admin.Orders.List.StartDate.Hint",
+                "Admin.Orders.List.EndDate",
+                "Admin.Orders.List.EndDate.Hint",
+                "Admin.Customers.Reports.BestBy.StartDate",
+                "Admin.Customers.Reports.BestBy.StartDate.Hint",
+                "Admin.Customers.Reports.BestBy.EndDate",
+                "Admin.Customers.Reports.BestBy.EndDate.Hint",
+                "Admin.SalesReport.Bestsellers.StartDate",
+                "Admin.SalesReport.Bestsellers.StartDate.Hint",
+                "Admin.SalesReport.Bestsellers.EndDate",
+                "Admin.SalesReport.Bestsellers.EndDate.Hint",
+                "Admin.SalesReport.NeverSold.StartDate",
+                "Admin.SalesReport.NeverSold.StartDate.Hint",
+                "Admin.SalesReport.NeverSold.EndDate",
+                "Admin.SalesReport.NeverSold.EndDate.Hint",
+                "Admin.Orders.Shipments.List.StartDate",
+                "Admin.Orders.Shipments.List.StartDate.Hint",
+                "Admin.Orders.Shipments.List.EndDate",
+                "Admin.Orders.Shipments.List.EndDate.Hint",
+                "Admin.Common.Search.StartDate",
+                "Admin.Common.Search.StartDate.Hint",
+                "Admin.Common.Search.EndDate",
+                "Admin.Common.Search.EndDate.Hint",
+                "Admin.System.QueuedEmails.List.StartDate",
+                "Admin.System.QueuedEmails.List.StartDate.Hint",
+                "Admin.System.QueuedEmails.List.EndDate",
+                "Admin.System.QueuedEmails.List.EndDate.Hint");
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";

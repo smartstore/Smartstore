@@ -3,12 +3,15 @@
 @model QueuedEmailListModel
 
 <div class="form-group">
-    <smart-label asp-for="SearchStartDate" />
-    <editor asp-for="SearchStartDate" />
-</div>
-<div class="form-group">
-    <smart-label asp-for="SearchEndDate" />
-    <editor asp-for="SearchEndDate" />
+    <smart-label sm-text="@T("Common.CreatedOn")" sm-ignore-hint="true" asp-for="SearchStartDate" />
+    <div class="form-row">
+        <div class="col-6">
+            <editor asp-for="SearchStartDate" placeholder="@T("Common.From")" />
+        </div>
+        <div class="col-6">
+            <editor asp-for="SearchEndDate" placeholder="@T("Common.To")" />
+        </div>
+    </div>
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchFromEmail" />

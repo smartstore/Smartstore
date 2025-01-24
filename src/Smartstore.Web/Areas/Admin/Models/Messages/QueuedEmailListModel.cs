@@ -3,10 +3,7 @@
     [LocalizedDisplay("Admin.System.QueuedEmails.List.")]
     public class QueuedEmailListModel : ModelBase
     {
-        [LocalizedDisplay("*StartDate")]
         public DateTime? SearchStartDate { get; set; }
-
-        [LocalizedDisplay("*EndDate")]
         public DateTime? SearchEndDate { get; set; }
 
         [LocalizedDisplay("*FromEmail")]
