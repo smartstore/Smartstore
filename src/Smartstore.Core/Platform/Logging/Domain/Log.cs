@@ -83,6 +83,12 @@ namespace Smartstore.Core.Logging
         public string ReferrerUrl { get; set; }
 
         /// <summary>
+        /// Gets or sets the client user agent string.
+        /// </summary>
+        [StringLength(450)]
+        public string UserAgent { get; set; }
+
+        /// <summary>
         /// Gets or sets the date and time of instance creation
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }

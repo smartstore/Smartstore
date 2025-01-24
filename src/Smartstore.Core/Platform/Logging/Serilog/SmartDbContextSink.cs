@@ -64,7 +64,7 @@ namespace Smartstore.Core.Logging.Serilog
             var log = new Log
             {
                 LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
-                ShortMessage = shortMessage,
+                ShortMessage = shortMessage.Truncate(4000),
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
                 Logger = e.GetSourceContext() ?? "Unknown", // TODO: "Unknown" or "Smartstore"??
@@ -73,7 +73,8 @@ namespace Smartstore.Core.Logging.Serilog
                 PageUrl = e.GetPropertyValue<string>("Url"),
                 ReferrerUrl = e.GetPropertyValue<string>("Referrer"),
                 HttpMethod = e.GetPropertyValue<string>("HttpMethod"),
-                UserName = e.GetPropertyValue<string>("UserName")
+                UserName = e.GetPropertyValue<string>("UserName").Truncate(100),
+                UserAgent = e.GetPropertyValue<string>("UserAgent").Truncate(450)
             };
 
             return log;

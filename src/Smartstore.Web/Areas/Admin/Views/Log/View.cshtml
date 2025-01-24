@@ -99,8 +99,17 @@
             </div>
             <div class="adminData wide">
                 <div sm-if="Model.ReferrerUrl.HasValue()" class="form-control-plaintext">
-                    <span>@Model.HttpMethod </span>
                     <a href="@Model.ReferrerUrl" target="_blank">@Model.ReferrerUrl</a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UserAgent" />
+            </div>
+            <div sm-if="Model.UserAgent.HasValue()" class="adminData wide">
+                <div class="form-control-plaintext">
+                    @Model.UserAgent
                 </div>
             </div>
         </div>
