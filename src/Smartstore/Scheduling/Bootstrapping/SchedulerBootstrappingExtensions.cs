@@ -13,7 +13,7 @@ namespace Smartstore.Bootstrapping
         public static ContainerBuilder AddTaskScheduler<TStore>(this ContainerBuilder container, IApplicationContext appContext)
             where TStore : class, ITaskStore
         {
-            Guard.NotNull(container, nameof(container));
+            Guard.NotNull(container);
 
             container.RegisterModule(new SchedulerModule(appContext));
             container.RegisterType<TStore>().As<ITaskStore>().InstancePerLifetimeScope();
@@ -29,7 +29,7 @@ namespace Smartstore.Bootstrapping
         /// </param>
         public static IApplicationBuilder MapTaskScheduler(this IApplicationBuilder app, Action<IApplicationBuilder> configure = null)
         {
-            Guard.NotNull(app, nameof(app));
+            Guard.NotNull(app);
 
             return app.Map("/taskscheduler", preserveMatchedPathSegment: true, branch =>
             {
