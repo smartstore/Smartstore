@@ -30,6 +30,7 @@
 - #214 Add backend menu entry for each Rule Builder scope.
 - Added new bot detection patterns to `useragent.yml`.
 - Updated `dbip-country-lite.mmdb`.
+- Logging: added client UserAgent string to log entries.
 - Improvements in the processing of recurring payments.
 
 ### Bugfixes
