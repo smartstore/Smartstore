@@ -37,6 +37,7 @@
 - Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.
 - #1229 Sending an *order placed* message with the order attached as a PDF always causes an HTTP client timeout.
 - #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to *unpublish*.
+- Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus
