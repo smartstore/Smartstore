@@ -17,7 +17,8 @@
           allow-edit="true"
           allow-resize="true"
           allow-column-reordering="true"
-          preserve-grid-state="true" preserve-command-state="true">
+          preserve-grid-state="true" preserve-command-state="true"
+          ondatabound="attributeOptionsSetGrid_onDataBound">
     <datasource read="@Url.Action("ProductAttributeOptionsSetList", new { productAttributeId = parentModel.Id })"
                 insert="@Url.Action("ProductAttributeOptionsSetInsert", new { productAttributeId = parentModel.Id })"
                 update="@Url.Action("ProductAttributeOptionsSetUpdate")"
@@ -108,6 +109,14 @@
 <input type="button" id="btnRefreshOptions" name="btnRefreshOptions" value="" class="d-none" />
 
 <script sm-target-zone="scripts" data-origin="product-attribute-optionsset-edit">
+    function attributeOptionsSetGrid_onDataBound() {
+        const grid = $('#product-attribute-optionsset-grid').parent().data('datagrid');
+        const row = grid.rows.find((el) => el.Expanded === true);
+        if (row) {
+            grid.toggleDetailView(row);
+        }
+    }
+
     $(function() {
         $(document).on('click', '.insert-attribute-option', function (e) {
             e.preventDefault();
