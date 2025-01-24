@@ -18,10 +18,10 @@ namespace Smartstore.Core.Bootstrapping
 
             app.Map(publicPath, preserveMatchedPathSegment: true, branch =>
             {
+                branch.UseRequestLogging();
                 branch.UseCookiePolicy();
                 branch.UseAuthentication();
                 branch.UseWorkContext();
-                branch.UseRequestLogging();
                 
                 branch.UseMiddleware<MediaMiddleware>();
                 branch.UseMiddleware<MediaLegacyMiddleware>();

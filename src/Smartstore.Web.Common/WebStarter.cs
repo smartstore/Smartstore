@@ -175,6 +175,11 @@ namespace Smartstore.Web
                 {
                     // Executes IApplicationInitializer implementations during the very first request.
                     app.UseApplicationInitializer();
+
+                    // Write streamlined request completion events, instead of the more verbose ones from the framework.
+                    // To use the default framework request logging instead, remove this line and set the "Microsoft"
+                    // level in appsettings.json to "Information".
+                    app.UseRequestLogging();
                 }
             });
 
@@ -208,11 +213,6 @@ namespace Smartstore.Web
                 {
                     // Initializes work context data
                     app.UseWorkContext();
-
-                    // Write streamlined request completion events, instead of the more verbose ones from the framework.
-                    // To use the default framework request logging instead, remove this line and set the "Microsoft"
-                    // level in appsettings.json to "Information".
-                    app.UseRequestLogging();
                 }
             });
 
