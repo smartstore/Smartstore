@@ -59,7 +59,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [CheckStoreClosed(false)]
-        [Route("browserconfig.xml")]
+        [Route("browserconfig.xml"), CrawlerEndpoint]
         public async Task<IActionResult> BrowserConfigXmlFile()
         {
             var store = Services.StoreContext.CurrentStore;
@@ -95,7 +95,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [CheckStoreClosed(false)]
-        [Route("robots.txt")]
+        [Route("robots.txt"), CrawlerEndpoint]
         public async Task<IActionResult> RobotsTextFile()
         {
             #region DisallowPaths
