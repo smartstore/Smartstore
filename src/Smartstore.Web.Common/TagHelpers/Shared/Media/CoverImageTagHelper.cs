@@ -65,10 +65,12 @@ namespace Smartstore.Web.TagHelpers.Shared
             var figure = new TagBuilder("figure");
             figure.AddCssClass("cover-image-container");
 
-            if (customer.IsAdmin())
+            if (EditUrl.HasValue() && customer.IsAdmin())
             {
                 var dropdown = CreateDropdown();
                 figure.InnerHtml.AppendHtml(dropdown);
+                figure.AddCssClass("media-edit-root");
+                figure.Attributes["data-media-edit-url"] = EditUrl;
             }
 
             // Order: First the image then the dropdown.
@@ -102,8 +104,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             var rootDiv = new TagBuilder("div");
-            rootDiv.Attributes["class"] = "d-flex cover-image-dropdown-root media-edit-root";
-            rootDiv.Attributes["data-media-edit-url"] = EditUrl;
+            rootDiv.Attributes["class"] = "d-flex cover-image-dropdown-root";
             rootDiv.InnerHtml.AppendHtml(btnLink);
             rootDiv.InnerHtml.AppendHtml(dropdownUl);
 

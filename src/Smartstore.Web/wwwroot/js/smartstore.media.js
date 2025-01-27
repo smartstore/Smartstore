@@ -55,24 +55,10 @@ Smartstore.media = (function () {
                 $.ajax({
                     cache: false,
                     type: 'POST',
-                    dataType: 'json',
-                    contentType: 'application/json',
                     url: root.data('media-edit-url'),
                     data,
                     success: function (response) {
-                        if (response.success) {
-                            data.commands.forEach(cmd => {
-                                switch (cmd.cmd) {
-                                    case 'object-position':
-                                        root.find('.media-edit-object').css(cmd.cmd, cmd.value);
-                                        break;
-                                }
-                            });
-                        }
-
-                        if (!_.isEmpty(response.message)) {
-                            displayNotification(response.message, response.success ? 'success' : 'error');
-                        }
+                        root.replaceWith(response);
                     }
                 });
 
