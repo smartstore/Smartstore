@@ -220,14 +220,13 @@
 .btn-admin-edit {
     display: none;
     position: absolute;
-    inset-inline-end: 0;
-    top: 0;
-    background-color: rgba($white, 0.5);
+    inset-inline-end: .5rem;
+    top: .5rem;
     z-index: 1;
+    --btn-bg: rgba($white, 0.5);
+    --btn-border-radius: 50%;
 
     .touchevents & {
-        --btn-border-radius: 50%;
-
         display: inline-flex;
         inset-inline-end: 8px;
         background-color: var(--btn-hover-bg);
