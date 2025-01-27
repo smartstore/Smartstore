@@ -96,7 +96,7 @@
                                                     <i class="fa fa-angle-right"></i>
                                                 </button>
                                             </div>
-                                            <div id="cart-payment-buttons">
+                                            <div sm-if="!Model.HasItemsWithRecurringPayment" id="cart-payment-buttons">
                                                 <partial name="CartPaymentButtons" model="Model" />
                                             </div>
                                         </div>
