@@ -8,6 +8,17 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    /*
+    TODO: (mg) Image positioning (Review wip)
+    -----------------------------------------
+    - MediaEditCommandModel --> MediaEditCommand
+    - Only "object-fit: none" can be positioned with object-position
+    - INSUFFICIENT pos args! Must support 9 options: left top, top, right top, left center, center, right center, left bottom, bottom, right bottom
+    - Pos UI: 9 buttons, 3 in a row, each button represents an anchor.
+    - Ensure that the dropdown opener button is always visible (.btn-clear-dark is not visible if bg is dark)
+    - Don't use bootstrap icons in frontend
+    */
+
     /// <summary>
     /// Renders an image that is aligned inside its content box.
     /// </summary>
