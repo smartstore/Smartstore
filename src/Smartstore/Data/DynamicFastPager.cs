@@ -16,8 +16,8 @@ namespace Smartstore.Data
 
         public DynamicFastPager(IQueryable query, int pageSize = 1000)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.IsPositive(pageSize, nameof(pageSize));
+            Guard.NotNull(query);
+            Guard.IsPositive(pageSize);
 
             _query = query;
             _pageSize = pageSize;

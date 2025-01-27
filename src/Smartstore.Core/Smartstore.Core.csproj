@@ -36,7 +36,7 @@
         <PackageReference Include="Serilog.Sinks.Async" Version="2.0.0" />
         <PackageReference Include="Serilog.Sinks.Map" Version="2.0.0" />
         <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.6" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0" />
         <PackageReference Include="System.Memory.Data" Version="8.0.1" />
         <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
         <PackageReference Include="System.Threading.RateLimiting" Version="8.0.0" />
