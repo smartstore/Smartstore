@@ -41,6 +41,44 @@ Smartstore.media = (function () {
     };
 
     return {
+        initEditing: function () {
+            $(document).on('click', '.media-edit-command', function (e) {
+                e.preventDefault();
+                const btn = $(this);
+                const root = btn.closest('.media-edit-root');
+                const data = btn.data('media-edit');
+
+                if (!data) {
+                    return false;
+                }
+                console.log(data);
+                $.ajax({
+                    cache: false,
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    url: root.data('media-edit-url'),
+                    data,
+                    success: function (response) {
+                        if (response.success) {
+                            data.commands.forEach(cmd => {
+                                switch (cmd.cmd) {
+                                    case 'object-position':
+                                        root.find('.media-edit-object').css(cmd.cmd, cmd.value);
+                                        break;
+                                }
+                            });
+                        }
+
+                        if (!_.isEmpty(response.message)) {
+                            displayNotification(response.message, response.success ? 'success' : 'error');
+                        }
+                    }
+                });
+
+                return false;
+            });
+        },
         getIconHint: function (file) {
             return iconHints[file.ext] || iconHints[file.type] || (file.mime ? iconHints[file.mime.split('/')[0]] : null) || iconHints['misc'];
         },

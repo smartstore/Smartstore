@@ -16,6 +16,40 @@
     }
 }
 
+//
+// Container class of an image of which only a portion is displayed.
+// The part of the image to be displayed is specified via "object-position" (default is "center").
+// Used on blog post and news page.
+// -------------------------------------------------
+.cover-image-container {
+    display: flex;
+    overflow: auto;
+
+    > img {
+        object-fit: cover;
+    }
+
+    .horizontal-image {
+        width: 100%;
+        max-height: 300px;
+    }
+    /*  // Unused. For test or future use.  
+    .vertical-image {
+        max-width: 280px;
+        height: 100%;
+    }*/
+
+    .cover-image-dropdown-root {
+        position: relative;
+    }
+
+    .cover-image-dropdown {
+        position: absolute;
+        right: 0;
+        margin: 5px;
+    }
+}
+
 
 //
 // Brands
