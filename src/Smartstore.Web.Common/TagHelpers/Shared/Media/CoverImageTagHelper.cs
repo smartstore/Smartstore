@@ -11,12 +11,11 @@ namespace Smartstore.Web.TagHelpers.Shared
     /*
     TODO: (mg) Image positioning (Review wip)
     -----------------------------------------
-    - MediaEditCommandModel --> MediaEditCommand
     - Only "object-fit: none" can be positioned with object-position
+      RE: No. See this example https://www.sitepoint.com/using-css-object-fit-object-position-properties/#settingthepositionofimageswithobjectposition
     - INSUFFICIENT pos args! Must support 9 options: left top, top, right top, left center, center, right center, left bottom, bottom, right bottom
+      RE: Blog and news images always fills the entire width of its content box. An horizontal alignment would have no effect here. These images can only be aligned vertically.
     - Pos UI: 9 buttons, 3 in a row, each button represents an anchor.
-    - Ensure that the dropdown opener button is always visible (.btn-clear-dark is not visible if bg is dark)
-    - Don't use bootstrap icons in frontend
     */
 
     /// <summary>
@@ -26,16 +25,17 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("cover-image", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class CoverImageTagHelper : ImageTagHelper
     {
+        const string DefaultPosition = "center center";
         const string PositionAttributeName = "sm-position";
         const string EditUrlAttributeName = "sm-edit-url";
         const string IconPositionBottomAttributeName = "sm-icon-bottom";
 
         /// <summary>
-        /// Specifies the position of the image inside its content box. Default = "center".
+        /// Specifies the position of the image inside its content box. Default = "center center".
         /// See "object-position" CSS for valid values.
         /// </summary>
         [HtmlAttributeName(PositionAttributeName)]
-        public string Position { get; set; } = "center";
+        public string Position { get; set; } = DefaultPosition;
 
         /// <summary>
         /// Specifies the URL that will be used to save the updated image position.
@@ -65,6 +65,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Image.
             output.TagName = "img";
             output.RemoveClass("file-img", HtmlEncoder.Default);
+            // Only images with horizontal orientation supported yet (100% width, fixed height).
             output.AppendCssClass("img-fluid horizontal-image media-edit-object");
 
             if (Position.HasValue())
@@ -92,12 +93,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             var icon = (TagBuilder)HtmlHelper.BootstrapIcon("arrows-move", htmlAttributes: new Dictionary<string, object>
             {
-                ["class"] = "dropdown-icon bi-fw bi"
+                ["class"] = "fa fa-fw fa-arrows"
             });
 
             var btnLink = new TagBuilder("a");
             btnLink.Attributes["href"] = "javascript:;";
-            btnLink.Attributes["class"] = "btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
+            btnLink.Attributes["class"] = "btn btn-sm btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
             btnLink.Attributes["title"] = T("Admin.Media.Editing.Align");
             btnLink.Attributes["data-toggle"] = "dropdown";
             btnLink.Attributes["data-placement"] = "top";
@@ -105,9 +106,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("top", "Admin.Media.Editing.AlignTop", "align-top"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center", "Admin.Media.Editing.AlignMiddle", "align-middle"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("bottom", "Admin.Media.Editing.AlignBottom", "align-bottom"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "fa-long-arrow-up"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center center", "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
 
             if (IconPositionBottom)
             {
@@ -128,7 +129,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 Commands =
                 [
-                    new() { Command = "object-position", Value = position }
+                    new() { Name = "object-position", Value = position }
                 ]
             };
 
@@ -137,14 +138,15 @@ namespace Smartstore.Web.TagHelpers.Shared
             a.Attributes["class"] = "dropdown-item media-edit-command";
             a.Attributes["title"] = T(resourceKey + ".Hint").Value;
             a.Attributes["data-media-edit"] = model.ToJson();
-            // TODO: disable command of applied position
 
-            if (iconName.HasValue())
+            if (position.EqualsNoCase(Position) || (position == DefaultPosition && Position.IsEmpty()))
             {
-                a.InnerHtml.AppendHtml(HtmlHelper.BootstrapIcon(iconName, htmlAttributes: new { @class = "bi-fw" }));
+                a.AppendCssClass("disabled");
             }
 
-            a.InnerHtml.AppendHtml(T(resourceKey).Value);
+            a.InnerHtml.AppendHtml(iconName.HasValue()
+                ? $"<i class=\"fa fa-fw {iconName}\"></i><span>{T(resourceKey)}</span>"
+                : T(resourceKey).Value);
 
             var li = new TagBuilder("li");
             li.InnerHtml.AppendHtml(a);

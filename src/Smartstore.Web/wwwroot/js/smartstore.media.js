@@ -48,19 +48,17 @@ Smartstore.media = (function () {
                 const root = btn.closest('.media-edit-root');
                 const data = btn.data('media-edit');
 
-                if (!data) {
-                    return false;
+                if (data) {
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: root.data('media-edit-url'),
+                        data,
+                        success: function (response) {
+                            root.replaceWith(response);
+                        }
+                    });
                 }
-                console.log(data);
-                $.ajax({
-                    cache: false,
-                    type: 'POST',
-                    url: root.data('media-edit-url'),
-                    data,
-                    success: function (response) {
-                        root.replaceWith(response);
-                    }
-                });
 
                 return false;
             });

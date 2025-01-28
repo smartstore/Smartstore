@@ -1,24 +1,8 @@
 /// <reference path="references.scss" />
 
 //
-// Generic (used for single blog post page & single news item page)
-// -------------------------------------------------
-
-.single-media-item-image {
-    max-height: 300px;
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-
-    > img {
-        object-fit: cover;
-        width: 100%;
-    }
-}
-
-//
 // Container class of an image of which only a portion is displayed.
-// The part of the image to be displayed is specified via "object-position" (default is "center").
+// The part of the image to be displayed is specified via "object-position".
 // Used on blog post and news page.
 // -------------------------------------------------
 .cover-image-container {
@@ -48,6 +32,11 @@
         position: absolute;
         right: 0;
         margin: 5px;
+
+        &:hover {
+            background-color: $white;
+            border-color: rgba($black, 0.3);
+        }
     }
 }
 
