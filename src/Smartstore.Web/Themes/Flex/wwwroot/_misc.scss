@@ -212,8 +212,8 @@
     inset-inline-end: .5rem;
     top: .5rem;
     z-index: 1;
-    --btn-bg: rgba($white, 0.5);
-    --btn-border-radius: 50%;
+    --btn-bg: #{rgba($white, 0.5)};
+    --btn-border-radius: 50em;
 
     .touchevents & {
         display: inline-flex;
