@@ -12,7 +12,7 @@ namespace Smartstore
 {
     public class HelpTopic
     {
-        public readonly static HelpTopic CronExpressions = new("cron", "Managing+Scheduled+Tasks#ManagingScheduledTasks-Cron", "Geplante+Aufgaben+verwalten#GeplanteAufgabenverwalten-CronAusdruck");
+        public readonly static HelpTopic CronExpressions = new("cron", "4ZOrlQ#Cron-Expressions", "sRiqlQ#Cron-Ausdruck");
 
         public HelpTopic(string name, string enPath, string dePath)
         {
@@ -41,7 +41,7 @@ namespace Smartstore
             //       a greater minor version.
         };
 
-        private const string HELP_BASEURL = "https://docs.smartstore.com/display/";
+        private const string HELP_BASEURL = "https://smartstore.atlassian.net/wiki/x/";
 
         static SmartstoreVersion()
         {
@@ -129,8 +129,8 @@ namespace Smartstore
 
             return string.Concat(
                 HELP_BASEURL,
-                GetUserGuideSpaceKey(languageCode),
-                "/",
+                //GetUserGuideSpaceKey(languageCode),
+                //"/",
                 path.EmptyNull().Trim().TrimStart('/', '\\'));
         }
 
