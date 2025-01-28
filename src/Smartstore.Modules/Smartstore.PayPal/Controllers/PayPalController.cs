@@ -650,6 +650,8 @@ namespace Smartstore.PayPal.Controllers
                             order.PaymentStatus = PaymentStatus.Pending;
                             order.OrderStatus = OrderStatus.Pending;
                         }
+
+                        order.PaidDateUtc = null;
                     }
                     break;
 
