@@ -159,7 +159,7 @@ namespace Smartstore.Core.Seo
                             vsb.Append(c);
                         }
                     }
-                    else if (!IsPrevDash(ref vsb))
+                    else if (vsb.Length > 0 && !IsPrevDash(ref vsb))
                     {
                         vsb.Append('-');
                     }
@@ -178,7 +178,11 @@ namespace Smartstore.Core.Seo
                 }
 
                 var category = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (category >= UnicodeCategory.ConnectorPunctuation && category <= UnicodeCategory.MathSymbol)
+                if (category == UnicodeCategory.Surrogate)
+                {
+                    continue;
+                }
+                else if (category >= UnicodeCategory.ConnectorPunctuation && category <= UnicodeCategory.MathSymbol)
                 {
                     if (!IsPrevDash(ref vsb))
                     {
