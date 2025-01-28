@@ -40,6 +40,7 @@
 - #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to *unpublish*.
 - Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
+- Ignore surrogate chars (emojis) when building URL slugs.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus
   - Code sync adds a line break after caret position (caused by outdated beautify library)
