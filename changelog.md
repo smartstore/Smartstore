@@ -19,6 +19,7 @@
 - #1150 Add a setting to hide orders in *my account*.
 - #1242 Rule Builder: Add a cart rule that is fulfilled if the cart contains a product with a certain SKU.
 - #509 Add payment status setting for offline payment.
+- #1010 Allow the admin to align a blog or news image within its element box.
 - PayPal: 
 	- Added option to let the shop admin decide how to handle orders for which the payment was declined 
 	- Removed Giropay provider 
