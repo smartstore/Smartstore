@@ -587,10 +587,10 @@ namespace Smartstore.Core
                 }
                 else
                 {
+                    customer.DetectedByClientIdent = true;
+
                     // Check traffic limit for guests.
                     await CheckGuestDeniedAsync(context, customer);
-
-                    customer.DetectedByClientIdent = true;
 
                     // Try to append visitor cookie to better identify visitor on next (sub)-request
                     context.CustomerService.AppendVisitorCookie(customer);
