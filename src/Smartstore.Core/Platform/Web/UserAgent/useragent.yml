@@ -352,6 +352,7 @@ bots:
   - match: Audisto Crawler
   - match: Monsidobot
   - match: GroupMeBot
+  - match: DataForSeoBot
   - match: MetaInspector
   - match: Iframely
   - match: Synapse
