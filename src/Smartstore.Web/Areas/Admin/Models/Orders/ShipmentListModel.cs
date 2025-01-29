@@ -5,7 +5,7 @@
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        [LocalizedDisplay("*TrackingNumber")]
+        [LocalizedDisplay("Admin.Orders.Shipments.TrackingNumber")]
         public string TrackingNumber { get; set; }
 
         [LocalizedDisplay("Admin.Orders.Fields.ShippingMethod")]

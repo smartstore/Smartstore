@@ -443,6 +443,7 @@ namespace Smartstore.Admin.Controllers
             // Requires for edit: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
             await MapperFactory.MapAsync(shipment, model);
 
+            var dtHelper = Services.DateTimeHelper;
             var order = shipment.Order;
             var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
 
@@ -452,16 +453,16 @@ namespace Smartstore.Admin.Controllers
             model.PurchaseOrderNumber = order.PurchaseOrderNumber;
             model.ShippingMethod = order.ShippingMethod;
             model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
+            model.CreatedOn = dtHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
             model.Carrier = shipment.GenericAttributes.Get<string>("Carrier");
 
             model.CanShip = !shipment.ShippedDateUtc.HasValue;
             model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
             model.ShippedDate = shipment.ShippedDateUtc.HasValue
-                ? Services.DateTimeHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
+                ? dtHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
                 : null;
             model.DeliveryDate = shipment.DeliveryDateUtc.HasValue
-                ? Services.DateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
+                ? dtHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
                 : null;
 
             model.EditUrl = Url.Action(nameof(Edit), "Shipment", new { id = shipment.Id, area = "Admin" });
