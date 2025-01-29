@@ -8,7 +8,7 @@ namespace Smartstore.Core.Security
     public class OverloadProtector : IOverloadProtector
     {
         private readonly Work<ResiliencySettings> _settings;
-        private readonly TrafficRateLimiters _rateLimiters;
+        private readonly Lazy<TrafficRateLimiters> _rateLimiters;
 
         private readonly RateLimiter _logRateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
         {
@@ -19,8 +19,8 @@ namespace Smartstore.Core.Security
         });
 
         public OverloadProtector(
-            Work<ResiliencySettings> settings, 
-            TrafficRateLimiters rateLimiters,
+            Work<ResiliencySettings> settings,
+            Lazy<TrafficRateLimiters> rateLimiters,
             ILoggerFactory loggerFactory)
         {
             _settings = settings;
@@ -101,7 +101,7 @@ namespace Smartstore.Core.Security
 
         private bool TryAcquireFromGlobal(bool peak)
         {
-            var limiter = peak ? _rateLimiters.PeakGlobalLimiter : _rateLimiters.LongGlobalLimiter;
+            var limiter = peak ? _rateLimiters.Value.PeakGlobalLimiter : _rateLimiters.Value.LongGlobalLimiter;
             if (limiter != null)
             {
                 using var lease = limiter.AttemptAcquire(1);
@@ -122,8 +122,8 @@ namespace Smartstore.Core.Security
         {
             return userType switch
             {
-                UserType.Guest  => peak ? _rateLimiters.PeakGuestLimiter : _rateLimiters.LongGuestLimiter,
-                _               => peak ? _rateLimiters.PeakBotLimiter : _rateLimiters.LongBotLimiter
+                UserType.Guest  => peak ? _rateLimiters.Value.PeakGuestLimiter : _rateLimiters.Value.LongGuestLimiter,
+                _               => peak ? _rateLimiters.Value.PeakBotLimiter : _rateLimiters.Value.LongBotLimiter
             };
         }
 
