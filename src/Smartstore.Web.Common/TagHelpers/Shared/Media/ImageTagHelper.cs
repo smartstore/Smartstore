@@ -13,6 +13,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string AppendVersionAttributeName = "sm-append-version";
 
         // TODO: (mg) Don't reinvent the wheel. Inbuilt ImageTagHelper has already asp-append-version, that uses IFileVersionProvider internally.
+        // RE: Yes it has but we cannot use it. It only works with static files. See Microsoft.AspNetCore.Mvc.Razor.Infrastructure.DefaultFileVersionProvider
+        // line 89: It opens a stream to the file and calculates a hash from it. The check "fileInfo.Exists" in line 72 is never "true" in our case,
+        // thus the version query string is never appended. Maybe we should implement our own IFileVersionProvider which generates a version based on MediaFile infos?
         /// <summary>
         /// Gets or sets a value indicating whether to append a version query string parameter to the image URL. Default = false.
         /// </summary>
