@@ -16,8 +16,6 @@ namespace Smartstore.Web.TagHelpers.Shared
     - INSUFFICIENT pos args! Must support 9 options: left top, top, right top, left center, center, right center, left bottom, bottom, right bottom
       RE: Blog and news images always fills the entire width of its content box. An horizontal alignment would have no effect here. These images can only be aligned vertically.
     - Pos UI: 9 buttons, 3 in a row, each button represents an anchor.
-
-    - Wrap button in .admin-actions and let dropdown behave like an actual dropdown (pressed state etc.). Don't customize well known behaviour.
     */
 
     /// <summary>
@@ -27,17 +25,16 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("cover-image", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class CoverImageTagHelper : ImageTagHelper
     {
-        const string DefaultPosition = "center center";
         const string PositionAttributeName = "sm-position";
         const string EditUrlAttributeName = "sm-edit-url";
         const string IconPositionBottomAttributeName = "sm-icon-bottom";
 
         /// <summary>
-        /// Specifies the position of the image inside its content box. Default = "center center".
+        /// Specifies the position of the image inside its content box. Empty by default (image is centered).
         /// See "object-position" CSS for valid values.
         /// </summary>
         [HtmlAttributeName(PositionAttributeName)]
-        public string Position { get; set; } = DefaultPosition;
+        public string Position { get; set; }
 
         /// <summary>
         /// Specifies the URL that will be used to save the updated image position.
@@ -100,7 +97,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var btnLink = new TagBuilder("a");
             btnLink.Attributes["href"] = "javascript:;";
-            btnLink.Attributes["class"] = "btn btn-sm btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
+            btnLink.Attributes["class"] = "btn btn-sm btn-secondary btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
             btnLink.Attributes["title"] = T("Admin.Media.Editing.Align");
             btnLink.Attributes["data-toggle"] = "dropdown";
             btnLink.Attributes["data-placement"] = "top";
@@ -109,7 +106,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "fa-long-arrow-up"));
-            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center center", "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
+            dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
 
             if (IconPositionBottom)
@@ -118,7 +115,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             var rootDiv = new TagBuilder("div");
-            rootDiv.Attributes["class"] = "d-flex cover-image-dropdown-root";
+            rootDiv.Attributes["class"] = "admin-actions cover-image-dropdown-root";
             rootDiv.InnerHtml.AppendHtml(btnLink);
             rootDiv.InnerHtml.AppendHtml(dropdownUl);
 
@@ -138,12 +135,14 @@ namespace Smartstore.Web.TagHelpers.Shared
             var a = new TagBuilder("a");
             a.Attributes["href"] = "#";
             a.Attributes["class"] = "dropdown-item media-edit-command";
+            a.Attributes["role"] = "button";
             a.Attributes["title"] = T(resourceKey + ".Hint").Value;
             a.Attributes["data-media-edit"] = model.ToJson();
 
-            if (position.EqualsNoCase(Position) || (position == DefaultPosition && Position.IsEmpty()))
+            if (position.EqualsNoCase(Position))
             {
-                a.AppendCssClass("disabled");
+                a.AppendCssClass("active");
+                a.Attributes["aria-pressed"] = "true";
             }
 
             a.InnerHtml.AppendHtml(iconName.HasValue()

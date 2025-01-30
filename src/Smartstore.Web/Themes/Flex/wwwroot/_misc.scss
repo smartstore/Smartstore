@@ -26,12 +26,12 @@
 
     .cover-image-dropdown-root {
         position: relative;
+        top: -.5rem;
     }
 
     .cover-image-dropdown {
         position: absolute;
         right: 0;
-        margin: 5px;
 
         &:hover {
             background-color: $white;
