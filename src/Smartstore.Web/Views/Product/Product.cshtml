@@ -24,7 +24,7 @@
         <div id="main-update-container" class="update-container" data-url="@Model.UpdateUrl" data-id="@Model.Id">
             <form asp-route="Product" asp-route-SeName="@Model.SeName" method="post" id="pd-form">
                 <!-- Top Content: Picture, Description, Attrs, Variants, Bundle Items, Price etc. -->
-                <section class="row pd-section pd-section-top">
+                <section class="row pd-section pd-section-top admin-actions-container">
                     <!-- Picture -->
                     <div class="col-12 col-md-6 col-lg-7 pd-data-col">
                         <div class="pd-data-col-inner">
@@ -78,13 +78,15 @@
 
                         @if (Model.DisplayAdminLink)
                         {
-                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
-                               class="btn btn-secondary btn-flat btn-sm btn-admin-edit"
-                               target="admin-product" 
-                               rel="nofollow">
-                                <i class="fa fa-cog"></i>
-                                <span>@T("Common.Catalog.EditProduct")</span>
-                            </a>
+                            <div class="admin-actions">
+                                <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
+                                   class="btn btn-secondary rounded-pill btn-sm"
+                                   target="admin-product"
+                                   rel="nofollow">
+                                    <i class="fa fa-cog"></i>
+                                    <span>@T("Common.Catalog.EditProduct")</span>
+                                </a>
+                            </div>
                         }
 
                     </aside>

@@ -180,52 +180,34 @@
     }
 }
 
+
 //
-// Other stuff
+// Admin edit
 // -------------------------------------------------
-#iframe-backinstocksubsription {
-    max-width: 100%;
+
+.admin-actions-container {
+    position: relative;
+
+    &:hover .admin-actions {
+        opacity: 0.7;
+    }
 }
 
-//
-// Hacks
-// -------------------------------------------------
-
-.force-redraw:before {
-    content: ""
-}
-
-
-//
-// Vars
-// -------------------------------------------------
-
-// admin edit
-.btn-admin-edit {
-    display: none;
+.admin-actions {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: .375rem;
     position: absolute;
     inset-inline-end: .5rem;
     top: .5rem;
     z-index: 1;
-    --btn-bg: #{rgba($white, 0.5)};
-    --btn-border-radius: 50em;
+    opacity: 0;
+    transition: opacity 0.1s;
 
-    .touchevents & {
-        display: inline-flex;
-        inset-inline-end: 8px;
-        background-color: var(--btn-hover-bg);
-        border-color: var(--btn-hover-border-color);
-
-        & > span {
-            display: none;
-        }
+    &:hover {
+        opacity: 1 !important;
     }
-}
-
-.news-item-page:hover .btn-admin-edit,
-.blogpost-page:hover .btn-admin-edit,
-.pd-section-top:hover .btn-admin-edit {
-    display: inline-block;
 }
 
 
@@ -255,4 +237,21 @@
         font-size: $h6-font-size;
         padding: 0;
     }
+}
+
+
+//
+// Hacks
+// -------------------------------------------------
+
+.force-redraw:before {
+    content: ""
+}
+
+
+//
+// Other stuff
+// -------------------------------------------------
+#iframe-backinstocksubsription {
+    max-width: 100%;
 }
