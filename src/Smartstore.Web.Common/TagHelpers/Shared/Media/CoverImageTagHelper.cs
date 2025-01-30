@@ -16,6 +16,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     - INSUFFICIENT pos args! Must support 9 options: left top, top, right top, left center, center, right center, left bottom, bottom, right bottom
       RE: Blog and news images always fills the entire width of its content box. An horizontal alignment would have no effect here. These images can only be aligned vertically.
     - Pos UI: 9 buttons, 3 in a row, each button represents an anchor.
+
+    - Wrap button in .admin-actions and let dropdown behave like an actual dropdown (pressed state etc.). Don't customize well known behaviour.
     */
 
     /// <summary>

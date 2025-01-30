@@ -12,6 +12,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ImageTagName = "img";
         const string AppendVersionAttributeName = "sm-append-version";
 
+        // TODO: (mg) Don't reinvent the wheel. Inbuilt ImageTagHelper has already asp-append-version, that uses IFileVersionProvider internally.
         /// <summary>
         /// Gets or sets a value indicating whether to append a version query string parameter to the image URL. Default = false.
         /// </summary>
