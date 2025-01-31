@@ -91,6 +91,8 @@ namespace Smartstore.Admin.Controllers
                         isTransient,
                         duplicateFileHandling);
 
+                    await _eventPublisher.PublishAsync(new MediaSavedEvent(mediaFile, entityType));
+
                     dynamic o = JObject.FromObject(mediaFile);
                     o.success = true;
                     o.createdOn = mediaFile.CreatedOn.ToString();

@@ -448,7 +448,6 @@ namespace Smartstore.Core.Content.Media
             Guard.NotNull(inStream);
             Guard.NotEmpty(newFileName);
 
-            var hasError = false;
             var fileInfo = ConvertMediaFile(file);
             var pathData = CreatePathData(fileInfo.Path);
             pathData.FileName = newFileName;
@@ -468,18 +467,11 @@ namespace Smartstore.Core.Content.Media
             }
             catch (Exception ex)
             {
-                hasError = true;
                 Logger.Error(ex);
             }
 
             // Refresh some cached metadata
             fileInfo = ConvertMediaFile(file);
-
-            if (!hasError)
-            {
-                await _eventPublisher.PublishAsync(new MediaSavedEvent(fileInfo, string.Empty));
-            }
-
             return fileInfo;
         }
 
@@ -489,7 +481,6 @@ namespace Smartstore.Core.Content.Media
             bool isTransient = true,
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
         {
-            var hasError = false;
             var pathData = CreatePathData(path);
             var file = await _db.MediaFiles.FirstOrDefaultAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
             var isDupe = file != null;
@@ -517,8 +508,6 @@ namespace Smartstore.Core.Content.Media
             }
             catch (Exception ex)
             {
-                hasError = true;
-
                 if (!isDupe && file.Id > 0)
                 {
                     // New file's metadata should be removed on storage save failure immediately
@@ -529,14 +518,7 @@ namespace Smartstore.Core.Content.Media
                 Logger.Error(ex);
             }
 
-            var fileInfo = ConvertMediaFile(file, pathData.Folder);
-
-            if (!hasError)
-            {
-                await _eventPublisher.PublishAsync(new MediaSavedEvent(fileInfo, string.Empty));
-            }
-
-            return fileInfo;
+            return ConvertMediaFile(file, pathData.Folder);
         }
 
         public async Task<IList<FileBatchResult>> BatchSaveFilesAsync(
@@ -660,8 +642,6 @@ namespace Smartstore.Core.Content.Media
             {
                 await _db.SaveChangesAsync(cancelToken);
             }
-
-            // TODO: What about publishing MediaSavedEvent here?
 
             return batchResults;
         }
