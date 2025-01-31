@@ -280,6 +280,10 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             #endregion
 
             builder.AddOrUpdate("Tax.LegalInfoShort3", "Prices {0}, {1}", "Preise {0}, {1}");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ImageAnalyzerAssistant",
+                "Be an image analyzer assistant.",
+                "Sei ein Assistent für Bildanalyse.");
         }
     }
 }
