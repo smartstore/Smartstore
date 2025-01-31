@@ -1,30 +1,40 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Autofac;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Core.Content.Media;
 using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Razor
 {
-    internal class SmartFileVersionProvider : IFileVersionProvider
+    public class SmartFileVersionProvider : IFileVersionProvider
     {
         private const string VersionKey = "v";
 
+        private readonly IComponentContext _container;
+        private readonly IFileProvider _fileProvider;
+        private readonly IMemoryCache _cache;
+        private IMediaFileSystem _mediaFileSystem;
+
         public SmartFileVersionProvider(
+            IComponentContext container,
             IAssetFileProvider assetFileProvider, 
             TagHelperMemoryCacheProvider cacheProvider)
         {
-            FileProvider = assetFileProvider;
-            Cache = cacheProvider.Cache;
+            _container = container;
+            _fileProvider = assetFileProvider;
+            _cache = cacheProvider.Cache;
         }
 
-        public IFileProvider FileProvider { get; }
-
-        public IMemoryCache Cache { get; }
+        public IMediaFileSystem MediaFileSystem 
+        {
+            get => _mediaFileSystem ??= _container.ResolveUnregistered<MediaServiceFileSystemAdapter>();
+        }
 
         public string AddFileVersionToPath(PathString requestPathBase, string path)
         {
@@ -42,22 +52,22 @@ namespace Smartstore.Web.Razor
                 return path;
             }
 
-            if (Cache.TryGetValue<string>(path, out var value) && value is not null)
+            if (_cache.TryGetValue<string>(path, out var value) && value is not null)
             {
                 return value;
             }
 
             var cacheEntryOptions = new MemoryCacheEntryOptions();
-            cacheEntryOptions.AddExpirationToken(FileProvider.Watch(resolvedPath));
-            var fileInfo = FileProvider.GetFileInfo(resolvedPath);
+            cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(resolvedPath));
+            var fileInfo = _fileProvider.GetFileInfo(resolvedPath);
 
             if (!fileInfo.Exists &&
                 requestPathBase.HasValue &&
                 resolvedPath.StartsWithNoCase(requestPathBase.Value))
             {
                 var requestPathBaseRelativePath = resolvedPath.Substring(requestPathBase.Value.Length);
-                cacheEntryOptions.AddExpirationToken(FileProvider.Watch(requestPathBaseRelativePath));
-                fileInfo = FileProvider.GetFileInfo(requestPathBaseRelativePath);
+                cacheEntryOptions.AddExpirationToken(_fileProvider.Watch(requestPathBaseRelativePath));
+                fileInfo = _fileProvider.GetFileInfo(requestPathBaseRelativePath);
             }
 
             if (fileInfo.Exists)
@@ -71,7 +81,7 @@ namespace Smartstore.Web.Razor
             }
 
             cacheEntryOptions.SetSize(value.Length * sizeof(char));
-            Cache.Set(path, value, cacheEntryOptions);
+            _cache.Set(path, value, cacheEntryOptions);
             return value;
         }
 
