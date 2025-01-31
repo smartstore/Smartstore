@@ -21,7 +21,7 @@ namespace Smartstore.IO
 
         public CompositeFileSystem(IEnumerable<IFileSystem> fileSystems)
         {
-            Guard.NotNull(fileSystems, nameof(fileSystems));
+            Guard.NotNull(fileSystems);
             
             if (!fileSystems.Any())
             {

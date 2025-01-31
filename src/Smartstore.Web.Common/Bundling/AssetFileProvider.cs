@@ -27,7 +27,7 @@ namespace Smartstore.Web.Bundling
         /// <param name="pathPrefix">Path prefix, e.g.: "themes/", "modules/" etc.</param>
         public void AddFileProvider(string pathPrefix, IFileProvider provider)
         {
-            AddFileProvider(pathPrefix, (a, b) => Guard.NotNull(provider, nameof(provider)));
+            AddFileProvider(pathPrefix, (a, b) => Guard.NotNull(provider));
         }
 
         /// <summary>
@@ -37,8 +37,8 @@ namespace Smartstore.Web.Bundling
         /// <param name="resolver">The provider resolver delegate. First string argument provides the next path token.</param>
         public void AddFileProvider(string pathPrefix, Func<string, IApplicationContext, IFileProvider> resolver)
         {
-            Guard.NotEmpty(pathPrefix, nameof(pathPrefix));
-            Guard.NotNull(resolver, nameof(resolver));
+            Guard.NotEmpty(pathPrefix);
+            Guard.NotNull(resolver);
 
             pathPrefix = pathPrefix.TrimStart('/').EnsureEndsWith('/');
             _providers[pathPrefix] = resolver;

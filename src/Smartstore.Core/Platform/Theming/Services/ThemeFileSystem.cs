@@ -21,7 +21,7 @@ namespace Smartstore.Core.Theming
 
         private static IFileSystem[] CreateFileSystems(IFileSystem themeRoot, IFileSystem? baseThemeRoot)
         {
-            return baseThemeRoot == null ? new[] { themeRoot } : new[] { themeRoot, baseThemeRoot };
+            return baseThemeRoot == null ? [themeRoot] : [themeRoot, baseThemeRoot];
         }
 
         public override IChangeToken Watch(string pattern)

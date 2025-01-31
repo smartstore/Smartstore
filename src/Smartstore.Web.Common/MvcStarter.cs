@@ -68,6 +68,10 @@ namespace Smartstore.Web
             // that is capable of applying custom Bootstrap classes to generated html.
             services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
 
+            // Replaces inbuilt IFileVersionProvider with SmartFileVersionProvider
+            // that uses IAssetFileProvider and creates fast & simple hash codes utilizing ETagUtility.
+            services.AddSingleton<IFileVersionProvider, SmartFileVersionProvider>();
+
             // ActionResult executor for LazyFileContentResult
             services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
         }
