@@ -54,7 +54,8 @@ Smartstore.media = (function () {
                         type: 'POST',
                         url: root.data('media-edit-url'),
                         data,
-                        success: function (response) {
+                        success: (response) => {
+                            // TODO: (mg) HTML structure has changed. Don't return HTML. Update on client via JS.
                             root.replaceWith(response);
                         }
                     });

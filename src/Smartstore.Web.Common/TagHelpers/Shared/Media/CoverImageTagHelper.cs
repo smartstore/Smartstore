@@ -78,10 +78,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (EditUrl.HasValue() && customer.IsAdmin())
             {
-                var dropdown = CreateDropdown();
-                figure.InnerHtml.AppendHtml(dropdown);
+                //figure.InnerHtml.AppendHtml(dropdown);
                 figure.AddCssClass("media-edit-root");
                 figure.Attributes["data-media-edit-url"] = EditUrl;
+
+                var widgetProvider = ViewContext.HttpContext.RequestServices.GetRequiredService<IWidgetProvider>();
+                var dropdown = CreateDropdown();
+                widgetProvider.RegisterHtml("admin_actions", dropdown);
             }
 
             // Order: First the image then the dropdown.
@@ -104,7 +107,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             btnLink.InnerHtml.AppendHtml(icon);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-right";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right";
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "fa-long-arrow-up"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
@@ -115,7 +118,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             var rootDiv = new TagBuilder("div");
-            rootDiv.Attributes["class"] = "admin-actions cover-image-dropdown-root";
+            rootDiv.Attributes["class"] = "cover-image-dropdown-root";
             rootDiv.InnerHtml.AppendHtml(btnLink);
             rootDiv.InnerHtml.AppendHtml(dropdownUl);
 
@@ -141,7 +144,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (position.EqualsNoCase(Position))
             {
-                a.AppendCssClass("active");
+                a.AppendCssClass("checked");
                 a.Attributes["aria-pressed"] = "true";
             }
 
