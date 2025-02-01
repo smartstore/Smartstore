@@ -1,11 +1,9 @@
-﻿using Autofac;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
-using Smartstore.Core.Content.Media;
 using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bundling;
@@ -16,24 +14,15 @@ namespace Smartstore.Web.Razor
     {
         private const string VersionKey = "v";
 
-        private readonly IComponentContext _container;
         private readonly IFileProvider _fileProvider;
         private readonly IMemoryCache _cache;
-        private IMediaFileSystem _mediaFileSystem;
 
         public SmartFileVersionProvider(
-            IComponentContext container,
             IAssetFileProvider assetFileProvider, 
             TagHelperMemoryCacheProvider cacheProvider)
         {
-            _container = container;
             _fileProvider = assetFileProvider;
             _cache = cacheProvider.Cache;
-        }
-
-        public IMediaFileSystem MediaFileSystem 
-        {
-            get => _mediaFileSystem ??= _container.ResolveUnregistered<MediaServiceFileSystemAdapter>();
         }
 
         public string AddFileVersionToPath(PathString requestPathBase, string path)

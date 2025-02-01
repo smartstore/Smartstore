@@ -70,7 +70,7 @@ namespace Smartstore.Web
 
             // Replaces inbuilt IFileVersionProvider with SmartFileVersionProvider
             // that uses IAssetFileProvider and creates fast & simple hash codes utilizing ETagUtility.
-            services.AddScoped<IFileVersionProvider, SmartFileVersionProvider>();
+            services.AddSingleton<IFileVersionProvider, SmartFileVersionProvider>();
 
             // ActionResult executor for LazyFileContentResult
             services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
