@@ -3,6 +3,7 @@ using Autofac;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Rendering;
 
@@ -78,12 +79,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (EditUrl.HasValue() && customer.IsAdmin())
             {
-                //figure.InnerHtml.AppendHtml(dropdown);
-                figure.AddCssClass("media-edit-root");
-                figure.Attributes["data-media-edit-url"] = EditUrl;
+                var id = "media-edit-" + CommonHelper.GenerateRandomDigitCode(8);
+                figure.Attributes["id"] = id;
 
                 var widgetProvider = ViewContext.HttpContext.RequestServices.GetRequiredService<IWidgetProvider>();
-                var dropdown = CreateDropdown();
+                var dropdown = CreateDropdown(id);
                 widgetProvider.RegisterHtml("admin_actions", dropdown);
             }
 
@@ -91,7 +91,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.WrapElementWith(InnerHtmlPosition.Append, figure);
         }
 
-        protected virtual TagBuilder CreateDropdown()
+        protected virtual TagBuilder CreateDropdown(string id)
         {
             var icon = (TagBuilder)HtmlHelper.BootstrapIcon("arrows-move", htmlAttributes: new Dictionary<string, object>
             {
@@ -107,7 +107,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             btnLink.InnerHtml.AppendHtml(icon);
 
             var dropdownUl = new TagBuilder("ul");
-            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right";
+            dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right media-edit-dropdown";
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center top", "Admin.Media.Editing.AlignTop", "fa-long-arrow-up"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
@@ -118,6 +118,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             var rootDiv = new TagBuilder("div");
+            rootDiv.Attributes["data-media-edit-url"] = EditUrl;
+            rootDiv.Attributes["data-media-edit-id"] = id;
             rootDiv.Attributes["class"] = "cover-image-dropdown-root";
             rootDiv.InnerHtml.AppendHtml(btnLink);
             rootDiv.InnerHtml.AppendHtml(dropdownUl);
