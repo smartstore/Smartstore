@@ -103,7 +103,7 @@ namespace Smartstore.Core.AI
         public override string ToString()
             => string.Join(" ", _messages.Select(x => x.ToString()));
 
-        public string ToUserPrompt()
-            => string.Join(" ", _messages.Where(x => x.Role == KnownAIMessageRoles.User).Select(x => x.ToString()));
+        public string ToString(Func<AIChatMessage, bool> predicate)
+            => string.Join(" ", _messages.Where(predicate).Select(x => x.ToString()));
     }
 }
