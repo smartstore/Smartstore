@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
+using Smartstore.Core.OutputCache;
 using Smartstore.Diagnostics;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Rendering;
@@ -150,6 +151,9 @@ namespace Smartstore.Web.Controllers
                 // Tier prices are ignored for bundles with per-item pricing
                 await PrepareTierPriceModelAsync(priceModel, ctx);
             }
+
+            // INFO: Price may have changed due to the assignment of a discount to a category.
+            _services.DisplayControl.AnnounceRange(product.ProductCategories.Select(x => x.Category));
         }
 
         private async Task PrepareTierPriceModelAsync(ProductDetailsPriceModel model, ProductDetailsModelContext modelContext)
