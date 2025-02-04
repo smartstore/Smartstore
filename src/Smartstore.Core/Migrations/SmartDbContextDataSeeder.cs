@@ -284,6 +284,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ImageAnalyzerAssistant",
                 "Be an image analyzer assistant.",
                 "Sei ein Assistent für Bildanalyse.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue", "Please continue.", "Bitte fahre fort.");
         }
     }
 }
