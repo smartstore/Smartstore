@@ -33,6 +33,9 @@
 - Updated `dbip-country-lite.mmdb`.
 - Logging: added client UserAgent string to log entries.
 - Improvements in the processing of recurring payments.
+- ChatGPT:
+  - #1262 Add OpenAI `o1` and `03-mini` to the list of supported models.
+  - Added a setting for the maximum number of completion tokens.
 
 ### Bugfixes
 
@@ -43,6 +46,7 @@
 - Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Ignore surrogate chars (emojis) when building URL slugs.
+- ChatGPT: Fixed `NullReferenceException` when creating image metadata.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus
   - Code sync adds a line break after caret position (caused by outdated beautify library)
