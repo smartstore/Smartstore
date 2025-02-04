@@ -18,14 +18,10 @@ namespace Smartstore.Events
 
         public TMessage Message { get; }
 
-        public int StoreId { get; internal set; }
-        public int CustomerId { get; internal set; }
-        public int LanguageId { get; internal set; }
-        public int CurrencyId { get; internal set; }
-
         public Endpoint? Endpoint { get; internal set; }
         public string? RawUrl { get; internal set; }
 
+        public string? Scheme { get; internal set; }
         public HostString? Host { get; internal set; }
         public PathString? PathBase { get; internal set; }
         public PathString? Path { get; internal set; }

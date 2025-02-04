@@ -8,7 +8,7 @@
         Task InvokeAsync<TMessage>(
             ConsumerDescriptor descriptor,
             IConsumer consumer,
-            ConsumeContext<TMessage> envelope,
+            TMessage message,
             CancellationToken cancelToken = default) where TMessage : class;
     }
 }

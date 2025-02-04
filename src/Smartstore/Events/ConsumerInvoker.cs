@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.ComponentModel;
@@ -9,11 +10,16 @@ namespace Smartstore.Events
     public class ConsumerInvoker : IConsumerInvoker
     {
         private readonly IConsumerResolver _resolver;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AsyncRunner _asyncRunner;
 
-        public ConsumerInvoker(IConsumerResolver resolver, AsyncRunner asyncRunner)
+        public ConsumerInvoker(
+            IConsumerResolver resolver,
+            IHttpContextAccessor httpContextAccessor,
+            AsyncRunner asyncRunner)
         {
             _resolver = resolver;
+            _httpContextAccessor = httpContextAccessor;
             _asyncRunner = asyncRunner;
         }
 
@@ -22,11 +28,11 @@ namespace Smartstore.Events
         public virtual Task InvokeAsync<TMessage>(
             ConsumerDescriptor descriptor,
             IConsumer consumer,
-            ConsumeContext<TMessage> envelope,
+            TMessage message,
             CancellationToken cancelToken = default) where TMessage : class
         {
             var d = descriptor;
-            var p = descriptor.WithEnvelope ? (object)envelope : envelope.Message;
+            var p = descriptor.WithEnvelope ? (object)CreateConsumeContext(message) : message;
             var invoker = FastInvoker.GetInvoker(d.Method);
             var ct = cancelToken;
 
@@ -105,6 +111,28 @@ namespace Smartstore.Events
                     yield return _resolver.ResolveParameter(p, container);
                 }
             }
+        }
+
+        protected internal virtual ConsumeContext<TMessage> CreateConsumeContext<TMessage>(TMessage message)
+        {
+            var envelope = new ConsumeContext<TMessage>(message);
+
+            if (_httpContextAccessor.HttpContext is HttpContext httpContext)
+            {
+                var req = httpContext.Request;
+
+                envelope.Endpoint = httpContext.GetEndpoint();
+
+                envelope.Scheme = req.Scheme;
+                envelope.Host = req.Host;
+                envelope.PathBase = req.PathBase;
+                envelope.Path = req.Path;
+                envelope.QueryString = req.QueryString;
+
+                envelope.RawUrl = req.RawUrl();
+            }
+
+            return envelope;
         }
 
         protected virtual void HandleException(Exception ex, ConsumerDescriptor descriptor)
