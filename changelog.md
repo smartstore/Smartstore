@@ -46,7 +46,7 @@
 - Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Ignore surrogate chars (emojis) when building URL slugs.
-- ChatGPT: Fixed `NullReferenceException` when creating image metadata.
+- ChatGPT: Fixed `NullReferenceException` and "The model gpt-4-vision-preview has been deprecated" when creating image metadata.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus
   - Code sync adds a line break after caret position (caused by outdated beautify library)
