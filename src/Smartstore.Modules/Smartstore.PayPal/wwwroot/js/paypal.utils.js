@@ -160,7 +160,7 @@
                 // Create order
                 createOrder: function (data, actions) {
                     var orderId = createOrder(self.hostedFieldsContainer.data("create-order-url"), self.hostedFieldsContainer.attr("id"));
-                    initTransaction({ orderID: orderId }, self.hostedFieldsContainer);
+                    initTransaction({ orderID: orderId }, self.hostedFieldsContainer, false);
                     return orderId;
                 },
                 onApprove: function (data, actions) {
@@ -245,7 +245,7 @@
         return orderId;
     }
 
-    function initTransaction(data, container) {
+    function initTransaction(data, container, redirect = true) {
         $.ajax({
             type: 'POST',
             url: container.data("init-transaction-url"),
@@ -256,7 +256,7 @@
             cache: false,
             success: function (resp) {
                 if (resp.success) {
-                    if (resp.redirectUrl) {
+                    if (resp.redirectUrl && redirect) {
                         location.href = resp.redirectUrl;
                     }
                     else if (!container.data("skip-redirect-oninit")) {
