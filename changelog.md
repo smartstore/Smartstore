@@ -79,6 +79,7 @@
 - The AmazonPay Logout button may be displayed on the checkout completion page, even though the payment was not made using AmazonPay.
 - Fixed missing error notification when trying to complete an unpaid order.
 - Fixed scrolling to selected section in manufacturer navigation
+- Billiger & Guenstiger: Cookie infos were displayed although tracking was disabled
 
 
 ## Smartstore 6.0.0
