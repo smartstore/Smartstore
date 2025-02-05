@@ -69,8 +69,8 @@
 - Fixed Cookie migration problem.
 - #1233 Forum: Posts from customers marked as deleted must be displayed.
 - PayPal:
-	- Fixed updating of order state when receiving webhook notifications and capture settings are set to direct capture
-	- Fixed problem with credit card payments and activated QuickCheckout (redirection to card issuer and therefore liability shifting wasn't performed)  
+	- Fixed updating the order status when receiving webhook notifications and when the capture settings are set to direct capture
+	- Fixed problem with credit card payments and activated QuickCheckout (didn't redirect to card issuer and therefore didn't shift liability)  
 - Shopping cart validation must not take inactive items into account when checking recurring/non-recurring products.
 - Do not apply `TrailingSlashRule` to URLs of Web API endpoints (may lead to a HTTP 401 error).
 - #1245 Missing image preview after drag'n drop in product detail configuration.
