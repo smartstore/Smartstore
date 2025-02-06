@@ -7,7 +7,6 @@ $note-bg: #8080801d;
 $img-margin-left: 10px;
 $img-margin-right: 10px;
 
-
 // Wrapper & Preview
 // ------------------------------------------
 
@@ -23,6 +22,7 @@ $img-margin-right: 10px;
 
     &.empty {
         min-height: initial;
+        //color: $text-muted;
     }
 }
 
@@ -239,29 +239,57 @@ $img-margin-right: 10px;
 // ------------------------------------------
 
 .note-statusbar {
+    position: relative;
     background-color: $note-bg;
     border-top: 1px solid rgba($black, 0.15);
+}
 
-    .note-resizebar {
-        padding-top: 1px;
-        height: 9px;
-        width: 100%;
-        cursor: ns-resize;
+.note-statusbar-content {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 8px 0 8px;
+    line-height: 1;
+}
 
-        .note-icon-bar {
-            width: 20px;
-            margin: 1px auto;
-            border-top: 1px solid rgba($black, 0.2);
-        }
+.note-tagselector > .note-tag {
+    cursor: pointer;
+    // &:hover {
+    //   text-decoration: underline;
+    // }
+
+    & + .note-tag:before {
+        content: '\203A';
+        padding-inline: 5px;
+        //text-decoration: none !important;
+    }
+}
+
+.note-resizebar {
+    padding-top: 1px;
+    height: 9px;
+    width: 100%;
+    cursor: ns-resize;
+
+    > .note-icon-bar {
+        width: 20px;
+        margin: 1px auto;
+        border-top: 1px solid rgba($black, 0.2);
+    }
+}
+
+.note-statusbar.locked {
+    > .note-statusbar-content {
+        display: none;
     }
 
-    &.locked {
-        .note-resizebar {
-            cursor: default;
+    > .note-resizebar {
+        cursor: default;
 
-            .note-icon-bar {
-                display: none;
-            }
+        > .note-icon-bar {
+            display: none;
         }
     }
 }
