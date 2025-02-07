@@ -1,5 +1,6 @@
 ﻿using System.Text.Encodings.Web;
 using Autofac;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -28,26 +29,19 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string PositionAttributeName = "sm-position";
         const string EditUrlAttributeName = "sm-edit-url";
-        const string IconPositionBottomAttributeName = "sm-icon-bottom";
 
         /// <summary>
         /// Specifies the position of the image inside its content box. Empty by default (image is centered).
         /// See "object-position" CSS for valid values.
         /// </summary>
         [HtmlAttributeName(PositionAttributeName)]
-        public string Position { get; set; }
+        public string ImagePosition { get; set; }
 
         /// <summary>
         /// Specifies the URL that will be used to save the updated image position.
         /// </summary>
         [HtmlAttributeName(EditUrlAttributeName)]
         public string EditUrl { get; set; }
-
-        /// <summary>
-        /// Specifies whether the icon for dropdown is placed on the bottom. Default = false.
-        /// </summary>
-        [HtmlAttributeName(IconPositionBottomAttributeName)]
-        public bool IconPositionBottom { get; set; }
 
         protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
         {
@@ -68,9 +62,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Only images with horizontal orientation supported yet (100% width, fixed height).
             output.AppendCssClass("img-fluid horizontal-image media-edit-object");
 
-            if (Position.HasValue())
+            if (ImagePosition.HasValue())
             {
-                output.AddCssStyle("object-position", Position);
+                output.AddCssStyle("object-position", ImagePosition);
             }
 
             // Image container.
@@ -93,18 +87,15 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected virtual TagBuilder CreateDropdown(string id)
         {
-            var icon = (TagBuilder)HtmlHelper.BootstrapIcon("arrows-move", htmlAttributes: new Dictionary<string, object>
-            {
-                ["class"] = "fa fa-fw fa-arrows"
-            });
+            var toggle = new TagBuilder("a");
+            toggle.Attributes["href"] = "javascript:;";
+            toggle.Attributes["class"] = "btn btn-sm btn-secondary btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
+            toggle.Attributes["title"] = T("Admin.Media.Editing.Align");
+            toggle.Attributes["data-toggle"] = "dropdown";
+            toggle.Attributes["data-placement"] = "top";
 
-            var btnLink = new TagBuilder("a");
-            btnLink.Attributes["href"] = "javascript:;";
-            btnLink.Attributes["class"] = "btn btn-sm btn-secondary btn-icon rounded-circle no-chevron dropdown-toggle cover-image-dropdown";
-            btnLink.Attributes["title"] = T("Admin.Media.Editing.Align");
-            btnLink.Attributes["data-toggle"] = "dropdown";
-            btnLink.Attributes["data-placement"] = "top";
-            btnLink.InnerHtml.AppendHtml(icon);
+            var icon = new HtmlString("<i class=\"fa fa-arrow-down-up-across-line\"></i>");
+            toggle.InnerHtml.AppendHtml(icon);
 
             var dropdownUl = new TagBuilder("ul");
             dropdownUl.Attributes["class"] = "dropdown-menu dropdown-menu-check dropdown-menu-right media-edit-dropdown";
@@ -112,16 +103,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem(string.Empty, "Admin.Media.Editing.AlignMiddle", "fa-arrows-v"));
             dropdownUl.InnerHtml.AppendHtml(CreateDropdownItem("center bottom", "Admin.Media.Editing.AlignBottom", "fa-long-arrow-down"));
 
-            if (IconPositionBottom)
-            {
-                btnLink.AddCssStyle("bottom", 0);
-            }
-
             var rootDiv = new TagBuilder("div");
             rootDiv.Attributes["data-media-edit-url"] = EditUrl;
             rootDiv.Attributes["data-media-edit-id"] = id;
             rootDiv.Attributes["class"] = "cover-image-dropdown-root";
-            rootDiv.InnerHtml.AppendHtml(btnLink);
+            rootDiv.InnerHtml.AppendHtml(toggle);
             rootDiv.InnerHtml.AppendHtml(dropdownUl);
 
             return rootDiv;
@@ -141,10 +127,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             a.Attributes["href"] = "#";
             a.Attributes["class"] = "dropdown-item media-edit-command";
             a.Attributes["role"] = "button";
-            a.Attributes["title"] = T(resourceKey + ".Hint").Value;
             a.Attributes["data-media-edit"] = model.ToJson();
 
-            if (position.EqualsNoCase(Position))
+            if (position.EqualsNoCase(ImagePosition))
             {
                 a.AppendCssClass("checked");
                 a.Attributes["aria-pressed"] = "true";

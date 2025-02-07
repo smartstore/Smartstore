@@ -146,23 +146,9 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Media.Editing.Align", "Align", "Ausrichten");
             
-            builder.AddOrUpdate("Admin.Media.Editing.AlignTop", 
-                "Align top", 
-                "Oben ausrichten",
-                "Aligns the object to the top edge.",
-                "Richtet das Objekt am oberen Rand aus.");
-            
-            builder.AddOrUpdate("Admin.Media.Editing.AlignMiddle",
-                "Center vertically",
-                "Vertikal zentrieren",
-                "Aligns the object vertically in the center.",
-                "Richtet das Objekt vertikal in der Mitte aus.");
-            
-            builder.AddOrUpdate("Admin.Media.Editing.AlignBottom", 
-                "Align bottom", 
-                "Unten ausrichten",
-                "Aligns the object to the bottom edge.",
-                "Richtet das Objekt am unteren Rand aus.");
+            builder.AddOrUpdate("Admin.Media.Editing.AlignTop", "Top", "Oben");
+            builder.AddOrUpdate("Admin.Media.Editing.AlignMiddle", "Center", "Mitte");
+            builder.AddOrUpdate("Admin.Media.Editing.AlignBottom", "Bottom", "Unten");
 
 
             #region Performance settings
