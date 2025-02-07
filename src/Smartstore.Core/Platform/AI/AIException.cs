@@ -24,7 +24,7 @@ namespace Smartstore.Core.AI
         /// Initializes a new instance of the <see cref="AIException"/> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        /// <param name="provider">Payment provider that caused the exception.</param>
+        /// <param name="provider">AI provider that caused the exception.</param>
         public AIException(string? message, string? provider)
             : base(message)
         {
@@ -36,7 +36,7 @@ namespace Smartstore.Core.AI
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        /// <param name="provider">Payment provider that caused the exception.</param>
+        /// <param name="provider">AI provider that caused the exception.</param>
         public AIException(string? message, Exception? innerException, string? provider)
             : base(message, innerException)
         {
