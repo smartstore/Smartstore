@@ -8,6 +8,17 @@ namespace Smartstore.Core.AI
     /// </summary>
     public abstract class AIProviderBase : IAIProvider
     {
+        /// <summary>
+        /// The finish reason when the AI response has been fully transmitted.
+        /// </summary>
+        protected const string CompletedReason = "stop";
+
+        /// <summary>
+        /// The finish reason if the token limit is reached and the AI's response is incomplete (chunked).
+        /// Further "go on" completion request(s) are needed.
+        /// </summary>
+        protected const string ContinueReason = "length";
+
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public abstract bool IsActive();
