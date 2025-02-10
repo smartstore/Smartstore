@@ -20,6 +20,7 @@
 - #1242 Rule Builder: Add a cart rule that is fulfilled if the cart contains a product with a certain SKU.
 - #509 Add payment status setting for offline payment.
 - #1010 Allow the admin to align a blog or news image within its element box.
+- #1261 Blogs and news: Added a setting indicating whether to allow users to leave comments if they have never purchased before.
 - PayPal: 
 	- Added option to let the shop admin decide how to handle orders for which the payment was declined 
 	- Removed Giropay provider 
