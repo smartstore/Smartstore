@@ -5,8 +5,6 @@
 @{
     var hasItems = Model.Items.Any();
     var checkoutAllowed = Model.Items.Any(x => x.Active);
-    var shippingInfoUrl = await Url.TopicAsync("ShippingInfo", true);
-
     var paymentButtons = hasItems
         ? (await Model.ButtonPaymentMethods.Items
             .SelectAwait(x => x.InvokeAsync(ViewContext))
@@ -161,18 +159,6 @@
             });
         });
     </script>
-}
-
-@if (shippingInfoUrl.HasValue())
-{
-    <modal id="shipping-info-modal" sm-render-at-page-end="true" sm-size="FlexSmall">
-        <modal-body>
-            <iframe src="@shippingInfoUrl" frameBorder="0" class="h-100"></iframe>
-        </modal-body>
-        <modal-footer>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("Common.Close")</button>
-        </modal-footer>
-    </modal>
 }
 
 @if (Model.IsEditable)
