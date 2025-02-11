@@ -9,6 +9,7 @@
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
 - Shipping by total: Added a setting to let the shipping origin determine the shipping cost if the shipping address is missing.
 - #501 New category option for ignoring a category in menus.
+- #1259 AI: Implement setting for keywords to avoid in general.
 - MegaSearch: 
   - Added setting to indicate whether to split compound words.
   - Setting to include/exclude the meta keywords of products in the search index.
