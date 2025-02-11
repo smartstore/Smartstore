@@ -5,9 +5,11 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Web.Razor
 {
     /// <summary>
-    /// If controller is defined in a module assembly: 
-    /// Adds "/Modules/[ModuleName]/Views/{1}/{0}.cshtml", "/Modules/[ModuleName]/Views/Shared/{0}.cshtml" 
-    /// and "/Modules/[DependsOnModuleName]/Views/Shared/{0}.cshtml" as view locations.
+    /// If controller is defined in a module assembly,
+    /// adds following view locations: 
+    /// "/Modules/[ModuleName]/Views/{1}/{0}.cshtml", 
+    /// "/Modules/[ModuleName]/Views/Shared/{0}.cshtml",
+    /// "/Modules/[DependsOnModuleName]/Views/Shared/{0}.cshtml".
     /// </summary>
     internal class ModuleViewLocationExpander : IViewLocationExpander
     {
