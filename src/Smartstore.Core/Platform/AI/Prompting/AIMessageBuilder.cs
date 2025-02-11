@@ -321,6 +321,8 @@ namespace Smartstore.Core.AI.Prompting
                 chat.User(Resources.WordLimit((int)model.WordLimit)).SetMetaData(model.WordLimit);
             }
 
+            AddKeywordsMessages(model, chat);
+
             return AddLanguageMessagesAsync(model, chat);
         }
 
