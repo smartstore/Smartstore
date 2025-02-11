@@ -254,16 +254,12 @@ $img-margin-right: 10px;
     line-height: 1;
 }
 
-.note-tagselector > .note-tag {
+.note-path-item {
+    display: inline-block;
     cursor: pointer;
-    // &:hover {
-    //   text-decoration: underline;
-    // }
 
-    & + .note-tag:before {
-        content: '\203A';
-        padding-inline: 5px;
-        //text-decoration: none !important;
+    &:hover {
+        color: var(--gray-650);
     }
 }
 
