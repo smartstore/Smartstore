@@ -6,7 +6,8 @@ namespace Smartstore.Web.Razor
 {
     /// <summary>
     /// If controller is defined in a module assembly: 
-    /// Adds "/Modules/[ModuleName]/Views/{1}/{0}.cshtml" and "/Modules/[ModuleName]/Views/Shared/{0}.cshtml" as view locations.
+    /// Adds "/Modules/[ModuleName]/Views/{1}/{0}.cshtml", "/Modules/[ModuleName]/Views/Shared/{0}.cshtml" 
+    /// and "/Modules/[DependsOnModuleName]/Views/Shared/{0}.cshtml" as view locations.
     /// </summary>
     internal class ModuleViewLocationExpander : IViewLocationExpander
     {
@@ -47,6 +48,18 @@ namespace Smartstore.Web.Razor
 
                     moduleViewLocations.Add($"{module.Path}Views/{{1}}/{{0}}" + ext);
                     moduleViewLocations.Add($"{module.Path}Views/Shared/{{0}}" + ext);
+
+                    // Include the shared paths of modules that this module depends on.
+                    // E.g. when it invokes the component of dependent module.
+                    if (!module.DependsOn.IsNullOrEmpty())
+                    {
+                        var dependsOnPaths = module.DependsOn
+                            .Select(name => _moduleCatalog.GetModuleByName(name))
+                            .Where(x => x != null)
+                            .Select(x => $"{x.Path}Views/Shared/{{0}}" + ext);
+
+                        moduleViewLocations.AddRange(dependsOnPaths);
+                    }
 
                     return moduleViewLocations.Union(viewLocations);
                 }
