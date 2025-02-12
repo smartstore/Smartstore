@@ -276,8 +276,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Bitte fahre mit deiner Antwort fort.");
 
             builder.AddOrUpdate("Admin.Orders.CompleteUnpaidOrder",
-                "The order has a payment status of <b>{0}</b>. Do you still want to set it to complete?",
-                "Der Auftrag hat einen Zahlungsstatus <b>{0}</b>. Möchten Sie ihn dennoch auf komplett setzen?");
+                "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",
+                "Der Auftrag hat den Zahlungsstatus <strong>{0}</strong>. Möchten Sie ihn trotzdem auf komplett setzen?");
         }
     }
 }
