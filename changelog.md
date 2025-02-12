@@ -23,6 +23,7 @@
 - #509 Add payment status setting for offline payment.
 - #1010 Allow the admin to align a blog or news image within its element box.
 - #1261 Blogs and news: Added a setting indicating whether to allow users to leave comments if they have never purchased before.
+- #1263 Allow the admin to mark an order as *paid* even if the payment has been previously voided.
 - PayPal: 
 	- Added option to let the shop admin decide how to handle orders for which the payment was declined 
 	- Removed Giropay provider 
