@@ -171,8 +171,7 @@ namespace Smartstore.ModuleBuilder
                 if (entry is FileInfo fi)
                 {
                     if (entry.Name.StartsWith("Smartstore.Data.")
-                        || entry.Name.EndsWith(".StaticWebAssets.xml", StringComparison.OrdinalIgnoreCase)
-                        || entry.Name.EndsWith(".staticwebassets.runtime.json", StringComparison.OrdinalIgnoreCase))
+                        || entry.Name.Contains(".staticwebassets.", StringComparison.OrdinalIgnoreCase))
                     {
                         fi.Delete();
                     }

@@ -3,7 +3,7 @@ using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Rules.Filters;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -133,23 +133,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Delete)]
         public async Task<IActionResult> ProductDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
-            var numDeleted = 0;
-
-            if (ids.Any())
+            var entities = await _db.Products.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var toDelete = await _db.Products
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
-                _db.Products.RemoveRange(toDelete);
+                _db.Products.RemoveRange(entities);
                 await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteProduct, 
+                    T("ActivityLog.DeleteProduct"),
+                    string.Join(", ", entities.Select(x => x.Name)));
             }
 
-            return Json(new { Success = true, Count = numDeleted });
+            return Json(new { Success = true, entities.Count });
         }
 
         [HttpPost]

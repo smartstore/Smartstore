@@ -98,7 +98,7 @@
     $(function () {
         $('.manufacturer-nav .nav-link').on('click', (e) => {
             e.preventDefault();
-            $.scrollTo(e.target.getAttribute('href'));
+            $.scrollTo($(e.target.getAttribute('href')));
             return false;
         });
     });

@@ -14,7 +14,6 @@ namespace Smartstore.Admin.Controllers
 {
     public class RoxyFileManagerController : AdminController
     {
-        private const int BufferSize = 32768;
         private const string ConfigFilePath = "~/lib/roxyfm/conf.json";
 
         private string _fileRoot = null;
@@ -25,7 +24,6 @@ namespace Smartstore.Admin.Controllers
         private readonly IFileSystem _webRoot;
         private readonly IMediaService _mediaService;
         private readonly IMediaTypeResolver _mediaTypeResolver;
-        private readonly MediaHelper _mediaHelper;
         private readonly MediaServiceFileSystemAdapter _fileSystem;
         private readonly ILocalizationFileResolver _locFileResolver;
 
@@ -34,19 +32,15 @@ namespace Smartstore.Admin.Controllers
         public RoxyFileManagerController(
             IApplicationContext appContext,
             IMediaService mediaService,
-            IMediaSearcher mediaSearcher,
             IFolderService folderService,
             IAlbumRegistry albumRegistry,
             IMediaTypeResolver mediaTypeResolver,
             IMediaStorageConfiguration mediaStorageConfiguration,
-            MediaHelper mediaHelper,
-            MediaExceptionFactory exceptionFactory,
             ILocalizationFileResolver locFileResolver)
         {
             _appContext = appContext;
             _mediaService = mediaService;
             _mediaTypeResolver = mediaTypeResolver;
-            _mediaHelper = mediaHelper;
             _locFileResolver = locFileResolver;
             _webRoot = appContext.WebRoot;
 
@@ -54,11 +48,8 @@ namespace Smartstore.Admin.Controllers
             _fileRoot = _album.Name;
             _fileSystem = new MediaServiceFileSystemAdapter(
                 mediaService,
-                mediaSearcher,
                 folderService,
-                mediaStorageConfiguration,
-                mediaHelper,
-                exceptionFactory);
+                mediaStorageConfiguration);
         }
 
         public IActionResult Index()

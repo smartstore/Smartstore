@@ -28,9 +28,6 @@ namespace Smartstore.Events
                 return;
             }
 
-            var envelopeType = typeof(ConsumeContext<>).MakeGenericType(typeof(T));
-            var envelope = (ConsumeContext<T>)FastActivator.CreateInstance(envelopeType, message);
-
             foreach (var d in descriptors)
             {
                 var consumer = _resolver.Resolve(d);
@@ -40,12 +37,12 @@ namespace Smartstore.Events
                     {
                         // No await
                         // "_ =" to discard 'async/await' compiler warning
-                        _ = _invoker.InvokeAsync(d, consumer, envelope, cancelToken);
+                        _ = _invoker.InvokeAsync(d, consumer, message, cancelToken);
                     }
                     else
                     {
                         // Await the task
-                        await _invoker.InvokeAsync(d, consumer, envelope, cancelToken);
+                        await _invoker.InvokeAsync(d, consumer, message, cancelToken);
                     }
                 }
             }

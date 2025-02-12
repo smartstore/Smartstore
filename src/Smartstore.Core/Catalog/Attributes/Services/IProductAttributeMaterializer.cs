@@ -76,6 +76,8 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         /// <param name="cartItems">Cart items.</param>
         /// <returns>Number of merged attribute combinations.</returns>
+        /// <remarks>This method can lead to unwanted results if a product with different variants appears several times in cart.</remarks>
+        [Obsolete("Iterate cart items and use other MergeWithCombinationAsync method instead.")]
         Task<int> MergeWithCombinationAsync(IEnumerable<ShoppingCartItem> cartItems);
 
         /// <summary>

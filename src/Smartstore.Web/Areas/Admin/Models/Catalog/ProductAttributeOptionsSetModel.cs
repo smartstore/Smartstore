@@ -5,5 +5,6 @@
         public int ProductAttributeId { get; set; }
 
         public string Name { get; set; }
+        public bool Expanded { get; set; }
     }
 }

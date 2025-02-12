@@ -154,23 +154,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Variant.Delete)]
         public async Task<IActionResult> ProductAttributeDelete(GridSelection selection)
         {
-            var success = false;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
+            var entities = await _db.ProductAttributes.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var attributes = await _db.ProductAttributes.GetManyAsync(ids, true);
-                var deletedNames = string.Join(", ", attributes.Select(x => x.Name));
-
-                _db.ProductAttributes.RemoveRange(attributes);
-
+                _db.ProductAttributes.RemoveRange(entities);
                 await _db.SaveChangesAsync();
-                success = true;
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProductAttribute, T("ActivityLog.DeleteProductAttribute"), deletedNames);
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteProductAttribute, 
+                    T("ActivityLog.DeleteProductAttribute"),
+                    string.Join(", ", entities.Select(x => x.Name)));
             }
 
-            return Json(new { Success = success });
+            return Json(new { Success = true, entities.Count });
         }
 
         [Permission(Permissions.Catalog.Variant.Create)]
@@ -288,6 +284,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Variant.Read)]
         public async Task<IActionResult> ProductAttributeOptionsSetList(GridCommand command, int productAttributeId)
         {
+            TempData.TryGetAndConvertValue<int>("ExpandAttributeOptionsSetId", out var expandAttributeOptionsSetId);
+
             var mapper = MapperFactory.GetMapper<ProductAttributeOptionsSet, ProductAttributeOptionsSetModel>();
             var optionsSets = await _db.ProductAttributeOptionsSets
                 .AsNoTracking()
@@ -298,7 +296,12 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var rows = await optionsSets
-                .SelectAwait(async x => await mapper.MapAsync(x))
+                .SelectAwait(async x =>
+                {
+                    var model = await mapper.MapAsync(x);
+                    model.Expanded = x.Id == expandAttributeOptionsSetId;
+                    return model;
+                })
                 .AsyncToList();
 
             return Json(new GridModel<ProductAttributeOptionsSetModel>
@@ -320,6 +323,7 @@ namespace Smartstore.Admin.Controllers
 
             _db.ProductAttributeOptionsSets.Add(optionsSet);
             await _db.SaveChangesAsync();
+            TempData["ExpandAttributeOptionsSetId"] = optionsSet.Id;
 
             return Json(new { success = true });
         }

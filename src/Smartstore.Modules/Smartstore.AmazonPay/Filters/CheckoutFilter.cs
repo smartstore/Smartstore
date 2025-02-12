@@ -41,23 +41,29 @@ namespace Smartstore.AmazonPay.Filters
 
             if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
             {
-                var responseStatus = context.HttpContext.Session.GetString("AmazonPayResponseStatus");
-                if (responseStatus.HasValue() && await IsAmazonPayActive())
+                var session = context.HttpContext.Session;
+                var responseStatus = session.GetString("AmazonPayResponseStatus");
+                if (responseStatus.HasValue())
                 {
-                    // 202 (Accepted): authorization is pending.
-                    var completedNote = responseStatus == "202"
-                        ? _services.Localization.GetResource("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote")
-                        : string.Empty;
+                    if (await IsAmazonPayActive())
+                    {
+                        // 202 (Accepted): authorization is pending.
+                        var completedNote = responseStatus == "202"
+                            ? _services.Localization.GetResource("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote")
+                            : string.Empty;
 
-                    if (!_orderSettings.DisableOrderCompletedPage)
-                    {
-                        _widgetProvider.Value.RegisterWidget("checkout_completed_top",
-                            new PartialViewWidget("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
+                        if (!_orderSettings.DisableOrderCompletedPage)
+                        {
+                            _widgetProvider.Value.RegisterWidget("checkout_completed_top",
+                                new PartialViewWidget("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
+                        }
+                        else if (completedNote.HasValue())
+                        {
+                            _services.Notifier.Information(completedNote);
+                        }
                     }
-                    else if (completedNote.HasValue())
-                    {
-                        _services.Notifier.Information(completedNote);
-                    }
+
+                    session.TryRemove("AmazonPayResponseStatus");
                 }
 
                 await next();

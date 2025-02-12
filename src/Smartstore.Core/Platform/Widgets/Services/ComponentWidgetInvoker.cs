@@ -14,26 +14,30 @@ namespace Smartstore.Core.Widgets
 {
     public class ComponentWidgetInvoker : WidgetInvoker<ComponentWidget>
     {
-        private static readonly ConcurrentDictionary<Type, ViewComponentDescriptor> _componentByTypeCache = new();
+        private static readonly ConcurrentDictionary<Type, ViewComponentDescriptor?> _componentByTypeCache = new();
+        private static readonly ConcurrentDictionary<string, Type?> _componentTypeByNameCache = new();
 
         private readonly IViewComponentSelector _componentSelector;
         private readonly IViewComponentDescriptorCollectionProvider _componentDescriptorProvider;
         private readonly IModuleCatalog _moduleCatalog;
+        private readonly ITypeScanner _typeScanner;
 
         public ComponentWidgetInvoker(
             IViewComponentSelector componentSelector,
             IViewComponentDescriptorCollectionProvider componentDescriptorProvider,
-            IModuleCatalog moduleCatalog)
+            IModuleCatalog moduleCatalog,
+            ITypeScanner typeScanner)
         {
             _componentSelector = componentSelector;
             _componentDescriptorProvider = componentDescriptorProvider;
             _moduleCatalog = moduleCatalog;
+            _typeScanner = typeScanner;
         }
 
         public override Task<IHtmlContent> InvokeAsync(WidgetContext context, ComponentWidget widget)
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(widget, nameof(widget));
+            Guard.NotNull(context);
+            Guard.NotNull(widget);
 
             if (widget.ComponentType == null && widget.ComponentName == null)
             {
@@ -163,24 +167,26 @@ namespace Smartstore.Core.Widgets
 
         private ViewComponentDescriptor SelectComponent(ComponentWidget widget)
         {
-            ViewComponentDescriptor descriptor;
+            ViewComponentDescriptor? descriptor;
 
-            if (widget.ComponentType != null)
+            var componentType = GetComponentType(widget);
+
+            if (componentType != null)
             {
                 // Select component by type
-                descriptor = _componentByTypeCache.GetOrAdd(widget.ComponentType, componentType =>
+                descriptor = _componentByTypeCache.GetOrAdd(componentType, type =>
                 {
                     var descriptors = _componentDescriptorProvider.ViewComponents;
                     for (var i = 0; i < descriptors.Items.Count; i++)
                     {
                         var descriptor = descriptors.Items[i];
-                        if (descriptor.TypeInfo == componentType?.GetTypeInfo())
+                        if (descriptor.TypeInfo == type?.GetTypeInfo())
                         {
                             return descriptor;
                         }
                     }
 
-                    return default!;
+                    return null;
                 });
 
                 if (descriptor == null)
@@ -200,6 +206,37 @@ namespace Smartstore.Core.Widgets
             }
 
             return descriptor;
+        }
+
+        /// <summary>
+        /// Tries to find the component type by name in a module assembly.
+        /// </summary>
+        private Type? GetComponentType(ComponentWidget widget)
+        {
+            if (widget.ComponentType == null && widget.Module.HasValue())
+            {
+                var key = $"{widget.Module}/{widget.ComponentName}";
+                var componentType = _componentTypeByNameCache.GetOrAdd(key, _ =>
+                {
+                    var assembly = _moduleCatalog.GetModuleByName(widget.Module)?.Module?.Assembly;
+                    if (assembly != null)
+                    {
+                        var componentName = widget.ComponentName.EnsureEndsWith("ViewComponent");
+                        var matchingType = _typeScanner.FindTypes<ViewComponent>([assembly]).FirstOrDefault(t => t.Name == componentName);
+
+                        return matchingType;
+                    }
+
+                    return null;
+                });
+
+                if (componentType != null)
+                {
+                    return componentType;
+                }
+            }
+            
+            return widget.ComponentType;
         }
     }
 }

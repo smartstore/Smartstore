@@ -2,10 +2,7 @@
 {
     public class TopCustomersReportModel : ModelBase
     {
-        [LocalizedDisplay("Admin.Customers.Reports.BestBy.StartDate")]
         public DateTime? StartDate { get; set; }
-
-        [LocalizedDisplay("Admin.Customers.Reports.BestBy.EndDate")]
         public DateTime? EndDate { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Reports.BestBy.OrderStatus")]

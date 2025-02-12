@@ -42,6 +42,18 @@ namespace Smartstore.Core.AI
         }
 
         /// <summary>
+        /// Inserts messages at a given index. Empty messages are not inserted.
+        /// </summary>
+        /// <param name="messages">The messages to insert.</param>
+        public void InsertMessages(int index, params AIChatMessage[] messages)
+        {
+            if (messages != null)
+            {
+                _messages.InsertRange(index, messages.Where(x => x.Content.HasValue()));
+            }
+        }
+
+        /// <summary>
         /// Adds metadata using the expression of the caller.
         /// </summary>
         /// <typeparam name="T">The type of the metadata value.</typeparam>
@@ -91,7 +103,7 @@ namespace Smartstore.Core.AI
         public override string ToString()
             => string.Join(" ", _messages.Select(x => x.ToString()));
 
-        public string ToUserPrompt()
-            => string.Join(" ", _messages.Where(x => x.Role == KnownAIMessageRoles.User).Select(x => x.ToString()));
+        public string ToString(Func<AIChatMessage, bool> predicate)
+            => string.Join(" ", _messages.Where(predicate).Select(x => x.ToString()));
     }
 }

@@ -16,6 +16,17 @@
     <smart-label asp-for="SearchCustomerNumber" />
     <input asp-for="SearchCustomerNumber" class="form-control-sm" />
 </div>
+<div class="form-group">
+    <smart-label sm-text="@T("Common.CreatedOn")" sm-ignore-hint="true" asp-for="StartDate" />
+    <div class="form-row">
+        <div class="col-6">
+            <editor asp-for="StartDate" asp-additional-viewdata='new { size = "sm" }' placeholder="@T("Common.From")" />
+        </div>
+        <div class="col-6">
+            <editor asp-for="EndDate" asp-additional-viewdata='new { size = "sm" }' placeholder="@T("Common.To")" />
+        </div>
+    </div>
+</div>
 @if (Model.DateOfBirthEnabled)
 {
     // INFO: we assume customers must be at least 14 years old and are not older than 70.

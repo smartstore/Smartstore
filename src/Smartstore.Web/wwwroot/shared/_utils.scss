@@ -466,7 +466,7 @@ table th {
 // Parallax stuff
 // ------------------------------------------------------
 
-html:not(.edge) .parallax[data-parallax-type=content] {
+.parallax[data-parallax-type=content] {
     will-change: transform;
 
     &.parallax-smooth {

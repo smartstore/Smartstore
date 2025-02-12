@@ -166,42 +166,23 @@ namespace Smartstore.OfflinePayment
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            return await GetProcessPaymentResultAsync(processPaymentRequest);
+            var result = await base.ProcessPaymentAsync(processPaymentRequest);
+            result.AllowStoringCreditCardNumber = true;
+
+            return result;
         }
 
         public override async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            return await GetProcessPaymentResultAsync(processPaymentRequest);
+            var result = await base.ProcessPaymentAsync(processPaymentRequest);
+            result.AllowStoringCreditCardNumber = true;
+
+            return result;
         }
 
         public override Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
             return Task.FromResult(new CancelRecurringPaymentResult());
-        }
-
-        private async Task<ProcessPaymentResult> GetProcessPaymentResultAsync(ProcessPaymentRequest processPaymentRequest)
-        {
-            var result = new ProcessPaymentResult();
-            var settings = await _settingFactory.LoadSettingsAsync<ManualPaymentSettings>(processPaymentRequest.StoreId);
-
-            result.AllowStoringCreditCardNumber = true;
-
-            switch (settings.TransactMode)
-            {
-                case TransactMode.Pending:
-                    result.NewPaymentStatus = PaymentStatus.Pending;
-                    break;
-                case TransactMode.Authorize:
-                    result.NewPaymentStatus = PaymentStatus.Authorized;
-                    break;
-                case TransactMode.Paid:
-                    result.NewPaymentStatus = PaymentStatus.Paid;
-                    break;
-                default:
-                    throw new PaymentException(T("Common.Payment.TranactionTypeNotSupported"));
-            }
-
-            return result;
         }
     }
 }

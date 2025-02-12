@@ -41,8 +41,26 @@
     <div asp-validation-summary="All"></div>
 
     <tabstrip id="recurringpayment-edit" sm-nav-style="Material">
-        <tab sm-title="@T("Admin.RecurringPayments.Info")" sm-selected="true">
+        <tab sm-title="@T("Admin.RecurringPayments.History")" sm-selected="true">
+            <div class="d-flex flex-column h-100">
+                <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
+                    @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
+                </div>
+
+                <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.RecurringPayments.Info")">
             <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsActive" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="IsActive" />
+                        <span asp-validation-for="IsActive"></span>
+                    </div>
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="InitialOrderId" />
@@ -111,27 +129,9 @@
                         <smart-label asp-for="StartDate" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="StartDate" sm-plaintext="true" readonly />
+                        <input asp-for="StartedOnString" sm-plaintext="true" readonly />
                     </div>
                 </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="IsActive" />
-                    </div>
-                    <div class="adminData">
-                        <input asp-for="IsActive" />
-                        <span asp-validation-for="IsActive"></span>
-                    </div>
-                </div>
-            </div>
-        </tab>
-        <tab sm-title="@T("Admin.RecurringPayments.History")" sm-adaptive-height="true">
-            <div class="d-flex flex-column h-100">
-                <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
-                    @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
-                </div>
-
-                <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
             </div>
         </tab>
     </tabstrip>

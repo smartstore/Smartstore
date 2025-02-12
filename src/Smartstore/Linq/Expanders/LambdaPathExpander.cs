@@ -64,10 +64,10 @@ namespace Smartstore.Linq
         private void DoExpand(Type type, string path)
         {
             var entityParam = Expression.Parameter(type, "x"); // {x}
-            path = String.Concat("x.", path.Trim('.'));
+            path = string.Concat("x.", path.Trim('.'));
 
             var expression = System.Linq.Dynamic.Core.DynamicExpressionParser.ParseLambda(
-                new ParameterExpression[] { entityParam },
+                [entityParam],
                 typeof(object),
                 path.Trim('.'));
 

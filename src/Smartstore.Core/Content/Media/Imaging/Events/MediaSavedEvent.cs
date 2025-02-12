@@ -1,24 +1,22 @@
 ﻿namespace Smartstore.Core.Content.Media.Imaging
 {
     /// <summary>
-    /// Will be fired after a media upload has been saved.
+    /// Will be fired after a file has been saved.
     /// </summary>
-    public class MediaSavedEvent
+    /// <remarks>
+    /// In order to include <paramref name="entityName"/> when uploading in the backend, 
+    /// this event is currently not fired in all cases of saving a media file.
+    /// </remarks>
+    public class MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityName)
     {
-        public MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityType)
-        {
-            MediaFileInfo = Guard.NotNull(mediaFileInfo);
-            EntityType = entityType;
-        }
-
         /// <summary>
         /// The media file info of the saved image.
         /// </summary>
-        public MediaFileInfo MediaFileInfo { get; }
+        public MediaFileInfo MediaFileInfo { get; } = Guard.NotNull(mediaFileInfo);
 
         /// <summary>
-        /// The type of the entity that the image belongs to.
+        /// The name of the entity that the image belongs to. <c>null</c> if unknown.
         /// </summary>
-        public string EntityType { get; }
+        public string EntityName { get; } = entityName;
     }
 }

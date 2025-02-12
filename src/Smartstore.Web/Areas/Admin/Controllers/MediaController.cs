@@ -91,17 +91,14 @@ namespace Smartstore.Admin.Controllers
                         isTransient,
                         duplicateFileHandling);
 
-                    // TODO: (mh) (ai) Hack, totally wrong approach! The entity type is not known at the time of saving the media file, only during tracking.
-                    // ...Also the event must not be published in the controller, but in a central service. See PixlrController, where the event had to be published as well (DRY violation).
-                    // ...TBD with MC.
-                    await _eventPublisher.PublishAsync(new MediaSavedEvent(mediaFile, entityType));
-
                     dynamic o = JObject.FromObject(mediaFile);
                     o.success = true;
                     o.createdOn = mediaFile.CreatedOn.ToString();
                     o.lastUpdated = mediaFile.LastModified.ToString();
 
                     result.Add(o);
+
+                    await _eventPublisher.PublishAsync(new MediaSavedEvent(mediaFile, entityType));
                 }
                 catch (DuplicateMediaFileException dex)
                 {

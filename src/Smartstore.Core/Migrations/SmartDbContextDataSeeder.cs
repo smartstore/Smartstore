@@ -66,6 +66,91 @@ namespace Smartstore.Core.Data.Migrations
                 "Hide orders in the \"My account\" area",
                 "Bestellungen im Bereich \"Mein Konto\" ausblenden");
 
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.VariantInCart", "Product with SKU in cart", "Produkt mit SKU im Warenkorb");
+
+            builder.AddOrUpdate("Admin.RecurringPayments.History")
+                .Value("de", "Historie");
+            builder.AddOrUpdate("Admin.RecurringPayments.Fields.CyclesRemaining")
+                .Value("de", "Verbleibende Zahlungen");
+            builder.AddOrUpdate("Admin.RecurringPayments.Fields.CyclesRemaining.Hint")
+                .Value("de", "Die Anzahl der verbleibenden Zahlungen");
+
+            builder.AddOrUpdate("Admin.RecurringPayments.List.RemainingCycles",
+                "Remaining payments",
+                "Verbleibende Zahlungen",
+                "Filter list by remaining payments.",
+                "Liste nach verbleibenden Zahlungen filtern.");
+
+            // Frontend renaming: "Wiederkehrende Zahlung" -> "Regelmäßige Lieferung".
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.Cancel", "Cancel repeat delivery", "Regelmäßige Lieferung abbrechen");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders", "Repeat deliveries", "Regelmäßige Lieferungen");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.TotalCycles", "Total deliveries", "Lieferungen insgesamt");
+            builder.AddOrUpdate("ShoppingCart.RecurringPeriod", "[Repeat deliveries every {0} {1}]", "[Regelmäßige Lieferung alle {0} {1}]");
+
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CancelDelivery",
+                "Would you like to cancel the repeat delivery?",
+                "Möchten Sie die regelmäßige Lieferung abbrechen?");
+
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.SuccessfullyCanceled",
+                "The repeat delivery was successfully canceled.",
+                "Die regelmäßige Lieferung wurde erfolgreich abgebrochen.");
+
+            builder.Delete(
+                "Admin.RecurringPayments.History.OrderStatus",
+                "Admin.RecurringPayments.History.PaymentStatus",
+                "Admin.RecurringPayments.History.ShippingStatus",
+                "Admin.Orders.Products.RecurringPeriod",
+                "Account.CustomerOrders.RecurringOrders.ViewInitialOrder");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeleteProductsResult",
+                "{0} of {1} products have been permanently deleted.",
+                "Es wurden {0} von {1} Produkten endgültig gelöscht.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult",
+                "{0} of {1} products have been permanently deleted. {2} Products were skipped as they are assigned to orders and cannot be permanently deleted.",
+                "{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
+
+            builder.AddOrUpdate("Order.CannotCompleteUnpaidOrder", 
+                "An unpaid order cannot be completed.",
+                "Ein unbezahlter Auftrag kann nicht abgeschlossen werden.");
+
+            builder.Delete(
+                "Admin.Orders.List.StartDate",
+                "Admin.Orders.List.StartDate.Hint",
+                "Admin.Orders.List.EndDate",
+                "Admin.Orders.List.EndDate.Hint",
+                "Admin.Customers.Reports.BestBy.StartDate",
+                "Admin.Customers.Reports.BestBy.StartDate.Hint",
+                "Admin.Customers.Reports.BestBy.EndDate",
+                "Admin.Customers.Reports.BestBy.EndDate.Hint",
+                "Admin.SalesReport.Bestsellers.StartDate",
+                "Admin.SalesReport.Bestsellers.StartDate.Hint",
+                "Admin.SalesReport.Bestsellers.EndDate",
+                "Admin.SalesReport.Bestsellers.EndDate.Hint",
+                "Admin.SalesReport.NeverSold.StartDate",
+                "Admin.SalesReport.NeverSold.StartDate.Hint",
+                "Admin.SalesReport.NeverSold.EndDate",
+                "Admin.SalesReport.NeverSold.EndDate.Hint",
+                "Admin.Orders.Shipments.List.StartDate",
+                "Admin.Orders.Shipments.List.StartDate.Hint",
+                "Admin.Orders.Shipments.List.EndDate",
+                "Admin.Orders.Shipments.List.EndDate.Hint",
+                "Admin.Common.Search.StartDate",
+                "Admin.Common.Search.StartDate.Hint",
+                "Admin.Common.Search.EndDate",
+                "Admin.Common.Search.EndDate.Hint",
+                "Admin.System.QueuedEmails.List.StartDate",
+                "Admin.System.QueuedEmails.List.StartDate.Hint",
+                "Admin.System.QueuedEmails.List.EndDate",
+                "Admin.System.QueuedEmails.List.EndDate.Hint");
+
+            builder.AddOrUpdate("Admin.Media.Editing.Align", "Align", "Ausrichten");
+            
+            builder.AddOrUpdate("Admin.Media.Editing.AlignTop", "Top", "Oben");
+            builder.AddOrUpdate("Admin.Media.Editing.AlignMiddle", "Center", "Mitte");
+            builder.AddOrUpdate("Admin.Media.Editing.AlignBottom", "Bottom", "Unten");
+
+
             #region Performance settings
 
             var prefix = "Admin.Configuration.Settings.Performance";
@@ -181,6 +266,14 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             #endregion
 
             builder.AddOrUpdate("Tax.LegalInfoShort3", "Prices {0}, {1}", "Preise {0}, {1}");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ImageAnalyzerAssistant",
+                "Be an image analyzer assistant.",
+                "Sei ein Assistent für Bildanalyse.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue", 
+                "Please continue with your answer.", 
+                "Bitte fahre mit deiner Antwort fort.");
         }
     }
 }

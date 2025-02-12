@@ -9,6 +9,8 @@ namespace Smartstore
 {
     public static class HttpRequestExtensions
     {
+        const string ODataPrefix = "/odata";
+
         /// <summary>
         /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
         /// <see cref="HttpRequest.Query"/>.
@@ -214,6 +216,14 @@ namespace Smartstore
                     IsGet(request) == false ||
                     IsAjax(request) == true;
             });
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current request refers to an OData endpoint.
+        /// </summary>
+        public static bool IsODataRequest(this HttpRequest request)
+        {
+            return request.Path.StartsWithSegments(ODataPrefix);
         }
     }
 }

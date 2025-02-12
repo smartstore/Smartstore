@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Domain;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
@@ -17,16 +19,17 @@ namespace Smartstore.Web.Api.Swagger
     /// Fixes lots of Swashbuckle bugs.
     /// Only takes into account OData controllers that inherit from SmartODataController.
     /// </summary>
-    internal class SwaggerOperationFilter : IOperationFilter
+    internal partial class SwaggerOperationFilter : IOperationFilter
     {
-        private static readonly Regex _pathsToIgnore = new(@"\/default\.",
-            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"\/default\.", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+        private static partial Regex PathsToIgnoreRegex();
+        private static readonly Regex PathsToIgnore = PathsToIgnoreRegex();
 
-        private static readonly string[] _knownMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
-        private static readonly Type[] _parametersToRemove = new[] { typeof(ODataQueryOptions) };
+        private static readonly string[] _knownMethodNames = ["Get", "Post", "Put", "Patch", "Delete"];
+        private static readonly Type[] _parametersToRemove = [typeof(ODataQueryOptions)];
 
-        private static readonly AllowedQueryOptions[] _supportedQueryOptions = new[]
-        {
+        private static readonly AllowedQueryOptions[] _supportedQueryOptions =
+        [
             AllowedQueryOptions.Top,
             AllowedQueryOptions.Skip,
             AllowedQueryOptions.OrderBy,
@@ -36,7 +39,7 @@ namespace Smartstore.Web.Api.Swagger
             AllowedQueryOptions.Filter,
             AllowedQueryOptions.Search,
             AllowedQueryOptions.Compute
-        };
+        ];
 
         // Perf: avoids multiple creation of the same query parameters.
         private readonly Dictionary<string, OpenApiParameter> _queryParameters = new();
@@ -48,7 +51,7 @@ namespace Smartstore.Web.Api.Swagger
                 // Skip what is not inherited from our SmartODataController.
                 if (context.MethodInfo?.DeclaringType?.BaseType?.IsClosedGenericTypeOf(typeof(SmartODataController<>)) ?? false)
                 {
-                    if (!_pathsToIgnore.IsMatch(context.ApiDescription.RelativePath!))
+                    if (!PathsToIgnore.IsMatch(context.ApiDescription.RelativePath!))
                     {
                         var helper = new SwaggerOperationHelper(operation, context);
 
@@ -145,7 +148,18 @@ namespace Smartstore.Web.Api.Swagger
                     break;
 
                 case "Delete":
-                    helper.Op.Summary ??= $"Deletes {entityName}.";
+                    if (helper.Op.Description == null && typeof(ISoftDeletable).IsAssignableFrom(helper.EntityType))
+                    {
+                        helper.Op.Description = "Due to its referential data integrity, the entity is only marked as deleted,"
+                             + " but remains physically in the database along with all associated data.";
+
+                        if (helper.EntityType.Name.EqualsNoCase(nameof(Product)))
+                        {
+                            helper.Op.Description += " Use the endpoint **Products/DeletePermanent** to delete it permanently.";
+                        }
+                    }
+
+                    helper.Op.Summary ??= typeof(ISoftDeletable).IsAssignableFrom(helper.EntityType) ? $"Soft-deletes {entityName}." : $"Deletes {entityName}.";
                     helper.AddResponse(Status204NoContent, Status404NotFound);
                     helper.AddKeyParameter();
                     break;

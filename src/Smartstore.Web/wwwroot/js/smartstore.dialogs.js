@@ -225,7 +225,18 @@
                         message: progressMessage
                     });
                     if (hasForm) {
-                        if (!isSubmittable) {
+                        if (isSubmittable) {
+                            // Also submit the form value of the button.
+                            const val = btn.attr('value');
+                            if (val) {
+                                let el = document.createElement('input');
+                                el.setAttribute('type', 'hidden');
+                                el.setAttribute('name', btn.attr('name'));
+                                el.setAttribute('value', val);
+                                nearestForm[0].prepend(el);
+                            }
+                        }
+                        else {
                             // Change the form action.
                             nearestForm[0].action = formPostUrl;
                         }

@@ -165,15 +165,12 @@ namespace Smartstore.OfflinePayment
             return request;
         }
 
-        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            var result = new ProcessPaymentResult
-            {
-                AllowStoringDirectDebit = true,
-                NewPaymentStatus = PaymentStatus.Pending
-            };
+            var result = await base.ProcessPaymentAsync(processPaymentRequest);
+            result.AllowStoringDirectDebit = true;
 
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

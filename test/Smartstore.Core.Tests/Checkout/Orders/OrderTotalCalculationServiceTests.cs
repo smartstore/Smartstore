@@ -160,6 +160,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _shippingSettings,
                 ProviderManager,
                 null,
+                _requestCache,
                 _roundingHelper,
                 _storeContext,
                 DbContext);

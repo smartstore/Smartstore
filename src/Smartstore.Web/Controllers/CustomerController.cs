@@ -546,55 +546,38 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("Orders")]
-        [FormValueRequired(FormValueRequirementOperator.StartsWith, "cancelRecurringPayment")]
-        public async Task<IActionResult> CancelRecurringPayment()
+        public async Task<IActionResult> CancelRecurringPayment(int recurringPaymentId)
         {
             var customer = Services.WorkContext.CurrentCustomer;
-            var form = HttpContext.Request.Form;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
             }
 
-            // Get recurring payment identifier.
-            var recurringPaymentId = 0;
-            foreach (var formValue in form.Keys)
-            {
-                if (formValue.StartsWith("cancelRecurringPayment", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    recurringPaymentId = Convert.ToInt32(formValue["cancelRecurringPayment".Length..]);
-                }
-            }
-
             var recurringPayment = await _db.RecurringPayments
                 .Include(x => x.InitialOrder)
                 .ThenInclude(x => x.Customer)
-                .FindByIdAsync(recurringPaymentId, false);
-
+                .FindByIdAsync(recurringPaymentId);
             if (recurringPayment == null)
             {
-                return RedirectToAction("Orders");
+                return NotFound();
             }
 
             if (await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, customer))
             {
-                var model = await PrepareCustomerOrderListModelAsync(customer, 0, 0);
-
                 try
                 {
                     await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
+                    NotifySuccess(T("Account.CustomerOrders.RecurringOrders.SuccessfullyCanceled"));
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
-                    model.CancelRecurringPaymentErrors.Add(ex.Message);
+                    NotifyError(ex.Message);
                 }
-
-                return View(model);
             }
 
-            return RedirectToAction("Orders");
+            return RedirectToAction(nameof(Orders));
         }
 
         #endregion
@@ -1116,7 +1099,6 @@ namespace Smartstore.Web.Controllers
                     .ToList();
 
                 ViewBag.PaymentMethods = paymentProviders
-                    .Where(x => !x.Value.RequiresPaymentSelection)
                     .Select(x => x.Metadata)
                     .Select(x => new SelectListItem
                     {
@@ -1130,7 +1112,7 @@ namespace Smartstore.Web.Controllers
 
         private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
         {
-            Guard.NotNull(customer, nameof(customer));
+            Guard.NotNull(customer);
 
             var store = Services.StoreContext.CurrentStore;
             var model = new CustomerOrderListModel();
@@ -1190,12 +1172,15 @@ namespace Smartstore.Web.Controllers
                     return new CustomerOrderListModel.RecurringPaymentModel
                     {
                         Id = x.Id,
-                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc),
-                        CycleInfo = $"{x.CycleLength} {_localizationService.GetLocalizedEnum(x.CyclePeriod)}",
-                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
-                        TotalCycles = x.TotalCycles,
-                        CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),
                         InitialOrderId = x.InitialOrder.Id,
+                        InitialOrderNumber = x.InitialOrder.GetOrderNumber(),
+                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc),
+                        CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),
+                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
+                        CycleLength = x.CycleLength,
+                        CyclePeriod = x.CyclePeriod,
+                        CyclePeriodString = _localizationService.GetLocalizedEnum(x.CyclePeriod),
+                        TotalCycles = x.TotalCycles,
                         CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(x, customer)
                     };
                 })

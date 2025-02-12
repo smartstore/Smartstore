@@ -108,7 +108,7 @@ namespace Smartstore.Core.Identity
             var dirty = false;
 
             // Last activity date
-            if (forceTrack && (forceTrack || customer.LastActivityDateUtc.AddMinutes(1.0) < now))
+            if (forceTrack || customer.LastActivityDateUtc.AddMinutes(1.0) < now)
             {
                 customer.LastActivityDateUtc = now;
                 dirty = true;
@@ -164,7 +164,7 @@ namespace Smartstore.Core.Identity
             }
         }
 
-        private static bool SanitizeUrl(ref string url)
+        internal static bool SanitizeUrl(ref string url)
         {
             var len = url.Length;
             

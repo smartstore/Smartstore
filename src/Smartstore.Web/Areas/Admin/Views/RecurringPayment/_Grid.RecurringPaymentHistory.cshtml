@@ -1,4 +1,4 @@
-﻿@model RecurringPaymentModel.RecurringPaymentHistoryModel
+﻿@model RecurringPaymentHistoryModel
 
 @{
     var parentModel = ViewData["Parent"] as RecurringPaymentModel;
@@ -12,28 +12,75 @@
     <datasource read="@Url.Action("RecurringPaymentHistoryList", new { recurringPaymentId = parentModel.Id })" />
     <paging position="Bottom" show-size-chooser="true" enabled="false" />
     <sorting enabled="false"></sorting>
-    @if (parentModel.NextPaymentDate.HasValue || parentModel.CanCancel)
+    @if (parentModel.CanProcessNextPayment || parentModel.CanCancel)
     {
         <toolbar>
             <toolbar-group>
-                <button sm-if="parentModel.NextPaymentDate.HasValue" type="submit" name="processnextpayment" value="processnextpayment" class="btn btn-primary btn-flat no-anims mr-1 confirm">
+                <button sm-if="parentModel.CanProcessNextPayment" type="button" 
+                        class="btn btn-primary btn-flat no-anims mr-1 grid-process-next-payment"
+                        data-url="@Url.Action("ProcessNextPayment", new { id = parentModel.Id })">
                     <span>@T("Admin.RecurringPayments.History.ProcessNextPayment")</span>
                 </button>
-                <button sm-if="parentModel.CanCancel" type="submit" name="cancelpayment" value="cancelpayment" class="btn btn-light no-anims confirm">
+                <button sm-if="parentModel.CanCancel" type="button" 
+                        class="btn btn-danger no-anims grid-cancel-payment"
+                        data-url="@Url.Action("CancelRecurringPayment", new { id = parentModel.Id })">
                     <span>@T("Admin.RecurringPayments.History.CancelPayment")</span>
                 </button>
             </toolbar-group>
         </toolbar>
     }
     <columns>
-        <column for="OrderId" hideable="false" width="1fr">
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="OrderId" hideable="false" halign="center">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderNumber }}</a></div>
             </display-template>
         </column>
-        <column for="OrderStatus" />
-        <column for="PaymentStatus" />
-        <column for="ShippingStatus" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="ShippingStatus">
+            <display-template>
+                <div class="dg-cell-value">
+                    <i :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></i>
+                    <span class="text-truncate">{{ item.row.ShippingStatusString }}</span>
+                </div>
+            </display-template>
+        </column>
+        <column for="OrderStatus">
+            <display-template>
+                <span v-bind:class="item.row.OrderStatusLabelClass" class="text-truncate">{{ item.row.OrderStatusString }}</span>
+            </display-template>
+        </column>
+        <column for="PaymentStatus">
+            <display-template>
+                <div class="dg-cell-value">
+                    <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
+                    <span class="text-truncate">{{ item.row.PaymentStatusString }}</span>
+                </div>
+            </display-template>
+        </column>
     </columns>
 </datagrid>
+
+<script sm-target-zone="scripts" sm-minify="true" data-origin="recurring-payment-history-grid">
+    $(function () {
+        $(document).on('click', '.grid-process-next-payment, .grid-cancel-payment', function () {
+            confirm2({
+                message: @T("Admin.Common.AskToProceed").JsValue,
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        $.ajax({
+				            cache: false,
+				            type: 'POST',
+                            url: $(this).data('url'),
+                            success: function (response) {
+                                displayNotification(response.message, response.success ? 'success' : 'error');
+                                $('#recurring-payment-history-grid').parent().data('datagrid').read();
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>

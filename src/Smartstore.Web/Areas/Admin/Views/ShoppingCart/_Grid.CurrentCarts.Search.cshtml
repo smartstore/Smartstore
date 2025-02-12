@@ -5,12 +5,15 @@
 }
 
 <div class="form-group">
-    <smart-label asp-for="StartDate" />
-    <editor asp-for="StartDate" />
-</div>
-<div class="form-group">
-    <smart-label asp-for="EndDate" />
-    <editor asp-for="EndDate" />
+    <smart-label sm-text="@T("Common.CreatedOn")" sm-ignore-hint="true" asp-for="StartDate" />
+    <div class="form-row">
+        <div class="col-6">
+            <editor asp-for="StartDate" placeholder="@T("Common.From")" />
+        </div>
+        <div class="col-6">
+            <editor asp-for="EndDate" placeholder="@T("Common.To")" />
+        </div>
+    </div>
 </div>
 <div sm-if="stores.Count > 1" class="form-group">
     <smart-label asp-for="StoreId" />

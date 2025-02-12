@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using Smartstore;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 
@@ -32,6 +33,7 @@ namespace Microsoft.AspNetCore.Builder
                .Build();
 
             return endpoints.MapLocalized(DefaultPattern, pipeline)
+                .WithMetadata(new CrawlerEndpointAttribute())
                 .WithDisplayName(DefaultDisplayName);
         }
     }

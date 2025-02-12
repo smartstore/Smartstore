@@ -285,6 +285,7 @@ bots:
 
   - match: Google Favicon
   - match: Baiduspider
+  - match: Bytespider
   - match: PetalBot
   - match: BingBot
   - match: Slurp
@@ -296,16 +297,18 @@ bots:
   - match: GoogleOther
   - match: Google-Extended
   - match: Google-InspectionTool
+  - match: Google-CloudVertexBot
+  - match: StartmeBot
     name: $1
 
-  - match: AdsBot-Google-Mobile
-    name: Google AdsBot Mobile
-
-  - match: adsbot-google
+  - match: AdsBot-Google
     name: Google AdsBot
 
-  - match: feedfetcher-google
+  - match: FeedFetcher-Google
     name: Google FeedFetcher
+
+  - match: GoogleProducer
+    name: Google Publisher Center
 
   - match: facebookexternalhit
   - match: FacebookBot
@@ -314,6 +317,9 @@ bots:
   - match: AdScanner
   - match: AhrefsBot
     name: $1
+
+  - match: Owler
+    name: OWLer - Open Web Crawler
   
   # Common tools, readers & apps
   - match: python/
@@ -346,6 +352,7 @@ bots:
   - match: Audisto Crawler
   - match: Monsidobot
   - match: GroupMeBot
+  - match: DataForSeoBot
   - match: MetaInspector
   - match: Iframely
   - match: Synapse
@@ -363,6 +370,9 @@ bots:
   - match: Newslitbot
   - match: Feedly
     name: $1
+
+  - match: OAI-SearchBot
+    name: OpenAI Search Bot
 
   - match: PerplexityBot/
     name: Perplexity Bot  
@@ -423,8 +433,11 @@ bots:
   - match: CRAZYWEBCRAWLER
     name: Crazy Webcrawler
 
-  - match: google-read-aloud
+  - match: Google-Read-Aloud
     name: Google ReadAloud
+
+  - match: Google-Site-Verification
+    name: Google Site Verifier
 
   - match: google-Safety
     name: Google Safety

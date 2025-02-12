@@ -202,8 +202,8 @@ namespace Smartstore.Google.Analytics.Services
                     currency: '{_workContext.WorkingCurrency.CurrencyCode}',
                     value: {subtotal.ToStringInvariant()},
                     coupon: '{model.DiscountBox.CurrentCode}',
-                    {(shippingMethod.HasValue() ? $"shipping_tier: '{shippingMethod}'," : string.Empty)}
-                    {(paymentMethod.HasValue() ? $"payment_type: '{paymentMethod}'," : string.Empty)}
+                    {(shippingMethod.HasValue() ? $"shipping_tier: '{shippingMethod.EncodeJsStringUnquoted()}'," : string.Empty)}
+                    {(paymentMethod.HasValue() ? $"payment_type: '{paymentMethod.EncodeJsStringUnquoted()}'," : string.Empty)}
                     items: cartItems
                 }});
             ";

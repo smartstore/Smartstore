@@ -3,10 +3,7 @@
     [LocalizedDisplay("Admin.SalesReport.Bestsellers.")]
     public class BestsellersReportModel : ModelBase
     {
-        [LocalizedDisplay("*StartDate")]
         public DateTime? StartDate { get; set; }
-
-        [LocalizedDisplay("*EndDate")]
         public DateTime? EndDate { get; set; }
 
         [LocalizedDisplay("*BillingCountry")]

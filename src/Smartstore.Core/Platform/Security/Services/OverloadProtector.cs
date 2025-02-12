@@ -8,11 +8,19 @@ namespace Smartstore.Core.Security
     public class OverloadProtector : IOverloadProtector
     {
         private readonly Work<ResiliencySettings> _settings;
-        private readonly TrafficRateLimiters _rateLimiters;
+        private readonly Lazy<TrafficRateLimiters> _rateLimiters;
+
+        private readonly RateLimiter _logRateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+        {
+            QueueLimit = 1,
+            ReplenishmentPeriod = TimeSpan.FromSeconds(5),
+            TokensPerPeriod = 100,
+            TokenLimit = 200
+        });
 
         public OverloadProtector(
-            Work<ResiliencySettings> settings, 
-            TrafficRateLimiters rateLimiters,
+            Work<ResiliencySettings> settings,
+            Lazy<TrafficRateLimiters> rateLimiters,
             ILoggerFactory loggerFactory)
         {
             _settings = settings;
@@ -37,7 +45,7 @@ namespace Smartstore.Core.Security
                 forbid = httpContext.Request.IsSubRequest();
                 if (forbid)
                 {
-                    Logger.Warn("New guest forbidden due to policy 'ForbidNewGuestsIfSubRequest'.");
+                    TryLogThrottled(httpContext, "Sub-request blocked due to overload protection policy.");
                 }
             }
             
@@ -93,7 +101,7 @@ namespace Smartstore.Core.Security
 
         private bool TryAcquireFromGlobal(bool peak)
         {
-            var limiter = peak ? _rateLimiters.PeakGlobalLimiter : _rateLimiters.LongGlobalLimiter;
+            var limiter = peak ? _rateLimiters.Value.PeakGlobalLimiter : _rateLimiters.Value.LongGlobalLimiter;
             if (limiter != null)
             {
                 using var lease = limiter.AttemptAcquire(1);
@@ -114,9 +122,26 @@ namespace Smartstore.Core.Security
         {
             return userType switch
             {
-                UserType.Guest  => peak ? _rateLimiters.PeakGuestLimiter : _rateLimiters.LongGuestLimiter,
-                _               => peak ? _rateLimiters.PeakBotLimiter : _rateLimiters.LongBotLimiter
+                UserType.Guest  => peak ? _rateLimiters.Value.PeakGuestLimiter : _rateLimiters.Value.LongGuestLimiter,
+                _               => peak ? _rateLimiters.Value.PeakBotLimiter : _rateLimiters.Value.LongBotLimiter
             };
+        }
+
+        private void TryLogThrottled(HttpContext httpContext, string message)
+        {
+            using var logLease = _logRateLimiter.AttemptAcquire();
+            if (logLease.IsAcquired)
+            {
+                if (httpContext != null)
+                {
+                    var webHelper = httpContext.RequestServices.GetRequiredService<IWebHelper>();
+                    var ipAddress = webHelper.GetClientIpAddress().ToString();
+
+                    message += $" IP: {ipAddress}, Path: {httpContext.Request.Path}.";
+                }
+
+                Logger.Warn(message);
+            }       
         }
 
         enum UserType

@@ -46,6 +46,7 @@ namespace Smartstore.Core.Logging
             using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
             using (LogContext.PushProperty("HttpMethod", httpContext.Request.Method))
             using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
+            using (LogContext.PushProperty("UserAgent", httpContext.Request.UserAgent()))
             using (LogContext.Push(customerIdEnricher))
             using (LogContext.Push(userNameEnricher))
             {
@@ -105,15 +106,15 @@ namespace Smartstore.Core.Logging
                 {
                     collectedProperties = Array.Empty<LogEventProperty>();
                 }
-
+                
                 // Last-in (correctly) wins...
-                var properties = collectedProperties.Concat(new[]
-                {
+                var properties = collectedProperties.Concat(
+                [
                     new LogEventProperty("RequestPath", new ScalarValue(httpContext.Request.Path.Value)),
                     new LogEventProperty("StatusCode", new ScalarValue(statusCode)),
                     new LogEventProperty("Elapsed", new ScalarValue(elapsedMs)),
                     new LogEventProperty("HttpMethod", new ScalarValue(httpContext.Request.Method))
-                });
+                ]);
 
                 var evt = new LogEvent(DateTimeOffset.Now, level, ex, _messageTemplate, properties);
                 logger.Write(evt);

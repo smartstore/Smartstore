@@ -74,11 +74,11 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Analyzes an image based on an AI prompt.
         /// </summary>
-        /// <param name="url">The image URL.</param>
-        /// <param name="prompt">The AI prompt.</param>
+        /// <param name="url">URL of the image to analyze.</param>
+        /// <param name="chat">The AI chat.</param>
         /// <param name="cancelToken">The cancellation token.</param>
         /// <returns>The analysis result.</returns>
         /// <exception cref="AIException">Thrown when an error occurs during image analysis.</exception>
-        Task<string> AnalyzeImageAsync(string url, string prompt, CancellationToken cancelToken = default);
+        Task<string> AnalyzeImageAsync(string url, AIChat chat, CancellationToken cancelToken = default);
     }
 }

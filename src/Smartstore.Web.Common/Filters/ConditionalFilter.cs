@@ -2,23 +2,33 @@
 
 namespace Smartstore.Web.Filters
 {
-    public class DefaultConditionalFilter<TFilter> : ConditionalFilter<TFilter> where TFilter : IFilterMetadata
+    public class DefaultConditionalFilter<TFilter> : ConditionalFilter where TFilter : IFilterMetadata
     {
         private readonly Func<ActionContext, bool> _condition;
 
-        public DefaultConditionalFilter(Func<ActionContext, bool> condition)
+        public DefaultConditionalFilter(Func<ActionContext, bool> condition) 
+            : base(typeof(TFilter))
         {
-            _condition = Guard.NotNull(condition, nameof(condition));
+            _condition = Guard.NotNull(condition);
         }
 
         public override bool Match(ActionContext context)
             => _condition(context);
     }
 
-    public abstract class ConditionalFilter<TFilter> : IOrderedFilter, IFilterConstraint
-        where TFilter : IFilterMetadata
+    public abstract class ConditionalFilter : IOrderedFilter, IFilterConstraint
     {
         private ObjectFactory _factory;
+
+        protected ConditionalFilter(Type filterType)
+        {
+            Guard.NotNull(filterType);
+            Guard.IsAssignableFrom<IFilterMetadata>(filterType);
+
+            FilterType = filterType;
+        }
+
+        public Type FilterType { get;  }
 
         /// <inheritdoc />
         public int Order { get; set; }
@@ -44,7 +54,7 @@ namespace Smartstore.Web.Filters
             if (_factory == null)
             {
                 var argumentTypes = Arguments?.Select(a => a.GetType())?.ToArray();
-                _factory = ActivatorUtilities.CreateFactory(typeof(TFilter), argumentTypes ?? Type.EmptyTypes);
+                _factory = ActivatorUtilities.CreateFactory(FilterType, argumentTypes ?? Type.EmptyTypes);
             }
 
             var filter = (IFilterMetadata)_factory(serviceProvider, Arguments);

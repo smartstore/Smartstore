@@ -65,6 +65,7 @@ namespace Smartstore.Web.Models.Checkout
 
             var state = _checkoutStateAccessor.CheckoutState;
             var cart = from.Cart;
+            var ga = cart.Customer.GenericAttributes;
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
             var providers = await _paymentService.LoadActivePaymentProvidersAsync(cart, cart.StoreId, PaymentTypes);
 
@@ -108,30 +109,16 @@ namespace Smartstore.Web.Models.Checkout
                 to.PaymentMethods.Add(pmModel);
             }
 
-            state.CustomProperties["HasOnlyOneActivePaymentMethod"] = to.PaymentMethods.Count == 1;
-
-            // Find a selected (previously) payment method.
-            var selected = false;
-            var selectedPaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
-            if (selectedPaymentMethodSystemName.HasValue())
+            var toSelect = GetPaymentMethodModel(ga.SelectedPaymentMethod) 
+                ?? GetPaymentMethodModel(ga.PreferredPaymentMethod)
+                ?? to.PaymentMethods.FirstOrDefault();
+            if (toSelect != null)
             {
-                var paymentMethodToSelect = to.PaymentMethods.Find(pm => pm.PaymentMethodSystemName.EqualsNoCase(selectedPaymentMethodSystemName));
-                if (paymentMethodToSelect != null)
-                {
-                    paymentMethodToSelect.Selected = true;
-                    selected = true;
-                }
+                toSelect.Selected = true;
             }
 
-            // If no option has been selected, let's select the first one.
-            if (!selected)
-            {
-                var paymentMethodToSelect = to.PaymentMethods.FirstOrDefault();
-                if (paymentMethodToSelect != null)
-                {
-                    paymentMethodToSelect.Selected = true;
-                }
-            }
+            CheckoutPaymentMethodModel.PaymentMethodModel GetPaymentMethodModel(string systemName)
+                => systemName.HasValue() ? to.PaymentMethods.FirstOrDefault(x => x.PaymentMethodSystemName.EqualsNoCase(systemName)) : null;
         }
     }
 }

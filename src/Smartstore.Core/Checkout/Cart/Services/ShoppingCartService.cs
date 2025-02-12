@@ -1,4 +1,5 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using System;
+using System.Linq.Dynamic.Core;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -665,7 +666,6 @@ namespace Smartstore.Core.Checkout.Cart
         protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> items)
         {
             var result = new List<OrganizedShoppingCartItem>();
-
             if (items.IsNullOrEmpty())
             {
                 return result;
@@ -693,9 +693,12 @@ namespace Smartstore.Core.Checkout.Cart
                 result.Add(parentItem);
             }
 
-            if (mergeRequiringItems.Count > 0)
+            foreach (var cartItem in mergeRequiringItems)
             {
-                await _productAttributeMaterializer.MergeWithCombinationAsync(mergeRequiringItems);
+                if (cartItem.AttributeSelection.HasAttributes)
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection, null);
+                }
             }
 
             return result;

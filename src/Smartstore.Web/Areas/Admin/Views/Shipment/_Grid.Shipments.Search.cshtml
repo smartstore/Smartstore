@@ -1,18 +1,21 @@
 ﻿@model ShipmentListModel
 
 <div class="form-group">
-    <smart-label asp-for="StartDate" />
-    <editor asp-for="StartDate" />
+    <smart-label sm-text="@T("Common.CreatedOn")" sm-ignore-hint="true" asp-for="StartDate" />
+    <div class="form-row">
+        <div class="col-6">
+            <editor asp-for="StartDate" placeholder="@T("Common.From")" />
+        </div>
+        <div class="col-6">
+            <editor asp-for="EndDate" placeholder="@T("Common.To")" />
+        </div>
+    </div>
 </div>
 <div class="form-group">
-    <smart-label asp-for="EndDate" />
-    <editor asp-for="EndDate" />
-</div>
-<div class="form-group">
-    <smart-label asp-for="TrackingNumber" />
+    <smart-label asp-for="TrackingNumber" sm-ignore-hint="true" />
     <editor asp-for="TrackingNumber" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
-    <smart-label asp-for="ShippingMethod" />
-    <input asp-for="ShippingMethod" />
+    <smart-label asp-for="ShippingMethod" sm-ignore-hint="true" />
+    <editor asp-for="ShippingMethod" asp-template="SearchExpression" />
 </div>

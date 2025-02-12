@@ -28,6 +28,12 @@ namespace Smartstore.Web.Models.Cart
         public bool DisplayMoveToWishlistButton { get; set; }
         public string CheckoutNotAllowedWarning { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the shopping cart contains items with recurring payment.
+        /// In this case we don't display quick checkout buttons (e.g. PayPal, Amazon).
+        /// </summary>
+        public bool HasItemsWithRecurringPayment { get; set; }
+
         public partial class ShoppingCartItemModel : CartEntityModelBase
         {
             public bool IsShippingEnabled { get; set; }

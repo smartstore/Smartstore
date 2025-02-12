@@ -154,6 +154,7 @@ namespace Smartstore.Web.Models.Cart
             to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesOnShoppingCart;
             to.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
+            to.HasItemsWithRecurringPayment = from.ContainsRecurringItem();
 
             to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(
                 await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));

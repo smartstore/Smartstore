@@ -1,4 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
@@ -23,6 +24,7 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
+        private readonly IRequestCache _requestCache;
         private readonly IRoundingHelper _roundingHelper;
         private readonly IStoreContext _storeContext;
         private readonly SmartDbContext _db;
@@ -34,6 +36,7 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
+            IRequestCache requestCache,
             IRoundingHelper roundingHelper,
             IStoreContext storeContext,
             SmartDbContext db)
@@ -44,6 +47,7 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
+            _requestCache = requestCache;
             _roundingHelper = roundingHelper;
             _storeContext = storeContext;
             _db = db;
@@ -223,6 +227,17 @@ namespace Smartstore.Core.Checkout.Shipping
             }
 
             return result;
+        }
+
+        public virtual async Task<Address> GetShippingOriginAddressAsync()
+        {
+            if (_shippingSettings.ShippingOriginAddressId == 0)
+            {
+                return null;
+            }
+
+            return await _requestCache.GetAsync($"shipping-origin-address-{_shippingSettings.ShippingOriginAddressId}", 
+                async () => await _db.Addresses.FindByIdAsync(_shippingSettings.ShippingOriginAddressId, false));
         }
 
         private async Task<decimal> GetCartWeight(OrganizedShoppingCartItem[] cart, bool multiplyByQuantity, bool includeFreeShippingProducts)

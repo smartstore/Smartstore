@@ -40,14 +40,27 @@ namespace Smartstore.OfflinePayment
             return type != null ? new ComponentWidget(type) : null;
         }
 
-        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            var result = new ProcessPaymentResult
-            {
-                NewPaymentStatus = PaymentStatus.Pending
-            };
+            var settings = await _settingFactory.LoadSettingsAsync<TSetting>(processPaymentRequest.StoreId);
+            var result = new ProcessPaymentResult();
 
-            return Task.FromResult(result);
+            switch (settings.TransactMode)
+            {
+                case TransactMode.Pending:
+                    result.NewPaymentStatus = PaymentStatus.Pending;
+                    break;
+                case TransactMode.Authorize:
+                    result.NewPaymentStatus = PaymentStatus.Authorized;
+                    break;
+                case TransactMode.Paid:
+                    result.NewPaymentStatus = PaymentStatus.Paid;
+                    break;
+                default:
+                    throw new PaymentException(T("Common.Payment.TranactionTypeNotSupported"));
+            }
+
+            return result;
         }
     }
 }

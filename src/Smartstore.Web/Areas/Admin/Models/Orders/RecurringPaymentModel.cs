@@ -17,12 +17,51 @@
 
         [LocalizedDisplay("*StartDate")]
         public DateTime StartDate { get; set; }
+        public string StartedOnString
+            => StartDate.ToString("g");
 
         [LocalizedDisplay("*IsActive")]
         public bool IsActive { get; set; }
 
         [LocalizedDisplay("*NextPaymentDate")]
         public DateTime? NextPaymentDate { get; set; }
+        public DateTime? NextPaymentDateUtc { get; set; }
+
+        public string NextPaymentDateString
+            => NextPaymentDate?.ToString("g");
+
+        public string NextPaymentDateFriendly
+            => NextPaymentDate?.ToHumanizedString(false);
+
+        public string NextPaymentLabelClass
+        {
+            get
+            {
+                if (NextPaymentDateUtc != null)
+                {
+                    var now = DateTime.UtcNow;
+                    var dt = NextPaymentDateUtc.Value;
+
+                    // Do not make the next payment yet.
+                    var color = "danger";
+
+                    if (dt <= now)
+                    {
+                        // Make the next payment.
+                        color = "success";
+                    }
+                    else if (dt.Day == now.Day && dt.Month == now.Month && dt.Year == now.Year)
+                    {
+                        // Possibly make the next payment.
+                        color = "warning";
+                    }
+
+                    return $"fa fa-fw fa-circle text-{color}";
+                }
+                 
+                return "fa fa-fw icon-active-false";
+            }
+        }
 
         [LocalizedDisplay("*CyclesRemaining")]
         public int CyclesRemaining { get; set; }
@@ -43,33 +82,14 @@
         public DateTime CreatedOn { get; set; }
 
         public bool CanCancel { get; set; }
+
+        public bool CanProcessNextPayment
+            => IsActive && NextPaymentDate != null;
+
         public string EditUrl { get; set; }
         public string CustomerEditUrl { get; set; }
         public string InitialOrderEditUrl { get; set; }
 
-        public List<RecurringPaymentHistoryModel> History { get; set; } = new();
-
-        [LocalizedDisplay("Admin.RecurringPayments.History.")]
-        public class RecurringPaymentHistoryModel : EntityModelBase
-        {
-            public int RecurringPaymentId { get; set; }
-
-            [LocalizedDisplay("*Order")]
-            public int OrderId { get; set; }
-            public string OrderNumber { get; set; }
-            public string OrderEditUrl { get; set; }
-
-            [LocalizedDisplay("*OrderStatus")]
-            public string OrderStatus { get; set; }
-
-            [LocalizedDisplay("*PaymentStatus")]
-            public string PaymentStatus { get; set; }
-
-            [LocalizedDisplay("*ShippingStatus")]
-            public string ShippingStatus { get; set; }
-
-            [LocalizedDisplay("Common.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-        }
+        public List<RecurringPaymentHistoryModel> History { get; set; } = [];
     }
 }

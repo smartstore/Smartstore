@@ -1,19 +1,26 @@
 /// <reference path="references.scss" />
 
 //
-// Generic (used for single blog post page & single news item page)
+// Container class of an image of which only a portion is displayed.
+// The part of the image to be displayed is specified via "object-position".
+// Used on blog post and news page.
 // -------------------------------------------------
 
-.single-media-item-image {
-    max-height: 300px;
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-
+.cover-image-container {
     > img {
         object-fit: cover;
-        width: 100%;
     }
+
+    .horizontal-image {
+        width: 100%;
+        height: 300px;
+        max-height: 300px;
+    }
+    /*  // Unused. For test or future use.  
+    .vertical-image {
+        max-width: 280px;
+        height: 100%;
+    }*/
 }
 
 
@@ -156,58 +163,38 @@
     }
 }
 
-//
-// Other stuff
-// -------------------------------------------------
-#iframe-backinstocksubsription {
-    max-width: 100%;
-}
 
 //
-// Hacks
+// Admin edit
 // -------------------------------------------------
 
-.edge .offcanvas-cart-footer-col.d-flex {
-    display: -webkit-box !important;
-    display: -ms-flexbox !important;
-}
+.admin-actions-container {
+    position: relative;
 
-.force-redraw:before {
-    content: ""
-}
+    &:hover .admin-actions {
+        opacity: 0.7;
+    }
 
-
-//
-// Vars
-// -------------------------------------------------
-
-// admin edit
-.btn-admin-edit {
-    display: none;
-    position: absolute;
-    inset-inline-end: 0;
-    top: 0;
-    background-color: rgba($white, 0.5);
-    z-index: 1;
-
-    .touchevents & {
-        --btn-border-radius: 50%;
-
-        display: inline-flex;
-        inset-inline-end: 8px;
-        background-color: var(--btn-hover-bg);
-        border-color: var(--btn-hover-border-color);
-
-        & > span {
-            display: none;
-        }
+    &:focus-within .admin-actions {
+        opacity: 1;
     }
 }
 
-.news-item-page:hover .btn-admin-edit,
-.blogpost-page:hover .btn-admin-edit,
-.pd-section-top:hover .btn-admin-edit {
-    display: inline-block;
+.admin-actions {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: .375rem;
+    position: absolute;
+    inset-inline-end: .5rem;
+    top: .5rem;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.1s;
+
+    &:hover {
+        opacity: 1 !important;
+    }
 }
 
 
@@ -237,4 +224,21 @@
         font-size: $h6-font-size;
         padding: 0;
     }
+}
+
+
+//
+// Hacks
+// -------------------------------------------------
+
+.force-redraw:before {
+    content: ""
+}
+
+
+//
+// Other stuff
+// -------------------------------------------------
+#iframe-backinstocksubsription {
+    max-width: 100%;
 }

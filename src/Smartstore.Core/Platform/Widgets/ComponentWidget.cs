@@ -35,7 +35,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="module">Module system name in which the view component is located.</param>
         public ComponentWidget(string componentName, string? module, object? arguments)
         {
-            Guard.NotEmpty(componentName, nameof(componentName));
+            Guard.NotEmpty(componentName);
 
             ComponentName = componentName;
             Module = module;

@@ -2,17 +2,17 @@
 
 @{
     var parentModel = ViewData["Parent"] as RecurringPaymentListModel;
-    var stores = ViewBag.Stores as IList<SelectListItem>;
 }
 
-<datagrid id="recurringpayments-grid"
+<datagrid id="recurring-payments-grid"
           allow-resize="true"
           preserve-grid-state="true" preserve-command-state="true"
-          allow-column-reordering="true">
+          allow-column-reordering="true"
+          onrowclass="recurringpaymentsGrid_onRowClass">
     <datasource read="@Url.Action("RecurringPaymentList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="StartDate" by-entity-member="StartDateUtc" />
+        <sort by="StartDate" by-entity-member="StartDateUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -31,26 +31,78 @@
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
+        <column for="IsActive" halign="center" />
         <column for="CustomerId" sortable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerFullName }}</a></div>
             </display-template>
         </column>
-        <column for="CycleLength" halign="center" />
-        <column for="CyclePeriodString" halign="center" entity-member="CyclePeriodId" />
-        <column for="IsActive" halign="center" />
-        <column for="InitialOrderId" sortable="false">
+        <column for="InitialOrderId" halign="center" sortable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.InitialOrderEditUrl" class="text-truncate">{{ item.row.InitialOrderNumber }}</a></div>
             </display-template>
         </column>
-        <column for="StartDate" entity-member="StartDateUtc" />
-        <column for="NextPaymentDate" sortable="false" />
-        <column for="TotalCycles" halign="center" />
         <column for="CyclesRemaining" halign="center" sortable="false" />
+        <column for="NextPaymentDate" sortable="false">
+            <display-template>
+                <div class="dg-cell-value">
+                    <i :class="item.row.NextPaymentLabelClass"></i>
+                    <span class="text-truncate" :title="item.row.NextPaymentDateString">{{ item.row.NextPaymentDateFriendly }}</span>
+                </div>
+            </display-template>
+        </column>
+        <column for="CycleLength" halign="center" />
+        <column for="CyclePeriodString" halign="center" entity-member="CyclePeriodId" />
+        <column for="TotalCycles" halign="center" />
+        <column for="StartDate" entity-member="StartDateUtc" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Custom" class="grid-process-next-payment" :data-key="item.row.Id" v-bind:class="{ disabled: !item.row.CanProcessNextPayment }">
+            @T("Admin.RecurringPayments.History.ProcessNextPayment")
+        </a>
+        <a datarow-action="DataRowAction.Custom" class="grid-cancel-payment" :data-key="item.row.Id" v-bind:class="{ disabled: !item.row.CanCancel }">
+            @T("Admin.RecurringPayments.History.CancelPayment")
+        </a>
     </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" sm-minify="true" data-origin="recurring-payments-grid">
+    function recurringpaymentsGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.IsActive
+        };
+    }
+
+    $(function () {
+        $(document).on('click', '.grid-process-next-payment, .grid-cancel-payment', function (e) {
+            e.preventDefault();
+            const self = $(this);
+            const processNextPaymentUrl = '@Url.Action("ProcessNextPayment")';
+            const cancelPaymentUrl = '@Url.Action("CancelRecurringPayment")';
+
+            confirm2({
+                message: @T("Admin.Common.AskToProceed").JsValue,
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        $.ajax({
+				            cache: false,
+				            type: 'POST',
+                            url: self.hasClass('grid-process-next-payment') ? processNextPaymentUrl : cancelPaymentUrl,
+				            data: { "id": self.data('key') },
+                            success: function (response) {
+                                displayNotification(response.message, response.success ? 'success' : 'error');
+                                $('#recurring-payments-grid').parent().data('datagrid').read();
+                            }
+                        });
+                    }
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

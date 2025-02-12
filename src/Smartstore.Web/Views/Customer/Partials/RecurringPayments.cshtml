@@ -1,0 +1,84 @@
+﻿@using Smartstore.Web.Models.Customers;
+
+@model CustomerOrderListModel
+
+<form asp-action="Orders">
+    <div class="recurring-payments mb-4">
+        <fieldset class="content-group mb-0">
+            <legend class="mb-0">
+                <span>@T("Account.CustomerOrders.RecurringOrders")</span>
+            </legend>
+        </fieldset>
+
+        <div class="recurring-payments-box table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-center border-0">
+                            @T("Order.Order#")
+                        </th>
+                        <th class="border-0">
+                            @T("Account.CustomerOrders.RecurringOrders.StartDate")
+                        </th>
+                        <th class="text-center border-0">
+                            @T("Account.CustomerOrders.RecurringOrders.CyclesRemaining")
+                        </th>
+                        <th class="border-0">
+                            @T("Account.CustomerOrders.RecurringOrders.NextPayment")
+                        </th>
+                        <th class="border-0">
+                            @T("Account.CustomerOrders.RecurringOrders.CycleInfo")
+                        </th>
+                        <th class="text-center border-0">
+                            @T("Account.CustomerOrders.RecurringOrders.TotalCycles")
+                        </th>
+                        <th class="border-0">
+                            &nbsp;
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RecurringPayments)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-controller="Order" asp-route-id="@item.InitialOrderId" rel="nofollow" title="@T("Order.OrderDetails")">
+                                    @item.InitialOrderNumber                                    
+                                </a>
+                            </td>
+                            <td title="@item.StartDate.ToString()">
+                                @item.StartDate.ToString("d")
+                            </td>
+                            <td class="text-center">
+                                @item.CyclesRemaining
+                            </td>
+                            <td title="@item.NextPayment.ToString()">
+                                @(item.NextPayment != null ? item.NextPayment.Value.ToString("d") : string.Empty)
+                            </td>
+                            <td dir="auto">
+                                @item.CycleLength.ToString("N0") @item.CyclePeriodString
+                            </td>
+                            <td class="text-center">
+                                @item.TotalCycles.ToString("N0")
+                            </td>
+                            <td>
+                                <button sm-if="item.CanCancel" 
+                                        type="submit"
+                                        name="recurringPaymentId"
+                                        value="@item.Id" 
+                                        class="btn btn-icon btn-sm btn-to-danger confirm2"
+                                        data-confirm-message="@T("Account.CustomerOrders.RecurringOrders.CancelDelivery")"
+                                        title="@T("Account.CustomerOrders.RecurringOrders.Cancel")">
+                                    <i class="far fa-trash-can"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div sm-if="Model.RecurringPayments.TotalPages > 1" class="mt-1">
+                <pagination sm-list-items="Model.RecurringPayments" sm-query-param="recurringPaymentsPage" id="rp-paginator" />
+            </div>
+        </div>
+    </div>
+</form>

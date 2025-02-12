@@ -46,8 +46,6 @@ namespace Smartstore.PayPal.Providers
 
         public override bool SupportVoid => true;
 
-        public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Automatic;
-
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)

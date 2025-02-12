@@ -233,6 +233,10 @@ $file-thumbnail-max-width:          calc(#{$file-thumbnail-min-size} / 9 * 16);
             height: $file-thumbnail-min-size;
             object-fit: contain;
         }
+
+        &:not([data-type='image']) > img {
+            display: none !important;
+        }
     }
 
     .toolbar {

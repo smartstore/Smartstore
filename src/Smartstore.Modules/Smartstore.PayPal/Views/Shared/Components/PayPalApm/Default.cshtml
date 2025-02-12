@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div sm-if='Model.Funding == "blik" || Model.Funding == "p24"' class="form-group row">
+    <div sm-if='Model.Funding == "blik" || Model.Funding == "p24" || Model.Funding == "trustly"' class="form-group row">
         <label asp-for="Email" class="col-md-3 col-form-label required"></label>
         <div class="col-md-9">
             <input asp-for="Email" sm-required="true" />

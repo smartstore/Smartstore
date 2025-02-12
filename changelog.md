@@ -4,41 +4,88 @@
 
 ### New Features
 
+- #1258 Added **DeepSeek** OpenAI provider.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
+- Shipping by total: Added a setting to let the shipping origin determine the shipping cost if the shipping address is missing.
 - #501 New category option for ignoring a category in menus.
-- MegaSearch: Added setting to indicate whether to split compound words.
+- #1259 AI: Implement setting for keywords to avoid in general.
+- MegaSearch: 
+  - Added setting to indicate whether to split compound words.
+  - Setting to include/exclude the meta keywords of products in the search index.
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminder.
 - Setting to round the amount of reward points for a purchase.
 - #1150 Add a setting to hide orders in *my account*.
+- #1242 Rule Builder: Add a cart rule that is fulfilled if the cart contains a product with a certain SKU.
+- #509 Add payment status setting for offline payment.
+- #1010 Allow the admin to align a blog or news image within its element box.
+- #1261 Blogs and news: Added a setting indicating whether to allow users to leave comments if they have never purchased before.
+- PayPal: 
+	- Added option to let the shop admin decide how to handle orders for which the payment was declined 
+	- Removed Giropay provider 
+	- Added Trustly provider 
 
 ### Improvements
 
+- Quick-Checkout: Allow all payment methods to be specified as the preferred payment method.
 - #214 Add backend menu entry for each Rule Builder scope.
+- Added new bot detection patterns to `useragent.yml`.
+- Updated `dbip-country-lite.mmdb`.
+- Logging: added client UserAgent string to log entries.
+- Improvements in the processing of recurring payments.
+- ChatGPT:
+  - #1262 Add OpenAI `o1` and `03-mini` to the list of supported models.
+  - Added a setting for the maximum number of completion tokens.
 
 ### Bugfixes
 
 - Sometimes wrong shipping costs are applied if they are calculated depending on the shipping address.
 - #1229 Sending an *order placed* message with the order attached as a PDF always causes an HTTP client timeout.
 - #1235 Product remains published if the stock quantity is equal to the minimum stock quantity and the low stock activity is set to *unpublish*.
+- Fixed that a discounted price on the product detail page can be incorrect due to missing output cache invalidation.
+- Fixed shipping link in checkout not opening the shipping information dialog.
+- Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
+- Ignore surrogate chars (emojis) when building URL slugs.
+- ChatGPT: 
+  - Fixed `NullReferenceException` and "The model gpt-4-vision-preview has been deprecated" when creating image metadata.
+  - #1241 Add a setting for the token limit (`max_completion_tokens`), process the response in chunks and combine them into a single response.
 - Summernote HTML editor:
-  - Toolbar is now sticky when editor has focus.
-  - Code sync adds a line break after caret position (caused by outdated beautify library).
-  - Fixed various focus handling and popover issues.
-  - AI: HTMLeditor does not record undo after answer is applied.
+  - Toolbar is now sticky when editor has focus
+  - Code sync adds a line break after caret position (caused by outdated beautify library)
+  - Fixed various focus handling and popover issues
+  - Fixed various code sync issues
+  - AI: HTMLeditor does not record undo after answer is applied
+  - LinkDialog did not apply target attribute correctly
+  - After resetting settings, LinkDialog did not update anchor correctly
+  - Fixed various dialog layout issues
 - Fixed `IX_UrlRecord_Slug` duplicate key violation when copying a product if the localized name of two or more languages is identical.
+- A negative payment method fee must not result in a negative total tax amount.
 - #1238 Recurring orders: `NullReferenceException` when manually triggering next recurring payment.
-- GPSR: Fixed in rare cases, the manufacturer information was not displayed.
+- GPSR: 
+  - Fixed `NullReferenceException` if more than one product rule is assigned to a text block.
+  - Fixed in rare cases, the manufacturer information was not displayed.
 - Avoids `InvalidOperationException` due to an already attached entity when processing order completed customer notification".
 - MegaMenu did not clear the output cache when any settings were changed.
 - MegaSearch: The names of unpublished product tags were not indexed.
 - Fixed `InvalidOperationException` "This request does not have a Content-Type header" in GDPR consent filter.
 - Fixed Cookie migration problem.
 - #1233 Forum: Posts from customers marked as deleted must be displayed.
+- PayPal:
+	- Fixed updating the order status when receiving webhook notifications and when the capture settings are set to direct capture
+	- Fixed problem with credit card payments and activated QuickCheckout (didn't redirect to card issuer and therefore didn't shift liability)  
+- Shopping cart validation must not take inactive items into account when checking recurring/non-recurring products.
+- Do not apply `TrailingSlashRule` to URLs of Web API endpoints (may lead to a HTTP 401 error).
+- #1245 Missing image preview after drag'n drop in product detail configuration.
+- Fixed delivery time according to `DeliveryTimeIdForEmptyStock` is not displayed if the product is out of stock.
+- #1249 If an activity is logged when deleting an entity from the edit page, it should also be logged when deleting from the datagrid.
+- The AmazonPay Logout button may be displayed on the checkout completion page, even though the payment was not made using AmazonPay.
+- Fixed missing error notification when trying to complete an unpaid order.
+- Fixed scrolling to selected section in manufacturer navigation
+- Billiger & Guenstiger: Cookie infos were displayed although tracking was disabled
 
 
 ## Smartstore 6.0.0

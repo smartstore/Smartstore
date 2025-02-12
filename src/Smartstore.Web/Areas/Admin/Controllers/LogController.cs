@@ -178,6 +178,7 @@ namespace Smartstore.Admin.Controllers
                 LoggerShort = TruncateLoggerName(log.Logger),
                 HttpMethod = log.HttpMethod,
                 UserName = log.UserName,
+                UserAgent = log.UserAgent,
                 ViewUrl = Url.Action(nameof(View), "Log", new { id = log.Id })
             };
 

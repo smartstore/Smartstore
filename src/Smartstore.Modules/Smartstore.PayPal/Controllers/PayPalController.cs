@@ -107,14 +107,17 @@ namespace Smartstore.PayPal.Controllers
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
-            // If adding shipping address fails, just log it and continue.
-            try
+            if (customer.BillingAddress == null)
             {
-                await AddShippingAddressAsync(orderId);
-            }
-            catch (Exception ex)
-            {
-                Logger.Info("Adding of shipping address has failed.", ex);
+                // If adding shipping address fails, just log it and continue.
+                try
+                {
+                    await AddAddressesAsync(orderId);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info("Adding of shipping address has failed.", ex);
+                }
             }
 
             // Get redirect URL if quick checkout is active.
@@ -186,6 +189,11 @@ namespace Smartstore.PayPal.Controllers
 
             var orderMessage = await _client.GetOrderForStandardProviderAsync(processPaymentRequest.OrderGuid.ToString(), isExpressCheckout: true);
 
+            if (orderMessage.PurchaseUnits[0].Amount.Value.Convert<decimal>() <= 0)
+            {
+                return Json(new { success = false, message = T("Plugins.Smartstore.PayPal.Error.CannotBeZeroOrNegative") });
+            }
+
             orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
             orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
 
@@ -207,7 +215,7 @@ namespace Smartstore.PayPal.Controllers
             return Json(new { success = true, data = jResponse });
         }
 
-        private async Task AddShippingAddressAsync(string payPalOrderId) 
+        private async Task AddAddressesAsync(string payPalOrderId) 
         {
             var getOrderResponse = await _client.GetOrderAsync(payPalOrderId);
             var order = getOrderResponse.Body<OrderMessage>();
@@ -426,8 +434,8 @@ namespace Smartstore.PayPal.Controllers
 
             switch (checkoutState.ApmProviderSystemName)
             {
-                case PayPalConstants.Giropay:
-                    paymentSource.PaymentSourceGiroPay = apmPaymentSource;
+                case PayPalConstants.Trustly:
+                    paymentSource.PaymentSourceTrustly = apmPaymentSource;
                     break;
                 case PayPalConstants.Bancontact:
                     paymentSource.PaymentSourceBancontact = apmPaymentSource;
@@ -626,10 +634,29 @@ namespace Smartstore.PayPal.Controllers
                     break;
 
                 case "declined":
-                    if (order.CanVoidOffline())
+                    var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(order.StoreId);
+                    order.CaptureTransactionResult = status;
+                    if (settings.Intent == PayPalTransactionType.Authorize)
                     {
-                        order.CaptureTransactionResult = status;
-                        await _orderProcessingService.VoidOfflineAsync(order);
+                        if (order.CanVoidOffline())
+                        {
+                            await _orderProcessingService.VoidOfflineAsync(order);
+                        }
+                    }
+                    else
+                    {   
+                        if (settings.CancelOrdersForDeclinedPayments)
+                        {
+                            order.PaymentStatus = PaymentStatus.Voided;
+                            await _orderProcessingService.CancelOrderAsync(order, true);
+                        }
+                        else
+                        {
+                            order.PaymentStatus = PaymentStatus.Pending;
+                            order.OrderStatus = OrderStatus.Pending;
+                        }
+
+                        order.PaidDateUtc = null;
                     }
                     break;
 

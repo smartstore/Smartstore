@@ -13,6 +13,9 @@ namespace Smartstore.OfflinePayment.Models
 
         [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }
+
+        [LocalizedDisplay("Plugins.Payments.Manual.Fields.TransactMode")]
+        public TransactMode TransactMode { get; set; }
     }
 
     public class CashOnDeliveryConfigurationModel : ConfigurationModelBase
@@ -29,13 +32,9 @@ namespace Smartstore.OfflinePayment.Models
 
     public class ManualConfigurationModel : ConfigurationModelBase
     {
-        [LocalizedDisplay("Plugins.Payments.Manual.Fields.TransactMode")]
-        public TransactMode TransactMode { get; set; }
-        public List<SelectListItem> TransactModeValues { get; set; } = new();
-
         [LocalizedDisplay("Plugins.Payments.Manual.ExcludedCreditCards")]
         public string[] ExcludedCreditCards { get; set; }
-        public List<SelectListItem> AvailableCreditCards { get; set; } = new();
+        public List<SelectListItem> AvailableCreditCards { get; set; } = [];
     }
 
     public class PayInStoreConfigurationModel : ConfigurationModelBase

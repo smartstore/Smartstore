@@ -486,7 +486,7 @@ namespace Smartstore.Web.Api.Controllers
         }
 
         /// <summary>
-        /// Manages\synchronizes the attributes and attribute values of a product.
+        /// Manages/synchronizes the attributes and attribute values of a product.
         /// </summary>
         /// <param name="attributes">The attributes and attribute values to be processed.</param>
         /// <param name="synchronize">

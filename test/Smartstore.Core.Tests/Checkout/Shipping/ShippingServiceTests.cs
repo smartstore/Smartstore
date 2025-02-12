@@ -26,6 +26,7 @@ namespace Smartstore.Core.Tests.Shipping
         IShippingService _shippingService;
         IProductAttributeMaterializer _productAttributeMaterializer;
         IStoreContext _storeContext;
+        IRequestCache _requestCache;
 
         [OneTimeSetUp]
         public new void SetUp()
@@ -37,6 +38,8 @@ namespace Smartstore.Core.Tests.Shipping
                     "FixedRateTestShippingRateComputationMethod"
                 }
             };
+
+            _requestCache = new NullRequestCache();
 
             var downloadService = new Mock<IDownloadService>();
             
@@ -68,6 +71,7 @@ namespace Smartstore.Core.Tests.Shipping
                 _shippingSettings,
                 ProviderManager,
                 null,
+                _requestCache,
                 null,
                 _storeContext,
                 DbContext);

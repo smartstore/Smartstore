@@ -558,16 +558,17 @@
 
             // Sets file icon for files in preview containers (in multifile & status window).
             function setPreviewIcon(file, small) {
-                var el = $(file.previewTemplate);
-                var elIcon = el.find('.file-icon');
-                var elImage = el.find('.file-figure > img').addClass("d-none");
-
                 // Convert dz file property to sm file property if not already set.
                 if (!file.mime)
                     file.mime = file.type;
 
                 var icon = Smartstore.media.getIconHint(file);
+                var el = $(file.previewTemplate);
+                var elFigure = el.find('.file-figure');
+                var elIcon = el.find('.file-icon');
+                var elImage = el.find('.file-figure > img').addClass(icon.mediaType == "image" ? "hide" : "d-none");
 
+                elFigure.attr("data-type", icon.mediaType);
                 elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
 
                 if (small)

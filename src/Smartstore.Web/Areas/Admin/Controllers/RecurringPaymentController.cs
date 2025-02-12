@@ -61,6 +61,13 @@ namespace Smartstore.Admin.Controllers
                     x.InitialOrder.Customer.BillingAddress.FirstName.Contains(model.CustomerName));
             }
 
+            if (model.RemainingCycles != null)
+            {
+                query = model.RemainingCycles == true
+                    ? query.Where(x => x.IsActive && x.RecurringPaymentHistory.Count < x.TotalCycles)
+                    : query.Where(x => !x.IsActive || x.RecurringPaymentHistory.Count >= x.TotalCycles);
+            }
+
             if (model.InitialOrderNumber.HasValue())
             {
                 query = int.TryParse(model.InitialOrderNumber, out var orderId) && orderId != 0
@@ -74,13 +81,9 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await recurringPayments.SelectAwait(async x =>
-            {
-                var m = new RecurringPaymentModel();
-                await PrepareRecurringPaymentModel(m, x, true);
-                return m;
-            })
-            .AsyncToList();
+            var rows = await recurringPayments
+                .SelectAwait(async x => await CreateRecurringPaymentModel(x, true))
+                .AsyncToList();
 
             return Json(new GridModel<RecurringPaymentModel>
             {
@@ -96,14 +99,12 @@ namespace Smartstore.Admin.Controllers
                 .AsSplitQuery()
                 .IncludeAddresses()
                 .FirstOrDefaultAsync(x => x.Id == id);
-
             if (recurringPayment == null)
             {
                 return NotFound();
             }
 
-            var model = new RecurringPaymentModel();
-            await PrepareRecurringPaymentModel(model, recurringPayment, false);
+            var model = await CreateRecurringPaymentModel(recurringPayment, false);
 
             return View(model);
         }
@@ -158,116 +159,122 @@ namespace Smartstore.Admin.Controllers
             var recurringPayment = await _db.RecurringPayments
                 .Include(x => x.RecurringPaymentHistory)
                 .FindByIdAsync(recurringPaymentId);
-
             if (recurringPayment == null)
             {
                 return NotFound();
             }
 
             var orderIds = recurringPayment.RecurringPaymentHistory.ToDistinctArray(x => x.OrderId);
-
             var orders = await _db.Orders
                 .AsNoTracking()
                 .Where(x => orderIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
-            var rows = recurringPayment.RecurringPaymentHistory.Select(x =>
-            {
-                var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
-                PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
-                return m;
-            })
-            .ToList();
+            var rows = recurringPayment.RecurringPaymentHistory
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Select(x => CreateRecurringPaymentHistoryModel(x, orders.Get(x.OrderId)))
+                .ToList();
 
-            return Json(new GridModel<RecurringPaymentModel.RecurringPaymentHistoryModel>
+            return Json(new GridModel<RecurringPaymentHistoryModel>
             {
                 Rows = rows,
                 Total = recurringPayment.RecurringPaymentHistory.Count
             });
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired("processnextpayment")]
+        [HttpPost]
         [Permission(Permissions.Order.EditRecurringPayment)]
         public async Task<IActionResult> ProcessNextPayment(int id)
         {
             var recurringPayment = await _db.RecurringPayments
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer)
+                .Include(x => x.RecurringPaymentHistory)
+                .Include(x => x.InitialOrder)
+                .ThenInclude(x => x.Customer)
                 .FindByIdAsync(id);
-
             if (recurringPayment == null)
             {
                 return NotFound();
             }
+
+            string message;
+            var success = false;
 
             try
             {
                 await _orderProcessingService.ProcessNextRecurringPaymentAsync(recurringPayment);
 
-                NotifySuccess(T("Admin.RecurringPayments.NextPaymentProcessed"));
+                message = T("Admin.RecurringPayments.NextPaymentProcessed");
+                success = true;
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
-                NotifyError(ex);
+                message = ex.Message;
             }
 
-            return RedirectToAction(nameof(Edit), recurringPayment.Id);
+            return Json(new { success, message });
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired("cancelpayment")]
+        [HttpPost]
         [Permission(Permissions.Order.EditRecurringPayment)]
         public async Task<IActionResult> CancelRecurringPayment(int id)
         {
             var recurringPayment = await _db.RecurringPayments
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer)
+                .Include(x => x.InitialOrder)
+                .ThenInclude(x => x.Customer)
                 .FindByIdAsync(id);
-
             if (recurringPayment == null)
             {
                 return NotFound();
             }
 
+            string message;
+            var success = false;
+
             try
             {
                 await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
 
-                NotifySuccess(T("Admin.RecurringPayments.Cancelled"));
+                message = T("Admin.RecurringPayments.Cancelled");
+                success = true;
             }
             catch (Exception ex)
             {
-                NotifyError(ex);
+                Logger.Error(ex);
+                message = ex.Message;
             }
 
-            return RedirectToAction(nameof(Edit), recurringPayment.Id);
+            return Json(new { success, message });
         }
 
-        private async Task PrepareRecurringPaymentModel(RecurringPaymentModel model, RecurringPayment recurringPayment, bool forList)
+        private async Task<RecurringPaymentModel> CreateRecurringPaymentModel(RecurringPayment recurringPayment, bool forList)
         {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+            Guard.NotNull(recurringPayment);
 
+            var dtHelper = Services.DateTimeHelper;
             var initialOrder = recurringPayment.InitialOrder;
             var customer = initialOrder?.Customer;
             var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
+            var canCancel = nextPaymentDate != null && await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, Services.WorkContext.CurrentCustomer);
 
-            model.Id = recurringPayment.Id;
-            model.CycleLength = recurringPayment.CycleLength;
-            model.CyclePeriodId = recurringPayment.CyclePeriodId;
-            model.CyclePeriodString = Services.Localization.GetLocalizedEnum(recurringPayment.CyclePeriod);
-            model.TotalCycles = recurringPayment.TotalCycles;
-            model.StartDate = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.StartDateUtc, DateTimeKind.Utc);
-            model.IsActive = recurringPayment.IsActive;
-            model.CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(recurringPayment);
-            model.InitialOrderId = recurringPayment.InitialOrderId;
-            model.InitialOrderNumber = initialOrder?.GetOrderNumber();
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.CreatedOnUtc, DateTimeKind.Utc);
-            model.EditUrl = Url.Action(nameof(Edit), "RecurringPayment", new { id = recurringPayment.Id });
-
-            model.NextPaymentDate = nextPaymentDate.HasValue
-                ? Services.DateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc)
-                : null;
+            var model = new RecurringPaymentModel
+            {
+                Id = recurringPayment.Id,
+                CycleLength = recurringPayment.CycleLength,
+                CyclePeriodId = recurringPayment.CyclePeriodId,
+                CyclePeriodString = Services.Localization.GetLocalizedEnum(recurringPayment.CyclePeriod),
+                TotalCycles = recurringPayment.TotalCycles,
+                CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(recurringPayment),
+                StartDate = dtHelper.ConvertToUserTime(recurringPayment.StartDateUtc, DateTimeKind.Utc),
+                IsActive = recurringPayment.IsActive,
+                InitialOrderId = recurringPayment.InitialOrderId,
+                InitialOrderNumber = initialOrder?.GetOrderNumber(),
+                CreatedOn = dtHelper.ConvertToUserTime(recurringPayment.CreatedOnUtc, DateTimeKind.Utc),
+                EditUrl = Url.Action(nameof(Edit), "RecurringPayment", new { id = recurringPayment.Id }),
+                NextPaymentDateUtc = nextPaymentDate,
+                NextPaymentDate = nextPaymentDate.HasValue ? dtHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
+                CanCancel = canCancel
+            };
 
             if (initialOrder != null)
             {
@@ -283,10 +290,6 @@ namespace Smartstore.Admin.Controllers
 
             if (!forList)
             {
-                var currentCustomer = Services.WorkContext.CurrentCustomer;
-
-                model.CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, currentCustomer);
-
                 if (initialOrder != null)
                 {
                     var paymentType = await _paymentService.GetRecurringPaymentTypeAsync(initialOrder.PaymentMethodSystemName);
@@ -300,38 +303,39 @@ namespace Smartstore.Admin.Controllers
                     .ToDictionaryAsync(x => x.Id, x => x);
 
                 model.History = recurringPayment.RecurringPaymentHistory
-                    .OrderBy(x => x.CreatedOnUtc)
-                    .Select(x =>
-                    {
-                        var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
-                        PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
-                        return m;
-                    })
+                    .OrderByDescending(x => x.CreatedOnUtc)
+                    .Select(x => CreateRecurringPaymentHistoryModel(x, orders.Get(x.OrderId)))
                     .ToList();
             }
+
+            return model;
         }
 
-        private void PrepareRecurringPaymentHistoryModel(
-            RecurringPaymentModel.RecurringPaymentHistoryModel model,
-            RecurringPaymentHistory history,
-            Order order)
+        private RecurringPaymentHistoryModel CreateRecurringPaymentHistoryModel(RecurringPaymentHistory history, Order order)
         {
-            Guard.NotNull(model);
             Guard.NotNull(history);
 
-            model.Id = history.Id;
-            model.OrderId = history.OrderId;
-            model.RecurringPaymentId = history.RecurringPaymentId;
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(history.CreatedOnUtc, DateTimeKind.Utc);
+            var model = new RecurringPaymentHistoryModel
+            {
+                Id = history.Id,
+                OrderId = history.OrderId,
+                RecurringPaymentId = history.RecurringPaymentId,
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(history.CreatedOnUtc, DateTimeKind.Utc)
+            };
 
             if (order != null)
             {
-                model.OrderStatus = Services.Localization.GetLocalizedEnum(order.OrderStatus);
-                model.PaymentStatus = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
-                model.ShippingStatus = Services.Localization.GetLocalizedEnum(order.ShippingStatus);
+                model.OrderStatus = order.OrderStatus;
+                model.OrderStatusString = Services.Localization.GetLocalizedEnum(order.OrderStatus);
+                model.PaymentStatus = order.PaymentStatus;
+                model.PaymentStatusString = Services.Localization.GetLocalizedEnum(order.PaymentStatus);
+                model.ShippingStatus = order.ShippingStatus;
+                model.ShippingStatusString = Services.Localization.GetLocalizedEnum(order.ShippingStatus);
                 model.OrderNumber = order.GetOrderNumber();
                 model.OrderEditUrl = Url.Action("Edit", "Order", new { id = order.Id });
             }
+
+            return model;
         }
     }
 }

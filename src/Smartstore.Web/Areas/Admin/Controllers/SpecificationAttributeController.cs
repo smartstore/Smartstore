@@ -202,23 +202,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Attribute.Delete)]
         public async Task<IActionResult> SpecificationAttributeDelete(GridSelection selection)
         {
-            var success = false;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
+            var entities = await _db.SpecificationAttributes.GetManyAsync(selection.GetEntityIds(), true);
+            if (entities.Count > 0)
             {
-                var attributes = await _db.SpecificationAttributes.GetManyAsync(ids, true);
-                var deletedNames = string.Join(", ", attributes.Select(x => x.Name));
-
-                _db.SpecificationAttributes.RemoveRange(attributes);
-
+                _db.SpecificationAttributes.RemoveRange(entities);
                 await _db.SaveChangesAsync();
-                success = true;
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteSpecAttribute, T("ActivityLog.DeleteSpecAttribute"), deletedNames);
+                Services.ActivityLogger.LogActivity(
+                    KnownActivityLogTypes.DeleteSpecAttribute, 
+                    T("ActivityLog.DeleteSpecAttribute"),
+                    string.Join(", ", entities.Select(x => x.Name)));
             }
 
-            return Json(new { Success = success });
+            return Json(new { Success = true, entities.Count });
         }
 
         [Permission(Permissions.Catalog.Attribute.Create)]

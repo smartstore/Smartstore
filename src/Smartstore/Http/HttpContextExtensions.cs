@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Smartstore.Utilities;
 
 namespace Smartstore

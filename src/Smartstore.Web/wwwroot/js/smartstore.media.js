@@ -41,6 +41,36 @@ Smartstore.media = (function () {
     };
 
     return {
+        initEditing: function () {
+            $(document).on('click', '.media-edit-command', function (e) {
+                e.preventDefault();
+                const btn = $(this);
+                const root = btn.closest('.cover-image-dropdown-root');
+                const data = btn.data('media-edit');
+
+                if (data) {
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: root.data('media-edit-url'),
+                        data,
+                        success: (response) => {
+                            const id = root.data('media-edit-id');
+                            const editItem = $('#' + id).find('.media-edit-object');
+
+                            $.each(response.model.commands, (_i, obj) => {
+                                editItem.css(obj.name, obj.value || '');
+                            });
+
+                            root.find('.media-edit-command').removeClass('checked');
+                            btn.addClass('checked');
+                        }
+                    });
+                }
+
+                return false;
+            });
+        },
         getIconHint: function (file) {
             return iconHints[file.ext] || iconHints[file.type] || (file.mime ? iconHints[file.mime.split('/')[0]] : null) || iconHints['misc'];
         },

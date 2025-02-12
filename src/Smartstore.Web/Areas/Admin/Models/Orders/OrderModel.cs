@@ -246,6 +246,7 @@ namespace Smartstore.Admin.Models.Orders
             public string DiscountAmountExclTaxString { get; set; }
 
             public string AttributeDescription { get; set; }
+            public int? RecurringPaymentId { get; set; }
             public string RecurringInfo { get; set; }
 
             public bool IsDownload { get; set; }

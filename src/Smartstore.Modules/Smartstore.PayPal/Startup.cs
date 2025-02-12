@@ -22,18 +22,16 @@ namespace Smartstore.PayPal
         {
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
-                    context => context.ControllerIs<ShoppingCartController>(x => x.OffCanvasShoppingCart()));
-                o.Filters.AddConditional<CheckoutFilter>(
-                    context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax() 
-                    || context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax()
-                    || context.ControllerIs<CheckoutController>(x => x.BillingAddress()) && !context.HttpContext.Request.IsAjax(), 200);
-
-                o.Filters.AddConditional<PayPalScriptIncludeFilter>(
-                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
-
-                o.Filters.AddConditional<ProductDetailFilter>(
-                    context => context.ControllerIs<ProductController>(x => x.ProductDetails(0, null)));
+                o.Filters.AddEndpointFilter<OffCanvasShoppingCartFilter, ShoppingCartController>()
+                    .ForAction(x => x.OffCanvasShoppingCart());
+                o.Filters.AddEndpointFilter<PayPalScriptIncludeFilter, PublicController>().WhenNonAjax();
+                o.Filters.AddEndpointFilter<ProductDetailFilter, ProductController>()
+                    .ForAction(x => x.ProductDetails(0, null));
+                o.Filters.AddEndpointFilter<CheckoutFilter, CheckoutController>(order: 200)
+                    .ForAction(x => x.PaymentMethod())
+                    .ForAction(x => x.Confirm())
+                    .ForAction(x => x.BillingAddress())
+                    .WhenNonAjax();
             });
 
             services.AddHttpClient<PayPalHttpClient>()

@@ -52,7 +52,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets a value indicating whether to store last IP address for each customer.
         /// </summary>
-        public bool StoreLastIpAddress { get; set; }
+        public bool StoreLastIpAddress { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to display a checkbox to the customer where he can agree to privacy terms.
