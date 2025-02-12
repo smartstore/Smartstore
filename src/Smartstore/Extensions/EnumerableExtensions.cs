@@ -136,6 +136,15 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Converts a set to a read-only set.
+        /// </summary>
+        public static ReadOnlySet<T> AsReadOnly<T>(this ISet<T> source)
+        {
+            Guard.NotNull(source);
+            return new ReadOnlySet<T>(source);
+        }
+
+        /// <summary>
         /// Converts an enumerable to a dictionary while tolerating duplicate entries (last wins)
         /// </summary>
         /// <param name="source">source</param>
