@@ -31,7 +31,7 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         /// <param name="assembly">The module assembly</param>
         /// <returns>Descriptor</returns>
-        IModuleDescriptor? GetModuleByAssembly(Assembly assembly);
+        IModuleDescriptor? GetModuleByAssembly(Assembly? assembly);
 
         /// <summary>
         /// Gets a module by system name.
@@ -39,7 +39,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="name">The module's system name.</param>
         /// <param name="installedOnly">Return the module only if it is installed/loaded.</param>
         /// <returns>Descriptor</returns>
-        IModuleDescriptor? GetModuleByName(string name, bool installedOnly = true);
+        IModuleDescriptor? GetModuleByName(string? name, bool installedOnly = true);
 
         /// <summary>
         /// Gets a companion module by its theme name.
@@ -47,7 +47,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="themeName">The theme name.</param>
         /// <param name="installedOnly">Return the module only if it is installed/loaded.</param>
         /// <returns>Descriptor</returns>
-        IModuleDescriptor? GetModuleByTheme(string themeName, bool installedOnly = true);
+        IModuleDescriptor? GetModuleByTheme(string? themeName, bool installedOnly = true);
     }
 
     public static class IModuleCatalogExtensions
