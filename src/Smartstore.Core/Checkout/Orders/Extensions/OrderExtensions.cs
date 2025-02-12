@@ -11,7 +11,7 @@ namespace Smartstore
         /// <returns><see cref="Order.OrderNumber"/> or <see cref="BaseEntity.Id"/> if empty.</returns>
         public static string GetOrderNumber(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return order.OrderNumber.IsEmpty() ? order.Id.ToString() : order.OrderNumber;
         }
@@ -23,7 +23,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be marked as completed.</returns>
         public static bool CanCompleteOrder(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return order.OrderStatus != OrderStatus.Complete && order.OrderStatus != OrderStatus.Cancelled;
         }
@@ -35,7 +35,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be cancelled.</returns>
         public static bool CanCancelOrder(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             return order.OrderStatus != OrderStatus.Cancelled;
         }
@@ -68,7 +68,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be marked as authorized.</returns>
         public static bool CanMarkOrderAsAuthorized(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderStatus == OrderStatus.Cancelled)
                 return false;
@@ -86,14 +86,13 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be marked as paid.</returns>
         public static bool CanMarkOrderAsPaid(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderStatus == OrderStatus.Cancelled)
                 return false;
 
             if (order.PaymentStatus == PaymentStatus.Paid ||
-                order.PaymentStatus == PaymentStatus.Refunded ||
-                order.PaymentStatus == PaymentStatus.Voided)
+                order.PaymentStatus == PaymentStatus.Refunded)
                 return false;
 
             return true;
@@ -106,7 +105,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be refunded.</returns>
         public static bool CanRefundOffline(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderTotal == decimal.Zero)
                 return false;
@@ -133,7 +132,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be partially refunded "offline".</returns>
         public static bool CanPartiallyRefundOffline(this Order order, decimal amountToRefund)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderTotal == decimal.Zero)
                 return false;
@@ -163,7 +162,7 @@ namespace Smartstore
         /// <returns>A value indicating whether an order can be voided "offline".</returns>
         public static bool CanVoidOffline(this Order order)
         {
-            Guard.NotNull(order, nameof(order));
+            Guard.NotNull(order);
 
             if (order.OrderTotal == decimal.Zero)
                 return false;

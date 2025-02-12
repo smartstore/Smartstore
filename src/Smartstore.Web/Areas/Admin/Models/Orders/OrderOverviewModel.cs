@@ -58,6 +58,8 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*PaymentStatus")]
         public PaymentStatus PaymentStatus { get; set; }
         public string PaymentStatusString { get; set; }
+        public bool IsPaid
+            => PaymentStatus == PaymentStatus.Paid;
 
         public string PaymentStatusLabelClass
         {

@@ -9,6 +9,7 @@
     var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;
     var showExclTax = taxTypeSelectable || taxType == TaxDisplayType.ExcludingTax;
     var showInclTax = taxTypeSelectable || taxType == TaxDisplayType.IncludingTax;
+    var askToProceed = T("Admin.Common.AskToProceed").Value;
 }
 
 <zone name="order_edit_top" />
@@ -21,12 +22,22 @@
         <div class="adminData">
             <input asp-for="OrderStatusString" sm-plaintext="true" readonly />
             <div>
-                <button sm-if="Model.CanCancelOrder" type="submit" name="cancelorder" id="cancelorder" class="btn btn-sm btn-danger confirm"
-                        value="@T("Admin.Orders.Fields.OrderStatus.Cancel")">
+                <button sm-if="Model.CanCancelOrder" 
+                        type="submit"
+                        id="cancelorder" 
+                        name="cancelorder" 
+                        value="@T("Admin.Orders.Fields.OrderStatus.Cancel")"
+                        class="btn btn-sm btn-danger confirm2"
+                        data-confirm-message="@askToProceed">
                     <span>@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
                 </button>
-                <button sm-if="Model.CanCompleteOrder" type="submit" name="completeorder" id="completeorder" class="btn btn-sm btn-warning confirm"
-                        value="@T("Enums.OrderStatus.Complete")">
+                <button sm-if="Model.CanCompleteOrder" 
+                        type="submit" 
+                        id="completeorder" 
+                        name="completeorder" 
+                        value="@T("Enums.OrderStatus.Complete")"
+                        data-confirm-message="@(Model.IsPaid ? askToProceed : T("Admin.Orders.CompleteUnpaidOrder", Model.PaymentStatusString))"
+                        class="btn btn-sm btn-warning confirm2">
                     <i class="fa fa-check"></i>
                     <span>@T("Enums.OrderStatus.Complete")</span>
                 </button>
@@ -349,19 +360,23 @@
                 @Model.PaymentStatusString
             </span>
 
-            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary confirm"
+            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.MarkAsPaid")"
                    title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")" />
 
-            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary confirm"
+            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.Capture")"
                    title="@T("Admin.Orders.Fields.Capture.Hint")" />
 
-            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary confirm"
+            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.Refund")"
                    title="@T("Admin.Orders.Fields.Refund.Hint")" />
 
-            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary confirm"
+            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.RefundOffline")"
                    title="@T("Admin.Orders.Fields.RefundOffline.Hint")" />
 
@@ -373,11 +388,13 @@
                    value="@T("Admin.Orders.Fields.PartialRefundOffline")"
                    title="@T("Admin.Orders.Fields.PartialRefundOffline.Hint")" />
 
-            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary confirm"
+            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.Void")"
                    title="@T("Admin.Orders.Fields.Void.Hint")" />
 
-            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary confirm"
+            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary confirm2"
+                   data-confirm-message="@askToProceed"
                    value="@T("Admin.Orders.Fields.VoidOffline")"
                    title="@T("Admin.Orders.Fields.VoidOffline.Hint")" />
 
