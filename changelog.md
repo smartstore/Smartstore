@@ -32,6 +32,7 @@
 ### Improvements
 
 - Quick-Checkout: Allow all payment methods to be specified as the preferred payment method.
+- #1266 Refresh browser URL when a product variant changes so that it points to the current variant.
 - #214 Add backend menu entry for each Rule Builder scope.
 - Added new bot detection patterns to `useragent.yml`.
 - Updated `dbip-country-lite.mmdb`.
