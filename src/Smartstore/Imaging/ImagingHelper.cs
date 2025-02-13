@@ -109,7 +109,7 @@ namespace Smartstore.Imaging
             // Separate the values by spaces and/or commas.
             rgba = ColorComponentDelimiterRegex.Replace(rgba, " ");
             var rgbParts = rgba.Split(' ');
-
+            
             // Convert the values to integers.
             var r = ConvertColorComponent(rgbParts[0]);
             var g = ConvertColorComponent(rgbParts[1]);
@@ -132,7 +132,7 @@ namespace Smartstore.Imaging
         /// </summary>
         /// <param name="colorComponent">The CSS color component can be an integer, a double, or a percentage.</param>
         /// <returns>An <see cref="int"/> between 0 and 255. Invalid values default to 0.</returns>
-        private static int? ConvertColorComponent(string colorComponent)
+        private static int? ConvertColorComponent(ReadOnlySpan<char> colorComponent)
         {
             // Check for percentage values.
             if (colorComponent.EndsWith('%'))

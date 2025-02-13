@@ -4,8 +4,8 @@
     {
         #region Static
 
-        private readonly static char[] _invalidFileNameChars = Path.GetInvalidFileNameChars().Concat(new[] { '&' }).ToArray();
-        private readonly static char[] _invalidFolderNameChars = Path.GetInvalidPathChars().Concat(new[] { '&', '/', '\\' }).ToArray();
+        private readonly static char[] _invalidFileNameChars = Path.GetInvalidFileNameChars().Concat(['&']).ToArray();
+        private readonly static char[] _invalidFolderNameChars = Path.GetInvalidPathChars().Concat(['&', '/', '\\']).ToArray();
 
         public static string NormalizeFileName(string fileName)
         {

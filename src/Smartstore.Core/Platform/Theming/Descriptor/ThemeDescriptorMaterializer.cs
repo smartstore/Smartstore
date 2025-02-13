@@ -139,7 +139,7 @@ namespace Smartstore.Core.Theming
 
             if (type.ToLower().StartsWith("select", StringComparison.CurrentCultureIgnoreCase))
             {
-                var arr = type.Split(new char[] { '#' });
+                var arr = type.Split('#');
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
                     throw new InvalidOperationException(

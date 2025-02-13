@@ -8,13 +8,23 @@ namespace Smartstore
         /// Checks if a currency was configured for the domain ending.
         /// </summary>
         /// <param name="domain">Domain to check.</param>
-        public static bool HasDomainEnding(this Currency currency, string domain)
+        public static bool HasDomainEnding(this Currency currency, ReadOnlySpan<char> domain)
         {
-            if (currency == null || domain.IsEmpty() || currency.DomainEndings.IsEmpty())
+            if (currency == null || domain.IsEmpty || currency.DomainEndings.IsEmpty())
+            {
                 return false;
+            }
 
-            var endings = currency.DomainEndings.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            return endings.Any(x => domain.EndsWith(x, StringComparison.InvariantCultureIgnoreCase));
+            var endings = currency.DomainEndings.AsSpan();
+            foreach (Range segment in endings.Split(','))
+            {
+                if (domain.EndsWith(endings[segment], StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

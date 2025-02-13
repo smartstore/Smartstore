@@ -86,10 +86,10 @@ namespace Smartstore.Core.Content.Menus
         {
             if (WidgetZone.IsEmpty())
             {
-                return Enumerable.Empty<string>();
+                return [];
             }
 
-            return WidgetZone.EmptyNull().Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            return WidgetZone.EmptyNull().Trim().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
         }
     }
 }

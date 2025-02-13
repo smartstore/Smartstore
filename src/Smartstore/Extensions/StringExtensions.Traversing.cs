@@ -140,7 +140,7 @@ namespace Smartstore
             {
                 return separator.Length == 1
                     ? Tokenize(input, separator[0], options)
-                    : input.Split(new string[] { separator }, options);
+                    : input.Split(separator, options);
             }
         }
 

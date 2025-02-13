@@ -293,7 +293,7 @@ namespace Smartstore.Utilities.Html
             lines.Each(x =>
             {
                 sb.Append("<tr>");
-                var tokens = x.Split(new char[] { ':' }, 2);
+                var tokens = x.Split(':', 2);
 
                 if (tokens.Length > 1)
                 {
@@ -337,7 +337,7 @@ namespace Smartstore.Utilities.Html
 
             lines.Each(x =>
             {
-                var tokens = x.Split([':'], 2);
+                var tokens = x.Split(':', 2);
                 var pair = tokens.Length > 1 
                     ? string.Format(pairFormat, tokens[0], tokens[1])
                     : string.Format(pairFormat, "&nbsp;", tokens[0]);

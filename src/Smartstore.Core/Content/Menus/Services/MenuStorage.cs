@@ -59,7 +59,7 @@ namespace Smartstore.Core.Content.Menus
                     Template = x.Template,
                     DisplayOrder = x.DisplayOrder,
                     WidgetZones = x.WidgetZone.EmptyNull().Trim()
-                        .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(y => y.Trim())
                         .ToArray()
                 })

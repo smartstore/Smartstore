@@ -70,7 +70,7 @@ namespace Smartstore.Core.Search.Facets
                         if (qs.TryGetValue(qsName, out var rawValue))
                         {
                             currentValues = rawValue.ToString()?
-                                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
                                 .Select(x => x.Trim())
                                 .ToArray();
                         }

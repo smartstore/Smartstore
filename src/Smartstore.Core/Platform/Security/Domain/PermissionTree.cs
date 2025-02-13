@@ -42,16 +42,21 @@ namespace Smartstore.Core.Security
         /// <returns>Display name.</returns>
         public string GetDisplayName(TreeNode<IPermissionNode> node)
         {
-            if (node != null && DisplayNames != null)
+            if (node == null || DisplayNames == null)
             {
-                var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                var token = tokens.LastOrDefault();
-                var displayName = PermissionService.GetDisplayName(token, DisplayNames);
-
-                return displayName ?? token ?? node.Value.SystemName;
+                return null;
             }
 
-            return null;
+            var systemName = node.Value.SystemName;
+            if (string.IsNullOrEmpty(systemName))
+            {
+                return null;
+            }
+
+            var token = systemName.Substring(systemName.LastIndexOf('.') + 1).ToLower();
+            var displayName = PermissionService.GetDisplayName(token, DisplayNames);
+
+            return displayName ?? token ?? systemName;
         }
     }
 }

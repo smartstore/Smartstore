@@ -154,17 +154,20 @@ namespace Smartstore.Core.Content.Topics
         public CookieType? CookieType { get; set; }
 
         /// <summary>
-        /// Helper function which gets the comma-separated <c>WidgetZone</c> property as list of strings.
+        /// Helper function that gets the comma-separated <c>WidgetZone</c> property as list of strings.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> GetWidgetZones()
         {
-            if (this.WidgetZone.IsEmpty())
+            if (WidgetZone.IsEmpty())
             {
-                return Enumerable.Empty<string>();
+                return [];
             }
 
-            return this.WidgetZone.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            return WidgetZone
+                .Trim()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim());
         }
 
         /// <inheritdoc/>
@@ -176,7 +179,7 @@ namespace Smartstore.Core.Content.Topics
         /// <inheritdoc/>
         public string[] GetDisplayNameMemberNames()
         {
-            return new[] { nameof(Title), nameof(ShortTitle), nameof(SystemName) };
+            return [nameof(Title), nameof(ShortTitle), nameof(SystemName)];
         }
     }
 }

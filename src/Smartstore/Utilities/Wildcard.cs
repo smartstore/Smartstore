@@ -123,7 +123,7 @@ namespace Smartstore.Utilities
 
         private static string ToGlobPattern(string input)
         {
-            Guard.NotNull(input, nameof(input));
+            Guard.NotNull(input);
 
             var sb = new StringBuilder();
 

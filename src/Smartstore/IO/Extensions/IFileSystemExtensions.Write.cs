@@ -14,10 +14,15 @@ namespace Smartstore
         public static Task WriteAllTextAsync(this IFileSystem fs, string subpath, string contents, Encoding encoding = null)
             => WriteAllTextInternal(fs, subpath, contents, encoding, true);
 
-        private static async Task WriteAllTextInternal(IFileSystem fs, string subpath, string contents, Encoding encoding, bool async)
+        private static async Task WriteAllTextInternal(
+            IFileSystem fs, 
+            string subpath, 
+            string contents, 
+            Encoding encoding, 
+            bool async)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotNull(contents, nameof(contents));
+            Guard.NotEmpty(subpath);
+            Guard.NotNull(contents);
 
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
 
@@ -44,8 +49,8 @@ namespace Smartstore
 
         private static async Task WriteAllBytesInternal(IFileSystem fs, string subpath, byte[] contents, bool async)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotNull(contents, nameof(contents));
+            Guard.NotEmpty(subpath);
+            Guard.NotNull(contents);
 
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
 
@@ -84,8 +89,8 @@ namespace Smartstore
 
         public static async Task SaveStreamInternal(IFileSystem fs, string subpath, Stream inStream, bool leaveOpen, bool async)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotNull(inStream, nameof(inStream));
+            Guard.NotEmpty(subpath);
+            Guard.NotNull(inStream);
 
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
 

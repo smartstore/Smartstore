@@ -317,7 +317,7 @@ namespace Smartstore.Core.Security
             foreach (var systemName in systemNames)
             {
                 var safeSytemName = systemName.EmptyNull().ToLower();
-                var tokens = safeSytemName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                var tokens = safeSytemName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
                 result[safeSytemName] = GetDisplayName(tokens, resourcesLookup);
             }
@@ -327,8 +327,8 @@ namespace Smartstore.Core.Security
 
         public virtual async Task<string> GetDisplayNameAsync(string permissionSystemName)
         {
-            var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Any())
+            var tokens = permissionSystemName.EmptyNull().ToLower().Split('.', StringSplitOptions.RemoveEmptyEntries);
+            if (tokens.Length > 0)
             {
                 var resourcesLookup = await GetDisplayNameLookup(_workContext.Value.WorkingLanguage.Id);
 

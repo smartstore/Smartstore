@@ -29,7 +29,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             var sep = "/";
-            var folderNames = path.Split(new[] { sep }, StringSplitOptions.RemoveEmptyEntries);
+            var folderNames = path.Split(sep, StringSplitOptions.RemoveEmptyEntries);
             bool flag = false;
             int folderId = 0;
 

@@ -590,7 +590,9 @@ namespace Smartstore.Core.Checkout.Orders
         {
             var taxRates = new SortedDictionary<decimal, decimal>();
             if (!taxRatesStr.HasValue())
+            {
                 return taxRates;
+            } 
 
             var lines = taxRatesStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)

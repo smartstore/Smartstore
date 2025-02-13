@@ -115,8 +115,8 @@ namespace Smartstore.Shipping
             }
 
             var patterns = pattern.Contains(',')
-                ? pattern.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
-                : new string[] { pattern };
+                ? pattern.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
+                : [pattern];
 
             try
             {
