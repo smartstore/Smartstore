@@ -112,12 +112,14 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(ctx);
 
+            var language = _services.WorkContext.WorkingLanguage;
             var product = ctx.Product;
             var query = ctx.VariantQuery;
             var batchContext = ctx.BatchContext;
             var isAssociatedProduct = ctx.IsAssociatedProduct;
             var isBundleItem = ctx.ProductBundleItem != null;
             var itemType = isAssociatedProduct ? "associateditem" : (isBundleItem ? "bundleitem" : null);
+            var seName = await product.GetActiveSlugAsync();
 
             using (_services.Chronometer.Step("PrepareProductDetailsPageModel"))
             {
@@ -130,14 +132,14 @@ namespace Smartstore.Web.Controllers
                     MetaKeywords = product.GetLocalized(x => x.MetaKeywords),
                     MetaDescription = product.GetLocalized(x => x.MetaDescription),
                     MetaTitle = product.GetLocalized(x => x.MetaTitle),
-                    SeName = await product.GetActiveSlugAsync(),
+                    SeName = seName,
                     ProductType = product.ProductType,
                     VisibleIndividually = product.Visibility != ProductVisibility.Hidden,
                     ReviewCount = product.ApprovedTotalReviews,
                     DisplayAdminLink = await _services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend, batchContext.Customer),
                     Condition = product.Condition,
                     ShowCondition = _catalogSettings.ShowProductCondition,
-                    LocalizedCondition = product.Condition.GetLocalizedEnum(_services.WorkContext.WorkingLanguage.Id, false),
+                    LocalizedCondition = product.Condition.GetLocalizedEnum(language.Id, false),
                     ShowSku = _catalogSettings.ShowProductSku,
                     Sku = product.Sku,
                     ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber,
@@ -153,6 +155,9 @@ namespace Smartstore.Web.Controllers
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
                     AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
                     ShowProductTags = _catalogSettings.ShowProductTags,
+                    PictureSize = _mediaSettings.ProductDetailsPictureSize,
+                    HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty(),
+                    CanonicalUrl = _seoSettings.CanonicalUrlsEnabled ? _urlHelper.RouteUrl("Product", new { seName }, _httpRequest.Scheme) : null,
                     UpdateUrl = _urlHelper.Action(nameof(ProductController.UpdateProductDetails), "Product", new
                     {
                         itemType,
@@ -161,6 +166,23 @@ namespace Smartstore.Web.Controllers
                         bundleItemId = ctx.ProductBundleItem?.Id ?? 0
                     })
                 };
+
+                // Determine which description to add the itemprop="description" attribute to, using Model.DescriptionPriority.
+                switch (_seoSettings.ProductDescriptionPriority)
+                {
+                    case ProductDescriptionPriority.FullDescription:
+                        model.HasFullDescriptionSchemaProperty = model.FullDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.FullDescription;
+                        model.HasShortDescriptionSchemaProperty = !model.HasFullDescriptionSchemaProperty;
+                        break;
+                    case ProductDescriptionPriority.ShortDescription:
+                        model.HasShortDescriptionSchemaProperty = model.ShortDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.ShortDescription;
+                        model.HasFullDescriptionSchemaProperty = !model.HasShortDescriptionSchemaProperty;
+                        break;
+                    case ProductDescriptionPriority.Both:
+                        model.HasFullDescriptionSchemaProperty = true;
+                        model.HasShortDescriptionSchemaProperty = true;
+                        break;
+                }
 
                 #region Bundles / Grouped products
 

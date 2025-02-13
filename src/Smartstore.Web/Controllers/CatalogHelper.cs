@@ -58,6 +58,7 @@ namespace Smartstore.Web.Controllers
         private readonly PerformanceSettings _performanceSettings;
         private readonly MeasureSettings _measureSettings;
         private readonly SearchSettings _searchSettings;
+        private readonly SeoSettings _seoSettings;
         private readonly IDeliveryTimeService _deliveryTimeService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICatalogSearchQueryFactory _catalogSearchQueryFactory;
@@ -96,6 +97,7 @@ namespace Smartstore.Web.Controllers
             CaptchaSettings captchaSettings,
             MeasureSettings measureSettings,
             SearchSettings searchSettings,
+            SeoSettings seoSettings,
             TaxSettings taxSettings,
             PerformanceSettings performanceSettings,
             IDeliveryTimeService deliveryTimeService,
@@ -132,6 +134,7 @@ namespace Smartstore.Web.Controllers
             _stockSubscriptionService = stockSubscriptionService;
             _measureSettings = measureSettings;
             _searchSettings = searchSettings;
+            _seoSettings = seoSettings;
             _taxSettings = taxSettings;
             _performanceSettings = performanceSettings;
             _deliveryTimeService = deliveryTimeService;

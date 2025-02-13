@@ -5,7 +5,6 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
@@ -39,8 +38,6 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
-        private readonly SeoSettings _seoSettings;
-        private readonly ContactDataSettings _contactDataSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly PrivacySettings _privacySettings;
@@ -67,8 +64,6 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             CatalogHelper helper,
             IBreadcrumb breadcrumb,
-            SeoSettings seoSettings,
-            ContactDataSettings contactDataSettings,
             CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
             PrivacySettings privacySettings,
@@ -94,8 +89,6 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _helper = helper;
             _breadcrumb = breadcrumb;
-            _seoSettings = seoSettings;
-            _contactDataSettings = contactDataSettings;
             _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
             _privacySettings = privacySettings;
@@ -161,32 +154,6 @@ namespace Smartstore.Web.Controllers
 
             // Prepare the view model
             var model = await _helper.MapProductDetailsPageModelAsync(product, query);
-
-            // Some cargo data
-            model.PictureSize = _mediaSettings.ProductDetailsPictureSize;
-            model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
-            if (_seoSettings.CanonicalUrlsEnabled)
-            {
-                model.CanonicalUrl = Url.RouteUrl("Product", new { model.SeName }, Request.Scheme);
-            }
-
-            // Determine which description to add the itemprop="description" attribute to, using Model.DescriptionPriority.
-            switch (_seoSettings.ProductDescriptionPriority)
-            {
-                case ProductDescriptionPriority.FullDescription:
-                    model.HasFullDescriptionSchemaProperty = model.FullDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.FullDescription;
-                    model.HasShortDescriptionSchemaProperty = !model.HasFullDescriptionSchemaProperty;
-                    break;
-                case ProductDescriptionPriority.ShortDescription:
-                    model.HasShortDescriptionSchemaProperty = model.ShortDescription.Value.HasValue() && _seoSettings.ProductDescriptionPriority == ProductDescriptionPriority.ShortDescription;
-                    model.HasFullDescriptionSchemaProperty = !model.HasShortDescriptionSchemaProperty;
-                    break;
-                case ProductDescriptionPriority.Both:
-                    model.HasFullDescriptionSchemaProperty = true;
-                    model.HasShortDescriptionSchemaProperty = true;
-                    break;
-            }
-
             model.MetaProperties = await model.MapMetaPropertiesAsync();
 
             // Save as recently viewed
