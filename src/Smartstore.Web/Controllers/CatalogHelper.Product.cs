@@ -431,8 +431,10 @@ namespace Smartstore.Web.Controllers
 
             var product = ctx.Product;
 
+            // Early, multiple required model properties.
             model.WeightValue = product.Weight;
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && ctx.ProductBundleItem != null;
+            model.SeName ??= await product.GetActiveSlugAsync();
 
             // Attributes and attribute combination
             await PrepareProductAttributesModelAsync(model, ctx, selectedQuantity);
@@ -841,6 +843,7 @@ namespace Smartstore.Web.Controllers
                     ctx.Customer);
             }
 
+            model.ProductUrl = await _productUrlHelper.GetAbsoluteProductUrlAsync(product.Id, model.SeName, ctx.SelectedAttributes);
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.SelectedAttributes);
 
             if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
@@ -952,7 +955,6 @@ namespace Smartstore.Web.Controllers
             model.MetaKeywords = product.GetLocalized(x => x.MetaKeywords);
             model.MetaDescription = product.GetLocalized(x => x.MetaDescription);
             model.MetaTitle = product.GetLocalized(x => x.MetaTitle);
-            model.SeName = await product.GetActiveSlugAsync();
             model.ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber;
             model.ManufacturerPartNumber = product.ManufacturerPartNumber;
             model.ShowDimensions = _catalogSettings.ShowDimensions;

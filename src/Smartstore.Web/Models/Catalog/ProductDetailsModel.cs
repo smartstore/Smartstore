@@ -77,7 +77,9 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> MetaTitle { get; set; }
         public bool HasShortDescriptionSchemaProperty { get; set; }
         public bool HasFullDescriptionSchemaProperty { get; set; }
+
         public string SeName { get; set; }
+        public string ProductUrl { get; set; }
         public string CanonicalUrl { get; set; }
         public string UpdateUrl { get; set; }
         public ProductType ProductType { get; set; }

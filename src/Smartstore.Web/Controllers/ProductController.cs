@@ -470,6 +470,7 @@ namespace Smartstore.Web.Controllers
             return new JsonResult(new
             {
                 Partials = partials,
+                model.ProductUrl,
                 DynamicThumblUrl = dynamicThumbUrl,
                 GalleryStartIndex = galleryStartIndex,
                 GalleryHtml = galleryHtml

@@ -162,6 +162,11 @@
                 $(ctx).find('.pd-dyn-thumb').attr('src', data.DynamicThumblUrl);
             }
 
+            if (!_.isEmpty(data.ProductUrl)) {
+                // Replace state to not flood history when variant changed.
+                history.replaceState(null, '', data.ProductUrl);
+            }
+
             // Trigger event for plugins devs to subscribe.
             $('#main-update-container').trigger("updated");
         };
