@@ -114,16 +114,26 @@ namespace Smartstore
 
         public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
         {
-            if (source == null || !source.Any())
+            if (source == null)
+            {
+                return DefaultReadOnlyCollection<T>.Empty;
+            }
+            else if (source is ReadOnlyCollection<T> readOnly)
+            {
+                return readOnly;
+            }
+
+            if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
             {
                 return DefaultReadOnlyCollection<T>.Empty;
             }
 
-            if (source is ReadOnlyCollection<T> readOnly)
+            if (!source.Any())
             {
-                return readOnly;
+                return DefaultReadOnlyCollection<T>.Empty;
             }
-            else if (source is List<T> list)
+
+            if (source is List<T> list)
             {
                 return list.AsReadOnly();
             }
@@ -141,6 +151,12 @@ namespace Smartstore
         public static ReadOnlySet<T> AsReadOnly<T>(this ISet<T> source)
         {
             Guard.NotNull(source);
+
+            if (source.Count == 0)
+            {
+                return ReadOnlySet<T>.Empty;
+            }
+
             return new ReadOnlySet<T>(source);
         }
 
