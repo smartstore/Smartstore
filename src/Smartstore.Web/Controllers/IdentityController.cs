@@ -472,7 +472,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (!customer.IsRegistered())
             {
                 return ChallengeOrForbid();
@@ -572,6 +571,7 @@ namespace Smartstore.Web.Controllers
                 if (identityResult.Succeeded)
                 {
                     customer.GenericAttributes.PasswordRecoveryToken = string.Empty;
+                    await CheckRegisteredRole(customer);
                     await _db.SaveChangesAsync();
 
                     model.SuccessfullyChanged = true;
@@ -798,6 +798,44 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        private async Task<bool> CheckRegisteredRole(Customer customer)
+        {
+            if (customer.IsSystemAccount || (customer.Username.IsEmpty() && customer.Email.IsEmpty()))
+            {
+                return false;
+            }
+
+            var updated = false;
+            var guestRoleMappings = customer.CustomerRoleMappings
+                .Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests))
+                .ToArray();
+            if (guestRoleMappings.Length > 0)
+            {
+                _db.CustomerRoleMappings.RemoveRange(guestRoleMappings);
+                updated = true;
+            }
+
+            if (!customer.IsRegistered())
+            {               
+                var registeredRole = await _db.CustomerRoles
+                    .AsNoTracking()
+                    .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
+                    .OrderBy(x => x.Id)
+                    .FirstOrDefaultAsync();
+                if (registeredRole != null)
+                {
+                    _db.CustomerRoleMappings.Add(new()
+                    {
+                        CustomerId = customer.Id,
+                        CustomerRoleId = registeredRole.Id
+                    });
+                    updated = true;
+                }
+            }
+
+            return updated;
+        }
+
         private async Task MapRegisterModelToCustomerAsync(Customer customer, RegisterModel model)
         {
             // Properties
@@ -960,7 +998,7 @@ namespace Smartstore.Web.Controllers
             await _userManager.RemoveFromRoleAsync(customer, SystemCustomerRoleNames.Guests);
         }
 
-        private IActionResult RedirectToLocal(string returnUrl)
+        private ActionResult RedirectToLocal(string returnUrl)
         {
             return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
         }
