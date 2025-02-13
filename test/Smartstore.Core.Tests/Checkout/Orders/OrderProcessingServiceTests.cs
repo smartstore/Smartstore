@@ -250,19 +250,19 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         }
 
         [Test]
-        public void Ensure_order_cannot_be_marked_as_paid_when_orderStatus_is_cancelled_or_paymentStatus_is_paid_or_refunded_or_voided()
+        public void Ensure_order_cannot_be_marked_as_paid_when_orderStatus_is_cancelled_or_paymentStatus_is_paid_or_refunded()
         {
             var order = new Order();
-            foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
+            foreach (OrderStatus os in Enum.GetValues<OrderStatus>())
             {
-                foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
+                foreach (PaymentStatus ps in Enum.GetValues<PaymentStatus>())
                 {
-                    foreach (ShippingStatus ss in Enum.GetValues(typeof(ShippingStatus)))
+                    foreach (ShippingStatus ss in Enum.GetValues<ShippingStatus>())
                     {
                         order.OrderStatus = os;
                         order.PaymentStatus = ps;
                         order.ShippingStatus = ss;
-                        if (os == OrderStatus.Cancelled || ps == PaymentStatus.Paid || ps == PaymentStatus.Refunded || ps == PaymentStatus.Voided)
+                        if (os == OrderStatus.Cancelled || ps == PaymentStatus.Paid || ps == PaymentStatus.Refunded)
                         {
                             order.CanMarkOrderAsPaid().ShouldBeFalse();
                         }
