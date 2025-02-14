@@ -571,6 +571,7 @@ namespace Smartstore.Web.Controllers
                 if (identityResult.Succeeded)
                 {
                     customer.GenericAttributes.PasswordRecoveryToken = string.Empty;
+                    // Detect and repair accidental guest role assignments
                     await CheckRegisteredRole(customer);
                     await _db.SaveChangesAsync();
 
