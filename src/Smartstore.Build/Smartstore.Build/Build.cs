@@ -103,7 +103,7 @@ class Build : NukeBuild
             var publishName = GetPublishName();
             AbsolutePath outputDir = ArtifactsDirectory / publishName;
 
-            if (outputDir.Exists())
+            if (outputDir.DirectoryExists())
             {
                 Log.Information($"Deleting {publishName}...");
                 outputDir.CreateOrCleanDirectory();
@@ -130,7 +130,7 @@ class Build : NukeBuild
             Log.Information($"Zipping {publishName}...");
 
             AbsolutePath rootPath = ArtifactsDirectory / publishName;
-            if (!rootPath.Exists())
+            if (!rootPath.DirectoryExists())
             {
                 throw new Exception($"Path '{publishName}' does not exist. Please build the {publishName} solution before packing.");
             }
