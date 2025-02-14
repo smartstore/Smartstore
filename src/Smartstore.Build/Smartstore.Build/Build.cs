@@ -9,7 +9,6 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Serilog;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [ShutdownDotNetAfterServerBuild]
@@ -70,9 +69,9 @@ class Build : NukeBuild
 
             DotNetClean(s => s
                 .SetProject(Solution)
-                .SetVerbosity(DotNetVerbosity.Minimal));
+                .SetVerbosity(DotNetVerbosity.minimal));
 
-            EnsureCleanDirectory(SourceDirectory / "Smartstore.Web/Modules");
+            (SourceDirectory / "Smartstore.Web/Modules").CreateOrCleanDirectory();
         });
 
     Target Restore => _ => _
@@ -89,7 +88,7 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetVerbosity(DotNetVerbosity.Minimal)
+                .SetVerbosity(DotNetVerbosity.minimal)
                 //.SetAssemblyVersion(GitVersion.AssemblySemVer)
                 //.SetFileVersion(GitVersion.AssemblySemFileVer)
                 //.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -107,7 +106,7 @@ class Build : NukeBuild
             if (outputDir.Exists())
             {
                 Log.Information($"Deleting {publishName}...");
-                EnsureCleanDirectory(outputDir);
+                outputDir.CreateOrCleanDirectory();
             }
 
             Log.Information($"Publishing Smartstore {publishName}...");
@@ -138,11 +137,10 @@ class Build : NukeBuild
 
             AbsolutePath zipPath = ArtifactsDirectory / $"Smartstore.{publishName}.zip";
 
-            CompressionTasks.CompressZip(
-                directory: rootPath,
-                archiveFile: zipPath,
+            rootPath.ZipTo(
+                zipPath,
                 filter: null,
-                compressionLevel: CompressionLevel.Optimal,
+                compressionLevel: CompressionLevel.SmallestSize,
                 fileMode: FileMode.Create);
         });
 
