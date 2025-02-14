@@ -16,7 +16,7 @@
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
 		<PackageReference Include="Azure.Core" Version="1.44.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.2" />
 		<PackageReference Include="Microsoft.ClearScript.V8" Version="7.4.5" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.4.5" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.4.5" />
@@ -28,13 +28,13 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Razor" Version="6.0.36" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.12.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.12.0" />
-		<PackageReference Include="System.Runtime.Caching" Version="9.0.0" />
+		<PackageReference Include="System.Runtime.Caching" Version="9.0.2" />
         <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" />
 	</ItemGroup>
 
