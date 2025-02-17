@@ -36,19 +36,25 @@
     /// </summary>
     public class LanguageInfo : ILanguage
     {
-        /// <inheritdoc />
-        public int Id { get; set; }
+        public LanguageInfo()
+        {
+        }
 
-        /// <inheritdoc />
+        public LanguageInfo(ILanguage language)
+        {
+            Id = language.Id;
+            Name = language.Name;
+            LanguageCulture = language.LanguageCulture;
+            UniqueSeoCode = language.UniqueSeoCode;
+            Rtl = language.Rtl;
+        }
+
+        public int Id { get; set; }
         public string Name { get; set; }
 
-        /// <inheritdoc />
         public string LanguageCulture { get; set; }
-
-        /// <inheritdoc />
         public string UniqueSeoCode { get; set; }
 
-        /// <inheritdoc />
         public bool Rtl { get; set; }
 
         public override bool Equals(object obj)

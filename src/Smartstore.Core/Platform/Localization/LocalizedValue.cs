@@ -31,15 +31,8 @@ namespace Smartstore.Core.Localization
             {
                 return info;
             }
-            
-            return new LanguageInfo
-            {
-                Id = language.Id,
-                Name = language.Name,
-                LanguageCulture = language.LanguageCulture,
-                UniqueSeoCode = language.UniqueSeoCode,
-                Rtl = language.Rtl
-            };
+
+            return new LanguageInfo(language);
         }
 
         [DataMember, JsonProperty]
