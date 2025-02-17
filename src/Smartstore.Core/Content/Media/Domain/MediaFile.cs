@@ -57,6 +57,7 @@ namespace Smartstore.Core.Content.Media
     // Exact Core port. UpdatedOnUtc was mistakenly missing in the original implementation.
     [Index(nameof(FolderId), nameof(Deleted), Name = "IX_Media_UpdatedOnUtc")]
     [Index(nameof(FolderId), nameof(Deleted), Name = "IX_Media_FolderId")]
+    [LocalizedEntity("!Deleted and !IsTransient")]
     public partial class MediaFile : EntityWithAttributes, IMediaAware, ITransient, IAuditable, ISoftDeletable, ILocalizedEntity
     {
         #region static
@@ -103,12 +104,14 @@ namespace Smartstore.Core.Content.Media
         /// Gets or sets the localizable image ALT text.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string Alt { get; set; }
 
         /// <summary>
         /// Gets or sets the localizable media file title text.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string Title { get; set; }
 
         /// <summary>
