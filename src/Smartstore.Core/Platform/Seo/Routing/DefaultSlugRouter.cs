@@ -57,13 +57,13 @@ namespace Smartstore.Core.Seo.Routing
 
         public override IEndpointConventionBuilder MapRoutes(IEndpointRouteBuilder routes)
         {
-            return routes.MapComposite(new[]
-            {
+            return routes.MapComposite(
+            [
                 routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" }),
                 routes.MapLocalizedControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" }),
                 routes.MapLocalizedControllerRoute("Manufacturer", UrlPatternFor("Manufacturer"), new { controller = "Catalog", action = "Manufacturer" }),
                 routes.MapLocalizedControllerRoute("Topic", UrlPatternFor("Topic"), new { controller = "Topic", action = "TopicDetails" })
-            });
+            ]);
         }
     }
 }

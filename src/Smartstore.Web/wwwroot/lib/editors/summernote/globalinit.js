@@ -75,7 +75,7 @@ let summernote_image_upload_url;
             }
         },
         icons: {
-            'ai': (typeof ai_icon_svg !== 'undefined' && ai_icon_svg !== null) ? ai_icon_svg : 'fa fa-wand-magic-sparkles',
+            'ai': window.ai_icon_svg || 'fa fa-wand-magic-sparkles',
         },
         toolbar: [
             ['edit', ['undo', 'redo']],
