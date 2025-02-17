@@ -56,6 +56,7 @@
 - ChatGPT: 
   - Fixed `NullReferenceException` and "The model gpt-4-vision-preview has been deprecated" when creating image metadata.
   - #1241 Add a setting for the token limit (`max_completion_tokens`), process the response in chunks and combine them into a single response.
+- AI: Respect direction of selected language in rich text dialog.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus
   - Code sync adds a line break after caret position (caused by outdated beautify library)
