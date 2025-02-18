@@ -1740,17 +1740,19 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
 
                 model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
-
+                
                 ViewBag.SelectedProductTags = model.ProductTagNames
                     .Select(x => new SelectListItem { Value = x, Text = x, Selected = true })
                     .ToList();
 
                 ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags), new { selectedNames = string.Join(',', model.ProductTagNames.Select(x => x)) });
+                ViewBag.NumberOfAttributeCombinations = await _db.ProductVariantAttributeCombinations.CountAsync(x => x.ProductId == product.Id);
             }
             else
             {
                 ViewBag.SelectedProductTags = new List<SelectListItem>();
                 ViewBag.ProductTagsUrl = Url.Action(nameof(AllProductTags));
+                ViewBag.NumberOfAttributeCombinations = 0;
             }
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);

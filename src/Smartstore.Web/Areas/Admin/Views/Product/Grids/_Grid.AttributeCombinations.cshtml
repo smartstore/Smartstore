@@ -10,7 +10,8 @@
           allow-row-selection="true" 
           allow-column-reordering="true"
           max-height="800px"
-          onrowclass="attributeCombinations_onRowClass">
+          onrowclass="attributeCombinations_onRowClass"
+          ondatabound="attributeCombinations_onDataBound">
     <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />
     <paging position="Both" page-index="1" />
@@ -108,6 +109,11 @@
             });
         });
     });
+
+    function attributeCombinations_onDataBound() {
+        const grid = window["attributecombinations-grid"].$children[0];
+        $('#AttributeCombinationRequiredContainer').toggleClass('d-none', grid.total === 0);
+    }
 
     function attributeCombinations_onRowClass(row) {
         if (!row.IsActive) {

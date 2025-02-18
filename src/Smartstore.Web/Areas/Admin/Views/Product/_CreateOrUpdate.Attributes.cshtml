@@ -50,7 +50,7 @@
                         <span asp-validation-for="AttributeChoiceBehaviour"></span>
                     </div>
                 </div>
-                <div class="adminRow">
+                <div id="AttributeCombinationRequiredContainer" class="adminRow" attr-class='((int)ViewBag.NumberOfAttributeCombinations == 0, "d-none")'>
                     <div class="adminTitle">
                         <smart-label asp-for="AttributeCombinationRequired" />
                     </div>
