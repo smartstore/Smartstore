@@ -45,16 +45,18 @@ namespace Smartstore.Data.MySql
 
         public override TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
         {
-            Guard.NotEmpty(connectionString, nameof(connectionString));
+            Guard.NotEmpty(connectionString);
 
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
                 {
+                    sql.EnablePrimitiveCollectionsSupport(true);
+                    sql.TranslateParameterizedCollectionsToConstants();
                     sql.CommandTimeout(commandTimeout);
                 })
                 .ReplaceService<IMethodCallTranslatorProvider, MySqlMappingMethodCallTranslatorProvider>();
 
-            return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
+            return (TContext)Activator.CreateInstance(typeof(TContext), [optionsBuilder.Options]);
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
@@ -65,7 +67,6 @@ namespace Smartstore.Data.MySql
             return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
-
                 if (extension != null)
                 {
                     if (extension.CommandTimeout.HasValue)
