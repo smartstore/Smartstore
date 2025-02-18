@@ -66,6 +66,9 @@ namespace Smartstore.Data.MySql
 
             return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
             {
+                sql.EnablePrimitiveCollectionsSupport(true);
+                sql.TranslateParameterizedCollectionsToConstants();
+
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
                 if (extension != null)
                 {
