@@ -4,6 +4,8 @@
 
 ### New Features
 
+- Updated to **.NET 9**
+  - Increased overall performance
 - #1258 Added **DeepSeek** OpenAI provider.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
