@@ -15,8 +15,8 @@ namespace Smartstore.Core.Localization
         private readonly IUrlService _urlService;
         private readonly IWorkContext _workContext;
 
-        private readonly int _languageCount;
-        private readonly Language _masterLanguage;
+        private int? _languageCount;
+        private Language _masterLanguage;
 
         public LocalizedEntityHelper(
             SmartDbContext db,
@@ -32,9 +32,16 @@ namespace Smartstore.Core.Localization
             _localizationService = localizationService;
             _urlService = urlService;
             _workContext = workContext;
+        }
 
-            _languageCount = _languageService.GetAllLanguages().Count();
-            _masterLanguage = _db.Languages.FindById(_languageService.GetMasterLanguageId());
+        private int LanguageCount
+        {
+            get => _languageCount ??= _db.Languages.ApplyStandardFilter().Count();
+        }
+
+        private Language MasterLanguage
+        {
+            get => _masterLanguage ??= _db.Languages.FindById(_languageService.GetMasterLanguageId());
         }
 
         public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
@@ -77,7 +84,7 @@ namespace Smartstore.Core.Localization
             var loadLocalizedValue = true;
             if (ensureTwoPublishedLanguages)
             {
-                loadLocalizedValue = _languageCount > 1;
+                loadLocalizedValue = LanguageCount > 1;
             }
 
             // Localized value
@@ -100,7 +107,7 @@ namespace Smartstore.Core.Localization
             // Set default value if required
             if (returnDefaultValue && string.IsNullOrEmpty(str))
             {
-                currentLanguage = _masterLanguage;
+                currentLanguage = MasterLanguage;
                 result = fallback(obj);
             }
 
@@ -152,10 +159,7 @@ namespace Smartstore.Core.Localization
         {
             string result = string.Empty;
 
-            if (languageId == null)
-            {
-                languageId = _workContext.WorkingLanguage.Id;
-            }
+            languageId ??= _workContext.WorkingLanguage.Id;
 
             if (languageId > 0)
             {
@@ -163,7 +167,7 @@ namespace Smartstore.Core.Localization
                 bool loadLocalizedValue = true;
                 if (ensureTwoPublishedLanguages)
                 {
-                    loadLocalizedValue = _languageCount > 1;
+                    loadLocalizedValue = LanguageCount > 1;
                 }
 
                 // Localized value
