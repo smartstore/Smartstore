@@ -104,6 +104,8 @@ $img-margin-right: 10px;
     font-weight: normal;
     font-style: normal;
     text-decoration: none;
+    --zoom: 1;
+    zoom: var(--zoom);
 
     a {
         text-decoration: underline;
@@ -249,7 +251,6 @@ $img-margin-right: 10px;
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    font-weight: 600;
     padding: 8px 8px 0 8px;
     line-height: 1;
 }
@@ -274,6 +275,20 @@ $img-margin-right: 10px;
         margin: 1px auto;
         border-top: 1px solid rgba($black, 0.2);
     }
+}
+
+.note-zoomer {
+    margin-top: -4px;
+    margin-bottom: -4px;
+}
+
+.note-zoom-action {
+    --btn-height: 20px;
+}
+
+.note-zoom-value {
+    width: 36px;
+    text-align: end;
 }
 
 .note-statusbar.locked {
