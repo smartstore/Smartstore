@@ -439,20 +439,16 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forEdit)
         {
-            // Requires: Shipment.Order
-            // Requires for edit: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
-            await MapperFactory.MapAsync(shipment, model);
-
             var dtHelper = Services.DateTimeHelper;
-            var order = shipment.Order;
-            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            var order = Guard.NotNull(shipment.Order);
+
+            await MapperFactory.MapAsync(shipment, model);
 
             model.StoreId = order.StoreId;
             model.LanguageId = order.CustomerLanguageId;
             model.OrderNumber = order.GetOrderNumber();
             model.PurchaseOrderNumber = order.PurchaseOrderNumber;
             model.ShippingMethod = order.ShippingMethod;
-            model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
             model.CreatedOn = dtHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
             model.Carrier = shipment.GenericAttributes.Get<string>("Carrier");
 
@@ -470,7 +466,10 @@ namespace Smartstore.Admin.Controllers
 
             if (forEdit)
             {
+                // Edit requires: Shipment.Order, Shipment.Order.ShippingAddress, Shipment.ShipmentItems
                 var store = Services.StoreContext.GetStoreById(order.StoreId) ?? Services.StoreContext.CurrentStore;
+                var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+                model.BaseWeight = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
 
                 model.MerchantCompanyInfo = await Services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
                 model.FormattedMerchantAddress = await _addressService.FormatAddressAsync(model.MerchantCompanyInfo, true);
