@@ -216,6 +216,10 @@ namespace Smartstore.Core.Seo.Routing
                     var ambientLanguage = await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == ambientCulture);
                     // ...then determine the active slug for the request language.
                     var ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, ambientLanguage.Id);
+                    if (ambientSlug.IsEmpty())
+                    {
+                        ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, 0);
+                    }
 
                     if (ambientSlug.HasValue() && ambientSlug != slug)
                     {
