@@ -55,6 +55,7 @@
 - Logging: excluded file source from DB logging.
 - The bootstrap-icons.svg path resolution is missing the base path.
 - Ignore surrogate chars (emojis) when building URL slugs.
+- #1269 After disabling a language, its entity slugs must redirect to the default language slugs.
 - ChatGPT: 
   - Fixed `NullReferenceException` and "The model gpt-4-vision-preview has been deprecated" when creating image metadata.
   - #1241 Add a setting for the token limit (`max_completion_tokens`), process the response in chunks and combine them into a single response.
