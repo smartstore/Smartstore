@@ -58,6 +58,14 @@ namespace Smartstore.Core.Localization
         public InvalidLanguageRedirectBehaviour InvalidLanguageRedirectBehaviour { get; set; }
 
         /// <summary>
+        /// Gets or sets the ISO code of the language to redirect to if the original language is not published.
+        /// If empty, the first published language is used. See also <seealso cref="InvalidLanguageRedirectBehaviour"/>.
+        /// </summary>
+        /// <remarks>This is a hidden setting.</remarks>
+        /// <example>en</example>
+        public string RedirectFallbackLanguageCode { get; set; }
+
+        /// <summary>
         /// Whether to display region/country name in language selector (e.g. "Deutsch (Deutschland)" instead of "Deutsch")
         /// </summary>
         public bool DisplayRegionInLanguageSelector { get; set; }
