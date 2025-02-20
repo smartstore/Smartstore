@@ -26,37 +26,39 @@ namespace Smartstore.Core.Catalog.Products
 
             if (ManageInventoryMethod.ManageStockByAttributes == (ManageInventoryMethod)product.ManageInventoryMethodId)
             {
-                values.Add("StockQuantity", combination.StockQuantity);
-                values.Add("BackorderModeId", combination.AllowOutOfStockOrders ? (int)BackorderMode.AllowQtyBelow0 : (int)BackorderMode.NoBackorders);
+                values.Add(nameof(Product.StockQuantity), combination.StockQuantity);
+                values.Add(nameof(Product.BackorderModeId), combination.AllowOutOfStockOrders ? (int)BackorderMode.AllowQtyBelow0 : (int)BackorderMode.NoBackorders);
             }
 
             if (combination.Sku.HasValue())
-                values.Add("Sku", combination.Sku);
+                values.Add(nameof(Product.Sku), combination.Sku);
             if (combination.Gtin.HasValue())
-                values.Add("Gtin", combination.Gtin);
+                values.Add(nameof(Product.Gtin), combination.Gtin);
             if (combination.ManufacturerPartNumber.HasValue())
-                values.Add("ManufacturerPartNumber", combination.ManufacturerPartNumber);
+                values.Add(nameof(Product.ManufacturerPartNumber), combination.ManufacturerPartNumber);
 
             if (combination.Price.HasValue)
-                values.Add("Price", combination.Price.Value);
+                values.Add(nameof(Product.Price), combination.Price.Value);
 
             if (combination.DeliveryTimeId.HasValue && combination.DeliveryTimeId.Value > 0)
-                values.Add("DeliveryTimeId", combination.DeliveryTimeId);
+                values.Add(nameof(Product.DeliveryTimeId), combination.DeliveryTimeId);
 
             if (combination.QuantityUnitId.HasValue && combination.QuantityUnitId.Value > 0)
-                values.Add("QuantityUnitId", combination.QuantityUnitId);
+                values.Add(nameof(Product.QuantityUnitId), combination.QuantityUnitId);
 
+            if (combination.Weight.HasValue)
+                values.Add(nameof(Product.Weight), combination.Weight.Value);
             if (combination.Length.HasValue)
-                values.Add("Length", combination.Length.Value);
+                values.Add(nameof(Product.Length), combination.Length.Value);
             if (combination.Width.HasValue)
-                values.Add("Width", combination.Width.Value);
+                values.Add(nameof(Product.Width), combination.Width.Value);
             if (combination.Height.HasValue)
-                values.Add("Height", combination.Height.Value);
+                values.Add(nameof(Product.Height), combination.Height.Value);
 
             if (combination.BasePriceAmount.HasValue)
-                values.Add("BasePriceAmount", combination.BasePriceAmount);
+                values.Add(nameof(Product.BasePriceAmount), combination.BasePriceAmount);
             if (combination.BasePriceBaseAmount.HasValue)
-                values.Add("BasePriceBaseAmount", combination.BasePriceBaseAmount);
+                values.Add(nameof(Product.BasePriceBaseAmount), combination.BasePriceBaseAmount);
         }
 
         /// <summary>

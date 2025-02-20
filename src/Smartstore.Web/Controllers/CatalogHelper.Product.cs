@@ -432,12 +432,14 @@ namespace Smartstore.Web.Controllers
             var product = ctx.Product;
 
             // Early, multiple required model properties.
-            model.WeightValue = product.Weight;
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && ctx.ProductBundleItem != null;
             model.SeName ??= await product.GetActiveSlugAsync();
 
             // Attributes and attribute combination
             await PrepareProductAttributesModelAsync(model, ctx, selectedQuantity);
+            
+            // Weight requires merge with attribute combination.
+            model.WeightValue = product.Weight;
 
             // Price
             await PrepareProductPriceModelAsync(model, ctx, selectedQuantity);

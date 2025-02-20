@@ -165,7 +165,16 @@
             <div class="adminRow">
                 <div class="adminSeparator"><hr /></div>
             </div>
-            <div class="adminRow" id="pnlLength">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Weight" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Weight" sm-postfix="@Model.BaseWeightIn" />
+                    <span asp-validation-for="Weight"></span>
+                </div>
+            </div>
+            <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Length" />
                 </div>
@@ -174,7 +183,7 @@
                     <span asp-validation-for="Length"></span>
                 </div>
             </div>
-            <div class="adminRow" id="pnlWidth">
+            <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Width" />
                 </div>
@@ -183,7 +192,7 @@
                     <span asp-validation-for="Width"></span>
                 </div>
             </div>
-            <div class="adminRow" id="pnlHeight">
+            <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Height" />
                 </div>

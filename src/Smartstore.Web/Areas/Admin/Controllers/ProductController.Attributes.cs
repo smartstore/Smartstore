@@ -1062,11 +1062,13 @@ namespace Smartstore.Admin.Controllers
             Guard.NotNull(model);
             Guard.NotNull(product);
 
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
 
             model.ProductId = product.Id;
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+            model.BaseWeightIn = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
             model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             if (entity != null)
             {

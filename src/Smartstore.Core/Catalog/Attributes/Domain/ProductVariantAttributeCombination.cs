@@ -92,6 +92,11 @@ namespace Smartstore.Core.Catalog.Attributes
         public decimal? Price { get; set; }
 
         /// <summary>
+        /// Gets or sets the weight.
+        /// </summary>
+        public decimal? Weight { get; set; }
+
+        /// <summary>
         /// Gets or sets the length.
         /// </summary>
         public decimal? Length { get; set; }

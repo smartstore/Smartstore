@@ -8,6 +8,7 @@
   - Increased overall performance
 - #1258 Added **DeepSeek** OpenAI provider.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
+- #990 Add a weight field to attribute combinations.
 - Added a setting to control whether shipping costs are displayed on cart page as long as the customer has not yet entered a shipping address.
 - Shipping by total: Added a setting to let the shipping origin determine the shipping cost if the shipping address is missing.
 - #501 New category option for ignoring a category in menus.

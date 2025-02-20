@@ -1217,6 +1217,7 @@ namespace Smartstore.Core.DataExchange.Import
                         row.SetProperty(context.Result, (x) => x.ManufacturerPartNumber);
                         row.SetProperty(context.Result, (x) => x.StockQuantity, 10000);
                         row.SetProperty(context.Result, (x) => x.Price);
+                        row.SetProperty(context.Result, (x) => x.Weight);
                         row.SetProperty(context.Result, (x) => x.Length);
                         row.SetProperty(context.Result, (x) => x.Width);
                         row.SetProperty(context.Result, (x) => x.Height);

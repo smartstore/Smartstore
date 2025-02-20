@@ -1755,11 +1755,11 @@ namespace Smartstore.Admin.Controllers
                 ViewBag.NumberOfAttributeCombinations = 0;
             }
 
-            var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-            var dimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
 
-            model.BaseWeightIn = measure?.GetLocalized(x => x.Name) ?? string.Empty;
-            model.BaseDimensionIn = dimension?.GetLocalized(x => x.Name) ?? string.Empty;
+            model.BaseWeightIn = baseWeight?.GetLocalized(x => x.Name) ?? string.Empty;
+            model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
 
             model.NumberOfAvailableProductAttributes = await _db.ProductAttributes.CountAsync();
             model.NumberOfAvailableManufacturers = await _db.Manufacturers.CountAsync();

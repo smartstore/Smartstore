@@ -724,10 +724,16 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }
 
+        private decimal _weight;
         /// <summary>
         /// Gets or sets the weight.
         /// </summary>
-        public decimal Weight { get; set; }
+        public decimal Weight
+        {
+            [DebuggerStepThrough]
+            get => this.GetMergedDataValue(nameof(Weight), _weight);
+            set => _weight = value;
+        }
 
         private decimal _length;
         /// <summary>

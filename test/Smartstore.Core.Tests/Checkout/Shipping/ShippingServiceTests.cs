@@ -49,7 +49,6 @@ namespace Smartstore.Core.Tests.Shipping
                 NullRequestCache.Instance,
                 null,
                 new Lazy<IDownloadService>(() => downloadService.Object),
-                new Lazy<CatalogSettings>(),
                 null);
 
             var storeContextMock = new Mock<IStoreContext>();

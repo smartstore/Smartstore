@@ -34,9 +34,12 @@ namespace Smartstore.Admin.Models.Catalog
         public int? QuantityUnitId { get; set; }
 
         [LocalizedDisplay("*Pictures")]
-        public int[] AssignedPictureIds { get; set; } = Array.Empty<int>();
+        public int[] AssignedPictureIds { get; set; } = [];
 
         public List<PictureSelectItemModel> AssignablePictures { get; set; } = [];
+
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.Weight")]
+        public decimal? Weight { get; set; }
 
         [LocalizedDisplay("Admin.Catalog.Products.Fields.Length")]
         public decimal? Length { get; set; }
@@ -70,6 +73,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int EntityIndex { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
         public string BaseDimensionIn { get; set; }
+        public string BaseWeightIn { get; set; }
 
         #region Nested classes
 

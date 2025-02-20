@@ -64,6 +64,10 @@
         <column for="Price" halign="center" width="1fr" />
         <column for="StockQuantity" halign="center" />
         <column for="AllowOutOfStockOrders" halign="center" />
+        <column for="Weight" halign="center" visible="false" />
+        <column for="Length" halign="center" visible="false" />
+        <column for="Width" halign="center" visible="false" />
+        <column for="Height" halign="center" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.ProductUrl">@T("Common.OpenInShop")</a>
