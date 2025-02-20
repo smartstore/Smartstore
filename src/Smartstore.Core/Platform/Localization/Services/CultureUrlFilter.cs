@@ -43,7 +43,7 @@ namespace Smartstore.Core.Localization
                     if (invalidBehavior == InvalidLanguageRedirectBehaviour.ReturnHttp404)
                     {
                         var cultureCodeReplacement = defaultBehavior == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect
-                            ? RedirectFallbackLanguageCode()
+                            ? workContext.WorkingLanguage.GetTwoLetterISOLanguageName()
                             : string.Empty;
 
                         policy.Culture.Modify(cultureCodeReplacement);
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Localization
                     {
                         policy.Culture.Modify(defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode
                             ? string.Empty
-                            : RedirectFallbackLanguageCode());
+                            : workContext.WorkingLanguage.GetTwoLetterISOLanguageName());
                     }
                 }
                 else // Published language
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Localization
                     }
                 }
             }
-            else // No culture present
+            else if (!policy.Culture.IsModified) // No culture present
             {
                 // Keep default language prefixless (if desired)
                 if (!((int)defaultBehavior > 0 && workContext.WorkingLanguage.UniqueSeoCode == policy.DefaultCultureCode))
@@ -73,11 +73,6 @@ namespace Smartstore.Core.Localization
                     // Add language code to URL
                     policy.Culture.Modify(workContext.WorkingLanguage.UniqueSeoCode);
                 }
-            }
-
-            string RedirectFallbackLanguageCode()
-            {
-                return policy.LocalizationSettings.RedirectFallbackLanguageCode.NullEmpty() ?? workContext.WorkingLanguage.GetTwoLetterISOLanguageName();
             }
         }
     }
