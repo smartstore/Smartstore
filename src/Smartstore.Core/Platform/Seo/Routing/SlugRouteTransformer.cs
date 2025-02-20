@@ -209,17 +209,37 @@ namespace Smartstore.Core.Seo.Routing
                     policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, slug));
                     return null;
                 }
+                else if (requestCulture.HasValue() && !_languageService.IsPublishedLanguage(requestCulture))
+                {
+                    // Requested language is not published anymore. Redirect to default language (or LocalizationSettings.RedirectFallbackLanguageCode)
+                    // after obtaining the active slug for the target language.
+
+                    var fallbackCulture = _localizationSettings.RedirectFallbackLanguageCode.NullEmpty() ?? defaultCulture;
+                    var fallbackLanguage = await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == fallbackCulture);
+                    var fallbackSlug = await GetActiveSlugAsync(urlRecord, fallbackLanguage.Id);
+
+                    if (fallbackSlug.HasValue() && fallbackSlug != slug)
+                    {
+                        if (_localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
+                        {
+                            policy.Culture.Strip();
+                        }
+                        else
+                        {
+                            policy.Culture.Modify(fallbackCulture);
+                        }
+
+                        policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, fallbackSlug));
+                        return null;
+                    }
+                }
                 else if (ambientCulture != slugCulture && _languageService.IsPublishedLanguage(ambientCulture))
                 {
-                    // Current slug language differs from requested languages. This can happen if a language switch was performed.
+                    // Current slug's language differs from the requested language. This can happen if a language switch was performed.
                     // We have to determine the request language...
                     var ambientLanguage = await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == ambientCulture);
                     // ...then determine the active slug for the request language.
-                    var ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, ambientLanguage.Id);
-                    if (ambientSlug.IsEmpty())
-                    {
-                        ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, 0);
-                    }
+                    var ambientSlug = await GetActiveSlugAsync(urlRecord, ambientLanguage.Id);
 
                     if (ambientSlug.HasValue() && ambientSlug != slug)
                     {
@@ -267,6 +287,17 @@ namespace Smartstore.Core.Seo.Routing
             {
                 return (_slugCulture ??= (await _db.Languages.FindByIdAsync(urlRecord.LanguageId, false))?.GetTwoLetterISOLanguageName().EmptyNull()).NullEmpty();
             }
+        }
+
+        private async Task<string> GetActiveSlugAsync(UrlRecord urlRecord, int languageId)
+        {
+            var slug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, languageId);
+            if (slug.IsEmpty())
+            {
+                slug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, 0);
+            }
+
+            return slug;
         }
     }
 }

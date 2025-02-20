@@ -11,7 +11,7 @@
         /// <returns><see cref="UrlRecord"/> query.</returns>
         public static IQueryable<UrlRecord> ApplySlugFilter(this IQueryable<UrlRecord> query, string slug, bool exactMatch = true)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (string.IsNullOrEmpty(slug))
                 return query;
@@ -32,7 +32,7 @@
         public static IOrderedQueryable<UrlRecord> ApplyEntityFilter<T>(this IQueryable<UrlRecord> query, T entity, int? languageId = null, bool? active = null)
             where T : ISlugSupported
         {
-            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(entity);
 
             return ApplyEntityFilter(query, entity.GetEntityName(), entity.Id, languageId, active);
         }
@@ -52,7 +52,7 @@
             int? languageId,
             bool? active = null)
         {
-            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(query);
 
             if (entityId > 0)
             {
