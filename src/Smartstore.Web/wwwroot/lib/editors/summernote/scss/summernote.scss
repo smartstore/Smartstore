@@ -107,6 +107,18 @@ $img-margin-right: 10px;
     --zoom: 1;
     zoom: var(--zoom);
 
+    &.h {
+        height: calc(var(--height, 300px) / var(--zoom));
+    }
+
+    &.minh {
+        min-height: calc(var(--min-height) / var(--zoom));
+    }
+
+    &.maxh {
+        max-height: calc(var(--max-height) / var(--zoom));
+    }
+
     a {
         text-decoration: underline;
     }
