@@ -95,6 +95,7 @@
 - Fixed scrolling to selected section in manufacturer navigation
 - Billiger & Guenstiger: Cookie infos were displayed although tracking was disabled
 - MegaMenu: Input controls do not work properly (missing init of common controls).
+- Fixed that the log list was not loaded in rare cases.
 
 
 ## Smartstore 6.0.0
