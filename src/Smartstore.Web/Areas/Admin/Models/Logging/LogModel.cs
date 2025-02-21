@@ -36,7 +36,7 @@
         public string Logger { get; set; }
 
         [LocalizedDisplay("*Logger")]
-        public string LoggerShort { get; set; }
+        public string ShortLoggerName { get; set; }
 
         [LocalizedDisplay("*HttpMethod")]
         public string HttpMethod { get; set; }

@@ -56,7 +56,7 @@ namespace Smartstore.Core.Logging
         /// <summary>
         /// Gets or sets the full exception
         /// </summary>
-        [MaxLength]
+        [MaxLength, NonSummary]
         public string FullMessage { get; set; }
 
         /// <summary>
@@ -73,13 +73,13 @@ namespace Smartstore.Core.Logging
         /// <summary>
         /// Gets or sets the page URL
         /// </summary>
-        [StringLength(1500)]
+        [StringLength(1500), NonSummary]
         public string PageUrl { get; set; }
 
         /// <summary>
         /// Gets or sets the referrer URL
         /// </summary>
-        [StringLength(1500)]
+        [StringLength(1500), NonSummary]
         public string ReferrerUrl { get; set; }
 
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using Smartstore.Admin.Models.Logging;
-using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -15,7 +14,6 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IDbLogService _dbLogService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly AdminAreaSettings _adminAreaSettings;
 
         private static readonly Dictionary<LogLevel, string> _logLevelHintMap = new()
         {
@@ -30,13 +28,11 @@ namespace Smartstore.Admin.Controllers
         public LogController(
             SmartDbContext db,
             IDbLogService dbLogService,
-            IDateTimeHelper dateTimeHelper,
-            AdminAreaSettings adminAreaSettings)
+            IDateTimeHelper dateTimeHelper)
         {
             _db = db;
             _dbLogService = dbLogService;
             _dateTimeHelper = dateTimeHelper;
-            _adminAreaSettings = adminAreaSettings;
         }
 
         public IActionResult Index()
@@ -63,20 +59,27 @@ namespace Smartstore.Admin.Controllers
                 : null;
 
             LogLevel? logLevel = model.LogLevelId > 0 ? (LogLevel?)model.LogLevelId : null;
+            var loggerNamesMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            var query = _db.Logs.AsNoTracking()
+            var logItems = await _db.Logs
+                .AsNoTracking()
                 .ApplyDateFilter(createdOnFrom, createdOnTo)
                 .ApplyLoggerFilter(model.Logger)
                 .ApplyMessageFilter(model.Message)
                 .ApplyLevelFilter(logLevel)
                 .OrderByDescending(x => x.CreatedOnUtc)
-                .ApplyGridCommand(command, false);
+                .SelectSummary()
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var logItems = await query.ToPagedList(command).LoadAsync();
+            var rows = logItems
+                .Select(x => CreateLogModel(x, true, loggerNamesMap))
+                .ToList();
 
             var gridModel = new GridModel<LogModel>
             {
-                Rows = logItems.Select(PrepareLogModel),
+                Rows = rows,
                 Total = logItems.TotalCount
             };
 
@@ -117,7 +120,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(List));
             }
 
-            var model = PrepareLogModel(log);
+            var model = CreateLogModel(log, false);
 
             return View(model);
         }
@@ -139,48 +142,67 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        private static string TruncateLoggerName(string loggerName)
+        private static string GetShortLoggerName(string name)
         {
-            if (loggerName.IndexOf('.') < 0)
+            if (name == null || name.IndexOf('.') < 0)
             {
-                return loggerName;
+                return name;
             }
 
-            var name = string.Empty;
-            var tokens = loggerName.Split('.');
+            var result = string.Empty;
+            var tokens = name.Split('.');
             for (int i = 0; i < tokens.Length; i++)
             {
                 var token = tokens[i];
-                name += i == tokens.Length - 1
+                result += i == tokens.Length - 1
                     ? token
-                    : string.Concat(token.AsSpan(0, 1), "...");
+                    : string.Concat(token.AsSpan(0, 1), "…");
             }
 
-            return name;
+            return result;
         }
 
-        private LogModel PrepareLogModel(Log log)
+        private LogModel CreateLogModel(Log log, bool forList, Dictionary<string, string> loggerNamesMap = null)
         {
             var model = new LogModel
             {
                 Id = log.Id,
                 LogLevelHint = _logLevelHintMap[log.LogLevel],
                 LogLevel = log.LogLevel.GetLocalizedEnum(),
-                ShortMessage = log.ShortMessage.NullEmpty() ?? log.FullMessage.Truncate(100, "..."),
-                FullMessage = log.FullMessage,
+                ShortMessage = log.ShortMessage.NullEmpty() ?? log.FullMessage.Truncate(100, "…"),
                 IpAddress = log.IpAddress,
                 CustomerId = log.CustomerId,
                 CustomerEmail = log.Customer?.Email,
-                PageUrl = log.PageUrl,
-                ReferrerUrl = log.ReferrerUrl,
                 CreatedOn = _dateTimeHelper.ConvertToUserTime(log.CreatedOnUtc, DateTimeKind.Utc),
                 Logger = log.Logger,
-                LoggerShort = TruncateLoggerName(log.Logger),
                 HttpMethod = log.HttpMethod,
                 UserName = log.UserName,
                 UserAgent = log.UserAgent,
                 ViewUrl = Url.Action(nameof(View), "Log", new { id = log.Id })
             };
+
+            if (loggerNamesMap != null)
+            {
+                if (loggerNamesMap.TryGetValue(log.Logger, out var loggerName))
+                {
+                    model.ShortLoggerName = loggerName;
+                }
+                else
+                {
+                    model.ShortLoggerName = loggerNamesMap[log.Logger] = GetShortLoggerName(log.Logger);
+                }
+            }
+            else
+            {
+                model.ShortLoggerName = GetShortLoggerName(log.Logger);
+            }
+
+            if (!forList)
+            {
+                model.FullMessage = log.FullMessage;
+                model.PageUrl = log.PageUrl;
+                model.ReferrerUrl = log.ReferrerUrl;
+            }
 
             return model;
         }

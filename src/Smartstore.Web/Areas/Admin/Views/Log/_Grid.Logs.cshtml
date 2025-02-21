@@ -28,21 +28,26 @@
         <partial name="_Grid.Logs.Search" model="new LogListModel()" />
     </search-panel>
     <columns>
-        <column for="Id" visible="false" type="string" />
+        <column for="Id" halign="center" visible="false" type="string" />
         <column for="Logger" width="250px">
             <display-template>
-                <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
+                <span class="text-muted text-truncate" :title="item.value">{{ item.row.ShortLoggerName }}</span>
             </display-template>
         </column>
         <column for="ShortMessage" hideable="false">
             <display-template>
-                <span :class="'mr-2 level-badge badge badge-subtle badge-ring badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
-                <a :href="item.row.ViewUrl" class="text-truncate">
-                    {{ item.value }}
-                </a>
+                <div class="dg-cell-value">
+                    <span :class="'mr-2 level-badge badge badge-subtle badge-ring badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
+                    <a :href="item.row.ViewUrl" class="text-truncate">
+                        {{ item.value }}
+                    </a>
+                </div>
             </display-template>
         </column>
         <column for="UserName" width="max-content" />
+        <column for="UserAgent" visible="false" />
+        <column for="HttpMethod" visible="false" halign="center" width="max-content" />
+        <column for="CustomerEmail" visible="false" entity-member="CustomerId" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
 </datagrid>
