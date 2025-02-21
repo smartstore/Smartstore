@@ -1,5 +1,5 @@
-﻿using Smartstore.Core.Data;
-using Smartstore.Data;
+﻿using Smartstore.Core.Common.Configuration;
+using Smartstore.Core.Data;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Logging
@@ -7,10 +7,14 @@ namespace Smartstore.Core.Logging
     public partial class DbLogService : IDbLogService
     {
         private readonly SmartDbContext _db;
+        private readonly CommonSettings _commonSettings;
 
-        public DbLogService(SmartDbContext db)
+        public DbLogService(
+            SmartDbContext db,
+            CommonSettings commonSettings)
         {
             _db = db;
+            _commonSettings = commonSettings;
         }
 
         public virtual async Task<int> ClearLogsAsync(CancellationToken cancelToken = default)
@@ -31,7 +35,7 @@ namespace Smartstore.Core.Logging
         {
             var numDeleted = await _db.Logs
                 .Where(x => x.CreatedOnUtc <= maxAgeUtc && x.LogLevelId < (int)maxLevel)
-                .ExecuteDeleteAsync(cancelToken);
+                .ExecuteDeleteAsync(_commonSettings.DeleteBulkSize, cancelToken);
 
             var dataProvider = _db.DataProvider;
             if (numDeleted > 100 && dataProvider.CanOptimizeTable)

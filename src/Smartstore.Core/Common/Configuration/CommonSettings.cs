@@ -46,5 +46,10 @@ namespace Smartstore.Core.Common.Configuration
         /// Gets or sets the maximum registration age (in minutes) for automatic deletion of guests customers.
         /// </summary>
         public int MaxGuestsRegistrationAgeInMinutes { get; set; } = 1440;  // 1 day (60 * 24).
+
+        /// <summary>
+        /// Gets or sets the number of rows to be deleted in a single delete operation.
+        /// </summary>
+        public int DeleteBulkSize { get; set; } = 1024;
     }
 }
