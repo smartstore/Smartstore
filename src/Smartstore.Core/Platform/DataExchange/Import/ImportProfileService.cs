@@ -313,7 +313,6 @@ namespace Smartstore.Core.DataExchange.Import
                             {
                                 case ImportEntityType.Product:
                                     names["SeName"] = string.Empty;
-                                    names["Specification"] = "Specification";
                                     break;
                                 case ImportEntityType.Category:
                                     names["SeName"] = string.Empty;
