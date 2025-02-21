@@ -2,7 +2,7 @@
 
 @model LogModel
 
-<datagrid id="log-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
+<datagrid id="log-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true" version="2">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
