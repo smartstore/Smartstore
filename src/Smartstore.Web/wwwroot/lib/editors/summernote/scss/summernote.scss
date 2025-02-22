@@ -168,7 +168,8 @@ $img-margin-right: 10px;
 // ------------------------------------------
 
 .note-editor.codeview {
-    .note-editable {
+    .note-editable,
+    .note-statusbar-content {
         display: none;
     }
 
