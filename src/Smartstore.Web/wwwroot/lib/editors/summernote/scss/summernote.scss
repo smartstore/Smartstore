@@ -7,6 +7,7 @@ $note-bg: #8080801d;
 $img-margin-left: 10px;
 $img-margin-right: 10px;
 
+
 // Wrapper & Preview
 // ------------------------------------------
 
@@ -78,6 +79,10 @@ $img-margin-right: 10px;
     }
 
     &.note-airframe {
+        border-width: 0;
+    }
+
+    .CodeMirror {
         border-width: 0;
     }
 }
@@ -207,6 +212,7 @@ $img-margin-right: 10px;
     position: fixed;
     top: 0;
     left: 0;
+    bottom: 0;
     width: 100% !important;
     border-radius: 0 !important;
     border-color: $note-border-color !important;
@@ -219,8 +225,23 @@ $img-margin-right: 10px;
         width: 100% !important;
     }
 
+    .note-editing-area {
+        flex-grow: 1;
+    }
+
+    .note-editable,
+    .note-codable,
+    .CodeMirror {
+        height: 100%;
+    }
+
     .note-resizebar {
-        display: none;
+        cursor: default;
+        pointer-events: none;
+
+        > .note-icon-bar {
+            display: none;
+        }
     }
 }
 
