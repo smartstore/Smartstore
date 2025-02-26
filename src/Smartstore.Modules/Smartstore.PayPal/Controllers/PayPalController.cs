@@ -714,7 +714,7 @@ namespace Smartstore.PayPal.Controllers
 
         async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, WebhookEvent<WebhookResource> webhookEvent)
         {
-            var verifyRequest = new WebhookVerifySignatureRequest<WebhookResource>()
+            var verifyRequest = new VerifyWebhookSignatureRequest<WebhookResource>()
                 .WithBody(new VerifyWebhookSignature<WebhookResource>
                 {
                     AuthAlgo = request.Headers["PAYPAL-AUTH-ALGO"],

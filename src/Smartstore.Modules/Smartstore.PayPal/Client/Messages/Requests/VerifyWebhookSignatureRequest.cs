@@ -3,15 +3,15 @@
     /// <summary>
     /// Verifies a webhook request by checking its signature against the API.
     /// </summary>
-    public class WebhookVerifySignatureRequest<T> : PayPalRequest<object>
+    public class VerifyWebhookSignatureRequest<T> : PayPalRequest<object> where T : class
     {
-        public WebhookVerifySignatureRequest()
+        public VerifyWebhookSignatureRequest()
             : base("/v1/notifications/verify-webhook-signature?", HttpMethod.Post)
         {
             ContentType = "application/json";
         }
 
-        public WebhookVerifySignatureRequest<T> WithBody(VerifyWebhookSignature<T> verifyWebhookSignature)
+        public VerifyWebhookSignatureRequest<T> WithBody(VerifyWebhookSignature<T> verifyWebhookSignature)
         {
             Body = verifyWebhookSignature;
             return this;
