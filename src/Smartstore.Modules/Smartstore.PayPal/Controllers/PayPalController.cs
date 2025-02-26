@@ -698,7 +698,7 @@ namespace Smartstore.PayPal.Controllers
             switch (status)
             {
                 case "completed":
-                    var refundIds = order.GenericAttributes.Get<List<string>>("Payments.PayPalStandard.RefundId") ?? new List<string>();
+                    var refundIds = order.GenericAttributes.Get<List<string>>("Payments.PayPalStandard.RefundId") ?? [];
                     if (!refundIds.Contains(resource.Id)
                         && decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var refundedAmount)
                         && order.CanPartiallyRefundOffline(refundedAmount))
