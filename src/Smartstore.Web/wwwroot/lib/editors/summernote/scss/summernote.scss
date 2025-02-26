@@ -82,6 +82,16 @@ $img-margin-right: 10px;
         border-width: 0;
     }
 
+    .note-editing-area {
+        flex-grow: 1;
+    }
+
+    .note-editable,
+    .note-codable,
+    .CodeMirror {
+        height: 100%;
+    }
+
     .CodeMirror {
         border-width: 0;
     }
@@ -105,24 +115,13 @@ $img-margin-right: 10px;
     padding: 10px;
     overflow: auto;
     word-wrap: break-word;
+    height: auto;
     // Reset
     font-weight: normal;
     font-style: normal;
     text-decoration: none;
     --zoom: 1;
     zoom: var(--zoom);
-
-    &.h {
-        height: calc(var(--height, 300px) / var(--zoom));
-    }
-
-    &.minh {
-        min-height: calc(var(--min-height) / var(--zoom));
-    }
-
-    &.maxh {
-        max-height: calc(var(--max-height) / var(--zoom));
-    }
 
     a {
         text-decoration: underline;
@@ -178,6 +177,10 @@ $img-margin-right: 10px;
         display: none;
     }
 
+    &.fullscreen .note-statusbar {
+        display: none;
+    }
+
     .note-codable {
         display: block;
     }
@@ -214,6 +217,9 @@ $img-margin-right: 10px;
     left: 0;
     bottom: 0;
     width: 100% !important;
+    height: 100% !important;
+    min-height: initial !important;
+    max-height: initial !important;
     border-radius: 0 !important;
     border-color: $note-border-color !important;
     z-index: $zindex-tooltip !important;
@@ -284,6 +290,7 @@ $img-margin-right: 10px;
     position: relative;
     display: flex;
     justify-content: space-between;
+    flex-wrap: nowrap;
     font-size: 13px;
     padding: 8px 8px 0 8px;
     line-height: 1;
@@ -316,13 +323,16 @@ $img-margin-right: 10px;
     margin-bottom: -4px;
 }
 
-.note-zoom-action {
+.btn.note-zoom-action {
     --btn-height: 20px;
+    --btn-active-shadow: none;
+    box-shadow: none !important;
 }
 
 .note-zoom-value {
     width: 36px;
     text-align: end;
+    user-select: none;
 }
 
 .note-statusbar.locked {
