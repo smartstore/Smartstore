@@ -8,7 +8,6 @@
         public ListWebhooksRequest()
             : base("/v1/notifications/webhooks", HttpMethod.Get)
         {
-            ContentType = "application/json";
         }
     }
 }

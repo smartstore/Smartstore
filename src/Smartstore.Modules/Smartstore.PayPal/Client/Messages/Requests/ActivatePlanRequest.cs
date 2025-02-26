@@ -3,7 +3,7 @@
     /// <summary>
     /// Activates a PayPal plan.
     /// </summary>
-    public class ActivatePlanRequest : PayPalRequest2<ActivatePlanRequest, object>
+    public class ActivatePlanRequest : PayPalRequest
     {
         public ActivatePlanRequest(string planId)
             : base("/v1/billing/plans/{0}/activate", HttpMethod.Post)

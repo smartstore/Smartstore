@@ -3,7 +3,7 @@
     /// <summary>
     /// Cancels a subscription.
     /// </summary>
-    public class CancelSubscriptionRequest : PayPalRequest<object>
+    public class CancelSubscriptionRequest : PayPalRequest2<CancelSubscriptionRequest, object>
     {
         public CancelSubscriptionRequest(string subscriptionId)
             : base("/v1/billing/subscriptions/{0}/activate", HttpMethod.Post)
@@ -15,20 +15,6 @@
             catch (IOException)
             {
             }
-
-            ContentType = "application/json";
-        }
-
-        public CancelSubscriptionRequest WithRequestId(string payPalRequestId)
-        {
-            Headers.Add("PayPal-Request-Id", payPalRequestId);
-            return this;
-        }
-
-        public CancelSubscriptionRequest WithBody(SubscriptionStateChangeMessage subscriptionStateChangeMessage)
-        {
-            Body = subscriptionStateChangeMessage;
-            return this;
         }
     }
 }

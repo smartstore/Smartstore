@@ -15,8 +15,6 @@
             catch (IOException)
             {
             }
-
-            ContentType = "application/json";
         }
     }
 }

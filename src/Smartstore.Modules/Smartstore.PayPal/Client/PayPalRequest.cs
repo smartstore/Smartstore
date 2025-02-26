@@ -3,23 +3,24 @@
 namespace Smartstore.PayPal.Client
 {
     public class PayPalRequest<TMessage> : PayPalRequest
+        where TMessage : class, new()
     {
         public PayPalRequest(string path, HttpMethod method)
             : base(path, method, typeof(TMessage))
         {
         }
+
+        public new TMessage? Body { get; set; }
     }
 
-    public class PayPalRequest2<TRequest, TMessage> : PayPalRequest
+    public class PayPalRequest2<TRequest, TMessage> : PayPalRequest<TMessage>
         where TRequest : PayPalRequest2<TRequest, TMessage>
         where TMessage : class, new()
     {
         public PayPalRequest2(string path, HttpMethod method)
-            : base(path, method, typeof(TMessage))
+            : base(path, method)
         {
         }
-
-        public new TMessage? Body { get; set; }
 
         public TRequest WithRequestId(string payPalRequestId)
         {
@@ -30,6 +31,12 @@ namespace Smartstore.PayPal.Client
         public TRequest WithPrefer(string prefer)
         {
             Headers.Add("Prefer", prefer);
+            return (TRequest)this;
+        }
+
+        public TRequest WithClientMetadataId(string payPalClientMetadataId)
+        {
+            Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);
             return (TRequest)this;
         }
 

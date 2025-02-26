@@ -3,7 +3,7 @@
     /// <summary>
     /// Voids or cancels an authorized payment, by ID. You cannot void an authorized payment that has been fully captured.
     /// </summary>
-    public class AuthorizationsVoidRequest : PayPalRequest<object>
+    public class AuthorizationsVoidRequest : PayPalRequest
     {
         public AuthorizationsVoidRequest(string authorizationId)
             : base("/v2/payments/authorizations/{0}/void?", HttpMethod.Post)
@@ -15,8 +15,6 @@
             catch (IOException)
             {
             }
-
-            ContentType = "application/json";
         }
     }
 }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Deactivates a PayPal plan.
     /// </summary>
-    public class DeactivatePlanRequest : PayPalRequest<object>
+    public class DeactivatePlanRequest : PayPalRequest
     {
         public DeactivatePlanRequest(string planId)
             : base("/v1/billing/plans/{0}/deactivate", HttpMethod.Post)
@@ -15,8 +15,6 @@
             catch (IOException)
             {
             }
-
-            ContentType = "application/json";
         }
     }
 }
