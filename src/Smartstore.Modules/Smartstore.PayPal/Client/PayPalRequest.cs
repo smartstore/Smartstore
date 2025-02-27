@@ -85,7 +85,7 @@ namespace Smartstore.PayPal.Client
         {
         }
 
-        public new TMessage? Body { get; set; }
+        //public new TMessage? Body { get; set; }
     }
 
     public class PayPalRequest<TRequest, TMessage> : PayPalRequest<TMessage>
