@@ -181,8 +181,8 @@ namespace Smartstore.Web.Api
                         // Perf.
                         o.DefaultModelExpandDepth(2);
                         //o.DocExpansion(DocExpansion.None);
-                        // Highlighting kills JavaScript rendering on large JSON results like product lists.
-                        o.ConfigObject.AdditionalItems.Add("syntaxHighlight", false);
+                        // Highlighting can kill JavaScript rendering on large JSON results like product lists.
+                        //o.ConfigObject.AdditionalItems.Add("syntaxHighlight", false);
                     });
                 });
 
