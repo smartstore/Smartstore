@@ -381,8 +381,8 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> AuthorizeOrderAsync(string captureId, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new OrdersAuthorizeRequest(captureId), cancelToken);
 
         /// <summary>
         /// Captures an order.
@@ -405,8 +405,8 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> CaptureOrderAsync(string orderId, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new OrdersCaptureRequest(orderId), cancelToken);
 
         /// <summary>
         /// Captures authorized payment.
@@ -428,8 +428,8 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> CapturePaymentAsync(string captureId, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new AuthorizationsCaptureRequest(captureId), cancelToken);
 
         /// <summary>
         /// Voids authorized payment.
@@ -446,8 +446,8 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> VoidPaymentAsync(string authorizationId, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new AuthorizationsVoidRequest(authorizationId), cancelToken);
 
         /// <summary>
         /// Refunds captured payment.
@@ -479,20 +479,20 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> RefundPaymentAsync(string captureId, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new CapturesRefundRequest(captureId), cancelToken);
 
         /// <summary>
         /// Gets a list of webhooks.
         /// </summary>
-        public Task<PayPalResponse> ListWebhooksAsync(ListWebhooksRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> ListWebhooksAsync(CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new ListWebhooksRequest(), cancelToken);
 
         /// <summary>
         /// Creates a webhook.
         /// </summary>  
-        public Task<PayPalResponse> CreateWebhookAsync(CreateWebhookRequest request, CancellationToken cancelToken = default)
-            => ExecuteRequestAsync(request, cancelToken);
+        public Task<PayPalResponse> CreateWebhookAsync(Webhook webhook, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(new CreateWebhookRequest().WithBody(webhook), cancelToken);
 
         /// <summary>
         /// Adds a tracking number to a PayPal order.

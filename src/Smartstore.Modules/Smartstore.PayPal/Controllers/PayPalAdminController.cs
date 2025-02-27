@@ -276,7 +276,7 @@ namespace Smartstore.PayPal.Controllers
 
         private async Task<string> GetWebHookIdAsync()
         {
-            var listWebhooksResponse = await _client.ListWebhooksAsync(new ListWebhooksRequest());
+            var listWebhooksResponse = await _client.ListWebhooksAsync();
             var webhooks = listWebhooksResponse.Body<Webhooks>();
 
             // Get store URL
@@ -289,15 +289,14 @@ namespace Smartstore.PayPal.Controllers
                 // Create webhook
                 var webhook = new Webhook
                 {
-                    EventTypes = new EventType[]
-                    {
+                    EventTypes =
+                    [
                         new() { Name = "*" }
-                    },
+                    ],
                     Url = storeUrl + "paypal/webhookhandler"
                 };
 
-                var request = new CreateWebhookRequest().WithBody(webhook);
-                var response = await _client.CreateWebhookAsync(request);
+                var response = await _client.CreateWebhookAsync(webhook);
                 webhook = response.Body<Webhook>();
 
                 return webhook.Id;
