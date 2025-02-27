@@ -275,6 +275,18 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Please continue with your answer.", 
                 "Bitte fahre mit deiner Antwort fort.");
 
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.GeneralPrompt",
+                "Separate the suggestions with the ¶ character (paragraph mark). Do not use numbering.",
+                "Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke). Verwende keine Nummerierungen.");
+            
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.CharLimit",
+                "Each suggestion should have a maximum of {0} characters.",
+                "Jeder Vorschlag soll maximal {0} Zeichen haben.");
+
+            builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt",
+                "Make {0} suggestions about the topic '{1}'.", 
+                "Mache {0} Vorschläge zum Thema '{1}'.");
+
             builder.AddOrUpdate("Admin.Orders.CompleteUnpaidOrder",
                 "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",
                 "Der Auftrag hat den Zahlungsstatus <strong>{0}</strong>. Möchten Sie ihn trotzdem auf komplett setzen?");

@@ -9,6 +9,11 @@ namespace Smartstore.Core.AI
     public abstract class AIProviderBase : IAIProvider
     {
         /// <summary>
+        /// The character used to split streamed AI responses.
+        /// </summary>
+        protected const char AnswerSeparator = '¶';
+
+        /// <summary>
         /// The finish reason when the AI response has been fully transmitted.
         /// </summary>
         protected const string CompletedReason = "stop";

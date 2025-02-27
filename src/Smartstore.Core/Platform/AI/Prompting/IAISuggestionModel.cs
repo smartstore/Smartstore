@@ -9,6 +9,7 @@ namespace Smartstore.Core.AI.Prompting
     {
         string EntityName { get; }
         string TargetProperty { get; }
+        int? NumSuggestions { get; }
         int CharLimit { get; }
     }
 }

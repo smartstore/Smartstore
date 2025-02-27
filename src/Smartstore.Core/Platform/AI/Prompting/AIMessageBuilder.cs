@@ -287,16 +287,17 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated messages will be added.</param>
         public virtual AIChat AddSuggestionMessages(IAISuggestionModel model, AIChat chat)
         {
-            chat.System(Resources.DontUseMarkdown())
-                .System(Resources.DontUseQuotes())
-                .System(Resources.DontUseLineBreaks());
+            chat.User(Resources.GetResource("Smartstore.AI.Prompts.Suggestions.GeneralPrompt"));
 
             if (model.CharLimit > 0)
             {
-                // INFO: the instruction should be formulated in plural (e.g. "each answer..."),
-                // as otherwise individual answers may exceed the character limit.
-                chat.System(Resources.CharLimit(model.CharLimit)).SetMetaData(model.CharLimit);
+                chat.User(Resources.GetResource("Smartstore.AI.Prompts.Suggestions.CharLimit", model.CharLimit))
+                    .SetMetaData(model.CharLimit);
             }
+
+            chat.System(Resources.DontUseMarkdown())
+                .System(Resources.DontUseQuotes())
+                .System(Resources.DontUseLineBreaks());
 
             return chat;
         }
