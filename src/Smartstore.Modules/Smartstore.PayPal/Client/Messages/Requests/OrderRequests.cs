@@ -10,7 +10,7 @@
     /// <summary>
     /// Creates a PayPal order.
     /// </summary>
-    public class OrderCreateRequest : PayPalRequest<OrderCreateRequest, OrderMessage>
+    public class OrderCreateRequest : PayPalRequest<OrderCreateRequest, object>
     {
         public OrderCreateRequest()
             : base("/v2/checkout/orders", HttpMethod.Post)
