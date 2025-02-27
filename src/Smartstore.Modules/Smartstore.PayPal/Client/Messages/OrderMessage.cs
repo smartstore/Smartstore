@@ -335,7 +335,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// <summary>
         /// Configures the label name to Continue or Subscribe Now for subscription consent experience.
         /// </summary>
-        public UserAction UserAction { get; set; } = UserAction.SubscribeNow;
+        public UserAction UserAction { get; set; }
 
         /// <summary>
         /// Region info e.g. de-DE
