@@ -533,6 +533,7 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> GetGooglePayTransactionInfo(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
+            // TODO: (mh) What is this huge code for? Seems repetitive. Urgently TBD with MC!
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);

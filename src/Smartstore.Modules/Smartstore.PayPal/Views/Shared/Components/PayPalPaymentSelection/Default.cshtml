@@ -29,6 +29,7 @@
 
     $(function () {
         var ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
+        // TODO: (mh) Don't mix up jQuery and native DOM. Use .querySelector() here.
         var btnNext = $(".payment-method-next-step-button");
         var btnContainer = $("#paypal-button-container");
         var btnContainerGooglePay = $("#paypal-google-pay-container");
