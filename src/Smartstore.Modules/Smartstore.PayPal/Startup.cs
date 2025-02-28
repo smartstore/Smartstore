@@ -6,6 +6,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net.Http;
 using Smartstore.PayPal.Client;
+using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Filters;
 using Smartstore.PayPal.Services;
 using Smartstore.Web.Bundling;
@@ -47,6 +48,7 @@ namespace Smartstore.PayPal
 
             services.AddScoped<PayPalHelper>();
             services.AddScoped<PayPalApmServiceContext>();
+            services.AddScoped<PayPalRequestFactory>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

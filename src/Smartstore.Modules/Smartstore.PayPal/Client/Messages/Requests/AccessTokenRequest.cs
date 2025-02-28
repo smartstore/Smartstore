@@ -4,18 +4,7 @@ using System.Net.Http.Headers;
 
 namespace Smartstore.PayPal.Client.Messages
 {
-    /// <summary>
-    /// Generates a client token (mandatory for presenting credit card processing in hosted fields).
-    /// </summary>
-    public class GenerateClientTokenRequest : PayPalRequest
-    {
-        public GenerateClientTokenRequest()
-            : base("/v1/identity/generate-token", HttpMethod.Post)
-        {
-        }
-    }
-
-    public class AccessTokenRequest : PayPalRequest
+    public class AccessTokenRequest : PayPalRequest<AccessToken>
     {
         public AccessTokenRequest(
             string? clientId = null,
@@ -24,7 +13,7 @@ namespace Smartstore.PayPal.Client.Messages
             string? authCode = null,
             string? sharedId = null,
             string? sellerNonce = null)
-            : base("/v1/oauth2/token", HttpMethod.Post, typeof(AccessToken))
+            : base("/v1/oauth2/token", HttpMethod.Post)
         {
             if (clientId.HasValue() && secret.HasValue())
             {

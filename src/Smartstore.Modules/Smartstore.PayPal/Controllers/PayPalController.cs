@@ -714,17 +714,16 @@ namespace Smartstore.PayPal.Controllers
 
         async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, WebhookEvent<WebhookResource> webhookEvent)
         {
-            var verifyRequest = new VerifyWebhookSignatureRequest<WebhookResource>()
-                .WithBody(new VerifyWebhookSignature<WebhookResource>
-                {
-                    AuthAlgo = request.Headers["PAYPAL-AUTH-ALGO"],
-                    CertUrl = request.Headers["PAYPAL-CERT-URL"],
-                    TransmissionId = request.Headers["PAYPAL-TRANSMISSION-ID"],
-                    TransmissionSig = request.Headers["PAYPAL-TRANSMISSION-SIG"],
-                    TransmissionTime = request.Headers["PAYPAL-TRANSMISSION-TIME"],
-                    WebhookId = _settings.WebhookId,
-                    WebhookEvent = webhookEvent
-                });
+            var verifyRequest = _client.RequestFactory.WebhookVerifySignature(new VerifyWebhookSignature<WebhookResource>
+            {
+                AuthAlgo = request.Headers["PAYPAL-AUTH-ALGO"],
+                CertUrl = request.Headers["PAYPAL-CERT-URL"],
+                TransmissionId = request.Headers["PAYPAL-TRANSMISSION-ID"],
+                TransmissionSig = request.Headers["PAYPAL-TRANSMISSION-SIG"],
+                TransmissionTime = request.Headers["PAYPAL-TRANSMISSION-TIME"],
+                WebhookId = _settings.WebhookId,
+                WebhookEvent = webhookEvent
+            });
 
             var response = await _client.ExecuteRequestAsync(verifyRequest);
 

@@ -237,7 +237,7 @@ namespace Smartstore.PayPal.Filters
             try
             {
                 // Get client token from PayPal REST API.
-                var response = await _client.ExecuteRequestAsync(new GenerateClientTokenRequest());
+                var response = await _client.ExecuteRequestAsync(_client.RequestFactory.GenerateClientToken());
                 dynamic jResponse = JObject.Parse(response.Body<object>().ToString());
 
                 clientToken = (string)jResponse.client_token;

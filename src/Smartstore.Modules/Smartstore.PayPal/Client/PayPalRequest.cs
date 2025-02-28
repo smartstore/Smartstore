@@ -27,29 +27,29 @@ namespace Smartstore.PayPal.Client
         public string ContentType { get; set; } = DefaultContentType;
         public string ContentEncoding { get; set; } = DefaultContentEncoding;
 
-        //public PayPalRequest WithRequestId(string payPalRequestId)
-        //{
-        //    Headers.Add("PayPal-Request-Id", payPalRequestId);
-        //    return this;
-        //}
+        public PayPalRequest WithRequestId(string payPalRequestId)
+        {
+            Headers.Add("PayPal-Request-Id", payPalRequestId);
+            return this;
+        }
 
-        //public PayPalRequest WithPrefer(string prefer)
-        //{
-        //    Headers.Add("Prefer", prefer);
-        //    return this;
-        //}
+        public PayPalRequest WithPrefer(string prefer)
+        {
+            Headers.Add("Prefer", prefer);
+            return this;
+        }
 
-        //public PayPalRequest WithClientMetadataId(string payPalClientMetadataId)
-        //{
-        //    Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);
-        //    return this;
-        //}
+        public PayPalRequest WithClientMetadataId(string payPalClientMetadataId)
+        {
+            Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);
+            return this;
+        }
 
-        //public PayPalRequest WithBody(object body)
-        //{
-        //    Body = body;
-        //    return this;
-        //}
+        public PayPalRequest WithBody(object body)
+        {
+            Body = body;
+            return this;
+        }
 
         public object Clone()
             => Clone<PayPalRequest>();
@@ -77,48 +77,34 @@ namespace Smartstore.PayPal.Client
         }
     }
 
-    public class PayPalRequest<TMessage> : PayPalRequest
-        where TMessage : class, new()
+    public class PayPalRequest<TResponse> : PayPalRequest
+        where TResponse : class, new()
     {
         public PayPalRequest(string path, HttpMethod method)
-            : base(path, method, typeof(TMessage))
+            : base(path, method, typeof(TResponse))
         {
         }
-
-        //public new TMessage? Body { get; set; }
     }
 
-    public class PayPalRequest<TRequest, TMessage> : PayPalRequest<TMessage>
-        where TRequest : PayPalRequest<TRequest, TMessage>
-        where TMessage : class, new()
+    public class PayPalRequest<TBody, TResponse> : PayPalRequest<TResponse>
+        where TResponse : class, new()
     {
-        public PayPalRequest(string path, HttpMethod method)
+        public PayPalRequest(TBody? body, string path, HttpMethod method)
             : base(path, method)
         {
+            Body = body!;
         }
 
-        public TRequest WithRequestId(string payPalRequestId)
+        public new TBody Body
         {
-            Headers.Add("PayPal-Request-Id", payPalRequestId);
-            return (TRequest)this;
+            get => (base.Body is null) ? default! : (TBody)base.Body;
+            set => base.Body = value;
         }
 
-        public TRequest WithPrefer(string prefer)
-        {
-            Headers.Add("Prefer", prefer);
-            return (TRequest)this;
-        }
-
-        public TRequest WithClientMetadataId(string payPalClientMetadataId)
-        {
-            Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);
-            return (TRequest)this;
-        }
-
-        public TRequest WithBody(TMessage body)
+        public PayPalRequest<TBody, TResponse> WithBody(TBody body)
         {
             Body = body;
-            return (TRequest)this;
+            return this;
         }
     }
 }
