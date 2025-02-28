@@ -13,7 +13,7 @@
 /* Media query for desktop viewport */
 @include media-breakpoint-up(md) {
     .paypal-button-container .paypal-buttons {
-        width: 200px !important;
+        width: 240px !important;
     }
 }
 
@@ -22,4 +22,8 @@
         width: 100% !important;
         display: block !important;
     }
+}
+
+#gpay-button-online-api-id {
+    width: 100% !important;
 }

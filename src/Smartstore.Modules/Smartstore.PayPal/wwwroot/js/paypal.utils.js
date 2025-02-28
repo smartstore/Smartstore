@@ -223,9 +223,193 @@
         return PayPalHostedFieldsMethod;
     })();
 
+    var GooglePayPayPalButton = window.GooglePayPayPalButton = (function () {
+        let buttonContainer = null;
+
+        class GooglePayPayPalButton {
+            constructor() {
+                buttonContainer = $("#paypal-google-pay-container");
+
+                // In OffCanvasCart the button isn't there on pageload. 
+                // So we must check if the button was rendered already and if not init it.
+                if (buttonContainer && buttonContainer.html().trim() == '') {
+                    window.GooglePayPayPalButton.onGooglePayLoaded();
+                }
+            }
+            async onGooglePayLoaded() {
+                if (!buttonContainer.length)
+                    return;
+
+                await waitForPaypal();
+
+                const paymentsClient = getGooglePaymentsClient();
+                const { allowedPaymentMethods } = await getGooglePayConfig();
+                paymentsClient
+                    .isReadyToPay(getGoogleIsReadyToPayRequest(allowedPaymentMethods))
+                    .then(function(response) {
+                        if (response.result) {
+                            addGooglePayButton();
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                    });
+            }
+        }
+
+        // Define the version of the Google Pay API referenced when creating your configuration
+        const baseRequest = {
+            apiVersion: 2,
+            apiVersionMinor: 0,
+        };
+
+        let paymentsClient = null, allowedPaymentMethods = null, merchantInfo = null;
+
+        // Wait for the PayPal JS SDK to be loaded.
+        function waitForPaypal() {
+            return new Promise((resolve) => {
+                function checkPaypal() {
+                    if (typeof paypal !== 'undefined') {
+                        resolve();
+                    } else {
+                        setTimeout(checkPaypal, 100);
+                    }
+                }
+                checkPaypal();
+            });
+        }
+
+        function onPaymentAuthorized(paymentData) {
+            return new Promise(function (resolve, reject) {
+                processPayment(paymentData)
+                    .then(function (data) {
+                        resolve({ transactionState: "SUCCESS" });
+                    })
+                    .catch(function (errDetails) {
+                        resolve({ transactionState: "ERROR" });
+                    });
+            });
+        }
+
+        function getGooglePaymentsClient() {
+            if (paymentsClient === null) {
+                paymentsClient = new google.payments.api.PaymentsClient({
+                    environment: buttonContainer.attr("data-is-sandbox") == "true" ? "TEST" : "PRODUCTION",
+                    paymentDataCallbacks: {
+                        onPaymentAuthorized: onPaymentAuthorized,
+                    }
+                });
+            }
+            return paymentsClient;
+        }
+
+        function addGooglePayButton() {
+            const paymentsClient = getGooglePaymentsClient();
+            const button = paymentsClient.createButton({
+                onClick: onGooglePaymentButtonClicked,
+            });
+
+            buttonContainer.append(button);
+        }
+
+        // Configure support for payment methods supported by the Google Pay
+        function getGoogleIsReadyToPayRequest(allowedPaymentMethods) {
+            return Object.assign({}, baseRequest, {
+                allowedPaymentMethods: allowedPaymentMethods,
+            });
+        }
+
+        // Fetch Default Config from PayPal via PayPal SDK
+        async function getGooglePayConfig() {
+            if (allowedPaymentMethods == null || merchantInfo == null) {
+                const googlePayConfig = await paypal.Googlepay().config();
+                allowedPaymentMethods = googlePayConfig.allowedPaymentMethods;
+                merchantInfo = googlePayConfig.merchantInfo;
+            }
+            return {
+                allowedPaymentMethods,
+                merchantInfo,
+            };
+        }
+
+        /* Configure support for the Google Pay API */
+        async function getGooglePaymentDataRequest() {
+            const paymentDataRequest = Object.assign({}, baseRequest);
+            const { allowedPaymentMethods, merchantInfo } = await getGooglePayConfig();
+            paymentDataRequest.allowedPaymentMethods = allowedPaymentMethods;
+            paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
+            paymentDataRequest.merchantInfo = merchantInfo;
+            paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"];
+            return paymentDataRequest;
+        }
+
+        function getGoogleTransactionInfo() {
+            let transactionInfo;
+            $.ajax({
+                async: false,
+                type: 'POST',
+                url: buttonContainer.data("get-transaction-info-url"),
+                data: {
+                    routeIdent: buttonContainer.data("route-ident")
+                },
+                cache: false,
+                success: function (resp) {
+                    return resp;
+                }
+            });
+
+            return transactionInfo;
+        }
+
+        async function onGooglePaymentButtonClicked() {
+            const paymentDataRequest = await getGooglePaymentDataRequest();
+            const paymentsClient = getGooglePaymentsClient();
+            paymentsClient.loadPaymentData(paymentDataRequest);
+        }
+
+        async function processPayment(paymentData) {
+            return new Promise(async function (resolve, reject) {
+                const orderId = createOrder(buttonContainer.data("create-order-url"), buttonContainer.attr("id"), buttonContainer.data("route-ident"));
+                try {
+                    const { status } = await paypal.Googlepay().confirmOrder({
+                        orderId: orderId,
+                        paymentMethodData: paymentData.paymentMethodData,
+                    });
+
+                    if (status === "APPROVED") {
+                        initTransaction({ orderID: orderId }, buttonContainer);
+                    } else {
+                        displayNotification(buttonContainer.data("transaction-error"), "error");
+                        resolve({
+                            transactionState: 'ERROR',
+                            error: {
+                                intent: 'PAYMENT_AUTHORIZATION',
+                                message: 'TRANSACTION FAILED',
+                            }
+                        })
+                    }
+                } catch (err) {
+                    displayNotification(err.message, "error");
+                    
+                    resolve({
+                        transactionState: 'ERROR',
+                        error: {
+                            intent: 'PAYMENT_AUTHORIZATION',
+                            message: err.message,
+                        }
+                    })
+                }
+            });
+        }   
+        
+        GooglePayPayPalButton.onGooglePayLoaded = GooglePayPayPalButton.prototype.onGooglePayLoaded;
+
+        return GooglePayPayPalButton;
+    })();
+
     function createOrder(createOrderUrl, paymentSource, routeIdent) {
         var orderId;
-
+        
         $.ajax({
             async: false,   // IMPORTANT INFO: we must wait to get the order id.
             type: 'POST',

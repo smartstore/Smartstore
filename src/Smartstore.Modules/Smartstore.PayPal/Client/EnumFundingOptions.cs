@@ -4,6 +4,7 @@
     {
         paypal,
         sepa,
-        paylater
+        paylater,
+        googlepay
     }
 }

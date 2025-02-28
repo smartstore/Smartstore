@@ -4,16 +4,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Client;
-using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -62,7 +59,8 @@ namespace Smartstore.PayPal.Filters
                 PayPalConstants.Standard,
                 PayPalConstants.CreditCard,
                 PayPalConstants.PayLater,
-                PayPalConstants.Sepa);
+                PayPalConstants.Sepa,
+                PayPalConstants.GooglePay);
 
             var consented = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required);
 
@@ -81,8 +79,12 @@ namespace Smartstore.PayPal.Filters
                     $"?client-id={_settings.ClientId}" +
                     $"&currency={currency}" +
                     // Ensures no breaking changes will be applied in SDK.
-                    $"&integration-date=2021-04-13" +
-                    $"&components=messages,buttons,hosted-fields,funding-eligibility";
+                    $"&integration-date=2021-04-13";
+
+                // Complete component param according to used providers
+                var googlePayEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.GooglePay);
+                var creditCardEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.CreditCard);
+                scriptUrl += $"&components=messages,buttons,funding-eligibility{(creditCardEnabled? ",hosted-fields" : "")}{(googlePayEnabled ? ",googlepay" : "")}";
 
                 if (_settings.Intent == PayPalTransactionType.Authorize)
                 {
@@ -91,21 +93,12 @@ namespace Smartstore.PayPal.Filters
 
                 // paypal & sepa are the default funding options which are always available.
                 // INFO: In fact adding paypal, sepa or card as funding option is breaking the integration in Live mode but not in the Sandbox mode.
-                if (!_settings.UseSandbox)
-                {
-                    scriptUrl += $"&enable-funding=paylater";
-                }
-                else
-                {
-                    scriptUrl += $"&enable-funding=sepa,paylater";
-                }
+                scriptUrl += $"&enable-funding={(_settings.UseSandbox ? "sepa," : "")}paylater";
 
                 scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
                 scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-                var clientToken = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.CreditCard)
-                    ? await GetClientToken(context.HttpContext) 
-                    : string.Empty;
+                var clientToken = creditCardEnabled ? await GetClientToken(context.HttpContext) : string.Empty;
 
                 //var scriptIncludeTag = new HtmlString($"<script {(consented ? string.Empty : "data-consent=\"required\" data-")}src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' data-client-token='{clientToken}' async id='paypal-js'></script>");
                 var jsSdkScriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, scriptUrl);
@@ -115,6 +108,14 @@ namespace Smartstore.PayPal.Filters
                 jsSdkScriptIncludeTag.Attributes["async"] = "async";
 
                 _widgetProvider.RegisterHtml("end", jsSdkScriptIncludeTag);
+
+                // Register Google Pay script include.
+                if (googlePayEnabled)
+                {
+                    var googlePayScriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, "https://pay.google.com/gp/p/js/pay.js");
+                    googlePayScriptIncludeTag.Attributes["async"] = "async";
+                    _widgetProvider.RegisterHtml("end", googlePayScriptIncludeTag);
+                }
             }
 
             if (!await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.PayUponInvoice))

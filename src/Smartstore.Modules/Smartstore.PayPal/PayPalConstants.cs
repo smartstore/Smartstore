@@ -17,5 +17,6 @@
         public const string MyBank = "Payments.PayPalMyBank";
         public const string Przelewy24 = "Payments.PayPalPrzelewy24";
         public const string Trustly = "Payments.PayPalTrustly";
+        public const string GooglePay = "Payments.PayPalGooglePay";
     }
 }

@@ -1,0 +1,18 @@
+﻿@model GooglePayModel
+<!-- Set up a container element for the Google Pay button -->
+<div id="paypal-google-pay-container"
+     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-get-transaction-info-url="@Url.Action("GetGooglePayTransactionInfo", "PayPal")"
+     data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+     data-forward-url="@Url.Action("BillingAddress", "Checkout")"
+     data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
+     data-route-ident="@Model.RouteIdent"
+     data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.GooglePayTranactionError")">
+</div>
+
+@*INFO: No target zone here as can also be rendered via AJAX*@
+<script data-origin="paypal-google-pay-button">
+    $(function () {
+        const ppGooglePayButton = new GooglePayPayPalButton();
+    });
+</script>

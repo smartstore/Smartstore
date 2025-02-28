@@ -64,7 +64,8 @@ namespace Smartstore.PayPal.Filters
             if (!await _payPalHelper.IsAnyProviderActiveAsync(
                 PayPalConstants.Standard,
                 PayPalConstants.PayLater,
-                PayPalConstants.Sepa) && !redirectRequired)
+                PayPalConstants.Sepa,
+                PayPalConstants.GooglePay) && !redirectRequired)
             {
                 await next();
                 return;
@@ -112,7 +113,7 @@ namespace Smartstore.PayPal.Filters
 
                     var isSelected = false;
                     var firstPaymentMethod = model.PaymentMethods.First();
-                    var funding = "paypal";
+                    var funding = FundingOptions.paypal.ToString();
 
                     if (firstPaymentMethod != null)
                     {
@@ -120,15 +121,20 @@ namespace Smartstore.PayPal.Filters
                             (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Standard
                             || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa
                             || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater
+                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay
                             ) && firstPaymentMethod.Selected;
 
                         if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa)
                         {
-                            funding = "sepa";
+                            funding = FundingOptions.sepa.ToString();
                         }
                         else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater)
                         {
-                            funding = "paylater";
+                            funding = FundingOptions.paylater.ToString();
+                        }
+                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay)
+                        {
+                            funding = FundingOptions.googlepay.ToString();
                         }
                     }
 

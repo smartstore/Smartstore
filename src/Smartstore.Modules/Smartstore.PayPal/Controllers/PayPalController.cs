@@ -6,20 +6,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
-using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Services;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.PayPal.Controllers
 {
@@ -34,6 +37,11 @@ namespace Smartstore.PayPal.Controllers
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
         private readonly Currency _primaryCurrency;
+        private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IProductService _productService;
+        private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
+        private readonly IOrderCalculationService _orderCalculationService;
 
         public PayPalController(
             SmartDbContext db,
@@ -44,7 +52,11 @@ namespace Smartstore.PayPal.Controllers
             IRoundingHelper roundingHelper,
             PayPalHttpClient client,
             PayPalSettings settings,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IPriceCalculationService priceCalculationService,
+            IProductService productService,
+            ITaxService taxService,
+            IOrderCalculationService orderCalculationService)
         {
             _db = db;
             _checkoutStateAccessor = checkoutStateAccessor;
@@ -54,6 +66,11 @@ namespace Smartstore.PayPal.Controllers
             _roundingHelper = roundingHelper;
             _client = client;
             _settings = settings;
+            _priceCalculationService = priceCalculationService;
+            _productService = productService;
+            _currencyService = currencyService;
+            _taxService = taxService;
+            _orderCalculationService = orderCalculationService;
 
             // INFO: Services wasn't resolved anymore in ctor.
             //_primaryCurrency = Services.CurrencyService.PrimaryCurrency;
@@ -135,6 +152,19 @@ namespace Smartstore.PayPal.Controllers
             return Json(new { success, message, redirectUrl });
         }
 
+        /// <summary>
+        /// AJAX
+        /// Creates a PayPal order VIA API Request and returns the order id.
+        /// </summary>
+        /// <param name="query">
+        /// Needed to validate and thus save the cart before the order is created. 
+        /// If this wouldn't have been done the cart value might change 
+        /// because the current user data entered (checkout attrs, reward points, etc.) on cart page might not have been saved.
+        /// </param>
+        /// <param name="useRewardPoints">Needed to validate and thus save the cart before the order is created. </param>
+        /// <param name="paymentSource">The current payment source.</param>
+        /// <param name="routeIdent">The current route identifier.</param>
+        /// <returns>The PayPal order object.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateOrder(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
@@ -170,17 +200,20 @@ namespace Smartstore.PayPal.Controllers
             switch (paymentSource)
             {
                 case "paypal-creditcard-hosted-fields-container":
-                    selectedPaymentMethod = "Payments.PayPalCreditCard";
+                    selectedPaymentMethod = PayPalConstants.CreditCard;
                     break;
                 case "paypal-sepa-button-container":
-                    selectedPaymentMethod = "Payments.PayPalSepa";
+                    selectedPaymentMethod = PayPalConstants.Sepa;
                     break;
                 case "paypal-paylater-button-container":
-                    selectedPaymentMethod = "Payments.PayPalPayLater";
+                    selectedPaymentMethod = PayPalConstants.PayLater;
+                    break;
+                case "paypal-google-pay-container":
+                    selectedPaymentMethod = PayPalConstants.GooglePay;
                     break;
                 case "paypal-button-container":
                 default:
-                    selectedPaymentMethod = "Payments.PayPalStandard";
+                    selectedPaymentMethod = PayPalConstants.Standard;
                     break;
             }
 
@@ -490,6 +523,142 @@ namespace Smartstore.PayPal.Controllers
 
             return RedirectToAction(nameof(CheckoutController.PaymentMethod), "Checkout");
         }
+
+        #region Google Pay
+
+        /// <summary>
+        /// AJAX
+        /// Gets the <see cref="GoogleTransactionInfo"> for Google Pay.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> GetGooglePayTransactionInfo(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
+        {
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            // Only save cart data when we're on shopping cart page.
+            if (routeIdent == "ShoppingCart.Cart")
+            {
+                var warnings = new List<string>();    
+                var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
+
+                if (!isCartValid)
+                {
+                    return Json(new { success = false, message = string.Join(Environment.NewLine, warnings) });
+                }
+            }
+
+            var transactionInfo = new GoogleTransactionInfo
+            {
+                CurrencyCode = Services.WorkContext.WorkingCurrency.CurrencyCode,
+                CountryCode = "DE",                             // TODO: We might need a setting for this. According to the docs this is the country code of the acquirer bank.
+                //TransactionId = Guid.NewGuid().ToString(),    // We'll skip this for now.
+                TotalPriceStatus = "ESTIMATED"                  // INFO: Estimated because it is called from basket. Even on payment page a customer could change the shipping method and thus alter the final price.
+            };
+
+            var model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
+            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
+            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
+            var isVatExempt = await _taxService.IsVatExemptAsync(customer);
+
+            // Add cart items for display.
+            foreach (var item in model.Items)
+            {
+                var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
+                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
+                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+                var convertedUnitPrice = _currencyService.ConvertToWorkingCurrency(isVatExempt ? unitPrice.Tax.Value.PriceNet : unitPrice.Tax.Value.PriceGross);
+                var itemPrice = convertedUnitPrice.Amount * cartItem.Item.Quantity;
+
+                var productName = item.ProductName?.Value?.Truncate(126);
+
+                var displayItem = new DisplayItem
+                {
+                    Label = productName,
+                    Price = itemPrice.ToStringInvariant("F"),
+                    Status = GooglePayItemStatus.Final,
+                    Type = GooglePayItemType.LineItem
+                };
+
+                transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, displayItem];
+            }
+
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, !isVatExempt);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, _primaryCurrency);
+
+            // Display subtotal
+            var subtotalDisplayItem = new DisplayItem
+            {
+                Label = T("Order.SubTotal"),
+                Price = subTotalConverted.Amount.ToStringInvariant("F"),
+                Status = GooglePayItemStatus.Final,
+                Type = GooglePayItemType.Subtotal
+            };
+
+            (Money tax, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+            var cartTax = _currencyService.ConvertFromPrimaryCurrency(tax.Amount, _primaryCurrency);
+
+            // Display tax
+            var taxDisplayItem = new DisplayItem
+            {
+                Label = T("Order.Tax"),
+                Price = cartTax.Amount.ToStringInvariant("F"),
+                Status = GooglePayItemStatus.Final,
+                Type = GooglePayItemType.Tax
+            };
+
+            // Display shipping
+            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, !isVatExempt);
+            var shippingTotalAmount = _currencyService.ConvertFromPrimaryCurrency(_roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount), _primaryCurrency);
+
+            // Only Price=0 and Status=PENDING when were on cart page.
+            var shippingDisplayItem = new DisplayItem
+            {
+                Label = T("Order.Shipping"),
+                Price = shippingTotalAmount.Amount.ToStringInvariant("F"),
+                Status = shippingTotalAmount.Amount > 0 ? GooglePayItemStatus.Final : GooglePayItemStatus.Pending,
+                Type = GooglePayItemType.LineItem
+            };
+
+            // Discounts
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            var orderTotalDiscountAmount = new Money();
+            if (cartTotal.DiscountAmount > decimal.Zero)
+            {
+                orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, _primaryCurrency);
+            }
+
+            var subTotalDiscountAmount = new Money();
+            if (cartSubTotal.DiscountAmount > decimal.Zero)
+            {
+                subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(
+                    isVatExempt ? cartSubTotal.DiscountAmount.Amount : cartSubTotal.DiscountAmount.Amount,
+                    _primaryCurrency);
+            }
+
+            decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + subTotalDiscountAmount.Amount);
+
+            var discountDisplayItem = new DisplayItem
+            {
+                Label = T("Order.TotalDiscount"),          
+                Price = (discountAmount * -1).ToStringInvariant("F"),
+                Status = GooglePayItemStatus.Final,
+                Type = GooglePayItemType.LineItem
+            };
+
+            transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, subtotalDisplayItem, taxDisplayItem, shippingDisplayItem, discountDisplayItem];
+
+            var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total.Value.Amount, _primaryCurrency);
+
+            transactionInfo.TotalPriceLabel = T("ShoppingCart.ItemTotal");
+            transactionInfo.TotalPrice = cartTotalConverted.Amount.ToStringInvariant("F");
+
+            return Json(transactionInfo);
+        }
+
+        #endregion
 
         [HttpPost]
         [Route("paypal/webhookhandler"), WebhookEndpoint]

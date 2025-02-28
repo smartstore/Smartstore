@@ -50,6 +50,12 @@ namespace Smartstore.PayPal.Filters
                 {
                     _widgetProvider.RegisterViewComponent<PayPalPayLaterViewComponent>("offcanvas_cart_summary");
                 }
+
+                // GooglePay
+                if (fundings.Contains(FundingOptions.googlepay.ToString()) && await _payPalHelper.IsProviderActiveAsync(PayPalConstants.GooglePay))
+                {
+                    _widgetProvider.RegisterViewComponent<PayPalGooglePayViewComponent>("offcanvas_cart_summary");
+                }
             }
 
             await next();

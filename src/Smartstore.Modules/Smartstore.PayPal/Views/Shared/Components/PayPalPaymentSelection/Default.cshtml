@@ -1,5 +1,4 @@
 ﻿@model PublicPaymentMethodModel
-
 <!-- Set up a container element for the paypal button -->
 <div id="paypal-button-container"
      class="paypal-button-container"
@@ -10,9 +9,20 @@
      data-color="@Model.ButtonColor"
      attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
 
+@if (Model.IsGooglePayActive)
+{
+    <div id="paypal-google-pay-container"
+         data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+         data-get-transaction-info-url="@Url.Action("GetGooglePayTransactionInfo", "PayPal")"
+         data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+         data-forward-url="@Url.Action("BillingAddress", "Checkout")"
+         data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
+         data-route-ident="@Model.RouteIdent">
+    </div>
+}
+
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-payment-selection">
-
     window.Res.PayPal = {
         "NoScriptsLoaded": "@T("Plugins.Smartstore.PayPal.NoScriptsLoaded")"
     };
@@ -21,10 +31,12 @@
         var ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
         var btnNext = $(".payment-method-next-step-button");
         var btnContainer = $("#paypal-button-container");
-        
+        var btnContainerGooglePay = $("#paypal-google-pay-container");
+
         // Listen for changes to the radio inputs.
         $(document).on("change", "input[name='paymentmethod']", (e) => {
             var isPayPal = false;
+            var isGooglePay = false;
             var fundingSource = "paypal";
 
             if (e.target.value == "Payments.PayPalStandard") {
@@ -38,15 +50,29 @@
                 isPayPal = true;
                 fundingSource = "paylater";
             }
+            else if (e.target.value == "Payments.PayPalGooglePay") {
+                isGooglePay = true;
+                fundingSource = "googlepay";
+            }
 
-            if (isPayPal) {
-                ppButton.initPayPalScript(fundingSource, true)
+            if (isPayPal || isGooglePay) {
+                if (isPayPal) {
+                    ppButton.initPayPalScript(fundingSource, true);
+                    btnContainer[0].style.display = 'block';
+                    btnContainerGooglePay[0].style.display = 'none';
+                }
+                else if (isGooglePay) {
+                    const ppGooglePayButton = new GooglePayPayPalButton();
+                    btnContainer[0].style.display = 'none';
+                    btnContainerGooglePay[0].style.display = 'block';
+                }
+
                 btnNext[0].style.display = 'none';
-                btnContainer[0].style.display = 'block';
             }
             else {
                 btnNext[0].style.display = 'block';
                 btnContainer[0].style.display = 'none';
+                btnContainerGooglePay[0].style.display = 'none';
             }
         });
 

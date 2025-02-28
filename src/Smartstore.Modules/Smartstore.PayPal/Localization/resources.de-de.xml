@@ -22,6 +22,9 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayLater" AppendRootKey="false">
         <Value>PayPal später zahlen</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGooglePay" AppendRootKey="false">
+        <Value>Google Pay</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalCreditCard" AppendRootKey="false">
         <Value>PayPal Kreditkarte</Value>
     </LocaleResource>
@@ -75,6 +78,13 @@
         <Value>
             <![CDATA[
 			    Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalGooglePay" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    Bietet einen sicheren Zahlungsprozess, der nahtlos über Google Pay abgewickelt wird.
             ]]>
         </Value>
     </LocaleResource>
@@ -168,6 +178,13 @@
                     <![CDATA[
 				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
 				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalGooglePay" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        Bezahlen Sie direkt über Google Pay in einer sicheren Umgebung.
                       ]]>
                 </Value>
             </LocaleResource>
@@ -532,6 +549,9 @@
             </LocaleResource>
             <LocaleResource Name="Error.3DSecure">
                 <Value>Bei der Bestätigung Ihrer Karte durch Ihren Kartenanbieter ist ein Fehler aufgetreten.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.GooglePayTranactionError">
+                <Value>Diese Transaktion ist fehlgeschlagen.</Value>
             </LocaleResource>
             <LocaleResource Name="CartHasChanged">
                 <Value>Ihr Warenkorb hat sich nach dem Login geändert. Bitte bestätigen Sie Ihren aktuellen Warenkorb bei PayPal.</Value>

@@ -3,7 +3,7 @@
     public class PublicPaymentMethodModel : ModelBase
     {
         /// <summary>
-        /// Value that indicates whether the PayPal button will be rendered in MiniBasket or on the pasyment selection page.
+        /// Value that indicates whether the PayPal button will be rendered in MiniBasket or on the payment selection page.
         /// </summary>
         public bool IsPaymentSelection { get; set; } = false;
 
@@ -26,5 +26,15 @@
         /// Info about the page where the button is rendered. Used in Ajax requests.
         /// </summary>
         public string RouteIdent { get; set; }
+
+        /// <summary>
+        /// Value that indicates whether PayPal is in sandbox mode. (Needed for GooglePay)
+        /// </summary>
+        public bool IsSandbox { get; set; }
+
+        /// <summary>
+        /// Value that indicates whether GooglePay is active. 
+        /// </summary>
+        public bool IsGooglePayActive { get; set; }
     }
 }
