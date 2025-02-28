@@ -276,8 +276,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Bitte fahre mit deiner Antwort fort.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.GeneralPrompt",
-                "Separate the suggestions with the ¶ character (paragraph mark). Do not use numbering.",
-                "Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke). Verwende keine Nummerierungen.");
+                "Separate the suggestions with the ¶ character (paragraph mark). Do not use numbering. Do not repeat suggestions.",
+                "Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke). Verwende keine Nummerierungen. Wiederhole keine Vorschläge.");
             
             builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.CharLimit",
                 "Each suggestion should have a maximum of {0} characters.",
