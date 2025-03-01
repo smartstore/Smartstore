@@ -7,7 +7,6 @@ $note-bg: #8080801d;
 $img-margin-left: 10px;
 $img-margin-right: 10px;
 
-
 // Wrapper & Preview
 // ------------------------------------------
 
@@ -303,6 +302,13 @@ $img-margin-right: 10px;
     &:hover {
         color: var(--gray-650);
     }
+}
+
+.note-tag-glimpse {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+    background-color: rgba(var(--primary-rgb), 0.2);
 }
 
 .note-resizebar {
