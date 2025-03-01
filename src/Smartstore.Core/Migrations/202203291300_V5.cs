@@ -697,84 +697,134 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Account.ChangePassword.Errors.OldPasswordDoesntMatch"); // Isn't used
 
             builder.AddOrUpdate("Identity.Error.ConcurrencyFailure",
-                "A concurrency failure has occured while trying to save your data.",
-                "Beim Speichern Ihrer Daten ist ein Fehler durch gleichzeitigen Zugriff aufgetreten.");
+          "A concurrency failure has occurred while trying to save your data.",
+          "Beim Speichern Ihrer Daten ist ein Fehler durch gleichzeitigen Zugriff aufgetreten.",
+          "هنگام ذخیره داده‌های شما به دلیل دسترسی همزمان خطایی رخ داده است.");
+
             builder.AddOrUpdate("Identity.Error.DefaultError",
                 "An error has occurred. Please retry the operation.",
-                "Es ist ein Fehler aufgetreten. Bitte führen Sie den Vorgang erneut durch.");
+                "Es ist ein Fehler aufgetreten. Bitte führen Sie den Vorgang erneut durch.",
+                "خطایی رخ داده است. لطفاً عملیات را دوباره امتحان کنید.");
+
             builder.AddOrUpdate("Identity.Error.DuplicateRoleName",
                 "The rolename '{0}' already exists.",
-                "Der Name '{0}' wird bereits für eine andere Kundengruppe verwendet.");
+                "Der Name '{0}' wird bereits für eine andere Kundengruppe verwendet.",
+                "نام نقش '{0}' از قبل وجود دارد.");
+
             builder.AddOrUpdate("Identity.Error.DuplicateUserName",
                 "The username '{0}' already exists.",
-                "Der Benutzername '{0}' wird bereits verwendet.");
+                "Der Benutzername '{0}' wird bereits verwendet.",
+                "نام کاربری '{0}' از قبل وجود دارد.");
+
             builder.AddOrUpdate("Identity.Error.DuplicateEmail",
                 "The email '{0}' already exists",
-                "Die E-Mail-Adresse '{0}' wird bereits verwendet.");
+                "Die E-Mail-Adresse '{0}' wird bereits verwendet.",
+                "ایمیل '{0}' از قبل وجود دارد.");
+
             builder.AddOrUpdate("Identity.Error.InvalidEmail",
                 "Email is not valid.",
-                "Keine gültige E-Mail-Adresse.");
+                "Keine gültige E-Mail-Adresse.",
+                "ایمیل معتبر نیست.");
+
             builder.AddOrUpdate("Identity.Error.InvalidRoleName",
                 "The name '{0}' is not valid for customer roles.",
-                "Der Name '{0}' ist für Kundengruppen nicht gültig.");
+                "Der Name '{0}' ist für Kundengruppen nicht gültig.",
+                "نام '{0}' برای نقش‌های مشتری معتبر نیست.");
+
             builder.AddOrUpdate("Identity.Error.InvalidToken",
                 "Token is not valid.",
-                "Das Token ist nicht gültig.");
+                "Das Token ist nicht gültig.",
+                "توکن معتبر نیست.");
+
             builder.AddOrUpdate("Identity.Error.InvalidUserName",
                 "The username '{0}' is not valid.",
-                "Der Benutzername '{0}' ist nicht gültig.");
+                "Der Benutzername '{0}' ist nicht gültig.",
+                "نام کاربری '{0}' معتبر نیست.");
+
             builder.AddOrUpdate("Identity.Error.LoginAlreadyAssociated",
                 "The customer is already registered.",
-                "Der Kunde ist bereits registriert.");
+                "Der Kunde ist bereits registriert.",
+                "مشتری از قبل ثبت‌نام کرده است.");
+
             builder.AddOrUpdate("Identity.Error.PasswordMismatch",
                 "The password and confirmation do not match.",
-                "Passwort und Bestätigung stimmen nicht überein.");
+                "Passwort und Bestätigung stimmen nicht überein.",
+                "رمز عبور و تأیید آن مطابقت ندارند.");
+
             builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit",
                 "The password must contain a digit.",
-                "Das Passwort muss mind. eine Ziffer enthalten.");
+                "Das Passwort muss mind. eine Ziffer enthalten.",
+                "رمز عبور باید حداقل یک رقم داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.PasswordRequiresLower",
                 "The password must contain a lowercase letter.",
-                "Das Passwort muss mind. einen Kleinbuchstaben enthalten.");
+                "Das Passwort muss mind. einen Kleinbuchstaben enthalten.",
+                "رمز عبور باید حداقل یک حرف کوچک داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.PasswordRequiresNonAlphanumeric",
                 "The password must contain a non alphanumeric character.",
-                "Das Passwort muss mind. ein Sonderzeichen enthalten.");
+                "Das Passwort muss mind. ein Sonderzeichen enthalten.",
+                "رمز عبور باید حداقل یک کاراکتر غیرالفبایی داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.PasswordRequiresUniqueChars",
                 "The password must contain at least {0} unique characters.",
-                "Das Passwort muss mindestens {0} eindeutige Zeichen enthalten.");
+                "Das Passwort muss mindestens {0} eindeutige Zeichen enthalten.",
+                "رمز عبور باید حداقل {0} کاراکتر منحصربه‌فرد داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.PasswordRequiresUpper",
                 "The password must contain a capital letter.",
-                "Das Passwort muss mind. einen Großbuchstaben enthalten.");
+                "Das Passwort muss mind. einen Großbuchstaben enthalten.",
+                "رمز عبور باید حداقل یک حرف بزرگ داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.PasswordTooShort",
                 "The password is too short. It must contain at least {0} characters.",
-                "Das Passwort ist zu kurz. Es muss mindestens {0} Zeichen enthalten.");
+                "Das Passwort ist zu kurz. Es muss mindestens {0} Zeichen enthalten.",
+                "رمز عبور خیلی کوتاه است. باید حداقل {0} کاراکتر داشته باشد.");
+
             builder.AddOrUpdate("Identity.Error.RecoveryCodeRedemptionFailed",
                 "The redemption of the recovery code failed.",
-                "Die Eingabe des Wiederherstellungscodes ist fehlgeschlagen.");
+                "Die Eingabe des Wiederherstellungscodes ist fehlgeschlagen.",
+                "استفاده از کد بازیابی ناموفق بود.");
+
             builder.AddOrUpdate("Identity.Error.UserAlreadyHasPassword",
                 "The user already has a password.",
-                "Der Benutzer verfügt bereits über ein Passwort.");
+                "Der Benutzer verfügt bereits über ein Passwort.",
+                "کاربر از قبل رمز عبور دارد.");
+
             builder.AddOrUpdate("Identity.Error.UserAlreadyInRole",
                 "The user has already been assigned to the customer role '{0}'.",
-                "Der Benutzer wurde der Kundengruppe '{0}' bereits zugewiesen.");
+                "Der Benutzer wurde der Kundengruppe '{0}' bereits zugewiesen.",
+                "کاربر قبلاً به نقش مشتری '{0}' اختصاص داده شده است.");
+
             builder.AddOrUpdate("Identity.Error.UserLockoutNotEnabled",
                 "User lockout is not enabled.",
-                "Die Benutzersperrung ist nicht aktiviert.");
+                "Die Benutzersperrung ist nicht aktiviert.",
+                "قفل کاربر فعال نیست.");
+
             builder.AddOrUpdate("Identity.Error.UserNotInRole",
                 "You do not have the necessary permissions to perform this operation.",
-                "Sie verfügen nicht über die erforderlichen Rechte, diesen Vorgang durchzuführen.");
+                "Sie verfügen nicht über die erforderlichen Rechte, diesen Vorgang durchzuführen.",
+                "شما مجوزهای لازم برای انجام این عملیات را ندارید.");
 
             builder.AddOrUpdate("Account.Register.Result.Disabled",
                 "Registration is not allowed at the moment.",
-                "Die Registrierung ist momentan nicht erlaubt.");
+                "Die Registrierung ist momentan nicht erlaubt.",
+                "ثبت‌نام در حال حاضر مجاز نیست.");
 
-            builder.AddOrUpdate("ActivityLog.PublicStore.LoginExternal", "Logged in with {0}", "Eingeloggt mit {0}");
+            builder.AddOrUpdate("ActivityLog.PublicStore.LoginExternal",
+                "Logged in with {0}",
+                "Eingeloggt mit {0}",
+                "ورود با {0}");
+
             builder.AddOrUpdate("Account.Login.CheckEmailAccount",
                 "The credentials provided are incorrect or you have not activated your account yet. Please check your email inbox and confirm the registration.",
-                "Die eingegebenen Benutzerdaten sind nicht korrekt oder Sie haben Ihr Konto noch nicht aktiviert. Bitte prüfen Sie Ihren Email-Posteingang und bestätigen Sie die Registrierung.");
+                "Die eingegebenen Benutzerdaten sind nicht korrekt oder Sie haben Ihr Konto noch nicht aktiviert. Bitte prüfen Sie Ihren Email-Posteingang und bestätigen Sie die Registrierung.",
+                "اطلاعات واردشده نادرست است یا هنوز حساب خود را فعال نکرده‌اید. لطفاً صندوق ورودی ایمیل خود را بررسی کنید و ثبت‌نام را تأیید کنید.");
 
             builder.AddOrUpdate("Admin.System.QueuedEmails.Fields.Attachments",
                 "File attachments",
-                "Dateianhänge");
+                "Dateianhänge",
+                "پیوست‌های فایل");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.MinDigitsInPassword");
             builder.Delete("Admin.Configuration.Settings.CustomerUser.MinSpecialCharsInPassword");
@@ -784,146 +834,273 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Admin.Configuration.Settings.CustomerUser.MinUppercaseCharsInPassword.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireDigit",
-                "Password requires digit",
-                "Passwort erfordert Ziffer",
-                "Specifies that passwords must contain at least one digit.",
-                "Legt fest, dass Passwörter mindestens eine Ziffer enthalten müssen.");
+      "Password requires digit",
+      "Passwort erfordert Ziffer",
+      "رمز عبور باید رقم داشته باشد",
+      "Specifies that passwords must contain at least one digit.",
+      "Legt fest, dass Passwörter mindestens eine Ziffer enthalten müssen.",
+      "مشخص می‌کند که رمز عبور باید حداقل یک رقم داشته باشد.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireUppercase",
                 "Password requires uppercase",
                 "Passwort erfordert Großbuchstaben",
+                "رمز عبور باید حرف بزرگ داشته باشد",
                 "Specifies that passwords must contain at least one uppercase letter.",
-                "Legt fest, dass Passwörter mindestens einen Großbuchstaben enthalten müssen.");
+                "Legt fest, dass Passwörter mindestens einen Großbuchstaben enthalten müssen.",
+                "مشخص می‌کند که رمز عبور باید حداقل یک حرف بزرگ داشته باشد.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireLowercase",
                 "Password requires lowercase",
                 "Passwort erfordert Kleinbuchstaben",
+                "رمز عبور باید حرف کوچک داشته باشد",
                 "Specifies that passwords must contain at least one lowercase letter.",
-                "Legt fest, dass Passwörter mindestens einen Kleinbuchstaben enthalten müssen.");
+                "Legt fest, dass Passwörter mindestens einen Kleinbuchstaben enthalten müssen.",
+                "مشخص می‌کند که رمز عبور باید حداقل یک حرف کوچک داشته باشد.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequiredUniqueChars",
                 "Password requires unique chars",
                 "Passwort erfordert eindeutige Zeichen",
+                "رمز عبور باید کاراکترهای منحصربه‌فرد داشته باشد",
                 "Specifies the minimum number of unique characters which a password must contain.",
-                "Legt die Mindestanzahl der eindeutigen Zeichen fest, die ein Passwort enthalten muss.");
+                "Legt die Mindestanzahl der eindeutigen Zeichen fest, die ein Passwort enthalten muss.",
+                "حداقل تعداد کاراکترهای منحصربه‌فردی که رمز عبور باید داشته باشد را مشخص می‌کند.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireNonAlphanumeric",
                 "Password requires special characters",
                 "Passwort erfordert Sonderzeichen",
+                "رمز عبور باید کاراکترهای خاص داشته باشد",
                 "Specifies that passwords must contain at least one non alphanumeric character.",
-                "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.");
+                "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.",
+                "مشخص می‌کند که رمز عبور باید حداقل یک کاراکتر غیرالفبایی داشته باشد.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.News", "News", "News");
+            builder.AddOrUpdate("Admin.Configuration.Settings.News",
+                "News",
+                "News",
+                "اخبار");
 
-            builder.AddOrUpdate("Account.Fields.Password", "Password security", "Passwortsicherheit");
-            builder.AddOrUpdate("Account.ChangePassword", "Change password", "Passwort ändern");
+            builder.AddOrUpdate("Account.Fields.Password",
+                "Password security",
+                "Passwortsicherheit",
+                "امنیت رمز عبور");
+
+            builder.AddOrUpdate("Account.ChangePassword",
+                "Change password",
+                "Passwort ändern",
+                "تغییر رمز عبور");
 
             #endregion
 
             #region DataGrid
 
-            builder.AddOrUpdate("Admin.DataGrid.ResetState", "Reset", "Zurücksetzen");
-            builder.AddOrUpdate("Admin.DataGrid.NoData", "No data", "Keine Daten");
-            builder.AddOrUpdate("Admin.DataGrid.VBorders", "Row lines", "Zeilen liniert");
-            builder.AddOrUpdate("Admin.DataGrid.HBorders", "Column lines", "Spalten liniert");
-            builder.AddOrUpdate("Admin.DataGrid.Striped", "Striped", "Gestreift");
-            builder.AddOrUpdate("Admin.DataGrid.Hover", "Hover", "Hover");
-            builder.AddOrUpdate("Admin.DataGrid.PagerPos", "Pager", "Pager");
-            builder.AddOrUpdate("Admin.DataGrid.PagerTop", "Top", "Oben");
-            builder.AddOrUpdate("Admin.DataGrid.PagerBottom", "Bottom", "Unten");
-            builder.AddOrUpdate("Admin.DataGrid.PagerBoth", "Top & bottom", "Oben & unten");
-            builder.AddOrUpdate("Admin.DataGrid.XPerPage", "<span class='fwm'>{0}</span> per page", "<span class='fwm'>{0}</span> pro Seite");
-            builder.AddOrUpdate("Admin.DataGrid.DisplayingItems", "Displaying items {0}-{1} of {2}", "Zeige Datensätze {0}-{1} von {2}");
-            builder.AddOrUpdate("Admin.DataGrid.DisplayingItemsShort", "{0}-{1} of {2}", "{0}-{1} von {2}");
-            builder.AddOrUpdate("Admin.DataGrid.ConfirmDelete", "Do you really want to delete the item permanently?", "Soll der Datensatz wirklich unwiderruflich gelöscht werden?");
-            builder.AddOrUpdate("Admin.DataGrid.ConfirmDeleteMany", "Do you really want to delete the selected {0} items permanently?", "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?");
-            builder.AddOrUpdate("Admin.DataGrid.DeleteSuccess", "{0} items successfully deleted.", "{0} Datensätze erfolgreich gelöscht.");
+            builder.AddOrUpdate("Admin.DataGrid.ResetState",
+     "Reset",
+     "Zurücksetzen",
+     "بازنشانی");
+
+            builder.AddOrUpdate("Admin.DataGrid.NoData",
+                "No data",
+                "Keine Daten",
+                "بدون داده");
+
+            builder.AddOrUpdate("Admin.DataGrid.VBorders",
+                "Row lines",
+                "Zeilen liniert",
+                "خطوط ردیف");
+
+            builder.AddOrUpdate("Admin.DataGrid.HBorders",
+                "Column lines",
+                "Spalten liniert",
+                "خطوط ستون");
+
+            builder.AddOrUpdate("Admin.DataGrid.Striped",
+                "Striped",
+                "Gestreift",
+                "راه‌راه");
+
+            builder.AddOrUpdate("Admin.DataGrid.Hover",
+                "Hover",
+                "Hover",
+                "هاور");
+
+            builder.AddOrUpdate("Admin.DataGrid.PagerPos",
+                "Pager",
+                "Pager",
+                "صفحه‌بند");
+
+            builder.AddOrUpdate("Admin.DataGrid.PagerTop",
+                "Top",
+                "Oben",
+                "بالا");
+
+            builder.AddOrUpdate("Admin.DataGrid.PagerBottom",
+                "Bottom",
+                "Unten",
+                "پایین");
+
+            builder.AddOrUpdate("Admin.DataGrid.PagerBoth",
+                "Top & bottom",
+                "Oben & unten",
+                "بالا و پایین");
+
+            builder.AddOrUpdate("Admin.DataGrid.XPerPage",
+                "<span class='fwm'>{0}</span> per page",
+                "<span class='fwm'>{0}</span> pro Seite",
+                "<span class='fwm'>{0}</span> در هر صفحه");
+
+            builder.AddOrUpdate("Admin.DataGrid.DisplayingItems",
+                "Displaying items {0}-{1} of {2}",
+                "Zeige Datensätze {0}-{1} von {2}",
+                "نمایش موارد {0}-{1} از {2}");
+
+            builder.AddOrUpdate("Admin.DataGrid.DisplayingItemsShort",
+                "{0}-{1} of {2}",
+                "{0}-{1} von {2}",
+                "{0}-{1} از {2}");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmDelete",
+                "Do you really want to delete the item permanently?",
+                "Soll der Datensatz wirklich unwiderruflich gelöscht werden?",
+                "آیا واقعاً می‌خواهید این مورد را برای همیشه حذف کنید؟");
+
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmDeleteMany",
+                "Do you really want to delete the selected {0} items permanently?",
+                "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?",
+                "آیا واقعاً می‌خواهید {0} مورد انتخاب‌شده را برای همیشه حذف کنید؟");
+
+            builder.AddOrUpdate("Admin.DataGrid.DeleteSuccess",
+                "{0} items successfully deleted.",
+                "{0} Datensätze erfolgreich gelöscht.",
+                "{0} مورد با موفقیت حذف شدند.");
 
             #endregion
 
             #region Fixes
 
-            builder.AddOrUpdate("Enums.LogLevel.Debug", "Debug", "Debug");
-            builder.AddOrUpdate("Enums.LogLevel.Information", "Info", "Info");
+            builder.AddOrUpdate("Enums.LogLevel.Debug",
+     "Debug",
+     "Debug",
+     "دیباگ");
 
-            builder.AddOrUpdate("ActivityLog.ImportThemeVars", "Imported {0} variables for theme '{1}'.", "{0} Variablen für Theme '{1}' importiert.");
-            builder.AddOrUpdate("ActivityLog.ExportThemeVars", "Successfully exported theme '{0}'.", "Theme '{0}' erfolgreich exportiert.");
+            builder.AddOrUpdate("Enums.LogLevel.Information",
+                "Info",
+                "Info",
+                "اطلاعات");
 
+            builder.AddOrUpdate("ActivityLog.ImportThemeVars",
+                "Imported {0} variables for theme '{1}'.",
+                "{0} Variablen für Theme '{1}' importiert.",
+                "{0} متغیر برای قالب '{1}' وارد شد.");
+
+            builder.AddOrUpdate("ActivityLog.ExportThemeVars",
+                "Successfully exported theme '{0}'.",
+                "Theme '{0}' erfolgreich exportiert.",
+                "قالب '{0}' با موفقیت صادر شد.");
             builder.Delete("Admin.Catalog.Products.Fields.QuantiyControlType");
             builder.Delete("Admin.Catalog.Products.Fields.QuantiyControlType.Hint");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityControlType",
-                "Control type",
-                "Steuerelement",
-                "Specifies the control type to enter the quantity.",
-                "Bestimmt das Steuerelement für die Angabe der Bestellmenge.");
+      "Control type",
+      "Steuerelement",
+      "نوع کنترل",
+      "Specifies the control type to enter the quantity.",
+      "Bestimmt das Steuerelement für die Angabe der Bestellmenge.",
+      "نوع کنترل برای وارد کردن مقدار را مشخص می‌کند.");
 
-            builder.AddOrUpdate("Validation.MustBeANumber", "'{PropertyName}' muss be a number.", "'{PropertyName}' muss eine Zahl sein.");
-            builder.AddOrUpdate("Validation.NonPropertyMustBeANumber", "The field muss be a number.", "Das Feld muss eine Zahl sein.");
+            builder.AddOrUpdate("Validation.MustBeANumber",
+                "'{PropertyName}' must be a number.",
+                "'{PropertyName}' muss eine Zahl sein.",
+                "'{PropertyName}' باید یک عدد باشد.");
+
+            builder.AddOrUpdate("Validation.NonPropertyMustBeANumber",
+                "The field must be a number.",
+                "Das Feld muss eine Zahl sein.",
+                "فیلد باید یک عدد باشد.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.SqlQuery.Succeeded",
                 "The SQL command was executed successfully. Rows affected: {0}.",
-                "Die SQL-Anweisung wurde erfolgreich ausgeführt. Betroffene Zeilen: {0}.");
+                "Die SQL-Anweisung wurde erfolgreich ausgeführt. Betroffene Zeilen: {0}.",
+                "دستور SQL با موفقیت اجرا شد. ردیف‌های تحت تأثیر: {0}.");
 
             builder.AddOrUpdate("Admin.Orders.OrderNotes.Fields.Note",
                 "Note",
                 "Notiz",
+                "یادداشت",
                 "The message or note to this order.",
-                "Die Nachricht oder Notiz zu diesem Auftrag.");
+                "Die Nachricht oder Notiz zu diesem Auftrag.",
+                "پیام یا یادداشت مربوط به این سفارش.");
 
             builder.AddOrUpdate("Admin.Orders.OrderNotes.Fields.DisplayToCustomer",
                 "Display to customer",
                 "Für den Benutzer sichtbar",
+                "نمایش به مشتری",
                 "A value indicating whether to display this order note to a customer.",
-                "Legt fest, ob die Notiz für den Benutzer sichtbar ist.");
+                "Legt fest, ob die Notiz für den Benutzer sichtbar ist.",
+                "مشخص می‌کند که آیا این یادداشت سفارش به مشتری نمایش داده شود یا خیر.");
 
             builder.AddOrUpdate("Admin.System.Log.Fields.Customer",
                 "Customer",
                 "Kunde",
+                "مشتری",
                 "Customer who caused the exception.",
-                "Kunde, der die Ausnahme verursacht hat.");
+                "Kunde, der die Ausnahme verursacht hat.",
+                "مشتری که باعث خطا شده است.");
 
             builder.AddOrUpdate("Admin.System.Log.Fields.UserName",
                 "Username",
-                "Benutzername");
+                "Benutzername",
+                "نام کاربری");
 
             builder.AddOrUpdate("Admin.Orders.List.GoDirectlyToNumber",
                 "Search by order number",
                 "Nach Auftragsnummer suchen",
+                "جستجو بر اساس شماره سفارش",
                 "Opens directly the details of the order with the order number or order reference number.",
-                "Öffnet direkt die Details zum Auftrag mit der Auftrags- oder Bestellreferenznummer.");
+                "Öffnet direkt die Details zum Auftrag mit der Auftrags- oder Bestellreferenznummer.",
+                "جزئیات سفارش را با شماره سفارش یا شماره مرجع سفارش مستقیماً باز می‌کند.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.FileStorage",
                 "Storage",
-                "Dateispeicher");
+                "Dateispeicher",
+                "ذخیره‌سازی");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.CurrentStorageLocation",
                 "The current storage provider is",
-                "Der aktuelle Speicheranbieter ist");
+                "Der aktuelle Speicheranbieter ist",
+                "ارائه‌دهنده ذخیره‌سازی فعلی");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.StorageProvider",
                 "Change storage",
                 "Speicher wechseln",
+                "تغییر ذخیره‌سازی",
                 "Specifies the new storage provider for media file like images.",
-                "Legt den neuen Speicheranbieter für Mediendateien wie z.B. Bilder fest.");
+                "Legt den neuen Speicheranbieter für Mediendateien wie z.B. Bilder fest.",
+                "ارائه‌دهنده جدید ذخیره‌سازی برای فایل‌های رسانه‌ای مانند تصاویر را مشخص می‌کند.");
 
             builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewDisplayType",
                 "Preview display type",
                 "Vorschau-Darstellung",
+                "نوع نمایش پیش‌نمایش",
                 "Specifies display type of the preview for a blog item.",
-                "Legt die Darstellung der Vorschau für einen Blog-Eintrag fest.");
+                "Legt die Darstellung der Vorschau für einen Blog-Eintrag fest.",
+                "نوع نمایش پیش‌نمایش برای یک مطلب وبلاگ را مشخص می‌کند.");
 
             builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.DisplayTagsInPreview",
                 "Display tags on preview",
                 "Tags in Vorschau anzeigen",
-                "Specifies whether tags are display in the preview for blog item.",
-                "Legt fest, ob Tags in der Vorschau eines Blog-Eintrags angezeigt werden.");
+                "نمایش برچسب‌ها در پیش‌نمایش",
+                "Specifies whether tags are displayed in the preview for blog item.",
+                "Legt fest, ob Tags in der Vorschau eines Blog-Eintrags angezeigt werden.",
+                "مشخص می‌کند که آیا برچسب‌ها در پیش‌نمایش مطلب وبلاگ نمایش داده شوند یا خیر.");
 
             builder.AddOrUpdate("Reviews.Helpfulness.SuccessfullyVoted",
                 "Thank you for your voting.",
-                "Danke für Ihre Beurteilung.");
+                "Danke für Ihre Beurteilung.",
+                "ممنون از شما برای رأی‌دادن.");
 
-            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Fields.Sku", "SKU", "SKU");
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Fields.Sku",
+                "SKU",
+                "SKU",
+                "کد محصول");
 
             #endregion
 

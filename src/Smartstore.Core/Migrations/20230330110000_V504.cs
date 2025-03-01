@@ -24,51 +24,102 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Admin.System.SystemInfo.DataProviderFriendlyName", "Database", "Datenbank");
+            builder.AddOrUpdate("Admin.System.SystemInfo.DataProviderFriendlyName",
+     "Database",
+     "Datenbank",
+     "پایگاه داده");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountLimitationsInLists",
                 "Validate discount limitations in product lists",
                 "Prüfe die Rabattgültigkeit in Produktlisten",
+                "بررسی محدودیت‌های تخفیف در لیست محصولات",
                 "Enabling this option may reduce the performance.",
-                "Die Aktivierung dieser Option kann die Performance beeinträchtigen.");
+                "Die Aktivierung dieser Option kann die Performance beeinträchtigen.",
+                "فعال کردن این گزینه ممکن است عملکرد را کاهش دهد.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountGiftCardsInLists",
                 "Check cart for gift cards when validating discounts in product lists",
                 "Prüfe den Warenkorb auf Gutscheine bei der Rabattvalidierung in Produktlisten",
+                "بررسی سبد خرید برای کارت‌های هدیه هنگام اعتبارسنجی تخفیف‌ها در لیست محصولات",
                 "Specifies whether to check the shopping cart for the existence of gift cards when validating discounts in product lists. In case of gift cards no discount is applied because the customer could earn money through that. Enabling this option may reduce the performance.",
-                "Legt fest, ob bei der Rabattvalidierung in Produktlisten der Warenkorb auf vorhandene Gutscheine überprüft werden soll. Bei Gutscheinen wird kein Rabatt gewährt, weil der Kunde damit Geld verdienen könnte. Die Aktivierung dieser Option kann die Performance beeinträchtigen.");
+                "Legt fest, ob bei der Rabattvalidierung in Produktlisten der Warenkorb auf vorhandene Gutscheine überprüft werden soll. Bei Gutscheinen wird kein Rabatt gewährt, weil der Kunde damit Geld verdienen könnte. Die Aktivierung dieser Option kann die Performance beeinträchtigen.",
+                "مشخص می‌کند که آیا هنگام اعتبارسنجی تخفیف‌ها در لیست محصولات، سبد خرید برای وجود کارت‌های هدیه بررسی شود. در صورت وجود کارت هدیه، تخفیف اعمال نمی‌شود زیرا مشتری ممکن است از این طریق سود کند. فعال کردن این گزینه ممکن است عملکرد را کاهش دهد.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ValidateDiscountRulesInLists",
                 "Validate cart rules of discounts in product lists",
                 "Prüfe Warenkorbregeln von Rabatten in Produktlisten",
+                "بررسی قوانین سبد خرید تخفیف‌ها در لیست محصولات",
                 "Enabling this option may reduce the performance.",
-                "Die Aktivierung dieser Option kann die Performance beeinträchtigen.");
+                "Die Aktivierung dieser Option kann die Performance beeinträchtigen.",
+                "فعال کردن این گزینه ممکن است عملکرد را کاهش دهد.");
 
-            builder.AddOrUpdate("Common.Entity.SelectProducts", "Select products", "Produkte auswählen");
-            builder.AddOrUpdate("Common.Entity.SelectCategories", "Select categories", "Warengruppen auswählen");
-            builder.AddOrUpdate("Common.Entity.SelectManufacturers", "Select manufacturers", "Hersteller auswählen");
-            builder.AddOrUpdate("Common.Entity.SelectTopics", "Select topics", "Seiten auswählen");
+            builder.AddOrUpdate("Common.Entity.SelectProducts",
+                "Select products",
+                "Produkte auswählen",
+                "انتخاب محصولات");
 
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo", "Table statistics", "Tabellenstatistik");
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.TableName", "Table name", "Tabelle");
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.NumRows", "Rows", "Datensätze");
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.TotalSpace", "Total space", "Gesamtgröße");
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.UsedSpace", "Used space", "Genutzt");
-            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.UnusedSpace", "Unused", "Ungenutzt");
+            builder.AddOrUpdate("Common.Entity.SelectCategories",
+                "Select categories",
+                "Warengruppen auswählen",
+                "انتخاب دسته‌بندی‌ها");
+
+            builder.AddOrUpdate("Common.Entity.SelectManufacturers",
+                "Select manufacturers",
+                "Hersteller auswählen",
+                "انتخاب تولیدکنندگان");
+
+            builder.AddOrUpdate("Common.Entity.SelectTopics",
+                "Select topics",
+                "Seiten auswählen",
+                "انتخاب موضوعات");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo",
+                "Table statistics",
+                "Tabellenstatistik",
+                "آمار جداول");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.TableName",
+                "Table name",
+                "Tabelle",
+                "نام جدول");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.NumRows",
+                "Rows",
+                "Datensätze",
+                "ردیف‌ها");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.TotalSpace",
+                "Total space",
+                "Gesamtgröße",
+                "فضای کل");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.UsedSpace",
+                "Used space",
+                "Genutzt",
+                "فضای استفاده‌شده");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.DbTableInfo.UnusedSpace",
+                "Unused",
+                "Ungenutzt",
+                "فضای استفاده‌نشده");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.OffloadEmbeddedImagesOnSave",
-                "Offload embedded Base64 images on save",
-                "Eingebettete Base64-Bilder beim Speichern extrahieren",
-                "Finds embedded Base64 images in long HTML descriptions, extracts and saves them to the media storage, and replaces the Base64 fragment with the media path. Offloading is automatically triggered by saving an entity to the database. Currently supported entity types are: Product, Category, Manufacturer and Topic.",
-                "Findet eingebettete Base64-Bilder in langen HTML-Beschreibungen, extrahiert und speichert sie im Medienspeicher und ersetzt das Base64-Fragment durch den Medienpfad. Die Extraktion wird automatisch ausgelöst, wenn eine Entität in der Datenbank gespeichert wird. Derzeit unterstützte Entitätstypen sind: Produkt, Warengruppe, Hersteller und Seite.");
+       "Offload embedded Base64 images on save",
+       "Eingebettete Base64-Bilder beim Speichern extrahieren",
+       "استخراج تصاویر سازنده Base64 هنگام ذخیره",
+       "Finds embedded Base64 images in long HTML descriptions, extracts and saves them to the media storage, and replaces the Base64 fragment with the media path. Offloading is automatically triggered by saving an entity to the database. Currently supported entity types are: Product, Category, Manufacturer and Topic.",
+       "Findet eingebettete Base64-Bilder in langen HTML-Beschreibungen, extrahiert und speichert sie im Medienspeicher und ersetzt das Base64-Fragment durch den Medienpfad. Die Extraktion wird automatisch ausgelöst, wenn eine Entität in der Datenbank gespeichert wird. Derzeit unterstützte Entitätstypen sind: Produkt, Warengruppe, Hersteller und Seite.",
+       "تصاویر سازنده Base64 را در توضیحات طولانی HTML پیدا می‌کند، آن‌ها را استخراج و در ذخیره‌سازی رسانه ذخیره می‌کند و بخش Base64 را با مسیر رسانه جایگزین می‌کند. استخراج به‌طور خودکار با ذخیره یک موجودیت در پایگاه داده فعال می‌شود. انواع موجودیت‌های پشتیبانی‌شده فعلی: محصول، دسته‌بندی، تولیدکننده و موضوع.");
 
             builder.AddOrUpdate("Admin.Configuration.Plugins.Description.Step1",
                 "Use the <a id='{0}' href='{1}' data-toggle='modal'>package uploader</a> or upload the plugin manually - eg. via FTP - to the <i>/Modules</i> folder in your Smartstore directory.",
-                "Verwenden Sie den <a id='{0}' href='{1}' data-toggle='modal'>Paket Uploader</a> oder laden Sie das Plugin manuell - bspw. per FTP - in den <i>/Modules</i> Ordner hoch.");
+                "Verwenden Sie den <a id='{0}' href='{1}' data-toggle='modal'>Paket Uploader</a> oder laden Sie das Plugin manuell - bspw. per FTP - in den <i>/Modules</i> Ordner hoch.",
+                "از <a id='{0}' href='{1}' data-toggle='modal'>آپلودر بسته</a> استفاده کنید یا افزونه را به‌صورت دستی - مثلاً از طریق FTP - به پوشه <i>/Modules</i> در دایرکتوری Smartstore خود آپلود کنید.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Search.SearchFieldsNote",
                 "The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from <a href='https://smartstore.com/en/editions-prices' target='_blank'>Premium Edition</a>.",
-                "In der Standardsuche können die Felder Name, SKU und Kurzbeschreibung durchsucht werden. Für weitere Felder ist ein Such-Plugin wie etwa das MegaSearch-Plugin aus der <a href='https://smartstore.com/en/editions-prices' target='_blank'>Premium Edition</a> notwendig.");
-
+                "In der Standardsuche können die Felder Name, SKU und Kurzbeschreibung durchsucht werden. Für weitere Felder ist ein Such-Plugin wie etwa das MegaSearch-Plugin aus der <a href='https://smartstore.com/en/editions-prices' target='_blank'>Premium Edition</a> notwendig.",
+                "در جستجوی استاندارد، فیلدهای نام، کد محصول (SKU) و توضیحات کوتاه قابل جستجو هستند. برای فیلدهای دیگر به افزونه جستجو مانند افزونه MegaSearch از <a href='https://smartstore.com/en/editions-prices' target='_blank'>نسخه پرمیوم</a> نیاز است.");
             #region Remove old enum resources 
 
             var prefix = "Enums.SmartStore.Core.Domain.";
@@ -372,13 +423,17 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("de", "Gästen erlauben, E-Mails an Freunde zu versenden");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AddProductsToBasketInSinglePositions",
-                "Add products to cart in single positions",
-                "Produkte in einzelnen Positionen in den Warenkorb legen",
-                "Enable this option if you want products with different quantities to be added to the shopping cart in single position.",
-                "Aktivieren Sie diese Option, wenn Produkte mit verschiedenen Mengenangaben als Einzelpositionen in den Warenkorb gelegt werden sollen.");
+      "Add products to cart in single positions",
+      "Produkte in einzelnen Positionen in den Warenkorb legen",
+      "محصولات را به صورت جداگانه به سبد خرید اضافه کنید",
+      "Enable this option if you want products with different quantities to be added to the shopping cart in single position.",
+      "Aktivieren Sie diese Option, wenn Produkte mit verschiedenen Mengenangaben als Einzelpositionen in den Warenkorb gelegt werden sollen.",
+      "این گزینه را فعال کنید اگر می‌خواهید محصولات با مقادیر مختلف به صورت جداگانه در سبد خرید اضافه شوند.");
 
             builder.AddOrUpdate("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts.Hint")
-                .Value("de", "Diese Funktion übernimmt die Shop-Konfiguration dieser Warengruppe für alle Unterwarengruppen und Produkte. Bitte beachten Sie, dass die Änderungen an der Store-Konfiguration zunächst gespeichert werden müssen, bevor diese für Unterkategorien und Produkte übernommen werden können. <b>Vorsicht:</b> Bitte beachten Sie, <b>dass vorhandene Store-Konfigurationen überschrieben bzw. gelöscht werden</b>.");
+                .Value("de", "Diese Funktion übernimmt die Shop-Konfiguration dieser Warengruppe für alle Unterwarengruppen und Produkte. Bitte beachten Sie, dass die Änderungen an der Store-Konfiguration zunächst gespeichert werden müssen, bevor diese für Unterkategorien und Produkte übernommen werden können. <b>Vorsicht:</b> Bitte beachten Sie, <b>dass vorhandene Store-Konfigurationen überschrieben bzw. gelöscht werden</b>.")
+                .Value("fa", "این قابلیت تنظیمات فروشگاه را برای این دسته‌بندی به تمام زیر دسته‌ها و محصولات اعمال می‌کند. لطفاً توجه داشته باشید که تغییرات در تنظیمات فروشگاه باید ابتدا ذخیره شوند تا برای زیر دسته‌ها و محصولات اعمال شوند. <b>احتیاط:</b> لطفاً توجه داشته باشید که <b>تنظیمات فروشگاه موجود ممکن است بازنویسی یا حذف شوند</b>.");
+
         }
     }
 }

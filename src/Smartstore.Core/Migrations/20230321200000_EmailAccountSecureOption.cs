@@ -55,30 +55,37 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Configuration.EmailAccounts.Fields.MailSecureOption",
-                "Encryption",
-                "Verschlüsselung",
-                "Specifies the encryption for the SMTP connection.",
-                "Legt die Verschlüsselung für die SMTP-Verbindung fest.");
+       "Encryption",
+       "Verschlüsselung",
+       "رمزنگاری",
+       "Specifies the encryption for the SMTP connection.",
+       "Legt die Verschlüsselung für die SMTP-Verbindung fest.",
+       "رمزنگاری برای اتصال SMTP را مشخص می‌کند.");
 
             builder.AddOrUpdate("Enums.MailSecureOption.None",
                 "No encryption",
-                "Keine Verschlüsselung");
+                "Keine Verschlüsselung",
+                "بدون رمزنگاری");
 
             builder.AddOrUpdate("Enums.MailSecureOption.Auto",
                 "Automatic (SSL or TLS if available, otherwise no encryption)",
-                "Automatisch (SSL oder TLS, falls verfügbar, sonst nicht verschlüsseln)");
+                "Automatisch (SSL oder TLS, falls verfügbar, sonst nicht verschlüsseln)",
+                "خودکار (SSL یا TLS در صورت موجود بودن، در غیر این صورت بدون رمزنگاری)");
 
             builder.AddOrUpdate("Enums.MailSecureOption.SslOnConnect",
                 "Immediately (encrypt connection immediately with SSL or TLS)",
-                "Sofort (Verbindung sofort mit SSL oder TLS verschlüsseln)");
+                "Sofort (Verbindung sofort mit SSL oder TLS verschlüsseln)",
+                "فوری (اتصال را فوراً با SSL یا TLS رمزنگاری کن)");
 
             builder.AddOrUpdate("Enums.MailSecureOption.StartTls",
                 "StartTLS (always encrypt with TLS after greeting)",
-                "StartTLS (immer nach Begrüßung mit TLS verschlüsseln)");
+                "StartTLS (immer nach Begrüßung mit TLS verschlüsseln)",
+                "StartTLS (همیشه پس از خوشامدگویی با TLS رمزنگاری کن)");
 
             builder.AddOrUpdate("Enums.MailSecureOption.StartTlsWhenAvailable",
                 "StartTLS optional (encrypt with TLS after greeting, if available)",
-                "StartTLS optional (nach Begrüßung mit TLS verschlüsseln, falls verfügbar)");
+                "StartTLS optional (nach Begrüßung mit TLS verschlüsseln, falls verfügbar)",
+                "StartTLS اختیاری (در صورت موجود بودن، پس از خوشامدگویی با TLS رمزنگاری کن)");
 
             builder.Delete(
                 "Admin.Configuration.EmailAccounts.Fields.EnableSsl",

@@ -140,43 +140,75 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Permissions.DisplayName.PriceLabel", "Price labels", "Preis Labels");
+            builder.AddOrUpdate("Permissions.DisplayName.PriceLabel",
+     "Price labels",
+     "Preis Labels",
+     "برچسب‌های قیمت");
 
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels", "Price Labels", "Preis Labels");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels.EditPriceLabelDetails", "Edit Price Label", "Preis Label bearbeiten");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels.AddNew", "Add Price Label", "Preis Label hinzufügen");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Added", "Price label was successfully added.", "Das Preis Label wurde erfolgreich zugefügt.");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Updated", "Price label was successfully updated.", "Das Preis Label wurde erfolgreich aktualisiert.");
-            
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels",
+                "Price Labels",
+                "Preis Labels",
+                "برچسب‌های قیمت");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels.EditPriceLabelDetails",
+                "Edit Price Label",
+                "Preis Label bearbeiten",
+                "ویرایش برچسب قیمت");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels.AddNew",
+                "Add Price Label",
+                "Preis Label hinzufügen",
+                "افزودن برچسب قیمت");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Added",
+                "Price label was successfully added.",
+                "Das Preis Label wurde erfolgreich zugefügt.",
+                "برچسب قیمت با موفقیت اضافه شد.");
+
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Updated",
+                "Price label was successfully updated.",
+                "Das Preis Label wurde erfolgreich aktualisiert.",
+                "برچسب قیمت با موفقیت به‌روزرسانی شد.");
+
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Name",
                 "Name",
                 "Name",
+                "نام",
                 "Specifies the optional name that is displayed on product detail pages, e.g. 'Retail price', 'Lowest recent price'.",
-                "Der optionale Name, der auf der Produktdetailseite angezeigt wird, z.B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.");
+                "Der optionale Name, der auf der Produktdetailseite angezeigt wird, z.B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.",
+                "نام اختیاری که در صفحات جزئیات محصول نمایش داده می‌شود، مثلاً 'قیمت خرده‌فروشی'، 'کمترین قیمت اخیر'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.ShortName",
                 "Name (short)",
                 "Name (kurz)",
+                "نام (کوتاه)",
                 "The short name that is displayed in product lists, e.g. 'MSRP', 'Lowest'.",
-                "Kurzbezeichnung, die in Produktlisten angezeigt wird, z.B. 'UVP', 'Niedrigster'.");
+                "Kurzbezeichnung, die in Produktlisten angezeigt wird, z.B. 'UVP', 'Niedrigster'.",
+                "نام کوتاه که در لیست محصولات نمایش داده می‌شود، مثلاً 'قیمت پیشنهادی'، 'کمترین'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Description",
                 "Description",
                 "Beschreibung",
+                "توضیحات",
                 "The optional description that is displayed on product detail pages in a tooltip.",
-                "Optionale Beschreibung, die auf Produktdetailseiten in einem Tooltip angezeigt wird.");
+                "Optionale Beschreibung, die auf Produktdetailseiten in einem Tooltip angezeigt wird.",
+                "توضیحات اختیاری که در صفحات جزئیات محصول در یک tooltip نمایش داده می‌شود.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.IsRetailPrice",
                 "Is MSRP",
                 "Ist UVP",
+                "قیمت پیشنهادی خرده‌فروشی است",
                 "Specifies whether this label represents an MSRP price.",
-                "Gibt an, ob dieses Label einen UVP-Preis darstellt.");
+                "Gibt an, ob dieses Label einen UVP-Preis darstellt.",
+                "مشخص می‌کند که آیا این برچسب نشان‌دهنده قیمت پیشنهادی خرده‌فروشی (MSRP) است.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.DisplayShortNameInLists",
                 "Display short name in lists",
                 "Kurznamen in Listen anzeigen",
+                "نمایش نام کوتاه در لیست‌ها",
                 "Specifies whether the label's short name should be displayed in product lists.",
-                "Gibt an, ob die Kurzbezeichnung des Labels in Produktlisten angezeigt werden soll.");
+                "Gibt an, ob die Kurzbezeichnung des Labels in Produktlisten angezeigt werden soll.",
+                "مشخص می‌کند که آیا نام کوتاه برچسب باید در لیست محصولات نمایش داده شود.");
         }
     }
 }

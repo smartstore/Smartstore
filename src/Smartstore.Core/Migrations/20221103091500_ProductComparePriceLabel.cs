@@ -83,24 +83,31 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.ComparePriceLabelId",
-                "\"Compare Price\" label",
-                "Label für den Vergleichspreis",
-                "Specifies the text for the \"Compare Price\" label. This value overwrites the system default setting.",
-                "Legt den Text für den Vergleichspreis-Label fest. Dieser Wert überschreibt die Standardeinstellung des Systems.");
+         "\"Compare Price\" label",
+         "Label für den Vergleichspreis",
+         "برچسب \"قیمت مقایسه\"",
+         "Specifies the text for the \"Compare Price\" label. This value overwrites the system default setting.",
+         "Legt den Text für den Vergleichspreis-Label fest. Dieser Wert überschreibt die Standardeinstellung des Systems.",
+         "متن برچسب \"قیمت مقایسه\" را مشخص می‌کند. این مقدار تنظیم پیش‌فرض سیستم را بازنویسی می‌کند.");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.ShowCountdownRemainingHours",
                 "Remaining offer time after which a countdown should be displayed",
                 "Angebotsrestzeit, ab der ein Countdown angezeigt werden soll",
+                "زمان باقی‌مانده پیشنهاد که پس از آن شمارش معکوس نمایش داده شود",
                 "Sets remaining time (in hours) of the offer from which a countdown should be displayed on product detail pages, e.g. \"ends in 3 hours, 23 min.\". " +
                 "Only applies to limited time discounts with an end date. This value overwrites the system default setting.",
                 "Legt die verbleibende Zeit (in Stunden) eines Angebotes fest, ab der ein Countdown auf der Produktdetailseite angezeigt werden soll, z.B. \"endet in 3 Stunden, 23 Min.\". " +
-                "Gilt nur für zeitlich begrenzte Rabatte mit einem Enddatum. Dieser Wert überschreibt die Standardeinstellung des Systems.");
+                "Gilt nur für zeitlich begrenzte Rabatte mit einem Enddatum. Dieser Wert überschreibt die Standardeinstellung des Systems.",
+                "زمان باقی‌مانده (به ساعت) پیشنهاد را تنظیم می‌کند که از آن زمان شمارش معکوس در صفحات جزئیات محصول نمایش داده شود، مثلاً \"پایان در ۳ ساعت و ۲۳ دقیقه\". " +
+                "فقط برای تخفیف‌های محدود با تاریخ پایان اعمال می‌شود. این مقدار تنظیم پیش‌فرض سیستم را بازنویسی می‌کند.");
 
             builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.OfferBadgeLabel",
                 "Offer badge label",
                 "Angebots-Badge Text",
+                "متن نشان پیشنهاد",
                 "The label of the offer badge, e.g. \"Deal\". This value overwrites the system default setting.",
-                "Text für das Angebots-Badge, z.B. \"Deal\". Dieser Wert überschreibt die Standardeinstellung des Systems.");
+                "Text für das Angebots-Badge, z.B. \"Deal\". Dieser Wert überschreibt die Standardeinstellung des Systems.",
+                "متن نشان پیشنهاد را مشخص می‌کند، مثلاً \"پیشنهاد ویژه\". این مقدار تنظیم پیش‌فرض سیستم را بازنویسی می‌کند.");
         }
     }
 }
