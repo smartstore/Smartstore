@@ -625,13 +625,13 @@ namespace Smartstore.PayPal.Controllers
 
             // Discounts
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-            var orderTotalDiscountAmount = new Money();
+            Money orderTotalDiscountAmount = default;
             if (cartTotal.DiscountAmount > decimal.Zero)
             {
                 orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, _primaryCurrency);
             }
 
-            var subTotalDiscountAmount = new Money();
+            Money subTotalDiscountAmount = default;
             if (cartSubTotal.DiscountAmount > decimal.Zero)
             {
                 subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(
