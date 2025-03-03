@@ -39,14 +39,17 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.AttributeCombinationRequired",
-                "Attribute combination is required",
-                "Attribut-Kombination ist erforderlich",
-                "Specifies whether an attribute combination must exist for the attributes selected in the frontend, otherwise the product cannot be ordered.",
-                "Legt fest, ob für die im Frontend gewählten Attribute eine Attributkombination existieren muss, damit das Produkt bestellt werden kann.");
+     "Attribute combination is required",
+     "Attribut-Kombination ist erforderlich",
+     "ترکیب ویژگی مورد نیاز است",
+     "Specifies whether an attribute combination must exist for the attributes selected in the frontend, otherwise the product cannot be ordered.",
+     "Legt fest, ob für die im Frontend gewählten Attribute eine Attributkombination existieren muss, damit das Produkt bestellt werden kann.",
+     "مشخص می‌کند که آیا برای ویژگی‌های انتخاب‌شده در前端 باید یک ترکیب ویژگی وجود داشته باشد، در غیر این صورت محصول قابل سفارش نیست.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Description",
                 "Attribute combinations allow different product characteristics on the basis of specific combinations.",
-                "Attribut-Kombinationen ermöglichen die Erfassung abweichender Produkt-Eigenschaften auf Basis von spezifischen Kombinationen.");
+                "Attribut-Kombinationen ermöglichen die Erfassung abweichender Produkt-Eigenschaften auf Basis von spezifischen Kombinationen.",
+                "ترکیب‌های ویژگی امکان ثبت ویژگی‌های مختلف محصول را بر اساس ترکیب‌های خاص فراهم می‌کنند.");
         }
     }
 }

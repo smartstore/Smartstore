@@ -73,12 +73,14 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.System.Warnings.AttributeCombinationHashCodes.OK",
-                "All hash codes of attribute combinations have been set.",
-                "Alle Hash-Codes von Attribut-Kombinationen wurden festgelegt.");
+     "All hash codes of attribute combinations have been set.",
+     "Alle Hash-Codes von Attribut-Kombinationen wurden festgelegt.",
+     "همه کدهای هش ترکیب‌های ویژگی تنظیم شده‌اند.");
 
             builder.AddOrUpdate("Admin.System.Warnings.AttributeCombinationHashCodes.Missing",
                 "The hash code is missing for {0} attribute combination(s). <a href=\"{1}\">Fix now.</a>",
-                "Bei {0} Attribut-Kombination(en) fehlt der Hash-Code. <a href=\"{1}\">Jetzt beheben.</a>");
+                "Bei {0} Attribut-Kombination(en) fehlt der Hash-Code. <a href=\"{1}\">Jetzt beheben.</a>",
+                "کد هش برای {0} ترکیب(های) ویژگی وجود ندارد. <a href=\"{1}\">اکنون رفع کنید.</a>");
         }
     }
 }

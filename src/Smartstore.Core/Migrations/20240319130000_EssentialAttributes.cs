@@ -54,14 +54,17 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Essential",
-                "Essential feature",
-                "Wesentliches Merkmal",
-                "Specifies whether the attribute is an essential feature. Essential features are displayed in the checkout (e.g. on the order confirmation page).",
-                "Legt fest, ob es sich um eine wesentliches Merkmal handelt. Wesentliche Merkmale werden im Checkout angezeigt (z.B. auf der Bestellbestätigungsseite).");
+      "Essential feature",
+      "Wesentliches Merkmal",
+      "ویژگی ضروری",
+      "Specifies whether the attribute is an essential feature. Essential features are displayed in the checkout (e.g. on the order confirmation page).",
+      "Legt fest, ob es sich um eine wesentliches Merkmal handelt. Wesentliche Merkmale werden im Checkout angezeigt (z.B. auf der Bestellbestätigungsseite).",
+      "مشخص می‌کند که آیا این ویژگی یک ویژگی ضروری است یا خیر. ویژگی‌های ضروری در فرآیند پرداخت (مانند صفحه تأیید سفارش) نمایش داده می‌شوند.");
 
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchEssential",
                 "Essential feature",
-                "Wesentliches Merkmal");
+                "Wesentliches Merkmal",
+                "ویژگی ضروری");
         }
     }
 }

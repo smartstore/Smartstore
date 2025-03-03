@@ -39,25 +39,32 @@ namespace Smartstore.Core.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.PageSize",
-                "Page size of associated products list",
-                "Listengröße der verknüpften Produkte");
+      "Page size of associated products list",
+      "Listengröße der verknüpften Produkte",
+      "اندازه صفحه لیست محصولات مرتبط");
 
             builder.AddOrUpdate("Admin.Catalog.Products.GroupedProductConfiguration.HeaderFields",
                 "Header fields",
                 "Felder in der Titelzeile",
+                "فیلدهای سرصفحه",
                 "Specifies additional fields for the header of an associated product. The product name is always displayed.",
-                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Der Produktname wird immer angezeigt.");
+                "Legt zusätzliche Felder für die Titelzeile eines verknüpften Produktes fest. Der Produktname wird immer angezeigt.",
+                "فیلدهای اضافی برای سرصفحه یک محصول مرتبط را مشخص می‌کند. نام محصول همیشه نمایش داده می‌شود.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Media.AssociatedProductHeaderThumbSize",
                 "Associated (grouped) product in the header",
-                "Verknüpftes (Gruppen)-Produkt in der Titelzeile");
+                "Verknüpftes (Gruppen)-Produkt in der Titelzeile",
+                "محصول مرتبط (گروه‌بندی‌شده) در سرصفحه");
 
             builder.AddOrUpdate("Products.DimensionsValue.Short",
                 "{0} × {1} × {2}",
+                "{0} × {1} × {2}",
                 "{0} × {1} × {2}");
+
             builder.AddOrUpdate("Products.DimensionsValue.Full",
                 "{0} × {1} × {2} {3} (W×H×L)",
-                "{0} × {1} × {2} {3} (B×H×L)");
+                "{0} × {1} × {2} {3} (B×H×L)",
+                "{0} × {1} × {2} {3} (عرض×ارتفاع×طول)");
         }
     }
 }

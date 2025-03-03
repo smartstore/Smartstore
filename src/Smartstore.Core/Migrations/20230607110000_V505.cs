@@ -268,71 +268,106 @@ namespace Smartstore.Core.Data.Migrations
       "مشخص می‌کند که آیا و در کدام مناطق، پنجره مدیریت کوکی نمایش داده شود.");
 
 
-            builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired", "Never required", "Nie erforderlich");
-            builder.AddOrUpdate("Enums.CookieConsentRequirement.RequiredInEUCountriesOnly", "Required in EU countries only (recommended)", "Nur in EU-Ländern erforderlich (empfohlen)");
-            builder.AddOrUpdate("Enums.CookieConsentRequirement.DependsOnCountry", "Depends on country configuration", "Abhängig von der Länderkonfiguration");
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.NeverRequired",
+     "Never required",
+     "Nie erforderlich",
+     "هرگز مورد نیاز نیست");
+
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.RequiredInEUCountriesOnly",
+                "Required in EU countries only (recommended)",
+                "Nur in EU-Ländern erforderlich (empfohlen)",
+                "فقط در کشورهای اتحادیه اروپا مورد نیاز است (توصیه شده)");
+
+            builder.AddOrUpdate("Enums.CookieConsentRequirement.DependsOnCountry",
+                "Depends on country configuration",
+                "Abhängig von der Länderkonfiguration",
+                "بستگی به پیکربندی کشور دارد");
 
             builder.Delete("Admin.Configuration.Settings.CustomerUser.Privacy.EnableCookieConsent");
 
             // INFO: Common.Edit wasn't used on purpose in case someone want's to alter this Resource only for forum
-            builder.AddOrUpdate("Forum.EditPost", "Edit", "Bearbeiten");
+            builder.AddOrUpdate("Forum.EditPost",
+       "Edit",
+       "Bearbeiten",
+       "ویرایش");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage")
-                .Value("de", "Auf der \"Produkt Weitersagen\"-Seite anzeigen");
+                .Value("en", "Show on the \"Email product to a friend\" page")
+                .Value("de", "Auf der \"Produkt Weitersagen\"-Seite anzeigen")
+                .Value("fa", "نمایش در صفحه \"ارسال محصول به دوست\"");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage.Hint")
-                .Value("de", "Legt fest, ob ein CAPTCHA auf der \"Produkt Weitersagen\"-Seite angezeigt werden soll.");
+                .Value("en", "Determines whether a CAPTCHA should be displayed on the \"Email product to a friend\" page.")
+                .Value("de", "Legt fest, ob ein CAPTCHA auf der \"Produkt Weitersagen\"-Seite angezeigt werden soll.")
+                .Value("fa", "مشخص می‌کند که آیا کپچا باید در صفحه \"ارسال محصول به دوست\" نمایش داده شود یا خیر.");
 
             builder.AddOrUpdate("Admin.Promotions.Campaigns.Warning",
                 "Save the campaign and use the preview button to test it before sending it to many customers.",
-                "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden.");
+                "Speichern Sie die Kampagne und benutzen Sie den Vorschau-Button, um sie zu testen, bevor Sie sie an viele Kunden versenden.",
+                "کمپین را ذخیره کنید و از دکمه پیش‌نمایش برای تست آن قبل از ارسال به مشتریان زیاد استفاده کنید.");
 
             builder.AddOrUpdate("Admin.DataGrid.XPerPage",
                 "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> per page</span>",
-                "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> pro Seite</span>");
+                "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> pro Seite</span>",
+                "<span class='fwm'>{0}</span><span class='d-none d-sm-inline'> در هر صفحه</span>");
 
             builder.AddOrUpdate("Admin.Configuration.Stores.CannotDeleteLastStore",
                 "The store cannot be deleted. At least one store is required.",
-                "Der Shop kann nicht gelöscht werden. Es ist mindestens ein Shop erforderlich.");
+                "Der Shop kann nicht gelöscht werden. Es ist mindestens ein Shop erforderlich.",
+                "فروشگاه قابل حذف نیست. حداقل یک فروشگاه مورد نیاز است.");
 
             builder.AddOrUpdate("Admin.Configuration.Stores.CannotDeleteStoreWithWalletPostings",
                 "The store cannot be deleted. Postings to a credit account are assigned to it.",
-                "Der Shop kann nicht gelöscht werden. Ihm sind Buchungen auf ein Guthabenkonto zugeordnet.");
+                "Der Shop kann nicht gelöscht werden. Ihm sind Buchungen auf ein Guthabenkonto zugeordnet.",
+                "فروشگاه قابل حذف نیست. تراکنش‌های حساب اعتباری به آن اختصاص داده شده است.");
 
             builder.AddOrUpdate("Admin.Report.ChangeComparedTo",
                 "A change of {0} compared to the period {1} to {2}.",
-                "Eine Veränderung um {0} im Vergleich zum Zeitraum {1} bis {2}.");
+                "Eine Veränderung um {0} im Vergleich zum Zeitraum {1} bis {2}.",
+                "تغییری به میزان {0} در مقایسه با بازه زمانی {1} تا {2}.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Payment.ProductDetailPaymentMethodSystemNames",
                 "Payment method icons on the product detail page",
                 "Zahlungsart-Icons auf der Produktdetailseite",
+                "آیکون‌های روش پرداخت در صفحه جزئیات محصول",
                 "Specifies for which payment methods icons informing about the accepted payment methods are displayed on product detail pages.",
-                "Bestimmt, für welche Zahlarten Icons zur Information über die akzeptierten Zahlungsarten auf Produktdetailseiten angezeigt werden.");
+                "Bestimmt, für welche Zahlarten Icons zur Information über die akzeptierten Zahlungsarten auf Produktdetailseiten angezeigt werden.",
+                "مشخص می‌کند که برای کدام روش‌های پرداخت، آیکون‌هایی برای اطلاع‌رسانی درباره روش‌های پرداخت پذیرفته‌شده در صفحات جزئیات محصول نمایش داده شوند.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Payment.DisplayPaymentMethodIcons",
                 "Show icons on the payment method selection page",
-                "Icons auf der Zahlartauswahlseite anzeigen");
+                "Icons auf der Zahlartauswahlseite anzeigen",
+                "نمایش آیکون‌ها در صفحه انتخاب روش پرداخت");
 
             builder.AddOrUpdate("Products.PaymentOptions.Heading",
                 "Payment options",
-                "Zahlungsmöglichkeiten");
+                "Zahlungsmöglichkeiten",
+                "گزینه‌های پرداخت");
 
             builder.AddOrUpdate("Products.PaymentOptions.Intro",
                 "We accept the following payment methods",
-                "Wir akzeptieren folgende Zahlungsarten");
+                "Wir akzeptieren folgende Zahlungsarten",
+                "ما روش‌های پرداخت زیر را می‌پذیریم");
 
-            builder.AddOrUpdate("Admin.DataGrid.FitColumns", "Fit columns", "Spalten anpassen");
+            builder.AddOrUpdate("Admin.DataGrid.FitColumns",
+                "Fit columns",
+                "Spalten anpassen",
+                "تناسب ستون‌ها");
 
             builder.AddOrUpdate("Common.ReCaptchaCheckFailed",
                 "A reCAPTCHA check failed with the error {0}.",
-                "Eine reCAPTCHA-Prüfung ist fehlgeschlagen. Grund: {0}.");
+                "Eine reCAPTCHA-Prüfung ist fehlgeschlagen. Grund: {0}.",
+                "بررسی reCAPTCHA با خطای {0} ناموفق بود.");
 
             builder.AddOrUpdate("Order.CannotCapture",
                 "The payment of the order could not be captured.",
-                "Die Zahlung der Bestellung konnte nicht gebucht werden.");
+                "Die Zahlung der Bestellung konnte nicht gebucht werden.",
+                "پرداخت سفارش قابل ثبت نبود.");
 
             builder.AddOrUpdate("Order.CannotVoid",
                 "The payment of the order could not be voided.",
-                "Die Zahlung der Bestellung konnte nicht storniert werden.");
+                "Die Zahlung der Bestellung konnte nicht storniert werden.",
+                "پرداخت سفارش قابل لغو نبود.");
         }
     }
 }

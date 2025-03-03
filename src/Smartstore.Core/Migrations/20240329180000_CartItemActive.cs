@@ -59,24 +59,29 @@ namespace Smartstore.Core.Migrations
             const string cartSelectionLink = "<a href=\"{{0}}\" class=\"{1}\" rel=\"nofollow\">{0}</a>.";
 
             builder.AddOrUpdate("ShoppingCart.NoProductsSelectedSelectAll",
-                "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
-                "Keine Artikel ausgewählt. " + cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));
+      "No products selected. " + cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
+      "Keine Artikel ausgewählt. " + cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"),
+      "هیچ محصولی انتخاب نشده است. " + cartSelectionLink.FormatInvariant("انتخاب همه محصولات", "select-cart-items"));
 
             builder.AddOrUpdate("ShoppingCart.SelectAllProducts",
                 cartSelectionLink.FormatInvariant("Select all products", "select-cart-items"),
-                cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"));
+                cartSelectionLink.FormatInvariant("Alle Artikel auswählen", "select-cart-items"),
+                cartSelectionLink.FormatInvariant("انتخاب همه محصولات", "select-cart-items"));
 
             builder.AddOrUpdate("ShoppingCart.DeselectAllProducts",
                 cartSelectionLink.FormatInvariant("Deselect all products", "deselect-cart-items"),
-                cartSelectionLink.FormatInvariant("Auswahl aller Artikel aufheben", "deselect-cart-items"));
+                cartSelectionLink.FormatInvariant("Auswahl aller Artikel aufheben", "deselect-cart-items"),
+                cartSelectionLink.FormatInvariant("لغو انتخاب همه محصولات", "deselect-cart-items"));
 
             builder.AddOrUpdate("ShoppingCart.Totals.SubTotalSelectedProducts",
                 "Subtotal <span class=\"text-nowrap\">({0} products)</span>",
-                "Zwischensumme <span class=\"text-nowrap\">({0} Artikel)</span>");
+                "Zwischensumme <span class=\"text-nowrap\">({0} Artikel)</span>",
+                "جمع جزء <span class=\"text-nowrap\">({0} محصول)</span>");
 
             builder.AddOrUpdate("ShoppingCart.SelectAtLeastOneProduct",
                 "Please select at least one product to proceed to checkout.",
-                "Bitte wählen Sie mindestens einen Artikel aus, um zur Kasse zu gehen.");
+                "Bitte wählen Sie mindestens einen Artikel aus, um zur Kasse zu gehen.",
+                "لطفاً حداقل یک محصول را برای رفتن به صفحه پرداخت انتخاب کنید.");
         }
     }
 }
