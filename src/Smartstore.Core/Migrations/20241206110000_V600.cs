@@ -1136,6 +1136,46 @@ namespace Smartstore.Core.Data.Migrations
                 "Be a professional copywriter.",
                 "Sei ein professioneller Texter.",
                 "نویسنده حرفه‌ای باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Marketer",
+    "Be a marketing expert.",
+    "Sei ein Marketing-Experte.",
+    "کارشناس بازاریابی باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SEOExpert",
+                "Be a SEO expert.",
+                "Sei ein SEO-Experte.",
+                "کارشناس SEO باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Blogger",
+                "Be a professional blogger.",
+                "Sei ein professioneller Blogger.",
+                "بلاگر حرفه‌ای باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Journalist",
+                "Be a professional journalist.",
+                "Sei ein professioneller Journalist.",
+                "روزنامه‌نگار حرفه‌ای باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SalesPerson",
+                "Be an assistant who creates product descriptions that convince a potential customer to buy.",
+                "Sei ein Assistent bei der Erstellung von Produktbeschreibungen, die einen potentiellen Kunden zum Kauf überzeugen.",
+                "دستیاری باشید که توضیحات محصولی ایجاد می‌کند که مشتری بالقوه را به خرید ترغیب کند.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
+                "Be an expert for the product: '{0}'.",
+                "Sei ein Experte für das Produkt: '{0}'.",
+                "کارشناس محصول '{0}' باشید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PreserveHtmlStructure",
+                "Be sure to preserve the HTML structure and the attributes of all tags.",
+                "Erhalte unbedingt die HTML-Struktur und die Attribute aller Tags.",
+                "حتماً ساختار HTML و ویژگی‌های تمام برچسب‌ها را حفظ کنید.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ProcessHtmlElementsIndividually",
+                "Process each HTML element individually.",
+                "Betrachte dabei jedes HTML-Element einzeln.",
+                "هر عنصر HTML را به‌صورت جداگانه پردازش کنید.");
         }
     }
 }
