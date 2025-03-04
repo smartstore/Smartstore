@@ -97,6 +97,7 @@
 - Billiger & Guenstiger: Cookie infos were displayed although tracking was disabled
 - MegaMenu: Input controls do not work properly (missing init of common controls).
 - Fixed that the log list was not loaded in rare cases.
+- Fixed bug in checkout when the country of a address is null
 
 
 ## Smartstore 6.0.0
