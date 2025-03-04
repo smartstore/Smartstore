@@ -271,9 +271,11 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Be an image analyzer assistant.",
                 "Sei ein Assistent für Bildanalyse.");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue", 
-                "Please continue with your answer.", 
-                "Bitte fahre mit deiner Antwort fort.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue",
+                "Please continue exactly at the marked point without repeating the previous text.",
+                "Bitte fahre genau an der markierten Stelle fort, ohne den bisherigen Text zu wiederholen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueHere", "[Continue here]", "[Fortsetzung hier]");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.GeneralPrompt",
                 "Separate the suggestions with the ¶ character (paragraph mark). Do not use numbering. Do not repeat suggestions.",
