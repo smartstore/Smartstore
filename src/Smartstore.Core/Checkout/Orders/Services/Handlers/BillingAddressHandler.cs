@@ -94,7 +94,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             await _db.LoadReferenceAsync(address, x => x.Country);
 
-            if (address.Country.AllowsBilling)
+            if (address.Country?.AllowsBilling == true)
             {
                 if (customer.BillingAddressId != address.Id)
                 {
