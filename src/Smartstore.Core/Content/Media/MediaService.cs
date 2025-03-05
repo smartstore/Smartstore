@@ -1232,13 +1232,9 @@ namespace Smartstore.Core.Content.Media
                             _db.TryUpdate(file);
                             await _db.SaveChangesAsync();
                         }
-                        catch (InvalidOperationException ioe)
+                        catch (InvalidOperationException)
                         {
                             // Ignore exception for pictures that already have been processed.
-                            if (!ioe.IsAlreadyAttachedEntityException())
-                            {
-                                throw;
-                            }
                         }
                     }
                 }

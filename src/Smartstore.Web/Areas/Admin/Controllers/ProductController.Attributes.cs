@@ -461,27 +461,20 @@ namespace Smartstore.Admin.Controllers
                         .ThenInclude(x => x.Rules)
                         .FindByIdAsync(id, false);
                 }
-                catch (InvalidOperationException ioe)
+                catch (InvalidOperationException)
                 {
-                    if (ioe.IsAlreadyAttachedEntityException())
-                    {
-                        var ruleSetIdsToDelete = await _db.RuleSets
-                            .Where(x => x.ProductVariantAttributeId == id)
-                            .Select(x => x.Id)
-                            .OrderBy(x => x)
-                            .Skip(1)
-                            .ToArrayAsync();
+                    var ruleSetIdsToDelete = await _db.RuleSets
+                        .Where(x => x.ProductVariantAttributeId == id)
+                        .Select(x => x.Id)
+                        .OrderBy(x => x)
+                        .Skip(1)
+                        .ToArrayAsync();
 
-                        if (ruleSetIdsToDelete.Length > 0)
-                        {
-                            await _db.RuleSets
-                                .Where(x => ruleSetIdsToDelete.Contains(x.Id))
-                                .ExecuteDeleteAsync();
-                        }
-                    }
-                    else
+                    if (ruleSetIdsToDelete.Length > 0)
                     {
-                        ioe.ReThrow();
+                        await _db.RuleSets
+                            .Where(x => ruleSetIdsToDelete.Contains(x.Id))
+                            .ExecuteDeleteAsync();
                     }
                 }
             }
