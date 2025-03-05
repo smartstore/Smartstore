@@ -1,6 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿#nullable enable
+
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
@@ -10,35 +11,13 @@ namespace Smartstore
 {
     public static class EnumerableExtensions
     {
-        #region Nested classes
-
-        private static class DefaultReadOnlyCollection<T>
-        {
-            private static ReadOnlyCollection<T> defaultCollection;
-
-            [SuppressMessage("ReSharper", "ConvertIfStatementToNullCoalescingExpression")]
-            internal static ReadOnlyCollection<T> Empty
-            {
-                get
-                {
-                    if (defaultCollection == null)
-                    {
-                        defaultCollection = new ReadOnlyCollection<T>(new T[0]);
-                    }
-                    return defaultCollection;
-                }
-            }
-        }
-
-        #endregion
-
         #region Array
 
         /// <summary>
         /// Checks whether given <paramref name="source"/> array is either
         /// <c>null</c> or empty.
         /// </summary>
-        public static bool IsNullOrEmpty<T>(this T[] source)
+        public static bool IsNullOrEmpty<T>(this T[]? source)
         {
             if (source == null)
             {
@@ -56,7 +35,7 @@ namespace Smartstore
         /// Checks whether given <paramref name="source"/> collection is either
         /// <c>null</c> or empty.
         /// </summary>
-        public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T>? source)
         {
             if (source == null)
             {
@@ -112,11 +91,11 @@ namespace Smartstore
             }
         }
 
-        public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
+        public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T>? source)
         {
             if (source == null)
             {
-                return DefaultReadOnlyCollection<T>.Empty;
+                return ReadOnlyCollection<T>.Empty;
             }
             else if (source is ReadOnlyCollection<T> readOnly)
             {
@@ -125,12 +104,12 @@ namespace Smartstore
 
             if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
             {
-                return DefaultReadOnlyCollection<T>.Empty;
+                return ReadOnlyCollection<T>.Empty;
             }
 
             if (!source.Any())
             {
-                return DefaultReadOnlyCollection<T>.Empty;
+                return ReadOnlyCollection<T>.Empty;
             }
 
             if (source is List<T> list)
@@ -170,6 +149,7 @@ namespace Smartstore
         public static Dictionary<TKey, TSource> ToDictionarySafe<TSource, TKey>(
             this IEnumerable<TSource> source,
              Func<TSource, TKey> keySelector)
+            where TKey : notnull
         {
             return source.ToDictionarySafe(keySelector, new Func<TSource, TSource>(src => src), null);
         }
@@ -185,7 +165,8 @@ namespace Smartstore
         public static Dictionary<TKey, TSource> ToDictionarySafe<TSource, TKey>(
             this IEnumerable<TSource> source,
              Func<TSource, TKey> keySelector,
-             IEqualityComparer<TKey> comparer)
+             IEqualityComparer<TKey>? comparer)
+            where TKey : notnull
         {
             return source.ToDictionarySafe(keySelector, new Func<TSource, TSource>(src => src), comparer);
         }
@@ -202,6 +183,7 @@ namespace Smartstore
             this IEnumerable<TSource> source,
              Func<TSource, TKey> keySelector,
              Func<TSource, TElement> elementSelector)
+            where TKey : notnull
         {
             return source.ToDictionarySafe(keySelector, elementSelector, null);
         }
@@ -218,7 +200,8 @@ namespace Smartstore
             this IEnumerable<TSource> source,
              Func<TSource, TKey> keySelector,
              Func<TSource, TElement> elementSelector,
-             IEqualityComparer<TKey> comparer)
+             IEqualityComparer<TKey>? comparer)
+            where TKey : notnull
         {
             if (source == null)
             {
@@ -299,7 +282,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string StrJoin(this IEnumerable<string> source, string separator)
+        public static string StrJoin(this IEnumerable<string?> source, string? separator)
         {
             return string.Join(separator, source);
         }
