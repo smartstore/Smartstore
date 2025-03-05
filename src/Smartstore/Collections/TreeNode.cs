@@ -19,9 +19,9 @@ namespace Smartstore.Collections
         public TreeNode(TValue value, IEnumerable<TValue>? children)
             : this(value, (object?)null)
         {
-            if (children != null && children.Any())
+            if (!children.IsNullOrEmpty())
             {
-                AppendRange(children);
+                AppendRange(children!);
             }
         }
 
@@ -29,9 +29,9 @@ namespace Smartstore.Collections
             : this(value, (object?)null)
         {
             // for serialization
-            if (children != null && children.Any())
+            if (!children.IsNullOrEmpty())
             {
-                AppendRange(children);
+                AppendRange(children!);
             }
         }
 
@@ -118,22 +118,21 @@ namespace Smartstore.Collections
 
         public IEnumerable<TValue> Flatten(Func<TValue, bool>? predicate, bool includeSelf = true)
         {
-            var list = includeSelf 
-                ? [Value] 
-                : Enumerable.Empty<TValue>();
-
-            if (!HasChildren)
+            if (includeSelf && (predicate == null || predicate(Value)))
             {
-                return list;
-            }  
-
-            var result = list.Union(Children.SelectMany(x => x.Flatten()));
-            if (predicate != null)
-            {
-                result = result.Where(predicate);
+                yield return Value;
             }
 
-            return result;
+            if (_children != null)
+            {
+                foreach (var child in _children)
+                {
+                    foreach (var descendant in child.Flatten(predicate, true))
+                    {
+                        yield return descendant;
+                    }   
+                }
+            }
         }
     }
 }

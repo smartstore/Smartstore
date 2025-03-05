@@ -22,7 +22,7 @@ namespace Smartstore.Collections
     public abstract class TreeNodeBase<T> where T : TreeNodeBase<T>
     {
         private T? _parent;
-        private List<T> _children = new();
+        protected List<T> _children = [];
         private int? _depth = null;
         private int _index = -1;
 
@@ -273,7 +273,7 @@ namespace Smartstore.Collections
         {
             get
             {
-                _children ??= new List<T>();
+                _children ??= [];
                 return _children;
             }
         }
