@@ -1,0 +1,611 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+
+    <!-- Friendly plugin backend name & description (e.g. in payment configuration list) -->
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
+        <Value>پی‌پال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
+        <Value>قابلیت پرداخت با پی‌پال را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+
+    <!-- Friendly provider name & description -->
+    <!-- Frontend payment option & backend -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalStandard" AppendRootKey="false">
+        <Value>پرداخت با پی‌پال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>پرداخت پس از فاکتور</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalSepa" AppendRootKey="false">
+        <Value>پی‌پال Sepa</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayLater" AppendRootKey="false">
+        <Value>پی‌پال پرداخت بعدی</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalCreditCard" AppendRootKey="false">
+        <Value>کارت اعتباری پی‌پال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGiroPay" AppendRootKey="false">
+        <Value>جیروپِی</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBancontact" AppendRootKey="false">
+        <Value>بان‌کنتاکت</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalBlik" AppendRootKey="false">
+        <Value>بلیک</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalEps" AppendRootKey="false">
+        <Value>eps</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalIdeal" AppendRootKey="false">
+        <Value>iDEAL</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalMyBank" AppendRootKey="false">
+        <Value>مای‌بانک</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPrzelewy24" AppendRootKey="false">
+        <Value>پرزِلِوی24</Value>
+    </LocaleResource>
+
+    <!-- Backend provider description -->
+    <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    یک پنجره پرداخت امن باز می‌کند که در آن پرداخت مستقیماً در پی‌پال انجام می‌شود.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+				یک روش پرداخت «الان بخر، بعداً پرداخت کن» که به خریدار اجازه می‌دهد سفارش را ثبت کند، 
+                کالاها را دریافت کند، آن‌ها را امتحان کند، بررسی کند که در شرایط خوبی هستند و سپس فاکتور را ظرف 30 روز پرداخت کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalSepa" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    یک پنجره پرداخت امن باز می‌کند که در آن پرداخت مستقیماً در پی‌پال انجام می‌شود.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPayLater" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    یک پنجره پرداخت امن باز می‌کند که در آن پرداخت مستقیماً در پی‌پال انجام می‌شود.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalCreditCard" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    امکان پرداخت با کارت اعتباری را فراهم می‌کند.
+                فیلدهای ورود اطلاعات کارت اعتباری از طریق iframeهایی که مستقیماً توسط پی‌پال ارائه می‌شوند، در فرآیند پرداخت ادغام شده‌اند. 
+                بنابراین اطلاعات کارت اعتباری با فروشگاه تماس پیدا نمی‌کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalGiroPay" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+                پس از تکمیل سفارش، مشتری مستقیماً به جیروپِی هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalBancontact" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به بان‌کنتاکت هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalBlik" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به بلیک هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalEps" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به eps-Überweisung هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalIdeal" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به iDEAL هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalMyBank" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به مای‌بانک هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPrzelewy24" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+			    پس از تکمیل سفارش، مشتری مستقیماً به پرزِلِوی24 هدایت می‌شود تا فرآیند پرداخت را تکمیل کند.
+            ]]>
+        </Value>
+    </LocaleResource>
+
+    <!-- Should be rendered in frontend by default. As long as the shop admin doesn't enter a FullDescription for the PaymentMethod -->
+    <LocaleResource Name="Plugins.PaymentInfo.Payments" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="PayPalStandard" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        پرداخت را در یک پنجره مرورگر امن مستقیماً در پی‌پال انجام دهید. 
+				        پس از هدایت مجدد به فروشگاه، می‌توانید سفارش را با چند کلیک تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPayUponInvoice" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        سفارش را ثبت کنید، کالاها را دریافت کنید، آن‌ها را امتحان کنید، بررسی کنید که در شرایط خوبی هستند و سپس فاکتور را ظرف 30 روز پرداخت کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalSepa" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        پرداخت را در یک پنجره مرورگر امن مستقیماً در پی‌پال انجام دهید. 
+				        پس از هدایت مجدد به فروشگاه، می‌توانید سفارش را با چند کلیک تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPayLater" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+				        پرداخت را در یک پنجره مرورگر امن مستقیماً در پی‌پال انجام دهید. 
+				        پس از هدایت مجدد به فروشگاه، می‌توانید سفارش را با چند کلیک تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalCreditCard" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        اطلاعات کارت اعتباری شما مستقیماً در سرور پی‌پال ثبت می‌شود.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalGiroPay" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت جیروپِی هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalBancontact" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت بان‌کنتاکت هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalBlik" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت بلیک هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalEps" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت eps-Überweisung هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalIdeal" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت iDEAL هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalMyBank" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت مای‌بانک هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalPrzelewy24" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                        شما به وب‌سایت پرزِلِوی24 هدایت خواهید شد تا پرداخت را تکمیل کنید.
+                      ]]>
+                </Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value>
+                    <![CDATA[
+                        <p>
+                            با این افزونه می‌توانید از پرداخت با پی‌پال استفاده کنید و از روش‌های پرداخت بیشتر، تجربه کاربری بهینه و فناوری آینده‌نگرانه بهره‌مند شوید.
+                        </p>
+                        <ul>
+                            <li>علاوه بر پرداخت از طریق پی‌پال، برداشت مستقیم، کارت اعتباری و بدهی، و فاکتور، پرداخت با پی‌پال اکنون بیش از ده روش پرداخت محلی دیگر را ارائه می‌دهد که می‌تواند فروشگاه آنلاین شما را در آلمان و خارج از آن جذاب‌تر کند.</li>
+                            <li>با بنرهای پویا و دکمه <i>پرداخت بعدی</i>، می‌توانید توجه مشتریان خود را به قسط‌بندی پی‌پال جلب کنید.</li>
+                            <li>با دکمه پرداخت سریع پی‌پال، فرآیند پرداخت را کوتاه‌تر کرده و تجربه خرید را بهینه می‌کنید.</li>
+                        </ul>
+                        <p>
+							برای تنظیم پی‌پال در فروشگاه خود از دکمه <b>اتصال حساب</b> استفاده کنید یا به‌طور جایگزین مراحل راهنمای زیر را دنبال کنید.
+						</p>
+						<ul>
+							<li>با اطلاعات حساب پی‌پال خود <a href="https://developer.paypal.com/developer/applications" target="_blank" class="alert-link">در داشبورد توسعه‌دهنده</a> وارد شوید.</li>
+							<li>با کلیک روی دکمه <b>ایجاد برنامه</b> یک برنامه جدید بسازید.</li>
+							<li>اکنون حساب، شناسه مشتری و راز را در فیلدهای ارائه‌شده در پایین این صفحه وارد کنید.</li>
+							<li>یک وب‌هوک ایجاد کنید و URL زیر را به‌عنوان URL وب‌هوک در برنامه پی‌پال خود ذخیره کنید.</li>
+							<li>اعلان‌ها را برای همه رویدادها فعال کنید.</li>
+						</ul>
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="CookieInfo">
+                <Value>پی‌پال از کوکی‌ها برای نمایش و پردازش تراکنش پرداخت استفاده می‌کند.</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="OrderUpdateFailed">
+                <Value>
+                    مجموع مبلغ سفارش پس از محاسبه هزینه‌های حمل‌ونقل در پی‌پال به‌روزرسانی نشد.
+                    لطفاً مجموع مبلغ را دوباره با پی‌پال تأیید کنید.
+                </Value>
+            </LocaleResource>
+
+            <LocaleResource Name="GenericErrorMessage">
+                <Value>
+                    خطایی در روش پرداخت رخ داده است. لطفاً روش پرداخت دیگری انتخاب کنید.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentSourceCouldNotBeVerified">
+                <Value>
+                    پرداخت توسط پی‌پال رد شد زیرا اطلاعات پرداخت تأیید نشد. لطفاً جزئیات خود را بررسی کرده و دوباره تلاش کنید.
+                </Value>
+            </LocaleResource>
+
+            <LocaleResource Name="UseSandbox">
+                <Value>استفاده از سندباکس</Value>
+            </LocaleResource>
+            <LocaleResource Name="UseSandbox.Hint">
+                <Value>مشخص می‌کند که آیا پرداخت‌ها در سندباکس پی‌پال اجرا شوند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Account">
+                <Value>حساب</Value>
+            </LocaleResource>
+            <LocaleResource Name="Account.Hint">
+                <Value>حساب پی‌پال خود را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="ClientId">
+                <Value>شناسه مشتری</Value>
+            </LocaleResource>
+            <LocaleResource Name="ClientId.Hint">
+                <Value>شناسه مشتری برنامه‌ای که در داشبورد توسعه‌دهنده پی‌پال ایجاد کرده‌اید را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayerId">
+                <Value>شناسه پرداخت‌کننده</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayerId.Hint">
+                <Value>شناسه پرداخت‌کننده پی‌پال را می‌توانید در حساب پی‌پال خود در بخش تنظیمات حساب / جزئیات کسب‌وکار پیدا کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName">
+                <Value>نام تجاری</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName.Hint">
+                <Value>برای روش پرداخت خرید با فاکتور لازم است تا یک کلید شناسایی منحصربه‌فرد ایجاد شود. نباید شامل فاصله باشد.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Secret">
+                <Value>راز</Value>
+            </LocaleResource>
+            <LocaleResource Name="Secret.Hint">
+                <Value>راز برنامه‌ای که در داشبورد توسعه‌دهنده پی‌پال ایجاد کرده‌اید را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookId">
+                <Value>شناسه وب‌هوک</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookId.Hint">
+                <Value>شناسه‌ای که پی‌پال برای وب‌هوک شما تولید کرده است را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl">
+                <Value>URL وب‌هوک</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Hint">
+                <Value>این URL را به‌عنوان URL وب‌هوک در برنامه پی‌پال خود ذخیره کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DisabledFundings">
+                <Value>منابع مالی غیرفعال</Value>
+            </LocaleResource>
+            <LocaleResource Name="DisabledFundings.Hint">
+                <Value>
+                    منابع مالی غیرفعال برای تراکنش. هر منبع مالی که وارد شود نمایش داده نمی‌شود.
+                    واجد شرایط بودن منابع مالی بر اساس عوامل مختلفی تعیین می‌شود.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="EnabledFundings">
+                <Value>منابع مالی فعال</Value>
+            </LocaleResource>
+            <LocaleResource Name="EnabledFundings.Hint">
+                <Value>
+                    واجد شرایط بودن منابع مالی بر اساس عوامل مختلفی تعیین می‌شود.
+                    فعال کردن منابع مالی می‌تواند تضمین کند که یک منبع مالی در صورت واجد شرایط بودن نمایش داده شود.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayUponInvoiceLimit">
+                <Value>حد بالای پرداخت پس از فاکتور</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayUponInvoiceLimit.Hint">
+                <Value>
+                    حد بالایی را که تا آن پرداخت با فاکتور ارائه می‌شود، تعریف می‌کند.
+                    در حال حاضر این حد 2500 یورو است، اما ممکن است در موارد خاص متفاوت باشد.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget">
+                <Value>نمایش ویجت پرداخت بعدی</Value>
+            </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
+                <Value>
+                    مشخص می‌کند که آیا ویجت پرداخت بعدی در صفحه جزئیات محصول نمایش داده شود.
+                    لطفاً توجه داشته باشید که اگر مشتری زبان را تغییر دهد، ویجت به زبان انتخاب‌شده نمایش داده نمی‌شود.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions">
+                <Value>دستورالعمل‌های خدمات مشتری</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Hint">
+                <Value>اینجا یک متن یادداشت درباره دسترسی به خدمات مشتری وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Placeholder">
+                <Value>تلفن خدمات مشتری +49 1234567890 است</Value>
+            </LocaleResource>
+            <LocaleResource Name="Intent">
+                <Value>حالت تراکنش</Value>
+            </LocaleResource>
+            <LocaleResource Name="Intent.Hint">
+                <Value>مشخص می‌کند که آیا پرداخت بلافاصله اجرا شود یا بعداً از طریق تعامل فروشنده.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Intent.Alert">
+                <Value>
+                    لطفاً توجه داشته باشید که رزرو پرداخت‌ها فقط با روش‌های پرداخت پی‌پال شامل پرداخت با پی‌پال، خرید با فاکتور، پرداخت بعدی، کارت اعتباری و برداشت مستقیم پشتیبانی می‌شود.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart">
+                <Value>منابع مالی سبد خرید کوچک</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart.Hint">
+                <Value>مشخص می‌کند که کدام گزینه‌های پرداخت در سبد خرید کوچک نمایش داده شوند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart">
+                <Value>منابع مالی صفحه سبد خرید</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart.Hint">
+                <Value>مشخص می‌کند که کدام گزینه‌های پرداخت در صفحه سبد خرید نمایش داده شوند.</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="TransmitTrackingNumbers">
+                <Value>ارسال شماره‌های ردیابی</Value>
+            </LocaleResource>
+            <LocaleResource Name="TransmitTrackingNumbers.Hint">
+                <Value>
+                    مشخص می‌کند که آیا شماره‌های ردیابی باید به محض وارد شدن یا به‌روزرسانی در محموله به پی‌پال ارسال شوند.
+                    اگر این گزینه خاموش باشد، فقط وضعیت پرداخت سفارش به «در انتظار» تنظیم می‌شود.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="CancelOrdersForDeclinedPayments">
+                <Value>لغو سفارش‌ها برای پرداخت‌های ردشده با کارت اعتباری</Value>
+            </LocaleResource>
+            <LocaleResource Name="CancelOrdersForDeclinedPayments.Hint">
+                <Value>
+                    مشخص می‌کند که آیا سفارش‌ها برای پرداخت‌های ردشده با کارت اعتباری باید لغو شوند.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="Capture">
+                <Value>برداشت فوری</Value>
+            </LocaleResource>
+            <LocaleResource Name="Auth">
+                <Value>تأیید فوری، برداشت بعدی</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="ButtonShape">
+                <Value>شکل دکمه</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonShape.Hint">
+                <Value>شکل دکمه پی‌پال را تعیین می‌کند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonShape.Rect">
+                <Value>مستطیلی</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonShape.Pill">
+                <Value>کپسولی</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="ButtonColor">
+                <Value>رنگ دکمه</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.Hint">
+                <Value>رنگ دکمه پی‌پال را تعیین می‌کند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.Gold">
+                <Value>طلایی</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.Blue">
+                <Value>آبی</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.Silver">
+                <Value>نقره‌ای</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.White">
+                <Value>سفید</Value>
+            </LocaleResource>
+            <LocaleResource Name="ButtonColor.Black">
+                <Value>مشکی</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="BillingPlanName">
+                <Value>طرح صورت‌حساب {1}</Value>
+            </LocaleResource>
+            <LocaleResource Name="Credentials">
+                <Value>اعتبارنامه‌ها</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentSettings">
+                <Value>تنظیمات پرداخت</Value>
+            </LocaleResource>
+            <LocaleResource Name="Misc">
+                <Value>متفرقه</Value>
+            </LocaleResource>
+            <LocaleResource Name="Onboarding">
+                <Value>اتصال حساب</Value>
+            </LocaleResource>
+            <LocaleResource Name="Onboarding.Success">
+                <Value>فروشگاه شما با موفقیت به حساب پی‌پال شما متصل شد.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.PaymentsReceivable">
+                <Value>با این حساب نمی‌توان پرداخت دریافت کرد. لطفاً با پی‌پال تماس بگیرید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.PrimaryEmailConfirmed">
+                <Value>آدرس ایمیل این حساب هنوز تأیید نشده است. لطفاً با پی‌پال تماس بگیرید یا صندوق ورودی ایمیل خود را بررسی کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.Refund.NoTransactionId">
+                <Value>شناسه تراکنش برای این سفارش ذخیره نشده است. لطفاً اتصال وب‌هوک خود را بررسی کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.True">
+                <Value>اعتبارنامه‌ها ذخیره شده‌اند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.False">
+                <Value>اعتبارنامه‌ها ذخیره نشده‌اند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.True">
+                <Value>آدرس ایمیل اصلی در پی‌پال تأیید شده است.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.False">
+                <Value>آدرس ایمیل اصلی در پی‌پال تأیید نشده است.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.True">
+                <Value>با این حساب می‌توان پرداخت دریافت کرد.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.False">
+                <Value>با این حساب نمی‌توان پرداخت دریافت کرد. لطفاً با پی‌پال تماس بگیرید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.True">
+                <Value>یک وب‌هوک ایجاد شده است.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.False">
+                <Value>وب‌هوکی ایجاد نشده است.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>ایجاد وب‌هوک</Value>
+            </LocaleResource>
+            <LocaleResource Name="RatePayLegalHint">
+                <Value>
+                    <![CDATA[
+                        با کلیک روی دکمه، شما با <a href="https://www.ratepay.com/legal-payment-terms" target="_blank">شرایط پرداخت</a> 
+                        و <a href="https://www.ratepay.com/legal-payment-dataprivacy" target="_blank">انجام بررسی ریسک</a> توسط شریک پرداخت، Ratepay، موافقت می‌کنید. 
+                        همچنین با <a href="https://www.paypal.com/us/webapps/mpp/ua/privacy-full" target="_blank">بیانیه حریم خصوصی</a> پی‌پال موافقت می‌کنید. 
+                        اگر درخواست شما برای خرید با فاکتور پذیرفته شود، ادعای قیمت خرید به Ratepay واگذار می‌شود و شما فقط باید به Ratepay پرداخت کنید، نه به فروشنده.
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="NoWhitespace">
+                <Value>فاصله مجاز نیست.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PhoneNumber.Invalid">
+                <Value>لطفاً یک شماره تلفن معتبر بدون فاصله وارد کنید.</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="FullName">
+                <Value>نام کامل</Value>
+            </LocaleResource>
+            <LocaleResource Name="FullName.NotEmpty">
+                <Value>لطفاً نام کامل خود را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Country.NotEmpty">
+                <Value>لطفاً یک کشور انتخاب کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="BIC">
+                <Value>BIC</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.CreditCardData">
+                <Value>لطفاً اطلاعات کارت اعتباری خود را بررسی کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.3DSecure">
+                <Value>خطایی هنگام تأیید کارت شما با ارائه‌دهنده کارت رخ داده است.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CartHasChanged">
+                <Value>سبد خرید شما پس از ورود تغییر کرده است. لطفاً سبد خرید فعلی خود را با پی‌پال تأیید کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="NoScriptsLoaded">
+                <Value>برای پرداخت با پی‌پال، اسکریپت‌های لازم بارگذاری نشدند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="NoClientToken">
+                <Value>روش پرداخت با کارت اعتباری از طریق پی‌پال در حال حاضر در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools">
+                <Value>ابزارهای پشتیبانی</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Intro">
+                <Value>
+                    مقادیر نمایش‌داده‌شده با انتقال شناسه مشتری ذخیره‌شده در اینجا به API پی‌پال دریافت شده‌اند.
+                    این‌ها مستقیماً از پی‌پال می‌آیند.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.OnboardingHint">
+                <Value>لطفاً ابتدا اتصال حساب را انجام دهید یا اطلاعات دسترسی خود را در فیلدهای تنظیمات ارائه‌شده ذخیره کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products">
+                <Value>محصولات</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Products.Name">
+                <Value>نام</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Capabilities">
+                <Value>قابلیت‌ها</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.VettingStatus">
+                <Value>وضعیت بررسی</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Limits">
+                <Value>محدودیت‌ها</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Status">
+                <Value>وضعیت</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.AccountInformation">
+                <Value>اطلاعات حساب</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Requirement">
+                <Value>الزام</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.Result">
+                <Value>نتیجه</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PrimaryEmailConfirmed">
+                <Value>ایمیل اصلی تأیید شده</Value>
+            </LocaleResource>
+            <LocaleResource Name="SupportTools.PaymentsReceivable">
+                <Value>پرداخت‌ها قابل دریافت هستند</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <LocaleResource Name="Enums.FundingOptions.PayPal" AppendRootKey="false">
+        <Value>پی‌پال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.FundingOptions.PayLater" AppendRootKey="false">
+        <Value>پرداخت بعدی</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.FundingOptions.Sepa" AppendRootKey="false">
+        <Value>Sepa</Value>
+    </LocaleResource>
+</Language>

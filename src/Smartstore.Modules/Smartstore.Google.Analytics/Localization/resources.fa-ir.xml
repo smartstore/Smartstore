@@ -1,0 +1,114 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.Google.Analytics" AppendRootKey="false">
+        <Value>گوگل آنالیتیکس</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.Google.Analytics" AppendRootKey="false">
+        <Value>اسکریپت‌های ردیابی گوگل آنالیتیکس را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+                <p>گوگل آنالیتیکس یک ابزار رایگان آمار وب‌سایت از گوگل است. این ابزار آمار بازدیدکنندگان و تبدیل‌های تجارت الکترونیک وب‌سایت شما را ردیابی می‌کند.</p>
+                <p>برای فعال کردن یکپارچگی گوگل آنالیتیکس مراحل زیر را دنبال کنید:</p>
+                <ul>
+                    <li><a href="http://www.google.com/analytics/" target="_blank">یک حساب گوگل آنالیتیکس ایجاد کنید</a> و با استفاده از wizard وب‌سایت خود را اضافه کنید.</li>
+                    <li>شناسه گوگل آنالیتیکس را در فیلد شناسه زیر کپی کنید.</li>
+                    <li>ویجت گوگل آنالیتیکس را در <b>CMS > ویجت‌ها</b> فعال کنید تا گوگل آنالیتیکس را در فروشگاه خود ادغام کنید.</li>
+                </ul>
+                <p>
+                    گوگل آنالیتیکس می‌تواند داده‌های مشتریان شما را حتی بدون استفاده از کوکی‌ها تحلیل کند.  
+                    برای این منظور از یک شناسه مشتری ناشناس استفاده می‌شود. فقط زمانی که مشتری در مدیر کوکی‌ها به استفاده از کوکی‌های تحلیلی موافقت کند، 
+                    اسکریپت آنالیتیکس نیز از کوکی‌ها استفاده می‌کند. 
+                    اگر می‌خواهید مدیر برچسب (tag manager) فقط پس از موافقت مشتری با کوکی‌های تحلیلی فعال شود، 
+                    لطفاً گزینه <i>بارگذاری فقط با رضایت</i> را در زیر فعال کنید.
+                </p>
+		        <p>
+			        برای درج کوکی انصراف در سیاست حریم خصوصی خود، از کد زیر استفاده کنید:
+		        </p>
+		        <pre><a href="javascript:gaOptout()">غیرفعال کردن گوگل آنالیتیکس</a></pre>
+              ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="ScriptUpdateInfo">
+        <Value>
+            <![CDATA[
+                این افزونه از یک اسکریپت قدیمی استفاده می‌کند. لطفاً روی دکمه <b>بازگرداندن اسکریپت‌ها</b> در پایین این صفحه کلیک کنید تا از آخرین نسخه استفاده شود.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="GoogleId">
+        <Value>شناسه</Value>
+    </LocaleResource>
+    <LocaleResource Name="GoogleId.Hint">
+        <Value>شناسه گوگل آنالیتیکس را وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly">
+        <Value>بارگذاری فقط با رضایت</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderWithUserConsentOnly.Hint">
+        <Value>مشخص می‌کند که آیا اسکریپت آنالیتیکس فقط پس از رضایت مشتری به کوکی‌های تحلیلی بارگذاری شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds">
+        <Value>نمایش رضایت برای تبلیغات گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayCookieInfosForAds.Hint">
+        <Value>
+            مشخص می‌کند که آیا رضایت برای شخصی‌سازی و اشتراک‌گذاری داده‌ها در مدیر کوکی‌ها نمایش داده شود.
+            این گزینه را فقط در صورتی فعال کنید که از تبلیغات گوگل (Google Ads) نیز استفاده می‌کنید.
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="TrackingScript">
+        <Value>کد ردیابی با خط {ECOMMERCE}</Value>
+    </LocaleResource>
+    <LocaleResource Name="TrackingScript.Hint">
+        <Value>کد ردیابی تولیدشده توسط گوگل آنالیتیکس را اینجا جای‌گذاری کنید. {GOOGLEID} و {ECOMMERCE} به‌صورت پویا جایگزین خواهند شد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EcommerceScript">
+        <Value>کد ردیابی برای بخش {ECOMMERCE}، با خط {DETAILS}</Value>
+    </LocaleResource>
+    <LocaleResource Name="EcommerceScript.Hint">
+        <Value>کد ردیابی تولیدشده توسط گوگل آنالیتیکس را اینجا جای‌گذاری کنید. {ORDERID}، {TOTAL}، {TAX}، {SHIP}، {CITY}، {STATEPROVINCE}، {COUNTRY}، {DETAILS} به‌صورت پویا جایگزین خواهند شد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EcommerceDetailScript">
+        <Value>کد ردیابی برای بخش {DETAILS}</Value>
+    </LocaleResource>
+    <LocaleResource Name="EcommerceDetailScript.Hint">
+        <Value>کد ردیابی تولیدشده توسط گوگل آنالیتیکس را اینجا جای‌گذاری کنید. {ORDERID}، {PRODUCTSKU}، {PRODUCTNAME}، {CATEGORYNAME}، {UNITPRICE}، {QUANTITY} به‌صورت پویا جایگزین خواهند شد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="OptOutNotification">
+        <Value>ردیابی اکنون غیرفعال است</Value>
+    </LocaleResource>
+    <LocaleResource Name="CookieInfo">
+        <Value>گوگل آنالیتیکس به ما کمک می‌کند رفتار کاربران وب‌سایت را تحلیل و بهبود دهیم تا بهترین تجربه کاربری ممکن را برای شما فراهم کنیم.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsentAdUserData">
+        <Value>با موافقت با انتقال داده‌های کاربری مرتبط با تبلیغات، به ما اجازه می‌دهید یک شناسه منحصربه‌فرد مرتبط با حساب کاربری شما به گوگل ارسال کنیم.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsentAdPersonalization">
+        <Value>اگر تبلیغات شخصی‌سازی‌شده را مجاز کنید، تبلیغاتی از خدمات گوگل دریافت خواهید کرد که با علایق شخصی شما سازگار است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RestoreScripts">
+        <Value>بازگرداندن اسکریپت‌ها</Value>
+    </LocaleResource>
+    <LocaleResource Name="RestoreScripts.Hint">
+        <Value>اسکریپت‌های اصلی را بازمی‌گرداند. پس از به‌روزرسانی فروشگاه، باید از این عملکرد استفاده کنید تا مطمئن شوید آخرین اسکریپت‌ها استفاده می‌شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderCatalogScripts">
+        <Value>ردیابی کاتالوگ</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderCatalogScripts.Hint">
+        <Value>مشخص می‌کند که آیا اسکریپت‌های ردیابی برای لیست‌ها در کاتالوگ محصول ارائه شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderCheckoutScripts">
+        <Value>ردیابی پرداخت</Value>
+    </LocaleResource>
+    <LocaleResource Name="RenderCheckoutScripts.Hint">
+        <Value>مشخص می‌کند که آیا اسکریپت‌های ردیابی برای رویدادها در فرآیند پرداخت ارائه شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MinifyScripts">
+        <Value>فشرده‌سازی اسکریپت‌ها</Value>
+    </LocaleResource>
+    <LocaleResource Name="MinifyScripts.Hint">
+        <Value>مشخص می‌کند که آیا اسکریپت‌های تولیدشده فشرده شوند (توصیه می‌شود).</Value>
+    </LocaleResource>
+</Language>

@@ -1,0 +1,67 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.Clickatell" AppendRootKey="false">
+        <Value>ارائه‌دهنده SMS Clickatell</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.Clickatell" AppendRootKey="false">
+        <Value>اعلان‌های سفارش را از طریق SMS به مدیر فروشگاه ارسال می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+        <p>برای دریافت اعلان SMS هنگام ثبت سفارش از فروشگاه خود، باید این مراحل را دنبال کنید:</p>
+        <ul>
+            <li><a href="https://www.clickatell.com/" target='_blank'>یک حساب Clickatell ثبت کنید</a>.</li>
+            <li>یک ادغام جدید با استفاده از <b>ادغام SMS</b> ایجاد کنید.</li>
+            <li>فرم زیر را با کلید API ایجادشده پر کنید، شامل شماره‌ای که می‌خواهید پیام‌های اعلان به آن ارسال شود.</li>
+            <li>روی <b>ذخیره</b> کلیک کنید.</li>
+            <li>اکنون وقتی سفارش جدیدی دریافت می‌کنید، یک پیام متنی SMS به شماره تلفنی که در زیر وارد کرده‌اید ارسال خواهد شد.</li>
+        </ul>
+      ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="EnterMessage">
+        <Value>لطفاً یک پیام وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="OrderPlacedMessage">
+        <Value>سفارش جدید با شماره {0} ثبت شده است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SmsSentNote">
+        <Value>یک SMS درباره سفارش جدید ارسال شده است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TestFailed">
+        <Value>ارسال پیام آزمایشی ناموفق بود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TestSuccess">
+        <Value>پیام آزمایشی ارسال شد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Enabled">
+        <Value>فعال</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Enabled.Hint">
+        <Value>مشخص می‌کند که آیا هنگام ثبت سفارش جدید SMS ارسال شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ApiId">
+        <Value>کلید API</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ApiId.Hint">
+        <Value>کلید API Clickatell</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.PhoneNumber">
+        <Value>شماره تلفن</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.PhoneNumber.Hint">
+        <Value>شماره تلفنی که SMS به آن ارسال می‌شود. می‌توانید چندین شماره را با سمی‌کالن (;) جدا کنید. از فرمت بین‌المللی مانند +49231987654 استفاده کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.TestMessage">
+        <Value>متن پیام</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.TestMessage.Hint">
+        <Value>متن پیام آزمایشی</Value>
+    </LocaleResource>
+    <LocaleResource Name="SendTest">
+        <Value>ارسال</Value>
+    </LocaleResource>
+    <LocaleResource Name="SendTest.Hint">
+        <Value>ارسال پیام آزمایشی</Value>
+    </LocaleResource>
+</Language>

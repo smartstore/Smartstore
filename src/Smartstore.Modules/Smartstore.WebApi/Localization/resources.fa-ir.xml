@@ -1,0 +1,129 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.WebApi" AppendRootKey="false">
+        <Value>وب API</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.WebApi" AppendRootKey="false">
+        <Value>تبادل داده با Smartstore را فراهم می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Permissions.DisplayName.WebApi" AppendRootKey="false">
+        <Value>وب API</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[<ul>
+			<li>فقط مشتریان ثبت‌شده (لیست زیر را ببینید) که دارای کلید عمومی و کلید مخفی برای API هستند به آن دسترسی دارند.</li>
+			<li>می‌توانید دسترسی یک مشتری را به‌طور دائم با حذف کلیدها یا به‌طور موقت با غیرفعال کردن آن لغو کنید.</li>
+			<li>حقوق گروه مشتریان مربوطه برای API نیز معتبر است.</li>
+			</ul>]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="UserGridTabTitle">
+        <Value>کاربر API</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataUrl">
+        <Value>آدرس URL API OData</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataUrl.Hint">
+        <Value>آدرس URL وب API OData.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataEndpointsUrl">
+        <Value>نقاط پایانی OData</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataEndpointsUrl.Hint">
+        <Value>آدرس URL تمام نقاط پایانی OData.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataMetadataUrl">
+        <Value>متادیتا OData</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataMetadataUrl.Hint">
+        <Value>آدرس URL متادیتا OData. این مدل داده‌های موجودیت (EDM) که وب API بر اساس آن است را توصیف می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SwaggerUrl">
+        <Value>مستندات API</Value>
+    </LocaleResource>
+    <LocaleResource Name="SwaggerUrl.Hint">
+        <Value>آدرس URL مستندات Swagger وب API.</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsActive">
+        <Value>فعال است</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsActive.Hint">
+        <Value>مشخص می‌کند که آیا وب API فعال است و درخواست‌ها را می‌پذیرد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxTop">
+        <Value>حداکثر اندازه صفحه</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxTop.Hint">
+        <Value>حداکثر اندازه صفحه را مشخص می‌کند. درخواست‌هایی با مقدار بزرگ‌تر برای اندازه صفحه (گزینه $top) رد می‌شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxExpansionDepth">
+        <Value>حداکثر عمق گسترش</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxExpansionDepth.Hint">
+        <Value>حداکثر عمق گسترش برای گزینه $expand را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="PublicKey">
+        <Value>کلید عمومی</Value>
+    </LocaleResource>
+    <LocaleResource Name="SecretKey">
+        <Value>کلید مخفی</Value>
+    </LocaleResource>
+    <LocaleResource Name="LastRequest">
+        <Value>آخرین دسترسی</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiEnabled">
+        <Value>دسترسی مجاز</Value>
+    </LocaleResource>
+    <LocaleResource Name="Activate">
+        <Value>اجازه دادن</Value>
+    </LocaleResource>
+    <LocaleResource Name="Activate.Hint">
+        <Value>دسترسی به API را برای این مشتری فعال می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Deactivate">
+        <Value>عدم اجازه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Deactivate.Hint">
+        <Value>دسترسی به API را برای این مشتری غیرفعال می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RemoveKeys">
+        <Value>حذف کلیدها</Value>
+    </LocaleResource>
+    <LocaleResource Name="RemoveKeys.Hint">
+        <Value>کلیدهای دسترسی API این مشتری را حذف می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CreateKeys">
+        <Value>تولید کلیدها</Value>
+    </LocaleResource>
+    <LocaleResource Name="CreateKeys.Hint">
+        <Value>کلیدهای دسترسی API را برای این مشتری ایجاد می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowKeys">
+        <Value>نمایش کلیدها</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiAccess">
+        <Value>دسترسی به API</Value>
+    </LocaleResource>
+    <LocaleResource Name="Batch">
+        <Value>دسته‌ای</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth">
+        <Value>حداکثر عمق تودرتو</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth.Hint">
+        <Value>حداکثر عمق تودرتو مجاز هنگام خواندن یا نوشتن بارهای دسته‌ای بازگشتی را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset">
+        <Value>حداکثر عملیات در هر مجموعه تغییرات</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset.Hint">
+        <Value>حداکثر تعداد عملیات مجاز در یک مجموعه تغییرات دسته‌ای را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize">
+        <Value>حداکثر اندازه پیام دریافت‌شده</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize.Hint">
+        <Value>حداکثر مقدار داده (به کیلوبایت) که باید از یک پیام دسته‌ای خوانده شود را مشخص می‌کند.</Value>
+    </LocaleResource>
+</Language>

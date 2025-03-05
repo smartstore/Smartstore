@@ -1,0 +1,42 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Facebook.Auth" AppendRootKey="false">
+        <Value>ورود با فیس‌بوک</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Facebook.Auth" AppendRootKey="false">
+        <Value>احراز هویت با فیس‌بوک را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+			<p>چگونه احراز هویت فیس‌بوک را تنظیم کنیم:</p>
+			<ul>
+				<li>یک برنامه جدید در <a href="https://developers.facebook.com/apps/create/">فیس‌بوک</a> از نوع <b>مصرف‌کننده</b> ایجاد کنید.</li>
+				<li>داده‌های دسترسی (شناسه برنامه و راز برنامه) را در فرم زیر وارد کنید.</li>
+				<li>URL ذکرشده در زیر را در <b>برنامه من > ورود با فیس‌بوک > تنظیمات > URIهای هدایت OAuth معتبر</b> وارد کنید.</li>
+				<li>دامنه خود را در تنظیمات پیشرفته برنامه ایجادشده در مدیر دامنه وارد کنید.</li>
+			</ul>
+			]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>ورود با فیس‌بوک</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier">
+        <Value>شناسه برنامه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier.Hint">
+        <Value>شناسه برنامه خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret">
+        <Value>راز برنامه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret.Hint">
+        <Value>راز برنامه خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>URI هدایت OAuth</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>URI هدایت OAuth که باید در فیس‌بوک وارد شود.</Value>
+    </LocaleResource>
+</Language>

@@ -1,0 +1,102 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Stripe" AppendRootKey="false">
+        <Value>استرایپ</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Stripe" AppendRootKey="false">
+        <Value>فروشگاه را با پرداخت استرایپ گسترش می‌دهد.</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.FriendlyName.Payments.StripeElements" AppendRootKey="false">
+        <Value>اکنون با استرایپ پرداخت کنید</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.StripeElements" AppendRootKey="false">
+        <Value>یک پنجره پرداخت امن باز می‌کند که در آن پرداخت مستقیماً با استرایپ انجام می‌شود.</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.Smartstore.Stripe" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value>
+                    <![CDATA[
+						<p>برای تنظیم <b>استرایپ</b>:</p>
+                        <ul>
+                            <li>یک حساب کاربری در استرایپ ایجاد کنید یا با حساب موجود خود وارد شوید.</li>
+                            <li>به بخش <b>توسعه‌دهنده / کلید API</b> بروید.</li>
+                            <li><b>کلید عمومی</b> و <b>کلید مخفی</b> را در فیلدهای زیر کپی کنید.</li>
+                            <li>اکنون با کلیک روی دکمه «ایجاد وب‌هوک»، یک نقطه پایانی جدید اضافه کنید.</li>
+                        </ul>
+					]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="CookieInfo">
+                <Value>استرایپ از کوکی‌ها برای نمایش و پردازش تراکنش پرداخت استفاده می‌کند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod">
+                <Value>روش ضبط</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Hint">
+                <Value>کنترل می‌کند که چه زمانی وجوه از حساب مشتری ضبط شود.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Automatic">
+                <Value>خودکار</Value>
+            </LocaleResource>
+            <LocaleResource Name="CaptureMethod.Manual">
+                <Value>دستی</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicApiKey">
+                <Value>کلید عمومی API</Value>
+            </LocaleResource>
+            <LocaleResource Name="PublicApiKey.Hint">
+                <Value>کلید عمومی API را که در داشبورد استرایپ قابل مشاهده است، اینجا وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey">
+                <Value>کلید مخفی API</Value>
+            </LocaleResource>
+            <LocaleResource Name="SecrectApiKey.Hint">
+                <Value>کلید مخفی API را که در داشبورد استرایپ قابل مشاهده است، اینجا وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret">
+                <Value>کلید مخفی وب‌هوک</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookSecret.Hint">
+                <Value>کلید مخفی وب‌هوک را اینجا وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl">
+                <Value>آدرس URL نقطه پایانی</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebhookUrl.Hint">
+                <Value>این URL را به‌عنوان آدرس URL نقطه پایانی وب‌هوک در حساب استرایپ خود ذخیره کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>ایجاد وب‌هوک</Value>
+            </LocaleResource>
+            <LocaleResource Name="AdditionalFee">
+                <Value>هزینه اضافی</Value>
+            </LocaleResource>
+            <LocaleResource Name="AdditionalFee.Hint">
+                <Value>هزینه اضافی که از مشتریان دریافت می‌شود را وارد کنید.</Value>
+            </LocaleResource>
+            <LocaleResource Name="AdditionalFeePercentage">
+                <Value>هزینه اضافی. استفاده از درصد</Value>
+            </LocaleResource>
+            <LocaleResource Name="AdditionalFeePercentage.Hint">
+                <Value>مشخص می‌کند که آیا هزینه اضافی به‌صورت درصد از مجموع سفارش اعمال شود. اگر فعال نباشد، از مقدار ثابت استفاده می‌شود.</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart">
+                <Value>نمایش دکمه در سبد خرید کوچک</Value>
+            </LocaleResource>
+            <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+                <Value>مشخص می‌کند که آیا دکمه پرداخت در سبد خرید کوچک نمایش داده شود.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentInfo">
+                <Value>
+                    پس از تکمیل سفارش، در صورت لزوم به یک ارائه‌دهنده پرداخت خارجی هدایت می‌شوید،
+                    جایی که می‌توانید پرداخت سفارش خود را انجام دهید.
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="OrderNotFound">
+                <Value>سفارش با شناسه PaymentIntent-Id {0} یافت نشد.</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+</Language>

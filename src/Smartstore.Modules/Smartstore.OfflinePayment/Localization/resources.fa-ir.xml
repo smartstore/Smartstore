@@ -1,0 +1,175 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.OfflinePayment" AppendRootKey="false">
+        <Value>روش‌های پرداخت آفلاین</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.OfflinePayment" AppendRootKey="false">
+        <Value>روش‌های پرداخت آفلاین مانند برداشت مستقیم، کارت اعتباری، فاکتور، پیش‌پرداخت، پرداخت در محل و غیره را فراهم می‌کند.</Value>
+    </LocaleResource>
+
+    <!-- CashOnDelivery -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">
+        <Value>پرداخت در محل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.CashOnDelivery" AppendRootKey="false">
+        <Value>پس از ثبت سفارش، کارکنان ما برای تأیید سفارش با شما تماس خواهند گرفت.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payment.CashOnDelivery" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- Invoice -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.Invoice" AppendRootKey="false">
+        <Value>فاکتور</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Invoice" AppendRootKey="false">
+        <Value>پس از ثبت سفارش، کارکنان ما برای تأیید سفارش با شما تماس خواهند گرفت.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payment.Invoice" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- PayInStore -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayInStore" AppendRootKey="false">
+        <Value>پرداخت در فروشگاه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayInStore" AppendRootKey="false">
+        <Value>اقلام را در فروشگاه محلی خود رزرو کنید و هنگام تحویل گرفتن سفارش در فروشگاه پرداخت کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payment.PayInStore" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- Prepayment -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.Prepayment" AppendRootKey="false">
+        <Value>پیش‌پرداخت</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Prepayment" AppendRootKey="false">
+        <Value>پس از ثبت سفارش، کارکنان ما برای تأیید سفارش با شما تماس خواهند گرفت.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payment.Prepayment" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- Manual -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.Manual" AppendRootKey="false">
+        <Value>کارت اعتباری (دستی)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.Manual" AppendRootKey="false">
+        <Value>پس از ثبت سفارش، کارکنان ما برای تأیید سفارش با شما تماس خواهند گرفت.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payments.Manual" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.TransactMode">
+                <Value>وضعیت پرداخت پس از تکمیل سفارش</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.TransactMode.Hint">
+                <Value>وضعیت پرداخت پس از تکمیل سفارش را مشخص می‌کند.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreditCardBrands">
+                <Value>ویزا|مستر کارت;مستر کارت|دیسکاور|آمکس;آمریکن اکسپرس</Value>
+            </LocaleResource>
+            <LocaleResource Name="ExcludedCreditCards">
+                <Value>کارت‌های اعتباری مستثنی</Value>
+            </LocaleResource>
+            <LocaleResource Name="ExcludedCreditCards.Hint">
+                <Value>کارت‌های اعتباری که مشتریان نمی‌توانند با آن‌ها پرداخت کنند.</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- DirectDebit -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.DirectDebit" AppendRootKey="false">
+        <Value>برداشت مستقیم</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.DirectDebit" AppendRootKey="false">
+        <Value>پس از ثبت سفارش، کارکنان ما برای تأیید سفارش با شما تماس خواهند گرفت.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payments.DirectDebit" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitAccountHolder">
+                <Value>نام دارنده حساب</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitAccountHolder.Hint">
+                <Value>نام دارنده حساب بانکی</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitAccountNumber">
+                <Value>شماره حساب</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitBankCode">
+                <Value>کد بانک</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitBankCode.Hint">
+                <Value>شماره کد بانک</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitCountry">
+                <Value>کشور</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitCountry.Hint">
+                <Value>کشور حساب بانکی شما.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitBankName">
+                <Value>نام بانک</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitIban">
+                <Value>IBAN</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitIban.Hint">
+                <Value>شماره حساب بانکی بین‌المللی</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitBic">
+                <Value>BIC</Value>
+            </LocaleResource>
+            <LocaleResource Name="DirectDebitBic.Hint">
+                <Value>کد تبادل بانکی</Value>
+            </LocaleResource>
+            <LocaleResource Name="EnterIban">
+                <Value>وارد کردن IBAN</Value>
+            </LocaleResource>
+            <LocaleResource Name="NoEnterIban">
+                <Value>خیر</Value>
+            </LocaleResource>
+            <LocaleResource Name="YesEnterIban">
+                <Value>بله</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- PuchaseOrderNumber -->
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PurchaseOrderNumber" AppendRootKey="false">
+        <Value>سفارش خرید</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Payments.PurchaseOrder" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="AdminInstruction">
+                <Value><![CDATA[ ]]></Value>
+            </LocaleResource>
+            <LocaleResource Name="PurchaseOrderNumber">
+                <Value>شماره سفارش خرید</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+</Language>

@@ -1,0 +1,70 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.DevTools" AppendRootKey="false">
+        <Value>ابزارهای توسعه‌دهنده</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.DevTools" AppendRootKey="false">
+        <Value>ابزارهای توسعه‌دهنده Smartstore (MiniProfiler و سایر امکانات مفید).</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Widgets.DevToolsDemo" AppendRootKey="false">
+        <Value>ویجت نمایشی ابزارهای توسعه‌دهنده</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Permissions.DisplayName.DevTools" AppendRootKey="false">
+        <Value>ابزارهای توسعه‌دهنده</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="EnableMiniProfilerInPublicStore">
+        <Value>فعال‌سازی MiniProfiler</Value>
+    </LocaleResource>
+    <LocaleResource Name="EnableMiniProfilerInPublicStore.Hint">
+        <Value>MiniProfiler را فعال می‌کند. با کمک آن می‌توانید زمان از درخواست اولیه تا ارسال اولین بایت به مرورگر را اندازه‌گیری کنید. فقط مدیران می‌توانند ویجت پروفایلر را ببینند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MiniProfilerIgnorePaths">
+        <Value>مسیرهای نادیده‌گرفته‌شده MiniProfiler</Value>
+    </LocaleResource>
+    <LocaleResource Name="MiniProfilerIgnorePaths.Hint">
+        <Value>فهرستی از مسیرها که با کاما جدا شده‌اند و توسط MiniProfiler نادیده گرفته می‌شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayWidgetZones">
+        <Value>نمایش مناطق ویجت</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayWidgetZones.Hint">
+        <Value>در هر منطقه ویجت، راهنمایی (tooltip) تزریق می‌کند که شامل نام منطقه ویجت فعلی است. نمایش این راهنمایی‌ها به مدیران محدود است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Value>نمایش منوی منطقه ویجت</Value>
+    </LocaleResource>
+    <LocaleResource Name="WidgetZoneMenu">
+        <Children>
+            <LocaleResource Name="ActivateZones">
+                <Value>
+                    <![CDATA[
+                        در حال حاضر هیچ منطقه ویجتی فعال نیست.
+                        با کلیک روی آیکون <i class="fa fa-power-off px-1"></i> می‌توانید مناطق ویجت را فعال کنید.
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="Toolbar">
+                <Value>نوار ابزار منطقه ویجت</Value>
+            </LocaleResource>
+            <LocaleResource Name="Toggle">
+                <Value>
+                    <![CDATA[
+                        تغییر وضعیت مناطق ویجت (Alt + K)
+                    ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PersistentToggle">
+                <Value>همیشه مناطق ویجت را نشان بده</Value>
+            </LocaleResource>
+            <LocaleResource Name="CloseButton">
+                <Value>بستن منوی منطقه ویجت</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+    <LocaleResource Name="DisplayMachineName">
+        <Value>نمایش نام ماشین</Value>
+    </LocaleResource>
+    <LocaleResource Name="DisplayMachineName.Hint">
+        <Value>نام ماشین فعلی را زیر پاورقی نمایش می‌دهد. با این عملکرد می‌توانید ماشین فعلی را در یک برنامه توزیع‌شده شناسایی کنید.</Value>
+    </LocaleResource>
+</Language>

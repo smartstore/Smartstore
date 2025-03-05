@@ -1,0 +1,112 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>حمل‌ونقل بر اساس وزن</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.ShippingByWeight" AppendRootKey="false">
+        <Value>روش‌های حمل‌ونقل را برای محاسبه بر اساس وزن فراهم می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Shipping.ShippingByWeight" AppendRootKey="false">
+        <Value>حمل‌ونقل بر اساس وزن</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Country">
+        <Value>کشور</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Country.Hint">
+        <Value>اگر ستاره انتخاب شود، این نرخ حمل‌ونقل برای همه مشتریان، بدون توجه به کشور، اعمال می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Zip">
+        <Value>کد پستی (محدوده)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Zip.Hint">
+        <Value>کد پستی (محدوده)، یا به‌صورت مقادیر خاص (جدا شده با کاما) یا الگوی محدوده (مثلاً 4000-4999). می‌توانید از کاراکترهای جایگزین مانند * یا ? استفاده کنید. اگر کد پستی خالی باشد، این نرخ حمل‌ونقل برای همه مشتریان از کشور یا ایالت/استان مشخص‌شده، بدون توجه به کد پستی، اعمال می‌شود. همچنین می‌توانید چندین محدوده (جدا شده با کاما) وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingMethod">
+        <Value>روش حمل‌ونقل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingMethod.Hint">
+        <Value>روش حمل‌ونقل.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.From">
+        <Value>وزن سفارش از</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.From.Hint">
+        <Value>وزن سفارش از.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.To">
+        <Value>وزن سفارش تا</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.To.Hint">
+        <Value>وزن سفارش تا.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.UsePercentage">
+        <Value>استفاده از درصد</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.UsePercentage.Hint">
+        <Value>کادر را علامت بزنید تا از مقدار «درصد هزینه» استفاده شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingChargePercentage">
+        <Value>درصد هزینه (از مجموع فرعی)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingChargePercentage.Hint">
+        <Value>درصد هزینه (از مجموع فرعی).</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingChargeAmount">
+        <Value>مقدار هزینه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.ShippingChargeAmount.Hint">
+        <Value>مقدار هزینه.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.LimitMethodsToCreated">
+        <Value>محدود کردن روش‌های حمل‌ونقل به موارد تنظیم‌شده</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.LimitMethodsToCreated.Hint">
+        <Value>اگر این گزینه را علامت بزنید، مشتریان شما به گزینه‌های حمل‌ونقل تنظیم‌شده در اینجا محدود می‌شوند. در غیر این صورت، آن‌ها می‌توانند هر گزینه حمل‌ونقل موجود را انتخاب کنند، حتی اگر اینجا تنظیم نشده باشد (در این صورت هزینه حمل‌ونقل صفر خواهد بود).</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.CalculatePerWeightUnit">
+        <Value>محاسبه بر اساس واحد وزن</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.CalculatePerWeightUnit.Hint">
+        <Value>اگر این گزینه را علامت بزنید، نرخ‌ها بر اساس واحد وزن (پوند، کیلوگرم و غیره) ضرب می‌شوند. این گزینه برای نرخ‌های ثابت (بدون درصد) استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.IncludeWeightOfFreeShippingProducts">
+        <Value>شامل وزن محصولات با حمل‌ونقل رایگان</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.IncludeWeightOfFreeShippingProducts.Hint">
+        <Value>مشخص می‌کند که آیا وزن محصولات با حمل‌ونقل رایگان در محاسبه لحاظ شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Store">
+        <Value>فروشگاه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.Store.Hint">
+        <Value>اگر ستاره انتخاب شود، این نرخ حمل‌ونقل برای همه فروشگاه‌ها اعمال می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.SmallQuantitySurcharge">
+        <Value>هزینه اضافی برای مقادیر کم</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.SmallQuantitySurcharge.Hint">
+        <Value>مقدار هزینه اضافی برای مقادیر کم را تعیین می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.SmallQuantityThreshold">
+        <Value>آستانه برای مقادیر کم</Value>
+    </LocaleResource>
+    <LocaleResource Name="Fields.SmallQuantityThreshold.Hint">
+        <Value>مجموع فرعی که تا آن حد «هزینه اضافی برای مقادیر کم» اضافه می‌شود. اگر هزینه حمل‌ونقل اعمال نشود، این هزینه نادیده گرفته می‌شود. از «0» استفاده کنید اگر هزینه‌ای دریافت نشود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SmallQuantitySurchargeNotReached">
+        <Value>
+            <![CDATA[<br>شما با هزینه اضافی <b class=\"text-success\">{0}</b> مواجه هستید زیرا مجموع سفارش شما به <b class=\"text-warning\">{1}</b> نرسیده است.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="AddNewRecordTitle">
+        <Value>افزودن رکورد جدید</Value>
+    </LocaleResource>
+    <LocaleResource Name="AddNewRecord.Success">
+        <Value>رکورد جدید با موفقیت اضافه شد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TabTitleSettings">
+        <Value>گزینه‌ها</Value>
+    </LocaleResource>
+    <LocaleResource Name="TabTitleGrid">
+        <Value>رکوردهای حمل‌ونقل</Value>
+    </LocaleResource>
+</Language>

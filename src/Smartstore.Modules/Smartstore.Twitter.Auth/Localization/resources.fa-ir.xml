@@ -1,0 +1,42 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Twitter.Auth" AppendRootKey="false">
+        <Value>ورود با X</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
+        <Value>احراز هویت با X را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+			<p>چگونه احراز هویت X را تنظیم کنیم: </p>
+			<ul>
+				<li>یک برنامه جدید در X از نوع <a href="https://developer.twitter.com/en/apps">X</a> ایجاد کنید.</li>
+				<li>داده‌های دسترسی (شناسه برنامه و راز برنامه) را در فرم زیر وارد کنید.</li>
+				<li>آدرس URL ذکرشده در زیر را در <b>برنامه‌ها > تنظیمات برنامه > تنظیمات احراز هویت > آدرس‌های بازگشتی</b> وارد کنید.</li>
+				<li>گزینه <b>درخواست آدرس ایمیل از کاربران</b> را فعال کنید.</li>
+			</ul>
+			]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>ورود با X</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey">
+        <Value>کلید API</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey.Hint">
+        <Value>کلید API خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret">
+        <Value>راز</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret.Hint">
+        <Value>راز مشتری خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>آدرس بازگشتی OAuth</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>آدرس بازگشتی OAuth که باید در X وارد شود.</Value>
+    </LocaleResource>
+</Language>

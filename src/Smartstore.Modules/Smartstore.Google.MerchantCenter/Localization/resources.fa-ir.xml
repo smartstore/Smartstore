@@ -1,0 +1,236 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.Google.MerchantCenter" AppendRootKey="false">
+        <Value>فید مرکز تجاری گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.Google.MerchantCenter" AppendRootKey="false">
+        <Value>به شما امکان می‌دهد داده‌های محصول را در فرمت فید مرکز تجاری گوگل (GMC) صادر کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Feeds.GoogleMerchantCenterProductXml" AppendRootKey="false">
+        <Value>فید XML مرکز تجاری گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Feeds.GoogleMerchantCenterProductXml" AppendRootKey="false">
+        <Value>امکان صادرات داده‌های محصول را در فرمت فید XML مرکز تجاری گوگل (GMC) فراهم می‌کند.</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[<ul class="mb-0">
+			<li>یکی از GTIN (مانند UPC، EAN و غیره) یا نام سازنده و شماره قطعه سازنده (MPN) برای شناسایی محصول الزامی است. گوگل توصیه می‌کند هر سه اطلاعات مشخص شوند.</li>
+			<li>مقادیر پیش‌فرض مالیات و حمل‌ونقل را در تنظیمات حساب مرکز تجاری گوگل خود مشخص کنید.</li>
+			<li>برای اطلاعات بیشتر درباره فیلدهای الزامی، به مقاله زیر نگاه کنید: <a class="alert-link" href="https://support.google.com/merchants/answer/7052112?hl=en" target="_blank">مشخصات فید محصول</a>.</li>
+			<li>لیست همه دسته‌بندی‌های گوگل را می‌توانید <a class="alert-link" href="https://support.google.com/merchants/answer/6324436?hl=en" target="_blank">اینجا</a> پیدا کنید.</li>
+			</ul>]]>
+        </Value>
+    </LocaleResource>
+
+    <LocaleResource Name="TabTitleGrid">
+        <Value>داده‌های محصول</Value>
+    </LocaleResource>
+    <LocaleResource Name="TabTitleProfiles">
+        <Value>پروفایل‌های صادراتی</Value>
+    </LocaleResource>
+    <LocaleResource Name="GeneralSettings">
+        <Value>تنظیمات عمومی</Value>
+    </LocaleResource>
+    <LocaleResource Name="DefaultValueSettings">
+        <Value>مقادیر پیش‌فرض</Value>
+    </LocaleResource>
+    <LocaleResource Name="DefaultValueSettingsNote">
+        <Value>مقادیر پیش‌فرض در صورتی صادر می‌شوند که اطلاعات برای یک محصول خاص وجود نداشته باشد یا در دسترس نباشد. برای یک محصول خاص، این مقادیر می‌توانند در تنظیمات افزونه و صفحه ویرایش محصول ویرایش شوند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MissingDefaultCategory">
+        <Value>دسته‌بندی پیش‌فرض گوگل تنظیم نشده است</Value>
+    </LocaleResource>
+    <LocaleResource Name="DefaultGoogleCategory">
+        <Value>دسته‌بندی پیش‌فرض گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="DefaultGoogleCategory.Hint">
+        <Value>اگر دسته‌بندی در سطح محصول مشخص نشده باشد، استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Products.ProductName">
+        <Value>محصول</Value>
+    </LocaleResource>
+    <LocaleResource Name="Products.GoogleCategory">
+        <Value>دسته‌بندی گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Products.GoogleCategory.Hint">
+        <Value>دسته‌بندی گوگل مربوط به محصول را مشخص می‌کند. الزامی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdditionalImages">
+        <Value>تصاویر اضافی</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdditionalImages.Hint">
+        <Value>کادر را علامت بزنید اگر می‌خواهید بیش از یک تصویر صادر شود. حداکثر 10 تصویر ممکن است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Availability">
+        <Value>موجودی</Value>
+    </LocaleResource>
+    <LocaleResource Name="Availability.Hint">
+        <Value>وضعیت موجودی محصول.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AvailabilityInStock">
+        <Value>موجود</Value>
+    </LocaleResource>
+    <LocaleResource Name="AvailabilityOutOfStock">
+        <Value>ناموجود</Value>
+    </LocaleResource>
+    <LocaleResource Name="AvailabilityPreorder">
+        <Value>پیش‌سفارش</Value>
+    </LocaleResource>
+    <LocaleResource Name="SpecialPrice">
+        <Value>صادرات قیمت پیشنهادی</Value>
+    </LocaleResource>
+    <LocaleResource Name="SpecialPrice.Hint">
+        <Value>مشخص می‌کند که آیا قیمت پیشنهادی شامل دوره پیشنهاد باید صادر شود، اگر چنین قیمتی برای محصول مربوطه وجود داشته باشد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Gender">
+        <Value>جنسیت</Value>
+    </LocaleResource>
+    <LocaleResource Name="Gender.Hint">
+        <Value>برای محصولات خاص، مانند لباس، الزامی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="GenderMale">
+        <Value>مردانه</Value>
+    </LocaleResource>
+    <LocaleResource Name="GenderFemale">
+        <Value>زنانه</Value>
+    </LocaleResource>
+    <LocaleResource Name="GenderUnisex">
+        <Value>یونیسکس</Value>
+    </LocaleResource>
+    <LocaleResource Name="AgeGroup">
+        <Value>گروه سنی</Value>
+    </LocaleResource>
+    <LocaleResource Name="AgeGroup.Hint">
+        <Value>برای محصولات خاص، مانند لباس، الزامی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AgeGroupAdult">
+        <Value>بزرگسالان</Value>
+    </LocaleResource>
+    <LocaleResource Name="AgeGroupKids">
+        <Value>کودکان</Value>
+    </LocaleResource>
+    <LocaleResource Name="Color">
+        <Value>رنگ</Value>
+    </LocaleResource>
+    <LocaleResource Name="Color.Hint">
+        <Value>برای محصولات خاص، مانند لباس، الزامی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Size">
+        <Value>اندازه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Size.Hint">
+        <Value>برای محصولات خاص، مانند لباس، الزامی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Material">
+        <Value>جنس</Value>
+    </LocaleResource>
+    <LocaleResource Name="Material.Hint">
+        <Value>جنس یا پارچه‌ای که محصول از آن ساخته شده است. برای مثال برای لباس مفید است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Pattern">
+        <Value>طرح</Value>
+    </LocaleResource>
+    <LocaleResource Name="Pattern.Hint">
+        <Value>طرح یا چاپ گرافیکی که روی محصول وجود دارد. برای مثال برای لباس مفید است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EmptyGridCell">
+        <Value>خالی</Value>
+    </LocaleResource>
+    <LocaleResource Name="SearchProductName">
+        <Value>نام محصول</Value>
+    </LocaleResource>
+    <LocaleResource Name="SearchProductName.Hint">
+        <Value>جستجوی نام محصولات.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SearchProductSku">
+        <Value>SKU</Value>
+    </LocaleResource>
+    <LocaleResource Name="SearchIsTouched">
+        <Value>ویرایش‌شده</Value>
+    </LocaleResource>
+    <LocaleResource Name="SearchIsTouched.Hint">
+        <Value>جستجو برای رکوردهایی که ویرایش شده‌اند یا نشده‌اند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExpirationDays">
+        <Value>انقضا در</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExpirationDays.Hint">
+        <Value>تعداد روزهایی که پس از آن محصولات منقضی می‌شوند یا دیگر نمایش داده نمی‌شوند. مقدار 0 باعث می‌شود تاریخ انقضا صادر نشود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShipping">
+        <Value>صادرات وزن حمل‌ونقل</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShipping.Hint">
+        <Value>این گزینه را فعال کنید اگر می‌خواهید وزن محصول صادر شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShippingTime">
+        <Value>صادرات زمان تحویل</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShippingTime.Hint">
+        <Value>این گزینه را فعال کنید اگر می‌خواهید زمان تحویل محصول صادر شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportBasePrice">
+        <Value>صادرات قیمت پایه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportBasePrice.Hint">
+        <Value>این گزینه را فعال کنید اگر می‌خواهید قیمت پایه محصول صادر شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Multipack">
+        <Value>چندبسته‌ای</Value>
+    </LocaleResource>
+    <LocaleResource Name="Multipack.Hint">
+        <Value>تعداد محصولات یکسان در یک بسته چندتایی تعریف‌شده توسط فروشنده. باید بیشتر از 1 باشد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsBundle">
+        <Value>بسته‌بندی</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsBundle.Hint">
+        <Value>بسته محصول تعریف‌شده توسط فروشنده که شامل یک محصول اصلی و چندین لوازم جانبی یا افزودنی است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsAdult">
+        <Value>بزرگسال</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsAdult.Hint">
+        <Value>محصولی که فقط برای کاربران بزرگسال در نظر گرفته شده است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EnergyEfficiencyClass">
+        <Value>بهره‌وری انرژی</Value>
+    </LocaleResource>
+    <LocaleResource Name="EnergyEfficiencyClass.Hint">
+        <Value>کلاس بهره‌وری انرژی محصول مطابق با دستورالعمل اتحادیه اروپا 2010/30/EU. مقادیر ممکن عبارتند از G، F، E، D، C، B، A، A+، A++، A+++.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EnergyEfficiencyClasses">
+        <Value>A+++,A++,A+,A,B,C,D,E,F,G</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel0">
+        <Value>برچسب 0</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel0.Hint">
+        <Value>برچسب سفارشی 0 برای گروه‌بندی فردی محصولات استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel1">
+        <Value>برچسب 1</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel1.Hint">
+        <Value>برچسب سفارشی 1 برای گروه‌بندی فردی محصولات استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel2">
+        <Value>برچسب 2</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel2.Hint">
+        <Value>برچسب سفارشی 2 برای گروه‌بندی فردی محصولات استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel3">
+        <Value>برچسب 3</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel3.Hint">
+        <Value>برچسب سفارشی 3 برای گروه‌بندی فردی محصولات استفاده می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel4">
+        <Value>برچسب 4</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomLabel4.Hint">
+        <Value>برچسب سفارشی 4 برای گروه‌بندی فردی محصولات استفاده می‌شود.</Value>
+    </LocaleResource>
+</Language>

@@ -1,0 +1,44 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>ورود با گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>احراز هویت با گوگل را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+			<p>چگونه احراز هویت گوگل را تنظیم کنیم: </p>
+				<ul>
+					<li>در <a href="https://console.developers.google.com/apis/credentials">گوگل</a> اعتبارنامه جدید ایجاد کنید.
+							اگر هنوز انجام نشده، ابتدا باید یک پروژه جدید در <a href="https://console.cloud.google.com/">پلتفرم ابر گوگل</a> ایجاد شود.
+					</li>
+					<li>روی <b>ایجاد اعتبارنامه > شناسه مشتری OAuth</b> کلیک کنید.</li>
+					<li>اعتبارنامه‌ها را در انتهای این فرم وارد کنید.</li>
+					<li>URL ذکرشده در زیر باید در <b>اعتبارنامه ورود > URIهای هدایت مجاز</b> وارد شود.</li>
+				</ul>
+			]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>ورود با گوگل</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey">
+        <Value>کلید API</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey.Hint">
+        <Value>کلید API خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret">
+        <Value>راز</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret.Hint">
+        <Value>راز مشتری خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>URI هدایت OAuth</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>URI هدایت OAuth که باید در گوگل وارد شود.</Value>
+    </LocaleResource>
+</Language>

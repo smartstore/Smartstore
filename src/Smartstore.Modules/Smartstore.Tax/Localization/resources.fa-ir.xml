@@ -1,0 +1,67 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.Tax" AppendRootKey="false">
+        <Value>محاسبه استاندارد مالیات</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.SmartStore.Tax" AppendRootKey="false">
+        <Value>ماژول‌های محاسبه استاندارد مالیات را فراهم می‌کند - شامل نرخ ثابت مالیات، نرخ مالیات بر اساس منطقه و غیره.</Value>
+    </LocaleResource>
+
+    <!-- FixedRate -->
+    <LocaleResource Name="Plugins.FriendlyName.Tax.FixedRate" AppendRootKey="false">
+        <Value>نرخ ثابت مالیات</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Tax.FixedRate" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="Fields.TaxCategoryName">
+                <Value>دسته‌بندی مالیات</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.Rate">
+                <Value>نرخ</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+    <!-- ByRegion -->
+    <LocaleResource Name="Plugins.FriendlyName.Tax.CountryStateZip" AppendRootKey="false">
+        <Value>مالیات بر اساس منطقه</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Tax.CountryStateZip" AppendRootKey="false">
+        <Children>
+            <LocaleResource Name="NoTaxCategoriesFound">
+                <Value>هیچ دسته‌بندی مالیاتی یافت نشد.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.Country">
+                <Value>کشور</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.StateProvince">
+                <Value>ایالت/استان</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.StateProvince.Hint">
+                <Value>اگر ستاره (*) انتخاب شود، این نرخ مالیات برای همه مشتریان از کشور مشخص‌شده اعمال می‌شود، بدون توجه به ایالت.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.Zip">
+                <Value>کد پستی</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.Zip.Hint">
+                <Value>کد پستی. اگر کد پستی خالی باشد، این نرخ مالیات برای همه مشتریان از کشور یا ایالت مشخص‌شده اعمال می‌شود، بدون توجه به کد پستی.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.TaxCategory">
+                <Value>دسته‌بندی مالیات</Value>
+            </LocaleResource>
+            <LocaleResource Name="Fields.Percentage">
+                <Value>درصد</Value>
+            </LocaleResource>
+            <LocaleResource Name="AddRecord">
+                <Value>افزودن نرخ مالیات</Value>
+            </LocaleResource>
+            <LocaleResource Name="AddRecord.Hint">
+                <Value>افزودن یک نرخ مالیات جدید</Value>
+            </LocaleResource>
+            <LocaleResource Name="AddNewRecord.Success">
+                <Value>نرخ مالیات جدید با موفقیت اضافه شد.</Value>
+            </LocaleResource>
+        </Children>
+    </LocaleResource>
+
+</Language>

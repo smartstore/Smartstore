@@ -1,0 +1,272 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.AmazonPay" AppendRootKey="false">
+        <Value>Amazon Pay</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.AmazonPay" AppendRootKey="false">
+        <Value>Amazon Pay</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
+        <Value>قابلیت پرداخت با Amazon Pay را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.AmazonPay" AppendRootKey="false">
+        <Value>قابلیت پرداخت و ورود با Amazon Pay را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
+        <Value>ورود با آمازون</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+                <div class="mb-1">چگونه <b>ورود و پرداخت با آمازون</b> را تنظیم کنیم:</div><ul>
+                <li>یک برنامه <b>ورود با آمازون</b> در حساب <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> خود ایجاد کنید. برای این کار از <b>منابع مجاز JavaScript</b> و <b>URLهای بازگشت مجاز</b> که در زیر ذکر شده‌اند استفاده کنید (SSL الزامی است!).</li>
+                <li>
+                    اعتبارنامه‌های آمازون خود را در فیلدهای زیر وارد کنید. می‌توانید کلیدهای API را به این صورت ایجاد کنید:
+                    <ul>
+                        <li>وارد <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> شوید.</li>
+                        <li>روی آیکون منو در گوشه بالا سمت چپ کلیک کنید و سپس <b>ادغام > مرکز ادغام</b> را انتخاب کنید.</li>
+                        <li>برای <b>ارائه‌دهنده تجارت الکترونیک یا نوع ادغام</b> گزینه <b>توسعه‌یافته توسط خود</b> و <b>پرداخت‌های یک‌باره، مجوز تک</b> را به‌عنوان نوع پرداخت انتخاب کنید.</li>
+                        <li>در بخش <b>کلیدهای API</b> روی دکمه <b>ایجاد کلیدها</b> کلیک کنید.</li>
+                        <li>از تنظیمات پیش‌فرض <b>تولید اعتبارنامه API</b> استفاده کنید و نامی برای کلیدهای API وارد کنید.</li>
+                        <li>با کلیک روی <b>ایجاد کلید</b> فایلی با پسوند .pem که شامل کلید خصوصی است دانلود می‌شود. می‌توانید این فایل را در صفحات زیر آپلود کنید.
+                        این کلید بعداً در Amazon Seller Central قابل مشاهده نخواهد بود. آن را ایمن نگه دارید یا در صورت نیاز کلیدهای جدیدی ایجاد کنید.</li>
+                    </ul>
+                </li>
+                <li>اگر می‌خواهید اعلان‌های پرداخت فوری دریافت کنید (SSL الزامی است!) URL IPN ذکرشده در زیر را در <b>تنظیمات ادغام - تنظیمات اعلان فوری - URL فروشنده</b> وارد کنید.</li>
+                </ul>
+                <div class="mb-1">لطفاً اطلاعات مربوط به <b>ورود و پرداخت با آمازون</b> را در صفحه پرداخت خود اضافه کنید (به <b>CMS > موضوعات</b> مراجعه کنید). مواد تصویری را می‌توانید <a class="alert-link" href="https://payments.amazon.de/resources#marks">اینجا</a> پیدا کنید.
+                پیشنهادات متنی:</div><ul>
+                <li>گزینه 1: Amazon Pay: اکنون با اطلاعات پرداخت و حمل‌ونقل از حساب آمازون خود پرداخت کنید.</li>
+                <li>گزینه 2: مشتری آمازون هستید؟ اکنون با اطلاعات پرداخت و حمل‌ونقل از حساب آمازون خود پرداخت کنید.</li>
+                <li>گزینه 3: مشتری آمازون هستید؟ اکنون با داده‌های حساب آمازون خود پرداخت کنید.</li>
+                </ul>
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="OrderNotFound">
+        <Value>سفارشی با روش پرداخت "ورود و پرداخت با آمازون" و شناسه '{0}' یافت نشد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="SignInFailureMessage">
+        <Value>مشکلی در فرآیند ورود با آمازون رخ داد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AuthorizationSoftDeclineMessage">
+        <Value>متأسفانه Amazon Pay پرداخت سفارش شما در فروشگاه آنلاین ما را رد کرد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AuthorizationHardDeclineMessage">
+        <Value>متأسفانه Amazon Pay پرداخت سفارش شما در فروشگاه آنلاین ما را رد کرد. لطفاً با ما تماس بگیرید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AuthenticationStatusFailureMessage">
+        <Value>مشکلی در پرداخت شما با Amazon Pay رخ داد. سفارش شما ثبت نشده و هزینه‌ای از شما کسر نشده است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShippingToCountryNotAllowed">
+        <Value>ارسال به کشور انتخاب‌شده ممکن نیست. لطفاً آدرس حمل‌ونقل دیگری انتخاب کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="BillingToCountryNotAllowed">
+        <Value>صدور فاکتور برای کشور انتخاب‌شده ممکن نیست. لطفاً آدرس صورت‌حساب دیگری انتخاب کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AsyncPaymentAuthorizationNote">
+        <Value>تراکنش شما با Amazon Pay در حال اعتبارسنجی است. لطفاً توجه داشته باشید که در صورت نیاز به‌زودی به شما اطلاع خواهیم داد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Signout">
+        <Value>خروج از آمازون</Value>
+    </LocaleResource>
+    <LocaleResource Name="SuccessfullySignedOut">
+        <Value>شما با موفقیت از آمازون خارج شدید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RegisterNow">
+        <Value>اکنون ثبت‌نام کنید</Value>
+    </LocaleResource>
+    <LocaleResource Name="RegisterNote">
+        <Value>
+            <![CDATA[اگر هنوز حسابی ندارید، روی <b>اکنون ثبت‌نام کنید</b> کلیک کنید. Amazon Pay مجموعه‌ای از اعتبارنامه‌های جدید برای احراز هویت در اختیار شما قرار می‌دهد که می‌توانید در کادر <b>جای‌گذاری اعتبارنامه‌های احراز هویت</b> وارد کنید.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="SaveAccessData">
+        <Value>ذخیره اعتبارنامه‌های احراز هویت</Value>
+    </LocaleResource>
+    <LocaleResource Name="PasteAccessData">
+        <Value>جای‌گذاری اعتبارنامه‌های احراز هویت</Value>
+    </LocaleResource>
+    <LocaleResource Name="PasteAccessData.Hint">
+        <Value>اعتبارنامه‌های احراز هویت خود (merchant_id، public_key_id، store_id و غیره) را اینجا جای‌گذاری کنید...</Value>
+    </LocaleResource>
+    <LocaleResource Name="MissingAccessToken">
+        <Value>پارامتر توکن برای ورود با Amazon Pay وجود ندارد!</Value>
+    </LocaleResource>
+    <LocaleResource Name="SaveAccessDataSucceeded">
+        <Value>اعتبارنامه‌های احراز هویت با موفقیت ذخیره شدند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MissingPayloadParameter">
+        <Value>پارامتر payload وجود ندارد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="EncryptionNotSupported">
+        <Value>رمزنگاری اعتبارنامه‌های احراز هویت پشتیبانی نمی‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MissingBillingAddress">
+        <Value>آدرس صورت‌حساب آمازون مشتری وجود ندارد. لطفاً آدرس صورت‌حساب را در آمازون وارد کنید یا روش پرداخت دیگری انتخاب کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Layout">
+        <Value>طرح‌بندی</Value>
+    </LocaleResource>
+    <LocaleResource Name="CloseChargeReason">
+        <Value>نیازی به هزینه‌های بیشتر نیست.</Value>
+    </LocaleResource>
+    <LocaleResource Name="IpnOrderNote">
+        <Value>
+            <![CDATA[اعلان Amazon Pay:<br />شناسه پیام: {0}<br />اعلان: {1} {2}<br />تراکنش: {3} {4}<br />مجوز هزینه: {5}<br />وضعیت (قدیمی\جدید): {6} -> {7}]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="IpnChargebackOrderNote">
+        <Value>
+            <![CDATA[Amazon Pay یک بازپرداخت گزارش کرده است. می‌توانید جزئیات بازپرداخت را در <a href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> مشاهده کنید.<br />شناسه پیام: {0}<br />اعلان: {1} {2}<br />تراکنش: {3} {4}<br />مجوز هزینه: {5}]]>
+        </Value>
+    </LocaleResource>
+
+    <LocaleResource Name="UseSandbox">
+        <Value>استفاده از سندباکس</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseSandbox.Hint">
+        <Value>کادر را علامت بزنید تا از محیط آزمایشی (سندباکس) استفاده شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="PublicKeyId">
+        <Value>شناسه کلید عمومی</Value>
+    </LocaleResource>
+    <LocaleResource Name="PublicKeyId.Hint">
+        <Value>شناسه کلید عمومی شناسه منحصربه‌فرد شما برای دسترسی به API Amazon Pay است، مثلاً SANDBOX-ACFGIC3ZV2...</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrivateKey">
+        <Value>کلید خصوصی</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrivateKey.Hint">
+        <Value>کلید خصوصی برای دسترسی به API Amazon Pay. پس از ایجاد کلیدهای API در Amazon Seller Central در بخش ادغام - مرکز ادغام، این کلید به‌صورت فایلی قابل دانلود با پسوند .pem دریافت می‌شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="UploadPrivateKey">
+        <Value>آپلود فایل کلید خصوصی (.pem)</Value>
+    </LocaleResource>
+    <LocaleResource Name="SellerId">
+        <Value>شناسه فروشنده شما</Value>
+    </LocaleResource>
+    <LocaleResource Name="SellerId.Hint">
+        <Value>شناسه فروشنده‌ای که هنگام ثبت‌نام در Amazon Seller Central دریافت کرده‌اید، مثلاً A2OJ13VBAM92IX.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientId">
+        <Value>شناسه فروشگاه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientId.Hint">
+        <Value>شناسه فروشگاه شما به تنظیمات خاصی از وب‌سایت مانند لوگوها و نام وب‌سایت اشاره دارد، مثلاً amzn1.application-oa2-client.1ab987...</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace">
+        <Value>ارز</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace.Hint">
+        <Value>هم ارز و هم منطقه آمازون را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace.De">
+        <Value>یورو (EUR)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace.Uk">
+        <Value>پوند استرلینگ (GBP)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace.Us">
+        <Value>دلار آمریکا (USD)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Marketplace.Jp">
+        <Value>ین ژاپن (JPY)</Value>
+    </LocaleResource>
+    <LocaleResource Name="MerchantLoginDomains">
+        <Value>منابع مجاز JavaScript</Value>
+    </LocaleResource>
+    <LocaleResource Name="MerchantLoginDomains.Hint">
+        <Value>لطفاً این منابع را در Amazon Seller Central در بخش ورود با آمازون وارد کنید. منابع باید از پروتکل HTTPS استفاده کنند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MerchantLoginRedirectUrls">
+        <Value>URLهای بازگشت مجاز</Value>
+    </LocaleResource>
+    <LocaleResource Name="MerchantLoginRedirectUrls.Hint">
+        <Value>لطفاً این URLها را در Amazon Seller Central در بخش ورود با آمازون وارد کنید. پروتکل URL بازگشت باید HTTPS باشد.</Value>
+    </LocaleResource>
+    <LocaleResource Name="PayButtonColor">
+        <Value>رنگ دکمه پرداخت</Value>
+    </LocaleResource>
+    <LocaleResource Name="PayButtonColor.Hint">
+        <Value>رنگ ترجیحی دکمه پرداخت را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ButtonColor.Gold">
+        <Value>نارنجی</Value>
+    </LocaleResource>
+    <LocaleResource Name="ButtonColor.LightGray">
+        <Value>خاکستری روشن</Value>
+    </LocaleResource>
+    <LocaleResource Name="ButtonColor.DarkGray">
+        <Value>خاکستری تیره</Value>
+    </LocaleResource>
+    <LocaleResource Name="AuthButtonColor">
+        <Value>رنگ دکمه ورود</Value>
+    </LocaleResource>
+    <LocaleResource Name="AuthButtonColor.Hint">
+        <Value>رنگ ترجیحی دکمه ورود را مشخص می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="DataFetching.Warning">
+        <Value>
+            <![CDATA[URL برای IPN (اعلان پرداخت فوری) باید به‌طور جداگانه برای حالت سندباکس و حالت زنده در Amazon Seller Central وارد شود. حالت زنده نیازمند یک گواهی SSL معتبر صادرشده توسط یک مرجع صدور گواهی مورد اعتماد است، گواهی‌های خود-امضاشده مجاز نیستند. سندباکس نیازی به گواهی SSL ندارد. در این صورت، URL IPN باید با HTTP مشخص شود.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="IpnUrl">
+        <Value>URL IPN</Value>
+    </LocaleResource>
+    <LocaleResource Name="IpnUrl.Hint">
+        <Value>URL برای اعلان‌های فوری جهت به‌روزرسانی وضعیت پرداخت. لطفاً این URL را در Amazon Seller Central در بخش "تنظیمات ادغام - تنظیمات اعلان فوری - URL فروشنده" وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TransactionType">
+        <Value>عملیات پرداخت</Value>
+    </LocaleResource>
+    <LocaleResource Name="TransactionType.Hint">
+        <Value>مشخص می‌کند چه زمانی حساب مشتری بدهکار شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TransactionType.AuthAndCapture">
+        <Value>برداشت فوری</Value>
+    </LocaleResource>
+    <LocaleResource Name="TransactionType.Auth">
+        <Value>تأیید فوری، برداشت بعدی</Value>
+    </LocaleResource>
+    <LocaleResource Name="TransactionType.Warning">
+        <Value>
+            <![CDATA[لطفاً از روش <b>برداشت فوری</b> فقط در صورتی استفاده کنید که کالاها را در همان روز سفارش ارسال می‌کنید و برای این سرویس در لیست سفید قرار گرفته‌اید. این گزینه را بدون تماس با Amazon Pay فعال نکنید.]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="SaveEmailAndPhone">
+        <Value>اعمال داده‌های مشتری</Value>
+    </LocaleResource>
+    <LocaleResource Name="SaveEmailAndPhone.Hint">
+        <Value>مشخص می‌کند که آیا و چه زمانی آدرس ایمیل و شماره تلفن آمازون مشتری باید ذخیره شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AmazonPaySaveDataType.OnlyIfEmpty">
+        <Value>فقط در صورت خالی بودن</Value>
+    </LocaleResource>
+    <LocaleResource Name="AmazonPaySaveDataType.Always">
+        <Value>همیشه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowPayButtonForAdminOnly">
+        <Value>نمایش دکمه پرداخت فقط برای مدیران</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowPayButtonForAdminOnly.Hint">
+        <Value>مشخص می‌کند که آیا دکمه پرداخت فقط برای مدیران قابل مشاهده باشد. برای آزمایش بدون ارائه روش پرداخت به مشتریان در نظر گرفته شده است.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowButtonInMiniShoppingCart">
+        <Value>نمایش دکمه در سبد خرید کوچک</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+        <Value>مشخص می‌کند که آیا دکمه Amazon Pay در سبد خرید کوچک نیز نمایش داده شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowSignoutButton">
+        <Value>نمایش دکمه خروج</Value>
+    </LocaleResource>
+    <LocaleResource Name="ShowSignoutButton.Hint">
+        <Value>مشخص می‌کند که آیا دکمه خروج Amazon Pay در صفحه تکمیل سفارش نمایش داده شود.</Value>
+    </LocaleResource>
+    <LocaleResource Name="CookieInfo">
+        <Value>Amazon Pay از کوکی‌ها برای نمایش و پردازش تراکنش پرداخت یا ورود استفاده می‌کند.</Value>
+    </LocaleResource>
+</Language>

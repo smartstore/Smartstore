@@ -1,0 +1,43 @@
+﻿<Language Name="Persian" IsDefault="false" IsRightToLeft="true">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>ورود با مایکروسافت</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>احراز هویت با مایکروسافت را به فروشگاه اضافه می‌کند.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
+			<p>چگونه احراز هویت مایکروسافت را تنظیم کنیم:</p>
+				<ul>
+					<li>یک برنامه جدید در <a href="https://go.microsoft.com/fwlink/?linkid=2083908">مایکروسافت</a> ایجاد کنید.</li>
+					<li>URL ذکرشده در زیر را به‌عنوان <b>URI هدایت</b> مشخص کنید.</li>
+					<li>از منوی سمت چپ، گزینه <b>گواهی‌ها و رازها</b> را انتخاب کنید.</li>
+					<li>در تب <b>رازهای مشتری</b> روی دکمه <b>راز مشتری جدید</b> کلیک کنید.</li>
+					<li>مقدار کلید را در فرم زیر به‌عنوان کلید مخفی مشتری وارد کنید و <b>شناسه برنامه</b> را وارد کنید.</li>
+				</ul>
+			]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>ورود با مایکروسافت</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier">
+        <Value>شناسه برنامه</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier.Hint">
+        <Value>شناسه برنامه خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret">
+        <Value>راز مشتری</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret.Hint">
+        <Value>مقدار راز مشتری خود را اینجا وارد کنید.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>URI هدایت</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>URI هدایتی که باید در مایکروسافت وارد شود.</Value>
+    </LocaleResource>
+</Language>
