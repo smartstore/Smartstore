@@ -293,6 +293,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",
                 "Der Auftrag hat den Zahlungsstatus <strong>{0}</strong>. Möchten Sie ihn trotzdem auf komplett setzen?");
 
+            // TODO: (mg) Find another UI term for "featured sorting", sounds weird and confusing.
             builder.AddOrUpdate("Admin.Configuration.Settings.Search.UseFeaturedSorting",
                 "Featured sorting",
                 "Nach Empfehlung sortieren",
