@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Smartstore.Collections.JsonConverters;
 
@@ -117,19 +118,19 @@ namespace Smartstore.Collections
         {
             get
             {
-                if (!_dict.ContainsKey(key))
+                if (_dict.TryGetValue(key, out var values))
                 {
-                    if (!_isReadonly)
-                    {
-                        _dict[key] = CreateCollection(null);
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return values;
                 }
 
-                return _dict[key];
+                if (!_isReadonly)
+                {
+                    values = CreateCollection(null);
+                    _dict[key] = values;
+                    return values;
+                }
+
+                return null;
             }
         }
 
@@ -181,7 +182,7 @@ namespace Smartstore.Collections
         /// <param name="values">The values.</param>
         public virtual void AddRange(TKey key, IEnumerable<TValue> values)
         {
-            if (values == null || !values.Any())
+            if (values.IsNullOrEmpty())
             {
                 return;
             }
@@ -287,6 +288,7 @@ namespace Smartstore.Collections
             return _dict.GetEnumerator();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckNotReadonly()
         {
             if (_isReadonly)
