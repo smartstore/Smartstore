@@ -292,6 +292,18 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Admin.Orders.CompleteUnpaidOrder",
                 "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",
                 "Der Auftrag hat den Zahlungsstatus <strong>{0}</strong>. Möchten Sie ihn trotzdem auf komplett setzen?");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Search.UseFeaturedSorting",
+                "Featured sorting",
+                "Nach Empfehlung sortieren",
+                "Specifies whether featured sorting is offered instead of relevance sorting. If activated, the products are sorted in the order specified for them.",
+                "Legt fest, ob die Sortierung nach Empfehlungen anstelle der Sortierung nach besten Ergebnissen angeboten wird. Wenn aktiviert, werden die Produkte in der für sie angegebenen Reihenfolge sortiert.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.DisplayOrder",
+                "Display order",
+                "Reihenfolge",
+                "Specifies the order in which associated products of a grouped product are displayed. In addition, this setting determines the order of hits in the search, if featured sorting is enabled in the search settings.",
+                "Legt die Reihenfolge fest, in der verknüpfte Produkte eines Gruppenproduktes angezeigt werden. Zusätzlich legt diese Einstellung die Reihenfolge der Treffer bei der Suche fest, sofern in den Sucheinstellungen die Sortierung nach Empfehlung aktiviert ist.");
         }
     }
 }

@@ -1,34 +1,15 @@
 ﻿namespace Smartstore.Core.Search
 {
-    public class SearchSort
+    public class SearchSort(string name, IndexTypeCode typeCode, bool descending)
     {
-        public SearchSort(string name, IndexTypeCode typeCode, bool descending)
-        {
-            FieldName = name;
-            TypeCode = typeCode;
-            Descending = descending;
-        }
-
-        public string FieldName
-        {
-            get;
-            private set;
-        }
+        public string FieldName { get; } = name;
 
         /// <summary>
         /// In this context, <see cref="IndexTypeCode.Empty"/> actually means <c>Score</c>
         /// </summary>
-        public IndexTypeCode TypeCode
-        {
-            get;
-            private set;
-        }
+        public IndexTypeCode TypeCode { get; } = typeCode;
 
-        public bool Descending
-        {
-            get;
-            private set;
-        }
+        public bool Descending { get; } = descending;
 
         public override string ToString()
         {
@@ -42,7 +23,13 @@
             }
         }
 
-        public static SearchSort ByRelevance(bool descending = false)
+        /// <summary>
+        /// Sort by relevance (document score). <see cref="FieldName"/> is <c>null</c> in this case.
+        /// </summary>
+        /// <param name="descending">
+        /// <c>true</c> by default: Higher values (scores) are at the front.
+        /// </param>
+        public static SearchSort ByRelevance(bool descending = true)
         {
             return new SearchSort(null, IndexTypeCode.Empty, descending);
         }
@@ -74,7 +61,7 @@
 
         private static SearchSort ByField(string fieldName, IndexTypeCode typeCode, bool descending = false)
         {
-            Guard.NotEmpty(fieldName, nameof(fieldName));
+            Guard.NotEmpty(fieldName);
 
             return new SearchSort(fieldName, typeCode, descending);
         }

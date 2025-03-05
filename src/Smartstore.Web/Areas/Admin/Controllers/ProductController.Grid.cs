@@ -155,6 +155,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var product = await _db.Products.FindByIdAsync(model.Id);
+                // TODO: (mg) Check stock quantity. See ProductController.UpdateProductInventory.
                 var stockQuantityInDatabase = product.StockQuantity;
 
                 product.Name = model.Name;
@@ -169,6 +170,7 @@ namespace Smartstore.Admin.Controllers
                 product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
                 product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
                 product.DeliveryTimeId = model.DeliveryTimeId;
+                product.DisplayOrder = model.DisplayOrder;
 
                 await _db.SaveChangesAsync();
 

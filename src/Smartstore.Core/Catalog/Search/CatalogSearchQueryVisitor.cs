@@ -623,19 +623,22 @@ namespace Smartstore.Core.Catalog.Search
 
         protected override IQueryable<Product> ApplyDefaultSorting(CatalogSearchQueryContext context, IQueryable<Product> query)
         {
-            if (context.SearchQuery.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null)
+            var sq = context.SearchQuery;
+
+            if (context.CategoryId > 0 && sq.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
+            {
+                return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
+            }
+            else if (context.ManufacturerId > 0 && sq.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
+            {
+                return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
+            }
+            else if (sq.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null ||
+                (context.SearchSettings.UseFeaturedSorting && (sq.IsSearchPage() || sq.IsInstantSearch())))
             {
                 return query
                     .OrderBy(x => x.DisplayOrder)
                     .ThenBy(x => x.Id);
-            }
-            else if (context.CategoryId > 0 && context.SearchQuery.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
-            {
-                return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
-            }
-            else if (context.ManufacturerId > 0 && context.SearchQuery.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
-            {
-                return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
             }
 
             return query.OrderBy(x => x.Id);

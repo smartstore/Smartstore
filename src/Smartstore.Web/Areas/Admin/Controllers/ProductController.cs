@@ -2179,6 +2179,7 @@ namespace Smartstore.Admin.Controllers
             p.TaxCategoryId = m.TaxCategoryId ?? 0;
             p.CustomsTariffNumber = m.CustomsTariffNumber;
             p.CountryOfOriginId = m.CountryOfOriginId == 0 ? null : m.CountryOfOriginId;
+            p.DisplayOrder = m.DisplayOrder;
 
             p.AvailableStartDateTimeUtc = m.AvailableStartDateTimeUtc.HasValue
                 ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableStartDateTimeUtc.Value)

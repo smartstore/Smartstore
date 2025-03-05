@@ -11,23 +11,26 @@ namespace Smartstore.Core.Catalog.Search
 {
     public partial class LinqCatalogSearchService : SearchServiceBase, ICatalogSearchService
     {
-        private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
+        private static readonly int[] _priceThresholds = [10, 25, 50, 100, 250, 500, 1000];
 
         private readonly SmartDbContext _db;
         private readonly LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>[] _queryVisitors;
         private readonly ICommonServices _services;
         private readonly ICategoryService _categoryService;
+        private readonly SearchSettings _searchSettings;
 
         public LinqCatalogSearchService(
             SmartDbContext db,
             IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>> queryVisitors,
             ICommonServices services,
-            ICategoryService categoryService)
+            ICategoryService categoryService,
+            SearchSettings searchSettings)
         {
             _db = db;
-            _queryVisitors = queryVisitors.OrderBy(x => x.Order).ToArray();
+            _queryVisitors = [.. queryVisitors.OrderBy(x => x.Order)];
             _services = services;
             _categoryService = categoryService;
+            _searchSettings = searchSettings;
         }
 
         public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null)
@@ -92,7 +95,7 @@ namespace Smartstore.Core.Catalog.Search
         protected virtual IQueryable<Product> GetProductQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery)
         {
             // Create context
-            var context = new CatalogSearchQueryContext(searchQuery, _services);
+            var context = new CatalogSearchQueryContext(searchQuery, _services, _searchSettings);
 
             // Prepare base db query
             var query = baseQuery ?? _db.Products;

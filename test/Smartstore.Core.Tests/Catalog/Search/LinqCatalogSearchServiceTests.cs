@@ -77,7 +77,8 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 DbContext,
                 [new CatalogSearchQueryVisitor()],
                 _services, 
-                It.IsAny<ICategoryService>());
+                It.IsAny<ICategoryService>(),
+                new SearchSettings());
         }
 
         [Test]

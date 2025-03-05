@@ -312,26 +312,6 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="DefaultViewMode" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="DefaultViewMode">
-                            <select asp-for="DefaultViewMode" asp-items="ViewBag.AvailableDefaultViewModes"></select>
-                        </setting-editor>
-                        <span asp-validation-for="DefaultViewMode"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="GridStyleListColumnSpan" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="GridStyleListColumnSpan"></setting-editor>
-                        <span asp-validation-for="GridStyleListColumnSpan"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
                         <smart-label asp-for="DefaultSortOrder" />
                     </div>
                     <div class="adminData">
@@ -343,11 +323,31 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="DefaultViewMode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultViewMode">
+                            <select asp-for="DefaultViewMode" asp-items="ViewBag.AvailableDefaultViewModes"></select>
+                        </setting-editor>
+                        <span asp-validation-for="DefaultViewMode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="AllowProductViewModeChanging" />
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="AllowProductViewModeChanging"></setting-editor>
                         <span asp-validation-for="AllowProductViewModeChanging"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="GridStyleListColumnSpan" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="GridStyleListColumnSpan"></setting-editor>
+                        <span asp-validation-for="GridStyleListColumnSpan"></span>
                     </div>
                 </div>
                 <div class="adminRow">

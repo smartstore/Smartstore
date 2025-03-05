@@ -5,7 +5,7 @@
 }
 
 <datagrid id="products-grid"
-          version="2"
+          version="3"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
@@ -85,6 +85,7 @@
         <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" />
         <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" visible="false" />
         <column for="AvailableStartDateTimeUtc" visible="false" />
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>

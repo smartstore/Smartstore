@@ -8,6 +8,7 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.OutputCache;
+using Smartstore.Core.Search;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
@@ -42,7 +43,8 @@ namespace Smartstore.Web.Controllers
                 model.CurrentSortOrder = query?.CustomData.Get("CurrentSortOrder").Convert<int?>();
 
                 if (query.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category) ||
-                    query.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
+                    query.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer) ||
+                    (_searchSettings.UseFeaturedSorting && query.IsSearchPage()))
                 {
                     model.RelevanceSortOrderName = T("Products.Sorting.Featured");
 

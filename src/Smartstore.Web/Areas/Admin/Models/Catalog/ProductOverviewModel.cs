@@ -120,6 +120,9 @@ namespace Smartstore.Admin.Models.Catalog
         public bool HasOrders
             => NumberOfOrders > 0;
 
+        [LocalizedDisplay("*DisplayOrder")]
+        public int DisplayOrder { get; set; }
+
         public CopyProductModel CopyProductModel { get; set; } = new();
     }
 

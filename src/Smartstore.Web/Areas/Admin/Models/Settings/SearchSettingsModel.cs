@@ -40,6 +40,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DefaultSortOrder")]
         public ProductSortingEnum DefaultSortOrder { get; set; }
 
+        [LocalizedDisplay("*UseFeaturedSorting")]
+        public bool UseFeaturedSorting { get; set; }
+
         [LocalizedDisplay("*SearchProductByIdentificationNumber")]
         public bool SearchProductByIdentificationNumber { get; set; }
 
