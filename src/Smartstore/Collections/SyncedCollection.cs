@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using Smartstore.Threading;
 
 namespace Smartstore.Collections
@@ -29,7 +31,7 @@ namespace Smartstore.Collections
 
         public void Insert(int index, T item)
         {
-            if (_col is List<T> list)
+            if (_col is IList<T> list)
             {
                 using (_rwLock.GetWriteLock())
                 {
@@ -92,7 +94,7 @@ namespace Smartstore.Collections
         {
             using (_rwLock.GetWriteLock())
             {
-                if (_col is List<T> list)
+                if (_col is IList<T> list)
                 {
                     list.RemoveAt(index);
                 }
@@ -113,7 +115,14 @@ namespace Smartstore.Collections
             {
                 using (_rwLock.GetReadLock())
                 {
-                    return _col.ElementAt(index);
+                    if (_col is IList<T> list)
+                    {
+                        return list[index];
+                    }
+                    else
+                    {
+                        return _col.ElementAt(index);
+                    }
                 }
             }
         }
@@ -208,100 +217,18 @@ namespace Smartstore.Collections
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<T> GetEnumerator()
         {
-            using (_rwLock.GetWriteLock())
+            // Create a collection snaphot
+            List<T> snapshot;
+            using (_rwLock.GetReadLock())
             {
-                // Create a collection snaphot
-                var snaphot = _col.ToList();
-                return new SafeEnumerator(snaphot.GetEnumerator(), _rwLock);
-            }
-        }
-
-        #endregion
-
-        #region SafeEnumerator
-
-        sealed class SafeEnumerator : IEnumerator<T>
-        {
-            private readonly IEnumerator<T> _inner;
-            private readonly ReaderWriterLockSlim _rwLock;
-            private bool _disposed;
-
-            public SafeEnumerator(IEnumerator<T> inner, ReaderWriterLockSlim rwLock)
-            {
-                _inner = inner;
-                _rwLock = rwLock;
+                snapshot = _col.ToList();
             }
 
-            public bool MoveNext()
-            {
-                if (!_rwLock.IsReadLockHeld)
-                {
-                    _rwLock.EnterReadLock();
-                }
-                
-                return _inner.MoveNext();
-            }
-
-            public void Reset()
-            {
-                if (!_rwLock.IsReadLockHeld)
-                {
-                    _rwLock.EnterReadLock();
-                }
-
-                _inner.Reset();
-            }
-
-            public T Current
-            {
-                get 
-                {
-                    if (!_rwLock.IsReadLockHeld)
-                    {
-                        _rwLock.EnterReadLock();
-                    }
-
-                    return _inner.Current;
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get => Current;
-            }
-
-            public void Dispose()
-            {
-                // Dispose inner enumerator when foreach loop finishes
-                if (!_disposed)
-                {
-                    try
-                    {
-                        if (_rwLock.IsReadLockHeld)
-                        {
-                            _rwLock.ExitReadLock();
-                        }
-                        
-                        _inner.Dispose();
-                        _disposed = true;
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-
-            ~SafeEnumerator()
-            {
-                Dispose();
-            }
+            return snapshot.GetEnumerator();
         }
 
         #endregion
