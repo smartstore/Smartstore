@@ -18,7 +18,7 @@ namespace Smartstore.Collections
         private readonly bool _isReadonly = false;
 
         internal readonly static Func<IEnumerable<TValue>, ICollection<TValue>> DefaultCollectionCreator =
-            x => new List<TValue>(x ?? Enumerable.Empty<TValue>());
+            x => new List<TValue>(x ?? []);
 
         public Multimap()
             : this(EqualityComparer<TKey>.Default)
@@ -43,8 +43,8 @@ namespace Smartstore.Collections
 
         internal Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
         {
-            Guard.NotNull(dictionary, nameof(dictionary));
-            Guard.NotNull(collectionCreator, nameof(collectionCreator));
+            Guard.NotNull(dictionary);
+            Guard.NotNull(collectionCreator);
 
             _dict = dictionary;
             _collectionCreator = collectionCreator;
@@ -52,7 +52,7 @@ namespace Smartstore.Collections
 
         protected Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, bool isReadonly)
         {
-            Guard.NotNull(dictionary, nameof(dictionary));
+            Guard.NotNull(dictionary);
 
             _dict = dictionary;
 
@@ -76,7 +76,7 @@ namespace Smartstore.Collections
         public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey> comparer)
         {
             // for serialization
-            Guard.NotNull(items, nameof(items));
+            Guard.NotNull(items);
 
             _dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
 
@@ -152,15 +152,15 @@ namespace Smartstore.Collections
 
         public IEnumerable<TValue> Find(TKey key, Func<TValue, bool> predicate)
         {
-            Guard.NotNull(key, nameof(key));
-            Guard.NotNull(predicate, nameof(predicate));
+            Guard.NotNull(key);
+            Guard.NotNull(predicate);
 
             if (_dict.TryGetValue(key, out var values))
             {
                 return values.Where(predicate);
             }
 
-            return Enumerable.Empty<TValue>();
+            return [];
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Smartstore.Collections
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace Smartstore.Collections
 
         public static Multimap<TKey, TValue> CreateFromLookup(ILookup<TKey, TValue> source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             var map = new Multimap<TKey, TValue>();
 
