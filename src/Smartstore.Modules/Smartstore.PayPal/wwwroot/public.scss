@@ -2,11 +2,6 @@
 @include media-breakpoint-down(sm) {
     .paypal-button-container {
         width: 100%;
-        /* On payment selection page we need some padding & alignment */
-        .checkout-page:not(.order-summary-page) & {
-            align-self: center;
-            padding-inline-start: 10px;
-        }
     }
 }
 
