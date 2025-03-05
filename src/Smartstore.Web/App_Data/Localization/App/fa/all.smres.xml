@@ -19241,7 +19241,1126 @@
   <LocaleResource Name="Search.SearchBox.Tooltip">
     <Value>به دنبال چه هستید؟</Value>
   </LocaleResource>
+  <LocaleResource Name="Search.SearchInDescriptions">
+    <Value>جستجو در توضیحات محصول</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.SearchTerm">
+    <Value>کلمه کلیدی جستجو</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.SearchTermMinimumLengthIsNCharacters">
+    <Value>حداقل طول عبارت جستجو {0} کاراکتر است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.TermCorrectedHint">
+    <Value>نمایش نتایج برای {0}. جستجوی شما برای {1} هیچ نتیجه‌ای نداشت.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.TermFromBrand">
+    <Value>از {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.TermInCategory">
+    <Value>در {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Search.Title">
+    <Value>جستجو</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipment.AlreadyDelivered">
+    <Value>این محموله قبلاً تحویل داده شده است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipment.AlreadyShipped">
+    <Value>این محموله قبلاً ارسال شده است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipping.CouldNotLoadMethod">
+    <Value>روش محاسبه نرخ ارسال بارگذاری نشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Shipping.OneActiveMethodProviderRequired">
+    <Value>حداقل یک ارائه‌دهنده روش محاسبه نرخ ارسال باید فعال باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShippingReturns">
+    <Value>ارسال و بازگشت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart">
+    <Value>سبد خرید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddOnlySimpleProductsToCart">
+    <Value>فقط محصولات ساده به سبد خرید اضافه شدند.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddToCart">
+    <Value>افزودن به سبد خرید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddToWishlist">
+    <Value>افزودن به لیست علاقه‌مندی‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AddToWishlist.Short">
+    <Value>افزودن به لیست</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AllowedQuantities">
+    <Value>مقادیر مجاز برای این محصول: {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AlternativePaymentButtons">
+    <Value>- یا -</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.AttributeError">
+    <Value>خطای ناشناخته‌ای در بررسی نوع محصول انتخاب‌شده رخ داده است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.BundleItemNotFound">
+    <Value>مورد باندل "{0}" یافت نشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.BundleItemUnpublished">
+    <Value>مورد باندل "{0}" منتشر نشده است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.MissingProduct">
+    <Value>مورد باندل "{0}" محصول یا لینک باندل گم‌شده‌ای دارد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.NoAttributes">
+    <Value>ویژگی‌ها برای باندل‌ها ممکن نیست.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.NoCustomerEnteredPrice">
+    <Value>پیشنهاد قیمت برای این باندل ممکن نیست.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.ProductResrictions">
+    <Value>مورد باندل "{0}" دانلود است یا پرداخت دوره‌ای دارد که پشتیبانی نمی‌شود.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Bundle.Quantity">
+    <Value>مورد باندل "{0}" دارای مقدار 0 یا کمتر از 0 است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.BuyingDisabled">
+    <Value>خرید برای این محصول غیرفعال است</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CannotLoadProduct">
+    <Value>محصول (شناسه={0}) بارگذاری نشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CannotMixStandardAndAutoshipProducts">
+    <Value>سبد خرید شما شامل اقلام استاندارد و خودکار (دوره‌ای) است. فقط یک نوع محصول در هر سفارش مجاز است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CartIsEmpty">
+    <Value>سبد خرید شما خالی است!</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CommentBox">
+    <Value>آیا می‌خواهید چیزی درباره این سفارش به ما بگویید؟</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ConflictingShipmentSchedules">
+    <Value>سبد خرید شما شامل اقلام خودکار (دوره‌ای) با برنامه‌های ارسال متضاد است. فقط یک برنامه ارسال خودکار در هر سفارش مجاز است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ContinueShopping">
+    <Value>ادامه خرید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CrossSells">
+    <Value>بر اساس انتخاب شما، ممکن است به موارد زیر علاقه‌مند باشید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.CustomerEnteredPrice.RangeError">
+    <Value>قیمت باید بین {0} تا {1} باشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DeleteCartItem.Failed">
+    <Value>خطایی هنگام حذف محصول رخ داده است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DeleteCartItem.Success">
+    <Value>محصول حذف شد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DeselectAllProducts">
+    <Value><a href="{0}" class="deselect-cart-items" rel="nofollow">لغو انتخاب همه محصولات</a>.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode">
+    <Value>من کد تخفیف دارم</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.Applied">
+    <Value>کد تخفیف اعمال شد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.Button">
+    <Value>اعمال کد تخفیف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.CurrentCode">
+    <Value>کد تخفیف واردشده - {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.NoMoreDiscount">
+    <Value>تخفیف بیشتر ممکن نیست.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.Tooltip">
+    <Value>کد تخفیف خود را اینجا وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.DiscountCouponCode.WrongDiscount">
+    <Value>کد تخفیفی که وارد کردید برای سفارش شما اعمال نشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EditCart">
+    <Value>ویرایش سبد خرید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EnterAttributeValue">
+    <Value>لطفاً <b class="fwm">{0}</b> را وارد کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping">
+    <Value>برآورد هزینه ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping.Button">
+    <Value>برآورد هزینه ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping.Country">
+    <Value>کشور</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping.StateProvince">
+    <Value>ایالت / استان</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping.Tooltip">
+    <Value>مقصد خود را وارد کنید تا برآورد هزینه ارسال را دریافت کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.EstimateShipping.ZipPostalCode">
+    <Value>کد پستی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.FileUploaded">
+    <Value>فایل شما با موفقیت آپلود شد!</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode">
+    <Value>من کارت هدیه دارم</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.Applied">
+    <Value>کد کارت هدیه اعمال شد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.Button">
+    <Value>افزودن کارت هدیه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts">
+    <Value>شما نمی‌توانید از کارت‌های هدیه با اقلام خودکار (دوره‌ای) استفاده کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.Tooltip">
+    <Value>کد کارت هدیه را وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.GiftCardCouponCode.WrongGiftCard">
+    <Value>کد کارت هدیه‌ای که وارد کردید برای سفارش شما اعمال نشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.IsDisabled">
+    <Value>سبد خرید غیرفعال است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ItemTotal">
+    <Value>مجموع</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ItemYouSave">
+    <Value>شما صرفه‌جویی می‌کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.MaximumQuantity">
+    <Value>حداکثر تعداد مجاز برای خرید {0} است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.MaximumShoppingCartItems">
+    <Value>حداکثر تعداد اقلام در سبد خرید شما رسیده است</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.MaximumWishlistItems">
+    <Value>حداکثر تعداد اقلام در لیست علاقه‌مندی‌های شما رسیده است</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.AddedItemToCart">
+    <Value>محصول {0} با موفقیت به سبد خرید شما اضافه شد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.AddedItemToCompare">
+    <Value>محصول {0} با موفقیت به لیست مقایسه شما اضافه شد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.AddedItemToWishlist">
+    <Value>محصول {0} به لیست علاقه‌مندی‌های شما اضافه شد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyCart.Info">
+    <Value>شما هنوز هیچ محصولی به سبد خرید خود اضافه نکرده‌اید. از آیکون <i class='{0}'></i> برای افزودن محصول به سبد خرید استفاده کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyCart.Title">
+    <Value>سبد خرید خالی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyCompare.Info">
+    <Value>شما هنوز هیچ محصولی به لیست مقایسه خود اضافه نکرده‌اید. از آیکون <i class='{0}'></i> برای افزودن محصول به لیست مقایسه استفاده کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyCompare.Title">
+    <Value>لیست مقایسه خالی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyWishlist.Info">
+    <Value>شما هنوز هیچ محصولی به لیست علاقه‌مندی‌های خود اضافه نکرده‌اید. از آیکون <i class='{0}'></i> برای افزودن محصول به لیست علاقه‌مندی‌ها استفاده کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.EmptyWishlist.Title">
+    <Value>لیست علاقه‌مندی‌ها خالی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.More.Plural">
+    <Value>{0} محصول دیگر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.More.Singular">
+    <Value>{0} محصول دیگر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.NoItems">
+    <Value>شما هیچ موردی در سبد خرید خود ندارید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.OneItem">
+    <Value>1 مورد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.OneItemText">
+    <Value>{0} در سبد خرید شما وجود دارد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.Quantity">
+    <Value>تعداد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.SeveralItems">
+    <Value>{0} مورد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.SeveralItemsText">
+    <Value>{0} در سبد خرید شما وجود دارد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.UnitPrice">
+    <Value>قیمت واحد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Mini.ViewCart">
+    <Value>رفتن به سبد خرید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.MinimumQuantity">
+    <Value>حداقل تعداد مجاز برای خرید {0} است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.MoveToWishlist">
+    <Value>انتقال به لیست علاقه‌مندی‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.NoProductsSelectedSelectAll">
+    <Value>هیچ محصولی انتخاب نشده است. <a href="{0}" class="select-cart-items" rel="nofollow">انتخاب همه محصولات</a>.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.NotAvailable">
+    <Value>محصول در دسترس نیست</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.NotAvailableVariant">
+    <Value>نوع محصول انتخاب‌شده در دسترس نیست.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.OutOfStock">
+    <Value>ناموجود</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.PreOrder">
+    <Value>پیش‌سفارش</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Product(s)">
+    <Value>محصول(ها)</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductDeleted">
+    <Value>محصول حذف شده است</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductLinkageAttributeWarning">
+    <Value>{0}. {1}. {2}</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductLinkageProductNotLoading">
+    <Value>محصول مرتبط با شناسه {0} بارگذاری نشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductNotAvailableForOrder">
+    <Value>این محصول برای سفارش در دسترس نیست.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Products">
+    <Value>محصولات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ProductUnpublished">
+    <Value>محصول منتشر نشده است</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Quantity">
+    <Value>تعداد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.QuantityExceedsStock">
+    <Value>تعداد شما از موجودی انبار بیشتر است. حداکثر تعدادی که می‌توانید اضافه کنید {0} است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.QuantityShouldPositive">
+    <Value>تعداد باید مثبت باشد</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RecipientEmailError">
+    <Value>ایمیل گیرنده معتبر وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RecipientNameError">
+    <Value>نام گیرنده معتبر وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RecurringPeriod">
+    <Value>[ارسال خودکار، هر {0} {1}]</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Remove">
+    <Value>حذف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RequiredProductWarning">
+    <Value>این محصول نیازمند سفارش محصول زیر است: <a href="{1}" class="alert-link">{0}</a>.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RewardPoints">
+    <Value>امتیازهای پاداش</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.RewardPoints.Button">
+    <Value>اعمال</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SelectAllProducts">
+    <Value><a href="{0}" class="select-cart-items" rel="nofollow">انتخاب همه محصولات</a>.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SelectAtLeastOneProduct">
+    <Value>لطفاً حداقل یک محصول را برای ادامه به پرداخت انتخاب کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SelectAttribute">
+    <Value>لطفاً <b class="fwm">{0}</b> را انتخاب کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SenderEmailError">
+    <Value>ایمیل فرستنده معتبر وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SenderNameError">
+    <Value>نام فرستنده معتبر وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.ShippingInfoLink">
+    <Value>برای مشاهده لیست کامل هزینه‌های ارسال لطفاً <a href="{0}">اینجا</a> کلیک کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.SKU">
+    <Value>SKU</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.CalculatedDuringCheckout">
+    <Value>در زمان پرداخت محاسبه می‌شود</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.CreditBalance">
+    <Value>موجودی اعتباری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.GiftCardInfo">
+    <Value>کارت هدیه ({0})</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.GiftCardInfo.Remaining">
+    <Value>{0} باقی‌مانده</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.OrderTotal">
+    <Value>مجموع</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.OrderTotalDiscount">
+    <Value>تخفیف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.PaymentMethodAdditionalFee">
+    <Value>هزینه اضافی روش پرداخت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.RewardPoints">
+    <Value>{0} امتیاز پاداش</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.Rounding">
+    <Value>گرد کردن</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.Shipping">
+    <Value>ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.Shipping.NotRequired">
+    <Value>نیاز نیست</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.ShippingWithinCountry">
+    <Value>ارسال در {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.SubTotal">
+    <Value>جمع کل</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.SubTotalDiscount">
+    <Value>تخفیف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.SubTotalSelectedProducts">
+    <Value>جمع کل <span class="text-nowrap">({0} محصول)</span></Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.Tax">
+    <Value>مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.TaxRateLineExcl">
+    <Value>به علاوه {0} % مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Totals.TaxRateLineIncl">
+    <Value>شامل {0} % مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.UnitPrice">
+    <Value>قیمت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.UploadAttributeFile">
+    <Value>لطفاً <b class="fwm">{0}</b> را آپلود کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.Weight">
+    <Value>وزن</Value>
+  </LocaleResource>
+  <LocaleResource Name="ShoppingCart.WishlistDisabled">
+    <Value>لیست علاقه‌مندی‌ها برای این محصول غیرفعال است</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.AddCallToAction">
+    <Value>در نهایت، لینکی با متن '{0}' که به '{1}' اشاره دارد اضافه کنید. این لینک دارای کلاس‌های CSS 'btn btn-primary' است</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.AddLink">
+    <Value>لینکی که به '{0}' اشاره دارد اضافه کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.AddNamedLink">
+    <Value>لینکی با متن '{0}' که به '{1}' اشاره دارد اضافه کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.AddToc">
+    <Value>فهرست مطالب با عنوان '{0}' اضافه کنید. عنوان دارای تگ {1} است. نقاط مختلف فهرست مطالب را به سرفصل‌های پاراگراف‌ها لینک کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.CharLimit">
+    <Value>هر پاسخ باید حداکثر {0} کاراکتر داشته باشد!</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.CreateHtml">
+    <Value>متن HTML ایجاد کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.DontCreateTitle">
+    <Value>عنوان '{0}' را ایجاد نکنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.DontUseLineBreaks">
+    <Value>از خطوط جدید استفاده نکنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.DontUseMarkdown">
+    <Value>از فرمت مارک‌داون استفاده نکنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.DontUseQuotes">
+    <Value>متن را در گیومه قرار ندهید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.DontUseTextInImages">
+    <Value>در تصاویری که ایجاد می‌کنید از هیچ متن یا کاراکتری استفاده نکنید. تصویر باید کاملاً بصری و بدون نوشته یا برچسب باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.IncludeConclusion">
+    <Value>متن را با یک نتیجه‌گیری پایان دهید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.IncludeImages">
+    <Value>پس از هر پاراگراف، یک تگ div دیگر با کلاس CSS 'mb-3' اضافه کنید که شامل تگ i با کلاس‌های CSS 'far fa-xl fa-file-image ai-preview-file' باشد. ویژگی title تگ i باید سرفصل پاراگراف مربوطه باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.IncludeIntro">
+    <Value>با یک مقدمه شروع کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.JustHtml">
+    <Value>فقط HTML ایجادشده را بدون استفاده از بلوک‌های کد مارک‌داون برگردانید تا مستقیماً در وب‌سایت ادغام شود. توضیحی درباره آنچه ایجاد کرده‌اید یا مقدمه‌ای مانند 'خوشحال هستم، این HTML شماست' ندهید. HTML تولیدشده را در هیچ جداکننده‌ای مانند '```html' قرار ندهید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.KeywordsToAvoid">
+    <Value>به هیچ عنوان از کلمات کلیدی زیر استفاده نکنید: '{0}'.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Language">
+    <Value>به زبان {0} بنویسید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.LanguageStyle">
+    <Value>سبک زبان باید {0} باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.LanguageTone">
+    <Value>تن صدا باید {0} باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.MainHeadingTag">
+    <Value>سرفصل اصلی دارای تگ {0} است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.MakeKeywordsBold">
+    <Value>کلمات کلیدی را در تگ‌های b قرار دهید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.NoConclusionImage">
+    <Value>نتیجه‌گیری تصویر دریافت نمی‌کند.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.NoIntroImage">
+    <Value>مقدمه تصویر دریافت نمی‌کند.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.ParagraphCount">
+    <Value>متن باید به {0} پاراگراف که در تگ‌های p قرار دارند تقسیم شود.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.ParagraphHeadingTag">
+    <Value>سرفصل‌های بخش‌های جداگانه دارای تگ‌های {0} هستند.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.ParagraphWordCount">
+    <Value>هر بخش باید حداکثر {0} کلمه داشته باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.PreserveHtmlStructure">
+    <Value>مطمئن شوید که ساختار HTML و ویژگی‌های همه تگ‌ها حفظ شود.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.ProcessHtmlElementsIndividually">
+    <Value>هر عنصر HTML را به‌صورت جداگانه پردازش کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.ReserveSpaceForShopName">
+    <Value>نام وب‌سایت را استفاده نکنید زیرا بعداً اضافه خواهد شد. 5 کلمه برای این منظور رزرو کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.Blogger">
+    <Value>یک بلاگر حرفه‌ای باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.Copywriter">
+    <Value>یک کپی‌رایتر حرفه‌ای باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.Journalist">
+    <Value>یک روزنامه‌نگار حرفه‌ای باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.Marketer">
+    <Value>یک متخصص بازاریابی باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.ProductExpert">
+    <Value>متخصص محصول '{0}' باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.SalesPerson">
+    <Value>دستیاری باشید که توضیحات محصولی ایجاد می‌کند که مشتری بالقوه را به خرید متقاعد کند.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.SEOExpert">
+    <Value>یک متخصص سئو باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.Role.Translator">
+    <Value>یک مترجم حرفه‌ای باشید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.SeparateListWithComma">
+    <Value>لیست باید با کاما جدا شود تا بتوان آن را مستقیماً به‌عنوان تگ متا وارد کرد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.StartWithDivTag">
+    <Value>با یک تگ div شروع کنید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.UseKeywords">
+    <Value>از کلمات کلیدی زیر استفاده کنید: '{0}'.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.WordLimit">
+    <Value>متن می‌تواند حداکثر {0} کلمه داشته باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Smartstore.AI.Prompts.WriteCompleteParagraphs">
+    <Value>متن‌های کامل برای هر بخش بنویسید.</Value>
+  </LocaleResource>
+  <LocaleResource Name="SmartStore.Blog.Button">
+    <Value>بازدید از وبلاگ ما</Value>
+  </LocaleResource>
+  <LocaleResource Name="SmartStore.Blog.Button.Hint">
+    <Value>اینجا کلیک کنید تا به وبلاگ ما هدایت شوید</Value>
+  </LocaleResource>
+  <LocaleResource Name="SmartStore.Core.Domain.Seo.PageTitleSeoAdjustment.PagenameAfterStorename">
+    <Value>نام صفحه بعد از نام فروشگاه می‌آید</Value>
+  </LocaleResource>
+  <LocaleResource Name="SmartStore.Core.Domain.Seo.PageTitleSeoAdjustment.StorenameAfterPagename">
+    <Value>نام فروشگاه بعد از نام صفحه می‌آید</Value>
+  </LocaleResource>
+  <LocaleResource Name="StoreClosed">
+    <Value>ما برمی‌گردیم.</Value>
+  </LocaleResource>
+  <LocaleResource Name="StoreClosed.Hint">
+    <Value>ما در حال به‌روزرسانی فروشگاه آنلاین خود برای شما هستیم و به‌زودی برمی‌گردیم.</Value>
+  </LocaleResource>
+  <LocaleResource Name="StoreTheme">
+    <Value>انتخاب تم فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.Exclusive">
+    <Value>نمایش قیمت‌ها بدون مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.ExclVAT">
+    <Value>بدون مالیات بر ارزش افزوده</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.Inclusive">
+    <Value>نمایش قیمت‌ها با مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.InclVAT">
+    <Value>شامل مالیات بر ارزش افزوده</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoFooter">
+    <Value>* همه قیمت‌ها {0}، به علاوه <a href="{1}">هزینه ارسال</a></Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoFooter2">
+    <Value>* همه قیمت‌ها {0}، به علاوه هزینه ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoProductDetail">
+    <Value>{0} {1} {2} به علاوه <a href="{3}">هزینه ارسال</a></Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoProductDetail2">
+    <Value>{0} {1} {2} به علاوه هزینه ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoProductGrid">
+    <Value>{0} {1} {2} به علاوه <a href="{3}">هزینه ارسال</a></Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoProductList">
+    <Value>{0} {1} {2} به علاوه <a href="{3}">هزینه ارسال</a></Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoShort">
+    <Value>قیمت‌ها {0}، به علاوه <a href='{1}'>هزینه ارسال</a></Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.LegalInfoShort2">
+    <Value>قیمت‌ها {0}، به علاوه هزینه ارسال</Value>
+  </LocaleResource>
+  <LocaleResource Name="Tax.SelectType">
+    <Value>نوع نمایش مالیات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BaseFontSize">
+    <Value>اندازه فونت پایه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BaseLineHeight">
+    <Value>ارتفاع خط پایه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BodyBackground">
+    <Value>رنگ پس‌زمینه بدنه صفحه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BoxBackground">
+    <Value>رنگ پس‌زمینه عناصر لیست</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BoxBackground.Hint">
+    <Value>رنگ پس‌زمینه عناصر لیست مانند لیست دسته‌بندی‌ها یا محصولات</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnBackground">
+    <Value>رنگ پس‌زمینه دکمه پیش‌فرض</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnBackgroundHighlight">
+    <Value>رنگ برجسته دکمه پیش‌فرض</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnColor">
+    <Value>رنگ متن دکمه پیش‌فرض</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnDangerBackground">
+    <Value>رنگ پس‌زمینه دکمه خطر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnDangerBackgroundHighlight">
+    <Value>رنگ برجسته دکمه خطر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnDangerColor">
+    <Value>رنگ متن دکمه خطر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInfoBackground">
+    <Value>رنگ پس‌زمینه دکمه اطلاع‌رسانی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInfoBackgroundHighlight">
+    <Value>رنگ برجسته دکمه اطلاع‌رسانی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInfoColor">
+    <Value>رنگ متن دکمه اطلاع‌رسانی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInverseBackground">
+    <Value>رنگ پس‌زمینه دکمه معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInverseBackgroundHighlight">
+    <Value>رنگ برجسته دکمه معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnInverseColor">
+    <Value>رنگ متن دکمه معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnPrimaryBackground">
+    <Value>رنگ پس‌زمینه دکمه اصلی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnPrimaryBackgroundHighlight">
+    <Value>رنگ برجسته دکمه اصلی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnPrimaryColor">
+    <Value>رنگ متن دکمه اصلی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnSuccessBackground">
+    <Value>رنگ پس‌زمینه دکمه موفقیت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnSuccessBackgroundHighlight">
+    <Value>رنگ برجسته دکمه موفقیت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnSuccessColor">
+    <Value>رنگ متن دکمه موفقیت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnWarningBackground">
+    <Value>رنگ پس‌زمینه دکمه هشدار</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnWarningBackgroundHighlight">
+    <Value>رنگ برجسته دکمه هشدار</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.BtnWarningColor">
+    <Value>رنگ متن دکمه هشدار</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerBackground">
+    <Value>رنگ پس‌زمینه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerBodyBackground">
+    <Value>رنگ پس‌زمینه بدنه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerBodyFontColor">
+    <Value>رنگ فونت بدنه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerBodyLinkColor">
+    <Value>رنگ لینک بدنه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerBorder">
+    <Value>رنگ حاشیه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerHeaderBackground">
+    <Value>رنگ پس‌زمینه سرصفحه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerHeaderFontColor">
+    <Value>رنگ فونت سرصفحه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerHeaderHeight">
+    <Value>ارتفاع سرصفحه کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ContainerRadius">
+    <Value>شعاع کانتینر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DisplayNavbar">
+    <Value>نمایش منوی مگا</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownBackground">
+    <Value>رنگ پس‌زمینه منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownBorder">
+    <Value>رنگ حاشیه منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownDividerBottom">
+    <Value>جداکننده پایین منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownDividerTop">
+    <Value>جداکننده بالای منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownLinkBackgroundActive">
+    <Value>رنگ پس‌زمینه لینک فعال منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownLinkBackgroundHover">
+    <Value>رنگ پس‌زمینه لینک هنگام هاور منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownLinkColor">
+    <Value>رنگ لینک منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownLinkColorActive">
+    <Value>رنگ لینک فعال منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.DropdownLinkColorHover">
+    <Value>رنگ لینک هنگام هاور منوی کشویی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FooterBackground">
+    <Value>رنگ پس‌زمینه فوتر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FooterFontColor">
+    <Value>رنگ فونت فوتر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FooterHeading">
+    <Value>رنگ سرفصل فوتر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FooterLinkColor">
+    <Value>رنگ لینک فوتر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FooterRadius">
+    <Value>شعاع فوتر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.FormActionsBackground">
+    <Value>رنگ پس‌زمینه اقدامات فرم</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.Forms">
+    <Value>فرم‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.GridColumnWidth">
+    <Value>عرض ستون</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.GridColumnWidth1200">
+    <Value>عرض ستون 1200</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.GridGutterWidth">
+    <Value>عرض فاصله</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.GridGutterWidth1200">
+    <Value>عرض فاصله 1200</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.GridSettings">
+    <Value>تنظیمات چیدمان</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.Headings">
+    <Value>سرفصل‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.HeadingsColor">
+    <Value>رنگ فونت سرفصل‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.HeadingsFontFamily">
+    <Value>خانواده فونت سرفصل‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.HeadingsFontWeight">
+    <Value>وزن فونت سرفصل‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.InputBackground">
+    <Value>رنگ پس‌زمینه ورودی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.InputBorder">
+    <Value>رنگ حاشیه ورودی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.InputBorderRadius">
+    <Value>شعاع حاشیه ورودی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.InputDisabledBackground">
+    <Value>رنگ پس‌زمینه ورودی غیرفعال</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.InverseNavbar">
+    <Value>نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ItemBoxBoxShadowColor">
+    <Value>رنگ سایه جعبه عنصر لیست</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.LinkColor">
+    <Value>رنگ لینک</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.MonoFontFamily">
+    <Value>خانواده فونت تک‌فاصله</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarBackgroundHighlight">
+    <Value>رنگ برجسته پس‌زمینه نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarHeight">
+    <Value>ارتفاع نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseBackground">
+    <Value>رنگ پس‌زمینه نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseBackgroundHighlight">
+    <Value>رنگ برجسته نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseBorder">
+    <Value>رنگ حاشیه نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseLinkColor">
+    <Value>رنگ لینک نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseLinkColorActive">
+    <Value>رنگ لینک فعال نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseLinkColorHover">
+    <Value>رنگ هاور نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarInverseText">
+    <Value>رنگ متن نوار ناوبری معکوس</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarLinkColor">
+    <Value>رنگ لینک نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarLinkColorActive">
+    <Value>رنگ لینک فعال نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarLinkColorHover">
+    <Value>رنگ هاور نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.NavbarText">
+    <Value>رنگ متن نوار ناوبری</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PageTitle">
+    <Value>سرفصل‌های صفحه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PageTitleColor">
+    <Value>رنگ فونت سرفصل‌های صفحه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PageTitleFontFamily">
+    <Value>خانواده فونت سرفصل‌های صفحه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PageTitleFontWeight">
+    <Value>وزن فونت سرفصل‌های صفحه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PaginationActiveBackground">
+    <Value>رنگ پس‌زمینه فعال صفحه‌بندی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PaginationBackground">
+    <Value>رنگ پس‌زمینه صفحه‌بندی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.PaginationBorder">
+    <Value>رنگ حاشیه صفحه‌بندی</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SansFontFamily">
+    <Value>خانواده فونت بدون سریف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SerifFontFamily">
+    <Value>خانواده فونت سریف</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ShopBarBackgroundColor">
+    <Value>رنگ پس‌زمینه نوار فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ShopBarBorderColor">
+    <Value>رنگ حاشیه نوار فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ShopBarIconColor">
+    <Value>رنگ آیکون نوار فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ShopBarLabel">
+    <Value>نوع برچسب نوار فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.ShopBarTextColor">
+    <Value>رنگ متن نوار فروشگاه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SimpleBoxHeaderColor">
+    <Value>رنگ سرصفحه کانتینر ساده</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SiteBackground">
+    <Value>پس‌زمینه سایت</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SiteBackground.Hint">
+    <Value>رنگ پایه گرادیان پس‌زمینه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderBackgroundColor">
+    <Value>رنگ پس‌زمینه اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderBgSlide">
+    <Value>رفتار اسلاید پس‌زمینه</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderInfoColor">
+    <Value>رنگ متن اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderInfoFontFamily">
+    <Value>خانواده فونت متن اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderInfoFontWeight">
+    <Value>وزن فونت متن اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderTitleColor">
+    <Value>رنگ عنوان اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderTitleFontFamily">
+    <Value>خانواده فونت عنوان اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderTitleFontWeight">
+    <Value>وزن فونت عنوان اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.SliderUseRadialBg">
+    <Value>پس‌زمینه شعاعی اسلایدر</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.TableBackground">
+    <Value>رنگ پس‌زمینه جداول</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.TableBackgroundAccent">
+    <Value>رنگ برجسته پس‌زمینه جداول</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.TableBackgroundHover">
+    <Value>رنگ پس‌زمینه هاور جداول</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.TableBorder">
+    <Value>رنگ حاشیه جداول</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.Tables">
+    <Value>جداول</Value>
+  </LocaleResource>
+  <LocaleResource Name="ThemeVar.Alpha.TextColor">
+    <Value>رنگ متن</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Day">
+    <Value>روز</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.DayAbbr">
+    <Value>ر</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Days">
+    <Value>روزها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.DaysAbbr">
+    <Value>ر</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.DaysAgo">
+    <Value>{0} روز پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Hour">
+    <Value>ساعت</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.HourAbbr">
+    <Value>س</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Hours">
+    <Value>ساعت‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.HoursAbbr">
+    <Value>س</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.HoursAgo">
+    <Value>{0} ساعت پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Milliseconds">
+    <Value>میلی‌ثانیه‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Minute">
+    <Value>دقیقه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.MinuteAbbr">
+    <Value>د</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Minutes">
+    <Value>دقیقه‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.MinutesAbbr">
+    <Value>د</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.MinutesAgo">
+    <Value>{0} دقیقه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Month">
+    <Value>ماه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Months">
+    <Value>ماه‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.MonthsAgo">
+    <Value>{0} ماه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.MonthssAgo">
+    <Value>{0} ماه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.OneHourAgo">
+    <Value>یک ساعت پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.OneMinuteAgo">
+    <Value>یک دقیقه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.OneMonthAgo">
+    <Value>یک ماه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.OneSecondAgo">
+    <Value>یک ثانیه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.OneYearAgo">
+    <Value>یک سال پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Second">
+    <Value>ثانیه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.SecondAbbr">
+    <Value>ث</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Seconds">
+    <Value>ثانیه‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.SecondsAbbr">
+    <Value>ث</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.SecondsAgo">
+    <Value>{0} ثانیه پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Week">
+    <Value>هفته</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Weeks">
+    <Value>هفته‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Year">
+    <Value>سال</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Years">
+    <Value>سال‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.YearsAgo">
+    <Value>{0} سال پیش</Value>
+  </LocaleResource>
+  <LocaleResource Name="Time.Yesterday">
+    <Value>دیروز</Value>
+  </LocaleResource>
+  <LocaleResource Name="Topic.EnterPassword">
+    <Value>لطفاً رمز عبور را برای دسترسی به این محتوا وارد کنید:</Value>
+  </LocaleResource>
+  <LocaleResource Name="Topic.WrongPassword">
+    <Value>رمز عبور اشتباه</Value>
+  </LocaleResource>
+  <LocaleResource Name="Validation.CreditCardCvvNumberValidator">
+    <Value>'{PropertyName}' نامعتبر است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Validation.MustBeANumber">
+    <Value>'{PropertyName}' باید یک عدد باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Validation.NonPropertyMustBeANumber">
+    <Value>فیلد باید یک عدد باشد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist">
+    <Value>لیست علاقه‌مندی‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.CartIsEmpty">
+    <Value>لیست علاقه‌مندی‌ها خالی است!</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend">
+    <Value>ارسال به دوست</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.Button">
+    <Value>ارسال ایمیل</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.FriendEmail">
+    <Value>ایمیل دوست</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.FriendEmail.Hint">
+    <Value>ایمیل دوست خود را وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.OnlyRegisteredUsers">
+    <Value>فقط مشتریان ثبت‌شده می‌توانند از قابلیت ارسال به دوست استفاده کنند</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.PersonalMessage">
+    <Value>پیام شخصی</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.PersonalMessage.Hint">
+    <Value>پیام شخصی خود را وارد کنید (اختیاری)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.SuccessfullySent">
+    <Value>پیام شما ارسال شد.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.Title">
+    <Value>لیست علاقه‌مندی‌های خود را به دوستتان ایمیل کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.YourEmailAddress">
+    <Value>آدرس ایمیل شما</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.EmailAFriend.YourEmailAddress.Hint">
+    <Value>آدرس ایمیل خود را وارد کنید</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.IsDisabled">
+    <Value>لیست علاقه‌مندی‌ها غیرفعال است.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.Mini.ViewWishlist">
+    <Value>مشاهده لیست علاقه‌مندی‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.UpdateCart">
+    <Value>به‌روزرسانی لیست علاقه‌مندی‌ها</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.WishlistOf">
+    <Value>لیست علاقه‌مندی‌های {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Wishlist.YourWishlistURL">
+    <Value>آدرس URL لیست علاقه‌مندی‌های شما برای اشتراک‌گذاری</Value>
+  </LocaleResource>
 </Language>
-
-
-
