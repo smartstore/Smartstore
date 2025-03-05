@@ -13,8 +13,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>Adjust inventory result.</returns>
         public static async Task<AdjustInventoryResult> AdjustInventoryAsync(this IProductService productService, OrganizedShoppingCartItem item, bool decrease)
         {
-            Guard.NotNull(productService, nameof(productService));
-            Guard.NotNull(item, nameof(item));
+            Guard.NotNull(productService);
+            Guard.NotNull(item);
 
             if (item.Item.Product.ProductType == ProductType.BundledProduct && item.Item.Product.BundlePerItemShoppingCart)
             {

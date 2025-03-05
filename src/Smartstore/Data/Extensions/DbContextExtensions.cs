@@ -78,10 +78,12 @@ namespace Smartstore
 
         /// <summary>
         /// Sets the state of an entity to <see cref="EfState.Modified"/> if it is detached.
+        /// If another instance of this entity with the same primary key is already attached,
+        /// it will be detached, but only if it is in unchanged or deleted state.
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>
         /// <param name="entity">The entity instance</param>
-        /// <returns><c>true</c> if the state has been changed, <c>false</c> if entity is attached already.</returns>
+        /// <returns><c>true</c> if the state of <paramref name="entity"/> has been changed, <c>false</c> if <paramref name="entity"/> is already attached.</returns>
         public static bool TryUpdate<TEntity>(this DbContext ctx, TEntity entity) where TEntity : BaseEntity
         {
             var detectChanges = ctx.ChangeTracker.AutoDetectChangesEnabled;
@@ -89,19 +91,32 @@ namespace Smartstore
 
             using (new ActionDisposable(() => ctx.ChangeTracker.AutoDetectChangesEnabled = detectChanges))
             {
-                // (perf) turning off AutoDetectChangesEnabled prevents that ctx.Entry() performs change detection internally.
+                // (perf) Turning off AutoDetectChangesEnabled prevents that ctx.Entry() performs change detection internally.
                 var entry = ctx.Entry(entity);
-                return entry.TryUpdate();
+                if (entry.State == EfState.Detached)
+                {
+                    TryDetachAlreadyTrackedEntity(ctx, entity);
+
+                    entry.State = EfState.Unchanged;
+                    entry.State = EfState.Modified;
+
+                    return true;
+                }
+
+                return false;
             }
         }
 
         /// <summary>
-        /// Changes the state of an entity object when requested state differs.
+        /// Changes the state of an entity object when the requested state is different.
+        /// If another instance of this entity with the same primary key is already attached,
+        /// the attached entityis detached, but only if it is in unchanged or deleted state.
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>
         /// <param name="entity">The entity instance</param>
         /// <param name="requestedState">The requested new state</param>
-        /// <returns><c>true</c> if the state has been changed, <c>false</c> if current state did not differ from <paramref name="requestedState"/>.</returns>
+        /// <returns><c>true</c> if the state has been changed, <c>false</c> if current state did not differ from <paramref name="requestedState"/>.
+        /// </returns>
         public static bool TryChangeState<TEntity>(this DbContext ctx, TEntity entity, EfState requestedState) where TEntity : BaseEntity
         {
             var detectChanges = ctx.ChangeTracker.AutoDetectChangesEnabled;
@@ -109,10 +124,43 @@ namespace Smartstore
 
             using (new ActionDisposable(() => ctx.ChangeTracker.AutoDetectChangesEnabled = detectChanges))
             {
-                // (perf) turning off autoDetectChanges prevents that ctx.Entry() performs change detection internally.
+                // (perf) Turning off AutoDetectChangesEnabled prevents that ctx.Entry() performs change detection internally.
                 var entry = ctx.Entry(entity);
-                return entry.TryChangeState(requestedState);
+                if (entry.State != requestedState)
+                {
+                    // Only change state when requested state differs,
+                    // because EF internally sets all properties to modified
+                    // if necessary, even when requested state equals current state.
+
+                    if (entry.State == EfState.Detached)
+                    {
+                        TryDetachAlreadyTrackedEntity(ctx, entity);
+                    }
+                    
+                    entry.State = requestedState;
+                    return true;
+                }
+
+                return false;
             }
+        }
+
+        private static bool TryDetachAlreadyTrackedEntity<TEntity>(DbContext ctx, TEntity entity) where TEntity : BaseEntity
+        {
+            // Attaching an entity while another instance with same primary key is attached will throw.
+            // First we gonna try to locate an already attached entity...
+            var attachedEntry = ctx.Set<TEntity>().Local.FindEntry(entity.Id);
+            if (attachedEntry != null)
+            {
+                if (attachedEntry.State == EfState.Unchanged || attachedEntry.State == EfState.Deleted)
+                {
+                    // ...and detach it, but only Unchanged or Deleted entities and let others throw later.
+                    attachedEntry.State = EfState.Detached;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -194,7 +242,7 @@ namespace Smartstore
         /// <returns>The count of detached entities</returns>
         public static void DetachEntities<TEntity>(this HookingDbContext ctx, IEnumerable<TEntity> entities, bool deep = false) where TEntity : BaseEntity
         {
-            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(ctx);
 
             using (new DbContextScope(ctx, autoDetectChanges: false, lazyLoading: false))
             {

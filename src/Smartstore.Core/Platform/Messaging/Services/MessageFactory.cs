@@ -156,13 +156,9 @@ namespace Smartstore.Core.Messaging
                         _db.TryUpdate(messageTemplate);
                         await _db.SaveChangesAsync();
                     }
-                    catch (InvalidOperationException ioe)
+                    catch (InvalidOperationException)
                     {
                         // Ignore exception. "LastModelTree" is not essential for message creation/processing.
-                        if (!ioe.IsAlreadyAttachedEntityException())
-                        {
-                            throw;
-                        }
                     }
                 }
             }
@@ -408,7 +404,6 @@ namespace Smartstore.Core.Messaging
                 if (CreateMessage(ctx, parts))
                 {
                     ctx.MessageTemplate = await _db.MessageTemplates
-                        .AsNoTracking()
                         .Where(x => x.Name == ctx.MessageTemplateName)
                         .ApplyStoreFilter(ctx.Store.Id)
                         .FirstOrDefaultAsync();
