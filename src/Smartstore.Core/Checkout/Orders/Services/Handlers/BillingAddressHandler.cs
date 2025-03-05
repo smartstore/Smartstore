@@ -47,14 +47,15 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 // Shipping address.
                 var shippingAddressDiffers = context.GetFormValue("ShippingAddressDiffers")?.ToBool(true) ?? true;
                 var state = _checkoutStateAccessor.CheckoutState;
-                state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers && address.Country.AllowsShipping;
+                var addressAllowsShipping = address.Country == null || address.Country.AllowsBilling == true;
+                state.CustomProperties["SkipShippingAddress"] = !shippingAddressDiffers && addressAllowsShipping;
                 state.CustomProperties["ShippingAddressDiffers"] = shippingAddressDiffers;
 
                 if (shippingAddressDiffers || !context.Cart.IsShippingRequired)
                 {
                     customer.ShippingAddress = null;
                 }
-                else if (address.Country.AllowsShipping)
+                else if (addressAllowsShipping)
                 {
                     customer.ShippingAddress = address;
 
@@ -94,7 +95,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             await _db.LoadReferenceAsync(address, x => x.Country);
 
-            if (address.Country?.AllowsBilling == true)
+            if (address.Country == null || address.Country.AllowsBilling == true)
             {
                 if (customer.BillingAddressId != address.Id)
                 {

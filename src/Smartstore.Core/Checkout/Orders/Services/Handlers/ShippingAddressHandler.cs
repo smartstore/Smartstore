@@ -40,7 +40,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
                 var address = customer.ShippingAddress;
 
                 if (_shoppingCartSettings.QuickCheckoutEnabled
-                    && address.Country.AllowsShipping
+                    && (address.Country == null || address.Country.AllowsShipping)
                     && ga.DefaultShippingAddressId != address.Id)
                 {
                     ga.DefaultShippingAddressId = address.Id;
@@ -94,7 +94,7 @@ namespace Smartstore.Core.Checkout.Orders.Handlers
 
             await _db.LoadReferenceAsync(address, x => x.Country);
 
-            if (address.Country.AllowsShipping)
+            if (address.Country == null || address.Country.AllowsShipping)
             {
                 if (customer.ShippingAddressId != address.Id)
                 {
