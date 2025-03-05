@@ -9,6 +9,9 @@
 @include media-breakpoint-up(md) {
     .paypal-button-container .paypal-buttons {
         width: 240px !important;
+        .payment-method-page & {
+            width: 100% !important;
+        }
     }
 }
 
