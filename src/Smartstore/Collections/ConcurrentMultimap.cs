@@ -67,7 +67,7 @@ namespace Smartstore.Collections
 
         protected virtual SyncedCollection<TValue> CreateCollection(IEnumerable<TValue> values)
         {
-            var col = _collectionCreator(values ?? Enumerable.Empty<TValue>());
+            var col = _collectionCreator(values ?? []);
             return col.AsSynchronized();
         }
 
@@ -149,7 +149,7 @@ namespace Smartstore.Collections
         /// <param name="values">The values.</param>
         public virtual void TryAddRange(TKey key, IEnumerable<TValue> values)
         {
-            Guard.NotNull(values, nameof(values));
+            Guard.NotNull(values);
 
             if (!GetOrCreateValues(key, values, out var col))
             {
@@ -165,12 +165,11 @@ namespace Smartstore.Collections
         /// <returns><c>True</c> if such a value existed and was removed; otherwise <c>false</c>.</returns>
         public virtual bool TryRemove(TKey key, TValue value)
         {
-            if (!_dict.ContainsKey(key))
+            if (!_dict.TryGetValue(key, out var col))
             {
                 return false;
             }
 
-            var col = _dict[key];
             var removed = col.Remove(value);
 
             if (col.Count == 0)
@@ -189,16 +188,15 @@ namespace Smartstore.Collections
         /// <returns><c>True</c> if at least one item in group <paramref name="key"/> has been removed; otherwise <c>false</c>.</returns>
         public virtual bool TryRemoveRange(TKey key, IEnumerable<TValue> values)
         {
-            Guard.NotNull(values, nameof(values));
-
-            int numRemoved = 0;
+            Guard.NotNull(values);
 
             if (_dict.TryGetValue(key, out var col))
             {
-                numRemoved = col.RemoveRange(values);
+                var numRemoved = col.RemoveRange(values);
+                return numRemoved > 0;
             }
 
-            return numRemoved > 0;
+            return false;
         }
 
         /// <summary>
@@ -277,7 +275,7 @@ namespace Smartstore.Collections
 
         public static ConcurrentMultimap<TKey, TValue> CreateFromLookup(ILookup<TKey, TValue> source)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             var map = new ConcurrentMultimap<TKey, TValue>();
 
