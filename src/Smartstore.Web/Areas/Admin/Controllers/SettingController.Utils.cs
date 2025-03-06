@@ -54,10 +54,9 @@ namespace Smartstore.Admin.Controllers
         private List<SelectListItem> CreateProductSortingsList(ProductSortingEnum selectedSorting)
         {
             var language = Services.WorkContext.WorkingLanguage;
-            var sortings = (ProductSortingEnum[])Enum.GetValues(typeof(ProductSortingEnum));
 
-            return sortings
-                .Where(x => x != ProductSortingEnum.CreatedOnAsc)
+            return Enum.GetValues<ProductSortingEnum>()
+                .Where(x => x != ProductSortingEnum.CreatedOnAsc && x != ProductSortingEnum.Initial)
                 .Select(x => new SelectListItem
                 {
                     Text = Services.Localization.GetLocalizedEnum(x, language.Id),
