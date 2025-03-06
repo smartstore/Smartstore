@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 
 namespace Smartstore.PayPal.Client.Messages
 {
-    // TODO: (mh) Continue this class implementation. Register in DI and refactor all callers. Delete obsolete request classes.
     public partial class PayPalRequestFactory
     {
         private static string FormatPath(string path, params string[] tokens)
