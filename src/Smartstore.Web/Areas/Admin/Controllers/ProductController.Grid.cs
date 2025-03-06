@@ -32,6 +32,10 @@ namespace Smartstore.Admin.Controllers
                 products = await query.ToPagedList(command).LoadAsync();
             }
 
+            TempData["OriginalStockQuantities"] = products
+                .Select(x => new { x.Id, x.StockQuantity })
+                .ToDictionary(x => x.Id, x => x.StockQuantity);
+
             var rows = await products.MapAsync(Services.MediaService);
 
             return Json(new GridModel<ProductOverviewModel>
@@ -152,16 +156,25 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
         {
-            try
+            var product = await _db.Products.FindByIdAsync(model.Id);
+            if (product == null)
             {
-                var product = await _db.Products.FindByIdAsync(model.Id);
-                // TODO: (mg) Check stock quantity. See ProductController.UpdateProductInventory.
-                var stockQuantityInDatabase = product.StockQuantity;
+                NotifyError(T("Admin.Common.ResourceNotFound"));
+                return Json(new { success = false });
+            }
+
+            try
+            {               
+                if (TempData.TryGetAndConvertValue<Dictionary<int, int>>("OriginalStockQuantities", out var originalStockQuantities)
+                    && originalStockQuantities.TryGetValue(product.Id, out var originalStockQuantity)
+                    && CheckStockQuantityUpdate(product, originalStockQuantity, model.StockQuantity))
+                {
+                    product.StockQuantity = model.StockQuantity;
+                }
 
                 product.Name = model.Name;
                 product.Sku = model.Sku;
                 product.Price = model.Price;
-                product.StockQuantity = model.StockQuantity;
                 product.Published = model.Published;
                 product.ManufacturerPartNumber = model.ManufacturerPartNumber;
                 product.Gtin = model.Gtin;

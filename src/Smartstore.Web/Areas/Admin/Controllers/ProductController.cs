@@ -2216,25 +2216,8 @@ namespace Smartstore.Admin.Controllers
         {
             var p = product;
             var m = model;
-            var updateStockQuantity = true;
-            var stockQuantityInDatabase = product.StockQuantity;
 
-            if (p.ManageInventoryMethod == ManageInventoryMethod.ManageStock && p.Id != 0)
-            {
-                if (m.OriginalStockQuantity != stockQuantityInDatabase)
-                {
-                    // The stock has changed since the edit page was loaded, e.g. because an order has been placed.
-                    updateStockQuantity = false;
-
-                    if (m.StockQuantity != m.OriginalStockQuantity)
-                    {
-                        // The merchant has changed the stock quantity manually.
-                        NotifyWarning(T("Admin.Catalog.Products.StockQuantityNotChanged", stockQuantityInDatabase.ToString("N0")));
-                    }
-                }
-            }
-
-            if (updateStockQuantity)
+            if (CheckStockQuantityUpdate(p, m.OriginalStockQuantity, m.StockQuantity))
             {
                 p.StockQuantity = m.StockQuantity;
             }
@@ -2368,6 +2351,28 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             await _productTagService.UpdateProductTagsAsync(p, m.ProductTagNames);
+        }
+
+        private bool CheckStockQuantityUpdate(Product product, int originalStockQuantity, int newStockQuantity)
+        {
+            var canUpdateStockQuantity = true;
+            var stockQuantityInDatabase = product.StockQuantity;
+
+            if (product.Id != 0 
+                && product.ManageInventoryMethod == ManageInventoryMethod.ManageStock 
+                && stockQuantityInDatabase != originalStockQuantity)
+            {
+                // The stock has changed since the edit page was loaded, e.g. because an order has been placed.
+                canUpdateStockQuantity = false;
+
+                if (newStockQuantity != originalStockQuantity)
+                {
+                    // The merchant has changed the stock quantity manually.
+                    NotifyWarning(T("Admin.Catalog.Products.StockQuantityNotChanged", stockQuantityInDatabase.ToString("N0")));
+                }
+            }
+
+            return canUpdateStockQuantity;
         }
 
         #endregion
