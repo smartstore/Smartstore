@@ -354,10 +354,9 @@
                 },
                 cache: false,
                 success: function (resp) {
-                    return resp;
+                    transactionInfo = resp;
                 }
             });
-
             return transactionInfo;
         }
 

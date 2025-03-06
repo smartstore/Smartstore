@@ -558,36 +558,27 @@ namespace Smartstore.PayPal.Controllers
                 TotalPriceStatus = "ESTIMATED"                  // INFO: Estimated because it is called from basket. Even on payment page a customer could change the shipping method and thus alter the final price.
             };
 
-            var model = await cart.MapAsync(isEditable: false, prepareEstimateShippingIfEnabled: false);
-            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
-            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
             var isVatExempt = await _taxService.IsVatExemptAsync(customer);
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, !isVatExempt);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, _primaryCurrency);
 
-            // Add cart items for display.
-            foreach (var item in model.Items)
+            foreach (var lineItem in cartSubTotal.LineItems)
             {
-                var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
-                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
-                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-                var convertedUnitPrice = _currencyService.ConvertToWorkingCurrency(isVatExempt ? unitPrice.Tax.Value.PriceNet : unitPrice.Tax.Value.PriceGross);
-                var itemPrice = convertedUnitPrice.Amount * cartItem.Item.Quantity;
-
-                var productName = item.ProductName?.Value?.Truncate(126);
-
+                var item = lineItem.Item.Item;
+                var amountInclTax = _roundingHelper.Round(lineItem.Subtotal.Tax.Value.PriceGross);
+                var amountExclTax = _roundingHelper.Round(lineItem.Subtotal.Tax.Value.PriceNet);
+                var convertedUnitPrice = _currencyService.ConvertToWorkingCurrency(isVatExempt ? amountInclTax : amountExclTax);
+                
                 var displayItem = new DisplayItem
                 {
-                    Label = productName,
-                    Price = itemPrice.ToStringInvariant("F"),
+                    Label = item.Product.GetLocalized(x => x.Name),
+                    Price = convertedUnitPrice.Amount.ToStringInvariant("F"),
                     Status = GooglePayItemStatus.Final,
                     Type = GooglePayItemType.LineItem
                 };
 
                 transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, displayItem];
             }
-
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, !isVatExempt);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithDiscount.Amount, _primaryCurrency);
 
             // Display subtotal
             var subtotalDisplayItem = new DisplayItem
@@ -598,10 +589,9 @@ namespace Smartstore.PayPal.Controllers
                 Type = GooglePayItemType.Subtotal
             };
 
+            // Display tax
             (Money tax, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
             var cartTax = _currencyService.ConvertFromPrimaryCurrency(tax.Amount, _primaryCurrency);
-
-            // Display tax
             var taxDisplayItem = new DisplayItem
             {
                 Label = T("Order.Tax"),
@@ -625,6 +615,7 @@ namespace Smartstore.PayPal.Controllers
 
             // Discounts
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total.Value.Amount, _primaryCurrency);
             Money orderTotalDiscountAmount = default;
             if (cartTotal.DiscountAmount > decimal.Zero)
             {
@@ -634,9 +625,7 @@ namespace Smartstore.PayPal.Controllers
             Money subTotalDiscountAmount = default;
             if (cartSubTotal.DiscountAmount > decimal.Zero)
             {
-                subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(
-                    isVatExempt ? cartSubTotal.DiscountAmount.Amount : cartSubTotal.DiscountAmount.Amount,
-                    _primaryCurrency);
+                subTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.DiscountAmount.Amount, _primaryCurrency);
             }
 
             decimal discountAmount = _roundingHelper.Round(orderTotalDiscountAmount.Amount + subTotalDiscountAmount.Amount);
@@ -650,9 +639,6 @@ namespace Smartstore.PayPal.Controllers
             };
 
             transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, subtotalDisplayItem, taxDisplayItem, shippingDisplayItem, discountDisplayItem];
-
-            var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total.Value.Amount, _primaryCurrency);
-
             transactionInfo.TotalPriceLabel = T("ShoppingCart.ItemTotal");
             transactionInfo.TotalPrice = cartTotalConverted.Amount.ToStringInvariant("F");
 
