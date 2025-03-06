@@ -553,7 +553,8 @@ namespace Smartstore.PayPal.Controllers
             var transactionInfo = new GoogleTransactionInfo
             {
                 CurrencyCode = Services.WorkContext.WorkingCurrency.CurrencyCode,
-                CountryCode = "DE",                             // TODO: We might need a setting for this. According to the docs this is the country code of the acquirer bank.
+                // PayPal's European headquarters are in Luxembourg, where PayPal is considered an acquirer because the money flows into a PayPal account.
+                CountryCode = "LU",
                 //TransactionId = Guid.NewGuid().ToString(),    // We'll skip this for now.
                 TotalPriceStatus = "ESTIMATED"                  // INFO: Estimated because it is called from basket. Even on payment page a customer could change the shipping method and thus alter the final price.
             };
