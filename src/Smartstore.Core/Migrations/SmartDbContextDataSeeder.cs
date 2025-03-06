@@ -285,9 +285,21 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Each suggestion should have a maximum of {0} characters.",
                 "Jeder Vorschlag soll maximal {0} Zeichen haben.");
 
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CharLimit",
+                "The text can contain a maximum of {0} characters.",
+                "Der Text darf maximal {0} Zeichen enthalten.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CharWordLimit",
+                "The text may contain no more than {0} characters and no more than {1} words.",
+                "Der Text darf nicht mehr als {0} Zeichen und nicht mehr als {1} Wörter enthalten.");
+
             builder.AddOrUpdate("Admin.AI.Suggestions.DefaultPrompt",
                 "Make {0} suggestions about the topic '{1}'.", 
                 "Mache {0} Vorschläge zum Thema '{1}'.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes",
+                "Do not enclose the text in quotation marks or other characters.",
+                "Der Text darf nicht in Anführungszeichen oder andere Zeichen eingeschlossen werden.");
 
             builder.AddOrUpdate("Admin.Orders.CompleteUnpaidOrder",
                 "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",

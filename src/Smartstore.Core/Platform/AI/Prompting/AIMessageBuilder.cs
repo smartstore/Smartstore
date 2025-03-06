@@ -310,16 +310,24 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated messages will be added.</param>
         protected virtual Task<AIChat> AddSimpleTextMessagesAsync(IAITextModel model, AIChat chat)
         {
-            chat.System(Resources.DontUseMarkdown());
+            chat.System(Resources.DontUseMarkdown())
+                .System(Resources.DontUseQuotes());
 
-            if (model.CharLimit > 0)
+            if (model.CharLimit > 0 && model.WordLimit > 0)
             {
-                chat.System(Resources.CharLimit(model.CharLimit)).SetMetaData(model.CharLimit);
+                chat.User(Resources.CharWordLimit(model.CharLimit, model.WordLimit.Value))
+                    .SetMetaData(model.CharLimit)
+                    .SetMetaData(model.WordLimit);
             }
-
-            if (model.WordLimit > 0)
+            else if (model.CharLimit > 0)
             {
-                chat.User(Resources.WordLimit((int)model.WordLimit)).SetMetaData(model.WordLimit);
+                chat.User(Resources.CharLimit(model.CharLimit))
+                    .SetMetaData(model.CharLimit);
+            }
+            else if (model.WordLimit > 0)
+            {
+                chat.User(Resources.WordLimit((int)model.WordLimit))
+                    .SetMetaData(model.WordLimit);
             }
 
             AddKeywordsMessages(model, chat);

@@ -105,5 +105,11 @@ namespace Smartstore.Core.AI
 
         public string ToString(Func<AIChatMessage, bool> predicate)
             => string.Join(" ", _messages.Where(predicate).Select(x => x.ToString()));
+
+        /// <summary>
+        /// Formats all messages including the role.
+        /// </summary>
+        public string ToFullString()
+            => string.Join(Environment.NewLine, _messages.Select(x => $"{x.Role,-10}: {x.Content}"));
     }
 }

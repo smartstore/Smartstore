@@ -75,6 +75,15 @@ namespace Smartstore.Core.AI.Prompting
             => P("CharLimit", charLimit);
 
         /// <summary>
+        /// Instructs the AI to write text that does not exceed a defined number of characters or words.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: The text may contain no more than <paramref name="charLimit"/> characters and no more than <paramref name="wordLimit"/> words.
+        /// </returns>
+        public virtual string CharWordLimit(int charLimit, int wordLimit)
+            => P("CharWordLimit", charLimit, wordLimit);
+
+        /// <summary>
         /// Instructs the AI to write in a specific tone.
         /// </summary>
         /// <returns>
