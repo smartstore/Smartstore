@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.PayPal.Components
 {
@@ -9,6 +10,11 @@ namespace Smartstore.PayPal.Components
     {
         protected override IViewComponentResult InvokeCore()
         {
+            if (HttpContext.Connection.IsLocal())
+            {
+                return Empty();
+            }
+
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
             var isCartPage = RouteIdent == "ShoppingCart.Cart";
             if (isCartPage && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))

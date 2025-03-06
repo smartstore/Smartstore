@@ -1,4 +1,5 @@
-﻿using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;
@@ -6,15 +7,17 @@ using Smartstore.Core.Configuration;
 namespace Smartstore.PayPal.Services
 {
     /// <summary>
-    /// Filters out Pay Upon Invoice if the cart total is above upper limit.
+    /// Filters out:
+    ///     PayUponInvoice if the cart total is above upper limit.
+    ///     GooglePay if the request is local.
     /// </summary>
-    public partial class PayUponInvoicePaymentFilter : IPaymentMethodFilter
+    public partial class PayPalPaymentFilter : IPaymentMethodFilter
     {
         private readonly ICommonServices _services;
         private readonly Lazy<ISettingFactory> _settingFactory;
         private readonly IOrderCalculationService _orderCalculationService;
         
-        public PayUponInvoicePaymentFilter(ICommonServices services, Lazy<ISettingFactory> settingFactory, IOrderCalculationService orderCalculationService)
+        public PayPalPaymentFilter(ICommonServices services, Lazy<ISettingFactory> settingFactory, IOrderCalculationService orderCalculationService)
         {
             _services = services;
             _settingFactory = settingFactory;
@@ -45,6 +48,13 @@ namespace Smartstore.PayPal.Services
                     {
                         return true;
                     }
+                }
+            }
+            else if (request.PaymentProvider.Metadata.SystemName.EqualsNoCase(PayPalConstants.GooglePay))
+            {
+                if(_services.WebHelper.HttpContext.Connection.IsLocal())
+                {
+                    return true;
                 }
             }
 
