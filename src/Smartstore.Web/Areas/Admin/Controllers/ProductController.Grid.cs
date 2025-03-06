@@ -164,8 +164,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             try
-            {               
-                if (TempData.TryGetAndConvertValue<Dictionary<int, int>>("OriginalStockQuantities", out var originalStockQuantities)
+            {
+                // INFO: SmartTempDataSerializer already handles proper deserialization. No need for conversion here.
+                if (TempData.TryGetValueAs<Dictionary<int, int>>("OriginalStockQuantities", out var originalStockQuantities)
                     && originalStockQuantities.TryGetValue(product.Id, out var originalStockQuantity)
                     && CheckStockQuantityUpdate(product, originalStockQuantity, model.StockQuantity))
                 {
