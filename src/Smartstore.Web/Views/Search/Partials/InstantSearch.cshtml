@@ -4,8 +4,10 @@
 
 @{
     var hitGroups = Model.HitGroups.Where(x => x.Hits.Count > 0).OrderBy(x => x.Ordinal).ToArray();
-    var hasContent = Model.TopProducts.Items.Count > 0 || hitGroups.Length > 0;
-    var isMultiCol = hasContent && hitGroups.Length > 1 && hitGroups.Sum(x => x.Hits.Count) > 4;
+    var numProducts = Model.TopProducts.Items.Count;
+    var numHits = hitGroups.Sum(x => x.Hits.Count);
+    var hasContent = numProducts > 0 || hitGroups.Length > 0;
+    var isMultiCol = hasContent && hitGroups.Length > 0 && (numHits + numProducts > 8 || hitGroups.Length > 1);
 }
 
 @if (!hasContent)
@@ -17,28 +19,27 @@
 else if (isMultiCol)
 {
     <div class="row no-gutters instasearch-row">
+        <div class="col col-sm-6 col-lg-7 instasearch-col">
+            <h6 class="instasearch-group-header">@T("Search.Hits")</h6>
+            <partial name="InstantSearch.TopProducts" model="Model" />
+        </div>
         <div class="col col-sm-6 col-lg-5 instasearch-col">
             @foreach (var group in hitGroups)
             {
                 <partial name="InstantSearch.HitGroup" model="group" />
             }
         </div>
-        <div class="col col-sm-6 col-lg-7 instasearch-col">
-            <h6 class="instasearch-group-header">@T("Search.Hits")</h6>
-            <partial name="InstantSearch.TopProducts" model="Model" />
-        </div>
     </div>
 }
 else
 {
-    foreach (var group in hitGroups)
-    {
-        <partial name="InstantSearch.HitGroup" model="group" />
-    }
-
     if (Model.TopProducts.Items.Count > 0)
     {
         <h6 class="instasearch-group-header">@T("Search.Hits")</h6>
         <partial name="InstantSearch.TopProducts" model="Model" />
+    }
+    foreach (var group in hitGroups)
+    {
+        <partial name="InstantSearch.HitGroup" model="group" />
     }
 }
