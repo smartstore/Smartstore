@@ -292,12 +292,10 @@ namespace Smartstore.Core.Data.Migrations
        "ویرایش");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage")
-                .Value("en", "Show on the \"Email product to a friend\" page")
                 .Value("de", "Auf der \"Produkt Weitersagen\"-Seite anzeigen")
                 .Value("fa", "نمایش در صفحه \"ارسال محصول به دوست\"");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnEmailProductToFriendPage.Hint")
-                .Value("en", "Determines whether a CAPTCHA should be displayed on the \"Email product to a friend\" page.")
                 .Value("de", "Legt fest, ob ein CAPTCHA auf der \"Produkt Weitersagen\"-Seite angezeigt werden soll.")
                 .Value("fa", "مشخص می‌کند که آیا کپچا باید در صفحه \"ارسال محصول به دوست\" نمایش داده شود یا خیر.");
 

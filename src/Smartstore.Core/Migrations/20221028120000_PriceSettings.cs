@@ -258,6 +258,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Angebots-Badge Stil für zeitlich begrenztes Angebot",
                 "سبک نشان پیشنهاد محدود");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists.Hint");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowBasePriceInProductLists",
                 "Display base price info in product lists",
                 "Zeige den Grundpreis in Produktlisten",
@@ -265,6 +268,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether base price info is displayed in product lists according to Price Indication Regulation [PAngV]",
                 "Bestimmt, ob der Grundpreis gemäß PAngV in Produktlisten angezeigt wird.",
                 "مشخص می‌کند که آیا اطلاعات قیمت پایه طبق مقررات اعلام قیمت [PAngV] در لیست محصولات نمایش داده شود.");
+         
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment",
                 "Show variant combination price adjustments",
@@ -274,6 +280,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Bestimmt, ob Mehr- und Minderpreise bei Variant-Kombinationen angezeigt werden.",
                 "مشخص می‌کند که آیا تعدیل قیمت ترکیب‌های انواع باید نمایش داده شود.");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote.Hint");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowLoginForPriceNote",
                 "Show login for price note",
                 "Hinweis \"Preis nach Anmeldung\" anzeigen",
@@ -281,6 +290,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to display a message stating that prices will not be displayed until login.",
                 "Legt fest, ob ein Hinweis erscheinen soll, dass Preise erst nach Anmeldung angezeigt werden.",
                 "مشخص می‌کند که آیا پیامی مبنی بر عدم نمایش قیمت‌ها تا زمان ورود نمایش داده شود.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice");
+            builder.Delete("Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.BundleItemShowBasePrice",
                 "Base price for bundle items",
@@ -290,6 +302,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob der Grundpreis bei Bundle-Bestandteilen angezeigt werden soll.",
                 "مشخص می‌کند که آیا قیمت پایه برای اقلام بسته باید نمایش داده شود.");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign.Hint");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowSavingBadgeInLists",
                 "Show discount sign",
                 "Rabattzeichen anzeigen",
@@ -297,6 +312,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether a badge with a discount sign should be displayed on the product image in product lists when discounts have been applied.",
                 "Legt fest, ob ein Badge mit Rabattzeichen auf dem Produktbild in Produktlisten angezeigt werden soll, wenn Rabatte angewendet wurden.",
                 "مشخص می‌کند که آیا یک نشان با علامت تخفیف باید روی تصویر محصول در لیست محصولات، وقتی تخفیف اعمال شده، نمایش داده شود.");
+           
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.PriceDisplayType",
                 "Price display",
@@ -306,6 +324,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob bzw. welcher Typ von Preis in Produktlisten angezeigt werden soll.",
                 "مشخص می‌کند که آیا یا چه نوع قیمتی در لیست محصولات نمایش داده شود.");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices");
+            builder.Delete("Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices.Hint");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.DisplayTextForZeroPrices",
                 "Display text when prices are 0.00",
                 "Zeige Text wenn Preise 0,00 sind",
@@ -313,6 +334,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to display a textual resource (free) instead of the value 0.00.",
                 "Bestimmt, ob statt dem Wert 0,00 eine textuelle Resource (kostenlos) angezeigt werden soll.",
                 "مشخص می‌کند که آیا به جای مقدار ۰٫۰۰ یک منبع متنی (رایگان) نمایش داده شود.");
+            
+            builder.Delete("Admin.Configuration.Settings.Catalog.IgnoreDiscounts");
+            builder.Delete("Admin.Configuration.Settings.Catalog.IgnoreDiscounts.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.IgnoreDiscounts",
                 "Ignore discounts (sitewide)",
@@ -322,6 +346,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Rabatte im ganzen Shop deaktivieren.",
                 "برای نادیده گرفتن تخفیف‌ها در کل سایت علامت بزنید. این می‌تواند عملکرد را به طور قابل توجهی بهبود دهد.");
 
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice.Hint");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyPercentageDiscountOnTierPrice",
                 "Apply percentage discounts on tier prices",
                 "Prozentuale Rabatte auf Staffelpreise anwenden",
@@ -329,6 +356,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether to apply percentage discounts also on tier prices.",
                 "Legt fest, ob prozentuale Rabatte auch auf Staffelpreise angewendet werden sollen.",
                 "مشخص می‌کند که آیا تخفیف‌های درصدی باید روی قیمت‌های پلکانی نیز اعمال شوند.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyTierPricePercentageToAttributePriceAdjustments",
                 "Apply tier price percentage to attribute price adjustments",

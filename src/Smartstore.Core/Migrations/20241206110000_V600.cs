@@ -449,9 +449,9 @@ namespace Smartstore.Core.Data.Migrations
                 "جدول '{0}' در حال حاضر در وضعیت بهینه است.");
 
             builder.AddOrUpdate("Common.OptimizeTableSuccess",
-                "The table '{0}' has been successfully optimized: {1} → {2}. Difference: {3} ({4}).",
-                "Die Tabelle '{0}' wurde erfolgreich optimiert: {1} → {2}. Unterschied: {3} ({4}).",
-                "جدول '{0}' با موفقیت بهینه شد: {1} → {2}. تفاوت: {3} ({4}).");
+                "The table '{0}' has been successfully optimized: {1} &rarr; {2}. Difference: {3} ({4}).",
+                "Die Tabelle '{0}' wurde erfolgreich optimiert: {1} &rarr; {2}. Unterschied: {3} ({4}).",
+                "جدول '{0}' با موفقیت بهینه شد: {1} &rarr; {2}. تفاوت: {3} ({4}).");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.ShoppingCart.AllowActivatableCartItems",
                 "Products in shopping cart can be deactivated",

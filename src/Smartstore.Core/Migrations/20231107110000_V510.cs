@@ -86,12 +86,10 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Admin.Configuration.Settings.Order.GiftCards_Activated")
-     .Value("en", "Gift card is activated when order status is...") // مقدار فرضی انگلیسی
      .Value("de", "Geschenkgutschein ist aktiviert, wenn Auftragsstatus...")
      .Value("fa", "کارت هدیه زمانی فعال می‌شود که وضعیت سفارش...");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Order.GiftCards_Activated.Hint")
-                .Value("en", "Specifies the order status of an order at which gift cards included in the order are automatically activated.") // مقدار فرضی انگلیسی
                 .Value("de", "Legt den Auftragsstatus einer Bestellung fest, bei dem in der Bestellung enthaltene Geschenkgutscheine automatisch aktiviert werden.")
                 .Value("fa", "وضعیت سفارشی را مشخص می‌کند که در آن کارت‌های هدیه موجود در سفارش به‌صورت خودکار فعال می‌شوند.");
 

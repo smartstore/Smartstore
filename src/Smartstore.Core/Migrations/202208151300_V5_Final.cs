@@ -146,6 +146,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Produktmenge aus Warengruppe liegt in folgendem Bereich",
                 "تعداد محصول از دسته‌بندی در محدوده است");
 
+            builder.AddOrUpdate("PDFInvoice.TaxNumber").Value("en", "Tax Number:");
+            builder.AddOrUpdate("PDFInvoice.VatId").Value("en", "Vat-ID:");
 
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchProductType",
                 "Product type",
