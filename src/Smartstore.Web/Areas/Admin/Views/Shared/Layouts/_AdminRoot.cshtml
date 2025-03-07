@@ -59,6 +59,10 @@
         <script src="~/bundle/js/datagrid.js"></script>
         <script src="~/lib/select2/js/i18n/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
         <script src="~/lib/moment/locale/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+            @if (WorkContext.WorkingLanguage.UniqueSeoCode == "fa")
+            {
+            <script src="~/lib/datetimepicker-persian/js/tempusdominus-bootstrap-4.min.js" charset='UTF-8'></script>
+            }
     </zone>
     
     <zone name="end" />

@@ -12,7 +12,7 @@ namespace Smartstore.Web.Infrastructure
              * Also required during install.
             -----------------------------------------------------*/
             bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
-            bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss", "/lib/datetimepicker-persian/css/tempusdominus-bootstrap-4.min.css"));
 
             if (!appContext.IsInstalled)
             {
