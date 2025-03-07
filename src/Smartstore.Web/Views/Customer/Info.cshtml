@@ -17,7 +17,9 @@
     var canChangePreferredShipping = shippingMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangePreferredShipping;
     var canChangePreferredPayment = paymentMethods.Count > 0 && CartSettings.QuickCheckoutEnabled && CartSettings.CustomersCanChangePreferredPayment;
 }
-
+<zone name="stylesheets" preview-tag="meta">
+    <link rel="stylesheet" href="~/lib/datetimepicker-persian/css/jquery.md.bootstrap.datetimepicker.style.css" />
+</zone>
 <form asp-action="Info" class="form-horizontal" method="post">
     <div asp-validation-summary="ModelOnly"></div>
 
@@ -67,11 +69,20 @@
                 <label asp-for="DateOfBirth" class="col-form-label"></label>
             </div>
             <div class="col-lg-9">
-                <input type="date" asp-for="DateOfBirth"
-                       class="native-validation"
-                       autocomplete="bday"
-                       max="@DateTime.Now.ToString("yyyy-MM-dd")"
-                       min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
+                @if (WorkContext.WorkingLanguage.UniqueSeoCode == "fa")
+                {
+                    <editor asp-for="@Model.DateOfBirth"
+                            min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")"
+                            max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                }
+                else
+                {
+                    <input type="date" asp-for="DateOfBirth"
+                           class="native-validation"
+                           autocomplete="bday"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           min="@DateTime.Now.AddYears(-110).ToString("yyyy-MM-dd")" />
+                }
             </div>
         </div>
 

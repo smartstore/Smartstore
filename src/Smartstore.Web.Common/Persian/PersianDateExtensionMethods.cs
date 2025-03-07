@@ -56,9 +56,21 @@ namespace SmartStore.Web.Framework.Persian
         }
         public static DateTime? ConvertDateTime(string date)
         {
-            var persinCal = new PersianCalendar();
+            var persianCal = new PersianCalendar();
             try
             {
+                // Convert Persian digits to English digits
+                date = date.Replace("۰", "0")
+                           .Replace("۱", "1")
+                           .Replace("۲", "2")
+                           .Replace("۳", "3")
+                           .Replace("۴", "4")
+                           .Replace("۵", "5")
+                           .Replace("۶", "6")
+                           .Replace("۷", "7")
+                           .Replace("۸", "8")
+                           .Replace("۹", "9");
+
                 if (date.Length != 12)
                 {
                     List<string> splitDate = date.Split(new char[] { '/', '\\', '-', ' ', ':' }).ToList();
@@ -79,16 +91,15 @@ namespace SmartStore.Web.Framework.Persian
                     int intsec = 0;
                     if (splitDate.Count > 5)
                         int.TryParse(splitDate[5], out intsec);
-                   
-                     
-                    return persinCal.ToDateTime(intyear1, intMon1, intDay1, intHour1, intMin1, intsec, 0);
+
+                    return persianCal.ToDateTime(intyear1, intMon1, intDay1, intHour1, intMin1, intsec, 0);
                 }
                 int intyear = int.Parse(date.Substring(0, 4));
                 int intMon = int.Parse(date.Substring(4, 2));
                 int intDay = int.Parse(date.Substring(6, 2));
                 int intHour = int.Parse(date.Substring(8, 2));
                 int intMin = int.Parse(date.Substring(10, 2));
-                return persinCal.ToDateTime(intyear, intMon, intDay, intHour, intMin, 0, 0);
+                return persianCal.ToDateTime(intyear, intMon, intDay, intHour, intMin, 0, 0);
             }
             catch
             {

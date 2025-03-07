@@ -10,6 +10,9 @@
         }
     }
 
+      bool IsPersian = this.WorkContext.WorkingLanguage.UniqueSeoCode == "fa";
+
+
     DateTime? value = ViewData.Model != null
         ? Convert.ToDateTime(ViewData.Model, CultureInfo.CurrentCulture).ToLocalTime()
         : null;
@@ -25,14 +28,51 @@
     }
 
     var id = Html.IdForModel();
-    if (!TryGetMetadata<string>("format", out var format))
+    var format = picktime ? "L LT" : "L";
+    if (IsPersian)
     {
-        format = picktime ? "L LT" : "L";
+        format = picktime ? "YYYY/MM/DD   HH:mm:ss" : "YYYY/MM/DD";
     }
-
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
+
+
+@if (IsPersian)
+{
+    <div class="@cssClass" id="@id-parent" data-date="@valueStr" data-target-input="nearest" data-keep-open="false">
+        <input asp-for="@Model"
+               attrs="attributes"
+               class="datetimepicker-input edit-control"
+               type="text"
+               attr-value="(valueStr.HasValue(), valueStr)" />
+
+        <div class="input-group-append" data-target="#@(id)-parent" data-toggle="datetimepicker">
+            <button type="button" class="btn btn-light">
+                <i class="far fa-calendar"></i>
+            </button>
+        </div>
+    </div>
+    if (picktime)
+    {
+        <script data-origin="DateTime">
+         $(function() {
+             $("#@(id)-parent").MdPersianDateTimePicker({ dateFormat: '@(format)', targetTextSelector: '#@(id)' , enableTimePicker: true});
+         });
+        </script>
+    }
+    else
+    {
+        <script data-origin="DateTime">
+         $(function() {
+             $("#@(id)-parent").MdPersianDateTimePicker({ dateFormat: '@(format)', targetTextSelector: '#@(id)' , enableTimePicker: false});
+         });
+        </script>
+    }
+
+}
+else
+{
 <div class="@cssClass" id="@id-parent" data-date="@valueStr" data-target-input="nearest" data-keep-open="false">
     <input asp-for="@Model"
            attrs="attributes"
@@ -50,3 +90,4 @@
         </button>
     </div>
 </div>
+}

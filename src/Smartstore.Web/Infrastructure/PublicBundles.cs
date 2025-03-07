@@ -67,7 +67,7 @@ namespace Smartstore.Web.Infrastructure
                 lib + "jquery/jquery.validate.unobtrusive.js",
                 lib + "jquery/jquery.ba-outside-events.js",
                 lib + "moment/moment.js",
-                lib + "datetimepicker/js/tempusdominus-bootstrap-4.js",
+                lib + "datetimepicker-persian/js/tempusdominus-bootstrap-4.min.js",
                 lib + "select2/js/select2.js",
                 lib + "pnotify/js/pnotify.js",
                 lib + "pnotify/js/pnotify.mobile.js",
