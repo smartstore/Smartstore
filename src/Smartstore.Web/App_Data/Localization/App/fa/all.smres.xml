@@ -15757,10 +15757,10 @@
     <Value>محصولات</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.WishlistPartOne">
-    <Value>آرزو</Value>
+    <Value>لیست</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.WishlistPartTwo">
-    <Value>لیست</Value>
+    <Value>علاقه‌مندی</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Show">
     <Value>نمایش</Value>

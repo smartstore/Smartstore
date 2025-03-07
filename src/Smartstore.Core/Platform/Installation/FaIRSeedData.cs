@@ -33,7 +33,7 @@ namespace Smartstore.Core.Installation
 {
     public class FaIRSeedData : InvariantSeedData
     {
-        private readonly IDictionary<string, TaxCategory> _taxCategories = new Dictionary<string, TaxCategory>();
+        private readonly Dictionary<string, TaxCategory> _taxCategories = [];
         private DeliveryTime _defaultDeliveryTime;
 
         protected override void Alter(Customer entity)
@@ -2054,7 +2054,11 @@ namespace Smartstore.Core.Installation
                 {
                     x.Title = "اطلاعات پرداخت";
                     x.Body = "<p>اطلاعات پرداخت شما.</p>";
-                });
+                })
+                .Alter("CookieManager", x =>
+                 {
+                     x.Title = "مدیر کوکی";
+                 });
         }
 
         protected override void Alter(UrlRecord entity)
@@ -2116,7 +2120,7 @@ namespace Smartstore.Core.Installation
                     x.ShippingPriceIncludesTax = false;
                     x.ShippingTaxClassId = base.DbContext.Set<TaxCategory>().Where(tc => tc.Name == TaxNameApparel).Single().Id;
                     x.EuVatEnabled = false;
-                    //  x.EuVatShopCountryId = base.DbContext.Set<Country>().Where(c => c.TwoLetterIsoCode == "IR").Single().Id;
+                    x.EuVatShopCountryId = base.DbContext.Set<Country>().Where(c => c.TwoLetterIsoCode == "IR").Single().Id;
                     x.EuVatAllowVatExemption = true;
                     x.EuVatUseWebService = false;
                     x.EuVatEmailAdminWhenNewVatSubmitted = true;
@@ -2559,7 +2563,14 @@ namespace Smartstore.Core.Installation
                 { "Sunglasses", "عینک آفتابی" },
                 { "Tables", "میز" },
                 { "Trousers", "شلوار" },
-                { "Watches", "ساعت" }
+                { "Watches", "ساعت" },
+                { "Gaming", "بازی" },
+                { "Apple","اپل" },
+                { "SPIEGEL-Bestseller","کتاب پر فروش" },
+                { "basketball","بسکتبال" },
+                { "Golf","گلف'" },
+                { "Sale","تخفیف" },
+                { "Sofas","مبل ها" }
             };
 
             var alterer = entities.WithKey(x => x.MetaTitle);
@@ -3349,7 +3360,7 @@ namespace Smartstore.Core.Installation
 
         protected override void Alter(IList<EmailAccount> entities)
         {
-            //base.Alter(entities);
+            base.Alter(entities);
 
             //entities.WithKey(x => x.DisplayName)
             //    .Alter("General contact", x =>

@@ -235,7 +235,8 @@ namespace Smartstore.Core.Installation
                     Name = lazyLanguage.Metadata.Name,
                     LanguageCulture = lazyLanguage.Metadata.Culture,
                     UniqueSeoCode = lazyLanguage.Metadata.UniqueSeoCode,
-                    FlagImageFileName = lazyLanguage.Metadata.FlagImageFileName
+                    FlagImageFileName = lazyLanguage.Metadata.FlagImageFileName,
+                    Rtl= lazyLanguage.Metadata.Rtl
                 };
 
                 // Build the seed configuration model
