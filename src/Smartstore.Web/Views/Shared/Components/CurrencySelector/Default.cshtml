@@ -26,7 +26,7 @@
             <a href="@href" class="dropdown-item" attr-class='(curr.Id == activeCurr.Id, "disabled")' title="@curr.Name" rel="nofollow"
                data-selected="@(curr.Equals(activeCurr) ? "true" : "false")" data-abbreviation="@($"{curr.ISOCode} ({curr.Symbol})")">
                 <span>@curr.Name</span>
-                <span class="abbreviation">&nbsp;- @curr.ISOCode <span class="lrm">(@curr.Symbol)</span></span>
+                <span class="abbreviation">- @curr.ISOCode <span class="lrm">(@curr.Symbol)</span></span>
             </a>
         }
     </div>
