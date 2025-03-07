@@ -220,7 +220,7 @@ fieldset.content-group {
     position: absolute;
     cursor: pointer;
     text-decoration: none;
-    right: 0.5rem;
+    inset-inline: auto 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     margin: 0;
