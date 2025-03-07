@@ -4,7 +4,6 @@
 // --------------------------------------------------
 
 [dir=rtl] {
-
     // Forms
     // -----
     .ctl-label {
@@ -57,7 +56,6 @@
         margin-right: 0.75rem;
         margin-left: initial;
     }
-
     //
     // Navs
     // -------------
@@ -109,5 +107,30 @@
         .ml-auto {
             margin-inline-end: 1rem !important;
         }
+    }
+    // Install
+    // -----
+    .btn-toggle-pwd {
+        left: 0.5rem;
+        right: auto;
+    }
+
+    select.form-control {
+
+        &:not([multiple], [size]:not([size="1"])) {
+            background-position: left 0.75rem center;
+        }
+    }
+
+    .alert-info,
+    .alert-danger,
+    .alert-success,
+    .alert-warning {
+        // Left icon box
+        &:before {
+            left: auto;
+            right: 0;
+        }
+
     }
 }
