@@ -13,7 +13,7 @@ namespace Smartstore.Core.Common.Services
         private readonly IEventPublisher _eventPublisher;
 
         // Key = (EntityName, EntityId)
-        private readonly Dictionary<(string, int), GenericAttributeCollection> _collectionCache = new();
+        private readonly Dictionary<(string, int), GenericAttributeCollection> _collectionCache = [];
 
         public GenericAttributeService(SmartDbContext db, IStoreContext storeContext, IEventPublisher eventPublisher)
         {
@@ -77,8 +77,8 @@ namespace Smartstore.Core.Common.Services
 
         public virtual async Task PrefetchAttributesAsync(string entityName, int[] entityIds)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
-            Guard.NotNull(entityIds, nameof(entityIds));
+            Guard.NotEmpty(entityName);
+            Guard.NotNull(entityIds);
 
             if (entityIds.Length == 0)
             {

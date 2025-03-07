@@ -15,7 +15,7 @@ namespace Smartstore.Core.Common
         public GenericAttributeCollection(GenericAttributeCollection innerCollection)
             : base()
         {
-            Guard.NotNull(innerCollection, nameof(innerCollection));
+            Guard.NotNull(innerCollection);
 
             _innerCollection = innerCollection;
             IsReadOnly = innerCollection.IsReadOnly;
@@ -48,8 +48,8 @@ namespace Smartstore.Core.Common
             int currentStoreId,
             List<GenericAttribute> entities = null)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotNull(query);
+            Guard.NotEmpty(entityName);
 
             IsReadOnly = false;
             Query = query;
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Common
         /// <param name="entityName"></param>
         internal GenericAttributeCollection(string entityName)
         {
-            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotEmpty(entityName);
 
             IsReadOnly = true;
             EntityName = entityName;
@@ -108,7 +108,7 @@ namespace Smartstore.Core.Common
             {
                 if (IsReadOnly)
                 {
-                    return Enumerable.Empty<GenericAttribute>();
+                    return [];
                 }
                 
                 if (Entities == null)
@@ -218,7 +218,7 @@ namespace Smartstore.Core.Common
         /// <returns><c>true</c> if an entity with given key is present, <c>false</c> otherwise</returns>
         public bool TryGetEntity(string key, int storeId, out GenericAttribute entity)
         {
-            Guard.NotEmpty(key, nameof(key));
+            Guard.NotEmpty(key);
 
             entity = null;
 
