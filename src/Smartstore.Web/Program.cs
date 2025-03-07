@@ -39,6 +39,7 @@ using Smartstore;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Utilities;
+using SmartStore.Web.Framework.Persian;
 
 var rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^Azure|^StackExchange|^Superpower|^Dasync", RegexOptions.Compiled);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
@@ -93,6 +94,17 @@ AddPathToEnv(appContext.RuntimeInfo.NativeLibraryDirectory);
 
 // Add services to the container.
 engineStarter.ConfigureServices(builder.Services);
+
+// Register the custom model binder provider
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new PersianDateTimeModelBinderProvider());
+});
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<DateTimeActionFilter>();
+});
 
 // Add services to the Autofac container.
 builder.Host.ConfigureContainer<ContainerBuilder>(engineStarter.ConfigureContainer);
