@@ -319,6 +319,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Reihenfolge",
                 "Specifies the order in which associated products of a grouped product are displayed. In addition, this setting determines the order of hits in the search, if sort by recommendation is enabled in the search settings.",
                 "Legt die Reihenfolge fest, in der verknüpfte Produkte eines Gruppenproduktes angezeigt werden. Zusätzlich legt diese Einstellung die Reihenfolge der Treffer bei der Suche fest, sofern in den Sucheinstellungen die Sortierung nach Empfehlung aktiviert ist.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.FreeShippingCountryIds",
+                "Countries with free shipping",
+                "Länder mit kostenlosem Versand",
+                "Specifies the shipping countries for which free shipping is enabled. Free shipping is enabled for all countries if none are specified here (default).",
+                "Legt die Lieferländer fest, für die der kostenlose Versand aktiviert ist. Wird hier kein Land angegeben, ist der kostenlose Versand für alle Länder aktiv (Standardeinstellung).");
         }
     }
 }

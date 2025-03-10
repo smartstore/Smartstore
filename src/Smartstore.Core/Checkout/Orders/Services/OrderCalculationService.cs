@@ -368,12 +368,14 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(cart);
 
-            if (cart.Customer != null)
+            var customer = cart.Customer;
+
+            if (customer != null)
             {
                 // Check whether customer is in a customer role with free shipping applied.
-                await _db.LoadCollectionAsync(cart.Customer, x => x.CustomerRoleMappings, false, x => x.Include(y => y.CustomerRole));
+                await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings, false, x => x.Include(y => y.CustomerRole));
 
-                var customerRoles = cart.Customer.CustomerRoleMappings
+                var customerRoles = customer.CustomerRoleMappings
                     .Select(x => x.CustomerRole)
                     .Where(x => x.Active);
 
@@ -397,8 +399,18 @@ namespace Smartstore.Core.Checkout.Orders
             // Check if the subtotal is large enough for free shipping.
             if (_shippingSettings.FreeShippingOverXEnabled)
             {
-                var subtotal = await GetCartSubtotalAsync(cart, _shippingSettings.FreeShippingOverXIncludingTax);
+                if (!_shippingSettings.FreeShippingCountryIds.IsNullOrEmpty())
+                {
+                    await _db.LoadReferenceAsync(customer, x => x.ShippingAddress);
 
+                    var countryId = customer.ShippingAddress?.CountryId ?? 0;
+                    if (countryId == 0 || !_shippingSettings.FreeShippingCountryIds.Contains(countryId))
+                    {
+                        return false;
+                    }
+                }
+
+                var subtotal = await GetCartSubtotalAsync(cart, _shippingSettings.FreeShippingOverXIncludingTax);
                 if (subtotal.SubtotalWithDiscount > _shippingSettings.FreeShippingOverXValue)
                 {
                     return true;

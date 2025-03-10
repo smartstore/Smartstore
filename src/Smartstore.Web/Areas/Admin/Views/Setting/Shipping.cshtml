@@ -34,7 +34,7 @@
             </div>
         </div>
         <div id="pnlFreeShipping">
-            <div id="pnlValueOfX" class="adminRow">
+            <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="FreeShippingOverXValue" />
                 </div>
@@ -43,13 +43,24 @@
                     <span asp-validation-for="FreeShippingOverXValue"></span>
                 </div>
             </div>
-            <div id="pnlValueOfXincltax" class="adminRow">
+            <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="FreeShippingOverXIncludingTax" />
                 </div>
                 <div class="adminData">
                     <setting-editor asp-for="FreeShippingOverXIncludingTax"></setting-editor>
                     <span asp-validation-for="FreeShippingOverXIncludingTax"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FreeShippingCountryIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="FreeShippingCountryIds" 
+                            class="country-input country-selector" 
+                            asp-additional-viewdata='new { multiple = true, placeholder = T("Common.Unspecified").Value }' />
+                    <span asp-validation-for="FreeShippingCountryIds"></span>
                 </div>
             </div>
         </div>

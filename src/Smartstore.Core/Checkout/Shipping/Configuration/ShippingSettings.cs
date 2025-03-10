@@ -26,6 +26,12 @@ namespace Smartstore.Core.Checkout.Shipping
         public bool FreeShippingOverXIncludingTax { get; set; }
 
         /// <summary>
+        /// Gets or sets the identifiers of shipping country for which free shipping is enabled.
+        /// Free shipping is enabled for all shipping countries if none are specified (default).
+        /// </summary>
+        public int[] FreeShippingCountryIds { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether 'Estimate shipping' option is enabled
         /// </summary>
         public bool EstimateShippingEnabled { get; set; } = true;

@@ -20,6 +20,11 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*FreeShippingOverXIncludingTax")]
         public bool FreeShippingOverXIncludingTax { get; set; }
 
+        [UIHint("Countries")]
+        [AdditionalMetadata("shippingCountriesOnly", true)]
+        [LocalizedDisplay("*FreeShippingCountryIds")]
+        public int[] FreeShippingCountryIds { get; set; }
+
         [LocalizedDisplay("*EstimateShippingEnabled")]
         public bool EstimateShippingEnabled { get; set; }
 
