@@ -102,14 +102,14 @@
         }
     }
 
-    var emptyOption = !isMultiple && (IsNullable || modelType == typeof(int?) || placeholder.HasValue());
+    var hasEmptyOption = !isMultiple && (IsNullable || modelType == typeof(int?) || placeholder.HasValue());
 }
 <select asp-for="@Model"
         attrs="attributes"
         data-placeholder="@((isMultiple ? placeholder.NullEmpty() : null) ?? T("Address.SelectCountry"))"
         class="edit-control"
         data-editor="select">
-    <option sm-if="emptyOption" value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
+    <option sm-if="hasEmptyOption" value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
     @foreach (var item in items)
     {
         <option value="@item.Value"
