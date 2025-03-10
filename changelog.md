@@ -14,7 +14,7 @@
 - #501 New category option for ignoring a category in menus.
 - #1259 AI: Implement setting for keywords to avoid in general.
 - #248 Catalog search: Add an option for featured product sort order.
-- #1281 Add shipping setting: Apply free shipping over 'X' only for certain countries to be shipped to.
+- #1281 Add shipping setting: Apply free shipping over 'X' only for specific countries to ship to.
 - MegaSearch: 
   - Added setting to indicate whether to split compound words.
   - Setting to include/exclude the meta keywords of products in the search index.
