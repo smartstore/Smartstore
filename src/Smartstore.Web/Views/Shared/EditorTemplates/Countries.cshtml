@@ -79,8 +79,8 @@
         }
 
         var countries = await query.ToListAsync();
-
         var keys = SelectedKeys;
+
         items = (keys is int[] ids ? countries.ToSelectListItems(ids) : countries.ToSelectListItems((string[])keys));
     }
 
@@ -88,27 +88,28 @@
     var flagsPath = Url.Content("~/images/flags/");
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var placeholder = Placeholder;
+    var isMultiple = attributes.ContainsKey("multiple");
 
-    if (!attributes.ContainsKey("multiple"))
+    if (!isMultiple)
     {
-        if (!TryGetMetadata<bool>("multiple", out var multiple))
+        if (!TryGetMetadata<bool>("multiple", out isMultiple))
         {
-            multiple = modelType.IsSequenceType();
+            isMultiple = modelType.IsSequenceType();
         }
-        if (multiple)
+        if (isMultiple)
         {
             attributes["multiple"] = "multiple";
         }
     }
+
+    var emptyOption = !isMultiple && (IsNullable || modelType == typeof(int?) || placeholder.HasValue());
 }
 <select asp-for="@Model"
         attrs="attributes"
-        data-placeholder="@T("Address.SelectCountry").Value"
+        data-placeholder="@((isMultiple ? placeholder.NullEmpty() : null) ?? T("Address.SelectCountry"))"
         class="edit-control"
         data-editor="select">
-
-    <option sm-if="IsNullable || modelType == typeof(int?) || placeholder.HasValue()" value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
-    
+    <option sm-if="emptyOption" value="">@(placeholder ?? T("Common.Unspecified").Value)</option>
     @foreach (var item in items)
     {
         <option value="@item.Value"
