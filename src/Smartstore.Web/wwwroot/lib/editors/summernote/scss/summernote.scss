@@ -468,6 +468,7 @@ $img-margin-right: 10px;
     position: absolute;
     display: none;
     border: 1px solid #000;
+    z-index: 1;
 
     & > div {
         position: absolute;
