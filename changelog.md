@@ -18,6 +18,7 @@
 - MegaSearch: 
   - Added setting to indicate whether to split compound words.
   - Setting to include/exclude the meta keywords of products in the search index.
+  - #1275 Import of product keywords (import file column `MegaSearch.Product.Keywords`).
 - #1225 Added settings to sort search filters of facet groups category, brand and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always 0 in queued email list.
