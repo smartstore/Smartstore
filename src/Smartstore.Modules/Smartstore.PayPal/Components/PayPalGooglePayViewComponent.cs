@@ -16,7 +16,7 @@ namespace Smartstore.PayPal.Components
             }
 
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = RouteIdent == "ShoppingCart.Cart";
+            var isCartPage = RouteIdent == "ShoppingCart.Cart" || RouteIdent == "ShoppingCart.UpdateCartItem";
             if (isCartPage && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))
             {
                 return Empty();
