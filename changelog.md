@@ -16,6 +16,7 @@
 - #248 Catalog search: Add an option for featured product sort order.
 - #1281 Add shipping setting: Apply free shipping over 'X' only for specific countries to ship to.
 - MegaSearch: 
+  - ~20 % performance increase
   - Added setting to indicate whether to split compound words.
   - Setting to include/exclude the meta keywords of products in the search index.
   - #1275 Import of product keywords (import file column `MegaSearch.Product.Keywords`).
