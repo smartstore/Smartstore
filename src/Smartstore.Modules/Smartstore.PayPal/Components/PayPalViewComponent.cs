@@ -10,7 +10,7 @@ namespace Smartstore.PayPal.Components
         protected override IViewComponentResult InvokeCore()
         {
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = RouteIdent == "ShoppingCart.Cart";
+            var isCartPage = RouteIdent == "ShoppingCart.Cart" || RouteIdent == "ShoppingCart.UpdateCartItem";
             if (isCartPage && !Settings.FundingsCart.Contains(FundingOptions.paypal.ToString()))
             {
                 return Empty();
