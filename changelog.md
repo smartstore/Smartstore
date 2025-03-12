@@ -103,6 +103,7 @@
 - MegaMenu: Input controls do not work properly (missing init of common controls).
 - Fixed that the log list was not loaded in rare cases.
 - Fixed bug in checkout when the country of a address is null
+- Fixed bug where shopping cart wasn't migrated after external login.
 
 
 ## Smartstore 6.0.0
