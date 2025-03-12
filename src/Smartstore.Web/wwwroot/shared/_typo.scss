@@ -90,7 +90,7 @@ h6, .h6 {
         position: relative;
         display: inline-block;
         background: var(--body-bg, #fff);
-        padding-right: 1rem;
+        padding-inline-end: 1rem;
         font-weight: $font-weight-normal;
     }
 }
@@ -103,7 +103,7 @@ h6, .h6 {
     }
 
     .heading-title {
-        padding-left: 1rem;
+        padding-inline-start: 1rem;
     }
 }
 
