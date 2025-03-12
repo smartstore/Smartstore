@@ -630,6 +630,10 @@ namespace Smartstore.Web.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
             if (result.Succeeded)
             {
+                var customer = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+                await CompleteLoginProcessAsync(Services.WorkContext.CurrentCustomer, customer);
+
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
                 return RedirectToReferrer(returnUrl, () => RedirectToRoute("Homepage"));
             }
@@ -658,12 +662,7 @@ namespace Smartstore.Web.Controllers
                             return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                         }
 
-                        // Migrate shopping cart.
-                        await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
-
-                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
-
-                        await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
+                        await CompleteLoginProcessAsync(Services.WorkContext.CurrentCustomer, customer);
                     }
 
                     // Display errors to user.
@@ -1011,6 +1010,15 @@ namespace Smartstore.Web.Controllers
                 result.Errors.Select(x => x.Description).Distinct()
                     .Each(x => ModelState.AddModelError(string.Empty, x));
             }
+        }
+
+        private async Task CompleteLoginProcessAsync(Customer loggedOut, Customer loggedIn) 
+        {
+            await _shoppingCartService.MigrateCartAsync(loggedOut, loggedIn);
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), loggedIn);
+
+            await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = loggedIn });
         }
 
         #endregion
