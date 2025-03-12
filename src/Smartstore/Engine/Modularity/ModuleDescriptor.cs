@@ -97,8 +97,8 @@ namespace Smartstore.Engine.Modularity
 
         #region GroupComparer
 
-        internal readonly static string[] KnownGroups = new string[]
-        {
+        internal readonly static string[] KnownGroups =
+        [
             "Admin",
             "Marketing",
             "Payment",
@@ -120,8 +120,9 @@ namespace Smartstore.Engine.Modularity
             "Performance",
             "B2B",
             "Storefront",
-            "Law"
-        };
+            "Law",
+            "AI"
+        ];
         public readonly static IComparer<string> KnownGroupComparer = new GroupComparer();
 
         class GroupComparer : Comparer<string>

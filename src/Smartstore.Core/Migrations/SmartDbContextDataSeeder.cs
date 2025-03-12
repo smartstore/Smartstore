@@ -325,6 +325,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Länder mit kostenlosem Versand",
                 "Specifies the shipping countries for which free shipping is enabled. Free shipping is enabled for all countries if none are specified here (default).",
                 "Legt die Lieferländer fest, für die der kostenlose Versand aktiviert ist. Wird hier kein Land angegeben, ist der kostenlose Versand für alle Länder aktiv (Standardeinstellung).");
+
+            builder.AddOrUpdate("Admin.Plugins.KnownGroup.AI", "AI", "KI");
         }
     }
 }
