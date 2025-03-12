@@ -15,7 +15,7 @@
   > label {
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     z-index: 2;
     height: 100%; // allow textareas
     padding: $form-floating-padding-y $form-floating-padding-x;

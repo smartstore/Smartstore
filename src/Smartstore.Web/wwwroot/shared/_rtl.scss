@@ -44,6 +44,10 @@
 		padding-left: 1rem;
 	}
 
+    .form-floating > label {
+        transform-origin: 100% 0;
+    }
+
 	// Nav collapsible
 	// ---
 	@include media-breakpoint-down(sm) {
