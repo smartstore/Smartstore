@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.PayPal.Services;
 
 namespace Smartstore.PayPal.Components
 {
@@ -16,8 +17,7 @@ namespace Smartstore.PayPal.Components
             }
 
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = RouteIdent == "ShoppingCart.Cart" || RouteIdent == "ShoppingCart.UpdateCartItem";
-            if (isCartPage && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))
+            if (PayPalHelper.IsCartPage(RouteIdent) && !Settings.FundingsCart.Contains(FundingOptions.googlepay.ToString()))
             {
                 return Empty();
             }
