@@ -166,6 +166,9 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("p24")]
         public PaymentSourceApm PaymentSourceP24;
+
+        [JsonProperty("google_pay")]
+        public PaymentSourceGooglePay PaymentSourceGooglePay;
     }
 
     public class ShippingDetail
@@ -267,6 +270,21 @@ namespace Smartstore.PayPal.Client.Messages
         public string Email;
         [JsonProperty("bic")] // INFO: Snake case will transform it to b_i_c otherwise
         public string BIC;
+    }
+
+    public class PaymentSourceGooglePay
+    {
+        public PayPalAttributes Attributes;
+    }
+
+    public class PayPalAttributes
+    {
+        public VerificationAttribute Verification;
+    }
+
+    public class VerificationAttribute
+    {
+        public string Method;
     }
 
     public class Payer

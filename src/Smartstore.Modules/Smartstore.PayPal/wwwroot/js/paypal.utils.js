@@ -260,7 +260,7 @@
         // Define the version of the Google Pay API referenced when creating your configuration
         const baseRequest = {
             apiVersion: 2,
-            apiVersionMinor: 0,
+            apiVersionMinor: 0
         };
 
         let paymentsClient = null, allowedPaymentMethods = null, merchantInfo = null;
@@ -295,9 +295,9 @@
             if (paymentsClient === null) {
                 paymentsClient = new google.payments.api.PaymentsClient({
                     environment: buttonContainer.attr("data-is-sandbox") == "true" ? "TEST" : "PRODUCTION",
-                    paymentDataCallbacks: {
-                        onPaymentAuthorized: onPaymentAuthorized,
-                    }
+                    //paymentDataCallbacks: {
+                    //    onPaymentAuthorized: onPaymentAuthorized,
+                    //}
                 });
             }
             return paymentsClient;
@@ -339,7 +339,7 @@
             paymentDataRequest.allowedPaymentMethods = allowedPaymentMethods;
             paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
             paymentDataRequest.merchantInfo = merchantInfo;
-            paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"];
+            //paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"];
             return paymentDataRequest;
         }
 
@@ -363,7 +363,12 @@
         async function onGooglePaymentButtonClicked() {
             const paymentDataRequest = await getGooglePaymentDataRequest();
             const paymentsClient = getGooglePaymentsClient();
-            paymentsClient.loadPaymentData(paymentDataRequest);
+            paymentsClient.loadPaymentData(paymentDataRequest).then(function (paymentData) {
+                processPayment(paymentData);
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
         }
 
         async function processPayment(paymentData) {
@@ -375,9 +380,18 @@
                         paymentMethodData: paymentData.paymentMethodData,
                     });
 
-                    if (status === "APPROVED") {
+                    if (status === "APPROVED" || status === "COMPLETED") {
                         initTransaction({ orderID: orderId }, buttonContainer);
-                    } else {
+                    }
+                    else if (status === "PAYER_ACTION_REQUIRED") {
+                        paypal
+                            .Googlepay()
+                            .initiatePayerAction({ orderId: orderId })
+                            .then(async () => {
+                                initTransaction({ orderID: orderId }, buttonContainer);
+                            });
+                    }
+                    else {
                         displayNotification(buttonContainer.data("transaction-error"), "error");
                         resolve({
                             transactionState: 'ERROR',
@@ -388,7 +402,7 @@
                         })
                     }
                 } catch (err) {
-                    displayNotification(err.message, "error");
+                    displayNotification(buttonContainer.data("transaction-error"), "error");
                     
                     resolve({
                         transactionState: 'ERROR',

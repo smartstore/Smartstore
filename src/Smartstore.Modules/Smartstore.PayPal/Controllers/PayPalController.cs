@@ -230,16 +230,31 @@ namespace Smartstore.PayPal.Controllers
             orderMessage.AppContext.ReturnUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionSuccess), "PayPal"));
             orderMessage.AppContext.CancelUrl = store.GetAbsoluteUrl(Url.Action(nameof(RedirectionCancel), "PayPal"));
 
-            var psw = new PaymentSourceWallet
-            {
-                ReturnUrl = orderMessage.AppContext.ReturnUrl,
-                CancelUrl = orderMessage.AppContext.CancelUrl
-            };
+            var orderMessagePaymentSource = new PaymentSource();
 
-            orderMessage.PaymentSource = new PaymentSource
+            if (selectedPaymentMethod == PayPalConstants.GooglePay)
             {
-                PaymentSourceWallet = psw
-            };
+                orderMessagePaymentSource.PaymentSourceGooglePay = new PaymentSourceGooglePay
+                {
+                    Attributes = new PayPalAttributes
+                    {
+                        Verification = new VerificationAttribute
+                        {
+                            Method = "SCA_ALWAYS"
+                        }
+                    }
+                };
+            }
+            else
+            {
+                orderMessagePaymentSource.PaymentSourceWallet = new PaymentSourceWallet
+                {
+                    ReturnUrl = orderMessage.AppContext.ReturnUrl,
+                    CancelUrl = orderMessage.AppContext.CancelUrl
+                };
+            }
+
+            orderMessage.PaymentSource = orderMessagePaymentSource;
 
             var response = await _client.CreateOrderAsync(orderMessage);
             var rawResponse = response.Body<object>().ToString();
@@ -553,8 +568,6 @@ namespace Smartstore.PayPal.Controllers
             var transactionInfo = new GoogleTransactionInfo
             {
                 CurrencyCode = Services.WorkContext.WorkingCurrency.CurrencyCode,
-                // PayPal's European headquarters are in Luxembourg, where PayPal is considered an acquirer because the money flows into a PayPal account.
-                CountryCode = "LU",
                 //TransactionId = Guid.NewGuid().ToString(),    // We'll skip this for now.
                 TotalPriceStatus = "ESTIMATED"                  // INFO: Estimated because it is called from basket. Even on payment page a customer could change the shipping method and thus alter the final price.
             };
@@ -603,7 +616,8 @@ namespace Smartstore.PayPal.Controllers
 
             // Display shipping
             var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, !isVatExempt);
-            var shippingTotalAmount = _currencyService.ConvertFromPrimaryCurrency(_roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount), _primaryCurrency);
+            var shippingTotalAmount = _currencyService.ConvertFromPrimaryCurrency(
+                shippingTotal.ShippingTotal != null ?_roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount) : 0, _primaryCurrency);
 
             // Only Price=0 and Status=PENDING when were on cart page.
             var shippingDisplayItem = new DisplayItem
@@ -616,7 +630,7 @@ namespace Smartstore.PayPal.Controllers
 
             // Discounts
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-            var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total.Value.Amount, _primaryCurrency);
+            var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total != null ? cartTotal.Total.Value.Amount : 0, _primaryCurrency);
             Money orderTotalDiscountAmount = default;
             if (cartTotal.DiscountAmount > decimal.Zero)
             {
@@ -641,7 +655,7 @@ namespace Smartstore.PayPal.Controllers
 
             transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, subtotalDisplayItem, taxDisplayItem, shippingDisplayItem, discountDisplayItem];
             transactionInfo.TotalPriceLabel = T("ShoppingCart.ItemTotal");
-            transactionInfo.TotalPrice = cartTotalConverted.Amount.ToStringInvariant("F");
+            transactionInfo.TotalPrice = (cartTotal.Total != null ? cartTotalConverted.Amount : subTotalConverted.Amount).ToStringInvariant("F");
 
             return Json(transactionInfo);
         }
