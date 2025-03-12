@@ -631,8 +631,10 @@ namespace Smartstore.Web.Controllers
             if (result.Succeeded)
             {
                 var customer = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-
-                await CompleteLoginProcessAsync(Services.WorkContext.CurrentCustomer, customer);
+                if (customer != null)
+                {
+                    await FinalizeLoginAsync(Services.WorkContext.CurrentCustomer, customer, logActivity: false);
+                }
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
                 return RedirectToReferrer(returnUrl, () => RedirectToRoute("Homepage"));
@@ -662,7 +664,7 @@ namespace Smartstore.Web.Controllers
                             return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                         }
 
-                        await CompleteLoginProcessAsync(Services.WorkContext.CurrentCustomer, customer);
+                        await FinalizeLoginAsync(Services.WorkContext.CurrentCustomer, customer, logActivity: true);
                     }
 
                     // Display errors to user.
@@ -1012,13 +1014,15 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private async Task CompleteLoginProcessAsync(Customer loggedOut, Customer loggedIn) 
+        private async Task FinalizeLoginAsync(Customer guest, Customer registered, bool logActivity) 
         {
-            await _shoppingCartService.MigrateCartAsync(loggedOut, loggedIn);
+            await _shoppingCartService.MigrateCartAsync(guest, registered);
+            await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = registered });
 
-            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), loggedIn);
-
-            await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = loggedIn });
+            if (logActivity)
+            {
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), registered);
+            }
         }
 
         #endregion
