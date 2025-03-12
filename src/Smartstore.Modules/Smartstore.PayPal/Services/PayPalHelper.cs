@@ -119,7 +119,7 @@ namespace Smartstore.PayPal.Services
             }
         }
 
-        public static bool IsCartPage(string routeIdent)
+        public static bool IsCartRoute(string routeIdent)
         {
             return routeIdent == "ShoppingCart.Cart" || routeIdent == "ShoppingCart.UpdateCartItem";
         }
