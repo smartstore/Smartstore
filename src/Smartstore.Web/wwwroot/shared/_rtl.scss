@@ -48,6 +48,10 @@
         transform-origin: 100% 0;
     }
 
+    .form-check .form-check-input {
+        float: right;
+    }
+
 	// Nav collapsible
 	// ---
 	@include media-breakpoint-down(sm) {
