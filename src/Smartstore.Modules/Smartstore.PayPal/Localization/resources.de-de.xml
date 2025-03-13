@@ -418,10 +418,10 @@
             </LocaleResource>
             <LocaleResource Name="UseTransmittedAddresses.Hint">
                 <Value>
-                    Legt fest, ob die von PayPal zurückgegebenen Adressen als Rechnungs- und Lieferadresse hinzugefügt werden sollen,
-                    falls sie noch nicht vorhanden sind. PayPal überträgt beispielsweise keine Telefonnummern. Daher kann es vorkommen,
+                    Legt fest, ob die von PayPal zurückgegebenen Adressen als Rechnungs- und Lieferadresse übernommen werden sollen,
+                    falls sie noch nicht vorhanden sind. PayPal übermittelt beispielsweise keine Telefonnummern. Daher kann es vorkommen,
                     dass entgegen den Einstellungen für die Adressvalidierung keine Telefonnummern vorhanden sind.
-                    Deaktivieren Sie diese Funktion, wenn die Kundenadressen mit den Validierungseinstellungen im Shop übereinstimmen müssen.
+                    Deaktivieren Sie diese Option, wenn die Kundenadressen mit den Validierungseinstellungen im Shop übereinstimmen müssen.
                 </Value>
             </LocaleResource>
             

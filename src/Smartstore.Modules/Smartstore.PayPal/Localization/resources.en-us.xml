@@ -432,14 +432,14 @@
                 </Value>
             </LocaleResource>
             <LocaleResource Name="UseTransmittedAddresses">
-                <Value>Use transmitted addresses</Value>
+                <Value>Use passed addresses</Value>
             </LocaleResource>
             <LocaleResource Name="UseTransmittedAddresses.Hint">
                 <Value>
-                    Defines whether the addresses returned by PayPal should be added as the customer's billing and delivery address,
-                    if they do not already exist. PayPal does not transfer telephone numbers, for example. It can therefore happen
-                    that, contrary to the settings for address validation, no telephone numbers are available.
-                    Deactivate this function if the customer addresses must match the validation settings in the shop.
+                    Specifies whether to add the addresses returned by PayPal as the customer's billing and shipping addresses,
+                    if they do not already exist. For example, PayPal does not pass phone numbers. Therefore, it may happen
+                    that, contrary to the address validation settings, no phone numbers are available.
+                    Disable this feature if you need customer addresses to match your store's address validation settings.
                 </Value>
             </LocaleResource>
             <LocaleResource Name="Capture">
