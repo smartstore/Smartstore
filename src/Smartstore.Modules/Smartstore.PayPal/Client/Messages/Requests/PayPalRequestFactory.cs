@@ -15,7 +15,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// Generates a client token (mandatory for presenting credit card processing in hosted fields).
         /// </summary>
         public PayPalRequest GenerateClientToken()
-            => new("/v1/identity/generate-token", HttpMethod.Post);
+            => new("/v1/identity/generate-token", HttpMethod.Post, typeof(object));
 
         public PayPalRequest<AccessToken> AccessToken(
             string? clientId = null,
