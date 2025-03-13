@@ -259,7 +259,7 @@ namespace Smartstore.PayPal.Client
             {
                 Intent = Intent.Capture,
                 ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL",
-                PurchaseUnits = purchaseUnits.ToArray(),
+                PurchaseUnits = [.. purchaseUnits],
                 PaymentSource = new PaymentSource
                 {
                     PaymentSourceInvoice = new PaymentSourceInvoice
@@ -288,10 +288,10 @@ namespace Smartstore.PayPal.Client
                             BrandName = store.Name,
                             Locale = language.LanguageCulture,
                             LogoUrl = logoUrl,
-                            CustomerServiceInstructions = new string[]
-                            {
+                            CustomerServiceInstructions =
+                            [
                                 settings.CustomerServiceInstructions
-                            }
+                            ]
                         }
                     }
                 },
@@ -695,7 +695,7 @@ namespace Smartstore.PayPal.Client
                     }
                 },
                 Description = string.Empty,
-                Items = purchaseUnitItems.ToArray()
+                Items = [.. purchaseUnitItems]
             };
 
             // INFO: We must execute the following code also for cart pages in case of customer backward navigation,
@@ -789,7 +789,7 @@ namespace Smartstore.PayPal.Client
                 };
             }
             
-            return new List<PurchaseUnit> { purchaseUnit };
+            return [purchaseUnit];
         }
 
         public async Task<OrderMessage> GetOrderForStandardProviderAsync(string orderGuid = "", bool isExpressCheckout = true, bool isApm = false)
@@ -801,7 +801,7 @@ namespace Smartstore.PayPal.Client
             var orderMessage = new OrderMessage
             {
                 Intent = settings.Intent == PayPalTransactionType.Capture ? Intent.Capture : Intent.Authorize,
-                PurchaseUnits = purchaseUnits.ToArray(),
+                PurchaseUnits = [.. purchaseUnits],
                 AppContext = new PayPalApplictionContext
                 {
                     ShippingPreference = isExpressCheckout
