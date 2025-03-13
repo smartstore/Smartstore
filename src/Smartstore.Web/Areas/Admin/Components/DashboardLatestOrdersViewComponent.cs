@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Components
                     .ThenInclude(x => x.CustomerRoleMappings)
                     .ThenInclude(x => x.CustomerRole)
                 .Include(x => x.OrderItems)
-                .OrderByDescending(x => x.CreatedOnUtc)
+                .OrderByDescending(x => x.Id)
                 .Take(7)
                 .ToListAsync();
 
