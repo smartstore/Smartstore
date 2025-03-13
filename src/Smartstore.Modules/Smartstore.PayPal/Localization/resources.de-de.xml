@@ -404,7 +404,6 @@
                     Legt fest, ob Tracking-Nummern an PayPal gesendet werden sollen, sobald sie in der Sendung eingegeben oder aktualisiert wurden.
                 </Value>
             </LocaleResource>
-
             <LocaleResource Name="CancelOrdersForDeclinedPayments">
                 <Value>Bestellungen für abgelehnte Zahlungen stornieren</Value>
             </LocaleResource>
@@ -414,8 +413,18 @@
                     Ist diese Option ausgeschaltet, wird lediglich der Zahlungsstatus der Bestellung auf 'Ausstehend' gesetzt.
                 </Value>
             </LocaleResource>
+            <LocaleResource Name="UseTransmittedAddresses">
+                <Value>Übermittelte Adressen anlegen</Value>
+            </LocaleResource>
+            <LocaleResource Name="UseTransmittedAddresses.Hint">
+                <Value>
+                    Legt fest, ob die von PayPal zurückgegebenen Adressen als Rechnungs- und Lieferadresse hinzugefügt werden sollen,
+                    falls sie noch nicht vorhanden sind. PayPal überträgt beispielsweise keine Telefonnummern. Daher kann es vorkommen,
+                    dass entgegen den Einstellungen für die Adressvalidierung keine Telefonnummern vorhanden sind.
+                    Deaktivieren Sie diese Funktion, wenn die Kundenadressen mit den Validierungseinstellungen im Shop übereinstimmen müssen.
+                </Value>
+            </LocaleResource>
             
-
             <LocaleResource Name="Capture">
                 <Value>Sofort abbuchen</Value>
             </LocaleResource>

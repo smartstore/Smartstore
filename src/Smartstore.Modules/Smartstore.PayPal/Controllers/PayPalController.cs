@@ -124,7 +124,7 @@ namespace Smartstore.PayPal.Controllers
 
             session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
 
-            if (customer.BillingAddress == null)
+            if (customer.BillingAddress == null && _settings.UseTransmittedAddresses)
             {
                 // If adding shipping address fails, just log it and continue.
                 try

@@ -95,5 +95,12 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether to cancel orders when notifications for declined credit card payments are received.
         /// </summary>
         public bool CancelOrdersForDeclinedPayments { get; set; }
+
+        /// <summary>
+        /// Specifies whether to add addresses returned by PayPal as the customer's billing and shipping address if they don't already exist.
+        /// The purpose of this setting is to enable the shop owner to enforce addresses which are valid according to his address validation settings
+        /// e.g. if he needs the phone number of the customer which isn't transmitted by PayPal.
+        /// </summary>
+        public bool UseTransmittedAddresses { get; set; } = true;
     }
 }
