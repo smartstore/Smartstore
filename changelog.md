@@ -49,6 +49,7 @@
 - ChatGPT:
   - #1262 Added OpenAI `o1` and `03-mini` to supported models.
   - Added a setting for the maximum number of completion tokens.
+- #1236 PayPal: Added setting to turn off address application in case the shop's validation settings for addresses must be respected.
 
 ### Bugfixes
 
