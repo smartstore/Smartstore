@@ -53,3 +53,12 @@
         }
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('input[type="hidden"]').each(function() {
+            var value = $(this).val().replace('/', '.');
+            $(this).val(value);
+        });
+    });
+</script>
