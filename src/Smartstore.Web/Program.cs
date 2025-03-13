@@ -95,17 +95,19 @@ AddPathToEnv(appContext.RuntimeInfo.NativeLibraryDirectory);
 // Add services to the container.
 engineStarter.ConfigureServices(builder.Services);
 
-// Register the custom model binder provider
-builder.Services.AddControllers(options =>
+if (appContext.IsInstalled)
 {
-    options.ModelBinderProviders.Insert(0, new PersianDateTimeModelBinderProvider());
-});
+    // Register the custom model binder provider
+    builder.Services.AddControllers(options =>
+    {
+        options.ModelBinderProviders.Insert(0, new PersianDateTimeModelBinderProvider());
+    });
 
-builder.Services.AddControllersWithViews(options =>
-{
-    options.Filters.Add<DateTimeActionFilter>();
-});
-
+    builder.Services.AddControllersWithViews(options =>
+    {
+        options.Filters.Add<DateTimeActionFilter>();
+    });
+}
 // Add services to the Autofac container.
 builder.Host.ConfigureContainer<ContainerBuilder>(engineStarter.ConfigureContainer);
 
