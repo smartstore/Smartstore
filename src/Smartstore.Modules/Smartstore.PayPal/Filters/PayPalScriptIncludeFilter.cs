@@ -220,13 +220,10 @@ namespace Smartstore.PayPal.Filters
                 if (clientToken == string.Empty)
                 {
                     // Only try to retrive a new token when we've waited 5 minutes for the API to recover.
-                    var tokenFailedDate = session.GetString("PayPalTokenFailedDate");
-                    if (tokenFailedDate != null && DateTime.TryParse(tokenFailedDate, out var failedDate))
+                    var tokenFailedDate = session.GetString("PayPalTokenFailedDate").Convert<DateTime?>();
+                    if (tokenFailedDate.HasValue && (DateTime.UtcNow - tokenFailedDate.Value).TotalMinutes < 5)
                     {
-                        if ((DateTime.UtcNow - failedDate).TotalMinutes < 5)
-                        {
-                            return string.Empty;
-                        }
+                        return string.Empty;
                     }
                 }
                 else
