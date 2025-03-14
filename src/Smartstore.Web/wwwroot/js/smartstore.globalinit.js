@@ -465,19 +465,55 @@ jQuery(function () {
         }
     });
 
+    // Handle Dropdown max-height
+    $(document).on('show.bs.dropdown', '.dropdown', (e) => {
+        const adjustDropdownMaxHeight = (menu) => {
+            // Reset styles first to get accurate height
+            menu.style.maxHeight = '';
+            menu.style.overflowY = '';
+
+            const rect = menu.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const spaceBelow = viewportHeight - rect.top;
+
+            if (rect.y + rect.height > viewportHeight - 10) {
+                menu.style.maxHeight = `${spaceBelow - 10}px`; // 10px margin
+                menu.style.overflowY = 'auto';
+            }
+        }
+
+        const dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+
+        if (!dropdown._config.popperConfig) {
+            dropdown._config.popperConfig = {
+                onUpdate: (data) => {
+                    //console.log('Popper onUpdate', data);
+                    //adjustDropdownMaxHeight(data.instance.popper);
+                    return data;
+                },
+                onCreate: (data) => {
+                    //console.log('Popper onCreate', data);
+                    //adjustDropdownMaxHeight(data.instance.popper);
+                    return data;
+                }
+            };
+        }
+    });
+
     // Fix Dropdown & Tooltip UI "collision" issues
     $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown', (e) => {
-        const tooltip = $(e.currentTarget).find('> .tooltip-toggle, > [data-toggle=tooltip]');
-        if (tooltip.data('bs.tooltip')) {
+        const $tooltip = $(e.currentTarget).find('> .tooltip-toggle, > [data-toggle=tooltip]');
+
+        if ($tooltip.data('bs.tooltip')) {
             if (e.type === 'shown') {
                 // Hide tooltip if dropdown is shown...
-                tooltip.tooltip('hide');
+                $tooltip.tooltip('hide');
                 // and disable it.
-                tooltip.tooltip('disable');
+                $tooltip.tooltip('disable');
             }
             else {
                 // Re-enable tooltip if dropdown is hidden.
-                tooltip.tooltip('enable');
+                $tooltip.tooltip('enable');
             }
         }
     });
