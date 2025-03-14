@@ -162,7 +162,7 @@
                 $(ctx).find('.pd-dyn-thumb').attr('src', data.DynamicThumblUrl);
             }
 
-            if (!_.isEmpty(data.ProductUrl)) {
+            if (!_.isEmpty(data.ProductUrl) && $(location).attr("hostname") !== "localhost") {
                 // Replace state to not flood history when variant changed.
                 history.replaceState(null, '', data.ProductUrl);
             }
