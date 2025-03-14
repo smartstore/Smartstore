@@ -83,8 +83,10 @@
     $(function () {
         $(document).on('click', '.add-new-combination', function (e) {
             e.preventDefault();
-
-            openPopup('@(Url.Action("AttributeCombinationCreatePopup", new { productId = parentModel.Id }))&btnId=btnRefreshCombinations&formId=product-form');
+            openPopup({
+                id: "attribute-combinations",
+                url: '@(Url.Action("AttributeCombinationCreatePopup", new { productId = parentModel.Id }))&btnId=btnRefreshCombinations&formId=product-form'
+            });
             return false;
         });
 
@@ -95,7 +97,11 @@
             const id = self.data('key');
             const queryString = '?btnId=btnRefreshCombinations&formId=product-form&entityIndex=' + self.data('index');
 
-            openPopup('@(Url.Action("AttributeCombinationEditPopup").EnsureEndsWith('/'))' + id + queryString);
+            openPopup({
+                id: "attribute-combinations",
+                url: '@(Url.Action("AttributeCombinationEditPopup").EnsureEndsWith('/'))' + id + queryString
+            });
+
             return false;
         });
 
