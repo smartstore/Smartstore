@@ -467,35 +467,55 @@ jQuery(function () {
 
     // Handle Dropdown max-height
     $(document).on('show.bs.dropdown', '.dropdown', (e) => {
-        const adjustDropdownMaxHeight = (menu) => {
-            // Reset styles first to get accurate height
+        const adjustDropdownPosition = (menu, reference) => {
+            return;
+            // Reset styles
             menu.style.maxHeight = '';
             menu.style.overflowY = '';
+            menu.style.marginTop = '';
+            menu.style.marginBottom = '';
 
-            const rect = menu.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
-            const spaceBelow = viewportHeight - rect.top;
+            const menuRect = menu.getBoundingClientRect();
+            const toggleRect = reference.getBoundingClientRect();
 
-            if (rect.y + rect.height > viewportHeight - 10) {
-                menu.style.maxHeight = `${spaceBelow - 10}px`; // 10px margin
+            const spaceAbove = toggleRect.top;
+            const spaceBelow = viewportHeight - toggleRect.bottom;
+
+            if (menuRect.height > viewportHeight - 20) { // Menu taller than viewport
+                const maxAvailableHeight = viewportHeight - 20;
+                menu.style.maxHeight = `${maxAvailableHeight}px`;
                 menu.style.overflowY = 'auto';
+                menu.style.marginTop = '10px';
+                menu.style.marginBottom = '10px';
+            } else if (menuRect.bottom > viewportHeight - 10) { // Partially off-screen bottom
+                const shiftUp = menuRect.bottom - viewportHeight + 10;
+                menu.style.marginTop = `-${shiftUp}px`;
+            } else if (menuRect.top < 10) { // Partially off-screen top
+                const shiftDown = 10 - menuRect.top;
+                menu.style.marginTop = `${shiftDown}px`;
             }
         }
 
-        const dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+        let dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+        let popperConfig = dropdown._config.popperConfig;
+        if (!popperConfig) {
+            dropdown._config.popperConfig = popperConfig = {};
+        }
 
-        if (!dropdown._config.popperConfig) {
-            dropdown._config.popperConfig = {
-                onUpdate: (data) => {
-                    //console.log('Popper onUpdate', data);
-                    //adjustDropdownMaxHeight(data.instance.popper);
-                    return data;
-                },
-                onCreate: (data) => {
-                    //console.log('Popper onCreate', data);
-                    //adjustDropdownMaxHeight(data.instance.popper);
-                    return data;
-                }
+        if (!popperConfig.onCreate) {
+            popperConfig.onCreate = (data) => {
+                //console.log('Popper onCreate', data);
+                adjustDropdownPosition(data.instance.popper, data.instance.reference);
+                return data;
+            };
+        }
+
+        if (!popperConfig.onUpdate) {
+            popperConfig.onUpdate = (data) => {
+                //console.log('Popper onUpdate', data);
+                adjustDropdownPosition(data.instance.popper, data.instance.reference);
+                return data;
             };
         }
     });
