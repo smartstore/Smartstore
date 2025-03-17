@@ -25,8 +25,7 @@
     }
 
     var id = Html.IdForModel();
-    var format = GetMetadata<string>("format").NullEmpty();
-    if (format.IsNullOrEmpty())
+    if (!TryGetMetadata<string>("format", out var format))
     {
         format = picktime ? "L LT" : "L";
     }
