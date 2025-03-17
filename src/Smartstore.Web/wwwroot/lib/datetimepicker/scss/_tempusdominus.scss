@@ -3,7 +3,7 @@
 $bs-datetimepicker-timepicker-font-size: 1.2em !default;
 $bs-datetimepicker-active-bg: $primary !default;
 $bs-datetimepicker-active-color: #fff !default;
-$bs-datetimepicker-border-radius: 0.2rem !default;
+$bs-datetimepicker-border-radius: 0.375rem !default;
 $bs-datetimepicker-btn-hover-bg: $gray-100 !default;
 $bs-datetimepicker-disabled-color: $gray-500 !default;
 $bs-datetimepicker-alternate-color: $gray-500 !default;
@@ -115,6 +115,7 @@ $bs-datetimepicker-text-shadow: none !default;
 	a[data-action] {
 		padding: 6px 0;
 		color: $gray-700;
+        --btn-border-width: 0;
 
 		&:active {
 			box-shadow: none !important;
