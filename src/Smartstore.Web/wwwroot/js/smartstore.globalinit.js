@@ -498,6 +498,10 @@ jQuery(function () {
         }
 
         let dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+        if (!dropdown) {
+            dropdown = $(e.target).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+        }
+
         let popperConfig = dropdown._config.popperConfig;
         if (!popperConfig) {
             dropdown._config.popperConfig = popperConfig = {};
