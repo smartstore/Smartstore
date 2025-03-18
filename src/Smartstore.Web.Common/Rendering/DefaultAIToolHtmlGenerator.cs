@@ -220,6 +220,9 @@ namespace Smartstore.Web.Rendering
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Simplify"), enabled, "simplify", "text-left", false, className));
             builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Extend"), enabled, "extend", "body-text", false, className));
 
+            className = forChatDialog ? className + " d-none" : className;
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "forward", false, className));
+        
             return builder;
         }
 

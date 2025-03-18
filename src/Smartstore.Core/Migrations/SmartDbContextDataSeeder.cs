@@ -327,6 +327,16 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Legt die Lieferländer fest, für die der kostenlose Versand aktiviert ist. Wird hier kein Land angegeben, ist der kostenlose Versand für alle Länder aktiv (Standardeinstellung).");
 
             builder.AddOrUpdate("Admin.Plugins.KnownGroup.AI", "AI", "KI");
+
+            builder.AddOrUpdate("Admin.AI.TextCreation.Continue", "Continue", "Fortsetzen");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AppendToLastSpan",
+                "Add the new text to the last span tag.",
+                "Füge den neuen Text dem letzten span-Tag hinzu.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PreserveOriginalText",
+                "Return the complete text in your answer.",
+                "Gib in deiner Antwort den vollständigen Text zurück.");
         }
     }
 }

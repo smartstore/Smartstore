@@ -57,6 +57,24 @@ namespace Smartstore.Core.AI.Prompting
             => P("ProcessHtmlElementsIndividually");
 
         /// <summary>
+        /// Instruction to use last span of submitted HTML structure for continue writing.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Use last span for continue writing.
+        /// </returns>
+        public virtual string PreserveOriginalText()
+            => P("PreserveOriginalText");
+
+        /// <summary>
+        /// Instruction to use last span of submitted HTML structure for continue writing.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Use last span for continue writing.
+        /// </returns>
+        public virtual string AppendToLastSpan()
+            => P("AppendToLastSpan");
+
+        /// <summary>
         /// Instructs the AI to write text that does not exceed a defined number of words.
         /// </summary>
         /// <returns>
