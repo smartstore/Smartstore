@@ -465,65 +465,6 @@ jQuery(function () {
         }
     });
 
-    // Handle Dropdown max-height
-    $(document).on('show.bs.dropdown', '.dropdown', (e) => {
-        const adjustDropdownPosition = (menu, reference) => {
-            return;
-            // Reset styles
-            menu.style.maxHeight = '';
-            menu.style.overflowY = '';
-            menu.style.marginTop = '';
-            menu.style.marginBottom = '';
-
-            const viewportHeight = window.innerHeight;
-            const menuRect = menu.getBoundingClientRect();
-            const toggleRect = reference.getBoundingClientRect();
-
-            const spaceAbove = toggleRect.top;
-            const spaceBelow = viewportHeight - toggleRect.bottom;
-
-            if (menuRect.height > viewportHeight - 20) { // Menu taller than viewport
-                const maxAvailableHeight = viewportHeight - 20;
-                menu.style.maxHeight = `${maxAvailableHeight}px`;
-                menu.style.overflowY = 'auto';
-                menu.style.marginTop = '10px';
-                menu.style.marginBottom = '10px';
-            } else if (menuRect.bottom > viewportHeight - 10) { // Partially off-screen bottom
-                const shiftUp = menuRect.bottom - viewportHeight + 10;
-                menu.style.marginTop = `-${shiftUp}px`;
-            } else if (menuRect.top < 10) { // Partially off-screen top
-                const shiftDown = 10 - menuRect.top;
-                menu.style.marginTop = `${shiftDown}px`;
-            }
-        }
-
-        let dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
-        if (!dropdown) {
-            return;
-        }
-
-        let popperConfig = dropdown._config.popperConfig;
-        if (!popperConfig) {
-            dropdown._config.popperConfig = popperConfig = {};
-        }
-
-        if (!popperConfig.onCreate) {
-            popperConfig.onCreate = (data) => {
-                //console.log('Popper onCreate', data);
-                adjustDropdownPosition(data.instance.popper, data.instance.reference);
-                return data;
-            };
-        }
-
-        if (!popperConfig.onUpdate) {
-            popperConfig.onUpdate = (data) => {
-                //console.log('Popper onUpdate', data);
-                adjustDropdownPosition(data.instance.popper, data.instance.reference);
-                return data;
-            };
-        }
-    });
-
     // Fix Dropdown & Tooltip UI "collision" issues
     $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown', (e) => {
         const $tooltip = $(e.currentTarget).find('> .tooltip-toggle, > [data-toggle=tooltip]');
