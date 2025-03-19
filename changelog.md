@@ -66,7 +66,9 @@
   - Fixed `NullReferenceException` and deprecated model error when creating image metadata.
   - #1241 Added setting for token limit (`max_completion_tokens`), processing responses in chunks.
   - Fixed unintentional truncation of suggestions.
-- AI: Respected text direction of selected language in rich text dialog.
+- AI: 
+	- Respected text direction of selected language in rich text dialog.
+	- Fixed a bug where the prompt in the prompt preview was generated as if it was a completely new request to create text for the given entity when opened from the Summernote AI button.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus.
   - Fixed unwanted line break after caret position due to outdated beautify library.
@@ -105,8 +107,6 @@
 - Fixed rare cases of the log list not loading.
 - Fixed checkout bug when address country is null.
 - Fixed bug preventing shopping cart migration after external login.
-
-
 
 
 ## Smartstore 6.0.0
