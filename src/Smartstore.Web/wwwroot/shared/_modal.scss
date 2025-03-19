@@ -48,21 +48,22 @@
         }
     }
 
-    &:not(.modal-backdrop-invisible) {
-        #page {
-            transition: filter 0.175s linear;
-        }
+    // INFO: Setting filter on backdrock may have strange effects on underlying fixed positioned elements.
+    //&:not(.modal-backdrop-invisible) {
+    //    #page {
+    //        transition: filter 0.175s linear;
+    //    }
 
-	    &.modal-open #page {
+	   // &.modal-open #page {
 		    // Fade in
-		    filter: blur(var(--modal-backdrop-blur));
-	    }
+		  //  filter: blur(var(--modal-backdrop-blur));
+	   // }
 
-	    &.modal-hiding #page {
+	   // &.modal-hiding #page {
 		    // Fade out
-		    filter: blur(0);
-	    }
-    }
+		  //  filter: blur(0);
+	   // }
+    //}
 }
 
 .modal-backdrop {
