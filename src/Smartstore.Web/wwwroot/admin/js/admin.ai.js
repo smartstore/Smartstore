@@ -52,8 +52,9 @@
                 displayWordLimit: tool.data('display-word-limit'),
                 displayStyle: tool.data('display-style'),
                 displayTone: tool.data('display-tone'),
+                isSummernoteInlineEditing: tool.closest(".note-dropdown-menu").length > 0
             };
-            
+
             if (!isRichText) {
                 Object.assign(params, {
                     // TODO: (mh) (ai) Is this still needed? Originally it was used to supress optimization options in the dialog (e.g. For SEO-Meta-Properties).
