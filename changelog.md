@@ -67,8 +67,8 @@
   - #1241 Added setting for token limit (`max_completion_tokens`), processing responses in chunks.
   - Fixed unintentional truncation of suggestions.
 - AI: 
-	- Respected text direction of selected language in rich text dialog.
-	- Fixed a bug where the prompt in the prompt preview was generated as if it was a completely new request to create text for the given entity when opened from the Summernote AI button.
+	- Respect text direction of the selected language in the rich-text dialog.
+	- Fixed a bug where the prompt preview incorrectly generated a new text request when opened via the Summernote AI button.
 - Summernote HTML editor:
   - Toolbar is now sticky when editor has focus.
   - Fixed unwanted line break after caret position due to outdated beautify library.
