@@ -746,6 +746,15 @@ $img-margin-right: 10px;
     }
 }
 
+.note-duotone-primary,
+.note-duotone-secondary {
+    color: var(--primary);
+}
+
+.note-duotone-secondary {
+    opacity: 0.4;
+}
+
 .btn-group-split {
     // Split dropdown buttons, e.g. "Color"
     outline: 1px solid transparent;
