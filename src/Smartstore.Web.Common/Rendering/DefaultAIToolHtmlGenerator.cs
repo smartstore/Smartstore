@@ -225,7 +225,7 @@ namespace Smartstore.Web.Rendering
                 className += " d-none";
             }
 
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "forward", false, className));
+            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
         
             return builder;
         }
