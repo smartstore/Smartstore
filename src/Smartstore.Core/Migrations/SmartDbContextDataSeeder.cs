@@ -339,8 +339,10 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Gib in deiner Antwort den vollständigen Text zurück.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
-                "Continue the text only from the [CURSORPOSITION] placeholder, leaving all other text unchanged. If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.",
-                "Setze den Text nur ab dem Platzhalter [CURSORPOSITION] fort und lass alle anderen Texte unverändert. Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
+                "Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged. " +
+                "If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.",
+                "Ersetze den Platzhalter [CURSORPOSITION] durch deinen fortgesetzten Text. Lass den restlichen Text unverändert. " +
+                "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
         }
     }
 }
