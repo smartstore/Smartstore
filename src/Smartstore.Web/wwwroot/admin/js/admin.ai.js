@@ -51,9 +51,12 @@
                 changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
                 displayWordLimit: tool.data('display-word-limit'),
                 displayStyle: tool.data('display-style'),
-                displayTone: tool.data('display-tone'),
-                isSummernoteInlineEditing: tool.closest(".note-dropdown-menu").length > 0
+                displayTone: tool.data('display-tone')
             };
+
+            if (tool.closest(".note-dropdown-menu").length) {
+                params.origin = "summernote";
+            }
 
             if (!isRichText) {
                 Object.assign(params, {

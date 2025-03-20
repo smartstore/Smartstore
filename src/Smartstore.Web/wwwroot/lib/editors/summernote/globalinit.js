@@ -28,7 +28,7 @@ let summernote_image_upload_url;
         dialogsInBody: true,
         container: 'body',
         dialogsFade: true,
-        height: 300,
+        height: 350,
         prettifyHtml: true,
         popatmouse: true,
         hideArrow: false,
