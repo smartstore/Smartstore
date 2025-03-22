@@ -186,38 +186,11 @@ let summernote_image_upload_url;
 
 // Initialize summernote
 $(function () {
-    // Extend base language
-    $.extend(true, $.summernote.lang, {
-        'en-US': {
-            common: {
-                ok: 'OK',
-                cancel: 'Cancel'
-            },
-            font: {
-                code: 'Code'
-            },
-            attrs: {
-                cssClass: 'CSS Class',
-                cssStyle: 'CSS Style',
-                rel: 'Rel',
-            },
-            link: {
-                browse: 'Browse'
-            },
-            image: {
-                imageProps: 'Image Attributes'
-            },
-            imageShapes: {
-                tooltip: 'Shape',
-                tooltipShapeOptions: ['Responsive', 'Border', 'Rounded', 'Circle', 'Thumbnail', 'Shadow (small)', 'Shadow (medium)', 'Shadow (large)']
-            },
-            tableStyles: {
-                tooltip: "Table style",
-                stylesExclusive: ["Basic", "Bordered"],
-                stylesInclusive: ["Striped", "Condensed", "Hoverable"]
-            }
-        }
-    });
+
+    function saveHtml(url, html, deferred) {
+        alert('TODO: save via ' + url);
+        deferred.resolve(html);
+    }
 
     // Custom events
     // Editor toggling
@@ -232,11 +205,26 @@ $(function () {
             root.nextAll().remove();
         }
 
+        // Prepare options
+        const options = $.extend(true, {}, summernote_global_config, { lang: lang, focus: true });
+
+        // Handle save options
+        const saveUrl = textarea.data('save-url');
+        if (saveUrl) {
+            // Prepend save button to the toolbar
+            options.toolbar.unshift(['save', ['save']]);
+
+            // Assign saveHtml function as Summernote onSave callback
+            options.callbacks.onSave = (html, deferred) => {
+                saveHtml(saveUrl, html, deferred);
+            };
+        }
+
         // Remove preview element
         div.remove();
-        textarea
-            .removeClass('d-none')
-            .summernote($.extend(true, {}, summernote_global_config, { lang: lang, focus: true }));
+
+        // Initialize Summernote
+        textarea.removeClass('d-none').summernote(options);
     });
 
     // Fix "CodeMirror too wide" issue
