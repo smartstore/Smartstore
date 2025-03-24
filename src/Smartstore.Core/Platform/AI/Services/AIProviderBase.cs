@@ -159,13 +159,6 @@ namespace Smartstore.Core.AI
                             var parts = content.Split(AnswerSeparator);
                             for (var j = 0; j < parts.Length; ++j)
                             {
-                                var part = parts[j];
-                                if (!string.IsNullOrEmpty(part))
-                                {
-                                    answers[answerIndex].Append(part);
-                                    yield return new AIChatCompletionResponse(part, answerIndex, response.FinishReason);
-                                }
-
                                 if (j > 0)
                                 {
                                     if ((answerIndex + 1) < answers.Length)
@@ -179,6 +172,14 @@ namespace Smartstore.Core.AI
                                         isComplete = true;
                                         break;
                                     }
+                                }
+
+                                var part = parts[j];
+                                if (!string.IsNullOrEmpty(part))
+                                {
+                                    // Emit the part.
+                                    answers[answerIndex].Append(part);
+                                    yield return new AIChatCompletionResponse(part, answerIndex, response.FinishReason);
                                 }
                             }
 
