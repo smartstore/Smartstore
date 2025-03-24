@@ -57,21 +57,21 @@ namespace Smartstore.Core.AI.Prompting
         {
             if (model.IncludeIntro)
             {
-                chat.User(Resources.IncludeIntro()).SetMetaData(model.IncludeIntro);
+                chat.User(Resources.IncludeIntro(), false).SetMetaData(model.IncludeIntro);
             }
 
             if (model.MainHeadingTag.HasValue())
             {
-                chat.User(Resources.MainHeadingTag(model.MainHeadingTag)).SetMetaData(model.MainHeadingTag);
+                chat.User(Resources.MainHeadingTag(model.MainHeadingTag), false).SetMetaData(model.MainHeadingTag);
             }
 
             if (model.ParagraphCount > 0)
             {
-                chat.User(Resources.ParagraphCount(model.ParagraphCount)).SetMetaData(model.ParagraphCount);
+                chat.User(Resources.ParagraphCount(model.ParagraphCount), false).SetMetaData(model.ParagraphCount);
 
                 if (model.ParagraphWordCount > 0)
                 {
-                    chat.User(Resources.ParagraphWordCount(model.ParagraphWordCount)).SetMetaData(model.ParagraphWordCount);
+                    chat.User(Resources.ParagraphWordCount(model.ParagraphWordCount), false).SetMetaData(model.ParagraphWordCount);
                 }
 
                 chat.System(Resources.WriteCompleteParagraphs());
@@ -79,12 +79,12 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.ParagraphHeadingTag.HasValue())
             {
-                chat.User(Resources.ParagraphHeadingTag(model.ParagraphHeadingTag)).SetMetaData(model.ParagraphHeadingTag);
+                chat.User(Resources.ParagraphHeadingTag(model.ParagraphHeadingTag), false).SetMetaData(model.ParagraphHeadingTag);
             }
 
             if (model.IncludeConclusion)
             {
-                chat.User(Resources.IncludeConclusion()).SetMetaData(model.IncludeConclusion);
+                chat.User(Resources.IncludeConclusion(), false).SetMetaData(model.IncludeConclusion);
             }
 
             return chat;
@@ -99,17 +99,17 @@ namespace Smartstore.Core.AI.Prompting
         {
             if (model.Keywords.HasValue())
             {
-                chat.User(Resources.UseKeywords(model.Keywords)).SetMetaData(model.Keywords);
+                chat.User(Resources.UseKeywords(model.Keywords), false).SetMetaData(model.Keywords);
 
                 if (model.MakeKeywordsBold)
                 {
-                    chat.User(Resources.MakeKeywordsBold()).SetMetaData(model.MakeKeywordsBold);
+                    chat.User(Resources.MakeKeywordsBold(), false).SetMetaData(model.MakeKeywordsBold);
                 }
             }
 
             if (model.KeywordsToAvoid.HasValue())
             {
-                chat.User(Resources.KeywordsToAvoid(model.KeywordsToAvoid)).SetMetaData(model.MakeKeywordsBold);
+                chat.User(Resources.KeywordsToAvoid(model.KeywordsToAvoid), false).SetMetaData(model.MakeKeywordsBold);
             }
 
             return chat;
@@ -128,16 +128,16 @@ namespace Smartstore.Core.AI.Prompting
         {
             if (model.IncludeImages)
             {
-                chat.User(Resources.IncludeImages()).SetMetaData(model.IncludeImages);
+                chat.User(Resources.IncludeImages(), false).SetMetaData(model.IncludeImages);
 
                 if (includeIntro)
                 {
-                    chat.User(Resources.NoIntroImage()).SetMetaData("IncludeIntro", includeIntro);
+                    chat.User(Resources.NoIntroImage(), false).SetMetaData("IncludeIntro", includeIntro);
                 }
 
                 if (includeConclusion)
                 {
-                    chat.User(Resources.NoConclusionImage()).SetMetaData("IncludeConclusion", includeConclusion);
+                    chat.User(Resources.NoConclusionImage(), false).SetMetaData("IncludeConclusion", includeConclusion);
                 }
             }
 
@@ -161,16 +161,16 @@ namespace Smartstore.Core.AI.Prompting
                 {
                     if (model.AnchorText.HasValue())
                     {
-                        chat.User(Resources.AddNamedLink(model.AnchorText, link)).SetMetaData(model.AnchorText);
+                        chat.User(Resources.AddNamedLink(model.AnchorText, link), false).SetMetaData(model.AnchorText);
                     }
                     else
                     {
-                        chat.User(Resources.AddLink(link)).SetMetaData(model.AnchorLink);
+                        chat.User(Resources.AddLink(link), false).SetMetaData(model.AnchorLink);
                     }
 
                     if (model.AddCallToAction && model.CallToActionText.HasValue())
                     {
-                        chat.User(Resources.AddCallToAction(model.CallToActionText, link)).SetMetaData(model.AddCallToAction);
+                        chat.User(Resources.AddCallToAction(model.CallToActionText, link), false).SetMetaData(model.AddCallToAction);
                     }
                 }
             }
@@ -217,7 +217,7 @@ namespace Smartstore.Core.AI.Prompting
                 message += model.Composition;
             }
 
-            return chat.User(message);
+            return chat.User(message, false);
         }
 
         /// <summary>
@@ -315,18 +315,18 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.CharLimit > 0 && model.WordLimit > 0)
             {
-                chat.User(Resources.CharWordLimit(model.CharLimit, model.WordLimit.Value))
+                chat.User(Resources.CharWordLimit(model.CharLimit, model.WordLimit.Value), false)
                     .SetMetaData(model.CharLimit)
                     .SetMetaData(model.WordLimit);
             }
             else if (model.CharLimit > 0)
             {
-                chat.User(Resources.CharLimit(model.CharLimit))
+                chat.User(Resources.CharLimit(model.CharLimit), false)
                     .SetMetaData(model.CharLimit);
             }
             else if (model.WordLimit > 0)
             {
-                chat.User(Resources.WordLimit((int)model.WordLimit))
+                chat.User(Resources.WordLimit((int)model.WordLimit), false)
                     .SetMetaData(model.WordLimit);
             }
 
@@ -353,7 +353,7 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.AddToc)
             {
-                chat.User(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag)).SetMetaData(model.AddToc);
+                chat.User(Resources.AddTableOfContents(model.TocTitle, model.TocTitleTag), false).SetMetaData(model.AddToc);
             }
 
             return await AddLinkMessagesAsync(model, chat);
@@ -373,7 +373,7 @@ namespace Smartstore.Core.AI.Prompting
 
                 if (languageName.HasValue())
                 {
-                    chat.User(Resources.Language(languageName.ToLower()))
+                    chat.User(Resources.Language(languageName.ToLower()), false)
                         .SetMetaData(model.LanguageId)
                         .SetMetaData("LanguageName", languageName); 
                 }
@@ -381,13 +381,13 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.Tone.HasValue())
             {
-                chat.User(Resources.LanguageTone(model.Tone));
+                chat.User(Resources.LanguageTone(model.Tone), false);
                 chat.SetMetaData(model.Tone);
             }
 
             if (model.Style.HasValue())
             {
-                chat.User(Resources.LanguageStyle(model.Style));
+                chat.User(Resources.LanguageStyle(model.Style), false);
                 chat.SetMetaData(model.Style);
             }
 

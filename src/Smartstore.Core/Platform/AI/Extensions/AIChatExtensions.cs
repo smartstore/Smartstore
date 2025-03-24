@@ -10,11 +10,19 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Adds a <see cref="KnownAIMessageRoles.User"/> message.
         /// </summary>
+        /// <param name="isTopic">A value indicating whether the message is the initial topic message of <paramref name="chat"/>.</param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AIChat User(this AIChat chat, string message, string? author = null)
+        public static AIChat User(this AIChat chat, string message, bool isTopic = true, string? author = null)
         {
-            Guard.NotNull(chat).AddMessages(AIChatMessage.FromUser(message, author));
+            var msg = AIChatMessage.FromUser(message, author);
+            Guard.NotNull(chat).AddMessages(msg);
+
+            if (isTopic && chat.TopicMessage == null)
+            {
+                chat.TopicMessage = msg;
+            }
+
             return chat;
         }
 
