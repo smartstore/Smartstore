@@ -15,7 +15,7 @@
 - #1259 AI: Implemented setting for keywords to generally avoid.
 - #248 Catalog search: Added an option for featured product sort order.
 - #1281 Added shipping setting: Apply free shipping over 'X' only for specific shipping countries.
-- MegaSearch:
+- **MegaSearch:**
   - ~20% performance increase
   - Added setting to indicate whether to split compound words.
   - Added setting to include/exclude the meta keywords of products in the search index.
@@ -31,7 +31,7 @@
 - #1010 Allowed the admin to align a blog or news image within its element box.
 - #1261 Blogs and news: Added a setting indicating whether to allow users to leave comments if they have never purchased before.
 - #1263 Allowed the admin to mark an order as *paid* even if the payment was previously voided.
-- PayPal:
+- **PayPal:**
 	- Added option for admin to decide how to handle orders declined by payment.
 	- Removed Giropay provider.
 	- Added Trustly provider.
@@ -46,7 +46,7 @@
 - Updated `dbip-country-lite.mmdb`.
 - Logging: Added client UserAgent string to log entries.
 - Improved processing of recurring payments.
-- ChatGPT:
+- **ChatGPT:**
   - #1262 Added OpenAI `o1` and `03-mini` to supported models.
   - Added a setting for the maximum number of completion tokens.
 - #1236 PayPal: Added setting to disable address application in case the store's address validation settings need to be respected.
@@ -62,14 +62,16 @@
 - Fixed missing base path resolution for bootstrap-icons.svg.
 - Ignored surrogate characters (emojis) when building URL slugs.
 - #1269 Redirected entity slugs to the default language slugs after disabling a language.
-- ChatGPT:
+- **Page Builder:** 
+  - Child stories were not rendered in edit mode.
+- **ChatGPT:**
   - Fixed `NullReferenceException` and deprecated model error when creating image metadata.
   - #1241 Added setting for token limit (`max_completion_tokens`), processing responses in chunks.
   - Fixed unintentional truncation of suggestions.
-- AI: 
+- **AI:** 
 	- Respect text direction of the selected language in the rich-text dialog.
 	- Fixed a bug where the prompt preview incorrectly generated a new text request when opened via the Summernote AI button.
-- Summernote HTML editor:
+- **Summernote HTML editor:**
   - Toolbar is now sticky when editor has focus.
   - Fixed unwanted line break after caret position due to outdated beautify library.
   - Fixed various focus handling and popover issues.
@@ -81,7 +83,7 @@
 - Fixed duplicate key violation (`IX_UrlRecord_Slug`) when copying a product with identical localized names.
 - Prevented negative total tax amounts resulting from negative payment method fees.
 - #1238 Fixed `NullReferenceException` when manually triggering recurring payments.
-- GPSR:
+- **GPSR:**
   - Fixed `NullReferenceException` when multiple product rules assigned to text blocks.
   - Fixed rare cases of missing manufacturer information display.
 - Prevented `InvalidOperationException` due to entity already attached when processing order completion notifications.
@@ -90,7 +92,7 @@
 - Fixed `InvalidOperationException` related to missing Content-Type header in GDPR consent filter.
 - Fixed cookie migration issue.
 - #1233 Forum: Displayed posts marked as deleted.
-- PayPal:
+- **PayPal:**
 	- Fixed order status updates on webhook notifications with direct capture settings.
 	- Fixed credit card payment issue with activated QuickCheckout.
 	- Fixed PayPal buttons displaying incorrectly after quantity control usage on shopping cart.
