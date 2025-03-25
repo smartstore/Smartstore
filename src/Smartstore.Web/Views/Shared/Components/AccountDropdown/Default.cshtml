@@ -1,6 +1,6 @@
 ﻿@model AccountDropdownModel
 
-<div sm-if="Model.IsAuthenticated" class="dropdown-menu">
+<div sm-if="Model.IsAuthenticated" class="dropdown-menu" attr-class='(!WorkContext.WorkingLanguage.Rtl, "dropdown-menu-right")'>
     <zone name="account_dropdown_before"></zone>
 
     @foreach (var item in Model.MenuItems)
