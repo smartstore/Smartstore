@@ -21,9 +21,9 @@ namespace Smartstore.Core.AI
             var msg = AIChatMessage.FromUser(message);
             Guard.NotNull(chat).AddMessages(msg);
 
-            if (isTopic && chat.TopicMessage == null)
+            if (isTopic && chat.InitialUserMessage == null)
             {
-                chat.TopicMessage = msg;
+                chat.InitialUserMessage = msg;
             }
 
             return chat;
