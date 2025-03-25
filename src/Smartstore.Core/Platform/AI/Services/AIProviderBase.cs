@@ -189,6 +189,7 @@ namespace Smartstore.Core.AI
                         }
                         else
                         {
+                            answers[answerIndex].Append(content);
                             yield return response;
                         }
                     }
@@ -221,6 +222,7 @@ namespace Smartstore.Core.AI
                 }
             }
 
+            // Add the entire answer to the chat.
             chat.AddMessages(answers);
         }
 
