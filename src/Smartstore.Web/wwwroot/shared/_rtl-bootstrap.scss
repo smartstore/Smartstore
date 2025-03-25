@@ -5,6 +5,25 @@
 
 [dir=rtl] {
 
+    // Dropdown
+	// ----------------------------------------------
+
+    .dropdown-menu {
+        inset-inline-start: auto;
+        float: right;
+    }
+
+
+	// Forms
+	// ----------------------------------------------
+
+    select.form-control {
+        &:not([multiple], [size]:not([size="1"])) {
+            background-position-x: 0.75rem;
+        }
+    }
+
+
 	// Custom controls
 	// ----------------------------------------------
 
