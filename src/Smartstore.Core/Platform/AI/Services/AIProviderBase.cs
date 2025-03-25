@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.AI.Prompting;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 
@@ -67,7 +68,7 @@ namespace Smartstore.Core.AI
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
-        public virtual Task<string> AnalyzeImageAsync(string url, AIChat chat, CancellationToken cancelToken = default)
+        public virtual Task<string> AnalyzeImageAsync(MediaFile file, AIChat chat, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         #region Utilities
