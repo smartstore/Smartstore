@@ -13,9 +13,9 @@ namespace Smartstore.Core.Tests.AI
         {
             AIChatMessage[] messages =
             [
-                new AIChatMessage("Hello world!", "user", "Test message 1"),
-                new AIChatMessage("It was nice chatting with you.", "assistant", "Test message 2"),
-                new AIChatMessage("I have no opinion on the matter.", "user", "Test message 3")
+                new("Hello world!", KnownAIMessageRoles.User),
+                new("It was nice chatting with you.", KnownAIMessageRoles.Assistant),
+                new("I have no opinion on the matter.", KnownAIMessageRoles.User)
             ];
 
             var chat = new AIChat(AIChatTopic.RichText);

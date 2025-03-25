@@ -13,12 +13,12 @@ namespace Smartstore.Core.AI
         /// <param name="isTopic">A value indicating whether the message is the initial topic message of <paramref name="chat"/>.</param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AIChat User(this AIChat chat, string message, bool isTopic = true, string? author = null)
+        public static AIChat User(this AIChat chat, string message, bool isTopic = true)
         {
             // TODO: (mg) Bad API design! Calling this method with isTopic = false is a code smell.
             // - The method should be split into two methods: User and UserTopic (or similar), and/or
             // - AIChat should get a second overload which accepts a message role (e.g. KnownAIMessageRoles.User) that is assigned to TopicMessage.
-            var msg = AIChatMessage.FromUser(message, author);
+            var msg = AIChatMessage.FromUser(message);
             Guard.NotNull(chat).AddMessages(msg);
 
             if (isTopic && chat.TopicMessage == null)
@@ -34,9 +34,9 @@ namespace Smartstore.Core.AI
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AIChat System(this AIChat chat, string message, string? author = null)
+        public static AIChat System(this AIChat chat, string message)
         {
-            Guard.NotNull(chat).AddMessages(AIChatMessage.FromSystem(message, author));
+            Guard.NotNull(chat).AddMessages(AIChatMessage.FromSystem(message));
             return chat;
         }
 
@@ -45,9 +45,9 @@ namespace Smartstore.Core.AI
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AIChat Assistant(this AIChat chat, string message, string? author = null)
+        public static AIChat Assistant(this AIChat chat, string message)
         {
-            Guard.NotNull(chat).AddMessages(AIChatMessage.FromAssistant(message, author));
+            Guard.NotNull(chat).AddMessages(AIChatMessage.FromAssistant(message));
             return chat;
         }
 

@@ -12,10 +12,9 @@ namespace Smartstore.Core.AI
     {
         private StringBuilder? _content;
 
-        public AIChatMessage(string? content, string role, string? author = null)
+        public AIChatMessage(string? content, string role)
         {
             Role = role;
-            Author = author;
 
             if (content != null)
             {
@@ -26,31 +25,25 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.User"/> message.
         /// </summary>
-        public static AIChatMessage FromUser(string? content, string? author = null)
-            => new(content, KnownAIMessageRoles.User, author);
+        public static AIChatMessage FromUser(string? content)
+            => new(content, KnownAIMessageRoles.User);
 
         /// <summary>
         /// Creates a <see cref="KnownAIMessageRoles.System"/> message.
         /// </summary>
-        public static AIChatMessage FromSystem(string? content, string? author = null)
-            => new(content, KnownAIMessageRoles.System, author);
+        public static AIChatMessage FromSystem(string? content)
+            => new(content, KnownAIMessageRoles.System);
 
         /// <summary>
         /// Creates an <see cref="KnownAIMessageRoles.Assistant"/> message.
         /// </summary>
-        public static AIChatMessage FromAssistant(string? content, string? author = null)
-            => new(content, KnownAIMessageRoles.Assistant, author);
+        public static AIChatMessage FromAssistant(string? content)
+            => new(content, KnownAIMessageRoles.Assistant);
 
         /// <summary>
         /// The role of the author of this message. Typically system, user or assistant.
         /// </summary>
         public string Role { get; }
-
-        /// <summary>
-        /// The author's name of this message.
-        /// May contain a-z, A-Z, 0-9 and underscores with a maximum length of 64 characters.
-        /// </summary>
-        public string? Author { get; }
 
         /// <summary>
         /// The message content.
@@ -83,7 +76,6 @@ namespace Smartstore.Core.AI
             return HashCodeCombiner.Start()
                 .Add(typeof(AIChatMessage))
                 .Add(Role)
-                .Add(Author)
                 .Add(Content)
                 .CombinedHash;
         }
@@ -105,10 +97,7 @@ namespace Smartstore.Core.AI
                 return true;
             }
 
-            return
-                string.Equals(Role, other.Role) &&
-                string.Equals(Author, other.Author) &&
-                string.Equals(Content, other.Content);
+            return string.Equals(Role, other.Role) && string.Equals(Content, other.Content);
         }
 
         #endregion
