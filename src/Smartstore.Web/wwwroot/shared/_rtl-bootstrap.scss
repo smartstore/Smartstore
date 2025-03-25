@@ -1,9 +1,27 @@
 /// <reference path="references.scss" />
 
-// RTL overrides for Bootstrap 4
+// RTL overrides for Bootstrap
 // ==============================================================
 
 [dir=rtl] {
+
+    // Dropdown
+	// ----------------------------------------------
+
+    .dropdown-menu {
+        inset-inline-start: auto;
+    }
+
+
+	// Forms
+	// ----------------------------------------------
+
+    select.form-control {
+        &:not([multiple], [size]:not([size="1"])) {
+            background-position-x: 0.75rem;
+        }
+    }
+
 
 	// Custom controls
 	// ----------------------------------------------

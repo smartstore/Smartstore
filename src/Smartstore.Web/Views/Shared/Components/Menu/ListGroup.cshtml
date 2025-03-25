@@ -12,7 +12,6 @@
 
     var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
     var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
-    var rtl = WorkContext.WorkingLanguage.Rtl;
 }
         
 <div class="list-group list-group-flush has-icons cms-menu cms-menu-listgroup" data-menu-name="@(Model.Name?.ToLower())">

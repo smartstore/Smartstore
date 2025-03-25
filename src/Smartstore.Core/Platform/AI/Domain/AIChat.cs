@@ -34,6 +34,7 @@ namespace Smartstore.Core.AI
         /// Example of a topic message: "Create a title for a blog post on the topic '{0}'".
         /// The opposite is a system instruction like "The text can contain a maximum of {0} characters"
         /// </remarks>
+        // TODO: (mg) Naming collision between Topic and TopicMessage (too weak distinction)
         public AIChatMessage? TopicMessage { get; internal set; }
 
         public bool HasMessages()

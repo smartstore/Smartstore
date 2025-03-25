@@ -13,7 +13,6 @@
     var isFirst = true;
     var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
     var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
-    var rtl = WorkContext.WorkingLanguage.Rtl;
 }
 
 <div class="cms-menu cms-menu-linklist" data-menu-name="@(Model.Name?.ToLower())">

@@ -272,8 +272,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Sei ein Assistent für Bildanalyse.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue",
-                "Please continue exactly at the marked point without repeating the previous text.",
-                "Bitte fahre genau an der markierten Stelle fort, ohne den bisherigen Text zu wiederholen.");
+                "Continue exactly at the marked point without repeating the previous text.",
+                "Fahre genau an der markierten Stelle fort, ohne den bisherigen Text zu wiederholen.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueHere", "[Continue here]", "[Fortsetzung hier]");
 

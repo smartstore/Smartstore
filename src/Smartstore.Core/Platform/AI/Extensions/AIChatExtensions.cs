@@ -15,6 +15,9 @@ namespace Smartstore.Core.AI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static AIChat User(this AIChat chat, string message, bool isTopic = true, string? author = null)
         {
+            // TODO: (mg) Bad API design! Calling this method with isTopic = false is a code smell.
+            // - The method should be split into two methods: User and UserTopic (or similar), and/or
+            // - AIChat should get a second overload which accepts a message role (e.g. KnownAIMessageRoles.User) that is assigned to TopicMessage.
             var msg = AIChatMessage.FromUser(message, author);
             Guard.NotNull(chat).AddMessages(msg);
 

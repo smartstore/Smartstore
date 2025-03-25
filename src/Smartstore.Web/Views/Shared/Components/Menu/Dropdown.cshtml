@@ -39,11 +39,10 @@
         }
 
         var isFirst = true;
-        var rtl = WorkContext.WorkingLanguage.Rtl;
         var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
         var hasImages = nodes.Any(x => x.Value.ImageUrl.HasValue());
 
-        <div class="dropdown-menu @(rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+        <div class="dropdown-menu">
             @foreach (var node in nodes)
             {
                 var item = node.Value;
