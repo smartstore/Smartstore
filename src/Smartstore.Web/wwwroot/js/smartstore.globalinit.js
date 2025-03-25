@@ -465,6 +465,35 @@ jQuery(function () {
         }
     });
 
+    // Swap Popper x placement when RTL
+    $(document).on('show.bs.dropdown', '.dropdown', (e) => {
+        if (!rtl) {
+            return;
+        }
+
+        let dropdown = $(e.currentTarget).find('> .dropdown-toggle, > [data-toggle=dropdown]').data('bs.dropdown');
+        if (!dropdown) {
+            return;
+        }
+
+        let popperConfig = dropdown._config.popperConfig;
+        if (!popperConfig) {
+            dropdown._config.popperConfig = popperConfig = {};
+        }
+
+        if (!popperConfig.placement) {
+            let bsPlacement = dropdown._getPlacement();
+            if (bsPlacement.endsWith('-start')) {
+                bsPlacement = bsPlacement.replace('-start', '-end');
+            }
+            else if (bsPlacement.endsWith('-end')) {
+                bsPlacement = bsPlacement.replace('-end', '-start');
+            }
+
+            popperConfig.placement = bsPlacement;
+        }
+    });
+
     // Fix Dropdown & Tooltip UI "collision" issues
     $(document).on('shown.bs.dropdown hidden.bs.dropdown', '.dropdown', (e) => {
         const $tooltip = $(e.currentTarget).find('> .tooltip-toggle, > [data-toggle=tooltip]');

@@ -128,7 +128,7 @@
                             <i class="fa fa-plus"></i>
                             <span>@T("Admin.ContentManagement.AddMenuItem")</span>
                         </button>
-                        <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+                        <div class="dropdown-menu">
                             @foreach (var provider in Model.AllProviders)
                             {
                                 <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="0">

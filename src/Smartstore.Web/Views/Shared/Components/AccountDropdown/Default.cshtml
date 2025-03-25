@@ -1,10 +1,6 @@
 ﻿@model AccountDropdownModel
 
-@{
-    var isRtl = this.WorkContext.WorkingLanguage.Rtl;
-}
-
-<div sm-if="Model.IsAuthenticated" class="dropdown-menu @(isRtl ? "dropdown-menu-left" : "dropdown-menu-right")">
+<div sm-if="Model.IsAuthenticated" class="dropdown-menu">
     <zone name="account_dropdown_before"></zone>
 
     @foreach (var item in Model.MenuItems)

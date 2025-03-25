@@ -8,7 +8,6 @@
 @{
     Assets.AppendScriptFiles("~/js/smartstore.linkbuilder.js");
 
-    var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = Html.IdForModel();
     var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
@@ -36,7 +35,7 @@
             <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" attr-class='(size.HasValue(), "btn-" + size)' data-toggle="dropdown" title="">
                 <i class="fa fa-link"></i>
             </button>
-            <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
+            <div class="dropdown-menu">
                 @foreach (var schema in allowedSchemas)
                 {
                     var info = metadata[schema];

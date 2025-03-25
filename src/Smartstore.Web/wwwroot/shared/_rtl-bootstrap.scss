@@ -1,6 +1,6 @@
 /// <reference path="references.scss" />
 
-// RTL overrides for Bootstrap 4
+// RTL overrides for Bootstrap
 // ==============================================================
 
 [dir=rtl] {
@@ -10,7 +10,6 @@
 
     .dropdown-menu {
         inset-inline-start: auto;
-        float: right;
     }
 
 
