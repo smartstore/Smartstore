@@ -64,6 +64,7 @@ namespace Smartstore.Core.AI
 
             if (initialUserMessageHash != 0)
             {
+                // TODO: (mg) Instance hash codes are non-determinisitc (a different hash code is created for each instance). Is that a problem?
                 chat.InitialUserMessage = messages.FirstOrDefault(x => x.GetHashCode() == initialUserMessageHash);
             }
 

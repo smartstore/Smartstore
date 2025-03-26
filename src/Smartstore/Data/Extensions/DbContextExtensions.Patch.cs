@@ -47,7 +47,7 @@ namespace Smartstore
         /// - Property name validation
         /// - Automatic type conversion for property values
         /// - Navigation property filtering (skips navigation properties)
-        /// - Change tracking and saving
+        /// - Change tracking
         /// </para>
         /// <para>
         /// Note: This method will NOT save changes to the database.
