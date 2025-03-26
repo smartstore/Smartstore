@@ -100,6 +100,7 @@ namespace Smartstore.Core.AI.Prompting
         /// <returns>
         /// AI instruction: Wrap newly created text with the tag <highlight-wrapper class='mark' />.
         /// </returns>
+        // TODO: (mh) Rename everywhere to WrapNewContentWithHighlightTag
         public virtual string AddHighlightWrapper()
             => P("AddHighlightWrapper");
 
