@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore
 {
-    public static class DbContextExtensions
+    public static partial class DbContextExtensions
     {
         #region Connection
 
@@ -278,7 +278,7 @@ namespace Smartstore
             {
                 var entries = ctx.ChangeTracker.Entries<BaseEntity>().Where(Match).ToList();
 
-                HashSet<BaseEntity> objSet = deep ? new HashSet<BaseEntity>() : null;
+                HashSet<BaseEntity> objSet = deep ? [] : null;
 
                 foreach (var entry in entries)
                 {
@@ -292,9 +292,7 @@ namespace Smartstore
             {
                 if (entry.State > EfState.Detached && predicate(entry.Entity))
                 {
-                    return unchangedEntitiesOnly
-                        ? entry.State == EfState.Unchanged
-                        : true;
+                    return !unchangedEntitiesOnly || entry.State == EfState.Unchanged;
                 }
 
                 return false;
