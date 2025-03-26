@@ -351,8 +351,8 @@ Wenn diese Option aktiviert ist, werden neue G‰ste unter diesen Umst‰nden blocki
                 "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.AddHighlightWrapper",
-                "Wrap newly created text with the tag <highlight-wrapper class='mark'>.",
-                "Umschlieﬂe neu erstellten Text mit dem Tag <highlight-wrapper class='mark'>.");
+                "Wrap the complete text you have created with the tag <highlight-wrapper class='mark'>.",
+                "Umschlieﬂe den kompletten Text, der von dir erstellt wurde, mit dem Tag <highlight-wrapper class='mark'>.");
         }
     }
 }
