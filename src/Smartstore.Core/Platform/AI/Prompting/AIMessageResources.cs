@@ -66,10 +66,19 @@ namespace Smartstore.Core.AI.Prompting
             => P("PreserveOriginalText");
 
         /// <summary>
-        /// Instruction to use last span of submitted HTML structure for continue writing.
+        /// Instruction to return the generated text only.
         /// </summary>
         /// <returns>
-        /// AI instruction: Use last span for continue writing.
+        /// AI instruction: Only return the text you have written in your answer.
+        /// </returns>
+        public virtual string ReturnNewTextOnly()
+            => P("ReturnNewTextOnly");
+
+        /// <summary>
+        /// Instruction to add the new text for continue writing to the last span tag.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Be sure to append the new mark-up to the last span tag. Ignore any concerns, e.g. whether it is valid HTML.
         /// </returns>
         public virtual string AppendToLastSpan()
             => P("AppendToLastSpan");
@@ -78,10 +87,21 @@ namespace Smartstore.Core.AI.Prompting
         /// Instruction to use last span of submitted HTML structure for continue writing.
         /// </summary>
         /// <returns>
-        /// AI instruction: Use last span for continue writing.
+        /// AI instruction: Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged.
+        /// If the placeholder is in a block-level element, only add text to complete this paragraph.
+        /// If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.
         /// </returns>
         public virtual string ContinueAtPlaceholder()
             => P("ContinueAtPlaceholder");
+
+        /// <summary>
+        /// Instruction to wrap the new text with a custom HTML element called highlight-wrapper.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Wrap newly created text with the tag <highlight-wrapper class='mark' />.
+        /// </returns>
+        public virtual string AddHighlightWrapper()
+            => P("AddHighlightWrapper");
 
         /// <summary>
         /// Instructs the AI to write text that does not exceed a defined number of words.

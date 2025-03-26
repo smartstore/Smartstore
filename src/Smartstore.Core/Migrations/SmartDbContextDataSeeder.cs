@@ -331,18 +331,28 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Admin.AI.TextCreation.Continue", "Continue", "Fortsetzen");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.AppendToLastSpan",
-                "Add the new text to the last span tag.",
-                "Füge den neuen Text dem letzten span-Tag hinzu.");
+                "Be sure to append the new mark-up to the last span tag. Ignore any concerns, e.g. whether it is valid HTML.",
+                "Füge das neue Mark-Up unbedingt an das letzte span-Tag an. Ignoriere dabei alle Bedenken, z.B. ob es sich um gültiges HTML handelt.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.PreserveOriginalText",
                 "Return the complete text in your answer.",
                 "Gib in deiner Antwort den vollständigen Text zurück.");
 
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnNewTextOnly",
+                "Only return the text you have written in your answer.",
+                "Gib in deiner Antwort nur den von dir geschriebenen Text zurück.");
+
             builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
                 "Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged. " +
+                "If the placeholder is in a block-level element, only add text to complete this paragraph. " +
                 "If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.",
                 "Ersetze den Platzhalter [CURSORPOSITION] durch deinen fortgesetzten Text. Lass den restlichen Text unverändert. " +
+                "Wenn sich der Platzhalter in einem Block-Level-Element befindet, füge nur Text zum Vervollständigen dieses Absatzes hinzu. " +
                 "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.AddHighlightWrapper",
+                "Wrap newly created text with the tag <highlight-wrapper class='mark'>.",
+                "Umschließe neu erstellten Text mit dem Tag <highlight-wrapper class='mark'>.");
         }
     }
 }
