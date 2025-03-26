@@ -13,6 +13,7 @@ namespace Smartstore.Core.AI
             var topic = AIChatTopic.Text;
             string modelName = null;
             Dictionary<string, object> metadata = null;
+            var initialUserMessageHash = 0;
 
             reader.Read();
             while (reader.TokenType == JsonToken.PropertyName)
@@ -39,6 +40,11 @@ namespace Smartstore.Core.AI
                     reader.Read();
                     metadata = serializer.Deserialize<Dictionary<string, object>>(reader);
                 }
+                else if (string.Equals(name, nameof(AIChat.InitialUserMessage) + "Hash", StringComparison.OrdinalIgnoreCase))
+                {
+                    reader.Read();
+                    initialUserMessageHash = serializer.Deserialize<int>(reader);
+                }
                 else
                 {
                     reader.Skip();
@@ -56,6 +62,11 @@ namespace Smartstore.Core.AI
                 chat.Metadata = metadata;
             }
 
+            if (initialUserMessageHash != 0)
+            {
+                chat.InitialUserMessage = messages.FirstOrDefault(x => x.GetHashCode() == initialUserMessageHash);
+            }
+
             return chat;
         }
 
@@ -71,6 +82,10 @@ namespace Smartstore.Core.AI
 
                 writer.WritePropertyName(nameof(AIChat.Messages));
                 serializer.Serialize(writer, GetPropValue(nameof(AIChat.Messages), value));
+
+                var initialMessage = GetPropValue(nameof(AIChat.InitialUserMessage), value) as AIChatMessage;
+                writer.WritePropertyName(nameof(AIChat.InitialUserMessage) + "Hash");
+                serializer.Serialize(writer, initialMessage?.GetHashCode() ?? 0);
 
                 if (GetPropValue(nameof(AIChat.Metadata), value) is IDictionary<string, object> dict && dict.Count > 0)
                 {

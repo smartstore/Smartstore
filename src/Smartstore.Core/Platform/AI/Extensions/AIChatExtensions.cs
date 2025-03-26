@@ -8,24 +8,29 @@ namespace Smartstore.Core.AI
     public static partial class AIChatExtensions
     {
         /// <summary>
-        /// Adds a <see cref="KnownAIMessageRoles.User"/> message.
+        /// Adds the initial topic <see cref="KnownAIMessageRoles.User"/> message.
+        /// It is referenced by <see cref="AIChat.InitialUserMessage"/>.
         /// </summary>
-        /// <param name="isTopic">A value indicating whether the message is the initial topic message of <paramref name="chat"/>.</param>
+        /// <example>Create a title for a blog post on the topic '{0}'</example>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AIChat User(this AIChat chat, string message, bool isTopic = true)
+        public static AIChat UserTopic(this AIChat chat, string message)
         {
-            // TODO: (mg) Bad API design! Calling this method with isTopic = false is a code smell.
-            // - The method should be split into two methods: User and UserTopic (or similar), and/or
-            // - AIChat should get a second overload which accepts a message role (e.g. KnownAIMessageRoles.User) that is assigned to TopicMessage.
             var msg = AIChatMessage.FromUser(message);
             Guard.NotNull(chat).AddMessages(msg);
 
-            if (isTopic && chat.InitialUserMessage == null)
-            {
-                chat.InitialUserMessage = msg;
-            }
+            chat.InitialUserMessage ??= msg;
+            return chat;
+        }
 
+        /// <summary>
+        /// Adds a <see cref="KnownAIMessageRoles.User"/> message.
+        /// </summary>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AIChat User(this AIChat chat, string message)
+        {
+            Guard.NotNull(chat).AddMessages(AIChatMessage.FromUser(message));
             return chat;
         }
 

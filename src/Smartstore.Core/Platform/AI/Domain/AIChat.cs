@@ -39,24 +39,28 @@ namespace Smartstore.Core.AI
         /// Adds messages. Empty messages are not added.
         /// </summary>
         /// <param name="messages">The messages to add.</param>
-        public void AddMessages(params AIChatMessage[] messages)
+        public AIChat AddMessages(params AIChatMessage[] messages)
         {
             if (messages != null)
             {
                 _messages.AddRange(messages.Where(x => x.Content.HasValue()));
             }
+
+            return this;
         }
 
         /// <summary>
         /// Inserts messages at a given index. Empty messages are not inserted.
         /// </summary>
         /// <param name="messages">The messages to insert.</param>
-        public void InsertMessages(int index, params AIChatMessage[] messages)
+        public AIChat InsertMessages(int index, params AIChatMessage[] messages)
         {
             if (messages != null)
             {
                 _messages.InsertRange(index, messages.Where(x => x.Content.HasValue()));
             }
+
+            return this;
         }
 
         /// <summary>

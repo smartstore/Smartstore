@@ -11,16 +11,14 @@ namespace Smartstore.Core.Tests.AI
         [Test]
         public void Can_serialize_AIChat()
         {
-            AIChatMessage[] messages =
-            [
-                new("Hello world!", KnownAIMessageRoles.User),
-                new("It was nice chatting with you.", KnownAIMessageRoles.Assistant),
-                new("I have no opinion on the matter.", KnownAIMessageRoles.User)
-            ];
+            var initialMessage = new AIChatMessage("What is the steepest road climb in the world?", KnownAIMessageRoles.User);
+            var assistantMessage = new AIChatMessage("It was nice chatting with you.", KnownAIMessageRoles.Assistant);
+            var userMessage = new AIChatMessage("I have no opinion on the matter.", KnownAIMessageRoles.User);
 
-            var chat = new AIChat(AIChatTopic.RichText);
-            chat.UseModel("gpt-4o-mini")
-                .AddMessages(messages);
+            var chat = new AIChat(AIChatTopic.RichText)
+                .UseModel("gpt-4o-mini")
+                .UserTopic(initialMessage.Content)
+                .AddMessages([assistantMessage, userMessage]);
 
             var serializedChat = JsonConvert.SerializeObject(chat);
             var obj = JsonConvert.DeserializeObject<AIChat>(serializedChat);
@@ -34,8 +32,11 @@ namespace Smartstore.Core.Tests.AI
 
                 Assert.That(obj.Messages.All(x => x.Content.HasValue()));
 
-                Assert.That(obj.Messages[1], Is.EqualTo(messages[1]));
-                Assert.That(obj.Messages[2].Content, Is.EqualTo(messages[2].Content));
+                Assert.That(obj.Messages[1], Is.EqualTo(assistantMessage));
+                Assert.That(obj.Messages[2].Content, Is.EqualTo(userMessage.Content));
+
+                Assert.That(obj.InitialUserMessage, Is.EqualTo(initialMessage));
+                Assert.That(obj.InitialUserMessage.GetHashCode(), Is.EqualTo(initialMessage.GetHashCode()));
             });
         }
     }

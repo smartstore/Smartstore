@@ -17,15 +17,15 @@ namespace Smartstore.Core.AI.Prompting
             => type == Type;
 
         public virtual Task<AIChat> GenerateTextChatAsync(IAITextModel model)
-            => Task.FromResult(new AIChat(AIChatTopic.Text).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Text, model?.EntityName)));
+            => Task.FromResult(new AIChat(AIChatTopic.Text).UserTopic(_messageBuilder.GetDefaultMessage(AIChatTopic.Text, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateSuggestionChatAsync(IAISuggestionModel model)
-            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).User(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.NumSuggestions, model?.EntityName)));
+            => Task.FromResult(new AIChat(AIChatTopic.Suggestion).UserTopic(_messageBuilder.GetDefaultMessage(AIChatTopic.Suggestion, model?.NumSuggestions, model?.EntityName)));
 
         public virtual Task<AIChat> GenerateImageChatAsync(IAIImageModel model)
         {
             var chat = new AIChat(AIChatTopic.Image)
-                .User(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName))
+                .UserTopic(_messageBuilder.GetDefaultMessage(AIChatTopic.Image, model?.EntityName))
                 .UseModel(model?.ModelName);
 
             // Enhance prompt for image creation from model.
