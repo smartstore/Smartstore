@@ -100,9 +100,8 @@ namespace Smartstore.Core.AI.Prompting
         /// <returns>
         /// AI instruction: Wrap newly created text with the tag <highlight-wrapper class='mark' />.
         /// </returns>
-        // TODO: (mh) Rename everywhere to WrapNewContentWithHighlightTag
-        public virtual string AddHighlightWrapper()
-            => P("AddHighlightWrapper");
+        public virtual string WrapNewContentWithHighlightTag()
+            => P("WrapNewContentWithHighlightTag");
 
         /// <summary>
         /// Instructs the AI to write text that does not exceed a defined number of words.

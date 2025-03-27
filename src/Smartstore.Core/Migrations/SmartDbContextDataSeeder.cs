@@ -350,7 +350,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Wenn sich der Platzhalter in einem Block-Level-Element befindet, füge nur Text zum Vervollständigen dieses Absatzes hinzu. " +
                 "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.AddHighlightWrapper",
+            builder.AddOrUpdate("Smartstore.AI.Prompts.WrapNewContentWithHighlightTag",
                 "Wrap the complete text you have created with the tag <highlight-wrapper class='mark'>.",
                 "Umschließe den kompletten Text, der von dir erstellt wurde, mit dem Tag <highlight-wrapper class='mark'>.");
         }
