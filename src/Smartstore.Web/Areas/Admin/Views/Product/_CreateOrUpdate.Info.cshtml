@@ -217,8 +217,7 @@
                     <smart-label asp-for="Locales[item].FullDescription" />
 			    </div>
                 <div class="adminData wide">
-                    <editor asp-for="Locales[item].FullDescription" 
-                            asp-additional-viewdata='new { saveUrl = Url.PatchLocalizedEntity<Product>(nameof(Product.FullDescription), Model.Id, Model.Locales[item].LanguageId) }' />
+                    <editor asp-for="Locales[item].FullDescription" data-save-url="@(Url.PatchLocalizedEntity<Product>(nameof(Product.FullDescription), Model.Id, Model.Locales[item].LanguageId))" />
                     <span asp-validation-for="Locales[item].FullDescription"></span>
                 </div>
 		    </div>
@@ -255,7 +254,7 @@
 			    </div>
                 <div class="adminData wide">
                     <ai-rich-text asp-for="FullDescription" entity-name="@Model.Name" entity-type="Product">
-                        <editor asp-for="FullDescription" asp-additional-viewdata='new { saveUrl = Url.PatchEntity<Product>(nameof(Product.FullDescription), Model.Id) }' />
+                        <editor asp-for="FullDescription" data-save-url="@(Url.PatchEntity<Product>(nameof(Product.FullDescription), Model.Id))" />
                     </ai-rich-text>
                     <span asp-validation-for="FullDescription"></span>
                 </div>

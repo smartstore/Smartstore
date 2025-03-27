@@ -11,7 +11,6 @@
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
     var htmlIsEmpty = HtmlUtility.IsEmptyHtml(html);
     var culture = WorkContext.WorkingLanguage.LanguageCulture;
-    var saveUrl = GetMetadata<string>("saveUrl");
 
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
@@ -55,7 +54,7 @@
               name="@Html.NameForModel()"
               class="summernote-editor"
               attr-class='(lazy, "d-none")'
-              attr-data-save-url="(saveUrl.HasValue(), saveUrl)">
+              attrs="attributes">
         @Html.Raw(html)
     </textarea>
 
