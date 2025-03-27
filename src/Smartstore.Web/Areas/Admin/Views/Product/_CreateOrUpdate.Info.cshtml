@@ -5,6 +5,16 @@
 
 @model ProductModel
 
+@{ 
+    var fullDescriptionSaveUrl = Url.Action("Patch", "Entity", new
+    {
+        area = "",
+        entityName = typeof(Product).FullName,
+        propertyName = nameof(Product.FullDescription),
+        entityId = Model.Id,
+    });
+}
+
 <script sm-target-zone="Scripts" data-origin="product-info">
 	$(function () {
         $('#@Html.IdFor(model => model.ProductTypeId)').on('change', function () {
@@ -254,7 +264,7 @@
 			    </div>
                 <div class="adminData wide">
                     <ai-rich-text asp-for="FullDescription" entity-name="@Model.Name" entity-type="Product">
-                        <editor asp-for="FullDescription" />
+                        <editor asp-for="FullDescription" asp-additional-viewdata='new { saveUrl = fullDescriptionSaveUrl }' />
                     </ai-rich-text>
                     <span asp-validation-for="FullDescription"></span>
                 </div>

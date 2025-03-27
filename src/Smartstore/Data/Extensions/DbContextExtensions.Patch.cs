@@ -58,24 +58,26 @@ namespace Smartstore
             Guard.NotNull(db);
             Guard.NotNull(patch);
 
+            var entityName = patch.EntityName ?? patch.EntityType?.FullName;
+
             // Resolve entity type from model
-            var entityType = db.Model.FindEntityType(patch.EntityName);
+            var entityType = patch.EntityType == null ? db.Model.FindEntityType(patch.EntityName!) : db.Model.FindEntityType(patch.EntityType);
             if (entityType == null)
             {
-                throw new InvalidOperationException($"Entity type '{patch.EntityName}' not found in the model.");
+                throw new InvalidOperationException($"Entity type '{entityName}' not found in the model.");
             }
 
             // Validate primary key configuration
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null || primaryKey.Properties.Count != 1)
             {
-                throw new InvalidOperationException($"Entity type '{patch.EntityName}' must have a single primary key property.");
+                throw new InvalidOperationException($"Entity type '{entityName}' must have a single primary key property.");
             }
 
             var primaryKeyProperty = primaryKey.Properties[0];
             if (primaryKeyProperty.Name != nameof(BaseEntity.Id) || primaryKeyProperty.ValueGenerated != ValueGenerated.OnAdd)
             {
-                throw new InvalidOperationException($"Primary key of entity type '{patch.EntityName}' must be auto-incrementing.");
+                throw new InvalidOperationException($"Primary key of entity type '{entityName}' must be auto-incrementing.");
             }
 
             // Load the existing entity
@@ -84,7 +86,7 @@ namespace Smartstore
                 : db.Find(entityType.ClrType, [patch.EntityId]) as BaseEntity;
             if (entity == null)
             {
-                throw new InvalidOperationException($"Entity of type '{patch.EntityName}' with ID {patch.EntityId} not found.");
+                throw new InvalidOperationException($"Entity of type '{entityName}' with ID {patch.EntityId} not found.");
             }
 
             // Apply property updates
@@ -93,7 +95,7 @@ namespace Smartstore
                 var property = entityType.FindProperty(propertyName);
                 if (property == null)
                 {
-                    throw new InvalidOperationException($"Property '{propertyName}' not found on entity type '{patch.EntityName}'.");
+                    throw new InvalidOperationException($"Property '{propertyName}' not found on entity type '{entityName}'.");
                 }
 
                 // Skip navigation properties and foreign keys

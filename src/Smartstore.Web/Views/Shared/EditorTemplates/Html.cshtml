@@ -10,7 +10,8 @@
     var id = Html.IdForModel();
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
     var htmlIsEmpty = HtmlUtility.IsEmptyHtml(html);
-    string culture = WorkContext.WorkingLanguage.LanguageCulture;
+    var culture = WorkContext.WorkingLanguage.LanguageCulture;
+    var saveUrl = GetMetadata<string>("saveUrl");
 
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
@@ -53,7 +54,8 @@
               id="@id"
               name="@Html.NameForModel()"
               class="summernote-editor"
-              attr-class='(lazy, "d-none")'>
+              attr-class='(lazy, "d-none")'
+              attr-data-save-url="(saveUrl.HasValue(), saveUrl)">
         @Html.Raw(html)
     </textarea>
 

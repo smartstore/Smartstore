@@ -361,7 +361,7 @@ namespace Smartstore.Web.Controllers
                     }
 
                     var customers = await customerQuery
-                        .ApplyRolesFilter(new[] { registeredRoleId })
+                        .ApplyRolesFilter([registeredRoleId])
                         .ApplyPaging(model.PageIndex, model.PageSize)
                         .ToListAsync();
 
@@ -393,6 +393,33 @@ namespace Smartstore.Web.Controllers
             }
 
             return PartialView("Picker.List", model);
+        }
+
+        [HttpPost]
+        [AuthorizeAdmin]
+        [Permission(Permissions.System.AccessBackend)]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Patch(string entityName, int entityId, string propertyName, [FromBody] object value)
+        {
+            var success = false;
+
+            try
+            {
+                var patch = new EntityPatch(entityName, entityId);
+                patch.Properties.Add(propertyName, value);
+
+                if (await _db.PatchEntityAsync(patch) is not null)
+                {
+                    await _db.SaveChangesAsync();
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.ToAllMessages());
+            }
+
+            return Json(new { success, entityName, entityId, propertyName });
         }
     }
 }

@@ -188,8 +188,17 @@ let summernote_image_upload_url;
 $(function () {
 
     function saveHtml(url, html, deferred) {
-        alert('TODO: save via ' + url);
-        deferred.resolve(html);
+        $.ajax({
+            cache: false,
+            method: "POST",
+            contentType: 'application/json',
+            url,
+            data: JSON.stringify(html),
+            success: (data) => {
+                if (data.success)
+                    deferred.resolve(html);
+            }
+        });     
     }
 
     // Custom events

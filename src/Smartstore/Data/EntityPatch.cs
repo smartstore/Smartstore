@@ -11,6 +11,15 @@ namespace Smartstore.Data
     /// </remarks>
     public record EntityPatch
     {
+        public EntityPatch(Type entityType, int entityId)
+        {
+            Guard.NotNull(entityType);
+            Guard.IsPositive(entityId);
+
+            EntityType = entityType;
+            EntityId = entityId;
+        }
+
         public EntityPatch(string entityName, int entityId)
         {
             Guard.NotEmpty(entityName);
@@ -21,15 +30,23 @@ namespace Smartstore.Data
         }
 
         /// <summary>
-        /// Gets or sets the name of the entity type to patch.
+        /// Gets the the entity type to patch.
         /// </summary>
         /// <value>
-        /// The CLR type name or DbSet property name representing the entity type.
+        /// The entity type.
         /// </value>
-        public string EntityName { get; }
+        public Type? EntityType { get; }
 
         /// <summary>
-        /// Gets or sets the primary key value of the entity to patch.
+        /// Gets the name of the entity type to patch.
+        /// </summary>
+        /// <value>
+        /// The conceptual name of the entity type (usually the type's full name without assembly part, e.g. "Smartstore.Core.Catalog.Products.Product")
+        /// </value>
+        public string? EntityName { get; }
+
+        /// <summary>
+        /// Gets the primary key value of the entity to patch.
         /// </summary>
         /// <value>
         /// The auto-incrementing primary key value that identifies the entity to update.

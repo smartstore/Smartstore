@@ -677,6 +677,10 @@ legend {
         right: var(--content-padding-x);
     }
 
+    body.note-fullscreen-body & {
+        z-index: $zindex-tooltip + 10;
+    }
+
     &.busy {
         opacity: 1;
     }
