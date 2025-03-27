@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿#nullable enable
+
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 
@@ -23,12 +25,17 @@ namespace Smartstore.Web.Rendering
         /// <param name="entityName">The name of the entity.</param>
         /// <param name="propertyName">The name of the property to patch.</param>
         /// <param name="entityId">The ID of the entity.</param>
-        /// <returns>The generated URL.</returns>
-        public static string PatchEntity(this IUrlHelper url, string entityName, string propertyName, int entityId)
+        /// <returns>The generated URL or <c>null</c> if <paramref name="entityId"/> is 0.</returns>
+        public static string? PatchEntity(this IUrlHelper url, string entityName, string propertyName, int entityId)
         {
             Guard.NotNull(url);
             Guard.NotEmpty(entityName);
             Guard.NotEmpty(propertyName);
+
+            if (entityId < 1)
+            {
+                return null;
+            }
 
             return url.Action("Patch", "Entity", new { area = string.Empty, entityName, propertyName, entityId });
         }
@@ -39,11 +46,16 @@ namespace Smartstore.Web.Rendering
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="propertyName">The name of the property to patch.</param>
         /// <param name="entityId">The ID of the entity.</param>
-        /// <returns>The generated URL.</returns>
-        public static string PatchEntity<TEntity>(this IUrlHelper url, string propertyName, int entityId) where TEntity : BaseEntity
+        /// <returns>The generated URL or <c>null</c> if <paramref name="entityId"/> is 0.</returns>
+        public static string? PatchEntity<TEntity>(this IUrlHelper url, string propertyName, int entityId) where TEntity : BaseEntity
         {
             Guard.NotNull(url);
             Guard.NotEmpty(propertyName);
+
+            if (entityId < 1)
+            {
+                return null;
+            }
 
             return url.Action("Patch", "Entity", new { area = string.Empty, entityName = typeof(TEntity).FullName, propertyName, entityId });
         }
@@ -55,12 +67,17 @@ namespace Smartstore.Web.Rendering
         /// <param name="propertyName">The name of the property to patch.</param>
         /// <param name="entityId">The ID of the entity.</param>
         /// <param name="languageId">The ID of the language.</param>
-        /// <returns>The generated URL.</returns>
-        public static string PatchLocalizedEntity(this IUrlHelper url, string entityName, string propertyName, int entityId, int languageId)
+        /// <returns>The generated URL or <c>null</c> if <paramref name="entityId"/> is 0.</returns>
+        public static string? PatchLocalizedEntity(this IUrlHelper url, string entityName, string propertyName, int entityId, int languageId)
         {
             Guard.NotNull(url);
             Guard.NotEmpty(entityName);
             Guard.NotEmpty(propertyName);
+
+            if (entityId < 1)
+            {
+                return null;
+            }
 
             return url.Action("PatchLocalized", "Entity", new { area = string.Empty, entityName, propertyName, entityId, languageId });
         }
@@ -71,11 +88,16 @@ namespace Smartstore.Web.Rendering
         /// <param name="propertyName">The name of the property to patch.</param>
         /// <param name="entityId">The ID of the entity.</param>
         /// <param name="languageId">The ID of the language.</param>
-        /// <returns>The generated URL.</returns>
-        public static string PatchLocalizedEntity<TEntity>(this IUrlHelper url, string propertyName, int entityId, int languageId) where TEntity : BaseEntity, new()
+        /// <returns>The generated URL or <c>null</c> if <paramref name="entityId"/> is 0.</returns>
+        public static string? PatchLocalizedEntity<TEntity>(this IUrlHelper url, string propertyName, int entityId, int languageId) where TEntity : BaseEntity, new()
         {
             Guard.NotNull(url);
             Guard.NotEmpty(propertyName);
+
+            if (entityId < 1)
+            {
+                return null;
+            }
 
             return url.Action("PatchLocalized", "Entity", new { area = string.Empty, entityName = NamedEntity.GetEntityName<TEntity>(), propertyName, entityId, languageId });
         }
