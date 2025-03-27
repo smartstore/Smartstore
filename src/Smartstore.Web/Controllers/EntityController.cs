@@ -421,5 +421,15 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { success, entityName, entityId, propertyName });
         }
+
+        [HttpPost]
+        [AuthorizeAdmin]
+        [Permission(Permissions.System.AccessBackend)]
+        [ValidateAntiForgeryToken]
+        public IActionResult PatchLocalized(string entityName, int entityId, string propertyName, [FromBody] object value, int languageId)
+        {
+            NotifyError("Not implemented yet.");
+            return Json(new { success = false });
+        }
     }
 }

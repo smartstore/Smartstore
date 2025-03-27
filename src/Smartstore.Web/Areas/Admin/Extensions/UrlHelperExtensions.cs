@@ -6,11 +6,20 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin
 {
+    /// <summary>
+    /// Provides extension methods for URL generation.
+    /// </summary>
     public static class UrlHelperExtensions
     {
+        /// <summary>
+        /// Generates a URL to navigate back to the provider list.
+        /// </summary>
+        /// <param name="metadata">The provider metadata.</param>
+        /// <returns>The generated URL.</returns>
         public static string BackToProviderList(this IUrlHelper url, ProviderMetadata metadata)
         {
-            Guard.NotNull(metadata, nameof(metadata));
+            Guard.NotNull(url);
+            Guard.NotNull(metadata);
 
             if (metadata.ProviderType == typeof(IPaymentMethod))
             {
