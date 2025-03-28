@@ -20,6 +20,11 @@
   - Added setting to indicate whether to split compound words.
   - Added setting to include/exclude the meta keywords of products in the search index.
   - #1275 Import of product keywords (import file column `MegaSearch.Product.Keywords`).
+- **Summernote HTML editor:**
+  - Save HTML content without reloading the page
+  - Zoom support ranging from 25% to 500%
+  - Displays the tag path of the current selection
+  - Sticky toolbar when the editor is focused
 - #1225 Added settings to sort search filters of facet groups: category, brand, and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always being 0 in queued email list.
@@ -72,7 +77,6 @@
 	- Respect text direction of the selected language in the rich-text dialog.
 	- Fixed a bug where the prompt preview incorrectly generated a new text request when opened via the Summernote AI button.
 - **Summernote HTML editor:**
-  - Toolbar is now sticky when editor has focus.
   - Fixed unwanted line break after caret position due to outdated beautify library.
   - Fixed various focus handling and popover issues.
   - Fixed various code synchronization issues.
