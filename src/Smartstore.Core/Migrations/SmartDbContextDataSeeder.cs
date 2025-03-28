@@ -353,6 +353,8 @@ Wenn diese Option aktiviert ist, werden neue G‰ste unter diesen Umst‰nden blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.WrapNewContentWithHighlightTag",
                 "Wrap the complete text you have created with the tag <ai-highlight class='mark'>.",
                 "Umschlieﬂe den kompletten Text, der von dir erstellt wurde, mit dem Tag <ai-highlight class='mark'>.");
+
+            builder.AddOrUpdate("Admin.AI.EditHtml", "Edit HTML text", "HTML-Text bearbeiten");
         }
     }
 }
