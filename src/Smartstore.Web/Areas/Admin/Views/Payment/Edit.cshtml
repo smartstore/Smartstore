@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Payments
+@using Smartstore.Core.Checkout.Payment
 
 @model PaymentMethodEditModel
 
@@ -60,7 +61,8 @@
 							<smart-label asp-for="Locales[item].FullDescription" />
 						</div>
                         <div class="adminData wide">
-                            <editor asp-for="Locales[item].FullDescription" />
+                            <html-editor asp-for="Locales[item].FullDescription"
+                                         save-url="@(Url.PatchLocalizedEntity<PaymentMethod>(nameof(PaymentMethod.FullDescription), Model.Id, Model.Locales[item].LanguageId))"/>
                             <span asp-validation-for="Locales[item].FullDescription"></span>
                         </div>
 					</div>
@@ -90,7 +92,7 @@
 							<smart-label asp-for="FullDescription" />
 						</div>
                         <div class="adminData wide">
-                            <editor asp-for="FullDescription" />
+                            <html-editor asp-for="FullDescription" save-url="@(Url.PatchEntity<PaymentMethod>(nameof(PaymentMethod.FullDescription), Model.Id))" />
                             <span asp-validation-for="FullDescription"></span>
                         </div>
 					</div>

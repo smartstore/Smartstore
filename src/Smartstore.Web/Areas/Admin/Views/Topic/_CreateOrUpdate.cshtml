@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Admin.Models.Topics
 @using Smartstore.Admin.Models.Common
+@using Smartstore.Core.Content.Topics
  
 @model TopicModel
 
@@ -238,7 +239,8 @@
                         <smart-label asp-for="Locales[item].Body" />
                     </div>
                     <div class="adminData wide">
-                        <editor asp-for="Locales[item].Body" />
+                        <html-editor asp-for="Locales[item].Body"
+                                     save-url="@(Url.PatchLocalizedEntity<Topic>(nameof(Topic.Body), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].Body"></span>
                     </div>
                 </div>
@@ -307,7 +309,7 @@
                                       entity-type="Topic"
                                       display-toc-options="true"
                                       display-link-options="true">
-                            <editor asp-for="Body" />
+                            <html-editor asp-for="Body" save-url="@(Url.PatchEntity<Topic>(nameof(Topic.Body), Model.Id))" />
                         </ai-rich-text>
                         <span asp-validation-for="Body"></span>
                     </div>

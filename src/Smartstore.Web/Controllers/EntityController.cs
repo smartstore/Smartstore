@@ -440,7 +440,7 @@ namespace Smartstore.Web.Controllers
                     .ApplyStandardFilter(languageId, entityId, entityName, propertyName)
                     .FirstOrDefaultAsync();
 
-                var prop = _locEntityService.Value.ApplyLocalizedValue(
+                _locEntityService.Value.ApplyLocalizedValue(
                     localizedProperty,
                     entityId,
                     entityName,

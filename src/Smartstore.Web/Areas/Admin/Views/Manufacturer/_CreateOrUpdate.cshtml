@@ -1,5 +1,7 @@
 ﻿@model ManufacturerModel
 
+@using Smartstore.Core.Catalog.Brands
+
 @{
     var productManufacturersViewData = new ViewDataDictionary(ViewData);
     productManufacturersViewData["Parent"] = Model;
@@ -59,7 +61,8 @@
                         <smart-label asp-for="Locales[item].Description" />
 			        </div>
                     <div class="adminData wide">
-                        <editor asp-for="Locales[item].Description" />
+                        <html-editor asp-for="Locales[item].Description" 
+                                     save-url="@(Url.PatchLocalizedEntity<Manufacturer>(nameof(Manufacturer.Description), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].Description"></span>
                     </div>
 		        </div>
@@ -68,7 +71,8 @@
                         <smart-label asp-for="Locales[item].BottomDescription" />
 			        </div>
                     <div class="adminData wide">
-                        <editor asp-for="Locales[item].BottomDescription" />
+                        <html-editor asp-for="Locales[item].BottomDescription" 
+                                     save-url="@(Url.PatchLocalizedEntity<Manufacturer>(nameof(Manufacturer.BottomDescription), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].BottomDescription"></span>
                     </div>
 		        </div>
@@ -107,7 +111,7 @@
                                       entity-type="Manufacturer"
                                       display-image-options="false"
                                       display-layout-options="false">
-                            <editor asp-for="Description" />
+                            <html-editor asp-for="Description" save-url="@(Url.PatchEntity<Manufacturer>(nameof(Manufacturer.Description), Model.Id))" />
                         </ai-rich-text>
                         <span asp-validation-for="Description"></span>
                     </div>
@@ -123,7 +127,7 @@
                                       entity-id="@Model.Id"
                                       display-layout-options="false"
                                       display-image-options="false">
-                            <editor asp-for="BottomDescription" />
+                            <html-editor asp-for="BottomDescription" save-url="@(Url.PatchEntity<Manufacturer>(nameof(Manufacturer.BottomDescription), Model.Id))" />
                         </ai-rich-text>
                         <span asp-validation-for="BottomDescription"></span>
                     </div>
