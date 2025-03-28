@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Search.Facets
+@using Smartstore.Core.Catalog.Attributes
 
 @model ProductAttributeModel
 
@@ -11,8 +12,8 @@
 <input type="hidden" asp-for="Id" />
 
 <tabstrip id="productattribute-edit" sm-nav-style="Material">
-	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
-		<div sm-if="Model.Id != 0" class="adminContent">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div sm-if="Model.Id != 0" class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Id" />
@@ -52,7 +53,7 @@
                         <smart-label asp-for="Locales[item].Description" />
 			        </div>
                     <div class="adminData wide">
-                        <html-editor asp-for="Locales[item].Description" 
+                        <html-editor asp-for="Locales[item].Description"
                                      save-url="@(Url.PatchLocalizedEntity<ProductAttribute>(nameof(ProductAttribute.Description), Model.Id, Model.Locales[item].LanguageId))" />
                         <span asp-validation-for="Locales[item].Description"></span>
                     </div>
@@ -92,7 +93,7 @@
 	        </div>
 	    </text>))
 
-		<div class="adminContent">
+        <div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="DisplayOrder" />
@@ -141,23 +142,23 @@
             <div class="adminRow">
                 <div class="adminTitle">&nbsp;</div>
                 <div class="adminData">
-				    <div class="alert alert-info">
-					    @Html.Raw(T("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note"))
-				    </div>
+                    <div class="alert alert-info">
+                        @Html.Raw(T("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note"))
+                    </div>
                 </div>
             </div>
         </div>
-	</tab>
-	<tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")" sm-adaptive-height="true">
+    </tab>
+    <tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")" sm-adaptive-height="true">
         @if (Model.Id > 0)
         {
             <partial name="_Grid.ProductAttributeOptionsSets" model="null" view-data="gridViewData" />
         }
         else
         {
-		    <div class="alert alert-warning">
-			    @T("Admin.SaveBeforeEdit")
-		    </div>
+            <div class="alert alert-warning">
+                @T("Admin.SaveBeforeEdit")
+            </div>
         }
-	</tab>
+    </tab>
 </tabstrip>
