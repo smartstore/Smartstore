@@ -864,6 +864,36 @@ $img-margin-right: 10px;
 }
 
 
+// Emojis
+// ------------------------------------------
+
+.emoji-container {
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.emoji {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    transition: transform 0.2s;
+}
+
+.emoji:hover {
+    transform: scale(1.2);
+}
+
+.nav-emojis {
+    justify-content: space-evenly;
+
+    > .nav-link {
+        font-size: 1.25rem;
+        filter: grayscale(1);
+    }
+}
+
+
 // Misc
 // -----------------------
 
