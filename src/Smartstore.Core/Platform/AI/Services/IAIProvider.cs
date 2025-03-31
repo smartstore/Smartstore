@@ -63,6 +63,13 @@ namespace Smartstore.Core.AI
             CancellationToken cancelToken = default);
 
         /// <summary>
+        /// Gets the image creation or editing options.
+        /// </summary>
+        /// <param name="modelName">The name of the AI model.</param>
+        /// <returns></returns>
+        AIImageOptions GetImageOptions(string modelName);
+
+        /// <summary>
         /// Get the URL(s) of AI generated image(s).
         /// </summary>
         /// <param name="model">The AI image model.</param>

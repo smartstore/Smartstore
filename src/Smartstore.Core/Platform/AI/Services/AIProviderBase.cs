@@ -65,6 +65,9 @@ namespace Smartstore.Core.AI
             CancellationToken cancelToken = default)
             => throw new NotImplementedException();
 
+        public virtual AIImageOptions GetImageOptions(string modelName)
+            => new();
+
         public virtual Task<string[]> CreateImagesAsync(IAIImageModel prompt, int numImages = 1, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 

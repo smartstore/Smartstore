@@ -6,7 +6,7 @@
     public interface IAIImageModel
     {
         /// <summary>
-        /// Defines the name of the entity.
+        /// Specifies the name of the entity.
         /// </summary>
         string EntityName { get; }
 
@@ -51,14 +51,13 @@
         string Composition { get; }
 
         /// <summary>
-        /// Defines the image creation format.
+        /// Specifies the image creation format.
         /// </summary>
         AIImageFormat Format { get; }
 
         /// <summary>
-        /// Defines the image creation style directly passed to ChatGPT.
+        /// Specifies an image style.
         /// </summary>
-        /// <remarks>Currently only used by ChatGPT.</remarks>
-        ImageCreationStyle Style { get; }
+        string Style { get; }
     }
 }
