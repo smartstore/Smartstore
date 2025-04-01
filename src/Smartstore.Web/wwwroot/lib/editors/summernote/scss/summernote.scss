@@ -867,29 +867,36 @@ $img-margin-right: 10px;
 // Emojis
 // ------------------------------------------
 
-.emoji-container {
+.note-emoji-container {
     min-height: 200px;
     max-height: 300px;
     overflow-y: auto;
     scrollbar-width: thin;
+    display: grid;
+    justify-content: space-between;
+    grid-template-columns: repeat(auto-fill, 42px);
+    grid-auto-rows: 42px;
+    gap: 2px;
 }
 
-.emoji {
+.nav-emoji {
+    justify-content: space-between;
+
+    > .nav-link {
+        &:not(.active) {
+            filter: grayscale(1);
+            opacity: 0.65;
+        }
+    }
+}
+
+.note-emoji {
     font-size: 1.5rem;
     line-height: 1.5;
     transition: transform 0.2s;
-}
 
-.emoji:hover {
-    transform: scale(1.2);
-}
-
-.nav-emojis {
-    justify-content: space-evenly;
-
-    > .nav-link {
-        font-size: 1.25rem;
-        filter: grayscale(1);
+    &:hover {
+        transform: scale(1.2);
     }
 }
 
