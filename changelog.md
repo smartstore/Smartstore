@@ -7,6 +7,7 @@
 - Updated to **.NET 9**
   - Increased overall performance
 - #1258 Added **DeepSeek** AI provider.
+- Added **Gemini** AI provider.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - #990 Added a weight field to attribute combinations.
 - Added a setting to control whether shipping costs are displayed on the cart page as long as the customer has not yet entered a shipping address.
