@@ -6,14 +6,15 @@
 
 - Updated to **.NET 9**
   - Increased overall performance
-- #1258 Added **DeepSeek** AI provider.
-- Added **Gemini** AI provider.
+- **AI**
+  - #1258 Added **DeepSeek** AI provider.
+  - Added **Gemini** AI provider.
+  - #1259 Implemented setting for keywords to generally avoid.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - #990 Added a weight field to attribute combinations.
 - Added a setting to control whether shipping costs are displayed on the cart page as long as the customer has not yet entered a shipping address.
 - Shipping by total: Added a setting to let the shipping origin determine the shipping cost if the shipping address is missing.
 - #501 New category option for ignoring a category in menus.
-- #1259 AI: Implemented setting for keywords to generally avoid.
 - #248 Catalog search: Added an option for featured product sort order.
 - #1281 Added shipping setting: Apply free shipping over 'X' only for specific shipping countries.
 - **MegaSearch:**
