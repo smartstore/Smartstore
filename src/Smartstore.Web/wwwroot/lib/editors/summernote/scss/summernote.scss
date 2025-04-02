@@ -696,10 +696,8 @@ $img-margin-right: 10px;
     }
 
     .scrollable-menu {
-        --scrollbar-track-color: #fff;
-        --scrollbar-track-hover-color: #fff;
         height: auto;
-        max-height: 340px;
+        max-height: 400px;
         min-width: 280px;
         overflow-x: hidden;
     }
@@ -867,16 +865,16 @@ $img-margin-right: 10px;
 // Emojis
 // ------------------------------------------
 
-.note-emoji-container {
+.note-emoji-list {
+    --note-emoji-size: 40px;
+    --note-emoji-gap: 1px;
+    --note-emoji-cols: 9;
     min-height: 200px;
     max-height: 300px;
+    width: calc(var(--note-emoji-size) * var(--note-emoji-cols) + (var(--note-emoji-gap) * var(--note-emoji-cols)) + 18px);
+    gap: var(--note-emoji-gap);
     overflow-y: auto;
-    scrollbar-width: thin;
-    display: grid;
-    justify-content: space-between;
-    grid-template-columns: repeat(auto-fill, 42px);
-    grid-auto-rows: 42px;
-    gap: 2px;
+    scrollbar-gutter: stable;
 }
 
 .nav-emoji {
@@ -891,13 +889,11 @@ $img-margin-right: 10px;
 }
 
 .note-emoji {
-    font-size: 1.5rem;
-    line-height: 1.5;
-    transition: transform 0.2s;
-
-    &:hover {
-        transform: scale(1.2);
-    }
+    font-size: 24px;
+    font-weight: var(--font-weight-normal);
+    border-width: 0;
+    --btn-active-shadow: none;
+    --btn-height: var(--note-emoji-size);
 }
 
 
