@@ -48,6 +48,7 @@ namespace Smartstore.Core.Checkout.Orders
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(CustomerId), Name = "IX_Order_CustomerId")]
     [Index(nameof(OrderGuid))]
+    [Index(nameof(CreatedOnUtc), Name = "IX_Order_CreatedOnUtc")]
     // INFO: MySQL max key length is 3072 bytes, so we can index up to 768 characters for utf8mb4.
     [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionId))]
     [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionCode))]
@@ -396,10 +397,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public bool Deleted { get; set; }
 
-        /// <inheritdoc/>
         public DateTime CreatedOnUtc { get; set; }
 
-        /// <inheritdoc/>
         public DateTime UpdatedOnUtc { get; set; }
 
         /// <summary>
