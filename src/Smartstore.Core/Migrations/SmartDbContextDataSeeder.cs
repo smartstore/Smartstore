@@ -355,6 +355,12 @@ Wenn diese Option aktiviert ist, werden neue G‰ste unter diesen Umst‰nden blocki
                 "Umschlieﬂe den kompletten Text, der von dir erstellt wurde, mit dem Tag <ai-highlight class='mark'>.");
 
             builder.AddOrUpdate("Admin.AI.EditHtml", "Edit HTML text", "HTML-Text bearbeiten");
+            
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchWithOrders",
+                "With order assignments",
+                "Mit Auftragszuordnungen",
+                "Filters for products with/without order assignments.",
+                "Filtert nach Produkten mit/ohne Auftragszuordnungen.");
         }
     }
 }

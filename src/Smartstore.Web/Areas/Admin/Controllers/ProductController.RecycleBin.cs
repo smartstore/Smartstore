@@ -10,16 +10,19 @@ namespace Smartstore.Admin.Controllers
     public partial class ProductController : AdminController
     {
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> RecycleBin(ProductListModel model)
+        public async Task<IActionResult> RecycleBin(DeletedProductListModel model)
         {
             await PrepareProductListModelAsync(model);
+            
+            // Only display products without orders by default.
+            model.SearchWithOrders = false;
 
             return View(model);
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> DeletedProductsList(GridCommand command, ProductListModel model)
+        public async Task<IActionResult> DeletedProductsList(GridCommand command, DeletedProductListModel model)
         {
             var searchQuery = CreateSearchQuery(command, model, false);
             var baseQuery = _db.Products
@@ -27,11 +30,19 @@ namespace Smartstore.Admin.Controllers
                 .IgnoreQueryFilters()
                 .Where(x => x.Deleted);
 
-            var query = _catalogSearchService.Value
-                .PrepareQuery(searchQuery, baseQuery)
-                .ApplyGridCommand(command, false);
+            var query = _catalogSearchService.Value.PrepareQuery(searchQuery, baseQuery);
 
-            var products = await query.ToPagedList(command).LoadAsync();
+            if (model.SearchWithOrders != null)
+            {
+                query = query
+                    .Where(x => _db.OrderItems
+                        .IgnoreQueryFilters()
+                        .Any(oi => oi.ProductId == x.Id) == model.SearchWithOrders.Value);
+            }
+
+            var products = await query
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command).LoadAsync();
             var rows = await products.MapAsync(Services.MediaService);
 
             var productIds = products.ToDistinctArray(x => x.Id);

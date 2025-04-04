@@ -1,7 +1,7 @@
 ﻿@model ProductOverviewModel
 
 @{
-    var parentModel = ViewData["Parent"] as ProductListModel;
+    var parentModel = ViewData["Parent"] as DeletedProductListModel;
 }
 
 <datagrid id="deleted-products-grid"
@@ -34,7 +34,7 @@
         </toolbar-group>
     </toolbar>
     <search-panel>
-        <partial name="Grids/_Grid.Products.Search" model="parentModel" />
+        <partial name="Grids/_Grid.DeletedProducts.Search" model="parentModel" />
     </search-panel>
     <columns>
         @if (parentModel.DisplayProductPictures)

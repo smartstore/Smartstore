@@ -1,0 +1,10 @@
+﻿@using Smartstore.Admin.Models.Catalog
+@using Smartstore.Core.Catalog.Products
+
+@model DeletedProductListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchWithOrders" />
+    <editor asp-for="SearchWithOrders" />
+</div>
+<partial name="Grids/_Grid.Products.Search" />
