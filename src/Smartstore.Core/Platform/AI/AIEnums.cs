@@ -65,6 +65,7 @@
         Blogger,
         Journalist,
         SalesPerson,
-        ProductExpert
+        ProductExpert,
+        HtmlEditor
     }
 }

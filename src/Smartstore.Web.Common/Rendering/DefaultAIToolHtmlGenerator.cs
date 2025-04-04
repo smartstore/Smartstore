@@ -195,7 +195,7 @@ namespace Smartstore.Web.Rendering
             return inputGroupColDiv;
         }
 
-        public virtual IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true)
+        public virtual IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true, bool forHtmlEditor = false)
         {
             var builder = new HtmlContentBuilder();
             var className = forChatDialog ? "ai-text-optimizer" : "ai-text-composer";
@@ -225,8 +225,11 @@ namespace Smartstore.Web.Rendering
                 className += " d-none";
             }
 
-            builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
-        
+            if (forHtmlEditor)
+            {
+                builder.AppendHtml(CreateDropdownItem(T($"{resRoot}Continue"), enabled, "continue", "three-dots", false, className));
+            }
+            
             return builder;
         }
 

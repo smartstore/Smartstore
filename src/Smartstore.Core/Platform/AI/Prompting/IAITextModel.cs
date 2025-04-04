@@ -27,5 +27,7 @@ namespace Smartstore.Core.AI.Prompting
         string TextToOptimize { get; }
         string OptimizationCommand { get; }
         string ChangeParameter { get; }
+
+        string SelectedElementType { get; }
     }
 }

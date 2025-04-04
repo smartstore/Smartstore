@@ -274,11 +274,19 @@ namespace Smartstore.Core.AI.Prompting
         /// </summary>
         /// <param name="role">The <see cref="AIRole"/></param>
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated message will be added.</param>
+        /// <param name="additionalMessages">Additional messages which must be added to the role definition.</param>
         /// <param name="entityName">The name of the entity. Currently only used to fill a placeholder for the productname when the role is <see cref="AIRole.ProductExpert"/></param>
         /// <returns>AI Instruction: e.g.: Be a SEO expert.</returns>
-        public virtual AIChat AddRoleMessage(AIRole role, AIChat chat, string entityName = "")
+        public virtual AIChat AddRoleMessage(AIRole role, AIChat chat, List<string> additionalMessages = null, string entityName = "")
         {
-            return chat.System(Resources.Role(role, entityName));
+            var message = Resources.Role(role, entityName);
+
+            if (additionalMessages != null && additionalMessages.Count > 0)
+            {
+                message += string.Join(" ", additionalMessages);
+            }
+
+            return chat.System(message);
         }
 
         /// <summary>

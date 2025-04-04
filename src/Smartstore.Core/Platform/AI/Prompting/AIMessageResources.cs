@@ -95,7 +95,7 @@ namespace Smartstore.Core.AI.Prompting
             => P("ContinueAtPlaceholder");
 
         /// <summary>
-        /// Instruction to wrap the new text with a custom HTML element called ai-highlight.
+        /// Instruction to wrap the new text with a mark tag.
         /// </summary>
         /// <returns>
         /// AI instruction: Wrap newly created text with the tag <ai-highlight class='mark' />.

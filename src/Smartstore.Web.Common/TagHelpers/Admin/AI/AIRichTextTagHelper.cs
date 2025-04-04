@@ -10,10 +10,17 @@ namespace Smartstore.Web.TagHelpers.Admin
     [HtmlTargetElement("ai-rich-text", Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class AIRichTextTagHelper() : AITagHelperBase()
     {
+        const string DisplayLanguageOptionsAttributeName = "display-language-options";
         const string DisplayTocOptionsAttributeName = "display-toc-options";
         const string DisplayLinkOptionsAttributeName = "display-link-options";
         const string DisplayLayoutOptionsAttributeName = "display-layout-options";
         const string DisplayImageOptionsAttributeName = "display-image-options";
+
+        /// <summary>
+        /// Defines whether the options to set language, tone & style should be displayed in the rich text creation dialog.
+        /// </summary>
+        [HtmlAttributeName(DisplayLanguageOptionsAttributeName)]
+        public bool DisplayLanguageOptions { get; set; } = true;
 
         /// <summary>
         /// Defines whether the options to create a table of contents should be displayed in the rich text creation dialog.
@@ -64,6 +71,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             var attrs = base.GetTagHelperAttributes();
 
+            attrs["data-display-language-options"] = DisplayLanguageOptions.ToString().ToLower();
             attrs["data-display-toc-options"] = DisplayTocOptions.ToString().ToLower();
             attrs["data-display-link-options"] = DisplayLinkOptions.ToString().ToLower();
             attrs["data-display-image-options"] = DisplayImageOptions.ToString().ToLower();

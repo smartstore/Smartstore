@@ -36,8 +36,8 @@
                 return;
             }
 
-            let isRichText = tool.data('is-rich-text');
             const cmd = el.data('command');
+            let isRichText = tool.data('is-rich-text') || cmd === "create-new";
 
             let params = {
                 entityName: tool.data('entity-name'),
@@ -51,7 +51,8 @@
                 changeParameter: cmd === 'change-style' || cmd === 'change-tone' ? el.text() : '',
                 displayWordLimit: tool.data('display-word-limit'),
                 displayStyle: tool.data('display-style'),
-                displayTone: tool.data('display-tone')
+                displayTone: tool.data('display-tone'),
+                selectedElementType: tool.data('range-is-on')
             };
 
             if (tool.closest(".note-dropdown-menu").length) {
@@ -73,6 +74,11 @@
                     displayImageOptions: tool.data('display-image-options'),
                     displayLayoutOptions: tool.data('display-layout-options')
                 });
+
+                var richTextUrl = tool.data("rich-text-modal-url");
+                if (richTextUrl) {
+                    tool.data('modal-url', richTextUrl);
+                }
             }
 
             openDialog(tool, params, isRichText);

@@ -72,8 +72,9 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="forChatDialog">Whether the dropdown is rendered within the chat dialog.</param>
         /// <param name="enabled">A value indicating whether to initially enable the command dropdown items.</param>
+        /// <param name="forHtmlEditor">A value indicating whether to enable HTML editor specific commands such as 'continue'.</param>
         /// <returns>The HTML content.</returns>
-        IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true);
+        IHtmlContent GenerateOptimizeCommands(bool forChatDialog, bool enabled = true, bool forHtmlEditor = false);
 
         /// <summary>
         /// Gets the URL of the dialog.
