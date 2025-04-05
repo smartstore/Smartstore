@@ -868,11 +868,11 @@ $img-margin-right: 10px;
 .note-dropdown-emoji {
     --note-emoji-size: 40px;
     --note-emoji-gap: 1px;
-    --note-emoji-cols: 10;
+    --note-emoji-cols: 9;
     --note-emoji-padding: 0.5rem;
     overflow: hidden;
     height: 400px;
-    width: calc(var(--note-emoji-size) * var(--note-emoji-cols) + (var(--note-emoji-gap) * var(--note-emoji-cols)) + (var(--note-emoji-padding) * 2) + 18px);
+    width: calc(var(--note-emoji-size) * var(--note-emoji-cols) + (var(--note-emoji-gap) * var(--note-emoji-cols)) + (var(--note-emoji-padding) * 2) + 13px);
     flex-flow: column;
 
     &.show {
@@ -905,7 +905,7 @@ $img-margin-right: 10px;
 }
 
 .note-emoji {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: var(--font-weight-normal);
     border-width: 0;
     --btn-active-shadow: none;
