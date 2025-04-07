@@ -1,10 +1,5 @@
 ﻿@model CustomerModel.CookieConsentModel
 
-@{
-    var yes = T("Common.Yes");
-    var no = T("Common.No");
-}
-
 <modal id="cookie-consent-dialog" sm-render-at-page-end="true" sm-size="Medium">
     <modal-header sm-title="@T("Admin.Customers.CookieConsent")"></modal-header>
     <modal-body>
@@ -25,7 +20,7 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @(Model.AllowRequired ? yes : no)
+                        <i class="fa fa-fw icon-active-@Model.AllowRequired.ToString().ToLower()"></i>
                     </div>
                 </div>
             </div>
@@ -35,7 +30,7 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @(Model.AllowAnalytics ? yes : no)
+                        <i class="fa fa-fw icon-active-@Model.AllowAnalytics.ToString().ToLower()"></i>
                     </div>
                 </div>
             </div>
@@ -45,7 +40,7 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @(Model.AllowThirdParty ? yes : no)
+                        <i class="fa fa-fw icon-active-@Model.AllowThirdParty.ToString().ToLower()"></i>
                     </div>
                 </div>
             </div>
@@ -55,7 +50,7 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @(Model.AdUserDataConsent ? yes : no)
+                        <i class="fa fa-fw icon-active-@Model.AdUserDataConsent.ToString().ToLower()"></i>
                     </div>
                 </div>
             </div>
@@ -65,7 +60,7 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @(Model.AdPersonalizationConsent ? yes : no)
+                        <i class="fa fa-fw icon-active-@Model.AdPersonalizationConsent.ToString().ToLower()"></i>
                     </div>
                 </div>
             </div>

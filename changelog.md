@@ -58,6 +58,7 @@
   - Added a setting for the maximum number of completion tokens.
 - #1236 PayPal: Added setting to disable address application in case the store's address validation settings need to be respected.
 - #1274 Recycle Bin: Possibility to filter products with/without assignment to orders.
+- Store cookie consent information in database and display on customer edit page.
 
 ### Bugfixes
 

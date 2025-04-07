@@ -215,7 +215,10 @@ namespace Smartstore.Admin.Controllers
                     ? await MapperFactory.MapAsync<ConsentCookie, CookieConsentModel>(cookieConsent)
                     : new();
 
-                model.CookieConsent.ConsentOn = cookieConsent.ConsentedOn != null ? dtHelper.ConvertToUserTime(cookieConsent.ConsentedOn.Value, DateTimeKind.Utc) : null;
+                if (cookieConsent?.ConsentedOn != null)
+                {
+                    model.CookieConsent.ConsentOn = dtHelper.ConvertToUserTime(cookieConsent.ConsentedOn.Value, DateTimeKind.Utc);
+                }
             }
             else
             {
