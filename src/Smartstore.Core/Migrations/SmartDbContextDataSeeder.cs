@@ -381,6 +381,14 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Mit Auftragszuordnungen",
                 "Filters for products with/without order assignments.",
                 "Filtert nach Produkten mit/ohne Auftragszuordnungen.");
+
+            builder.AddOrUpdate("Admin.Customers.CookieConsent", "Cookie consent", "Cookie-Zustimmung");
+
+            builder.AddOrUpdate("Admin.Customers.CookieConsent.ConsentOn",
+                "Cookie consent on",
+                "Cookie-Zustimmung am",
+                "The date of the customer's consent to the use of cookies.",
+                "Das Datum, an dem der Kunde der Verwendung von Cookies zugestimmt hat.");
         }
     }
 }

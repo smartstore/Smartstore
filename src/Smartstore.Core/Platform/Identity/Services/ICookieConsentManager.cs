@@ -65,7 +65,7 @@ namespace Smartstore.Core.Identity
         /// <param name="allowThirdParty">A value indicating whether third party cookies are allowed to be set.</param>
         /// <param name="adUserDataConsent">A value indicating whether sending of user data is allowed.</param>
         /// <param name="adPersonalizationConsent">A value indicating whether personalization is allowed.</param>
-        void SetConsentCookie(
+        Task<bool> SetConsentCookieAsync(
             bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false, 

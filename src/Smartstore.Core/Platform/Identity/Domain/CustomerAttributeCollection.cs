@@ -230,6 +230,23 @@ namespace Smartstore.Core.Identity
         }
 
         /// <summary>
+        /// Gets or sets the customer's consent to the use of cookies.
+        /// </summary>
+        public ConsentCookie CookieConsent
+        {
+            get
+            {
+                var json = Get<string>(SystemCustomerAttributeNames.CookieConsent);
+                return json.HasValue() ? JsonConvert.DeserializeObject<ConsentCookie>(json) : null;
+            }
+            set
+            {
+                var json = value != null ? JsonConvert.SerializeObject(value) : null;
+                Set(SystemCustomerAttributeNames.CookieConsent, json);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the ID of the selected currency.
         /// </summary>
         public int? CurrencyId

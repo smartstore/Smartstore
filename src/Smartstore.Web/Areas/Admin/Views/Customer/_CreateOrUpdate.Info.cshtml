@@ -366,11 +366,25 @@
             <span asp-validation-for="Active"></span>
         </div>
     </div>
-    @if (Model.Id > 0)
-    {
+    <div sm-if="Model.Id > 0">
         <div class="adminRow">
             <div class="adminSeparator">
                 <hr />
+            </div>
+        </div>
+        <div sm-if="Model.CookieConsent != null" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CookieConsent.ConsentOn" />
+            </div>
+            <div class="adminData">
+                <div sm-if="Model.CookieConsent.ConsentOn != null">
+                    <span class="pr-2 w-auto form-control-plaintext d-inline-block">
+                        @Model.CookieConsent.ConsentOn.ToString()
+                    </span>
+                    <a href="#cookie-consent-dialog" data-toggle="modal" class="btn btn-sm btn-secondary">
+                        <span>@T("Admin.Customers.CookieConsent")</span>
+                    </a>
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -407,7 +421,7 @@
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
-                    <a href="@Model.LastVisitedPage">@Model.LastVisitedPage.Truncate(128, "...")</a>
+                    <a href="@Model.LastVisitedPage">@Model.LastVisitedPage.Truncate(128, "…")</a>
                 </div>
             </div>
         </div>
@@ -431,5 +445,5 @@
                 </div>
             </div>
         </div>
-    }
+    </div>
 </div>

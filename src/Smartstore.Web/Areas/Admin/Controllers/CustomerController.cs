@@ -24,6 +24,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
+using static Smartstore.Admin.Models.Customers.CustomerModel;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -134,6 +135,7 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareCustomerModel(CustomerModel model, Customer customer)
         {
             var dtHelper = Services.DateTimeHelper;
+            var ga = customer?.GenericAttributes;
 
             MiniMapper.Map(_customerSettings, model);
 
@@ -157,7 +159,7 @@ namespace Smartstore.Admin.Controllers
                 model.IsTaxExempt = customer.IsTaxExempt;
                 model.Active = customer.Active;
                 model.TimeZoneId = customer.TimeZoneId;
-                model.VatNumber = customer.GenericAttributes.VatNumber;
+                model.VatNumber = ga.VatNumber;
                 model.AffiliateId = customer.AffiliateId;
                 model.Deleted = customer.Deleted;
                 model.Title = customer.Title;
@@ -167,14 +169,14 @@ namespace Smartstore.Admin.Controllers
                 model.Company = customer.Company;
                 model.CustomerNumber = customer.CustomerNumber;
                 model.Gender = customer.Gender;
-                model.ZipPostalCode = customer.GenericAttributes.ZipPostalCode;
-                model.CountryId = Convert.ToInt32(customer.GenericAttributes.CountryId);
-                model.StreetAddress = customer.GenericAttributes.StreetAddress;
-                model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;
-                model.City = customer.GenericAttributes.City;
-                model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
-                model.Phone = customer.GenericAttributes.Phone;
-                model.Fax = customer.GenericAttributes.Fax;
+                model.ZipPostalCode = ga.ZipPostalCode;
+                model.CountryId = ga.CountryId;
+                model.StreetAddress = ga.StreetAddress;
+                model.StreetAddress2 = ga.StreetAddress2;
+                model.City = ga.City;
+                model.StateProvinceId = ga.StateProvinceId ?? 0;
+                model.Phone = ga.Phone;
+                model.Fax = ga.Fax;
                 model.DateOfBirth = customer.BirthDate;
                 model.DisplayVatNumber = _taxSettings.EuVatEnabled;
                 model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
@@ -207,6 +209,13 @@ namespace Smartstore.Admin.Controllers
                     .FindByIdAsync(customer.AffiliateId, false);
 
                 model.AffiliateFullName = affiliate?.Address?.GetFullName();
+
+                var cookieConsent = ga.CookieConsent;
+                model.CookieConsent = cookieConsent != null
+                    ? await MapperFactory.MapAsync<ConsentCookie, CookieConsentModel>(cookieConsent)
+                    : new();
+
+                model.CookieConsent.ConsentOn = cookieConsent.ConsentedOn != null ? dtHelper.ConvertToUserTime(cookieConsent.ConsentedOn.Value, DateTimeKind.Utc) : null;
             }
             else
             {
@@ -245,8 +254,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
                 var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync();
-                var preferredShippingMethodId = customer?.GenericAttributes.PreferredShippingOption?.ShippingMethodId ?? 0;
-                var preferredPaymentMethod = customer?.GenericAttributes.PreferredPaymentMethod;
+                var preferredShippingMethodId = ga?.PreferredShippingOption?.ShippingMethodId ?? 0;
+                var preferredPaymentMethod = ga?.PreferredPaymentMethod;
 
                 ViewBag.ShippingMethods = shippingMethods
                     .Select(x => new SelectListItem

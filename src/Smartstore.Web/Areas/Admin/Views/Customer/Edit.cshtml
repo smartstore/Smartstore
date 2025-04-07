@@ -69,4 +69,9 @@
 @if (Model.Id != 0)
 {
     <partial name="_ChangePasswordPopup" model="new CustomerModel.ChangePasswordModel { Id = Model.Id }" />
+
+    if (Model.CookieConsent != null)
+    {
+        <partial name="_CookieConsentPopup" model="Model.CookieConsent" />
+    }
 }

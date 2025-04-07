@@ -26,6 +26,7 @@
         public static string MostRecentlyUsedCategories => "MostRecentlyUsedCategories";
         public static string MostRecentlyUsedManufacturers => "MostRecentlyUsedManufacturers";
         public static string HasConsentedToGdpr => "HasConsentedToGdpr";
+        public static string CookieConsent => "CookieConsent";
 
         // Checkout
         public static string DefaultBillingAddressId => "DefaultBillingAddressId";

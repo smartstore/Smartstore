@@ -166,6 +166,7 @@ namespace Smartstore.Admin.Models.Customers
         public bool HasOrders { get; set; }
         public PermissionTree PermissionTree { get; set; }
         public AddressesModel Addresses { get; set; }
+        public CookieConsentModel CookieConsent { get; set; }
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]
@@ -282,6 +283,28 @@ namespace Smartstore.Admin.Models.Customers
                     .Equal(x => x.Password)
                     .WithMessage(T("Identity.Error.PasswordMismatch"));
             }
+        }
+
+        [LocalizedDisplay("CookieManager.Dialog.")]
+        public class CookieConsentModel : ModelBase
+        {
+            [LocalizedDisplay("Admin.Customers.CookieConsent.ConsentOn")]
+            public DateTime? ConsentOn { get; set; }
+
+            [LocalizedDisplay("*Required.Heading")]
+            public bool AllowRequired { get; set; }
+
+            [LocalizedDisplay("*Analytics.Heading")]
+            public bool AllowAnalytics { get; set; }
+
+            [LocalizedDisplay("*ThirdParty.Heading")]
+            public bool AllowThirdParty { get; set; }
+
+            [LocalizedDisplay("*AdUserDataConsent.Heading")]
+            public bool AdUserDataConsent { get; set; }
+
+            [LocalizedDisplay("*AdPersonalizationConsent.Heading")]
+            public bool AdPersonalizationConsent { get; set; }
         }
 
         #endregion

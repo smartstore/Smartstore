@@ -22,6 +22,7 @@ namespace Smartstore.Core.Identity
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHelper _webHelper;
+        private readonly IWorkContext _workContext;
         private readonly ITypeScanner _typeScanner;
         private readonly PrivacySettings _privacySettings;
         private readonly IComponentContext _componentContext;
@@ -34,6 +35,7 @@ namespace Smartstore.Core.Identity
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
+            IWorkContext workContext,
             ITypeScanner typeScanner,
             PrivacySettings privacySettings,
             IComponentContext componentContext,
@@ -43,6 +45,7 @@ namespace Smartstore.Core.Identity
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
+            _workContext = workContext;
             _typeScanner = typeScanner;
             _privacySettings = privacySettings;
             _componentContext = componentContext;
@@ -144,7 +147,7 @@ namespace Smartstore.Core.Identity
                 return true;
             }
 
-            var consentCookie = _requestCache.Get(CookieConsentKey, () =>
+            var consentCookie = await _requestCache.GetAsync(CookieConsentKey, async () =>
             {
                 var request = _httpContextAccessor?.HttpContext?.Request;
                 if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
@@ -171,7 +174,7 @@ namespace Smartstore.Core.Identity
                             consentCookie.ConsentedOn = DateTime.UtcNow;
                             // AllowRequired wasn't there pre 6.0.0 but implicitly consented to. Thus we must set it to true.
                             consentCookie.AllowRequired = true;
-                            SetConsentCookieCore(consentCookie);
+                            await SetConsentCookieCoreAsync(consentCookie);
                         }
 
                         return consentCookie;
@@ -277,7 +280,7 @@ namespace Smartstore.Core.Identity
             return script;
         }
 
-        public void SetConsentCookie(
+        public Task<bool> SetConsentCookieAsync(
             bool allowRequired = false,
             bool allowAnalytics = false, 
             bool allowThirdParty = false,
@@ -294,32 +297,40 @@ namespace Smartstore.Core.Identity
                 ConsentedOn = DateTime.UtcNow
             };
 
-            SetConsentCookieCore(cookieData);
+            return SetConsentCookieCoreAsync(cookieData);
         }
 
-        protected virtual void SetConsentCookieCore(ConsentCookie cookieData)
+        protected virtual async Task<bool> SetConsentCookieCoreAsync(ConsentCookie cookieData)
         {
             Guard.NotNull(cookieData);
             
             var context = _httpContextAccessor?.HttpContext;
-            if (context != null)
+            if (context == null)
             {
-                var cookies = context.Response.Cookies;
-                var cookieName = CookieNames.CookieConsent;
-
-                var options = new CookieOptions
-                {
-                    Expires = DateTime.UtcNow.AddDays(365),
-                    HttpOnly = false,
-                    IsEssential = true,
-                    Secure = _webHelper.IsCurrentConnectionSecured()
-                };
-
-                cookies.Delete(cookieName, options);
-                cookies.Append(cookieName, JsonConvert.SerializeObject(cookieData), options);
-
-                _requestCache.Remove(CookieConsentKey);
+                return false;
             }
+
+            var cookies = context.Response.Cookies;
+            var cookieName = CookieNames.CookieConsent;
+
+            var options = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(365),
+                HttpOnly = false,
+                IsEssential = true,
+                Secure = _webHelper.IsCurrentConnectionSecured()
+            };
+
+            var serializedData = JsonConvert.SerializeObject(cookieData);
+
+            cookies.Delete(cookieName, options);
+            cookies.Append(cookieName, serializedData, options);
+
+            _requestCache.Remove(CookieConsentKey);
+
+            _workContext.CurrentCustomer.GenericAttributes.Set(SystemCustomerAttributeNames.CookieConsent, serializedData);
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         protected virtual IEnumerable<ICookiePublisher> GetAllCookiePublishers()

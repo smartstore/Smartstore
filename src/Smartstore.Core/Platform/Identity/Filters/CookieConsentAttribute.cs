@@ -17,7 +17,7 @@ namespace Smartstore.Core.Identity
         {
         }
 
-        class CookieConsentFilter : IActionFilter, IResultFilter
+        class CookieConsentFilter : IAsyncActionFilter, IResultFilter
         {
             // System names of topics that should not display the consent banner (because it would overlay important legal text)
             readonly static string[] UnprocessableTopics = ["ConditionsOfUse", "PrivacyInfo", "Imprint", "Disclaimer"];
@@ -57,12 +57,15 @@ namespace Smartstore.Core.Identity
                 return true;
             }
 
-            public void OnActionExecuting(ActionExecutingContext context)
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 _isProcessableRequest = IsProcessableRequest(context);
 
                 if (!_isProcessableRequest)
+                {
+                    await next();
                     return;
+                }
 
                 var isLegacy = false;
                 var hasLegacyName = false;
@@ -92,14 +95,14 @@ namespace Smartstore.Core.Identity
                         var consented = doNotTrack.Equals("0");
 
                         // Tracking consented/denied.
-                        _cookieConsentManager.SetConsentCookie(consented, consented);
+                        await _cookieConsentManager.SetConsentCookieAsync(consented, consented);
                     }
                     else
                     {
                         if (_userAgent.IsBot())
                         {
                             // Don't ask consent from search engines, also don't set cookies.
-                            _cookieConsentManager.SetConsentCookie(true, true);
+                            await _cookieConsentManager.SetConsentCookieAsync(true, true);
                         }
                         else
                         {
@@ -137,7 +140,7 @@ namespace Smartstore.Core.Identity
                         else if (str.Equals("true") || str.Equals("1"))
                         {
                             // Set Cookie with all types allowed.
-                            _cookieConsentManager.SetConsentCookie(true, true);
+                            await _cookieConsentManager.SetConsentCookieAsync(true, true);
                         }
                     }
                     else if (hasLegacyName)
@@ -146,7 +149,7 @@ namespace Smartstore.Core.Identity
                         // Remove legacy cookie 
                         response.Cookies.Delete("CookieConsent");
                         // Add again with new name
-                        _cookieConsentManager.SetConsentCookie(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
+                        await _cookieConsentManager.SetConsentCookieAsync(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
                     }
                 }
 
@@ -154,10 +157,8 @@ namespace Smartstore.Core.Identity
                 {
                     context.HttpContext.Items["CookieConsent"] = cookieData;
                 }
-            }
 
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
+                await next();
             }
 
             public void OnResultExecuting(ResultExecutingContext context)
