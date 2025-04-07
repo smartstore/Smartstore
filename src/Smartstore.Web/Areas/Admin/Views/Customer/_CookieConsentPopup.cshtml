@@ -3,67 +3,24 @@
 <modal id="cookie-consent-dialog" sm-render-at-page-end="true" sm-size="Medium">
     <modal-header sm-title="@T("Admin.Customers.CookieConsent")"></modal-header>
     <modal-body>
-        <div class="adminContent">
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="ConsentOn" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        @Html.DisplayFor(x => x.ConsentOn)
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="AllowRequired" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        <i class="fa fa-fw icon-active-@Model.AllowRequired.ToString().ToLower()"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="AllowAnalytics" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        <i class="fa fa-fw icon-active-@Model.AllowAnalytics.ToString().ToLower()"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="AllowThirdParty" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        <i class="fa fa-fw icon-active-@Model.AllowThirdParty.ToString().ToLower()"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="AdUserDataConsent" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        <i class="fa fa-fw icon-active-@Model.AdUserDataConsent.ToString().ToLower()"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="AdPersonalizationConsent" />
-                </div>
-                <div class="adminData">
-                    <div class="form-control-plaintext">
-                        <i class="fa fa-fw icon-active-@Model.AdPersonalizationConsent.ToString().ToLower()"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="grid row-gap-1 column-gap-4" style="grid-template-columns: max-content 1fr">
+            <label class="fwm" asp-for="ConsentOn"></label>
+            @Html.DisplayFor(x => x.ConsentOn)
+
+            <label class="fwm" asp-for="AllowRequired"></label>
+            <span><i class="fa fa-fw icon-active-@Model.AllowRequired.ToString().ToLower()"></i></span>
+
+            <label class="fwm" asp-for="AllowAnalytics"></label>
+            <span><i class="fa fa-fw icon-active-@Model.AllowAnalytics.ToString().ToLower()"></i></span>
+
+            <label class="fwm" asp-for="AllowThirdParty"></label>
+            <span><i class="fa fa-fw icon-active-@Model.AllowThirdParty.ToString().ToLower()"></i></span>
+
+            <label class="fwm" asp-for="AdUserDataConsent"></label>
+            <span><i class="fa fa-fw icon-active-@Model.AdUserDataConsent.ToString().ToLower()"></i></span>
+
+            <label class="fwm" asp-for="AdPersonalizationConsent"></label>
+            <span><i class="fa fa-fw icon-active-@Model.AdPersonalizationConsent.ToString().ToLower()"></i></span>
         </div>
     </modal-body>
     <modal-footer>
