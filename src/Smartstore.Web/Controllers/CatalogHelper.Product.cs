@@ -1033,10 +1033,10 @@ namespace Smartstore.Web.Controllers
             var weightSystemKeyword = weight?.SystemKeyword ?? string.Empty;
 
             // INFO: model.WeightValue already calculated in previous helper methods.
-            model.Weight = (model.WeightValue > 0) ? $"{model.WeightValue:N2} {weightSystemKeyword}" : string.Empty;
-            model.Height = (product.Height > 0) ? $"{product.Height:N2} {dimensionSystemKeyword}" : string.Empty;
-            model.Length = (product.Length > 0) ? $"{product.Length:N2} {dimensionSystemKeyword}" : string.Empty;
-            model.Width = (product.Width > 0) ? $"{product.Width:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.Weight = (model.WeightValue > 0) ? $"{model.WeightValue:G29} {weightSystemKeyword}" : string.Empty;
+            model.Height = (product.Height > 0) ? $"{product.Height:G29} {dimensionSystemKeyword}" : string.Empty;
+            model.Length = (product.Length > 0) ? $"{product.Length:G29} {dimensionSystemKeyword}" : string.Empty;
+            model.Width = (product.Width > 0) ? $"{product.Width:G29} {dimensionSystemKeyword}" : string.Empty;
             model.HeightValue = product.Height;
             model.LengthValue = product.Length;
             model.WidthValue = product.Width;

@@ -88,7 +88,7 @@
     @if (Model.ShowWeight)
     {
         <span>@T("ShoppingCart.Weight"):</span>
-        <span>@((Model.Weight * Model.EnteredQuantity).ToString("N2")) @parentModel.MeasureUnitName</span>
+        <span>@((Model.Weight * Model.EnteredQuantity).ToString("G29")) @parentModel.MeasureUnitName</span>
     }
 
     @Html.Raw(Model.EssentialSpecAttributesInfo)

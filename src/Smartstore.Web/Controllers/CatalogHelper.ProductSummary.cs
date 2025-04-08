@@ -508,10 +508,10 @@ namespace Smartstore.Web.Controllers
             // Measure Dimensions
             if (model.ShowDimensions && (contextProduct.Width != 0 || contextProduct.Height != 0 || contextProduct.Length != 0))
             {
-                item.Dimensions = ctx.Resources["Products.DimensionsValue"].Value.FormatCurrent(
-                    contextProduct.Width.ToString("N2"),
-                    contextProduct.Height.ToString("N2"),
-                    contextProduct.Length.ToString("N2")
+                item.Dimensions = ctx.Resources["Products.DimensionsValue"].Value.FormatInvariant(
+                    contextProduct.Width.ToString("G29"),
+                    contextProduct.Height.ToString("G29"),
+                    contextProduct.Length.ToString("G29")
                 );
                 item.DimensionMeasureUnit = (await GetMeasureDimensionAsync(_measureSettings.BaseDimensionId))?.SystemKeyword;
             }
@@ -539,7 +539,7 @@ namespace Smartstore.Web.Controllers
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
                 var measureWeightName = (await GetMeasureWeightAsync(_measureSettings.BaseWeightId))?.GetLocalized(x => x.Name) ?? string.Empty;
-                item.Weight = $"{contextProduct.Weight.ToString("N2")} {measureWeightName}";
+                item.Weight = $"{contextProduct.Weight:G29} {measureWeightName}";
             }
 
             // "New" badge.
