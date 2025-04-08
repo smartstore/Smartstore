@@ -39,6 +39,7 @@ namespace Smartstore.Core.AI.Prompting
         public virtual string DontUseMarkdownHtml()
             => P("DontUseMarkdownHtml");
 
+        // TODO: (mh) Rename CURSORPOSITION to CARETPOS (aka CaretPosition) everywhere (CSS, JS, Resources etc.)
         /// <summary>
         /// Informs the AI about the current cursor position
         /// </summary>
