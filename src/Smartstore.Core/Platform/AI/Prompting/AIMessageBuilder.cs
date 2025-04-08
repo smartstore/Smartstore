@@ -1,5 +1,7 @@
-﻿using Smartstore.Core.Content.Menus;
+﻿using Parlot.Fluent;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.Core.AI.Prompting
 {
@@ -270,20 +272,26 @@ namespace Smartstore.Core.AI.Prompting
         #region Helper methods
 
         /// <summary>
-        /// Adds a <see cref="AIChatMessage"/> containing an instruction for the AI to act in a specific role.
+        /// Adds a <see cref="AIChatMessage"/> containing instructions for the AI to act in a specific role.
         /// </summary>
         /// <param name="role">The <see cref="AIRole"/></param>
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated message will be added.</param>
-        /// <param name="additionalMessages">Additional messages which must be added to the role definition.</param>
+        /// <param name="roleInstructions">
+        /// A list of explicit behavioral instructions that define how the AI should interpret and act within its system role. 
+        /// These rules form the operational core of the system prompt and guide the model's response style, structure, and constraints. 
+        /// Each entry in the list should represent a clear, standalone directive.
+        /// </param>
         /// <param name="entityName">The name of the entity. Currently only used to fill a placeholder for the productname when the role is <see cref="AIRole.ProductExpert"/></param>
         /// <returns>AI Instruction: e.g.: Be a SEO expert.</returns>
-        public virtual AIChat AddRoleMessage(AIRole role, AIChat chat, List<string> additionalMessages = null, string entityName = "")
+        public virtual AIChat AddRoleMessage(AIRole role, AIChat chat, List<string> roleInstructions = null, string entityName = "")
         {
             var message = Resources.Role(role, entityName);
 
-            if (additionalMessages != null && additionalMessages.Count > 0)
+            if (roleInstructions != null && roleInstructions.Count > 0)
             {
-                message += string.Join(" ", additionalMessages);
+                // INFO: Structuring role instructions as a clear list helps the AI parse and follow them more reliably, reducing the risk of missed rules.
+                message += Resources.GetResource("Smartstore.AI.Prompts.Role.Rules") + "\n\n-";
+                message += string.Join("\n\n-", roleInstructions);
             }
 
             return chat.System(message);

@@ -29,6 +29,72 @@ namespace Smartstore.Core.AI.Prompting
         public virtual string DontUseMarkdown()
             => P("DontUseMarkdown");
 
+        // TODO: Use a generic instruction for markdown and add one explicitly for HTML???
+        /// <summary>
+        /// Prevents the AI from generating markdown.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: 
+        /// </returns>
+        public virtual string DontUseMarkdownHtml()
+            => P("DontUseMarkdownHtml");
+
+        /// <summary>
+        /// Informs the AI about the current cursor position
+        /// </summary>
+        /// <returns>
+        /// AI instruction: The placeholder [CURSORPOSITION] marks the position where your new text should appear.
+        /// </returns>
+        public virtual string CursorPosition()
+            => P("CursorPosition");
+
+        /// <summary>
+        /// Instructs where to continue text when cursor position is missing.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: If the placeholder [CURSORPOSITION] is not included in the HTML, insert the new text at the end of the document.
+        /// </returns>
+        public virtual string MissingCursorPositionHandling()
+            => P("MissingCursorPositionHandling");
+
+        /// <summary>
+        /// Operational rule to generate only valid HTML.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: The generated output must be completely valid HTML that fits seamlessly into the existing HTML content.
+        /// </returns>
+        public virtual string ValidHtmlOutput()
+            => P("ValidHtmlOutput");
+
+        /// <summary>
+        /// Operational rule to remove placeholder for cursor position.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.
+        /// </returns>
+        public virtual string RemoveCursorPositionPlaceholder()
+            => P("RemoveCursorPositionPlaceholder");
+
+        /// <summary>
+        /// Instruction to return the complete parent tag of the current cursor position in the response.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.
+        /// </returns>
+        public virtual string ReturnCompleteParentTag()
+            => P("ReturnCompleteParentTag");
+
+        /// <summary>
+        /// Instruction to highlight any text that is added.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: Any text deviation from the transmitted original text must be enclosed with the mark tag. 
+        /// When you create a new answer, take into account the text you added previously.
+        /// Enclose ANY text you have added within this chat history with the mark tag.
+        /// </returns>
+        public virtual string PreservePreviousHighlightTags()
+            => P("PreservePreviousHighlightTags");
+        
         /// <summary>
         /// Prevents the AI from generating line breaks.
         /// </summary>

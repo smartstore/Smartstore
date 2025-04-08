@@ -1,3 +1,4 @@
+using Humanizer;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Security;
@@ -330,7 +331,6 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
 
             builder.AddOrUpdate("Admin.AI.TextCreation.Continue", "Continue", "Fortsetzen");
 
-            // TODO: Clean up after extensive prompting tests.
             builder.AddOrUpdate("Smartstore.AI.Prompts.AppendToLastSpan",
                 "Be sure to append the new mark-up to the last span tag.",
                 "Füge das neue Mark-Up unbedingt an das letzte span-Tag an.");
@@ -339,43 +339,67 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Return the complete text in your answer.",
                 "Gib in deiner Antwort den vollständigen Text zurück.");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnNewTextOnly",
-                "Only return the text you have written in your answer.",
-                "Gib in deiner Antwort ausschließlich den neu erstellten Text zurück! Gib den Original-Text auf gar keinen Fall komplett zurück.");
-
-            //builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
-            //    "Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged. " +
-            //    "If the placeholder is in a block-level element, only add text to complete this paragraph. " +
-            //    "If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.",
-            //    "Ersetze den Platzhalter [CURSORPOSITION] durch deinen fortgesetzten Text. Lass den restlichen Text unverändert. " +
-            //    "Wenn sich der Platzhalter in einem Block-Level-Element befindet, füge nur Text zum Vervollständigen dieses Absatzes hinzu. " +
-            //    "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
-
-            builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
-                "Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged. " +
-                "If the placeholder is in a block-level element, only add text to complete this paragraph. " +
-                "If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.",
-                "Ersetze den Platzhalter [CURSORPOSITION] durch deinen fortgesetzten Text. Lass den restlichen Text unverändert. " +
-                "Wenn sich der Platzhalter in einem Block-Level-Element befindet, füge nur Text zum Vervollständigen dieses Absatzes hinzu. " +
-                "Findest du den Platzhalter [CURSORPOSITION] nicht, setze den Text am Ende fort.");
-
-            //builder.AddOrUpdate("Smartstore.AI.Prompts.WrapNewContentWithHighlightTag",
-            //    "Wrap the complete text you have created with the tag <ai-highlight class='mark'>.",
-            //    "Umschließe jeden Text, der von dir erstellt wurde, mit dem mark-Tag. " +
-            //    "Wenn du neue Tags hinzufügen musst, muss der enthaltene Text mit dem mark-Tag umschloßen werden.");
-
-            builder.AddOrUpdate("Smartstore.AI.Prompts.WrapNewContentWithHighlightTag",
-                "Any text that you generate or add must be enclosed in a real HTML <mark> tag. Example: <mark>additional sentence</mark>. " +
-                "Never use just the word “mark” as text, but the real HTML tag.",
-                "Jeden Text, den du neu generierst oder ergänzt, musst du in einen echten HTML-<mark>-Tag einschließen. Beispiel: <mark>Zusätzlicher Satz</mark>. " +
-                "Verwende niemals nur das Wort „mark“ als Text, sondern den echten HTML-Tag.");
-
             builder.AddOrUpdate("Admin.AI.EditHtml", "Edit HTML text", "HTML-Text bearbeiten");
 
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Rules", "Follow these guidelines:", "Beachte dabei die folgenden Regeln:");
+
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.HtmlEditor",
-                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor.",
-                "Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Du erstellst immer valides HTML!");
-            
+                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. You always create valid HTML!",
+                "Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Deine Ausgabe ist IMMER valides HTML!");
+
+            // TODO: Maybe split this instruction??? in JustPureHtml and DontUseMarkdown
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdownHtml",
+                "Only return pure HTML code - do not use Markdown formatting, no backticks (```) and no indented code sections.",
+                "Gib ausschließlich reinen HTML-Code zurück – verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CursorPosition",
+                "The placeholder [CURSORPOSITION] marks the position where your new text should appear.",
+                "Der Platzhalter [CURSORPOSITION] markiert die Stelle, an der dein neuer Text erscheinen soll.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnNewTextOnly",
+                "Return ONLY the newly created text - no original parts.",
+                "Gib AUSSCHLIESSLICH den neu erstellten Text zurück - keine Originalbestandteile.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.WrapNewContentWithHighlightTag",
+                "Any text that you generate or add must be enclosed in a real HTML <mark> tag. Example: <mark>additional sentence</mark> or <li><mark>additional list item</mark></li>. " +
+                "The word 'mark' must never appear as visible text content.",
+                "Umschließe jeden neu generierten Text mit einem echten <mark>-Tag. Beispiel: <mark>Zusätzlicher Text</mark> oder <li><mark>Zusätzlicher Listeneintrag</mark></li>. " +
+                "Das Wort 'mark' darf niemals als sichtbarer Textinhalt erscheinen.");
+                
+            builder.AddOrUpdate("Smartstore.AI.Prompts.MissingCursorPositionHandling",
+                "If the placeholder [CURSORPOSITION] is not included in the HTML, insert the new text at the end of the document.",
+                "Wenn der Platzhalter [CURSORPOSITION] im HTML nicht enthalten ist, füge den neuen Text am Ende des Dokuments ein.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ValidHtmlOutput",
+                "The generated output must be completely valid HTML that fits seamlessly into the existing HTML content.",
+                "Die erzeugte Ausgabe muss vollständig valides HTML sein, das sich nahtlos in den bestehenden HTML-Inhalt einfügt.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
+                "Determine the next higher block-level element that contains the placeholder [CURSORPOSITION] (e.g. <p> or <div>). " +
+                "Consider this element as a valid context area for your text addition. " +
+                "If the user instruction requires it, the addition can also be made outside the cursor position within this element.",
+                "Ermittle das nächsthöhere Block-Level-Element, das den Platzhalter [CURSORPOSITION] enthält (z.B. <p> oder <div>). " +
+                "Betrachte dieses Element als gültigen Kontextbereich für deine Textergänzung. " +
+                "Wenn die Benutzeranweisung es verlangt, kann die Ergänzung auch außerhalb der Cursorposition innerhalb dieses Elements erfolgen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.RemoveCursorPositionPlaceholder",
+                "Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.",
+                "Entferne den Platzhalter [CURSORPOSITION] vollständig. Er darf in der Antwort NIEMALS enthalten sein – weder sichtbar noch als Steuerzeichen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnCompleteParentTag",
+                "Always return the complete enclosing block-level parent element in which the new text was inserted or changed." +
+                "Only return this one element - no other content before or after it.",
+                "Gib immer das vollständige umschließende Block-Level-Elternelement zurück, in dem der neue Text eingefügt oder verändert wurde." +
+                "Gib nur dieses eine Element zurück – keine anderen Inhalte davor oder danach.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.PreservePreviousHighlightTags",
+                "Any text deviation from the transmitted original text must be enclosed with the mark tag. " +
+                "When you create a new answer, take into account the text you added previously. " +
+                "Enclose ANY text you have added within this chat history with the mark tag.",
+                "Jegliche Text-Abweichung vom übermittelten Originaltext muss mit dem mark-Tag umschloßen werden. " +
+                "Wenn du eine neue Antwort erstellst, berücksichtige den Text, den du zuvor hinzugefügt hast. " +
+                "Umschließe JEDEN Text, der von dir innerhalb dieses Chat-Verlaufes hinzugefügt wurde, mit dem mark-Tag.");
+
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchWithOrders",
                 "With order assignments",
                 "Mit Auftragszuordnungen",
