@@ -868,7 +868,7 @@ $img-margin-right: 10px;
 .note-dropdown-emoji {
     --note-emoji-size: 40px;
     --note-emoji-gap: 1px;
-    --note-emoji-cols: 9;
+    --note-emoji-cols: 10;
     --note-emoji-padding: 0.5rem;
     overflow: hidden;
     height: 400px;
@@ -905,11 +905,15 @@ $img-margin-right: 10px;
 }
 
 .note-emoji {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: var(--font-weight-normal);
     border-width: 0;
+    overflow-x: hidden;
     --btn-active-shadow: none;
     --btn-height: var(--note-emoji-size);
+    // &.combined {
+    //   //font-size: 16px;
+    // }
 }
 
 
