@@ -939,11 +939,11 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(
                 KnownActivityLogTypes.DeleteCustomer,
                 T("ActivityLog.DeleteCustomer",
-                string.Join(", ", result.AllDeletedCustomersIds)));
+                string.Join(", ", result.AllDeletedCustomerIds)));
 
-            if (result.SkippedAdminsIds.Length > 0)
+            if (result.SkippedAdminIds.Length > 0)
             {
-                NotifyWarning(T("Admin.Customers.NoAdministratorsDeletedWarning", result.SkippedAdminsIds.Length));
+                NotifyWarning(T("Admin.Customers.NoAdministratorsDeletedWarning", result.SkippedAdminIds.Length));
             }
         }
 
