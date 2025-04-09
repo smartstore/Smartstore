@@ -352,9 +352,9 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Only return pure HTML code - do not use Markdown formatting, no backticks (```) and no indented code sections.",
                 "Gib ausschließlich reinen HTML-Code zurück – verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.CursorPosition",
-                "The placeholder [CURSORPOSITION] marks the position where your new text should appear.",
-                "Der Platzhalter [CURSORPOSITION] markiert die Stelle, an der dein neuer Text erscheinen soll.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CaretPos",
+                "The placeholder [CARETPOS] marks the position where your new text should appear.",
+                "Der Platzhalter [CARETPOS] markiert die Stelle, an der dein neuer Text erscheinen soll.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnNewTextOnly",
                 "Return ONLY the newly created text - no original parts.",
@@ -366,31 +366,45 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Umschließe jeden neu generierten Text mit einem echten <mark>-Tag. Beispiel: <mark>Zusätzlicher Text</mark> oder <li><mark>Zusätzlicher Listeneintrag</mark></li>. " +
                 "Das Wort 'mark' darf niemals als sichtbarer Textinhalt erscheinen.");
                 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.MissingCursorPositionHandling",
-                "If the placeholder [CURSORPOSITION] is not included in the HTML, insert the new text at the end of the document.",
-                "Wenn der Platzhalter [CURSORPOSITION] im HTML nicht enthalten ist, füge den neuen Text am Ende des Dokuments ein.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.MissingCaretPosHandling",
+                "If the placeholder [CARETPOS] is not included in the HTML, insert the new text at the end of the document.",
+                "Wenn der Platzhalter [CARETPOS] im HTML nicht enthalten ist, füge den neuen Text am Ende des Dokuments ein.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ValidHtmlOutput",
                 "The generated output must be completely valid HTML that fits seamlessly into the existing HTML content.",
                 "Die erzeugte Ausgabe muss vollständig valides HTML sein, das sich nahtlos in den bestehenden HTML-Inhalt einfügt.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueAtPlaceholder",
-                "Determine the next higher block-level element that contains the placeholder [CURSORPOSITION] (e.g. <p> or <div>). " +
+                "Determine the next higher block-level element that contains the placeholder [CARETPOS] (e.g. <p> or <div>). " +
                 "Consider this element as a valid context area for your text addition. " +
-                "If the user instruction requires it, the addition can also be made outside the cursor position within this element.",
-                "Ermittle das nächsthöhere Block-Level-Element, das den Platzhalter [CURSORPOSITION] enthält (z.B. <p> oder <div>). " +
+                "If the user instruction requires it, the addition can also be made outside the caret position within this element.",
+                "Ermittle das nächsthöhere Block-Level-Element, das den Platzhalter [CARETPOS] enthält (z.B. <p> oder <div>). " +
                 "Betrachte dieses Element als gültigen Kontextbereich für deine Textergänzung. " +
-                "Wenn die Benutzeranweisung es verlangt, kann die Ergänzung auch außerhalb der Cursorposition innerhalb dieses Elements erfolgen.");
+                "Wenn die Benutzeranweisung es verlangt, kann die Ergänzung auch außerhalb der CaretPos innerhalb dieses Elements erfolgen.");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.RemoveCursorPositionPlaceholder",
-                "Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.",
-                "Entferne den Platzhalter [CURSORPOSITION] vollständig. Er darf in der Antwort NIEMALS enthalten sein – weder sichtbar noch als Steuerzeichen.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.RemoveCaretPosPlaceholder",
+                "Remove the placeholder [CARETPOS] completely. It must NEVER be included in the response - neither visibly nor as a control character. ",
+                "Entferne den Platzhalter [CARETPOS] vollständig. Er darf in der Antwort NIEMALS enthalten sein – weder sichtbar noch als Steuerzeichen.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnCompleteParentTag",
-                "Always return the complete enclosing block-level parent element in which the new text was inserted or changed." +
-                "Only return this one element - no other content before or after it.",
-                "Gib immer das vollständige umschließende Block-Level-Elternelement zurück, in dem der neue Text eingefügt oder verändert wurde." +
-                "Gib nur dieses eine Element zurück – keine anderen Inhalte davor oder danach.");
+                "ALWAYS return the complete enclosing block-level parent element in which the new text was inserted or changed.",
+                "Gib IMMER das vollständige umschließende Block-Level-Elternelement zurück, in dem der neue Text eingefügt oder verändert wurde.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnCompleteTable",
+                "ALWAYS return the complete enclosing <table> tag in which the new text was inserted or changed.",
+                "Gib IMMER das vollständige table-Tag zurück, in dem der neue Text eingefügt oder verändert wurde.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnCompleteList",
+                "ALWAYS return the complete tag of the list (<ul>, <ol> or <menu>) in which the new text was inserted or changed.",
+                "Gib IMMER das vollständige Tag der Liste (<ul>, <ol> oder <menu>) zurück, in dem der neue Text eingefügt oder verändert wurde.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnCompleteDefinitionList",
+                "ALWAYS return the complete enclosing <dl> tag in which the new text was inserted or changed.",
+                "Gib IMMER das vollständige dl-Tag zurück, in dem der neue Text eingefügt oder verändert wurde.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReturnInstructionReinforcer",
+                "ONLY return this one element - no other content before or after it.",
+                "Gib NUR dieses eine Element zurück – keine anderen Inhalte davor oder danach."); 
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.PreservePreviousHighlightTags",
                 "Any text deviation from the transmitted original text must be enclosed with the mark tag. " +
@@ -399,6 +413,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Jegliche Text-Abweichung vom übermittelten Originaltext muss mit dem mark-Tag umschloßen werden. " +
                 "Wenn du eine neue Antwort erstellst, berücksichtige den Text, den du zuvor hinzugefügt hast. " +
                 "Umschließe JEDEN Text, der von dir innerhalb dieses Chat-Verlaufes hinzugefügt wurde, mit dem mark-Tag.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueTable",
+                "If the user requests a table extension, use [CARETPOS] exclusively to localize the table. " +
+                "Expand the table logically without continuing directly at the caret position - unless the user explicitly requests that the current cell be edited.",
+                "Wenn der User eine Tabellenerweiterung verlangt, verwende [CARETPOS] ausschließlich zur Lokalisierung der Tabelle. " +
+                "Ergänze die Tabelle logisch, ohne direkt an der Caret-Position weiterzuschreiben – es sei denn, der User fordert ausdrücklich eine Bearbeitung der aktuellen Zelle.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchWithOrders",
                 "With order assignments",

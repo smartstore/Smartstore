@@ -39,24 +39,23 @@ namespace Smartstore.Core.AI.Prompting
         public virtual string DontUseMarkdownHtml()
             => P("DontUseMarkdownHtml");
 
-        // TODO: (mh) Rename CURSORPOSITION to CARETPOS (aka CaretPosition) everywhere (CSS, JS, Resources etc.)
         /// <summary>
-        /// Informs the AI about the current cursor position
+        /// Informs the AI about the current caret position
         /// </summary>
         /// <returns>
-        /// AI instruction: The placeholder [CURSORPOSITION] marks the position where your new text should appear.
+        /// AI instruction: The placeholder [CARETPOS] marks the position where your new text should appear.
         /// </returns>
-        public virtual string CursorPosition()
-            => P("CursorPosition");
+        public virtual string CaretPos()
+            => P("CaretPos");
 
         /// <summary>
-        /// Instructs where to continue text when cursor position is missing.
+        /// Instructs where to continue text when caret position is missing.
         /// </summary>
         /// <returns>
-        /// AI instruction: If the placeholder [CURSORPOSITION] is not included in the HTML, insert the new text at the end of the document.
+        /// AI instruction: If the placeholder [CARETPOS] is not included in the HTML, insert the new text at the end of the document.
         /// </returns>
-        public virtual string MissingCursorPositionHandling()
-            => P("MissingCursorPositionHandling");
+        public virtual string MissingCaretPosHandling()
+            => P("MissingCaretPosHandling");
 
         /// <summary>
         /// Operational rule to generate only valid HTML.
@@ -68,23 +67,55 @@ namespace Smartstore.Core.AI.Prompting
             => P("ValidHtmlOutput");
 
         /// <summary>
-        /// Operational rule to remove placeholder for cursor position.
+        /// Operational rule to remove placeholder for caret position.
         /// </summary>
         /// <returns>
-        /// AI instruction: Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.
+        /// AI instruction: Remove the placeholder [CARETPOS] completely. It must NEVER be included in the response - neither visibly nor as a control character.
         /// </returns>
-        public virtual string RemoveCursorPositionPlaceholder()
-            => P("RemoveCursorPositionPlaceholder");
+        public virtual string RemoveCaretPosPlaceholder()
+            => P("RemoveCaretPosPlaceholder");
 
         /// <summary>
-        /// Instruction to return the complete parent tag of the current cursor position in the response.
+        /// Instruction to return the complete parent tag of the current caret position for block-level elements.
         /// </summary>
         /// <returns>
-        /// AI instruction: Remove the placeholder [CURSORPOSITION] completely. It must NEVER be included in the response - neither visibly nor as a control character.
+        /// ALWAYS return the complete enclosing block-level parent element in which the new text was inserted or changed.
+        /// ONLY return this one element - no other content before or after it.
         /// </returns>
         public virtual string ReturnCompleteParentTag()
-            => P("ReturnCompleteParentTag");
+            => $"{P("ReturnCompleteParentTag")} {P("ReturnInstructionReinforcer")}";
 
+        /// <summary>
+        /// Instruction to return the complete parent tag of the current caret position for tables.
+        /// </summary>
+        /// <returns>
+        /// ALWAYS return the complete enclosing <c>&lt;table&gt;</c> tag in which the new text was inserted or changed.
+        /// ONLY return this one element - no other content before or after it.
+        /// </returns>
+        public virtual string ReturnCompleteTable()
+            => $"{P("ReturnCompleteTable")} {P("ReturnInstructionReinforcer")}";
+
+        /// <summary>
+        /// Instruction to return the complete parent tag of the current caret position for lists.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: ALWAYS return the complete tag of the list (<c>&lt;ul&gt;</c>, <c>&lt;ol&gt;</c> or <c>&lt;menu&gt;</c>) 
+        /// in which the new text was inserted or changed.
+        /// ONLY return this one element - no other content before or after it.
+        /// </returns>
+        public virtual string ReturnCompleteList()
+            => $"{P("ReturnCompleteList")} {P("ReturnInstructionReinforcer")}";
+
+        /// <summary>
+        /// Instruction to return the complete parent tag of the current caret position for definition lists.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: ALWAYS return the complete enclosing <c>&lt;dl&gt;</c> tag in which the new text was inserted or changed.
+        /// ONLY return this one element - no other content before or after it.
+        /// </returns>
+        public virtual string ReturnCompleteDefinitionList()
+            => $"{P("ReturnCompleteDefinitionList")} {P("ReturnInstructionReinforcer")}";
+        
         /// <summary>
         /// Instruction to highlight any text that is added.
         /// </summary>
@@ -154,12 +185,22 @@ namespace Smartstore.Core.AI.Prompting
         /// Instruction to use last span of submitted HTML structure for continue writing.
         /// </summary>
         /// <returns>
-        /// AI instruction: Replace the placeholder [CURSORPOSITION] with your continued text. Leave the rest of the text unchanged.
+        /// AI instruction: Replace the placeholder [CARETPOS] with your continued text. Leave the rest of the text unchanged.
         /// If the placeholder is in a block-level element, only add text to complete this paragraph.
-        /// If the [CURSORPOSITION] placeholder is not found, continue at the end of the text.
+        /// If the [CARETPOS] placeholder is not found, continue at the end of the text.
         /// </returns>
         public virtual string ContinueAtPlaceholder()
             => P("ContinueAtPlaceholder");
+
+        /// <summary>
+        /// Instruction to use selected tabel as HTML generation context.
+        /// </summary>
+        /// <returns>
+        /// AI instruction: If the user requests a table extension, use [CARETPOS] exclusively to localize the table.
+        /// Expand the table logically without continuing directly at the caret position - unless the user explicitly requests that the current cell be edited.
+        /// </returns>
+        public virtual string ContinueTable()
+            => P("ContinueTable"); 
 
         /// <summary>
         /// Instruction to wrap the new text with a mark tag.

@@ -290,8 +290,8 @@ namespace Smartstore.Core.AI.Prompting
             if (roleInstructions != null && roleInstructions.Count > 0)
             {
                 // INFO: Structuring role instructions as a clear list helps the AI parse and follow them more reliably, reducing the risk of missed rules.
-                message += Resources.GetResource("Smartstore.AI.Prompts.Role.Rules") + "\n\n-";
-                message += string.Join("\n\n-", roleInstructions);
+                message += "\n\n" + Resources.GetResource("Smartstore.AI.Prompts.Role.Rules") + "\n\n- ";
+                message += string.Join("\n- ", roleInstructions);
             }
 
             return chat.System(message);
