@@ -910,26 +910,17 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var customer = await _db.Customers.FindByIdAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                _db.Customers.Remove(customer);
-                await _db.SaveChangesAsync();
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomer, T("ActivityLog.DeleteCustomer", customer.Id));
-                NotifySuccess(T("Admin.Customers.Customers.Deleted"));
+                var result = await _customerService.DeleteCustomersAsync([id]);
+                ProcessDeletionResult(result);
 
                 return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex.Message);
-                return RedirectToAction(nameof(Edit), new { id = customer.Id });
+                return RedirectToAction(nameof(Edit), new { id });
             }
         }
 
@@ -937,40 +928,23 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Delete)]
         public async Task<IActionResult> CustomerDelete(GridSelection selection)
         {
-            var entities = await _db.Customers
-                .IncludeCustomerRoles()
-                .GetManyAsync(selection.GetEntityIds(), true);
-            if (entities.Count > 0)
+            var result = await _customerService.DeleteCustomersAsync([.. selection.GetEntityIds()]);
+            ProcessDeletionResult(result);
+
+            return Json(new { Success = true, Count = result.NumDeleted });
+        }
+
+        private void ProcessDeletionResult(CustomerDeletionResult result)
+        {
+            Services.ActivityLogger.LogActivity(
+                KnownActivityLogTypes.DeleteCustomer,
+                T("ActivityLog.DeleteCustomer",
+                string.Join(", ", result.AllDeletedCustomersIds)));
+
+            if (result.SkippedAdminsIds.Length > 0)
             {
-                var adminIds = entities
-                    .Where(c => c.CustomerRoleMappings.Any(rm => 
-                        rm.CustomerRole.IsSystemRole && 
-                        rm.CustomerRole.Active && 
-                        (rm.CustomerRole.SystemName == SystemCustomerRoleNames.Administrators || rm.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators)))
-                    .Select(x => x.Id)
-                    .ToList();
-
-                if (adminIds.Count > 0)
-                {
-                    // Do not delete administrators here for security reasons.
-                    entities = entities.Where(x => !adminIds.Contains(x.Id)).ToList();
-                }
-
-                _db.Customers.RemoveRange(entities);
-                await _db.SaveChangesAsync();
-
-                Services.ActivityLogger.LogActivity(
-                    KnownActivityLogTypes.DeleteCustomer, 
-                    T("ActivityLog.DeleteCustomer", 
-                    string.Join(", ", entities.Select(x => x.Id))));
-
-                if (adminIds.Count > 0)
-                {
-                    NotifyWarning(T("Admin.Customers.NoAdministratorsDeletedWarning", adminIds.Count));
-                }
+                NotifyWarning(T("Admin.Customers.NoAdministratorsDeletedWarning", result.SkippedAdminsIds.Length));
             }
-
-            return Json(new { Success = true, entities.Count });
         }
 
         [HttpPost]

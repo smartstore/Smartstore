@@ -12,13 +12,16 @@ namespace Smartstore.Web.Api.Controllers
     [WebApiGroup(WebApiGroupNames.Identity)]
     public class CustomersController : WebApiController<Customer>
     {
+        private readonly Lazy<ICustomerService> _customerService;
         private readonly Lazy<UserManager<Customer>> _userManager;
         private readonly Lazy<CustomerSettings> _customerSettings;
 
         public CustomersController(
+            Lazy<ICustomerService> customerService,
             Lazy<UserManager<Customer>> userManager,
             Lazy<CustomerSettings> customerSettings)
         {
+            _customerService = customerService;
             _userManager = userManager;
             _customerSettings = customerSettings;
         }
@@ -173,22 +176,18 @@ namespace Smartstore.Web.Api.Controllers
         [HttpDelete]
         [Permission(Permissions.Customer.Delete)]
         [ProducesResponseType(Status403Forbidden)]
-        public Task<IActionResult> Delete(int key)
+        public async Task<IActionResult> Delete(int key)
         {
-            return DeleteAsync(key, async (entity) =>
+            try
             {
-                CheckCustomer(entity);
+                _ = await _customerService.Value.DeleteCustomersAsync([key]);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
 
-                Db.Customers.Remove(entity);
-
-                if (entity.Email.HasValue())
-                {
-                    var subscriptions = await Db.NewsletterSubscriptions.Where(x => x.Email == entity.Email).ToListAsync();
-                    Db.NewsletterSubscriptions.RemoveRange(subscriptions);
-                }
-
-                await Db.SaveChangesAsync();
-            });
+            return NoContent();
         }
 
         /// <summary>

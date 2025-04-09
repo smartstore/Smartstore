@@ -35,6 +35,13 @@ namespace Smartstore.Core.Identity
         Task<Customer> FindCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60);
 
         /// <summary>
+        /// Deletes customer records by their IDs. Physically deletes guest customers 
+        /// (when they have no relationships with other entities) and soft-deletes all other customers.
+        /// </summary>
+        /// <param name="customerIds">Ids of customers to delete.</param>
+        Task<CustomerDeletionResult> DeleteCustomersAsync(int[] customerIds, CancellationToken cancelToken = default);
+
+        /// <summary>
         /// Deletes guest customer records including generic attributes.
         /// </summary>
         /// <param name="registrationFrom">Customer registration from. <c>null</c> to ignore.</param>

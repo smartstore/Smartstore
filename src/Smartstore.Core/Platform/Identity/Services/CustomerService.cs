@@ -123,6 +123,70 @@ namespace Smartstore.Core.Identity
             }
         }
 
+        public virtual async Task<CustomerDeletionResult> DeleteCustomersAsync(int[] customerIds, CancellationToken cancelToken = default)
+        {
+            if (customerIds.IsNullOrEmpty())
+            {
+                return new();
+            }
+
+            int[] deletedGuestCustomerIds = null;
+            int[] softDeletedCustomerIds = null;
+            int[] skippedAdminIds = null;
+
+            var guestCustomersQuery = await GetGuestCustomersDeletionQuery(null, null, false, cancelToken);
+            var guestCustomerIds = await guestCustomersQuery
+                .Where(x => customerIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToArrayAsync(cancelToken);
+
+            if (guestCustomerIds.Length > 0)
+            {
+                // Delete guest customer's attributes.
+                await _db.GenericAttributes
+                    .IgnoreQueryFilters()
+                    .Where(x => guestCustomerIds.Contains(x.EntityId) && x.KeyGroup == nameof(Customer))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                // Delete guest customers.
+                await _db.Customers
+                    .IgnoreQueryFilters()
+                    .Where(x => guestCustomerIds.Contains(x.Id))
+                    .ExecuteDeleteAsync(cancelToken);
+
+                deletedGuestCustomerIds = guestCustomerIds;
+                customerIds = [.. customerIds.Where(x => !guestCustomerIds.Contains(x))];
+            }
+
+            var customers = await _db.Customers
+                .IncludeCustomerRoles()
+                .Where(x => !x.IsSystemAccount)
+                .GetManyAsync(customerIds, true);
+            if (customers.Count > 0)
+            {
+                // Do not delete administrators.
+                skippedAdminIds = [.. customers
+                    .Where(c => c.CustomerRoleMappings.Any(rm =>
+                        rm.CustomerRole.IsSystemRole &&
+                        rm.CustomerRole.Active &&
+                        (rm.CustomerRole.SystemName == SystemCustomerRoleNames.Administrators || rm.CustomerRole.SystemName == SystemCustomerRoleNames.SuperAdministrators)))
+                    .Select(x => x.Id)];
+
+                if (skippedAdminIds.Length > 0)
+                {
+                    customers = [.. customers.Where(x => !skippedAdminIds.Contains(x.Id))];
+                }
+
+                // Let SoftDeletableHook do his work and soft-delete customers.
+                _db.Customers.RemoveRange(customers);
+                await _db.SaveChangesAsync(cancelToken);
+
+                softDeletedCustomerIds = [.. customers.Select(x => x.Id)];
+            }
+
+            return new(deletedGuestCustomerIds, softDeletedCustomerIds, skippedAdminIds);
+        }
+
         public virtual async Task<int> DeleteGuestCustomersAsync(
             DateTime? registrationFrom,
             DateTime? registrationTo,
@@ -131,37 +195,8 @@ namespace Smartstore.Core.Identity
         {
             var numberOfDeletedCustomers = 0;
             var numberOfDeletedAttributes = 0;
-
-            var query =
-                from c in _db.Customers.IgnoreQueryFilters()
-                where c.Username == null && c.Email == null && !c.IsSystemAccount
-                    && !_db.Orders.IgnoreQueryFilters().Any(o => o.CustomerId == c.Id)
-                    && !_db.CustomerContent.IgnoreQueryFilters().Any(cc => cc.CustomerId == c.Id)
-                select c;
-
-            if (onlyWithoutShoppingCart)
-            {
-                query =
-                    from c in query
-                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id && sci.Active)
-                    select c;
-            }
-            if (registrationFrom.HasValue)
-            {
-                query = query.Where(c => c.CreatedOnUtc >= registrationFrom.Value);
-            }
-            if (registrationTo.HasValue)
-            {
-                query = query.Where(c => c.CreatedOnUtc <= registrationTo.Value);
-            }
-
-            var message = new GuestCustomerDeletingEvent(registrationFrom, registrationTo, onlyWithoutShoppingCart)
-            {
-                Query = query
-            };
-            await _eventPublisher.PublishAsync(message, cancelToken);
-
-            var customerIdsQuery = message.Query
+            var query = await GetGuestCustomersDeletionQuery(registrationFrom, registrationTo, onlyWithoutShoppingCart, cancelToken);
+            var customerIdsQuery = query
                 .OrderBy(x => x.Id)
                 .Select(x => x.Id)
                 .Take(5000);
@@ -207,6 +242,44 @@ namespace Smartstore.Core.Identity
             Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
 
             return numberOfDeletedCustomers;
+        }
+
+        private async Task<IQueryable<Customer>> GetGuestCustomersDeletionQuery(
+            DateTime? registrationFrom,
+            DateTime? registrationTo,
+            bool onlyWithoutShoppingCart,
+            CancellationToken cancelToken)
+        {
+            var query =
+                from c in _db.Customers.IgnoreQueryFilters()
+                where c.Username == null && c.Email == null && !c.IsSystemAccount
+                    && !_db.Orders.IgnoreQueryFilters().Any(o => o.CustomerId == c.Id)
+                    && !_db.CustomerContent.IgnoreQueryFilters().Any(cc => cc.CustomerId == c.Id)
+                select c;
+
+            if (onlyWithoutShoppingCart)
+            {
+                query =
+                    from c in query
+                    where !_db.ShoppingCartItems.IgnoreQueryFilters().Any(sci => sci.CustomerId == c.Id && sci.Active)
+                    select c;
+            }
+            if (registrationFrom.HasValue)
+            {
+                query = query.Where(c => c.CreatedOnUtc >= registrationFrom.Value);
+            }
+            if (registrationTo.HasValue)
+            {
+                query = query.Where(c => c.CreatedOnUtc <= registrationTo.Value);
+            }
+
+            var message = new GuestCustomerDeletingEvent(registrationFrom, registrationTo, onlyWithoutShoppingCart)
+            {
+                Query = query
+            };
+            await _eventPublisher.PublishAsync(message, cancelToken);
+
+            return message.Query;
         }
 
         public virtual void AppendVisitorCookie(Customer customer)

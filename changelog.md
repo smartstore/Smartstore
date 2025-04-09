@@ -66,6 +66,7 @@
 - Fixed occasional incorrect shipping costs applied based on shipping address.
 - #1229 Fixed HTTP client timeout when sending an *order placed* message with PDF attached.
 - #1235 Fixed products remaining published when stock equals the minimum stock quantity, and low stock activity is set to *unpublish*.
+- #1234 Deleting a customer who has made forum posts throws a `SqlException`.
 - Fixed incorrect discounted price on product detail page due to missing cache invalidation.
 - Fixed checkout shipping link not opening the shipping information dialog.
 - Logging: Excluded file source from DB logging.
