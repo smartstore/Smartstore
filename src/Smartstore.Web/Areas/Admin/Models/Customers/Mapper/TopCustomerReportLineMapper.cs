@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
@@ -13,7 +14,7 @@ namespace Smartstore.Admin.Models.Customers
             var customerIds = lines.ToDistinctArray(x => x.CustomerId);
             if (customerIds.Length == 0)
             {
-                return new List<TopCustomerReportLineModel>();
+                return [];
             }
 
             var customers = await db.Customers
@@ -44,13 +45,19 @@ namespace Smartstore.Admin.Models.Customers
 
     internal class TopCustomerReportLineMapper : Mapper<TopCustomerReportLine, TopCustomerReportLineModel>
     {
-        private readonly ICommonServices _services;
+        private readonly ICurrencyService _currencyService;
+        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IUrlHelper _urlHelper;
         private readonly CustomerSettings _customerSettings;
 
-        public TopCustomerReportLineMapper(ICommonServices services, IUrlHelper urlHelper, CustomerSettings customerSettings)
+        public TopCustomerReportLineMapper(
+            ICurrencyService currencyService,
+            IDateTimeHelper dateTimeHelper,
+            IUrlHelper urlHelper, 
+            CustomerSettings customerSettings)
         {
-            _services = services;
+            _currencyService = currencyService;
+            _dateTimeHelper = dateTimeHelper;
             _urlHelper = urlHelper;
             _customerSettings = customerSettings;
         }
@@ -68,16 +75,16 @@ namespace Smartstore.Admin.Models.Customers
             var customers = parameters.Customers as Dictionary<int, Customer>;
             var customer = customers?.Get(from.CustomerId);
 
-            to.OrderTotal = _services.CurrencyService.CreateMoney(from.OrderTotal, _services.CurrencyService.PrimaryCurrency);
+            to.OrderTotal = _currencyService.CreateMoney(from.OrderTotal, _currencyService.PrimaryCurrency);
             to.OrderCount = from.OrderCount.ToString("N0");
             to.CustomerId = from.CustomerId;
             to.CustomerNumber = customer?.CustomerNumber;
-            to.Email = customer?.Email.NullEmpty() ?? (customer != null && customer.IsGuest() ? T("Admin.Customers.Guest") : StringExtensions.NotAvailable);
+            to.CustomerDisplayName = customer?.FormatUserName(_customerSettings, T, false);
+            to.Email = customer?.Email.NullEmpty() ?? to.CustomerDisplayName;
             to.Username = customer?.Username;
             to.FullName = customer?.GetFullName().NullEmpty() ?? customer?.FindEmail();
-            to.CustomerDisplayName = customer?.FormatUserName(_customerSettings, T, false) ?? customer?.FindEmail() ?? StringExtensions.NotAvailable;
             to.Active = customer?.Active == true;
-            to.LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc);
+            to.LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc);
             to.EditUrl = _urlHelper.Action("Edit", "Customer", new { id = from.CustomerId, Area = "Admin" });
 
             return Task.CompletedTask;

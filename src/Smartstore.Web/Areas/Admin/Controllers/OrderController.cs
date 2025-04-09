@@ -22,6 +22,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
@@ -55,6 +56,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IEncryptor _encryptor;
         private readonly ModuleManager _moduleManager;
         private readonly IMessageFactory _messageFactory;
+        private readonly CustomerSettings _customerSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly TaxSettings _taxSettings;
         private readonly MeasureSettings _measureSettings;
@@ -81,6 +83,7 @@ namespace Smartstore.Admin.Controllers
             IEncryptor encryptor,
             ModuleManager moduleManager,
             IMessageFactory messageFactory,
+            CustomerSettings customerSettings,
             CatalogSettings catalogSettings,
             TaxSettings taxSettings,
             MeasureSettings measureSettings,
@@ -104,6 +107,7 @@ namespace Smartstore.Admin.Controllers
             _encryptor = encryptor;
             _moduleManager = moduleManager;
             _messageFactory = messageFactory;
+            _customerSettings = customerSettings;
             _catalogSettings = catalogSettings;
             _taxSettings = taxSettings;
             _measureSettings = measureSettings;
@@ -1805,8 +1809,7 @@ namespace Smartstore.Admin.Controllers
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
             model.CustomerName = order.BillingAddress?.GetFullName()?.NullEmpty()
                 ?? order.ShippingAddress?.GetFullName()?.NullEmpty()
-                ?? order.Customer.GetFullName().NullEmpty() 
-                ?? order.Customer.GetDisplayName(T).NaIfEmpty();
+                ?? order.Customer.FormatUserName(_customerSettings, T, false);
             model.CustomerEmail = order.BillingAddress?.Email ?? order.Customer?.FindEmail();
             model.CustomerDeleted = order.Customer?.Deleted ?? true;
             model.OrderTotalString = Format(order.OrderTotal);

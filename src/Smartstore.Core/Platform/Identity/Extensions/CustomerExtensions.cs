@@ -290,12 +290,7 @@ namespace Smartstore
                 return string.Empty;
             }
 
-            if (customer.IsGuest())
-            {
-                return T("Customer.Guest");
-            }
-
-            string result = string.Empty;
+            string? result = null;
 
             switch (customerSettings.CustomerNameFormat)
             {
@@ -345,10 +340,19 @@ namespace Smartstore
                     break;
             }
 
+            if (result.IsEmpty())
+            {
+                result = customer.GetFullName().NullEmpty()
+                    ?? customer.GetDisplayName(T).NullEmpty()
+                    ?? customer.FindEmail().NullEmpty()
+                    ?? (customer.IsGuest() ? T("Customer.Guest") : null)
+                    ?? $"#{customer.Id}";
+            }
+
             var maxLength = customerSettings.CustomerNameFormatMaxLength;
             if (stripTooLong && maxLength > 0 && result != null && result.Length > maxLength)
             {
-                result = result.Truncate(maxLength, "...")!;
+                result = result.Truncate(maxLength, "…")!;
             }
 
             return result!;
