@@ -75,6 +75,7 @@ namespace Smartstore.Admin.Models.Customers
             var customers = parameters.Customers as Dictionary<int, Customer>;
             var customer = customers?.Get(from.CustomerId);
 
+            // TODO: (mg) In the dashboard widget it is now not obvious anymore whether the buyer is a guest. Not really user-friendly.
             to.OrderTotal = _currencyService.CreateMoney(from.OrderTotal, _currencyService.PrimaryCurrency);
             to.OrderCount = from.OrderCount.ToString("N0");
             to.CustomerId = from.CustomerId;
