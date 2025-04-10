@@ -1,4 +1,5 @@
-﻿@using Smartstore.Core.Identity
+﻿@using Smartstore.Admin.Models.Customers
+@using Smartstore.Core.Identity
 @using Humanizer.Bytes 
 
 @model CustomerUserSettingsModel
@@ -8,8 +9,7 @@
     ViewBag.Title = T("Admin.Configuration.Settings.CustomerUser").Value;
 }
 
-<form asp-action="CustomerUser" id="cookie-infos-form">
-
+<form asp-action="CustomerUserSettings" id="cookie-infos-form">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-users"></i>
@@ -821,7 +821,7 @@
                 </div>
             </div>
 
-            <partial name="_Grid.Cookies" model="null" />
+            <partial name="Grids/_Grid.Cookies" model="null" />
         </tab>
         <tab sm-title="@T("Account.Fields.PasswordSecurity")">
             <div class="adminContent">

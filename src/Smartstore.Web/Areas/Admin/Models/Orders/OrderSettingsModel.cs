@@ -2,7 +2,7 @@
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Order.")]
     public class OrderSettingsModel : ModelBase, ILocalizedModel<OrderSettingsLocalizedModel>

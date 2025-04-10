@@ -3,7 +3,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Configuration.Settings.RewardPoints.")]
     public class RewardPointsSettingsModel

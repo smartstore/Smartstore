@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Cart;
 using Smartstore.Admin.Models.Customers;
@@ -13,6 +14,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -21,6 +23,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -48,8 +51,14 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IShoppingCartService> _shoppingCartService;
         private readonly Lazy<IShippingService> _shippingService;
         private readonly Lazy<IPaymentService> _paymentService;
+        private readonly MultiStoreSettingHelper _multiStoreSettingHelper;
+        private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly IStoreMappingService _storeMappingService;
+        private readonly Lazy<IConfigureOptions<IdentityOptions>> _identityOptionsConfigurer;
+        private readonly IOptions<IdentityOptions> _identityOptions;
+        private readonly Lazy<ICookieConsentManager> _cookieManager;
+        private readonly PrivacySettings _privacySettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -70,8 +79,14 @@ namespace Smartstore.Admin.Controllers
             Lazy<IShoppingCartService> shoppingCartService,
             Lazy<IShippingService> shippingService,
             Lazy<IPaymentService> paymentService,
+            MultiStoreSettingHelper multiStoreSettingHelper,
+            ILocalizedEntityService localizedEntityService,
             ShoppingCartSettings shoppingCartSettings,
-            IStoreMappingService storeMappingService)
+            IStoreMappingService storeMappingService,
+            Lazy<IConfigureOptions<IdentityOptions>> identityOptionsConfigurer,
+            IOptions<IdentityOptions> identityOptions,
+            Lazy<ICookieConsentManager> cookieManager,
+            PrivacySettings privacySettings)
         {
             _db = db;
             _customerService = customerService;
@@ -91,8 +106,14 @@ namespace Smartstore.Admin.Controllers
             _shoppingCartService = shoppingCartService;
             _shippingService = shippingService;
             _paymentService = paymentService;
+            _multiStoreSettingHelper = multiStoreSettingHelper;
+            _localizedEntityService = localizedEntityService;
             _shoppingCartSettings = shoppingCartSettings;
             _storeMappingService = storeMappingService;
+            _identityOptionsConfigurer = identityOptionsConfigurer;
+            _identityOptions = identityOptions;
+            _cookieManager = cookieManager;
+            _privacySettings = privacySettings;
         }
 
         #region Utilities
@@ -1428,6 +1449,333 @@ namespace Smartstore.Admin.Controllers
             });
 
             return File(json.GetBytes(), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
+        }
+
+        #endregion
+
+        #region Settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> CustomerUserSettings(
+            int storeScope,
+            CustomerSettings customerSettings,
+            AddressSettings addressSettings,
+            PrivacySettings privacySettings)
+        {
+            var model = new CustomerUserSettingsModel();
+
+            await MapperFactory.MapAsync(customerSettings, model.CustomerSettings);
+            await MapperFactory.MapAsync(addressSettings, model.AddressSettings);
+            await MapperFactory.MapAsync(privacySettings, model.PrivacySettings);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Salutations = addressSettings.GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false);
+            });
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> CustomerUserSettings(
+            CustomerUserSettingsModel model,
+            int storeScope,
+            CustomerSettings customerSettings,
+            AddressSettings addressSettings,
+            PrivacySettings privacySettings)
+        {
+            var ignoreKey = $"{nameof(model.CustomerSettings)}.{nameof(model.CustomerSettings.RegisterCustomerRoleId)}";
+
+            foreach (var key in ModelState.Keys.Where(x => x.EqualsNoCase(ignoreKey)))
+            {
+                ModelState[key].Errors.Clear();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return await CustomerUserSettings(storeScope, customerSettings, addressSettings, privacySettings);
+            }
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
+
+            var csm = model.CustomerSettings;
+            if (csm.PasswordMinLength != customerSettings.PasswordMinLength
+                || csm.PasswordRequireDigit != customerSettings.PasswordRequireDigit
+                || csm.PasswordRequireUppercase != customerSettings.PasswordRequireUppercase
+                || csm.PasswordRequiredUniqueChars != customerSettings.PasswordRequiredUniqueChars
+                || csm.PasswordRequireLowercase != customerSettings.PasswordRequireLowercase
+                || csm.PasswordRequireNonAlphanumeric != customerSettings.PasswordRequireNonAlphanumeric
+                || csm.CustomerNameAllowedCharacters != customerSettings.CustomerNameAllowedCharacters)
+            {
+                // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
+                await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
+                _identityOptionsConfigurer.Value.Configure(_identityOptions.Value);
+            }
+
+            await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
+
+            var tempCookieInfos = privacySettings.CookieInfos;
+            await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
+            privacySettings.CookieInfos = tempCookieInfos;
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(CustomerUserSettings));
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public IActionResult RewardPointsSettings(RewardPointsSettings settings)
+        {
+            var model = MiniMapper.Map<RewardPointsSettings, RewardPointsSettingsModel>(settings);
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> RewardPointsSettings(RewardPointsSettingsModel model, RewardPointsSettings settings, int storeScope)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RewardPointsSettings(settings);
+            }
+
+            var form = Request.Form;
+
+            ModelState.Clear();
+
+            settings = ((ISettings)settings).Clone() as RewardPointsSettings;
+            MiniMapper.Map(model, settings);
+
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
+
+            if (storeScope != 0 && MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(Core.Identity.RewardPointsSettings.PointsForPurchases_Amount), form))
+            {
+                await Services.Settings.ApplySettingAsync(settings, x => x.PointsForPurchases_Points, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(RewardPointsSettings));
+        }
+
+        public IActionResult RewardPointsForPurchasesInfo(decimal amount, int points)
+        {
+            if (amount == decimal.Zero && points == 0)
+            {
+                return new EmptyResult();
+            }
+
+            var amountFormatted = Services.CurrencyService.ConvertFromPrimaryCurrency(amount, Services.WorkContext.WorkingCurrency).ToString();
+            var info = T("RewardPoints.PointsForPurchasesInfo", amountFormatted, points.ToString("N0"));
+
+            return Content(info);
+        }
+
+        #endregion
+
+        #region Cookie info grid
+
+        public async Task<IActionResult> CookieInfoList()
+        {
+            var data = await _cookieManager.Value.GetCookieInfosAsync();
+            var systemCookies = string.Join(",", data.Select(x => x.Name).ToArray());
+
+            if (_privacySettings.CookieInfos.HasValue())
+            {
+                data.AddRange(JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos)
+                    .OrderBy(x => x.CookieType)
+                    .ThenBy(x => x.Name));
+            }
+
+            var gridModel = new GridModel<CookieInfoModel>
+            {
+                Rows = data
+                    .Select(x =>
+                    {
+                        return new CookieInfoModel
+                        {
+                            CookieType = x.CookieType,
+                            Name = x.Name,
+                            Description = x.Description,
+                            IsPluginInfo = systemCookies.Contains(x.Name),
+                            CookieTypeName = x.CookieType.ToString()
+                        };
+                    })
+                    .ToList(),
+                Total = data.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        public async Task<IActionResult> CookieInfoDelete(GridSelection selection)
+        {
+            var numDeleted = 0;
+
+            // First deserialize setting.
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            foreach (var name in selection.SelectedKeys)
+            {
+                ciList.Remove(x => x.Name.EqualsNoCase(name));
+                numDeleted++;
+            }
+
+            // Now serialize again.
+            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+            // Save setting.
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
+
+        public IActionResult CookieInfoCreatePopup()
+        {
+            var model = new CookieInfoModel();
+            AddLocales(model.Locales);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CookieInfoCreatePopup(string btnId, string formId, CookieInfoModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Deserialize
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos) ?? [];
+
+            var cookieInfo = ciList
+                .Select(x => x)
+                .Where(x => x.Name.EqualsNoCase(model.Name))
+                .FirstOrDefault();
+
+            if (cookieInfo != null)
+            {
+                // Remove item if it's already there.
+                ciList.Remove(x => x.Name.EqualsNoCase(cookieInfo.Name));
+            }
+
+            cookieInfo = new CookieInfo
+            {
+                CookieType = model.CookieType,
+                Name = model.Name,
+                Description = model.Description,
+                SelectedStoreIds = model.SelectedStoreIds
+            };
+
+            ciList.Add(cookieInfo);
+
+            // Serialize
+            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+            // Now apply & save again.
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+            }
+
+            await _db.SaveChangesAsync();
+
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        public IActionResult CookieInfoEditPopup(string name)
+        {
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var cookieInfo = ciList
+                .Where(x => x.Name.EqualsNoCase(name))
+                .FirstOrDefault();
+
+            if (cookieInfo == null)
+            {
+                NotifyError(T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.CookieInfoNotFound"));
+                return View(new CookieInfoModel());
+            }
+
+            var model = new CookieInfoModel
+            {
+                CookieType = cookieInfo.CookieType,
+                Name = cookieInfo.Name,
+                Description = cookieInfo.Description,
+                SelectedStoreIds = cookieInfo.SelectedStoreIds
+            };
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = cookieInfo.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Description = cookieInfo.GetLocalized(x => x.Description, languageId, false, false);
+            });
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CookieInfoEditPopup(string btnId, string formId, CookieInfoModel model)
+        {
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var cookieInfo = ciList
+                .Where(x => x.Name.EqualsNoCase(model.Name))
+                .FirstOrDefault();
+
+            if (cookieInfo == null)
+            {
+                NotifyError(T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.CookieInfoNotFound"));
+                return View(new CookieInfoModel());
+            }
+
+            if (ModelState.IsValid)
+            {
+                cookieInfo.Name = model.Name;
+                cookieInfo.Description = model.Description;
+                cookieInfo.CookieType = model.CookieType;
+                cookieInfo.SelectedStoreIds = model.SelectedStoreIds;
+
+                ciList.Remove(x => x.Name.EqualsNoCase(cookieInfo.Name));
+                ciList.Add(cookieInfo);
+
+                _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+                await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
+
+                foreach (var localized in model.Locales)
+                {
+                    await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+                }
+
+                await _db.SaveChangesAsync();
+            }
+
+            return View(model);
         }
 
         #endregion

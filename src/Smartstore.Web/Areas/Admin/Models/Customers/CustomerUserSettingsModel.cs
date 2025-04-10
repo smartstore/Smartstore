@@ -3,7 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Customers
 {
     public partial class CustomerUserSettingsModel : ModelBase, ILocalizedModel<CustomerUserSettingsLocalizedModel>
     {

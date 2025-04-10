@@ -3,7 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Cart
 {
     [LocalizedDisplay("Admin.Configuration.Settings.ShoppingCart.")]
     public class ShoppingCartSettingsModel : ILocalizedModel<ShoppingCartSettingsLocalizedModel>

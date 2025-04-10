@@ -33,6 +33,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -52,6 +53,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGiftCardService> _giftCardService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IPaymentService _paymentService;
+        private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ITaxService _taxService;
         private readonly IEncryptor _encryptor;
         private readonly ModuleManager _moduleManager;
@@ -78,6 +80,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IGiftCardService> giftCardService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IPaymentService paymentService,
+            ILocalizedEntityService localizedEntityService,
             ICurrencyService currencyService,
             ITaxService taxService,
             IEncryptor encryptor,
@@ -103,6 +106,7 @@ namespace Smartstore.Admin.Controllers
             _giftCardService = giftCardService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _paymentService = paymentService;
+            _localizedEntityService = localizedEntityService;
             _taxService = taxService;
             _encryptor = encryptor;
             _moduleManager = moduleManager;
@@ -1795,6 +1799,82 @@ namespace Smartstore.Admin.Controllers
                 Rows = rows,
                 Total = products.TotalCount
             });
+        }
+
+        #endregion
+
+        #region Order settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> OrderSettings(int storeScope, OrderSettings settings)
+        {
+            var allStores = Services.StoreContext.GetAllStores();
+            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
+            var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            model.StoreCount = allStores.Count;
+
+            if (settings.GiftCards_Activated_OrderStatusId > 0)
+            {
+                model.GiftCardsActivatedOrderStatusId = settings.GiftCards_Activated_OrderStatusId;
+            }
+
+            if (settings.GiftCards_Deactivated_OrderStatusId > 0)
+            {
+                model.GiftCardsDeactivatedOrderStatusId = settings.GiftCards_Deactivated_OrderStatusId;
+            }
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.ReturnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
+                locale.ReturnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
+            });
+
+            model.OrderIdent = _db.DataProvider.GetTableIdent<Order>();
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> OrderSettings(OrderSettings settings, OrderSettingsModel model, int storeScope)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await OrderSettings(storeScope, settings);
+            }
+
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model, settings);
+            settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
+            settings.GiftCards_Deactivated_OrderStatusId = Convert.ToInt32(model.GiftCardsDeactivatedOrderStatusId);
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            // Order ident.
+            if (model.OrderIdent.HasValue)
+            {
+                try
+                {
+                    _db.DataProvider.SetTableIdent<Order>(model.OrderIdent.Value);
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex.Message);
+                }
+            }
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(OrderSettings));
         }
 
         #endregion

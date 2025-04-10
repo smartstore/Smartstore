@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Shipping;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Shipping;
@@ -7,7 +8,10 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
+using CheckoutShipping = Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -18,6 +22,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IProviderManager _providerManager;
         private readonly ModuleManager _moduleManager;
+        private readonly MultiStoreSettingHelper _multiStoreSettingHelper;
         private readonly IWidgetService _widgetService;
         private readonly IRuleService _ruleService;
         private readonly ShippingSettings _shippingSettings;
@@ -28,6 +33,7 @@ namespace Smartstore.Admin.Controllers
             IStoreMappingService storeMappingService,
             IProviderManager providerManager,
             ModuleManager moduleManager,
+            MultiStoreSettingHelper multiStoreSettingHelper,
             IWidgetService widgetService,
             IRuleService ruleService,
             ShippingSettings shippingSettings)
@@ -37,6 +43,7 @@ namespace Smartstore.Admin.Controllers
             _storeMappingService = storeMappingService;
             _providerManager = providerManager;
             _moduleManager = moduleManager;
+            _multiStoreSettingHelper = multiStoreSettingHelper;
             _widgetService = widgetService;
             _ruleService = ruleService;
             _shippingSettings = shippingSettings;
@@ -290,6 +297,128 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = success, Count = numDeleted });
+        }
+
+        #endregion
+
+        #region Shipping settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> ShippingSettings(int storeScope, ShippingSettings settings)
+        {
+            var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
+
+            model.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
+            var todayShipmentHours = new List<SelectListItem>();
+
+            for (var i = 1; i <= 24; ++i)
+            {
+                var hourStr = i.ToString();
+                todayShipmentHours.Add(new()
+                {
+                    Text = hourStr,
+                    Value = hourStr,
+                    Selected = settings.TodayShipmentHour == i
+                });
+            }
+
+            ViewBag.TodayShipmentHours = todayShipmentHours;
+
+            // Shipping origin address.
+            var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
+
+            if (originAddress != null)
+            {
+                MiniMapper.Map(originAddress, model.ShippingOriginAddress);
+            }
+
+            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
+            {
+                _multiStoreSettingHelper.AddOverrideKey(null, nameof(model.ShippingOriginAddress));
+            }
+
+            model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
+            {
+                new() { Text = T("Address.OtherNonUS"), Value = "0" }
+            };
+
+            model.ShippingOriginAddress.FirstNameEnabled = false;
+            model.ShippingOriginAddress.LastNameEnabled = false;
+            model.ShippingOriginAddress.EmailEnabled = false;
+            model.ShippingOriginAddress.CountryEnabled = true;
+            model.ShippingOriginAddress.StateProvinceEnabled = true;
+            model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
+            model.ShippingOriginAddress.ZipPostalCodeRequired = true;
+
+            return View(model);
+        }
+
+        // INFO: do not use SaveSetting attribute here because it would delete a previously added origin shipping address if storeScope > 0.
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> ShippingSettings(int storeScope, ShippingSettings settings, ShippingSettingsModel model)
+        {
+            var form = Request.Form;
+
+            if (!ModelState.IsValid)
+            {
+                return await ShippingSettings(storeScope, settings);
+            }
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model, settings);
+
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
+            {
+                // Skip to prevent the address from being recreated every time you save.
+                if (propertyName.EqualsNoCase(nameof(settings.ShippingOriginAddressId)))
+                    return string.Empty;
+
+                return propertyName;
+            });
+
+            // Special case ShippingOriginAddressId\ShippingOriginAddress.
+            var deleteAddressId = 0;
+            var addressIdSettingName = $"{nameof(CheckoutShipping.ShippingSettings)}.{nameof(CheckoutShipping.ShippingSettings.ShippingOriginAddressId)}";
+
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(ShippingSettingsModel.ShippingOriginAddress), form))
+            {
+                var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope) ? settings.ShippingOriginAddressId : 0;
+                var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
+
+                // Update DefaultTaxAddressId (in case we are in multistore configuration mode it will be set to the shared one).
+                model.ShippingOriginAddress.Id = originAddress.Id == 0 ? 0 : addressId;
+                await MapperFactory.MapAsync(model.ShippingOriginAddress, originAddress);
+
+                if (originAddress.Id == 0)
+                {
+                    _db.Addresses.Add(originAddress);
+                    await _db.SaveChangesAsync();
+                }
+
+                settings.ShippingOriginAddressId = originAddress.Id;
+                await Services.Settings.ApplySettingAsync(settings, x => x.ShippingOriginAddressId, storeScope);
+            }
+            else
+            {
+                deleteAddressId = settings.ShippingOriginAddressId;
+                await Services.Settings.RemoveSettingAsync(settings, x => x.ShippingOriginAddressId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            if (deleteAddressId != 0 && !await _db.Settings.AnyAsync(x => x.Value == deleteAddressId.ToStringInvariant() && x.Name == addressIdSettingName))
+            {
+                // Address can be removed because it is now not in use anymore.
+                _db.Addresses.Remove(deleteAddressId);
+                await _db.SaveChangesAsync();
+            }
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(ShippingSettings));
         }
 
         #endregion

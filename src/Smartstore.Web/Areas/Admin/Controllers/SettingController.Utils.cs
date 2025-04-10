@@ -1,30 +1,12 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Admin.Models;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Admin.Controllers
 {
     public partial class SettingController : AdminController
     {
-        private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings)
-        {
-            if (model.PasswordMinLength != settings.PasswordMinLength
-                || model.PasswordRequireDigit != settings.PasswordRequireDigit
-                || model.PasswordRequireUppercase != settings.PasswordRequireUppercase
-                || model.PasswordRequiredUniqueChars != settings.PasswordRequiredUniqueChars
-                || model.PasswordRequireLowercase != settings.PasswordRequireLowercase
-                || model.PasswordRequireNonAlphanumeric != settings.PasswordRequireNonAlphanumeric
-                || model.CustomerNameAllowedCharacters != settings.CustomerNameAllowedCharacters)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         private RedirectToActionResult NotifyAndRedirect(string actionMethod)
         {
             NotifySuccess(T("Admin.Configuration.Updated"));

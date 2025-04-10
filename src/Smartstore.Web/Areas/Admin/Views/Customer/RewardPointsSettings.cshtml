@@ -1,12 +1,13 @@
-﻿@model RewardPointsSettingsModel
+﻿@using Smartstore.Admin.Models.Customers
+
+@model RewardPointsSettingsModel
 
 @{
     ViewBag.Title = T("Admin.Configuration.Settings.RewardPoints").Value;
     Layout = "_SettingLayout";
 }
 
-<form asp-action="RewardPoints">
-
+<form asp-action="RewardPointsSettings">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-trophy"></i>
@@ -161,21 +162,21 @@
 
 <script sm-target-zone="scripts" data-origin="rewardpoints-settings">
     $(function () {
-        var pointsForPurchasesAmount = $('#@Html.IdFor(x => x.PointsForPurchases_Amount)');
-        var pointsForPurchasesPoints = $('#@Html.IdFor(x => x.PointsForPurchases_Points)');
+        let pointsForPurchasesAmount = $('#@Html.IdFor(x => x.PointsForPurchases_Amount)');
+        let pointsForPurchasesPoints = $('#@Html.IdFor(x => x.PointsForPurchases_Points)');
 
         pointsForPurchasesAmount.on('blur', getRewardPointsForPurchasesInfo);
         pointsForPurchasesPoints.on('change', getRewardPointsForPurchasesInfo).trigger('change');
 
         function getRewardPointsForPurchasesInfo() {
-            var amount = pointsForPurchasesAmount.val();
-            var points = pointsForPurchasesPoints.val();
+            const amount = pointsForPurchasesAmount.val();
+            const points = pointsForPurchasesPoints.val();
 
             $.ajax({
                 cache: false,
                 global: false,
                 type: 'GET',
-                url: `@(Url.Action("RewardPointsForPurchasesInfo"))?amount=${amount}&points=${points}`,
+                url: `@(Url.Action("RewardPointsForPurchasesInfo", "Customer", new { area = "Admin" }))?amount=${amount}&points=${points}`,
                 success: function (response) {
                     $('#PointsForPurchasesInfo').html(response);
                 },

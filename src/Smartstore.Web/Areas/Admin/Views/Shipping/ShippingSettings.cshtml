@@ -1,11 +1,13 @@
-﻿@model ShippingSettingsModel
+﻿@using Smartstore.Admin.Models.Shipping
+
+@model ShippingSettingsModel
 
 @{
     ViewBag.Title = T("Admin.Configuration.Settings.Shipping").Value;
     Layout = "_SettingLayout";
 }
 
-<form asp-action="Shipping">
+<form asp-action="ShippingSettings">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-truck"></i>

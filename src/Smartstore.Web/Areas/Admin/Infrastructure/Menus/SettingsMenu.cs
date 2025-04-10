@@ -68,8 +68,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "person",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "CustomerUser"
+                    ControllerName = "Customer",
+                    ActionName = "CustomerUserSettings"
                 },
                 new MenuItem
                 {
@@ -78,8 +78,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "cart",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "ShoppingCart"
+                    ControllerName = "ShoppingCart",
+                    ActionName = "ShoppingCartSettings"
                 },
                 new MenuItem
                 {
@@ -88,8 +88,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "graph-up",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Order"
+                    ControllerName = "Order",
+                    ActionName = "OrderSettings"
                 },
                 new MenuItem
                 {
@@ -118,8 +118,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "truck",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Shipping"
+                    ControllerName = "Shipping",
+                    ActionName = "ShippingSettings"
                 },
                 new MenuItem
                 {
@@ -128,8 +128,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "trophy",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "RewardPoints"
+                    ControllerName = "Customer",
+                    ActionName = "RewardPointsSettings"
                 },
                 new MenuItem
                 {

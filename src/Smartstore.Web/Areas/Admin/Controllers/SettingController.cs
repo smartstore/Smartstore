@@ -1,21 +1,15 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Search.Modelling;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Content.Menus;
@@ -40,14 +34,11 @@ namespace Smartstore.Admin.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly MultiStoreSettingHelper _multiStoreSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ICookieConsentManager _cookieManager;
         private readonly IProviderManager _providerManager;
         private readonly Lazy<IMediaTracker> _mediaTracker;
         private readonly Lazy<IMenuService> _menuService;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
         private readonly Lazy<IMediaMover> _mediaMover;
-        private readonly Lazy<IConfigureOptions<IdentityOptions>> _identityOptionsConfigurer;
-        private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly PrivacySettings _privacySettings;
         private readonly Lazy<ModuleManager> _moduleManager;
         private readonly ICacheManager _cache;
@@ -59,14 +50,11 @@ namespace Smartstore.Admin.Controllers
             ILocalizedEntityService localizedEntityService,
             MultiStoreSettingHelper multiStoreSettingHelper,
             IDateTimeHelper dateTimeHelper,
-            ICookieConsentManager cookieManager,
             IProviderManager providerManager,
             Lazy<IMediaTracker> mediaTracker,
             Lazy<IMenuService> menuService,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
             Lazy<IMediaMover> mediaMover,
-            Lazy<IConfigureOptions<IdentityOptions>> identityOptionsConfigurer,
-            IOptions<IdentityOptions> identityOptions,
             PrivacySettings privacySettings,
             Lazy<ModuleManager> moduleManager,
             ICacheManager cache)
@@ -77,14 +65,11 @@ namespace Smartstore.Admin.Controllers
             _localizedEntityService = localizedEntityService;
             _multiStoreSettingHelper = multiStoreSettingHelper;
             _dateTimeHelper = dateTimeHelper;
-            _cookieManager = cookieManager;
             _providerManager = providerManager;
             _mediaTracker = mediaTracker;
             _menuService = menuService;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
             _mediaMover = mediaMover;
-            _identityOptionsConfigurer = identityOptionsConfigurer;
-            _identityOptions = identityOptions;
             _privacySettings = privacySettings;
             _moduleManager = moduleManager;
             _cache = cache;
@@ -154,77 +139,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return NotifyAndRedirect(nameof(Catalog));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public async Task<IActionResult> CustomerUser(
-            int storeScope,
-            CustomerSettings customerSettings,
-            AddressSettings addressSettings,
-            PrivacySettings privacySettings)
-        {
-            var model = new CustomerUserSettingsModel();
-
-            await MapperFactory.MapAsync(customerSettings, model.CustomerSettings);
-            await MapperFactory.MapAsync(addressSettings, model.AddressSettings);
-            await MapperFactory.MapAsync(privacySettings, model.PrivacySettings);
-
-            AddLocales(model.Locales, (locale, languageId) =>
-            {
-                locale.Salutations = addressSettings.GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false);
-            });
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> CustomerUser(
-            CustomerUserSettingsModel model,
-            int storeScope,
-            CustomerSettings customerSettings,
-            AddressSettings addressSettings,
-            PrivacySettings privacySettings)
-        {
-            var ignoreKey = $"{nameof(model.CustomerSettings)}.{nameof(model.CustomerSettings.RegisterCustomerRoleId)}";
-
-            foreach (var key in ModelState.Keys.Where(x => x.EqualsNoCase(ignoreKey)))
-            {
-                ModelState[key].Errors.Clear();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return await CustomerUser(storeScope, customerSettings, addressSettings, privacySettings);
-            }
-
-            ModelState.Clear();
-
-            var updateIdentity = ShouldUpdateIdentityOptions(model.CustomerSettings, customerSettings);
-            await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
-
-            if (updateIdentity)
-            {
-                // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
-                await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
-                _identityOptionsConfigurer.Value.Configure(_identityOptions.Value);
-            }
-
-            await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
-
-            var tempCookieInfos = privacySettings.CookieInfos;
-            await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
-            privacySettings.CookieInfos = tempCookieInfos;
-
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
-            }
-
-            await _db.SaveChangesAsync();
-
-            return NotifyAndRedirect(nameof(CustomerUser));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -452,294 +366,6 @@ namespace Smartstore.Admin.Controllers
             await CheckToDeleteAddress(deleteAddressId, $"{nameof(TaxSettings)}.{nameof(TaxSettings.DefaultTaxAddressId)}");
 
             return NotifyAndRedirect(nameof(Finance));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public IActionResult RewardPoints(RewardPointsSettings settings)
-        {
-            var model = MiniMapper.Map<RewardPointsSettings, RewardPointsSettingsModel>(settings);
-
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, LoadSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettingsModel model, RewardPointsSettings settings, int storeScope)
-        {
-            if (!ModelState.IsValid)
-            {
-                return RewardPoints(settings);
-            }
-
-            var form = Request.Form;
-
-            ModelState.Clear();
-
-            settings = ((ISettings)settings).Clone() as RewardPointsSettings;
-            MiniMapper.Map(model, settings);
-
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form);
-
-            if (storeScope != 0 && MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(RewardPointsSettings.PointsForPurchases_Amount), form))
-            {
-                await Services.Settings.ApplySettingAsync(settings, x => x.PointsForPurchases_Points, storeScope);
-            }
-
-            await _db.SaveChangesAsync();
-
-            return NotifyAndRedirect(nameof(RewardPoints));
-        }
-
-        public IActionResult RewardPointsForPurchasesInfo(decimal amount, int points)
-        {
-            if (amount == decimal.Zero && points == 0)
-            {
-                return new EmptyResult();
-            }
-
-            var amountFormatted = _currencyService.ConvertFromPrimaryCurrency(amount, Services.WorkContext.WorkingCurrency).ToString();
-            var info = T("RewardPoints.PointsForPurchasesInfo", amountFormatted, points.ToString("N0"));
-
-            return Content(info);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings)
-        {
-            var model = await MapperFactory.MapAsync<ShoppingCartSettings, ShoppingCartSettingsModel>(settings);
-
-            AddLocales(model.Locales, (locale, languageId) =>
-            {
-                locale.ThirdPartyEmailHandOverLabel = settings.GetLocalizedSetting(x => x.ThirdPartyEmailHandOverLabel, languageId, storeScope, false, false);
-            });
-
-            ViewBag.Checkouts = new List<ExtendedSelectListItem>
-            {
-                CreateCheckoutProcessItem(CheckoutProcess.Standard),
-                CreateCheckoutProcessItem(CheckoutProcess.Terminal),
-                CreateCheckoutProcessItem(CheckoutProcess.TerminalWithPayment)
-            };
-
-            return View(model);
-
-            ExtendedSelectListItem CreateCheckoutProcessItem(string process)
-            {
-                var item = new ExtendedSelectListItem
-                {
-                    Text = T("Checkout.Process." + process),
-                    Value = process,
-                    Selected = settings.CheckoutProcess.EqualsNoCase(process)
-                };
-
-                item.CustomProperties["Description"] = T($"Checkout.Process.{process}.Hint").Value;
-                return item;
-            }
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> ShoppingCart(ShoppingCartSettings settings, ShoppingCartSettingsModel model, int storeScope)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await ShoppingCart(storeScope, settings);
-            }
-
-            ModelState.Clear();
-
-            await MapperFactory.MapAsync(model, settings);
-
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ThirdPartyEmailHandOverLabel, localized.ThirdPartyEmailHandOverLabel, localized.LanguageId, storeScope);
-            }
-
-            return NotifyAndRedirect(nameof(ShoppingCart));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public async Task<IActionResult> Shipping(int storeScope, ShippingSettings settings)
-        {
-            var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
-
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-
-            var todayShipmentHours = new List<SelectListItem>();
-
-            for (var i = 1; i <= 24; ++i)
-            {
-                var hourStr = i.ToString();
-                todayShipmentHours.Add(new()
-                {
-                    Text = hourStr,
-                    Value = hourStr,
-                    Selected = settings.TodayShipmentHour == i
-                });
-            }
-
-            ViewBag.TodayShipmentHours = todayShipmentHours;
-
-            // Shipping origin address.
-            var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
-            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
-
-            if (originAddress != null)
-            {
-                MiniMapper.Map(originAddress, model.ShippingOriginAddress);
-            }
-
-            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
-            {
-                _multiStoreSettingHelper.AddOverrideKey(null, nameof(model.ShippingOriginAddress));
-            }
-
-            model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
-            {
-                new() { Text = T("Address.OtherNonUS"), Value = "0" }
-            };
-
-            model.ShippingOriginAddress.FirstNameEnabled = false;
-            model.ShippingOriginAddress.LastNameEnabled = false;
-            model.ShippingOriginAddress.EmailEnabled = false;
-            model.ShippingOriginAddress.CountryEnabled = true;
-            model.ShippingOriginAddress.StateProvinceEnabled = true;
-            model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
-            model.ShippingOriginAddress.ZipPostalCodeRequired = true;
-
-            return View(model);
-        }
-
-        // INFO: do not use SaveSetting attribute here because it would delete a previously added origin shipping address if storeScope > 0.
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, LoadSetting]
-        public async Task<IActionResult> Shipping(int storeScope, ShippingSettings settings, ShippingSettingsModel model)
-        {
-            var form = Request.Form;
-
-            if (!ModelState.IsValid)
-            {
-                return await Shipping(storeScope, settings);
-            }
-
-            ModelState.Clear();
-
-            await MapperFactory.MapAsync(model, settings);
-
-            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, propertyName =>
-            {
-                // Skip to prevent the address from being recreated every time you save.
-                if (propertyName.EqualsNoCase(nameof(settings.ShippingOriginAddressId)))
-                    return string.Empty;
-
-                return propertyName;
-            });
-
-            // Special case ShippingOriginAddressId\ShippingOriginAddress.
-            var deleteAddressId = 0;
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(ShippingSettingsModel.ShippingOriginAddress), form))
-            {
-                var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope) ? settings.ShippingOriginAddressId : 0;
-                var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
-
-                // Update DefaultTaxAddressId (in case we are in multistore configuration mode it will be set to the shared one).
-                model.ShippingOriginAddress.Id = originAddress.Id == 0 ? 0 : addressId;
-                await MapperFactory.MapAsync(model.ShippingOriginAddress, originAddress);
-
-                if (originAddress.Id == 0)
-                {
-                    _db.Addresses.Add(originAddress);
-                    await _db.SaveChangesAsync();
-                }
-
-                settings.ShippingOriginAddressId = originAddress.Id;
-                await Services.Settings.ApplySettingAsync(settings, x => x.ShippingOriginAddressId, storeScope);
-            }
-            else
-            {
-                deleteAddressId = settings.ShippingOriginAddressId;
-                await Services.Settings.RemoveSettingAsync(settings, x => x.ShippingOriginAddressId, storeScope);
-            }
-
-            await _db.SaveChangesAsync();
-            await CheckToDeleteAddress(deleteAddressId, $"{nameof(ShippingSettings)}.{nameof(ShippingSettings.ShippingOriginAddressId)}");
-
-            return NotifyAndRedirect(nameof(Shipping));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public async Task<IActionResult> Order(int storeScope, OrderSettings settings)
-        {
-            var allStores = Services.StoreContext.GetAllStores();
-            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
-            var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
-
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-            model.StoreCount = allStores.Count;
-
-            if (settings.GiftCards_Activated_OrderStatusId > 0)
-            {
-                model.GiftCardsActivatedOrderStatusId = settings.GiftCards_Activated_OrderStatusId;
-            }
-
-            if (settings.GiftCards_Deactivated_OrderStatusId > 0)
-            {
-                model.GiftCardsDeactivatedOrderStatusId = settings.GiftCards_Deactivated_OrderStatusId;
-            }
-
-            AddLocales(model.Locales, (locale, languageId) =>
-            {
-                locale.ReturnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
-                locale.ReturnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
-            });
-
-            model.OrderIdent = _db.DataProvider.GetTableIdent<Order>();
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> Order(OrderSettings settings, OrderSettingsModel model, int storeScope)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await Order(storeScope, settings);
-            }
-
-            ModelState.Clear();
-
-            await MapperFactory.MapAsync(model, settings);
-            settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
-            settings.GiftCards_Deactivated_OrderStatusId = Convert.ToInt32(model.GiftCardsDeactivatedOrderStatusId);
-
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
-                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
-            }
-
-            await _db.SaveChangesAsync();
-
-            // Order ident.
-            if (model.OrderIdent.HasValue)
-            {
-                try
-                {
-                    _db.DataProvider.SetTableIdent<Order>(model.OrderIdent.Value);
-                }
-                catch (Exception ex)
-                {
-                    NotifyError(ex.Message);
-                }
-            }
-
-            return NotifyAndRedirect(nameof(Order));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]

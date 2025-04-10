@@ -1,10 +1,14 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Cart;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -15,15 +19,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly ICustomerService _customerService;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly ILocalizedEntityService _localizedEntityService;
 
         public ShoppingCartController(
             SmartDbContext db,
             ICustomerService customerService,
-            IShoppingCartService shoppingCartService)
+            IShoppingCartService shoppingCartService,
+            ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _customerService = customerService;
             _shoppingCartService = shoppingCartService;
+            _localizedEntityService = localizedEntityService;
         }
 
         public IActionResult Index()
@@ -143,5 +150,69 @@ namespace Smartstore.Admin.Controllers
                 Total = rows.Count
             });
         }
+
+        #region Shopping cart settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> ShoppingCartSettings(int storeScope, ShoppingCartSettings settings)
+        {
+            var model = await MapperFactory.MapAsync<ShoppingCartSettings, ShoppingCartSettingsModel>(settings);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.ThirdPartyEmailHandOverLabel = settings.GetLocalizedSetting(x => x.ThirdPartyEmailHandOverLabel, languageId, storeScope, false, false);
+            });
+
+            ViewBag.Checkouts = new List<ExtendedSelectListItem>
+            {
+                CreateCheckoutProcessItem(CheckoutProcess.Standard),
+                CreateCheckoutProcessItem(CheckoutProcess.Terminal),
+                CreateCheckoutProcessItem(CheckoutProcess.TerminalWithPayment)
+            };
+
+            return View(model);
+
+            ExtendedSelectListItem CreateCheckoutProcessItem(string process)
+            {
+                var item = new ExtendedSelectListItem
+                {
+                    Text = T("Checkout.Process." + process),
+                    Value = process,
+                    Selected = settings.CheckoutProcess.EqualsNoCase(process)
+                };
+
+                item.CustomProperties["Description"] = T($"Checkout.Process.{process}.Hint").Value;
+                return item;
+            }
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> ShoppingCartSettings(ShoppingCartSettings settings, ShoppingCartSettingsModel model, int storeScope)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await ShoppingCartSettings(storeScope, settings);
+            }
+
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model, settings);
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, 
+                    x => x.ThirdPartyEmailHandOverLabel, 
+                    localized.ThirdPartyEmailHandOverLabel,
+                    localized.LanguageId,
+                    storeScope);
+            }
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(ShoppingCartSettings));
+        }
+
+        #endregion
     }
 }
