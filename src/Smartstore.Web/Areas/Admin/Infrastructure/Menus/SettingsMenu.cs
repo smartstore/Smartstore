@@ -148,8 +148,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "arrow-left-right",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "DataExchange"
+                    ControllerName = "Import",
+                    ActionName = "DataExchangeSettings"
                 },
                 new MenuItem
                 {
@@ -158,8 +158,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "speedometer2",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Performance"
+                    ControllerName = "Maintenance",
+                    ActionName = "PerformanceSettings"
                 },
                 new MenuItem
                 {

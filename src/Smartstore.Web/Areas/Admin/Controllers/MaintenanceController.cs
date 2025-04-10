@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Checkout.Payment;
@@ -25,13 +26,13 @@ using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
-using Smartstore.Data.Providers;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
 using Smartstore.Utilities;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -1029,6 +1030,45 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        #endregion
+
+        #region Performance settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> PerformanceSettings(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
+        {
+            var model = new PerformanceSettingsModel();
+
+            // Map entities to model
+            await MapperFactory.MapAsync(performanceSettings, model.PerformanceSettings);
+            await MapperFactory.MapAsync(resiliencySettings, model.ResiliencySettings);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting, FormValueRequired("save")]
+        public async Task<IActionResult> PerformanceSettings(
+            PerformanceSettingsModel model,
+            PerformanceSettings performanceSettings,
+            ResiliencySettings resiliencySettings)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await PerformanceSettings(performanceSettings, resiliencySettings);
+            }
+
+            ModelState.Clear();
+
+            // Map model to entities
+            await MapperFactory.MapAsync(model.PerformanceSettings, performanceSettings);
+            await MapperFactory.MapAsync(model.ResiliencySettings, resiliencySettings);
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(PerformanceSettings));
         }
 
         #endregion

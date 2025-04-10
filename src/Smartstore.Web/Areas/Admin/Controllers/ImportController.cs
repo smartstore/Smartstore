@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Import;
 using Smartstore.Admin.Models.Scheduling;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -15,6 +16,7 @@ using Smartstore.Core.Security;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
+using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -523,6 +525,36 @@ namespace Smartstore.Admin.Controllers
 
             return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
+
+        #region Data exchange settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public IActionResult DataExchangeSettings(DataExchangeSettings settings)
+        {
+            var model = new DataExchangeSettingsModel();
+            MiniMapper.Map(settings, model);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public IActionResult DataExchangeSettings(DataExchangeSettings settings, DataExchangeSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return DataExchangeSettings(settings);
+            }
+
+            ModelState.Clear();
+            MiniMapper.Map(model, settings);
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(DataExchangeSettings));
+        }
+
+        #endregion
 
         #region Utilities
 

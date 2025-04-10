@@ -19,7 +19,6 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
@@ -226,31 +225,6 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             return NotifyAndRedirect(nameof(CustomerUser));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public IActionResult DataExchange(DataExchangeSettings settings)
-        {
-            var model = new DataExchangeSettingsModel();
-            MiniMapper.Map(settings, model);
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting]
-        public IActionResult DataExchange(DataExchangeSettings settings, DataExchangeSettingsModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return DataExchange(settings);
-            }
-
-            ModelState.Clear();
-            MiniMapper.Map(model, settings);
-
-            return NotifyAndRedirect(nameof(DataExchange));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
@@ -766,40 +740,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return NotifyAndRedirect(nameof(Order));
-        }
-
-        [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
-        public async Task<IActionResult> Performance(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
-        {
-            var model = new PerformanceSettingsModel();
-
-            // Map entities to model
-            await MapperFactory.MapAsync(performanceSettings, model.PerformanceSettings);
-            await MapperFactory.MapAsync(resiliencySettings, model.ResiliencySettings);
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting, FormValueRequired("save")]
-        public async Task<IActionResult> Performance(
-            PerformanceSettingsModel model,
-            PerformanceSettings performanceSettings, 
-            ResiliencySettings resiliencySettings)
-        {
-            if (!ModelState.IsValid)
-            {
-                return await Performance(performanceSettings, resiliencySettings);
-            }
-
-            ModelState.Clear();
-
-            // Map model to entities
-            await MapperFactory.MapAsync(model.PerformanceSettings, performanceSettings);
-            await MapperFactory.MapAsync(model.ResiliencySettings, resiliencySettings);
-
-            return NotifyAndRedirect(nameof(Performance));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]

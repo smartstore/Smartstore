@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Smartstore.Core.DataExchange;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Import
 {
     [LocalizedDisplay("Admin.Configuration.Settings.DataExchange.")]
     public partial class DataExchangeSettingsModel

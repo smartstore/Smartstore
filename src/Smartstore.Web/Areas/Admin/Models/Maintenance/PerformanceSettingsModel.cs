@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Maintenance
 {
     public partial class PerformanceSettingsModel : ModelBase
     {

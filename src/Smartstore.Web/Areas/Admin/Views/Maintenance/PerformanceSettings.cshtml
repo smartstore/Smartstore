@@ -1,11 +1,12 @@
-﻿@model PerformanceSettingsModel
+﻿@using Smartstore.Admin.Models.Maintenance
+
+@model PerformanceSettingsModel
 @{
     ViewBag.Title = T("Admin.Configuration.Settings.Performance").Value;
     Layout = "_SettingLayout";
 }
 
-<form asp-action="Performance">
-
+<form asp-action="PerformanceSettings">
     <div class="section-header">
         <div class="title">
             @T("Admin.Configuration.Settings.Performance")
@@ -203,5 +204,4 @@
             </div>
         </tab>
     </tabstrip>
-
 </form>
