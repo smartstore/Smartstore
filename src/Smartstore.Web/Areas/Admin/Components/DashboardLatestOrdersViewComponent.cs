@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Components
                 {
                     OrderNumber = order.OrderNumber.NullEmpty() ?? order.Id.ToString(),
                     CustomerId = order.CustomerId,
-                    CustomerDisplayName = order.Customer.FormatUserName(_customerSettings, T, false),
+                    CustomerDisplayName = order.Customer.FormatUserName(_customerSettings, T, false, true),
                     ProductsTotal = order.OrderItems.Sum(x => x.Quantity),
                     TotalAmount = Services.CurrencyService.CreateMoney(order.OrderTotal, primaryCurrency),
                     Created = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),

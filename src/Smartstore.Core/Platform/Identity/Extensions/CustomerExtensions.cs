@@ -235,7 +235,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Formats the customer name.
+        /// Formats the customer name according to <see cref="CustomerSettings.CustomerNameFormat"/>.
         /// </summary>
         /// <returns>Formatted customer name.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,12 +245,16 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Formats the customer name.
+        /// Formats the customer name according to <see cref="CustomerSettings.CustomerNameFormat"/>.
         /// </summary>
-        /// <param name="customer">Customer entity.</param>
-        /// <param name="stripTooLong">Whether to strip too long customer name.</param>
+        /// <param name="stripTooLong">
+        /// A value that indicates whether to strip too-long customer names according to <see cref="CustomerSettings.CustomerNameFormatMaxLength"/>.
+        /// </param>
+        /// <param name="appendGuest">
+        /// A value that indicates whether the "Guest" suffix should be appended if the customer is a guest.
+        /// </param>
         /// <returns>Formatted customer name.</returns>
-        public static string FormatUserName(this Customer? customer, bool stripTooLong)
+        public static string FormatUserName(this Customer? customer, bool stripTooLong, bool appendGuest = false)
         {
             if (customer == null)
             {
@@ -263,24 +267,28 @@ namespace Smartstore
                 customer,
                 engine.Resolve<CustomerSettings>(),
                 engine.Resolve<Localizer>(),
-                stripTooLong);
+                stripTooLong,
+                appendGuest);
 
             return userName;
         }
 
         /// <summary>
-        /// Formats the customer name.
+        /// Formats the customer name according to <see cref="CustomerSettings.CustomerNameFormat"/>.
         /// </summary>
-        /// <param name="customer">Customer entity.</param>
-        /// <param name="customerSettings">Customer settings.</param>
-        /// <param name="T">Localizer.</param>
-        /// <param name="stripTooLong">Whether to strip too long customer name.</param>
+        /// <param name="stripTooLong">
+        /// A value that indicates whether to strip too-long customer names according to <see cref="CustomerSettings.CustomerNameFormatMaxLength"/>.
+        /// </param>
+        /// <param name="appendGuest">
+        /// A value that indicates whether the "Guest" suffix should be appended if the customer is a guest.
+        /// </param>
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(
             this Customer? customer,
             CustomerSettings customerSettings,
             Localizer T,
-            bool stripTooLong)
+            bool stripTooLong,
+            bool appendGuest = false)
         {
             Guard.NotNull(customerSettings);
             Guard.NotNull(T);
@@ -343,19 +351,21 @@ namespace Smartstore
             if (result.IsEmpty())
             {
                 result = customer.GetFullName().NullEmpty()
-                    ?? customer.GetDisplayName(T).NullEmpty()
+                    ?? customer.Username.NullEmpty()
                     ?? customer.FindEmail().NullEmpty()
-                    ?? (customer.IsGuest() ? T("Customer.Guest") : null)
+                    ?? (!appendGuest && customer.IsGuest() ? T("Customer.Guest") : null)
                     ?? $"#{customer.Id}";
             }
 
-            var maxLength = customerSettings.CustomerNameFormatMaxLength;
-            if (stripTooLong && maxLength > 0 && result != null && result.Length > maxLength)
+            var suffix = (appendGuest && customer.IsGuest()) ? $" ({T("Customer.Guest")})" : string.Empty;
+            var maxLength = stripTooLong ? Math.Max(customerSettings.CustomerNameFormatMaxLength - suffix.Length, 0) : 0;
+
+            if (maxLength > 0 && result != null && result.Length > maxLength)
             {
-                result = result.Truncate(maxLength, "…")!;
+                result = result.Truncate(maxLength, "…");
             }
 
-            return result!;
+            return result + suffix;
         }
 
         /// <summary>
