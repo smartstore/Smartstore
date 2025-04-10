@@ -865,7 +865,7 @@ $img-margin-right: 10px;
 // Emojis
 // ------------------------------------------
 
-.note-dropdown-emoji {
+.dropdown-menu.note-dropdown-emoji {
     --note-emoji-size: 40px;
     --note-emoji-gap: 1px;
     --note-emoji-cols: 10;
@@ -893,8 +893,9 @@ $img-margin-right: 10px;
     padding-inline-end: var(--note-emoji-padding);
 }
 
-.nav-emoji {
+.nav.nav-emoji {
     justify-content: space-between;
+    flex-wrap: nowrap;
 
     > .nav-link {
         &:not(.active) {
@@ -904,16 +905,30 @@ $img-margin-right: 10px;
     }
 }
 
-.note-emoji {
+.btn.note-emoji {
     font-size: 24px;
     font-weight: var(--font-weight-normal);
     border-width: 0;
     overflow-x: hidden;
     --btn-active-shadow: none;
     --btn-height: var(--note-emoji-size);
-    // &.combined {
-    //   //font-size: 16px;
-    // }
+}
+
+.note-emoji-skin {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--c, #ffdc5d);
+    transition: transform 0.12s;
+
+    &.active {
+        outline: 2px solid rgba(0,0,0, 0.6);
+        transition: none;
+    }
+
+    &:hover:not(.active) {
+        transform: scale(1.35);
+    }
 }
 
 
