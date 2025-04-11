@@ -4,7 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Imaging;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Media
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Media.")]
     public class MediaSettingsModel : ModelBase

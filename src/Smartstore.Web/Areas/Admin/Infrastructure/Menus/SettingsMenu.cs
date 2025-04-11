@@ -48,8 +48,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "box",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Catalog"
+                    ControllerName = "Product",
+                    ActionName = "CatalogSettings"
                 },
                 new MenuItem
                 {
@@ -98,8 +98,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "credit-card",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Payment"
+                    ControllerName = "Payment",
+                    ActionName = "PaymentSettings"
                 },
                 new MenuItem
                 {
@@ -108,8 +108,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "percent",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Finance"
+                    ControllerName = "Tax",
+                    ActionName = "FinanceSettings"
                 },
                 new MenuItem
                 {
@@ -138,8 +138,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "images",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Media"
+                    ControllerName = "Media",
+                    ActionName = "MediaSettings"
                 },
                 new MenuItem
                 {

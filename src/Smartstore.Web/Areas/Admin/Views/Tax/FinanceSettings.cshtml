@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Checkout.Tax
+@using Smartstore.Admin.Models.Tax
 
 @model FinanceSettingsModel
 
@@ -7,7 +8,7 @@
     ViewBag.Title = T("Common.Finance").Value;
 }
 
-<form asp-action="Finance">
+<form asp-action="FinanceSettings">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-right-left"></i>

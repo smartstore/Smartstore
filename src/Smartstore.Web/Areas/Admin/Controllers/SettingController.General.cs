@@ -178,7 +178,8 @@ namespace Smartstore.Admin.Controllers
             // Does not contain any store specific settings.
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
-            return NotifyAndRedirect(nameof(GeneralCommon));
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(GeneralCommon));
         }
 
         private async Task PrepareGeneralCommonConfigurationModelAsync(EmailAccountSettings emailAccountSettings)
@@ -196,25 +197,23 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString(), Selected = x.Id == emailAccountSettings.DefaultEmailAccountId })
                 .ToList();
 
-            #region CompanyInfo custom mapping
-
             ViewBag.Salutations = new List<SelectListItem>
             {
-                ResToSelectListItem("Admin.Address.Salutation.Mr"),
-                ResToSelectListItem("Admin.Address.Salutation.Mrs")
+                CreateItem("Admin.Address.Salutation.Mr"),
+                CreateItem("Admin.Address.Salutation.Mrs")
             };
 
             var resRoot = "Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings.ManagementDescriptions.";
             ViewBag.ManagementDescriptions = new List<SelectListItem>();
             ViewBag.ManagementDescriptions.AddRange(new[]
             {
-                ResToSelectListItem(resRoot + "Manager"),
-                ResToSelectListItem(resRoot + "Shopkeeper"),
-                ResToSelectListItem(resRoot + "Procurator"),
-                ResToSelectListItem(resRoot + "Shareholder"),
-                ResToSelectListItem(resRoot + "AuthorizedPartner"),
-                ResToSelectListItem(resRoot + "Director"),
-                ResToSelectListItem(resRoot + "ManagingPartner")
+                CreateItem(resRoot + "Manager"),
+                CreateItem(resRoot + "Shopkeeper"),
+                CreateItem(resRoot + "Procurator"),
+                CreateItem(resRoot + "Shareholder"),
+                CreateItem(resRoot + "AuthorizedPartner"),
+                CreateItem(resRoot + "Director"),
+                CreateItem(resRoot + "ManagingPartner")
             });
 
             ViewBag.AvailableMetaContentValues = new List<SelectListItem>
@@ -227,7 +226,11 @@ namespace Smartstore.Admin.Controllers
                 new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
 
-            #endregion
+            SelectListItem CreateItem(string resourceKey)
+            {
+                var value = T(resourceKey).Value.EmptyNull();
+                return new() { Text = value, Value = value };
+            }
         }
     }
 }

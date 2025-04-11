@@ -19,6 +19,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -62,6 +63,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IRuleProviderFactory> _ruleProviderFactory;
+        private readonly Lazy<IMenuService> _menuService;
         private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly MeasureSettings _measureSettings;
@@ -97,6 +99,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IRuleProviderFactory> ruleProviderFactory,
+            Lazy<IMenuService> menuService,
             AdminAreaSettings adminAreaSettings,
             CatalogSettings catalogSettings,
             MeasureSettings measureSettings,
@@ -131,6 +134,7 @@ namespace Smartstore.Admin.Controllers
             _catalogSearchService = catalogSearchService;
             _productUrlHelper = productUrlHelper;
             _ruleProviderFactory = ruleProviderFactory;
+            _menuService = menuService;
             _adminAreaSettings = adminAreaSettings;
             _catalogSettings = catalogSettings;
             _measureSettings = measureSettings;

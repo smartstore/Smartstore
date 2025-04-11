@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Web.Models.Common;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Tax
 {
     public partial class FinanceSettingsModel : ModelBase
     {

@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Checkout.Payment;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Payments
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Payment.")]
     public class PaymentSettingsModel : ModelBase

@@ -3,7 +3,7 @@ using FluentValidation;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Catalog.")]
     public class CatalogSettingsModel : ILocalizedModel<PriceSettingsLocalizedModel>

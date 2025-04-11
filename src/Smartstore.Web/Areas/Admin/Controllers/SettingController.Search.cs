@@ -208,7 +208,8 @@ namespace Smartstore.Admin.Controllers
 
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, settings, form));
 
-            return NotifyAndRedirect(nameof(Search));
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(Search));
         }
 
         private async Task<int> ApplyLocalizedFacetSettings(CommonFacetSettingsModel model, FacetGroupKind kind, int storeId = 0)
@@ -286,7 +287,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.AvailableSearchFields = availableSearchFields;
             ViewBag.AvailableSearchModes = availableSearchModes;
-            ViewBag.AvailableProductSortings = CreateProductSortingsList(model.DefaultSortOrder);
+            ViewBag.AvailableProductSortings = ProductController.CreateProductSortingsList(model.DefaultSortOrder, Services);
 
             var facetSortings = Enum.GetValues(typeof(FacetSorting)).Cast<FacetSorting>();
             if (!model.IsMegaSearchInstalled)

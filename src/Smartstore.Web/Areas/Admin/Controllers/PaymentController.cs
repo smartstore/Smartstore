@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Payments;
+using Smartstore.Caching;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -19,6 +24,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ModuleManager _moduleManager;
         private readonly IWidgetService _widgetService;
         private readonly IRuleService _ruleService;
+        private readonly ICacheManager _cache;
         private readonly PaymentSettings _paymentSettings;
 
         public PaymentController(
@@ -29,6 +35,7 @@ namespace Smartstore.Admin.Controllers
             ModuleManager moduleManager,
             IWidgetService widgetService,
             IRuleService ruleService,
+            ICacheManager cache,
             PaymentSettings paymentSettings)
         {
             _db = db;
@@ -38,6 +45,7 @@ namespace Smartstore.Admin.Controllers
             _moduleManager = moduleManager;
             _widgetService = widgetService;
             _ruleService = ruleService;
+            _cache = cache;
             _paymentSettings = paymentSettings;
         }
 
@@ -187,5 +195,45 @@ namespace Smartstore.Admin.Controllers
                 ? RedirectToAction(nameof(Edit), new { systemName })
                 : RedirectToAction(nameof(Providers));
         }
+
+        #region Settings
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> PaymentSettings(PaymentSettings settings)
+        {
+            var model = await MapperFactory.MapAsync<PaymentSettings, PaymentSettingsModel>(settings);
+            var providers = _providerManager.GetAllProviders<IPaymentMethod>();
+
+            var selectListItems = providers
+                .Where(x => x.IsPaymentProviderEnabled(settings))
+                .Select(x => new SelectListItem { Text = _moduleManager.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
+                .ToList();
+
+            ViewBag.ActivePaymentMethods = new MultiSelectList(selectListItems, "Value", "Text", model.ProductDetailPaymentMethodSystemNames);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> PaymentSettings(PaymentSettings settings, PaymentSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await PaymentSettings(settings);
+            }
+
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model, settings);
+
+            await _cache.RemoveByPatternAsync(PaymentService.ProductDetailPaymentIconsPatternKey);
+
+            NotifySuccess(T("Admin.Configuration.Updated"));
+            return RedirectToAction(nameof(PaymentSettings));
+        }
+
+        #endregion
     }
 }
