@@ -1,4 +1,3 @@
-using Humanizer;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Security;
@@ -433,6 +432,73 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Cookie-Zustimmung am",
                 "The date of the customer's consent to the use of cookies.",
                 "Das Datum, an dem der Kunde der Verwendung von Cookies zugestimmt hat.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.NoFriendlyIntroductions",
+                "Don't start your answer with meta-comments or introductions like: 'Gladly, here's your HTML'.",
+                "Erstelle keine Meta-Kommentare oder Einleitungen wie: 'Gerne, hier ist dein HTML.'");
+            
+            // Changed for more precision.
+            builder.AddOrUpdate("Smartstore.AI.Prompts.StartWithDivTag",
+                "Do not create a complete HTML document - the output must start with a <div> tag.",
+                "Erstelle kein vollständiges HTML-Dokument - die Ausgabe muss mit einem <div>-Tag beginnen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontCreateProductTitle",
+                "Do not create a heading that contains the product name.",
+                "Erstelle keine Überschrift, die den Produktnamen enthält.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.WriteCompleteParagraphs",
+                "Create a complete and coherent text for each section.",
+                "Erstelle für jeden Abschnitt einen inhaltlich vollständigen und zusammenhängenden Text.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.UseImagePlaceholders",
+                "If an image is to be inserted, use a <div class=“mb-3”> with an <i> tag containing the classes 'far fa-xl fa-file-image ai-preview-file' as a placeholder. " +
+                "The title attribute must correspond to the associated section heading.",
+                "Wenn ein Bild einzufügen ist, verwende als Platzhalter ein <div class=\"mb-3\"> mit einem <i>-Tag, " +
+                "das die Klassen 'far fa-xl fa-file-image ai-preview-file' enthält. Das title-Attribut muss der zugehörigen Abschnittsüberschrift entsprechen.");
+
+            // INFO: Minor change from "Be a ..." to "You are a ...". Seams irrelevant for a human reader, but it's important for the role understanding of the AI.
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Translator",
+                "Be a professional translator.",
+                "Du bist ein professioneller Übersetzer.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Copywriter",
+                "Be a professional copywriter.",
+                "Du bist ein professioneller Texter.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Marketer",
+                "Be a marketing expert.",
+                "Du bist ein Marketing-Experte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SEOExpert",
+                "Be a SEO expert.",
+                "Du bist ein SEO-Experte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Blogger",
+                "Be a professional blogger.",
+                "Du bist ein professioneller Blogger.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Journalist",
+                "Be a professional journalist.",
+                "Du bist ein professioneller Journalist.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.SalesPerson",
+                "Be an assistant who creates product descriptions that convince a potential customer to buy.",
+                "Du bist ein Assistent bei der Erstellung von Produktbeschreibungen, die einen potentiellen Kunden zum Kauf überzeugen.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
+                "Be an expert for the product: '{0}'.",
+                "Du bist ein Experte für das Produkt: '{0}'.");
+
+            // We change this resource to be a pure user message her. The main instruction of this order was shifted to the role description.
+            // INFO: Not only is this the preferred method for engineering prompts, but it also reduces the custom prompt message to a minimum.
+            builder.AddOrUpdate("Smartstore.AI.Prompts.IncludeImages",
+                "Insert an image after each paragraph.",
+                "Füge nach jedem Absatz ein Bild ein.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Language",
+                "Write in {0}.",
+                "Schreibe auf {0}.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.MainHeadingTag",
+                "Use a {0} tag for the main heading.",
+                "Nutze für die Hauptüberschrift ein {0}-Tag.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ParagraphHeadingTag",
+                "Use {0} tags for the paragraph headings.",
+                "Nutze für die Überschriften der Abschnitte {0}-Tags.");
         }
     }
 }

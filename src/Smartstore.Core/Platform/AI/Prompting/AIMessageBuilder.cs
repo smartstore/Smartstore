@@ -1,6 +1,7 @@
 ﻿using Parlot.Fluent;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Templating;
 using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.Core.AI.Prompting
@@ -75,8 +76,6 @@ namespace Smartstore.Core.AI.Prompting
                 {
                     chat.User(Resources.ParagraphWordCount(model.ParagraphWordCount)).SetMetaData(model.ParagraphWordCount);
                 }
-
-                chat.System(Resources.WriteCompleteParagraphs());
             }
 
             if (model.ParagraphHeadingTag.HasValue())
@@ -287,6 +286,26 @@ namespace Smartstore.Core.AI.Prompting
         {
             var message = Resources.Role(role, entityName);
 
+            // Lets add some generic operational instructions for explizit roles.
+            if (role == AIRole.ProductExpert)
+            {
+                // Add an empty line between the first role and the second role to make clear that these are two different dimensions of the role.
+                message += "\n\n" + Resources.GetResource("Smartstore.AI.Prompts.Role.HtmlEditor");
+
+                roleInstructions ??= [];
+
+                roleInstructions.Add(Resources.GetResource("Plugins.Smartstore.AI.Prompts.Product.NoAssumptions"));
+                roleInstructions.Add(Resources.UseImagePlaceholders());
+                roleInstructions.Add(Resources.DontUseMarkdownHtml());
+                roleInstructions.Add(Resources.NoFriendlyIntroductions());
+                roleInstructions.Add(Resources.StartWithDivTag());
+                roleInstructions.Add(Resources.DontCreateProductTitle());
+                roleInstructions.Add(Resources.WriteCompleteParagraphs());
+            }
+
+            // TODO: chat.System(Resources.WriteCompleteParagraphs()); was removed from AddTextLayoutMessages 
+            // ENSURE it will be added again for all roles in charge of RichText-Handling before release.
+
             if (roleInstructions != null && roleInstructions.Count > 0)
             {
                 // INFO: Structuring role instructions as a clear list helps the AI parse and follow them more reliably, reducing the risk of missed rules.
@@ -358,11 +377,14 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated messages will be added.</param>
         protected virtual async Task<AIChat> AddRichTextMessagesAsync(IAITextModel model, AIChat chat)
         {
-            AddHtmlMessages(chat);
+            // TODO: (mh) (ai) Get rid of this after all roles are set up.
+            if (model.TargetProperty != "FullDescription" && model.Type != "Product")
+            {
+                AddHtmlMessages(chat);
+                chat.System(Resources.DontCreateTitle(model.EntityName));
+            }
+
             await AddLanguageMessagesAsync(model, chat);
-
-            chat.System(Resources.DontCreateTitle(model.EntityName));
-
             AddTextLayoutMessages(model, chat);
             AddKeywordsMessages(model, chat);
             AddImageContainerMessages(model, chat, model.IncludeIntro, model.IncludeConclusion);

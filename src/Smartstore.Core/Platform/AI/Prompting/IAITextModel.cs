@@ -16,6 +16,7 @@ namespace Smartstore.Core.AI.Prompting
         int? TargetEntityId { get; }
         string EntityName { get; }
         string TargetProperty { get; }
+        string Type { get; set; }
 
         int? WordLimit { get; }
         int CharLimit { get; }

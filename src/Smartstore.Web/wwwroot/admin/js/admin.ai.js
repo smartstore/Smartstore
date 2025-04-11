@@ -37,7 +37,9 @@
             }
 
             const cmd = el.data('command');
-            let isRichText = tool.data('is-rich-text') || cmd === "create-new";
+            const isSummernoteInlineEditing = el.closest(".html-editor-root").length !== 0;
+            
+            let isRichText = tool.data('is-rich-text') || (cmd === "create-new" && isSummernoteInlineEditing);
 
             let params = {
                 entityName: tool.data('entity-name'),
