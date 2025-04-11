@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Pricing;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Price.")]
     public class PriceSettingsModel : ModelBase

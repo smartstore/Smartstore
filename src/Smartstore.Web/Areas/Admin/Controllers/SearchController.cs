@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Admin.Models;
+using Smartstore.Admin.Models.Search;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
@@ -12,14 +14,32 @@ using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
+using CatalogSearch = Smartstore.Core.Catalog.Search;
 
 namespace Smartstore.Admin.Controllers
 {
-    public partial class SettingController : AdminController
+    public class SearchController : AdminController
     {
+        private readonly SmartDbContext _db;
+        private readonly ILanguageService _languageService;
+        private readonly MultiStoreSettingHelper _multiStoreSettingHelper;
+        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
+
+        public SearchController(
+            SmartDbContext db,
+            ILanguageService languageService,
+            MultiStoreSettingHelper multiStoreSettingHelper,
+            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
+        {
+            _db = db;
+            _languageService = languageService;
+            _multiStoreSettingHelper = multiStoreSettingHelper;
+            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+        }
+
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> Search(SearchSettings settings, int storeScope)
+        public async Task<IActionResult> SearchSettings(SearchSettings settings, int storeScope)
         {
             var megaSearchDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearch");
             var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
@@ -53,7 +73,8 @@ namespace Smartstore.Admin.Controllers
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
-            foreach (var language in _languageService.GetAllLanguages(true))
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+            foreach (var language in languages)
             {
                 var categoryFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Category, language.Id);
                 var brandFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Brand, language.Id);
@@ -117,12 +138,12 @@ namespace Smartstore.Admin.Controllers
                 await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings);
             }
 
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("CategoryFacet.Sorting", nameof(SearchSettings.CategorySorting), settings);
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("BrandFacet.Sorting", nameof(SearchSettings.BrandSorting), settings);
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("DeliveryTimeFacet.Sorting", nameof(SearchSettings.DeliveryTimeSorting), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("CategoryFacet.Sorting", nameof(CatalogSearch.SearchSettings.CategorySorting), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("BrandFacet.Sorting", nameof(CatalogSearch.SearchSettings.BrandSorting), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("DeliveryTimeFacet.Sorting", nameof(CatalogSearch.SearchSettings.DeliveryTimeSorting), settings);
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", nameof(SearchSettings.IncludeNotAvailable), settings);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", nameof(CatalogSearch.SearchSettings.IncludeNotAvailable), settings);
 
             return View(model);
         }
@@ -130,11 +151,11 @@ namespace Smartstore.Admin.Controllers
         // INFO: do not use SaveSetting attribute here because it would delete all previously added facet settings if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, LoadSetting]
-        public async Task<IActionResult> Search(SearchSettingsModel model, SearchSettings settings, int storeScope)
+        public async Task<IActionResult> SearchSettings(SearchSettingsModel model, SearchSettings settings, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return await Search(settings, storeScope);
+                return await SearchSettings(settings, storeScope);
             }
 
             var form = Request.Form;
@@ -176,13 +197,13 @@ namespace Smartstore.Admin.Controllers
                     await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form);
                 }
 
-                await _multiStoreSettingHelper.ApplySettingAsync("CategoryFacet.Sorting", nameof(SearchSettings.CategorySorting), settings, form);
-                await _multiStoreSettingHelper.ApplySettingAsync("BrandFacet.Sorting", nameof(SearchSettings.BrandSorting), settings, form);
-                await _multiStoreSettingHelper.ApplySettingAsync("DeliveryTimeFacet.Sorting", nameof(SearchSettings.DeliveryTimeSorting), settings, form);
+                await _multiStoreSettingHelper.ApplySettingAsync("CategoryFacet.Sorting", nameof(CatalogSearch.SearchSettings.CategorySorting), settings, form);
+                await _multiStoreSettingHelper.ApplySettingAsync("BrandFacet.Sorting", nameof(CatalogSearch.SearchSettings.BrandSorting), settings, form);
+                await _multiStoreSettingHelper.ApplySettingAsync("DeliveryTimeFacet.Sorting", nameof(CatalogSearch.SearchSettings.DeliveryTimeSorting), settings, form);
             }
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", nameof(SearchSettings.IncludeNotAvailable), settings, form);
+            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", nameof(CatalogSearch.SearchSettings.IncludeNotAvailable), settings, form);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var num = 0;
@@ -209,7 +230,7 @@ namespace Smartstore.Admin.Controllers
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, settings, form));
 
             NotifySuccess(T("Admin.Configuration.Updated"));
-            return RedirectToAction(nameof(Search));
+            return RedirectToAction(nameof(SearchSettings));
         }
 
         private async Task<int> ApplyLocalizedFacetSettings(CommonFacetSettingsModel model, FacetGroupKind kind, int storeId = 0)

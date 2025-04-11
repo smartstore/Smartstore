@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Admin.Models
+﻿namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Catalog.")]
     public class GroupedProductSettingsModel : ILocalizedModel<GroupedProductSettingsLocalizedModel>

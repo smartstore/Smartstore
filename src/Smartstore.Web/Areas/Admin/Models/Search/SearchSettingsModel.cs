@@ -5,7 +5,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Search
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Search.")]
     public partial class SearchSettingsModel : TabbableModel

@@ -58,8 +58,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                     IconLibrary = "bi",
                     Icon = "search",
                     PermissionNames = perm,
-                    ControllerName = "Setting",
-                    ActionName = "Search"
+                    ControllerName = "Search",
+                    ActionName = "SearchSettings"
                 },
                 new MenuItem
                 {

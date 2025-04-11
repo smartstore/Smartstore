@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Core.Search
 @using Smartstore.Core.Catalog.Products
+@using Smartstore.Admin.Models.Search
 
 @model SearchSettingsModel
 
@@ -8,8 +9,7 @@
     ViewBag.Title = T("Search.Title").Value;
 }
 
-<form asp-action="Search">
-
+<form asp-action="SearchSettings">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-search"></i>
@@ -168,25 +168,25 @@
             <div class="mt-5">
                 <tabstrip id="common-catalog-facets-settings" sm-nav-style="Material">
                     <tab sm-title="@T("Search.Facet.Category")" sm-selected="true">
-                        <partial name="CommonFacet" model="Model.CategoryFacet" view-data="@CreateFacetViewData("CategoryFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.CategoryFacet" view-data="@CreateFacetViewData("CategoryFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.Manufacturer")">
-                        <partial name="CommonFacet" model="Model.BrandFacet" view-data="@CreateFacetViewData("BrandFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.BrandFacet" view-data="@CreateFacetViewData("BrandFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.Price")">
-                        <partial name="CommonFacet" model="Model.PriceFacet" view-data="@CreateFacetViewData("PriceFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.PriceFacet" view-data="@CreateFacetViewData("PriceFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.Rating")">
-                        <partial name="CommonFacet" model="Model.RatingFacet" view-data="@CreateFacetViewData("RatingFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.RatingFacet" view-data="@CreateFacetViewData("RatingFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.DeliveryTime")">
-                        <partial name="CommonFacet" model="Model.DeliveryTimeFacet" view-data="@CreateFacetViewData("DeliveryTimeFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.DeliveryTimeFacet" view-data="@CreateFacetViewData("DeliveryTimeFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.Availability")">
-                        <partial name="CommonFacet" model="Model.AvailabilityFacet" view-data="@CreateFacetViewData("AvailabilityFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.AvailabilityFacet" view-data="@CreateFacetViewData("AvailabilityFacet")" />
                     </tab>
                     <tab sm-title="@T("Search.Facet.NewArrivals")">
-                        <partial name="CommonFacet" model="Model.NewArrivalsFacet" view-data="@CreateFacetViewData("NewArrivalsFacet")" />
+                        <partial name="SearchCommonFacet" model="Model.NewArrivalsFacet" view-data="@CreateFacetViewData("NewArrivalsFacet")" />
                     </tab>
                 </tabstrip>
             </div>
