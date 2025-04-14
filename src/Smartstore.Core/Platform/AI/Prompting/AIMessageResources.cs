@@ -24,21 +24,31 @@ namespace Smartstore.Core.AI.Prompting
         /// Prevents the AI from generating markdown.
         /// </summary>
         /// <returns>
-        /// AI instruction: Do not use markdown formatting.
+        /// AI instruction: Do not use Markdown formatting, no backticks (```) and no indented code sections.
         /// </returns>
         public virtual string DontUseMarkdown()
             => P("DontUseMarkdown");
 
-        // TODO: Use a generic instruction for markdown and add one explicitly for HTML???
+        // TODO: Rename CreatHtmlNoMarkdown
         /// <summary>
         /// Prevents the AI from generating markdown.
         /// </summary>
         /// <returns>
-        /// AI instruction: Gib ausschließlich reinen HTML-Code zurück – verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.
+        /// AI instruction: Only return pure HTML code - do not use Markdown formatting, no backticks (```) and no indented code sections.
         /// </returns>
         public virtual string DontUseMarkdownHtml()
-            => P("DontUseMarkdownHtml");
+            => $"{CreateHtml} - {DontUseMarkdown}";
 
+        /// <summary>
+        /// Necessary for the AI to create the generated text as HTML.
+        /// </summary>
+        /// <param name="appendPeriod">Indicates whether a period should be added at the end of the sentence.</param>
+        /// <returns>
+        /// AI instruction: Only return pure HTML code(.)
+        /// </returns>
+        public virtual string CreateHtml(bool appendPeriod = false)
+            => P("CreateHtml") + (appendPeriod ? "." : "");
+        
         /// <summary>
         /// Instructs the AI to skip any introduction.
         /// </summary>
@@ -266,16 +276,6 @@ namespace Smartstore.Core.AI.Prompting
         /// </returns>
         public virtual string LanguageStyle(string style)
             => P("LanguageStyle", style);
-
-        // TODO: Obsolete?
-        /// <summary>
-        /// Necessary for the AI to create the generated text as HTML.
-        /// </summary>
-        /// <returns>
-        /// AI instruction: Create HTML text.
-        /// </returns>
-        public virtual string CreateHtml()
-            => P("CreateHtml");
 
         // TODO: Obsolete?
         /// <summary>

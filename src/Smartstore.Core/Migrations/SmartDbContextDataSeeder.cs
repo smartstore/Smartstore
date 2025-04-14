@@ -267,10 +267,6 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
 
             builder.AddOrUpdate("Tax.LegalInfoShort3", "Prices {0}, {1}", "Preise {0}, {1}");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ImageAnalyzerAssistant",
-                "Be an image analyzer assistant.",
-                "Sei ein Assistent für Bildanalyse.");
-
             builder.AddOrUpdate("Smartstore.AI.Prompts.PleaseContinue",
                 "Continue exactly at the marked point without repeating the previous text.",
                 "Fahre genau an der markierten Stelle fort, ohne den bisherigen Text zu wiederholen.");
@@ -346,10 +342,13 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. You always create valid HTML!",
                 "Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Deine Ausgabe ist IMMER valides HTML!");
 
-            // TODO: Maybe split this instruction??? in JustPureHtml and DontUseMarkdown
-            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdownHtml",
-                "Only return pure HTML code - do not use Markdown formatting, no backticks (```) and no indented code sections.",
-                "Gib ausschließlich reinen HTML-Code zurück – verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
+                "Only return pure HTML code",
+                "Gib ausschließlich reinen HTML-Code zurück");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdown",
+                "Do not use Markdown formatting, no backticks (```) and no indented code sections.",
+                "Verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.CaretPos",
                 "The placeholder [CARETPOS] marks the position where your new text should appear.",
@@ -481,6 +480,9 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ProductExpert",
                 "Be an expert for the product: '{0}'.",
                 "Du bist ein Experte für das Produkt: '{0}'.");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.ImageAnalyzer",
+                "Be an image analyzer assistant.",
+                "Du bist ein Assistent für Bildanalyse.");
 
             // We change this resource to be a pure user message her. The main instruction of this order was shifted to the role description.
             // INFO: Not only is this the preferred method for engineering prompts, but it also reduces the custom prompt message to a minimum.
@@ -505,6 +507,32 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Lokalisierte Links hinzufügen",
                 "Specifies whether to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.",
                 "Legt fest, ob alternative Links (xhtml:link) für lokalisierte Versionen einer Seite zur XML-Sitemap hinzugefügt werden.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition",
+                "Return exactly one single JSON object with these keys and meanings:",
+                "Gib genau ein einzelnes JSON-Objekt mit diesen Keys und Bedeutungen zurück:");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Title",
+                "'title': short, precise description of the image content for the HTML title attribute (max. 60 characters)",
+                "'title': kurze, präzise Beschreibung des Bildinhalts für das HTML-title-Attribut (max. 60 Zeichen)");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Alt",
+                "'alt': clearly legible description of the image content for the HTML alt attribute",
+                "'alt': klar lesbare Beschreibung des Bildinhalts für das HTML-alt-Attribut");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Tags",
+                "'tags': exactly 5 thematically matching terms, as a comma-separated list",
+                "'tags': exakt 5 thematisch passende Begriffe, als kommagetrennte Liste");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.NoContent",
+                "Set the value 'no-content' in every field for which no meaningful content can be determined.",
+                "Setze den Wert 'no-content' in jedem Feld, für das kein sinnvoller Inhalt ermittelt werden kann.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CreateJson",
+                "Only return a single JSON object - without formatting, meta comments or additional text.",
+                "Gib ausschließlich ein einziges JSON-Objekt zurück – ohne Formatierungen, Meta-Kommentare oder zusätzlichen Text.");
+
+            builder.Delete("AnalyzeImageInstructions");
         }
     }
 }
