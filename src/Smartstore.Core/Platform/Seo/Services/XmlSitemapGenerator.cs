@@ -449,7 +449,7 @@ namespace Smartstore.Core.Seo
         {
             var map = new Multimap<int, LinkLanguage>();
 
-            if (!_seoSettings.AddAlternateSitemapLinks)
+            if (!_seoSettings.XmlSitemapIncludesAlternateLinks)
             {
                 return map;
             }

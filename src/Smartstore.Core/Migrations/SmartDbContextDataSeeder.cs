@@ -500,7 +500,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Use {0} tags for the paragraph headings.",
                 "Nutze für die Überschriften der Abschnitte {0}-Tags.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.AddAlternateSitemapLinks",
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.XmlSitemapIncludesAlternateLinks",
                 "Add localized links",
                 "Lokalisierte Links hinzufügen",
                 "Specifies whether to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.",
