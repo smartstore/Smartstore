@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Routing;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Seo
@@ -12,16 +10,31 @@ namespace Smartstore.Core.Seo
 
     public abstract class XmlSitemapProvider
     {
+        public virtual int Order { get; }
+
         public virtual Task<int> GetTotalCountAsync()
             => Task.FromResult(0);
 
         public virtual IAsyncEnumerable<NamedEntity> EnlistAsync(CancellationToken cancelToken = default)
             => AsyncEnumerable.Empty<NamedEntity>();
 
-        public virtual XmlSitemapNode CreateNode(LinkGenerator linkGenerator, string baseUrl, NamedEntity entity, UrlRecordCollection slugs, Language language)
+        /// <summary>
+        /// Creates a sitemap node for <paramref name="entity"/>.
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="entity"></param>
+        /// <param name="slugs">Collection of all slugs.</param>
+        /// <param name="language">Aktuelle Sprache, für die Sitemap nodes erstellt werden.</param>
+        /// <param name="ctx">Contains extra metadata.</param>
+        public virtual XmlSitemapNode CreateNode(
+            string baseUrl, 
+            NamedEntity entity, 
+            UrlRecordCollection slugs,
+            Language language, 
+            XmlSitemapBuildNodeContext ctx)
         {
             var slug = slugs.GetSlug(language.Id, entity.Id, true);
-            //var path = linkGenerator.GetPathByRouteValues(entity.EntityName, new { SeName = slug }).EmptyNull().TrimStart('/');
+            //var path = ctx.LinkGenerator.GetPathByRouteValues(entity.EntityName, new { SeName = slug }).EmptyNull().TrimStart('/');
             //var loc = baseUrl + path;
 
             if (slug == null)
@@ -29,13 +42,43 @@ namespace Smartstore.Core.Seo
                 return null;
             }
 
-            return new XmlSitemapNode
+            return new()
             {
                 LastMod = entity.LastMod,
                 Loc = baseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/')),
+                Links = CreateLinks(entity, slugs, ctx)
             };
         }
 
-        public virtual int Order { get; }
+        /// <summary>
+        /// Creates a list of alternative links for the given entity.
+        /// </summary>
+        /// <param name="entity">Entity ro create alternative links for.</param>
+        /// <param name="slugs">Collection of all slugs.</param>
+        /// <param name="ctx">Provides the languages for which the alternative links are to be created.</param>
+        public virtual IEnumerable<XmlSitemapNode.LinkEntry> CreateLinks(NamedEntity entity, UrlRecordCollection slugs, XmlSitemapBuildNodeContext ctx)
+        {
+            if (ctx.LinkLanguages.IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            return [.. ctx.LinkLanguages
+                .Select(x =>
+                {
+                    var slug = slugs.GetSlug(x.Language.Id, entity.Id, false);
+                    if (slug != null)
+                    {
+                        return new XmlSitemapNode.LinkEntry
+                        {
+                            Lang = x.Language.LanguageCulture,
+                            Href = x.BaseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/'))
+                        };
+                    }
+
+                    return null;
+                })
+                .Where(x => x != null)];
+        }
     }
 }

@@ -10,7 +10,12 @@
 
         public class LinkEntry
         {
+            /// <summary>
+            /// Gets or sets the language code consisting of a two-digit ISO 639-1 language code (e.g. de, en, tr)
+            /// and a two-digit ISO 3166-1 Alpha-2 country code (e.g. DE, US, TR). The latter is optional.
+            /// </summary>
             public string Lang { get; init; }
+
             public string Href { get; init; }
         }
     }

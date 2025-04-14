@@ -14,21 +14,22 @@ using Smartstore.Data.Hooks;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
+using static Smartstore.Core.Seo.XmlSitemapBuildNodeContext;
 
 namespace Smartstore.Core.Seo
 {
     public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSitemapGenerator
     {
-        private const string SitemapsNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
-        private const string XhtmlNamespace = "http://www.w3.org/1999/xhtml";
-        private const string SitemapFileNamePattern = "sitemap-{0}.xml";
-        private const string SitemapIndexPathPattern = "sitemap.xml/{0}";
-        private const string LockFileNamePattern = "sitemap-{0}-{1}.lock";
+        const string SitemapsNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
+        const string XhtmlNamespace = "http://www.w3.org/1999/xhtml";
+        const string SitemapFileNamePattern = "sitemap-{0}.xml";
+        const string SitemapIndexPathPattern = "sitemap.xml/{0}";
+        const string LockFileNamePattern = "sitemap-{0}-{1}.lock";
 
         /// <summary>
         /// The maximum number of sitemaps a sitemap index file can contain.
         /// </summary>
-        private const int MaximumSiteMapCount = 50000;
+        const int MaximumSiteMapCount = 50000;
 
         /// <summary>
         /// The maximum number of sitemap nodes allowed in a sitemap file. The absolute maximum allowed is 50,000 
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// The maximum size of a sitemap file in bytes (10MB).
         /// </summary>
-        private const int MaximumSiteMapSizeInBytes = 10485760;
+        const int MaximumSiteMapSizeInBytes = 10485760;
 
         private readonly IEnumerable<Lazy<IXmlSitemapPublisher>> _publishers;
         private readonly SmartDbContext _db;
@@ -51,6 +52,7 @@ namespace Smartstore.Core.Seo
         private readonly ILockFileManager _lockFileManager;
         private readonly LinkGenerator _linkGenerator;
         private readonly AsyncRunner _asyncRunner;
+        private readonly SeoSettings _seoSettings;
 
         private readonly IFileSystem _tenantRoot;
         private readonly string _baseDir;
@@ -64,7 +66,8 @@ namespace Smartstore.Core.Seo
             ICustomerService customerService,
             ILockFileManager lockFileManager,
             LinkGenerator linkGenerator,
-            AsyncRunner asyncRunner)
+            AsyncRunner asyncRunner,
+            SeoSettings seoSettings)
         {
             _publishers = publishers;
             _db = db;
@@ -75,6 +78,7 @@ namespace Smartstore.Core.Seo
             _lockFileManager = lockFileManager;
             _linkGenerator = linkGenerator;
             _asyncRunner = asyncRunner;
+            _seoSettings = seoSettings;
 
             _tenantRoot = _services.ApplicationContext.TenantRoot;
             _baseDir = "Sitemaps";
@@ -118,7 +122,7 @@ namespace Smartstore.Core.Seo
 
         private async Task<XmlSitemapPartition> GetSitemapPartAsync(int index, bool isRetry)
         {
-            Guard.NotNegative(index, nameof(index));
+            Guard.NotNegative(index);
 
             var store = _services.StoreContext.CurrentStore;
             var language = _services.WorkContext.WorkingLanguage;
@@ -178,7 +182,7 @@ namespace Smartstore.Core.Seo
             if (!wasRebuilding)
             {
                 // No lock. Rebuild now.
-                var buildContext = new XmlSitemapBuildContext(store, new[] { language }, _services.SettingFactory, _services.StoreContext.IsSingleStoreMode())
+                var buildContext = new XmlSitemapBuildContext(store, [language], _services.SettingFactory, _services.StoreContext.IsSingleStoreMode())
                 {
                     CancellationToken = _asyncRunner.AppShutdownCancellationToken
                 };
@@ -230,7 +234,7 @@ namespace Smartstore.Core.Seo
 
         public virtual async Task RebuildAsync(XmlSitemapBuildContext ctx)
         {
-            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(ctx);
 
             var languageData = new Dictionary<int, LanguageData>();
 
@@ -277,8 +281,10 @@ namespace Smartstore.Core.Seo
                 return;
             }
 
+            // Per language links.
             var languages = languageData.Values.Select(x => x.Language);
-            var languageIds = languages.Select(x => x.Id).Concat(new[] { 0 }).ToArray();
+            var languageIds = languages.Select(x => x.Id).Concat([0]).ToArray();
+            var linkLanguageMap = await CreateLinkLanguageMap(languages, ctx);
 
             // All sitemaps grouped by language
             var sitemaps = new Multimap<int, XmlSitemapNode>();
@@ -291,17 +297,21 @@ namespace Smartstore.Core.Seo
                 }
             });
 
+            var nodeContext = new XmlSitemapBuildNodeContext
+            {
+                LinkGenerator = _linkGenerator
+            };
+
             await using (compositeFileLock)
             {
                 // Impersonate
                 var prevCustomer = _services.WorkContext.CurrentCustomer;
-                // no need to vary xml sitemap by customer roles: it's relevant to crawlers only.
+                // No need to vary xml sitemap by customer roles: it's relevant to crawlers only.
                 _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.Bot, false)) ?? prevCustomer;
 
                 try
                 {
                     var nodes = new List<XmlSitemapNode>();
-
                     var providers = CreateProviders(ctx);
                     var total = await providers.SelectAwait(x => x.GetTotalCountAsync()).SumAsync(ctx.CancellationToken);
                     var totalSegments = (int)Math.Ceiling(total / (double)MaximumSiteMapNodeCount);
@@ -325,19 +335,23 @@ namespace Smartstore.Core.Seo
 
                             segment++;
                             numProcessed = segment * MaximumSiteMapNodeCount;
-                            ctx.ProgressCallback?.Invoke(numProcessed, total, "{0} / {1}".FormatCurrent(numProcessed, total));
+                            ctx.ProgressCallback?.Invoke(numProcessed, total, $"{numProcessed} / {total}");
 
-                            var slugs = await GetUrlRecordCollectionsForBatchAsync(batch.Select(x => x.Entry).ToList(), languageIds);
+                            var slugs = await GetUrlRecordCollectionsForBatchAsync([.. batch.Select(x => x.Entry)], languageIds);
 
                             foreach (var data in languageData.Values)
                             {
                                 var language = data.Language;
                                 var baseUrl = data.BaseUrl;
 
+                                nodeContext.LinkLanguages = linkLanguageMap.TryGetValues(language.Id, out var linkLanguages)
+                                    ? linkLanguages
+                                    : null;
+
                                 // Create all node entries for this segment
                                 var entries = batch
                                     .Where(x => x.Entry.LanguageId.GetValueOrDefault() == 0 || x.Entry.LanguageId.Value == language.Id)
-                                    .Select(x => x.Provider.CreateNode(_linkGenerator, baseUrl, x.Entry, slugs[x.Entry.EntityName], language));
+                                    .Select(x => x.Provider.CreateNode(baseUrl, x.Entry, slugs[x.Entry.EntityName], language, nodeContext));
                                 sitemaps[language.Id].AddRange(entries.Where(x => x != null));
 
                                 // Create index node for this segment/language combination
@@ -345,7 +359,11 @@ namespace Smartstore.Core.Seo
                                 {
                                     indexNodes[language.Id].Add(new XmlSitemapNode
                                     {
-                                        LastMod = sitemaps[language.Id].Select(x => x.LastMod).Where(x => x.HasValue).DefaultIfEmpty().Max(),
+                                        LastMod = sitemaps[language.Id]
+                                            .Select(x => x.LastMod)
+                                            .Where(x => x.HasValue)
+                                            .DefaultIfEmpty()
+                                            .Max(),
                                         Loc = GetSitemapIndexUrl(segment, baseUrl),
                                     });
                                 }
@@ -382,7 +400,7 @@ namespace Smartstore.Core.Seo
                                     // Ensure that at least one entry exists. Otherwise,
                                     // the system will try to rebuild again.
                                     var homeNode = new XmlSitemapNode { LastMod = DateTime.UtcNow, Loc = data.BaseUrl };
-                                    var documents = GetSiteMapDocuments(new List<XmlSitemapNode> { homeNode });
+                                    var documents = GetSiteMapDocuments([homeNode]);
                                     await SaveTempAsync(documents, data, 0);
                                 }
 
@@ -391,7 +409,6 @@ namespace Smartstore.Core.Seo
                     }
 
                     ctx.CancellationToken.ThrowIfCancellationRequested();
-
                     ctx.ProgressCallback?.Invoke(totalSegments, totalSegments, "Finalizing...'");
 
                     foreach (var data in languageData.Values)
@@ -400,7 +417,7 @@ namespace Smartstore.Core.Seo
                         if (hasIndex && indexNodes.Count > 0)
                         {
                             var indexDocument = CreateSitemapIndexDocument(indexNodes[data.Language.Id]);
-                            await SaveTempAsync(new List<string> { indexDocument }, data, 0);
+                            await SaveTempAsync([indexDocument], data, 0);
                         }
 
                         // Save finally (actually renames temp folder)
@@ -422,6 +439,40 @@ namespace Smartstore.Core.Seo
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Perf: Sitemap language ID -> language of alternative link.
+        /// </summary>
+        /// <param name="sitemapLanguages">Languages to create sitemap for.</param>
+        private async Task<Multimap<int, LinkLanguage>> CreateLinkLanguageMap(IEnumerable<Language> sitemapLanguages, XmlSitemapBuildContext ctx)
+        {
+            var map = new Multimap<int, LinkLanguage>();
+
+            if (!_seoSettings.AddAlternateSitemapLinks)
+            {
+                return map;
+            }
+
+            var allLanguages = await _languageService.GetAllLanguagesAsync(false, ctx.Store.Id);
+
+            foreach (var language in sitemapLanguages)
+            {
+                // INFO: For the current sitemap language, Google recommends adding an alternate link as well:
+                // https://developers.google.com/search/docs/specialty/international/localized-versions?visit_id=638802176426773299-2509641004&rd=2#example_2
+                var linkLanguages = await allLanguages
+                    //.Where(x => x.Id != language.Id)
+                    .SelectAwait(async x => new LinkLanguage
+                    {
+                        Language = x,
+                        BaseUrl = await BuildBaseUrlAsync(ctx.Store, x)
+                    })
+                    .AsyncToList(ctx.CancellationToken);
+
+                map.AddRange(language.Id, linkLanguages);
+            }
+
+            return map;
         }
 
         private async Task<string> BuildBaseUrlAsync(Store store, Language language)
@@ -542,8 +593,6 @@ namespace Smartstore.Core.Seo
         /// <returns>The sitemap XML document for the specified set of nodes.</returns>
         private string GetSitemapDocument(IEnumerable<XmlSitemapNode> nodes)
         {
-            //var languages = _languageService.GetAllLanguages();
-
             XNamespace ns = SitemapsNamespace;
             XNamespace xhtml = XhtmlNamespace;
 

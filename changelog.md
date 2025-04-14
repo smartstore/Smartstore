@@ -32,6 +32,7 @@
 - Fixed number of attachments always being 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminders.
 - Added setting to round the amount of reward points for a purchase.
+- Added setting to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.
 - #1150 Added a setting to hide orders in *My Account*.
 - #1242 Rule Builder: Added a cart rule fulfilled when the cart contains a product with a specific SKU.
 - #509 Added payment status setting for offline payments.

@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Microsoft.AspNetCore.Routing;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
@@ -39,6 +40,22 @@ namespace Smartstore.Core.Seo
         public Task<T> LoadSettingsAsync<T>() where T : ISettings, new()
         {
             return _settingFactory.LoadSettingsAsync<T>(RequestStoreId);
+        }
+    }
+
+    public class XmlSitemapBuildNodeContext
+    {
+        public LinkGenerator LinkGenerator { get; internal set; }
+
+        /// <summary>
+        /// Gets a list of languages for which alternative links are to be created.
+        /// </summary>
+        public ICollection<LinkLanguage> LinkLanguages { get; internal set; }
+
+        public class LinkLanguage
+        {
+            public Language Language { get; init; }
+            public string BaseUrl { get; init; }
         }
     }
 }

@@ -140,6 +140,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*XmlSitemapEnabled")]
             public bool XmlSitemapEnabled { get; set; }
 
+            [LocalizedDisplay("*AddAlternateSitemapLinks")]
+            public bool AddAlternateSitemapLinks { get; set; }
+
             [LocalizedDisplay("*XmlSitemapIncludesBlog")]
             public bool XmlSitemapIncludesBlog { get; set; }
 

@@ -164,6 +164,12 @@ namespace Smartstore.Core.Seo
         #region XML Sitemap
 
         public bool XmlSitemapEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.
+        /// </summary>
+        public bool AddAlternateSitemapLinks { get; set; } = true;
+
         public bool XmlSitemapIncludesCategories { get; set; } = true;
         public bool XmlSitemapIncludesManufacturers { get; set; } = true;
         public bool XmlSitemapIncludesProducts { get; set; } = true;
