@@ -43,10 +43,9 @@ namespace Smartstore.Core.AI.Prompting
         /// </summary>
         /// <param name="model">The <see cref="IAITextModel"/> model</param>
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated messages will be added.</param>
-        /// <param name="isRichText">A value indicating whether to build a HTML containing rich text prompt.</param>
-        public virtual Task<AIChat> AddTextMessagesAsync(IAITextModel model, AIChat chat, bool isRichText)
+        public virtual Task<AIChat> AddTextMessagesAsync(IAITextModel model, AIChat chat)
         {
-            return isRichText
+            return chat.Topic == AIChatTopic.RichText
                 ? AddRichTextMessagesAsync(model, chat)
                 : AddSimpleTextMessagesAsync(model, chat);
         }
