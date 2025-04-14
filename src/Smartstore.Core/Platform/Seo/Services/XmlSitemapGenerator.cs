@@ -259,7 +259,7 @@ namespace Smartstore.Core.Seo
                             LockFilePath = lockFilePath,
                             TempDir = sitemapDir + "~",
                             FinalDir = sitemapDir,
-                            BaseUrl = await BuildBaseUrlAsync(ctx.Store, language)
+                            BaseUrl = BuildBaseUrl(ctx.Store, language)
                         };
 
                         _tenantRoot.TryDeleteDirectory(data.TempDir);
@@ -460,14 +460,14 @@ namespace Smartstore.Core.Seo
             {
                 // INFO: For the current sitemap language, Google recommends adding an alternate link as well:
                 // https://developers.google.com/search/docs/specialty/international/localized-versions?visit_id=638802176426773299-2509641004&rd=2#example_2
-                var linkLanguages = await allLanguages
+                var linkLanguages = allLanguages
                     //.Where(x => x.Id != language.Id)
-                    .SelectAwait(async x => new LinkLanguage
+                    .Select(x => new LinkLanguage
                     {
                         Language = x,
-                        BaseUrl = await BuildBaseUrlAsync(ctx.Store, x)
+                        BaseUrl = BuildBaseUrl(ctx.Store, x)
                     })
-                    .AsyncToList(ctx.CancellationToken);
+                    .ToList();
 
                 map.AddRange(language.Id, linkLanguages);
             }
@@ -475,14 +475,14 @@ namespace Smartstore.Core.Seo
             return map;
         }
 
-        private async Task<string> BuildBaseUrlAsync(Store store, Language language)
+        private string BuildBaseUrl(Store store, Language language)
         {
             var host = store.GetBaseUrl();
 
-            var localizationSettings = await _services.SettingFactory.LoadSettingsAsync<LocalizationSettings>(store.Id);
+            var localizationSettings = _services.SettingFactory.LoadSettings<LocalizationSettings>(store.Id);
             if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                var defaultLangId = await _languageService.GetMasterLanguageIdAsync(store.Id);
+                var defaultLangId = _languageService.GetMasterLanguageId(store.Id);
                 if (language.Id != defaultLangId || localizationSettings.DefaultLanguageRedirectBehaviour < DefaultLanguageRedirectBehaviour.StripSeoCode)
                 {
                     host += language.GetTwoLetterISOLanguageName() + '/';

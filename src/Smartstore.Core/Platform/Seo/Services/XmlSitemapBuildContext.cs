@@ -52,7 +52,7 @@ namespace Smartstore.Core.Seo
         /// </summary>
         public ICollection<LinkLanguage> LinkLanguages { get; internal set; }
 
-        public class LinkLanguage
+        public record LinkLanguage
         {
             public Language Language { get; init; }
             public string BaseUrl { get; init; }

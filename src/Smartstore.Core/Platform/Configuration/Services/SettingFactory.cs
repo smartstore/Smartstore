@@ -54,7 +54,7 @@ namespace Smartstore.Core.Configuration
         /// <inheritdoc/>
         public ISettings LoadSettings(Type settingsType, int storeId = 0)
         {
-            Guard.NotNull(settingsType, nameof(settingsType));
+            Guard.NotNull(settingsType);
             Guard.HasDefaultConstructor(settingsType);
 
             if (!typeof(ISettings).IsAssignableFrom(settingsType))
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Configuration
         /// <inheritdoc/>
         public Task<ISettings> LoadSettingsAsync(Type settingsType, int storeId = 0)
         {
-            Guard.NotNull(settingsType, nameof(settingsType));
+            Guard.NotNull(settingsType);
             Guard.HasDefaultConstructor(settingsType);
 
             if (!typeof(ISettings).IsAssignableFrom(settingsType))
