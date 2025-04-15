@@ -63,6 +63,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="prepend"><c>true</c> renders the <paramref name="content"/> before any zone content.</param>
         void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false);
 
+        // TODO: (mg) Remove everything that is related to this method and LocalizedLinkEntry class after you refactored the view component.
         /// <summary>
         /// Adds alternate links (link rel='alternate') for localized page versions.
         /// </summary>
