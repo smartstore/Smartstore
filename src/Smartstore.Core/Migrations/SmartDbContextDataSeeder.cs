@@ -455,6 +455,10 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Do not create a heading that contains the product name.",
                 "Erstelle keine Überschrift, die den Produktnamen enthält.");
 
+            builder.AddOrUpdate("Smartstore.AI.Prompts.DontCreateTitle",
+                "Do not create the title: '{0}'.",
+                "Erstelle nicht den Titel: '{0}'.");
+
             builder.AddOrUpdate("Smartstore.AI.Prompts.WriteCompleteParagraphs",
                 "Create a complete and coherent text for each section.",
                 "Erstelle für jeden Abschnitt einen inhaltlich vollständigen und zusammenhängenden Text.");
@@ -548,7 +552,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Only return a single JSON object - without formatting, meta comments or additional text.",
                 "Gib ausschließlich ein einziges JSON-Objekt zurück – ohne Formatierungen, Meta-Kommentare oder zusätzlichen Text.");
 
-            builder.Delete("AnalyzeImageInstructions");
+            builder.Delete("Smartstore.AI.Prompts.JustHtml");       
         }
     }
 }

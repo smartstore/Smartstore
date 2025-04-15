@@ -293,10 +293,6 @@ namespace Smartstore.Core.AI.Prompting
 
                 roleInstructions.AddRange(
                     Resources.GetResource("Plugins.Smartstore.AI.Prompts.Product.NoAssumptions"),
-                    Resources.UseImagePlaceholders(),
-                    Resources.DontUseMarkdownHtml(),
-                    Resources.NoFriendlyIntroductions(),
-                    Resources.StartWithDivTag(),
                     Resources.DontCreateProductTitle()
                 );
             }
@@ -320,8 +316,13 @@ namespace Smartstore.Core.AI.Prompting
 
             if (chat.Topic == AIChatTopic.RichText)
             {
-                // TODO: Test this e.g. in Topic entity
-                roleInstructions.Add(Resources.WriteCompleteParagraphs());
+                roleInstructions.AddRange(
+                    Resources.WriteCompleteParagraphs(), 
+                    Resources.UseImagePlaceholders(),
+                    Resources.CreatHtmlWithoutMarkdown(),
+                    Resources.NoFriendlyIntroductions(),
+                    Resources.StartWithDivTag()
+                );
             }
             else if (chat.Topic == AIChatTopic.Suggestion)
             {
@@ -400,10 +401,9 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated messages will be added.</param>
         protected virtual async Task<AIChat> AddRichTextMessagesAsync(IAITextModel model, AIChat chat)
         {
-            // TODO: (mh) (ai) Get rid of this after all roles are set up.
+            // INFO: For products we use a slightly different version
             if (model.TargetProperty != "FullDescription" && model.Type != "Product")
             {
-                AddHtmlMessages(chat);
                 chat.System(Resources.DontCreateTitle(model.EntityName));
             }
 
@@ -453,17 +453,6 @@ namespace Smartstore.Core.AI.Prompting
             }
 
             return chat;
-        }
-
-        /// <summary>
-        /// Adds messages of type <see cref="AIChatMessage"/> to a <see cref="AIChat" /> for HTML creation.
-        /// </summary>
-        protected virtual AIChat AddHtmlMessages(AIChat chat)
-        {
-            return chat
-                .System(Resources.CreateHtml(true))
-                .System(Resources.JustHtml())
-                .System(Resources.StartWithDivTag());
         }
 
         #endregion

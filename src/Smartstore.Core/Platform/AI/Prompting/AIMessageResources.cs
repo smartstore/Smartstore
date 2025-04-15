@@ -29,15 +29,14 @@ namespace Smartstore.Core.AI.Prompting
         public virtual string DontUseMarkdown()
             => P("DontUseMarkdown");
 
-        // TODO: Rename CreatHtmlNoMarkdown
         /// <summary>
         /// Prevents the AI from generating markdown.
         /// </summary>
         /// <returns>
         /// AI instruction: Only return pure HTML code - do not use Markdown formatting, no backticks (```) and no indented code sections.
         /// </returns>
-        public virtual string DontUseMarkdownHtml()
-            => $"{CreateHtml} - {DontUseMarkdown}";
+        public virtual string CreatHtmlWithoutMarkdown()
+            => $"{CreateHtml()} - {DontUseMarkdown()}";
 
         /// <summary>
         /// Necessary for the AI to create the generated text as HTML.
@@ -276,18 +275,6 @@ namespace Smartstore.Core.AI.Prompting
         /// </returns>
         public virtual string LanguageStyle(string style)
             => P("LanguageStyle", style);
-
-        // TODO: Obsolete?
-        /// <summary>
-        /// No introductions or explanations.
-        /// </summary>
-        /// <returns>
-        /// AI instruction: Just return the HTML you have created so that it can be integrated directly into a website. 
-        /// Don't give explanations about what you have created or introductions like: 'Gladly, here is your HTML'. 
-        /// Do not include the generated HTML in any delimiters like: '```html' 
-        /// </returns>
-        public virtual string JustHtml()
-            => P("JustHtml");
 
         /// <summary>
         /// Necessary so that the AI does not create an entire HTML document.
