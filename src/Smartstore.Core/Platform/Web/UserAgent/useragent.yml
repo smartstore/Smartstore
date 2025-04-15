@@ -321,6 +321,33 @@ bots:
   - match: Owler
     name: OWLer - Open Web Crawler
   
+  # AI Bots
+  - match: GPTBot
+  - match: OAI-SearchBot
+    name: OpenAI GPT Bot
+
+  - match: DeepSeek
+    name: DeepSeek Chat Bot
+
+  - match: Google-DeepAI
+    name: Google Gemini
+
+  - match: BingAI
+  - match: BingChat
+    name: Microsoft Bing Chat (Copilot)
+
+  - match: MetaAI
+    name: Meta AI
+
+  - match: PerplexityBot/
+    name: Perplexity Bot
+
+  - match: anthropic-ai
+    name: Anthropic AI
+
+  - match: /[cC]laude[bB]ot/
+    name: Claude Bot
+   
   # Common tools, readers & apps
   - match: python/
     name: Python
@@ -343,8 +370,6 @@ bots:
   - match: urlwatch
   - match: uptime-kuma
   - match: UptimeRobot
-  - match: GPTBot
-  - match: ChatGPT-User
   - match: PhxBot
   - match: ImagesiftBot
   - match: PaperLiBot
@@ -370,12 +395,6 @@ bots:
   - match: Newslitbot
   - match: Feedly
     name: $1
-
-  - match: OAI-SearchBot
-    name: OpenAI Search Bot
-
-  - match: PerplexityBot/
-    name: Perplexity Bot  
 
   - match: axios/
     name: Axios
@@ -420,12 +439,6 @@ bots:
   - match: BingPreview
   - match: LinkedInBot
     name: $1
-
-  - match: anthropic-ai
-    name: Anthropic AI
-
-  - match: /[cC]laude[bB]ot/
-    name: Claude Bot
 
   - match: infoseek
     name: InfoSeek Robot 1.0
