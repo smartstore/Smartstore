@@ -281,6 +281,7 @@ namespace Smartstore.Core.AI.Prompting
         public virtual AIChat AddRoleMessage(AIRole role, AIChat chat, List<string> roleInstructions = null, string entityName = "")
         {
             var message = Resources.Role(role, entityName);
+            roleInstructions ??= [];
 
             // Lets add some generic operational instructions for explizit roles.
 
@@ -289,8 +290,6 @@ namespace Smartstore.Core.AI.Prompting
             {
                 // Add an empty line between the first role and the second role to make clear that these are two different dimensions of the role.
                 message += "\n\n" + Resources.Role(AIRole.HtmlEditor);
-
-                roleInstructions ??= [];
 
                 roleInstructions.AddRange(
                     Resources.GetResource("Plugins.Smartstore.AI.Prompts.Product.NoAssumptions"),
@@ -304,8 +303,6 @@ namespace Smartstore.Core.AI.Prompting
             else if (role == AIRole.ImageAnalyzer)
             {
                 message += "\n\n" + Resources.Role(AIRole.SEOExpert);
-
-                roleInstructions ??= [];
 
                 // INFO: This instruction must be built differently to accomplish sub lists
                 var objectDefinition = Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition");
@@ -328,9 +325,10 @@ namespace Smartstore.Core.AI.Prompting
             }
             else if (chat.Topic == AIChatTopic.Suggestion)
             {
-                // TODO: Optimize messages
                 roleInstructions.AddRange(
-                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.GeneralPrompt"),
+                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.Separation"),
+                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.NoNumbering"),
+                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.NoRepitions"),
                     Resources.DontUseMarkdown(),
                     Resources.DontUseQuotes(),
                     Resources.DontUseLineBreaks()

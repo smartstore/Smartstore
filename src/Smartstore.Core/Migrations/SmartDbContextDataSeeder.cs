@@ -273,10 +273,18 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ContinueHere", "[Continue here]", "[Fortsetzung hier]");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.GeneralPrompt",
-                "Separate the suggestions with the ¶ character (paragraph mark). Do not use numbering. Do not repeat suggestions.",
-                "Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke). Verwende keine Nummerierungen. Wiederhole keine Vorschläge.");
-            
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.Separation",
+                "Separate the suggestions with the ¶ character (paragraph mark).",
+                "Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke).");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.NoNumbering",
+                "Do not use numbering.",
+                "Verwende keine Nummerierungen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.NoRepitions",
+                "Each proposal must be unique - repetitions are not permitted.",
+                "Jeder Vorschlag muss einzigartig sein – Wiederholungen sind nicht erlaubt.");
+
             builder.AddOrUpdate("Smartstore.AI.Prompts.Suggestions.CharLimit",
                 "Each suggestion should have a maximum of {0} characters.",
                 "Jeder Vorschlag soll maximal {0} Zeichen haben.");
@@ -295,7 +303,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseQuotes",
                 "Do not enclose the text in quotation marks or other characters.",
-                "Der Text darf nicht in Anführungszeichen oder andere Zeichen eingeschlossen werden.");
+                "Schließe den Text nicht in Anführungszeichen oder andere Zeichen ein.");
 
             builder.AddOrUpdate("Admin.Orders.CompleteUnpaidOrder",
                 "The order has a payment status of <strong>{0}</strong>. Do you still want to set it to complete?",
@@ -336,7 +344,9 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
 
             builder.AddOrUpdate("Admin.AI.EditHtml", "Edit HTML text", "HTML-Text bearbeiten");
 
-            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Rules", "Follow these guidelines:", "Beachte dabei die folgenden Regeln:");
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Rules",
+                "These rules are mandatory:",
+                "Diese Regeln sind zwingend einzuhalten:");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.HtmlEditor",
                 "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. You always create valid HTML!",
