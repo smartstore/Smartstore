@@ -56,7 +56,7 @@ namespace Smartstore.Core.Seo
         /// <param name="entity">Entity ro create alternative links for.</param>
         /// <param name="slugs">Collection of all slugs.</param>
         /// <param name="ctx">Provides the languages for which the alternative links are to be created.</param>
-        public virtual IEnumerable<XmlSitemapNode.LinkEntry> CreateLinks(NamedEntity entity, UrlRecordCollection slugs, XmlSitemapBuildNodeContext ctx)
+        public virtual IEnumerable<LocalizedLinkEntry> CreateLinks(NamedEntity entity, UrlRecordCollection slugs, XmlSitemapBuildNodeContext ctx)
         {
             if (ctx.LinkLanguages.IsNullOrEmpty())
             {
@@ -64,15 +64,16 @@ namespace Smartstore.Core.Seo
             }
 
             return [.. ctx.LinkLanguages
-                .Select(x =>
+                .Select(lang =>
                 {
-                    var slug = slugs.GetSlug(x.Language.Id, entity.Id, false);
+                    // TODO (?): Slug for default value fallback (languageId == 0) is never provided by sitemap generation.
+                    var slug = slugs.GetSlug(lang.Language.Id, entity.Id, lang.Language.Id == ctx.DefaultLanguageId);
                     if (slug != null)
                     {
-                        return new XmlSitemapNode.LinkEntry
+                        return new LocalizedLinkEntry
                         {
-                            Lang = x.Language.LanguageCulture,
-                            Href = x.BaseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/'))
+                            Lang = lang.Language.LanguageCulture,
+                            Href = lang.BaseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/'))
                         };
                     }
 

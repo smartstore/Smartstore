@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
@@ -13,7 +16,10 @@ namespace Smartstore.Core.Localization
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILocalizationService _localizationService;
         private readonly IUrlService _urlService;
+        private readonly ISettingFactory _settingFactory;
         private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly SeoSettings _seoSettings;
 
         private int? _languageCount;
         private Language _masterLanguage;
@@ -24,14 +30,20 @@ namespace Smartstore.Core.Localization
             ILocalizedEntityService localizedEntityService,
             ILocalizationService localizationService,
             IUrlService urlService,
-            IWorkContext workContext)
+            ISettingFactory settingFactory,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            SeoSettings seoSettings)
         {
             _db = db;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
             _localizationService = localizationService;
             _urlService = urlService;
+            _settingFactory = settingFactory;
             _workContext = workContext;
+            _storeContext = storeContext;
+            _seoSettings = seoSettings;
         }
 
         private int LanguageCount
@@ -184,6 +196,63 @@ namespace Smartstore.Core.Localization
             }
 
             return result;
+        }
+
+        // TODO (mg): Insufficient method(s). The caller must use IUrlHelperUrl.RouteUrl to create URLs.
+        public virtual async Task<LocalizedLinkEntry[]> GetLocalizedLinkEntriesAsync(string entityName, int entityId, Store store = null)
+        {
+            Guard.NotEmpty(entityName);
+            Guard.NotZero(entityId);
+
+            if (!_seoSettings.AddAlternateHtmlLinks)
+            {
+                return null;
+            }
+
+            store ??= _storeContext.CurrentStore;
+
+            var allLanguages = await _languageService.GetAllLanguagesAsync(false, store.Id);
+            var defaultLanguageId = await _languageService.GetMasterLanguageIdAsync(store.Id);
+            var languageIds = allLanguages.Select(x => x.Id).Concat([0]).ToArray();
+            var slugs = await _urlService.GetUrlRecordCollectionAsync(entityName, languageIds, [entityId]);
+
+            // INFO: Also add an alternate link:
+            // - For current language: https://developers.google.com/search/docs/specialty/international/localized-versions?visit_id=638802176426773299-2509641004#html
+            // - Even if there is only one language published. The admin can suppress it by deactivating AddAlternateHtmlLinks.
+            return [.. allLanguages
+                .Select(lang =>
+                {
+                    var slug = slugs.GetSlug(lang.Id, entityId, lang.Id == defaultLanguageId);
+                    if (slug != null)
+                    {
+                        var baseUrl = GetBaseUrl(lang, store);
+                        return new LocalizedLinkEntry
+                        {
+                            Lang = lang.LanguageCulture,
+                            Href = baseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/'))
+                        };
+                    }
+
+                    return null;
+                })
+                .Where(x => x != null)];
+        }
+
+        private string GetBaseUrl(Language language, Store store)
+        {
+            var baseUrl = store.GetBaseUrl();
+            var localizationSettings = _settingFactory.LoadSettings<LocalizationSettings>(store.Id);
+
+            if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            {
+                var defaultLangId = _languageService.GetMasterLanguageId(store.Id);
+                if (language.Id != defaultLangId || localizationSettings.DefaultLanguageRedirectBehaviour < DefaultLanguageRedirectBehaviour.StripSeoCode)
+                {
+                    baseUrl += language.GetTwoLetterISOLanguageName() + '/';
+                }
+            }
+
+            return baseUrl;
         }
     }
 }

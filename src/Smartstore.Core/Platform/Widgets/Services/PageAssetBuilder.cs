@@ -124,6 +124,23 @@ namespace Smartstore.Core.Widgets
                 new HtmlWidget(content) { Key = key, Prepend = prepend });
         }
 
+        public virtual void AddLocalizedLinkEntries(LocalizedLinkEntry[] entries, bool prepend = false)
+        {
+            if (entries.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            foreach (var entry in entries)
+            {
+                AddHtmlContent(
+                    "head_links",
+                    new HtmlString($"<link rel=\"alternate\" hreflang=\"{entry.Lang}\" href=\"{entry.Href}\" />"),
+                    $"link_{entry.Href}",
+                    prepend);
+            }
+        }
+
         public virtual IHtmlContent GetDocumentTitle(bool addDefaultTitle)
         {
             if (_titleParts == null)

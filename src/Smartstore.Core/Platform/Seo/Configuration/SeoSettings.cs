@@ -145,6 +145,12 @@ namespace Smartstore.Core.Seo
         public bool CanonicalUrlsEnabled { get; set; }
         public CanonicalHostNameRule CanonicalHostNameRule { get; set; } = CanonicalHostNameRule.NoRule;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to add alternate HTML links (link rel="alternate") 
+        /// to the HTML head for localized page versions.
+        /// </summary>
+        public bool AddAlternateHtmlLinks { get; set; }
+
         //public bool LowercaseUrls { get; set; } = true;
         //public bool LowercaseQueryStrings { get; set; }
         public bool AppendTrailingSlashToUrls { get; set; } = true;

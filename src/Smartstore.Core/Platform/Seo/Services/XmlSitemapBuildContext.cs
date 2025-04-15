@@ -46,6 +46,7 @@ namespace Smartstore.Core.Seo
     public class XmlSitemapBuildNodeContext
     {
         public LinkGenerator LinkGenerator { get; internal set; }
+        public int DefaultLanguageId { get; internal set; }
 
         /// <summary>
         /// Gets a list of languages for which alternative links are to be created.

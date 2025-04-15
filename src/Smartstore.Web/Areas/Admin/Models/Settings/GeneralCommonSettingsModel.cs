@@ -116,6 +116,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CanonicalHostNameRule")]
             public CanonicalHostNameRule CanonicalHostNameRule { get; set; }
 
+            [LocalizedDisplay("*AddAlternateHtmlLinks")]
+            public bool AddAlternateHtmlLinks { get; set; }
+
             [LocalizedDisplay("*AppendTrailingSlashToUrls")]
             public bool AppendTrailingSlashToUrls { get; set; }
 

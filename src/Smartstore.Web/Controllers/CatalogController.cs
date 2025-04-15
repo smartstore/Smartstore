@@ -35,6 +35,7 @@ namespace Smartstore.Web.Controllers
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly IProductCompareService _productCompareService;
+        private readonly LocalizedEntityHelper _localizedEntityHelper;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
@@ -45,6 +46,7 @@ namespace Smartstore.Web.Controllers
             IProductTagService productTagService,
             IRecentlyViewedProductsService recentlyViewedProductsService,
             IProductCompareService productCompareService,
+            LocalizedEntityHelper localizedEntityHelper,
             IAclService aclService,
             IStoreMappingService storeMappingService,
             ICatalogSearchService catalogSearchService,
@@ -59,6 +61,7 @@ namespace Smartstore.Web.Controllers
             _productTagService = productTagService;
             _recentlyViewedProductsService = recentlyViewedProductsService;
             _productCompareService = productCompareService;
+            _localizedEntityHelper = localizedEntityHelper;
             _aclService = aclService;
             _storeMappingService = storeMappingService;
             _catalogSearchService = catalogSearchService;
@@ -103,6 +106,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = await _helper.PrepareCategoryModelAsync(category);
+            model.LocalizedLinkEntries = await _localizedEntityHelper.GetLocalizedLinkEntriesAsync(nameof(Category), category.Id);
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
@@ -240,6 +244,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);
+            model.LocalizedLinkEntries = await _localizedEntityHelper.GetLocalizedLinkEntriesAsync(nameof(Manufacturer), manufacturer.Id);
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {

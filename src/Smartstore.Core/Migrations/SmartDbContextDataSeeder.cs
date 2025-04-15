@@ -508,6 +508,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Specifies whether to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.",
                 "Legt fest, ob Alternate Links (xhtml:link) für lokalisierte Seitenversionen in der XML-Sitemap hinzugefügt werden sollen.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.AddAlternateHtmlLinks",
+                "Add alternate links for localized pages",
+                "Alternate Links für lokalisierte Seiten hinzufügen",
+                "Specifies whether to add alternate links (link rel='alternate') for localized page versions in the HTML header.",
+                "Legt fest, ob Alternate Links (link rel='alternate') für lokalisierte Seitenversionen in den HTML-Header eingefügt werden sollen.");
+
             builder.AddOrUpdate("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition",
                 "Return exactly one single JSON object with these keys and meanings:",
                 "Gib genau ein einzelnes JSON-Objekt mit diesen Keys und Bedeutungen zurück:");

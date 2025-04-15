@@ -120,6 +120,15 @@
                         <span asp-validation-for="SeoSettings.CanonicalHostNameRule"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.AddAlternateHtmlLinks" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.AddAlternateHtmlLinks"></setting-editor>
+                        <span asp-validation-for="SeoSettings.AddAlternateHtmlLinks"></span>
+                    </div>
+                </div>
                 <div class="robots-container display-allows adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="SeoSettings.ExtraRobotsLines" />

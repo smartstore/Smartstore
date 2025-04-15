@@ -66,6 +66,7 @@ namespace Smartstore.Web.Controllers
         private readonly IUrlHelper _urlHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly LocalizedEntityHelper _localizedEntityHelper;
         private readonly IUrlService _urlService;
         private readonly ILinkResolver _linkResolver;
         private readonly ContactDataSettings _contactDataSettings;
@@ -106,6 +107,7 @@ namespace Smartstore.Web.Controllers
             IUrlHelper urlHelper,
             ProductUrlHelper productUrlHelper,
             ILocalizedEntityService localizedEntityService,
+            LocalizedEntityHelper localizedEntityHelper,
             IUrlService urlService,
             ILinkResolver linkResolver,
             ContactDataSettings contactDataSettings,
@@ -148,6 +150,7 @@ namespace Smartstore.Web.Controllers
             _urlHelper = urlHelper;
             _productUrlHelper = productUrlHelper;
             _localizedEntityService = localizedEntityService;
+            _localizedEntityHelper = localizedEntityHelper;
             _urlService = urlService;
             _linkResolver = linkResolver;
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;

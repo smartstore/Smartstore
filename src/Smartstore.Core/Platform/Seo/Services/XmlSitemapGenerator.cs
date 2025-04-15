@@ -299,7 +299,8 @@ namespace Smartstore.Core.Seo
 
             var nodeContext = new XmlSitemapBuildNodeContext
             {
-                LinkGenerator = _linkGenerator
+                LinkGenerator = _linkGenerator,
+                DefaultLanguageId = await _languageService.GetMasterLanguageIdAsync(ctx.Store.Id)
             };
 
             await using (compositeFileLock)
@@ -477,19 +478,18 @@ namespace Smartstore.Core.Seo
 
         private string BuildBaseUrl(Store store, Language language)
         {
-            var host = store.GetBaseUrl();
-
+            var baseUrl = store.GetBaseUrl();
             var localizationSettings = _services.SettingFactory.LoadSettings<LocalizationSettings>(store.Id);
             if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 var defaultLangId = _languageService.GetMasterLanguageId(store.Id);
                 if (language.Id != defaultLangId || localizationSettings.DefaultLanguageRedirectBehaviour < DefaultLanguageRedirectBehaviour.StripSeoCode)
                 {
-                    host += language.GetTwoLetterISOLanguageName() + '/';
+                    baseUrl += language.GetTwoLetterISOLanguageName() + '/';
                 }
             }
 
-            return host;
+            return baseUrl;
         }
 
         private async Task SaveTempAsync(List<string> documents, LanguageData data, int start)

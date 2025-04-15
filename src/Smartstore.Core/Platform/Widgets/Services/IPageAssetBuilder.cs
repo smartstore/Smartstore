@@ -64,6 +64,12 @@ namespace Smartstore.Core.Widgets
         void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false);
 
         /// <summary>
+        /// Adds alternate links (link rel='alternate') for localized page versions.
+        /// </summary>
+        /// <param name="prepend"><c>true</c> to insert <paramref name="entries"/> before existing content.</param>
+        void AddLocalizedLinkEntries(LocalizedLinkEntry[] entries, bool prepend = false);
+
+        /// <summary>
         /// Gets the document title which is composed of all current title parts
         /// separated by <see cref="SeoSettings.PageTitleSeparator"/>
         /// </summary>
