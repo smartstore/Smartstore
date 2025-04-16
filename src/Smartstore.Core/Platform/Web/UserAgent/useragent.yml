@@ -261,6 +261,7 @@ bots:
   - match: Googlebot
   - match: Applebot
   - match: DuckDuckBot
+  - match: YandexImages
     name: $1
 
   - match: googleweblight
@@ -270,9 +271,6 @@ bots:
   - match: yandex-bot
   - match: YaDirectFetcher
     name: YandexBot
-
-  - match: YandexImages
-    name: $1
 
   - match: /Sogou.*?Spider/
     name: Sogou Spider
@@ -298,6 +296,7 @@ bots:
   - match: Google-Extended
   - match: Google-InspectionTool
   - match: Google-CloudVertexBot
+  - match: Google SketchUp
   - match: StartmeBot
     name: $1
 
@@ -306,6 +305,9 @@ bots:
 
   - match: FeedFetcher-Google
     name: Google FeedFetcher
+
+  - match: AppEngine-Google
+    name: Google AppEngine
 
   - match: GoogleProducer
     name: Google Publisher Center
@@ -367,6 +369,8 @@ bots:
   - match: Chrome-Lighthouse
     name: Chrome Lighthouse
 
+  - match: WhatsApp
+  - match: Twitterbot
   - match: urlwatch
   - match: uptime-kuma
   - match: UptimeRobot
@@ -394,7 +398,12 @@ bots:
   - match: ZumBot
   - match: Newslitbot
   - match: Feedly
+  - match: Accoona
+  - match: altavista
     name: $1
+
+  - match: WordPress/
+    name: WordPress
 
   - match: axios/
     name: Axios
@@ -506,9 +515,13 @@ bots:
 
   - match: crawler
   - match: spider
+  - match: indexer
+  - match: sniffer
+  - match: seeker
     name: Generic crawler
 
   - match: -bot/
+  - match: .org_bot
     name: Generic bot
 
 

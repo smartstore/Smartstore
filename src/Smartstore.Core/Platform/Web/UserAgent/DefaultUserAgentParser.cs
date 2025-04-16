@@ -13,11 +13,11 @@ namespace Smartstore.Core.Web
         const string GenericBot = "Generic bot";
         const string DefaultYamlPath = "App_Data/useragent.yml";
 
-        private List<UaMatcher> _browsers = new();
-        private List<UaMatcher> _platforms = new();
-        private List<UaMatcher> _bots = new();
-        private List<UaMatcher> _devices = new();
-        private List<UaMatcher> _tablets = new();
+        private readonly List<UaMatcher> _browsers = [];
+        private readonly List<UaMatcher> _platforms = [];
+        private readonly List<UaMatcher> _bots = [];
+        private readonly List<UaMatcher> _devices = [];
+        private readonly List<UaMatcher> _tablets = [];
         private IDisposable _yamlWatcher;
 
         private readonly ReaderWriterLockSlim _rwLock = new();
