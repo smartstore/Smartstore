@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
@@ -13,11 +14,11 @@ namespace Smartstore.Core.Web
         const string GenericBot = "Generic bot";
         const string DefaultYamlPath = "App_Data/useragent.yml";
 
-        private readonly List<UaMatcher> _browsers = [];
-        private readonly List<UaMatcher> _platforms = [];
-        private readonly List<UaMatcher> _bots = [];
-        private readonly List<UaMatcher> _devices = [];
-        private readonly List<UaMatcher> _tablets = [];
+        private ImmutableList<UaMatcher> _browsers = [];
+        private ImmutableList<UaMatcher> _platforms = [];
+        private ImmutableList<UaMatcher> _bots = [];
+        private ImmutableList<UaMatcher> _devices = [];
+        private ImmutableList<UaMatcher> _tablets = [];
         private IDisposable _yamlWatcher;
 
         private readonly ReaderWriterLockSlim _rwLock = new();
@@ -55,15 +56,15 @@ namespace Smartstore.Core.Web
                 var mappings = ParseYaml(yamlStream);
 
                 // Create matchers for browsers
-                ConvertMapping(mappings.Get("browsers"), _browsers, UserAgentSegment.Browser);
+                _browsers = [.. ConvertMapping(mappings.Get("browsers"), UserAgentSegment.Browser)];
                 // Create matchers for platforms
-                ConvertMapping(mappings.Get("platforms"), _platforms, UserAgentSegment.Platform);
+                _platforms = [.. ConvertMapping(mappings.Get("platforms"), UserAgentSegment.Platform)];
                 // Create matchers for bots
-                ConvertMapping(mappings.Get("bots"), _bots, UserAgentSegment.Bot);
+                _bots = [.. ConvertMapping(mappings.Get("bots"), UserAgentSegment.Bot)];
                 // Create matchers for devices
-                ConvertMapping(mappings.Get("devices"), _devices, UserAgentSegment.Device);
+                _devices = [.. ConvertMapping(mappings.Get("devices"), UserAgentSegment.Device)];
                 // Create matchers for tablets
-                ConvertMapping(mappings.Get("tablets"), _tablets, UserAgentSegment.Device);
+                _tablets = [.. ConvertMapping(mappings.Get("tablets"), UserAgentSegment.Device)];
             }
             catch (Exception ex)
             {
@@ -124,13 +125,13 @@ namespace Smartstore.Core.Web
             return parser.Mappings;
         }
 
-        private static void ConvertMapping(YamlMapping mapping, List<UaMatcher> target, UserAgentSegment segment)
+        private static List<UaMatcher> ConvertMapping(YamlMapping mapping, UserAgentSegment segment)
         {
-            target.Clear();
+            var result = new List<UaMatcher>();
 
             var hasPlatform = segment is UserAgentSegment.Platform;
             var regexFlags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline;
-
+            
             for (var i = 0; i < mapping.Sequences.Count; i++) 
             {
                 var sequence = mapping.Sequences[i];
@@ -175,7 +176,7 @@ namespace Smartstore.Core.Web
                     }
                 }
 
-                target.Add(matcher);
+                result.Add(matcher);
             }
 
             string FindMapping(string name, int startIndex)
@@ -190,6 +191,8 @@ namespace Smartstore.Core.Web
 
                 return null;
             }
+
+            return result;
         }
 
         #endregion
@@ -211,9 +214,9 @@ namespace Smartstore.Core.Web
 
         public UserAgentInfo Parse(string userAgent)
         {
-            userAgent = userAgent.TrimSafe();
+            var userAgentSpan = userAgent.AsSpan().Trim();
 
-            if (userAgent.IsEmpty())
+            if (userAgentSpan.IsEmpty)
             {
                 // Empty useragent > bad bot!
                 return UserAgentInfo.UnknownBot;
@@ -222,26 +225,26 @@ namespace Smartstore.Core.Web
             using var locker = _rwLock.GetReadLock();
 
             // Analyze Bot
-            if (TryGetBot(userAgent, out string botName))
+            if (TryGetBot(userAgentSpan, out string botName))
             {
-                return UserAgentInfo.CreateForBot(botName, GetPlatform(userAgent));
+                return UserAgentInfo.CreateForBot(botName, GetPlatform(userAgentSpan));
             }
 
             // Analyze Platform
-            var platform = GetPlatform(userAgent);
+            var platform = GetPlatform(userAgentSpan);
 
             // Analyze device
-            var device = GetDevice(userAgent);
+            var device = GetDevice(userAgentSpan);
 
             // Analyze Browser
-            if (TryGetBrowser(userAgent, out (string Name, string Version)? browser))
+            if (TryGetBrowser(userAgentSpan, out (string Name, string Version)? browser))
             {
                 var type = browser?.Name is "Smartstore" ? UserAgentType.Application : UserAgentType.Browser;
                 return new UserAgentInfo(type, browser?.Name, browser?.Version, platform, device);
             }
             else
             {
-                if (userAgent.ContainsNoCase("bot") && !userAgent.ContainsNoCase("cubot"))
+                if (userAgentSpan.ContainsNoCase("bot") && !userAgentSpan.ContainsNoCase("cubot"))
                 {
                     // No bot or browser detected. Just check if "bot" is
                     // contained within agent string and simply assume that it's a bot.
@@ -255,13 +258,13 @@ namespace Smartstore.Core.Web
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetPlatform(string userAgent, out UserAgentPlatform? platform)
+        private bool TryGetPlatform(ReadOnlySpan<char> userAgent, out UserAgentPlatform? platform)
         {
             platform = GetPlatform(userAgent);
             return platform is not null;
         }
 
-        private UserAgentPlatform? GetPlatform(string userAgent)
+        private UserAgentPlatform? GetPlatform(ReadOnlySpan<char> userAgent)
         {
             for (var i = 0; i < _platforms.Count; i++)
             {
@@ -276,13 +279,13 @@ namespace Smartstore.Core.Web
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetBrowser(string userAgent, [NotNullWhen(true)] out (string Name, string Version)? browser)
+        private bool TryGetBrowser(ReadOnlySpan<char> userAgent, [NotNullWhen(true)] out (string Name, string Version)? browser)
         {
             browser = GetBrowser(userAgent);
             return browser is not null;
         }
 
-        private (string Name, string Version)? GetBrowser(string userAgent)
+        private (string Name, string Version)? GetBrowser(ReadOnlySpan<char> userAgent)
         {
             for (var i = 0; i < _browsers.Count; i++)
             {
@@ -297,13 +300,13 @@ namespace Smartstore.Core.Web
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetBot(string userAgent, out string botName)
+        private bool TryGetBot(ReadOnlySpan<char> userAgent, out string botName)
         {
             botName = GetBot(userAgent);
             return botName is not null;
         }
 
-        private string GetBot(string userAgent)
+        private string GetBot(ReadOnlySpan<char> userAgent)
         {
             for (var i = 0; i < _bots.Count; i++)
             {
@@ -318,20 +321,21 @@ namespace Smartstore.Core.Web
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetDevice(string userAgent, [NotNullWhen(true)] out UserAgentDevice? device)
+        private bool TryGetDevice(ReadOnlySpan<char> userAgent, [NotNullWhen(true)] out UserAgentDevice? device)
         {
             device = GetDevice(userAgent);
             return device is not null;
         }
 
-        private UserAgentDevice? GetDevice(string userAgent)
+        private UserAgentDevice? GetDevice(ReadOnlySpan<char> userAgent)
         {
             for (var i = 0; i < _devices.Count; i++)
             {
                 var matcher = _devices[i];
                 if (matcher.Match(userAgent, out _))
                 {
-                    var isTablet = _tablets.Any(m => m.Match(userAgent, out _));
+                    var uaString = userAgent.ToString();
+                    var isTablet = _tablets.Any(m => m.Match(uaString, out _));
                     return new UserAgentDevice(matcher.Name, isTablet ? UserAgentDeviceType.Tablet : UserAgentDeviceType.Smartphone);
                 }
             }

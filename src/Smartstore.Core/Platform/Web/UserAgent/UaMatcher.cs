@@ -11,7 +11,7 @@ namespace Smartstore.Core.Web
     {
         public string Name { get; set; } = default!;
         public UserAgentPlatformFamily? PlatformFamily { get; set; }
-        public abstract bool Match(string userAgent, [MaybeNullWhen(true)] out string? version);
+        public abstract bool Match(ReadOnlySpan<char> userAgent, [MaybeNullWhen(true)] out string? version);
     }
 
     [DebuggerDisplay("Regex: {Regex}, Name: {Name}, Platform: {PlatformFamily}")]
@@ -25,10 +25,10 @@ namespace Smartstore.Core.Web
         public Regex Regex { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Match(string userAgent, [MaybeNullWhen(true)] out string? version)
+        public override bool Match(ReadOnlySpan<char> userAgent, [MaybeNullWhen(true)] out string? version)
         {
             version = null;
-            var match = Regex.Match(userAgent);
+            var match = Regex.Match(userAgent.ToString());
             if (match.Success)
             {
                 if (match.Groups.ContainsKey("v"))
@@ -59,7 +59,7 @@ namespace Smartstore.Core.Web
         public string Contains { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Match(string userAgent, [MaybeNullWhen(true)] out string? version)
+        public override bool Match(ReadOnlySpan<char> userAgent, [MaybeNullWhen(true)] out string? version)
         {
             version = null;
             return userAgent.Contains(Contains, StringComparison.OrdinalIgnoreCase);
