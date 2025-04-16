@@ -10,6 +10,7 @@
   - #1258 Added **DeepSeek** AI provider.
   - Added **Gemini** AI provider.
   - #1259 Implemented setting for keywords to generally avoid.
+- Added settings to add alternate links for localized page versions to the XML Sitemap and HTML Header.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - #990 Added a weight field to attribute combinations.
 - Added a setting to control whether shipping costs are displayed on the cart page as long as the customer has not yet entered a shipping address.
@@ -32,7 +33,6 @@
 - Fixed number of attachments always being 0 in queued email list.
 - EmailReminder: Added task to send bonus points reminders.
 - Added setting to round the amount of reward points for a purchase.
-- Added setting to add alternate links (xhtml:link) for localized page versions to the XML Sitemap.
 - #1150 Added a setting to hide orders in *My Account*.
 - #1242 Rule Builder: Added a cart rule fulfilled when the cart contains a product with a specific SKU.
 - #509 Added payment status setting for offline payments.

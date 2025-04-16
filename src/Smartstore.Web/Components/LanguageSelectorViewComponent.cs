@@ -1,5 +1,7 @@
-﻿using Smartstore.Core.Localization;
+﻿using Microsoft.AspNetCore.Html;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
+using Smartstore.Http;
 using Smartstore.Web.Infrastructure.Hooks;
 
 namespace Smartstore.Web.Components
@@ -15,18 +17,24 @@ namespace Smartstore.Web.Components
         private readonly SmartDbContext _db;
         private readonly Lazy<ILanguageService> _languageService;
         private readonly IUrlService _urlService;
+        private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly SeoSettings _seoSettings;
 
         public LanguageSelectorViewComponent(
             SmartDbContext db,
             Lazy<ILanguageService> languageService,
             IUrlService urlService,
-            LocalizationSettings localizationSettings)
+            Lazy<IWidgetProvider> widgetProvider,
+            LocalizationSettings localizationSettings,
+            SeoSettings seoSettings)
         {
             _db = db;
             _languageService = languageService;
             _urlService = urlService;
+            _widgetProvider = widgetProvider;
             _localizationSettings = localizationSettings;
+            _seoSettings = seoSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string templateName = "Default")
@@ -118,6 +126,12 @@ namespace Smartstore.Web.Components
                     Language = lang,
                     Url = helper.Path
                 });
+
+                if (_seoSettings.AddAlternateHtmlLinks)
+                {
+                    var url = WebHelper.GetAbsoluteUrl(helper.Path, Request);
+                    _widgetProvider.Value.RegisterHtml("head_links", new HtmlString($"<link rel=\"alternate\" hreflang=\"{lang.LanguageCulture}\" href=\"{url}\" />"));
+                }
             }
 
             ViewBag.LocalizedUrls = localizedUrls;
