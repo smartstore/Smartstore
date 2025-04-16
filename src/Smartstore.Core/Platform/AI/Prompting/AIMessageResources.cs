@@ -9,6 +9,8 @@ namespace Smartstore.Core.AI.Prompting
     /// </summary>
     public partial class AIMessageResources(ILocalizationService localizationService)
     {
+        public static string PromptResourceRoot => "Smartstore.AI.Prompts.";
+
         private readonly ILocalizationService _localizationService = localizationService;
 
         /// <summary>
@@ -531,7 +533,7 @@ namespace Smartstore.Core.AI.Prompting
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string P(string keyPart, params object[] args)
-            => GetResource("Smartstore.AI.Prompts." + keyPart, args);
+            => GetResource(PromptResourceRoot + keyPart, args);
 
         #endregion
     }

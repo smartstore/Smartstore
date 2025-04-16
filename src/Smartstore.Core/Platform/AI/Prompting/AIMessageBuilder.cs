@@ -284,6 +284,7 @@ namespace Smartstore.Core.AI.Prompting
             roleInstructions ??= [];
 
             // Lets add some generic operational instructions for explizit roles.
+            var resRoot = AIMessageResources.PromptResourceRoot;
 
             // INFO: ProductExpert will be used exclusivly by RichTextDialog of Product.LongDescription
             if (role == AIRole.ProductExpert)
@@ -292,7 +293,7 @@ namespace Smartstore.Core.AI.Prompting
                 message += "\n\n" + Resources.Role(AIRole.HtmlEditor);
 
                 roleInstructions.AddRange(
-                    Resources.GetResource("Smartstore.AI.Prompts.Product.NoAssumptions"),
+                    Resources.GetResource(resRoot + "Product.NoAssumptions"),
                     Resources.DontCreateProductTitle()
                 );
             }
@@ -300,35 +301,37 @@ namespace Smartstore.Core.AI.Prompting
             {
                 message += "\n\n" + Resources.Role(AIRole.SEOExpert);
 
+                var imageAnalyzerResRoot = resRoot + "ImageAnalyzer.";
+
                 // INFO: This instruction must be built differently to accomplish sub lists
-                var objectDefinition = Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition");
-                objectDefinition += "\n  - " + Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Title");
-                objectDefinition += "\n  - " + Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Alt");
-                objectDefinition += "\n  - " + Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Tags");
+                var objectDefinition = Resources.GetResource(imageAnalyzerResRoot + "ObjectDefinition");
+                objectDefinition += "\n  - " + Resources.GetResource(imageAnalyzerResRoot + "ObjectDefinition.Title");
+                objectDefinition += "\n  - " + Resources.GetResource(imageAnalyzerResRoot + "ObjectDefinition.Alt");
+                objectDefinition += "\n  - " + Resources.GetResource(imageAnalyzerResRoot + "ObjectDefinition.Tags");
 
                 roleInstructions.AddRange(
                     objectDefinition,
-                    Resources.GetResource("Smartstore.AI.Prompts.ImageAnalyzer.NoContent"),
-                    Resources.GetResource("Smartstore.AI.Prompts.CreateJson"),
+                    Resources.GetResource(imageAnalyzerResRoot + "NoContent"),
+                    Resources.GetResource(resRoot+ "CreateJson"),
                     Resources.DontUseMarkdown()
                 );
             }
             else if (role == AIRole.Translator)
             {
-                var translatorResourceRoot = "Smartstore.AI.Prompts.Translator.";
+                var translatorResRoot = resRoot + "Translator.";
 
                 roleInstructions.AddRange(
-                    Resources.GetResource(translatorResourceRoot + "TranslateTextContentOnly"),
-                    Resources.GetResource(translatorResourceRoot + "PreserveHtmlStructure"),
-                    Resources.GetResource(translatorResourceRoot + "IgnoreTechnicalAttributes"),
-                    Resources.GetResource(translatorResourceRoot + "KeepHtmlEntitiesIntact"),
-                    Resources.GetResource(translatorResourceRoot + "TranslateWithContext"),
-                    Resources.GetResource(translatorResourceRoot + "TranslateDescriptiveAttributes"),
-                    Resources.GetResource(translatorResourceRoot + "PreserveToneAndStyle"),
+                    Resources.GetResource(translatorResRoot + "TranslateTextContentOnly"),
+                    Resources.GetResource(translatorResRoot + "PreserveHtmlStructure"),
+                    Resources.GetResource(translatorResRoot + "IgnoreTechnicalAttributes"),
+                    Resources.GetResource(translatorResRoot + "KeepHtmlEntitiesIntact"),
+                    Resources.GetResource(translatorResRoot + "TranslateWithContext"),
+                    Resources.GetResource(translatorResRoot + "TranslateDescriptiveAttributes"),
+                    Resources.GetResource(translatorResRoot + "PreserveToneAndStyle"),
                     // TODO: (mh) (ai) Dangerous!!! Senseless token eater.
-                    Resources.GetResource(translatorResourceRoot + "SkipAlreadyTranslated"),
+                    Resources.GetResource(translatorResRoot + "SkipAlreadyTranslated"),
                     Resources.DontUseQuotes(),
-                    Resources.GetResource(translatorResourceRoot + "NoMetaComments"),
+                    Resources.GetResource(translatorResRoot + "NoMetaComments"),
                     Resources.DontUseMarkdown()
                 );
             }
@@ -345,10 +348,12 @@ namespace Smartstore.Core.AI.Prompting
             }
             else if (chat.Topic == AIChatTopic.Suggestion)
             {
+                var suggestionResRoot = resRoot + "Suggestions.";
+
                 roleInstructions.AddRange(
-                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.Separation"),
-                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.NoNumbering"),
-                    Resources.GetResource("Smartstore.AI.Prompts.Suggestions.NoRepitions"),
+                    Resources.GetResource(suggestionResRoot + "Separation"),
+                    Resources.GetResource(suggestionResRoot + "NoNumbering"),
+                    Resources.GetResource(suggestionResRoot + "NoRepitions"),
                     Resources.DontUseMarkdown(),
                     Resources.DontUseQuotes(),
                     Resources.DontUseLineBreaks()
@@ -358,7 +363,7 @@ namespace Smartstore.Core.AI.Prompting
             if (roleInstructions != null && roleInstructions.Count > 0)
             {
                 // INFO: Structuring role instructions as a clear list helps the AI parse and follow them more reliably, reducing the risk of missed rules.
-                message += "\n\n" + Resources.GetResource("Smartstore.AI.Prompts.Role.Rules") + "\n\n- ";
+                message += "\n\n" + Resources.GetResource(resRoot + "Role.Rules") + "\n\n- ";
                 message += string.Join("\n- ", roleInstructions);
             }
 
