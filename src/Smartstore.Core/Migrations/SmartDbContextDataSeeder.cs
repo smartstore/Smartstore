@@ -597,6 +597,8 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.OneParagraph",
                 "The text contains only one section, which is enclosed by a p-tag.",
                 "Der Text beinhaltet nur einen Abschnitt, der von einem p-Tag umschlossen ist.");
+
+            builder.AddOrUpdate("Admin.Customers.DeleteCustomer", "Delete customer", "Kunde löschen");
         }
     }
 }
