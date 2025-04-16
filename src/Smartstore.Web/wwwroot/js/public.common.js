@@ -33,7 +33,7 @@
         function (ctx) {
             if ($.fn.tooltip === undefined)
                 return;
-            var selector = Modernizr.touchevents
+            var selector = window.touchable
                 ? '[data-toggle=tooltip].tooltip-toggle-touch, .tooltip-toggle.tooltip-toggle-touch'
                 : '[data-toggle=tooltip], .tooltip-toggle';
             ctx.tooltip({

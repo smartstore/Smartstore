@@ -35,27 +35,26 @@
     // purports support for touch events even if the underlying hardware
     // does not!
 
-    var touchCapable = Modernizr.touchevents, // ('ontouchstart' in window),
+    var touchCapable = window.touchable,
+    settings = {
+        tap_pixel_range: 5,
+        swipe_h_threshold: 100,
+        swipe_v_threshold: 100,
+        taphold_threshold: 750,
+        doubletap_int: 500,
 
-        settings = {
-            tap_pixel_range: 5,
-            swipe_h_threshold: 100,
-            swipe_v_threshold: 100,
-            taphold_threshold: 750,
-            doubletap_int: 500,
+        touch_capable: touchCapable,
+        orientation_support: ('orientation' in window && 'onorientationchange' in window),
 
-            touch_capable: touchCapable,
-            orientation_support: ('orientation' in window && 'onorientationchange' in window),
+        startevent: (touchCapable) ? 'touchstart' : 'mousedown',
+        endevent: (touchCapable) ? 'touchend' : 'mouseup',
+        moveevent: (touchCapable) ? 'touchmove' : 'mousemove',
+        tapevent: (touchCapable) ? 'tap' : 'click',
+        scrollevent: (touchCapable) ? 'touchmove' : 'scroll',
 
-            startevent: (touchCapable) ? 'touchstart' : 'mousedown',
-            endevent: (touchCapable) ? 'touchend' : 'mouseup',
-            moveevent: (touchCapable) ? 'touchmove' : 'mousemove',
-            tapevent: (touchCapable) ? 'tap' : 'click',
-            scrollevent: (touchCapable) ? 'touchmove' : 'scroll',
-
-            hold_timer: null,
-            tap_timer: null
-        };
+        hold_timer: null,
+        tap_timer: null
+    };
 
     // Convenience functions:
     $.isTouchCapable = function () { return settings.touch_capable; };

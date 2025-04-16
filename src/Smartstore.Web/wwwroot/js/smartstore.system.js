@@ -26,9 +26,9 @@
         return result;
     }
 
-    Modernizr.touchevents = detectTouchscreen();
+    window.touchable = detectTouchscreen();
 
-    if (Modernizr.touchevents) {
+    if (window.touchable) {
         window.document.documentElement.classList.remove("no-touchevents");
         window.document.documentElement.classList.add("touchevents");
 

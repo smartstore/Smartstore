@@ -7,7 +7,7 @@
 ; (function ($, window, document, undefined) {
 
     var initialized = false,
-        isTouch = Modernizr.touchevents,
+        isTouch = window.touchable,
         elems = [],
         blocks = [],
         scrollTop = 0,

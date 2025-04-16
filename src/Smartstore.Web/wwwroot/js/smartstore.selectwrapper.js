@@ -257,7 +257,7 @@
                 firstOption.text("");
             }
 
-            if (Modernizr.touchevents && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
+            if (window.touchable && !sel.hasClass("skin") && !sel.data("select-url") && !sel.data("remote-url")) {
                 if (sel.find('option[data-color], option[data-imageurl]').length === 0
                     || (sel.data("tags") && window.document.documentElement.classList.contains("mobile-device"))) {
                     // Skip skinning if device is mobile and no rich content exists (color & image)

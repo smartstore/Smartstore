@@ -7,7 +7,7 @@
 ; (function ($, window, document, undefined) {
 
     var pluginName = 'smartGallery';
-    var isTouch = Modernizr.touchevents;
+    var isTouch = window.touchable;
 
     var defaultZoomOpts = {
         // Prefix for generated element class names (e.g. `my-ns` will
@@ -302,7 +302,7 @@
                 var navListHeight = this.navList.height();
                 var maxOffsetY = (this.navTrack.height() - navListHeight) * -1;
                 var offsetY = navListHeight * page * -1;
-                this.navTrack.css(Modernizr.prefixedCSS('transform'), 'translate3d(0, ' + Math.max(offsetY, maxOffsetY) + 'px, 0)');
+                this.navTrack.css('transform', 'translate3d(0, ' + Math.max(offsetY, maxOffsetY) + 'px, 0)');
             }
         },
 

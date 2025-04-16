@@ -6,7 +6,7 @@
 ; (function ($, window, document, undefined) {
 
     $('.artlist-grid').on('mouseenter', '.art', function (e) {
-        if (Modernizr.touchevents)
+        if (window.touchable)
             return;
 
         var art = $(this);

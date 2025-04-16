@@ -68,7 +68,7 @@
                     }
                 }
 
-                if (Modernizr.touchevents) {
+                if (window.touchable) {
                     // Handle opening events for touch devices
                     megamenuContainer.on('clickoutside', function (e) {
                         closeNow($(".nav-item.active .nav-link"));
@@ -140,7 +140,7 @@
                         containerWidth = container.width();
 
                     if (!rtl) {
-                        if (!Modernizr.touchevents) {
+                        if (!window.touchable) {
                             left = Math.ceil(popper.position().left + parseInt(nav.css('margin-inline-start')));
                         }
                         else {
@@ -160,7 +160,7 @@
                     else {
                         left = "auto";
 
-                        if (!Modernizr.touchevents) {
+                        if (!window.touchable) {
                             right = Math.ceil(containerWidth - (popper.position().left + popperWidth));
                         }
                         else {
@@ -193,7 +193,7 @@
 
                 // correct dropdown position
                 if (isSimple) {
-                    var event = Modernizr.touchevents ? "click" : "mouseenter";
+                    var event = window.touchable ? "click" : "mouseenter";
 
                     navElems.on(event, function (e) {
 
@@ -217,7 +217,7 @@
                     var navSlider = $(".nav-slider", megamenu);
                     var nav = $(".navbar-nav", navSlider);
 
-                    if (!Modernizr.touchevents) {
+                    if (!window.touchable) {
                         megamenuNext.on('click', function (e) {
                             e.preventDefault();
                             scrollToNextInvisibleNavItem(false);
@@ -309,7 +309,7 @@
                         navElems.each(function (i, el) { realNavWidth += parseFloat($(this).outerWidth(true)); });
                         realNavWidth = Math.floor(realNavWidth);
 
-                        if (Modernizr.touchevents) {
+                        if (window.touchable) {
                             navWidth = nav.width();
                             var offset = nav.position().left;
                             curMarginStart = rtl ? (offset - 1) * -1 : offset;
@@ -337,7 +337,7 @@
                     }
 
                     // on touch
-                    if (Modernizr.touchevents) {
+                    if (window.touchable) {
                         megamenu.tapmove(function () {
                             closeNow($(".nav-item.active .nav-link"));
                             updateNavState();
