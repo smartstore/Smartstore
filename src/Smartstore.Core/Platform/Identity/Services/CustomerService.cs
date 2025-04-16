@@ -177,8 +177,9 @@ namespace Smartstore.Core.Identity
                     customers = [.. customers.Where(x => !skippedAdminIds.Contains(x.Id))];
                 }
 
-                // Let SoftDeletableHook do his work and soft-delete customers.
-                _db.Customers.RemoveRange(customers);
+                // INFO: We do not use Remove/RemoveRange to soft-delete (see SoftDeletableHook),
+                // because that would physically delete included entities (here CustomerRoleMappings)!
+                customers.Each(x => x.Deleted = true);
                 await _db.SaveChangesAsync(cancelToken);
 
                 softDeletedCustomerIds = [.. customers.Select(x => x.Id)];
