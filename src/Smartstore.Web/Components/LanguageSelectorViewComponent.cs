@@ -103,7 +103,8 @@ namespace Smartstore.Web.Components
             }
 
             var defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
-            var localizedUrls = new List<LocalizedUrl>();
+            var localizedUrls = new List<LocalizedUrl>(availableLanguages.Count);
+            var alternateLinks = new HtmlContentBuilder();
 
             foreach (var lang in availableLanguages)
             {
@@ -130,8 +131,13 @@ namespace Smartstore.Web.Components
                 if (_seoSettings.AddAlternateHtmlLinks)
                 {
                     var url = WebHelper.GetAbsoluteUrl(helper.Path, Request);
-                    _widgetProvider.Value.RegisterHtml("head_links", new HtmlString($"<link rel=\"alternate\" hreflang=\"{lang.LanguageCulture}\" href=\"{url}\" />"));
+                    alternateLinks.AppendHtmlLine($"<link rel=\"alternate\" hreflang=\"{lang.UniqueSeoCode}\" href=\"{url}\" />");
                 }
+            }
+
+            if (alternateLinks.Count > 0)
+            {
+                _widgetProvider.Value.RegisterHtml("head_links", alternateLinks);
             }
 
             ViewBag.LocalizedUrls = localizedUrls;

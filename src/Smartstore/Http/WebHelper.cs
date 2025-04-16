@@ -233,7 +233,7 @@ namespace Smartstore.Http
         /// <param name="protocol">Changes the protocol if passed.</param>
         public static string GetAbsoluteUrl(string path, HttpRequest request, bool enforceScheme = false, string protocol = null)
         {
-            Guard.NotEmpty(path);
+            Guard.NotNull(path);
             Guard.NotNull(request);
 
             if (path.Contains(Uri.SchemeDelimiter))
