@@ -345,15 +345,15 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Admin.AI.EditHtml", "Edit HTML text", "HTML-Text bearbeiten");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.Rules",
-                "These rules are mandatory:",
+                "You must strictly follow these rules:",
                 "Diese Regeln sind zwingend einzuhalten:");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.HtmlEditor",
-                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. You always create valid HTML!",
+                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. Your output must ALWAYS be valid HTML.!",
                 "Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Deine Ausgabe ist IMMER valides HTML!");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",
-                "Only return pure HTML code",
+                "Return only pure HTML code",
                 "Gib ausschließlich reinen HTML-Code zurück");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.DontUseMarkdown",
@@ -593,7 +593,10 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.Product.NoAssumptions",
                 "Only describe what is clearly known about the product. Do not make any assumptions about the product.",
                 "Beschreibe nur, was von dem Produkt eindeutig bekannt ist. Stelle keine Vermutungen über das Produkt an.");
-            
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.OneParagraph",
+                "The text contains only one section, which is enclosed by a p-tag.",
+                "Der Text beinhaltet nur einen Abschnitt, der von einem p-Tag umschlossen ist.");
         }
     }
 }
