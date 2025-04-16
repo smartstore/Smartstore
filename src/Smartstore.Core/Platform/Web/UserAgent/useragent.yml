@@ -326,6 +326,7 @@ bots:
   # AI Bots
   - match: GPTBot
   - match: OAI-SearchBot
+  - match: OAI-Bot/
     name: OpenAI GPT Bot
 
   - match: DeepSeek
@@ -349,6 +350,19 @@ bots:
 
   - match: /[cC]laude[bB]ot/
     name: Claude Bot
+
+  - match: CohereBot
+    name: Cohere Bot
+
+  - match: HuggingFace-Bot
+    name: Hugging Face Transformers
+
+  - match: InflectionPi
+  - match: YouBot/
+  - match: CCBot/
+  - match: ScaleAI-Bot/
+  - match: Diffbot/
+    name: $1
    
   # Common tools, readers & apps
   - match: python/

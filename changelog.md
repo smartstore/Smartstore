@@ -50,7 +50,7 @@
 - #1266 Refreshed browser URL when a product variant changes so that it points to the current variant.
 - #1226 Enhanced `ResetPasswordAsync` to detect and repair accidental guest role assignments.
 - #214 Added backend menu entry for each Rule Builder scope.
-- Added new bot detection patterns to `useragent.yml`.
+- Added new (AI) bot detection patterns to `useragent.yml`.
 - Updated `dbip-country-lite.mmdb`.
 - Logging: Added client UserAgent string to log entries.
 - Improved processing of recurring payments.
