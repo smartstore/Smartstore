@@ -261,7 +261,7 @@
 
                         newMarginStart = Math.min(0, newMarginStart);
 
-                        nav.css(marginX, Math.ceil(newMarginStart) + 'px').one(Prefixer.event.transitionEnd, function (e) {
+                        nav.css(marginX, Math.ceil(newMarginStart) + 'px').one('transitionend', function (e) {
                             // performs UI update after end of animation (.one(trans...))
                             updateNavState();
                         });

@@ -339,7 +339,7 @@
             self.hide();
         });
 
-        this.el.addClass("show").one(Prefixer.event.transitionEnd, function (e) {
+        this.el.addClass("show").one('transitionend', function (e) {
             if (self.state !== 'slide-in') return;
             body.addClass('canvas-slid');
             self.state = 'slid';
@@ -370,7 +370,7 @@
         body.addClass('canvas-sliding-out');
         body.removeClass('canvas-blocking canvas-noscroll canvas-slid canvas-sliding canvas-sliding-start canvas-sliding-end canvas-sliding-top canvas-sliding-bottom canvas-lg canvas-fullscreen');
 
-        this.el.removeClass("show").one(Prefixer.event.transitionEnd, function (e) {
+        this.el.removeClass("show").one('transitionend', function (e) {
             if (self.state !== 'slide-out') return;
 
             body.removeClass('canvas-sliding-out');

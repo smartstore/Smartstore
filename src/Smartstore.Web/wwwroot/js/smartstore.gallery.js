@@ -539,7 +539,7 @@
                         pswp.listen('destroy', pauseVideos);
                         pswp.listen('beforeChange', pauseVideos);
                         pswp.listen('afterChange', function () {
-                            pswpContainer.one(Prefixer.event.transitionEnd, function (e) {
+                            pswpContainer.one('transitionend', function (e) {
                                 pswpContainer.removeClass('sliding');
                             });
                             var idx = pswp.getCurrentIndex();

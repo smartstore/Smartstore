@@ -43,11 +43,8 @@
         //
     }
 
-    // check what cancelAnimation method to use
-    var clearLoop = window.cancelAnimationFrame || window.mozCancelAnimationFrame || clearTimeout;
-
     // check which transform property to use
-    var transformProp = window.Prefixer.css('transform');
+    var transformProp = 'transform';
 
     function initialize() {
         // Suppressed smooth-parallax for edge per CSS. Observe and leave this commented for now.

@@ -143,7 +143,7 @@
                     logo.css('margin-inline-start', (logoWidth * -1) + 'px');
 
                     if (dropBody.text().length > 0) {
-                        logo.one(Prefixer.event.transitionEnd, function () {
+                        logo.one('transitionend', function () {
                             openDrop();
                         });
                     }

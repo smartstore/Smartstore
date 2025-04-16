@@ -256,7 +256,7 @@
                 prevLayer = currentLayer.prev();
 
             var finalize = function (layer) {
-                layer.one(Prefixer.event.transitionEnd, function (e) {
+                layer.one('transitionend', function (e) {
                     callback(layer);
                     self.selectedNodeId = nodeId;
                 });
