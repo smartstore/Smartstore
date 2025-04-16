@@ -313,6 +313,25 @@ namespace Smartstore.Core.AI.Prompting
                     Resources.DontUseMarkdown()
                 );
             }
+            else if (role == AIRole.Translator)
+            {
+                var translatorResourceRoot = "Smartstore.AI.Prompts.Translator.";
+
+                roleInstructions.AddRange(
+                    Resources.GetResource(translatorResourceRoot + "TranslateTextContentOnly"),
+                    Resources.GetResource(translatorResourceRoot + "PreserveHtmlStructure"),
+                    Resources.GetResource(translatorResourceRoot + "IgnoreTechnicalAttributes"),
+                    Resources.GetResource(translatorResourceRoot + "KeepHtmlEntitiesIntact"),
+                    Resources.GetResource(translatorResourceRoot + "TranslateWithContext"),
+                    Resources.GetResource(translatorResourceRoot + "TranslateDescriptiveAttributes"),
+                    Resources.GetResource(translatorResourceRoot + "PreserveToneAndStyle"),
+                    // TODO: (mh) (ai) Dangerous!!! Senseless token eater.
+                    Resources.GetResource(translatorResourceRoot + "SkipAlreadyTranslated"),
+                    Resources.DontUseQuotes(),
+                    Resources.GetResource(translatorResourceRoot + "NoMetaComments"),
+                    Resources.DontUseMarkdown()
+                );
+            }
 
             if (chat.Topic == AIChatTopic.RichText)
             {

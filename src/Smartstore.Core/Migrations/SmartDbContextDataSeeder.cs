@@ -552,7 +552,43 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Only return a single JSON object - without formatting, meta comments or additional text.",
                 "Gib ausschließlich ein einziges JSON-Objekt zurück – ohne Formatierungen, Meta-Kommentare oder zusätzlichen Text.");
 
-            builder.Delete("Smartstore.AI.Prompts.JustHtml");       
+            builder.Delete("Smartstore.AI.Prompts.JustHtml");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.TranslateTextContentOnly",
+                "Translate text content between HTML tags as well as plain text without HTML structure.",
+                "Übersetze Textinhalte zwischen HTML-Tags sowie reinen Fließtext ohne HTML-Struktur.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.PreserveHtmlStructure",
+                "Do not alter any HTML tags. Do not add, remove, or restructure tags in any way.",
+                "Verändere keine HTML-Tags. Füge keine Tags hinzu, entferne keine und ändere keine Verschachtelung.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.IgnoreTechnicalAttributes",
+                "Do not translate attribute values that serve technical purposes, such as href, src, id, class, style, or data-*.",
+                "Übersetze keine Attributwerte, die technische Funktionen erfüllen, z.B.: 'href, src, id, class, style, data-*'.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.KeepHtmlEntitiesIntact",
+                "Do not modify HTML entities (e.g., &nbsp;, &copy;, &ndash;) in meaning or form.",
+                "Verändere HTML-Entities (z.B. &nbsp;, &copy;, &ndash;) nicht – weder semantisch noch formal.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.TranslateWithContext",
+                "When translating text within inline tags (e.g., <strong>, <em>, <span>, <a>, …), always preserve the full sentence context.",
+                "Berücksichtige beim Übersetzen von Textteilen in Inline-Tags (z.B. <strong>, <em>, <span>, <a>, …) immer den vollständigen Satzkontext.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.TranslateDescriptiveAttributes",
+                "Translate attribute values that convey information to the reader, such as alt and title.",
+                "Übersetze Attributwerte, die dem Leser Informationen vermitteln, z.B. alt und title.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.PreserveToneAndStyle",
+                "Preserve the tone and style of the original text. Do not simplify, paraphrase, or smooth the language.",
+                "Behalte den Tonfall und Stil des Ausgangstexts bei. Verwende keine stilistischen Glättungen, Umschreibungen oder Vereinfachungen.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.SkipAlreadyTranslated",
+                "If the text is already in the target language, return it unchanged.",
+                "Wenn der Text bereits in der Zielsprache vorliegt, gib ihn unverändert zurück.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.NoMetaComments",
+                "Do not add explanations or meta comments (e.g., 'The text is already in English.').",
+                "Füge keine Erklärungen oder Meta-Kommentare hinzu (z.B. 'Der Text ist schon Englisch.').");
         }
     }
 }
