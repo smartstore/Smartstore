@@ -1,10 +1,15 @@
 ﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Infrastructure.Hooks;
-using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Components
 {
+    public class LocalizedUrl
+    {
+        public ExtendedLanguageInfo Language { get; init; }
+        public string Url { get; init; }
+    }
+
     public class LanguageSelectorViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
@@ -65,15 +70,11 @@ namespace Smartstore.Web.Components
                             shortName = localizedName ?? neutralCulture?.NativeName;
                         }
 
-                        var model = new LanguageModel
+                        var model = new ExtendedLanguageInfo
                         {
                             Id = x.Id,
-
-                            // TODO: (core) This is very confusing! ISOCode contains no ISOcode but culture code and vise versa (meaning CultureCode contains ISOcode).
-                            // When I tried to change this I saw you used the ISO-code in LocalizedUrlHelper.PrependCultureCode with the terminology culture code.
-                            // So I did nothing for now.
-                            ISOCode = x.LanguageCulture,
-                            CultureCode = x.UniqueSeoCode,
+                            LanguageCulture = x.LanguageCulture,
+                            UniqueSeoCode = x.UniqueSeoCode,
                             FlagImageFileName = x.FlagImageFileName,
                             Name = CultureHelper.NormalizeLanguageDisplayName(name ?? defaultLocalizedName, stripRegion: false, culture: culture),
                             ShortName = CultureHelper.NormalizeLanguageDisplayName(shortName ?? defaultLocalizedName, stripRegion: true, culture: culture),
@@ -94,7 +95,7 @@ namespace Smartstore.Web.Components
             }
 
             var defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
-            var returnUrls = new Dictionary<string, string>();
+            var localizedUrls = new List<LocalizedUrl>();
 
             foreach (var lang in availableLanguages)
             {
@@ -102,30 +103,33 @@ namespace Smartstore.Web.Components
 
                 if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
                 {
-                    if (lang.CultureCode == defaultSeoCode && (int)_localizationSettings.DefaultLanguageRedirectBehaviour > 0)
+                    if (lang.UniqueSeoCode == defaultSeoCode && (int)_localizationSettings.DefaultLanguageRedirectBehaviour > 0)
                     {
                         helper.StripCultureCode();
                     }
                     else
                     {
-                        helper.PrependCultureCode(lang.CultureCode, true);
+                        helper.PrependCultureCode(lang.UniqueSeoCode, true);
                     }
                 }
 
-                returnUrls[lang.CultureCode] = helper.Path;
+                localizedUrls.Add(new()
+                {
+                    Language = lang,
+                    Url = helper.Path
+                });
             }
 
-            ViewBag.ReturnUrls = returnUrls;
+            ViewBag.LocalizedUrls = localizedUrls;
             ViewBag.UseImages = _localizationSettings.UseImagesForLanguageSelection;
             ViewBag.DisplayLongName = _localizationSettings.DisplayRegionInLanguageSelector;
-            ViewBag.AvailableLanguages = availableLanguages;
 
             return View(templateName);
         }
 
-        private async Task<LocalizedUrlHelper> CreateUrlHelperForLanguageSelectorAsync(LanguageModel model, int currentLanguageId)
+        private async Task<LocalizedUrlHelper> CreateUrlHelperForLanguageSelectorAsync(ExtendedLanguageInfo info, int currentLanguageId)
         {
-            if (currentLanguageId != model.Id)
+            if (currentLanguageId != info.Id)
             {
                 var routeValues = Request.RouteValues;
                 var controllerName = routeValues.GetControllerName();
@@ -144,7 +148,7 @@ namespace Smartstore.Web.Components
 
                 if (entityId > 0)
                 {
-                    var activeSlug = await _urlService.GetActiveSlugAsync(entityId, controllerName, model.Id);
+                    var activeSlug = await _urlService.GetActiveSlugAsync(entityId, controllerName, info.Id);
                     if (activeSlug.IsEmpty())
                     {
                         // Fallback to default value.

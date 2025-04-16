@@ -1,29 +1,33 @@
 ﻿@{
-    var languages = ViewBag.AvailableLanguages as IList<LanguageModel>;
-    
-    if (languages.Count <= 1)
+    var localizedUrls = ViewBag.LocalizedUrls as List<LocalizedUrl>;
+    if (localizedUrls.Count <= 1)
     {
         return;
     }
 
+    var languages = localizedUrls.Select(x => x.Language);
     var activeLang = languages.FirstOrDefault(x => x.Id == WorkContext.WorkingLanguage.Id) ?? languages.FirstOrDefault();
 }
 
 <div class="dropdown language-selector">
     <a class="menubar-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
-        <span>@activeLang.CultureCode.ToUpper()</span>
+        <span>@activeLang.UniqueSeoCode.ToUpper()</span>
         <i class="fa fa-angle-down"></i>
     </a>
     <div class="dropdown-menu" aria-labelledby="dLabel">
-        @foreach (var lang in languages)
+        @foreach (var localizedUrl in localizedUrls)
         {
+            var lang = localizedUrl.Language;
             var name = (bool)ViewBag.DisplayLongName ? lang.Name : lang.ShortName;
-            var returnUrl = ViewBag.ReturnUrls[lang.CultureCode] as string;
+            var returnUrl = localizedUrl.Url;
             var href = Display.ModifyQueryString(Url.RouteUrl("ChangeLanguage", new { langid = lang.Id }), "returnUrl=" + returnUrl.UrlEncode());
 
-            <a href="@href" title="@lang.LocalizedName (@lang.CultureCode.ToUpper())" rel="nofollow" class="dropdown-item" attr-class='(lang.Id == activeLang.Id, "disabled")'
-               data-selected="@(lang.Equals(activeLang) ? "true" : "false")"
-               data-abbreviation="@name">
+            <a href="@href" 
+                title="@lang.LocalizedName (@lang.UniqueSeoCode.ToUpper())" 
+                rel="nofollow" 
+                class="dropdown-item" attr-class='(lang.Id == activeLang.Id, "disabled")'
+                data-selected="@(lang.Equals(activeLang) ? "true" : "false")"
+                data-abbreviation="@name">
                 @if (ViewBag.UseImages == true)
                 {
                     <img src="@Url.Content("~/images/flags/" + lang.FlagImageFileName)" alt="@lang.FlagImageFileName" />

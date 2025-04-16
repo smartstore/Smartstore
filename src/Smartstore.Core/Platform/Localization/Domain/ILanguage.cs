@@ -92,4 +92,12 @@
             return !Equals(x, y);
         }
     }
+
+    public class ExtendedLanguageInfo : LanguageInfo
+    {
+        public string FlagImageFileName { get; set; }
+        public string ShortName { get; set; }
+        public string LocalizedName { get; set; }
+        public string LocalizedShortName { get; set; }
+    }
 }
