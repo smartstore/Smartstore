@@ -158,7 +158,6 @@ namespace Smartstore.Web.Controllers
                     PictureSize = _mediaSettings.ProductDetailsPictureSize,
                     HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty(),
                     CanonicalUrl = _seoSettings.CanonicalUrlsEnabled ? _urlHelper.RouteUrl("Product", new { seName }, _httpRequest.Scheme) : null,
-                    LocalizedLinkEntries = await _localizedEntityHelper.GetLocalizedLinkEntriesAsync(nameof(Product), product.Id),
                     UpdateUrl = _urlHelper.Action(nameof(ProductController.UpdateProductDetails), "Product", new
                     {
                         itemType,

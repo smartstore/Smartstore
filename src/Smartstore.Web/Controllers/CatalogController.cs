@@ -106,7 +106,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = await _helper.PrepareCategoryModelAsync(category);
-            model.LocalizedLinkEntries = await _localizedEntityHelper.GetLocalizedLinkEntriesAsync(nameof(Category), category.Id);
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
@@ -244,7 +243,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);
-            model.LocalizedLinkEntries = await _localizedEntityHelper.GetLocalizedLinkEntriesAsync(nameof(Manufacturer), manufacturer.Id);
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {

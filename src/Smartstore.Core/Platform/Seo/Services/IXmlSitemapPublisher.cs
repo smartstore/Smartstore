@@ -56,7 +56,7 @@ namespace Smartstore.Core.Seo
         /// <param name="entity">Entity ro create alternative links for.</param>
         /// <param name="slugs">Collection of all slugs.</param>
         /// <param name="ctx">Provides the languages for which the alternative links are to be created.</param>
-        public virtual IEnumerable<LocalizedLinkEntry> CreateLinks(NamedEntity entity, UrlRecordCollection slugs, XmlSitemapBuildNodeContext ctx)
+        public virtual IEnumerable<XmlSitemapNode.LinkEntry> CreateLinks(NamedEntity entity, UrlRecordCollection slugs, XmlSitemapBuildNodeContext ctx)
         {
             if (ctx.LinkLanguages.IsNullOrEmpty())
             {
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Seo
                     var slug = slugs.GetSlug(lang.Language.Id, entity.Id, lang.Language.Id == ctx.DefaultLanguageId);
                     if (slug != null)
                     {
-                        return new LocalizedLinkEntry
+                        return new XmlSitemapNode.LinkEntry
                         {
                             Lang = lang.Language.LanguageCulture,
                             Href = lang.BaseUrl + RouteHelper.NormalizePathComponent(slug.EmptyNull().TrimStart('/'))

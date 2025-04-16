@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.Search;
@@ -20,7 +19,6 @@ namespace Smartstore.Web.Models.Catalog
 
         public string SeName { get; set; }
         public string CanonicalUrl { get; set; }
-        public LocalizedLinkEntry[] LocalizedLinkEntries { get; set; }
         public ImageModel Image { get; set; } = new();
 
         public ProductSummaryModel FeaturedProducts { get; set; }

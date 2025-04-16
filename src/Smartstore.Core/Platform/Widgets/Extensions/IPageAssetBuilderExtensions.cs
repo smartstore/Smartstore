@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Html;
-using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Widgets
 {
@@ -52,18 +51,6 @@ namespace Smartstore.Core.Widgets
         /// </summary>
         /// <param name="parts">The parts to prepend.</param>
         public static void PrependCanonicalUrlParts(this IPageAssetBuilder builder, params string[] parts) => AddCanonicalUrlPartsInternal(builder, true, parts);
-
-        /// <summary>
-        /// Appends alternate links (link rel='alternate') for localized page versions.
-        /// </summary>
-        public static void AppendLocalizedLinkEntries(this IPageAssetBuilder builder, params LocalizedLinkEntry[] entries)
-            => builder.AddLocalizedLinkEntries(entries, false);
-
-        /// <summary>
-        /// Prepends alternate links (link rel='alternate') for localized page versions.
-        /// </summary>
-        public static void PrependLocalizedLinkEntries(this IPageAssetBuilder builder, params LocalizedLinkEntry[] entries)
-            => builder.AddLocalizedLinkEntries(entries, true);
 
         /// <summary>
         /// Appends foot script files to the currently rendered page (rendered in zone <c>scripts</c>).

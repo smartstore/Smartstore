@@ -4,7 +4,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
@@ -83,7 +82,6 @@ namespace Smartstore.Web.Models.Catalog
         public string ProductUrl { get; set; }
         public string UpdateUrl { get; set; }
         public string CanonicalUrl { get; set; }
-        public LocalizedLinkEntry[] LocalizedLinkEntries { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
 
