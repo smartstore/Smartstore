@@ -357,14 +357,7 @@ namespace Smartstore.Core.AI.Prompting
         /// <returns>AI instruction: The text should be divided into <paramref name="paragraphCount"/> paragraphs, which are enclosed with p tags.</returns>
         public virtual string ParagraphCount(int paragraphCount)
         {
-            if (paragraphCount > 1)
-            {
-                return P("ParagraphCount", paragraphCount);
-            }
-            else
-            {
-                return P("OneParagraph");
-            }
+            return paragraphCount > 1 ? P("ParagraphCount", paragraphCount) : P("OneParagraph");
         }
         
         /// <summary>
