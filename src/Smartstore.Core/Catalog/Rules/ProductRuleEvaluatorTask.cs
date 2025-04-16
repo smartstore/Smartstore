@@ -5,6 +5,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Scheduling;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Rules
 {
@@ -47,7 +48,13 @@ namespace Smartstore.Core.Catalog.Rules
                     deleteQuery = deleteQuery.Where(x => categoryIds.Contains(x.CategoryId));
                 }
 
-                numDeleted = await deleteQuery.ExecuteDeleteAsync(cancelToken);
+                var mappingsPager = new FastPager<ProductCategory>(deleteQuery, 500);
+                while ((await mappingsPager.ReadNextPageAsync<ProductCategory>(cancelToken)).Out(out var mappings))
+                {
+                    _db.ProductCategories.RemoveRange(mappings);
+                    await scope.CommitAsync(cancelToken);
+                    numDeleted += mappings.Count;
+                }
 
                 // Insert new product category mappings.
                 var categoryQuery = _db.Categories
@@ -120,18 +127,18 @@ namespace Smartstore.Core.Catalog.Rules
                             await scope.CommitAsync(cancelToken);
                         }
 
-                        try
-                        {
-                            scope.DbContext.DetachEntities<ProductCategory>();
-                        }
-                        catch
-                        {
-                        }
+                        DetachEntities();
                     }
                 }
             }
 
             Debug.WriteLineIf(numDeleted > 0 || numAdded > 0, $"Deleted {numDeleted} and added {numAdded} product mappings for {numCategories} categories.");
+            DetachEntities();
+
+            void DetachEntities()
+            {
+                CommonHelper.TryAction(() => _db.DetachEntities<ProductCategory>());
+            }
         }
     }
 }
