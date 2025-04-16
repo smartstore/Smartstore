@@ -809,7 +809,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductCategories.GetManyAsync(ids);
+                var toDelete = await _db.ProductCategories.GetManyAsync(ids, true);
                 _db.ProductCategories.RemoveRange(toDelete);
                 numDeleted = await _db.SaveChangesAsync();
             }
