@@ -292,7 +292,7 @@ namespace Smartstore.Core.AI.Prompting
                 message += "\n\n" + Resources.Role(AIRole.HtmlEditor);
 
                 roleInstructions.AddRange(
-                    Resources.GetResource("Plugins.Smartstore.AI.Prompts.Product.NoAssumptions"),
+                    Resources.GetResource("Smartstore.AI.Prompts.Product.NoAssumptions"),
                     Resources.DontCreateProductTitle()
                 );
             }

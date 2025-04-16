@@ -589,6 +589,11 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Smartstore.AI.Prompts.Translator.NoMetaComments",
                 "Do not add explanations or meta comments (e.g., 'The text is already in English.').",
                 "Füge keine Erklärungen oder Meta-Kommentare hinzu (z.B. 'Der Text ist schon Englisch.').");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.Product.NoAssumptions",
+                "Only describe what is clearly known about the product. Do not make any assumptions about the product.",
+                "Beschreibe nur, was von dem Produkt eindeutig bekannt ist. Stelle keine Vermutungen über das Produkt an.");
+            
         }
     }
 }
