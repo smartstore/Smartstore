@@ -599,6 +599,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Der Text beinhaltet nur einen Abschnitt, der von einem p-Tag umschlossen ist.");
 
             builder.AddOrUpdate("Admin.Customers.DeleteCustomer", "Delete customer", "Kunde löschen");
+
+            builder.Delete("Account.PasswordRecovery.EmailNotFound");
+
+            builder.AddOrUpdate("Account.PasswordRecovery.EmailHasBeenSent",
+                "We have sent you an email with further instructions if an account exists with your email address.",
+                "Wir haben Ihnen eine E-Mail mit weiteren Anweisungen geschickt, falls ein Konto mit Ihrer E-Mail-Adresse existiert.");
         }
     }
 }

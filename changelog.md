@@ -62,6 +62,7 @@
 - Store cookie consent information in database and display on customer edit page.
 - Display the dimension and weight of a product without ending 0 decimal places.
 - #1163 GMC: Updated feed to use new certification attribute for EU energy efficiency classes.
+- #1282 More neutral message text when the password is reset.
 
 ### Bugfixes
 

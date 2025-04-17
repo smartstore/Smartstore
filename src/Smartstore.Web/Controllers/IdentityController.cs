@@ -521,7 +521,6 @@ namespace Smartstore.Web.Controllers
             if (ModelState.IsValid)
             {
                 var customer = await _userManager.FindByEmailAsync(model.Email);
-
                 if (customer != null && customer.Active)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
@@ -529,15 +528,14 @@ namespace Smartstore.Web.Controllers
                     await _db.SaveChangesAsync();
 
                     await _messageFactory.SendCustomerPasswordRecoveryMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
-
-                    model.ResultMessage = T("Account.PasswordRecovery.EmailHasBeenSent");
                     model.ResultState = PasswordRecoveryResultState.Success;
                 }
                 else
                 {
-                    model.ResultMessage = T("Account.PasswordRecovery.EmailNotFound");
                     model.ResultState = PasswordRecoveryResultState.Error;
                 }
+
+                model.ResultMessage = T("Account.PasswordRecovery.EmailHasBeenSent");
 
                 return View(model);
             }
