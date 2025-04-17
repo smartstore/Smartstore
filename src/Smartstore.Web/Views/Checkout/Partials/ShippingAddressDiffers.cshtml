@@ -1,0 +1,10 @@
+﻿@using Smartstore.Web.Models.Checkout
+
+@model CheckoutAddressModel
+
+<div class="form-check my-3">
+    <input asp-for="ShippingAddressDiffers" class="form-check-input" type="checkbox" sm-switch="false" />
+    <label class="form-check-label" for="@Html.NameFor(x => x.ShippingAddressDiffers)">
+        @T("Checkout.SpecifyDifferingShippingAddress")
+    </label>
+</div>

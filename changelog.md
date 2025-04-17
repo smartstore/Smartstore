@@ -71,7 +71,10 @@
 - #1235 Fixed products remaining published when stock equals the minimum stock quantity, and low stock activity is set to *unpublish*.
 - #1234 Deleting a customer who has made forum posts throws a `SqlException`.
 - Fixed incorrect discounted price on product detail page due to missing cache invalidation.
-- Fixed checkout shipping link not opening the shipping information dialog.
+- **Checkout**:
+  - Fixed checkout shipping link not opening the shipping information dialog.
+  - Fixed missing shipping-address-differs checkbox for guests who have not yet entered an address.
+  - Fixed checkout bug when address country is null.
 - Logging: Excluded file source from DB logging.
 - Fixed missing base path resolution for bootstrap-icons.svg.
 - Ignored surrogate characters (emojis) when building URL slugs.
@@ -107,7 +110,7 @@
 - #1233 Forum: Displayed posts marked as deleted.
 - **PayPal:**
 	- Fixed order status updates on webhook notifications with direct capture settings.
-	- Fixed credit card payment issue with activated QuickCheckout.
+	- Fixed credit card payment issue with activated Quick-Checkout.
 	- Fixed PayPal buttons displaying incorrectly after quantity control usage on shopping cart.
 - Excluded inactive items during shopping cart validation for recurring/non-recurring products.
 - Excluded Web API endpoint URLs from applying `TrailingSlashRule` (avoids HTTP 401 error).
@@ -120,7 +123,6 @@
 - Billiger & Guenstiger: Fixed cookie information displaying when tracking disabled.
 - MegaMenu: Fixed initialization issue with input controls.
 - Fixed rare cases of the log list not loading.
-- Fixed checkout bug when address country is null.
 - Fixed bug preventing shopping cart migration after external login.
 
 

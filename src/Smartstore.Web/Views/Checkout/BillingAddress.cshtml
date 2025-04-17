@@ -30,13 +30,10 @@
 
             <fieldset sm-if="Model.HasAddresses" class="content-group mb-3">
                 <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
-
-                <div sm-if="Model.IsShippingRequired" class="form-check my-3">
-                    <input asp-for="ShippingAddressDiffers" class="form-check-input" type="checkbox" sm-switch="false" />
-                    <label class="form-check-label" for="@Html.NameFor(x => x.ShippingAddressDiffers)">
-                        @T("Checkout.SpecifyDifferingShippingAddress")
-                    </label>
-                </div>
+                @if (Model.IsShippingRequired)
+                {
+                    <partial name="ShippingAddressDiffers" />
+                }
 
                 <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
                     @foreach (var item in Model.ExistingAddresses)
@@ -45,7 +42,7 @@
                             <div class="card card-body address-list-item">
                                 <div class="address-item">
                                     <button class="btn btn-warning btn-block select-billing-address-button"
-                                            data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })">
+                                    data-url="@Url.Action("SelectBillingAddress", new { addressId = item.Id })">
                                         <span>@T("Checkout.BillToThisAddress")</span>
                                         <i class="fa fa-angle-right"></i>
                                     </button>
@@ -89,6 +86,10 @@
 
             <fieldset class="content-group cnt-add-new-address pt-3" attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'>
                 <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterBillingAddress")</span></legend>
+                @if (!Model.HasAddresses && Model.IsShippingRequired)
+                {
+                    <partial name="ShippingAddressDiffers" />
+                }
                 <div class="enter-address">
                     <div class="enter-address-body">
                         <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
