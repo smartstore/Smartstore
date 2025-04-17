@@ -32,11 +32,11 @@
         /// </summary>
         /// <typeparam name="T">The containing type</typeparam>
         /// <param name="propertyAccessor">The accessor lambda</param>
-        /// <param name="includeTypeName">When <c>true</c>, returns the result as '[TyoeName].[PropertyName]'.</param>
+        /// <param name="includeTypeName">When <c>true</c>, returns the result as '[TypeName].[PropertyName]'.</param>
         /// <returns>The property name</returns>
         public static string NameOf<T>(Expression<Func<T, object>> propertyAccessor, bool includeTypeName = false)
         {
-            Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
+            Guard.NotNull(propertyAccessor);
 
             var name = propertyAccessor.ExtractPropertyInfo().Name;
 
