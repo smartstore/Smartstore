@@ -398,7 +398,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             WriteString(writer, "multipack", gmc.Multipack > 1 ? gmc.Multipack.ToString() : null);
                             WriteString(writer, "is_bundle", gmc.IsBundle.HasValue ? (gmc.IsBundle.Value ? "yes" : "no") : null);
                             WriteString(writer, "adult", gmc.IsAdult.HasValue ? (gmc.IsAdult.Value ? "yes" : "no") : null);
-                            WriteString(writer, "energy_efficiency_class", gmc.EnergyEfficiencyClass.NullEmpty());
+
+                            if (gmc.EnergyEfficiencyClass.HasValue())
+                            {
+                                writer.WriteStartElement("g", "certification", _googleNamespace);
+                                WriteString(writer, "certification_authority", "EC");
+                                WriteString(writer, "certification_name", "EPREL");
+                                // EPREL code: A, B, ... G. Rescaled version, no "+" signs anymore (like A+++).
+                                WriteString(writer, "certification_code", gmc.EnergyEfficiencyClass.Trim());
+                                writer.WriteEndElement();
+                            }
                         }
 
                         WriteString(writer, "custom_label_0", GetAttribute(attributeValues, "custom_label_0", languageId, gmc?.CustomLabel0, null).NullEmpty());

@@ -61,6 +61,7 @@
 - #1274 Recycle Bin: Possibility to filter products with/without assignment to orders.
 - Store cookie consent information in database and display on customer edit page.
 - Display the dimension and weight of a product without ending 0 decimal places.
+- #1163 GMC: Updated feed to use new certification attribute for EU energy efficiency classes.
 
 ### Bugfixes
 

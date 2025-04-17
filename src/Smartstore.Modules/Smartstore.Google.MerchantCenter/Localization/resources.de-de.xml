@@ -199,10 +199,10 @@
         <Value>Energieeffizienz</Value>
     </LocaleResource>
     <LocaleResource Name="EnergyEfficiencyClass.Hint">
-        <Value>Die Energieeffizienzklasse des Produktes gemäß EU-Richtlinie 2010/30/EU. Mögliche Werte sind G, F, E, D, C, B, A, A+, A++, A+++.</Value>
+        <Value>Die Energieeffizienzklasse des Produktes gemäß der Kennzeichnungsvorschriften der EU. Mögliche Werte sind A, B, C, D, E, F, G.</Value>
     </LocaleResource>
     <LocaleResource Name="EnergyEfficiencyClasses">
-        <Value>A+++,A++,A+,A,B,C,D,E,F,G</Value>
+        <Value>A,B,C,D,E,F,G</Value>
     </LocaleResource>
     <LocaleResource Name="CustomLabel0">
         <Value>Label 0</Value>
