@@ -19,7 +19,7 @@
                data-toggle="popover"
                data-container="body"
                data-placement="top"
-               data-trigger="focus" 
+               data-trigger="focus"
                data-content="@priceModel.Description">
                 <i class="fa fa-circle-info"></i>
             </a>
@@ -31,10 +31,13 @@
     @if (Model.Price.ShowLoginNote)
     {
         <h4 class="pd-price pd-loginforprice">@T("Products.LoginForPrice")</h4>
+        @* Avoid Google error: Either "price" or "priceSpecification" must be specified (in "offers")*@
+        <div itemprop="priceSpecification" itemscope itemtype="https://schema.org/PriceSpecification"></div>
     }
     else if (Model.Price.CallForPrice)
     {
         <h4 class="pd-price pd-callforprice">@T("Products.CallForPrice")</h4>
+        <div itemprop="priceSpecification" itemscope itemtype="https://schema.org/PriceSpecification"></div>
     }
     else
     {
@@ -60,12 +63,6 @@
 
                 @* Final price *@
                 <div sm-if="showPrice" class="pd-finalprice" attr-class='(priceModel.Saving.HasSaving, "pd-finalprice-offer")'>
-                    <meta itemprop="priceCurrency" sm-if="!isBundlePart" content="@WorkContext.WorkingCurrency.CurrencyCode" />
-                    <meta itemprop="price" sm-if="!priceModel.CallForPrice && !isBundlePart" content="@roundedPrice.ToStringInvariant()" />
-                    @if (priceModel.ValidUntilUtc.HasValue)
-                    {
-                        <meta itemprop="priceValidUntil" content="@priceModel.ValidUntilUtc.Value.ToString("u")" />
-                    }
                     <span class="pd-finalprice-amount" attr-class='(isBundlePart, "pd-finalprice-sm")'>
                         @Html.Raw(priceModel.FinalPrice)
                     </span>
@@ -73,6 +70,15 @@
                         @Html.Raw(priceModel.CountdownText)
                     </span>
                 </div>
+                @if (!isBundlePart)
+                {
+                    <meta itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
+                    <meta itemprop="price" content="@roundedPrice.ToStringInvariant()" />
+                    @if (priceModel.ValidUntilUtc.HasValue)
+                    {
+                        <meta itemprop="priceValidUntil" content="@priceModel.ValidUntilUtc.Value.ToString("u")" />
+                    }
+                }
 
                 @* Compare prices *@
                 <div sm-if="priceModel.RegularPrice != null || priceModel.RetailPrice != null" class="pd-promoprice-group">
