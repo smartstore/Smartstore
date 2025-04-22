@@ -63,6 +63,7 @@
 - Display the dimension and weight of a product without ending 0 decimal places.
 - #1163 GMC: Updated feed to use new certification attribute for EU energy efficiency classes.
 - #1282 More neutral message text when the password is reset.
+- Fixed missing HTML meta item for price on product detail page when price is 0.00.
 
 ### Bugfixes
 
