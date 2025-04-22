@@ -62,7 +62,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static void NotOutOfLength(string? arg, int maxLength, [CallerArgumentExpression("arg")] string? argName = null)
+        public static void NotOutOfLength(string? arg, int maxLength, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (arg is null)
             {
@@ -124,7 +124,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T IsPositive<T>(T arg, [CallerArgumentExpression("arg")] string? argName = null, string message = IsPositiveMessage) where T : struct, IComparable<T>
+        public static T IsPositive<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsPositiveMessage) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(default) < 1)
             {
@@ -136,7 +136,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotZero<T>(T arg, [CallerArgumentExpression("arg")] string? argName = null) where T : struct, IComparable<T>
+        public static T NotZero<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(default) == 0)
             {
@@ -165,7 +165,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsTrue(bool arg, [CallerArgumentExpression("arg")] string? argName = null, string message = IsTrueMessage)
+        public static void IsTrue(bool arg, [CallerArgumentExpression(nameof(arg))] string? argName = null, string message = IsTrueMessage)
         {
             if (!arg)
                 throw new ArgumentException(string.Format(message, argName), argName);
@@ -173,7 +173,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsEnumType(Type arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static void IsEnumType(Type arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (!arg.IsEnum)
             {
@@ -183,7 +183,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsEnumType(Type enumType, object arg, [CallerArgumentExpression("arg")] string? argName = null)
+        public static void IsEnumType(Type enumType, object arg, [CallerArgumentExpression(nameof(arg))] string? argName = null)
         {
             if (!Enum.IsDefined(enumType, arg))
             {
@@ -193,7 +193,7 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NotDisposed<T>(T arg, [CallerArgumentExpression("arg")] string? argName = null) where T : Disposable
+        public static T NotDisposed<T>(T arg, [CallerArgumentExpression(nameof(arg))] string? argName = null) where T : Disposable
         {
             if (arg.IsDisposed)
             {
