@@ -61,17 +61,19 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Attachments)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)
-                .Where(x => x.SentTries < model.SearchMaxSentTries)
-                .SelectSummary();
+                .Where(x => x.SentTries < model.SearchMaxSentTries);
 
             if (model.SearchSendManually.HasValue)
             {
                 query = query.Where(x => x.SendManually == model.SearchSendManually);
             }
 
-            var queuedEmails = await query
+            query = query
                 .ApplySorting(true)
                 .ApplyGridCommand(command, false)
+                .SelectSummary();
+
+            var queuedEmails = await query
                 .ToPagedList(command)
                 .LoadAsync();
 
