@@ -165,6 +165,15 @@
 				@T("Admin.DataExchange.Import.KeyFieldNames.Note")
 			</div>
         </div>
+        <div sm-if="Model.EntityType == ImportEntityType.Product" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ExtraData.UpdateAllKeyFieldMatches" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="ExtraData.UpdateAllKeyFieldMatches" />
+                <span asp-validation-for="ExtraData.UpdateAllKeyFieldMatches"></span>
+            </div>
+        </div>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="Skip" />

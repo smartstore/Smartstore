@@ -605,6 +605,16 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Account.PasswordRecovery.EmailHasBeenSent",
                 "We have sent you an email with further instructions if an account exists with your email address.",
                 "Wir haben Ihnen eine E-Mail mit weiteren Anweisungen geschickt, falls ein Konto mit Ihrer E-Mail-Adresse existiert.");
+
+            builder.AddOrUpdate("Admin.DataExchange.Import.UpdateAllKeyFieldMatches",
+                "Update all that match a key field value",
+                "Alle aktualisieren, die dem Wert eines Schlüsselfelds entsprechen",
+                "Specifies that all records matching the value of a key field are updated. By default, only the first matching record is updated. Enabling this option may reduce the performance of the import.",
+                "Legt fest, dass alle mit dem Wert eines Schlüsselfeldes übereinstimmenden Datensätze aktualisiert werden. Standardmäßig wird nur der erste übereinstimmende Datensatz aktualisiert. Die Aktivierung dieser Option kann die Performance des Imports beeinträchtigen.");
+
+            // Fix:
+            builder.AddOrUpdate("Admin.DataExchange.Import.KeyFieldNames.Note")
+                .Value("de", "Bitte verwenden Sie das Feld ID nur dann als Schlüsselfeld, wenn die Daten aus derselben Datenbank stammen, in die sie importiert werden sollen. Andernfalls können falsche Datensätze aktualisiert werden.");
         }
     }
 }

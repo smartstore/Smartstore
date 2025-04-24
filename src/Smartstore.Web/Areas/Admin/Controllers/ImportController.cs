@@ -228,7 +228,7 @@ namespace Smartstore.Admin.Controllers
             profile.Skip = model.Skip ?? 0;
             profile.Take = model.Take ?? 0;
             profile.UpdateOnly = model.UpdateOnly;
-            profile.KeyFieldNames = model.KeyFieldNames == null ? null : string.Join(",", model.KeyFieldNames);
+            profile.KeyFieldNames = model.KeyFieldNames == null ? null : string.Join(',', model.KeyFieldNames);
 
             try
             {
@@ -261,10 +261,11 @@ namespace Smartstore.Admin.Controllers
 
                 if (model.ExtraData != null)
                 {
-                    profile.ExtraData = XmlHelper.Serialize(new ImportExtraData
-                    {
-                        NumberOfPictures = model.ExtraData.NumberOfPictures
-                    });
+                    var extraData = model.ExtraData.IsDefault()
+                        ? null
+                        : await MapperFactory.MapAsync<ImportProfileModel.ExtraDataModel, ImportExtraData>(model.ExtraData);
+
+                    profile.ExtraData = XmlHelper.Serialize(extraData);
                 }
             }
             catch (Exception ex)
@@ -613,7 +614,7 @@ namespace Smartstore.Admin.Controllers
 
             // Common configuration.
             var extraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData);
-            model.ExtraData.NumberOfPictures = extraData.NumberOfPictures;
+            model.ExtraData = await MapperFactory.MapAsync<ImportExtraData, ImportProfileModel.ExtraDataModel>(extraData);
 
             // Column mapping.
             try

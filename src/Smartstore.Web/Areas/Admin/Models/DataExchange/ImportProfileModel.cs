@@ -65,6 +65,12 @@ namespace Smartstore.Admin.Models.Import
         {
             [LocalizedDisplay("*NumberOfPictures")]
             public int? NumberOfPictures { get; set; }
+
+            [LocalizedDisplay("*UpdateAllKeyFieldMatches")]
+            public bool UpdateAllKeyFieldMatches { get; set; }
+
+            public bool IsDefault()
+                => NumberOfPictures == null && !UpdateAllKeyFieldMatches;
         }
     }
 
@@ -95,6 +101,10 @@ namespace Smartstore.Admin.Models.Import
                 .NotEmpty()
                 .When(x => x.Id != 0)
                 .WithMessage(T("Admin.DataExchange.Import.Validate.OneKeyFieldRequired"));
+
+            RuleFor(x => x.ExtraData.NumberOfPictures)
+                .GreaterThanOrEqualTo(0)
+                .When(x => x.ExtraData.NumberOfPictures.HasValue);
         }
     }
 }
