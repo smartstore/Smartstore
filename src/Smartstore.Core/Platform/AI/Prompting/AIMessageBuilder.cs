@@ -1,19 +1,23 @@
 ﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.AI.Prompting
 {
     public partial class AIMessageBuilder
     {
         private readonly SmartDbContext _db;
+        private readonly IStoreContext _storeContext;
         private readonly ILinkResolver _linkResolver;
 
         public AIMessageBuilder(
             SmartDbContext db,
+            IStoreContext storeContext,
             ILinkResolver linkResolver,
             AIMessageResources promptResources)
         {
             _db = db;
+            _storeContext = storeContext;
             _linkResolver = linkResolver;
             Resources = promptResources;
         }
@@ -224,10 +228,10 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated message will be added.</param>
         public virtual AIChat AddMetaTitleMessages(string forPromptPart, AIChat chat)
         {
-            int longestStoreNameCharCount = _db.Stores.Max(s => s.Name.Length);
+            int longestStoreNameLength = _storeContext.GetCachedStores().Stores.Values.Max(s => s.Name.Length);
             var operativeRoleInstructions = new List<string>
             {
-                Resources.ReserveSpaceForShopName(longestStoreNameCharCount + 1)
+                Resources.ReserveSpaceForShopName(longestStoreNameLength + 1)
             };
 
             // INFO: No need for word limit in SEO properties. Because we advised the KI to be a SEO expert, it already knows the correct limits.
