@@ -90,6 +90,7 @@
 - **AI:** 
 	- Respect text direction of the selected language in the rich-text dialog.
 	- Fixed a bug where the prompt preview incorrectly generated a new text request when opened via the Summernote AI button.
+	- Manufacturer prompt had messages for rich text generation when SEO properties were about to be created.
 - **Summernote HTML editor:**
   - Fixed unwanted line break after caret position due to outdated beautify library.
   - Fixed various focus handling and popover issues.
