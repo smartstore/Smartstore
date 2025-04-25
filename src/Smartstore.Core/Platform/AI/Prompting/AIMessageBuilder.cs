@@ -106,7 +106,7 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.KeywordsToAvoid.HasValue())
             {
-                chat.User(Resources.KeywordsToAvoid(model.KeywordsToAvoid)).SetMetaData(model.MakeKeywordsBold);
+                chat.User(Resources.KeywordsToAvoid(model.KeywordsToAvoid)).SetMetaData(model.KeywordsToAvoid);
             }
 
             return chat;
@@ -398,13 +398,15 @@ namespace Smartstore.Core.AI.Prompting
 
             if (model.CharLimit > 0 && model.WordLimit > 0)
             {
-                chat.User(Resources.CharWordLimit(model.CharLimit, model.WordLimit.Value))
+                // INFO: WordLimit should be a user message and CharLimit a system message.
+                // But as this case is probably very rare, we just use the system message for both.
+                chat.System(Resources.CharWordLimit(model.CharLimit, model.WordLimit.Value))
                     .SetMetaData(model.CharLimit)
                     .SetMetaData(model.WordLimit);
             }
             else if (model.CharLimit > 0)
             {
-                chat.User(Resources.CharLimit(model.CharLimit))
+                chat.System(Resources.CharLimit(model.CharLimit))
                     .SetMetaData(model.CharLimit);
             }
             else if (model.WordLimit > 0)
