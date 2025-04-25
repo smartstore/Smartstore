@@ -224,16 +224,15 @@ namespace Smartstore.Core.AI.Prompting
         /// <param name="chat">The <see cref="AIChat" /> containing a <see cref="List{AIChatMessage}"/> to which the generated message will be added.</param>
         public virtual AIChat AddMetaTitleMessages(string forPromptPart, AIChat chat)
         {
-            // TODO: (mh) (ai) Längsten Shopnamen ermitteln und Zeichenlänge in die Anweisung einfügen.
-            // INFO: Der Name des Shops wird von Smartstore automatisch dem Title zugefügt. 
-            // TODO: (mh) (ai) Ausfürlich mit allen Entitäten testen.
-            // Das Original mit dem auf der Produktdetailseite getestet wurde war:
-            //forPromptPart += " Verwende dabei nicht den Namen des Shops. Der wird von der Webseite automatisch zugefügt. Reserviere dafür 5 Worte.";
+            int longestStoreNameCharCount = _db.Stores.Max(s => s.Name.Length);
+            var operativeRoleInstructions = new List<string>
+            {
+                Resources.ReserveSpaceForShopName(longestStoreNameCharCount + 1)
+            };
 
             // INFO: No need for word limit in SEO properties. Because we advised the KI to be a SEO expert, it already knows the correct limits.
-            return AddRoleMessage(AIRole.SEOExpert, chat)
-                .UserTopic(forPromptPart)
-                .System(Resources.ReserveSpaceForShopName());
+            return AddRoleMessage(AIRole.SEOExpert, chat, operativeRoleInstructions)
+                .UserTopic(forPromptPart);
         }
 
         /// <summary>

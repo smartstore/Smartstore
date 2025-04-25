@@ -625,6 +625,10 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift",
                 "Specifies that if the customer has never checked out and the shipping address is unknown, the shipping cost from the location where the order was shipped (according to \"Shipping Origin\") will be used.",
                 "Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt (gemäß \"Versand erfolgt ab\"), sofern der Kunde den Checkout noch nie durchlaufen hat und seine Versandanschrift unbekannt ist.");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
+                "When creating text for title tags, do not use the name of the website, as this will be added later - Reserve {0} characters for this.",
+                "Verwende bei der Erstellung von Texten für title-Tags nicht den Namen der Website, da dieser später hinzugefügt wird - Reserviere dafür {0} Zeichen.");
         }
     }
 }
