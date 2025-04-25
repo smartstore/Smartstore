@@ -865,6 +865,21 @@ $img-margin-right: 10px;
 // Emojis
 // ------------------------------------------
 
+.note-emoji-popover {
+    --note-emoji-size: 40px;
+    --note-emoji-gap: 1px;
+    --note-emoji-cols: 10;
+    --note-emoji-padding: 0.5rem;
+
+    > .popover-content-emoji {
+        display: flex;
+        flex-flow: column;
+        overflow: hidden;
+        height: 400px;
+        width: calc(var(--note-emoji-size) * var(--note-emoji-cols) + (var(--note-emoji-gap) * var(--note-emoji-cols)) + (var(--note-emoji-padding) * 2) + 13px);
+    }
+}
+
 .dropdown-menu.note-dropdown-emoji {
     --note-emoji-size: 40px;
     --note-emoji-gap: 1px;
@@ -894,7 +909,7 @@ $img-margin-right: 10px;
 }
 
 .nav.nav-emoji {
-    justify-content: space-between;
+    justify-content: space-around;
     flex-wrap: nowrap;
 
     > .nav-link {
