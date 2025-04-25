@@ -29,6 +29,7 @@
   - Zoom support ranging from 25% to 500%
   - Displays the tag path of the current selection
   - Sticky toolbar when the editor is focused
+  - Added a function to continue writing by AI 
 - #1225 Added settings to sort search filters of facet groups: category, brand, and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always being 0 in queued email list.
@@ -52,12 +53,14 @@
 - #1266 Refreshed browser URL when a product variant changes so that it points to the current variant.
 - #1226 Enhanced `ResetPasswordAsync` to detect and repair accidental guest role assignments.
 - #214 Added backend menu entry for each Rule Builder scope.
-- Added new (AI) bot detection patterns to `useragent.yml`.
 - Updated `dbip-country-lite.mmdb`.
 - Logging: Added client UserAgent string to log entries.
 - Improved processing of recurring payments.
+- **AI:** 
+	- More robust prompting
+	- Added new bot detection patterns to `useragent.yml`.
 - **ChatGPT:**
-  - #1262 Added OpenAI `o1` and `03-mini` to supported models.
+  - #1262 Updated OpenAI supported models to the latest and most relevant: `gpt-4o`, `gpt-4o-mini`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-3.5-turbo`
   - Added a setting for the maximum number of completion tokens.
 - #1236 PayPal: Added setting to disable address application in case the store's address validation settings need to be respected.
 - #1274 Recycle Bin: Possibility to filter products with/without assignment to orders.
