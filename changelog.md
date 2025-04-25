@@ -11,6 +11,7 @@
   - Added **Gemini** AI provider.
   - #1259 Implemented setting for keywords to generally avoid.
 - Added settings to add alternate links for localized page versions to the XML Sitemap and HTML Header.
+- Import: Added an option to update all products that match a key field value.
 - #1142 Implemented configurable Content-Security-Policy (CSP) HTTP header.
 - #990 Added a weight field to attribute combinations.
 - Added a setting to control whether shipping costs are displayed on the cart page as long as the customer has not yet entered a shipping address.
