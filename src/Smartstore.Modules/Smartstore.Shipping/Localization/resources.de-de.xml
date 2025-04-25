@@ -90,12 +90,6 @@
             <LocaleResource Name="Fields.CalculateTotalIncludingTax.Hint">
                 <Value>Legt fest, ob der Bestellwert zur Berechnung der Versandkosten inkl. oder exkl. Steuern berechnet werden soll.</Value>
             </LocaleResource>
-            <LocaleResource Name="Fields.UseShippingOriginIfShippingAddressMissing">
-                <Value>Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift</Value>
-            </LocaleResource>
-            <LocaleResource Name="Fields.UseShippingOriginIfShippingAddressMissing.Hint">
-                <Value>Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt, sofern der Kunde den Checkout noch nie durchlaufen hat und seine Versandanschrift unbekannt ist. Siehe "Versand erfolgt ab" in den Versandeinstellungen.</Value>
-            </LocaleResource>
 
             <LocaleResource Name="Fields.BaseCharge">
                 <Value>Basisgebühr</Value>

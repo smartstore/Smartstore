@@ -619,6 +619,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             // Fix:
             builder.AddOrUpdate("Admin.DataExchange.Import.KeyFieldNames.Note")
                 .Value("de", "Bitte verwenden Sie das Feld ID nur dann als Schlüsselfeld, wenn die Daten aus derselben Datenbank stammen, in die sie importiert werden sollen. Andernfalls können falsche Datensätze aktualisiert werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.UseShippingOriginIfShippingAddressMissing",
+                "Shipping origin determines shipping costs if shipping address is missing",
+                "Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift",
+                "Specifies that if the customer has never checked out and the shipping address is unknown, the shipping cost from the location where the order was shipped (according to \"Shipping Origin\") will be used.",
+                "Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt (gemäß \"Versand erfolgt ab\"), sofern der Kunde den Checkout noch nie durchlaufen hat und seine Versandanschrift unbekannt ist.");
         }
     }
 }

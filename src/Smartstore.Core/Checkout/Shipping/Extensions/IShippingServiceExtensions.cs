@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <param name="storeId">Store identifier.</param>
         /// <param name="matchRules">A value indicating whether shipping methods must match cart rules.</param>
         /// <returns>Shipping option response.</returns>
-        public static Task<ShippingOptionResponse> GetShippingOptionsAsync(
+        public static async Task<ShippingOptionResponse> GetShippingOptionsAsync(
             this IShippingService shippingService,
             ShoppingCart cart,
             Address shippingAddress,
@@ -28,9 +28,9 @@ namespace Smartstore.Core.Checkout.Shipping
             Guard.NotNull(shippingService);
             Guard.NotNull(cart);
 
-            var request = shippingService.CreateShippingOptionRequest(cart, shippingAddress, storeId, matchRules);
+            var request = await shippingService.CreateShippingOptionRequestAsync(cart, shippingAddress, storeId, matchRules);
 
-            return shippingService.GetShippingOptionsAsync(request, allowedShippingProviderSystemName);
+            return await shippingService.GetShippingOptionsAsync(request, allowedShippingProviderSystemName);
         }
     }
 }

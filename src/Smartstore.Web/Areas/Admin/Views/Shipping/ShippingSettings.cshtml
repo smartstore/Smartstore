@@ -121,6 +121,15 @@
                 </setting-editor>
             </div>
         </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UseShippingOriginIfShippingAddressMissing" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseShippingOriginIfShippingAddressMissing"></setting-editor>
+                <span asp-validation-for="UseShippingOriginIfShippingAddressMissing"></span>
+            </div>
+        </div>
     </div>
 
     <div class="adminContent">

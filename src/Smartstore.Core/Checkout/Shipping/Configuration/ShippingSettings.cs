@@ -47,7 +47,13 @@ namespace Smartstore.Core.Checkout.Shipping
         public int ShippingOriginAddressId { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should return valid options if there are any (no matter of the errors returned by other shipping rate compuation methods).
+        /// Gets or sets a value indicating whether to use the shipping origin address when calculating shipping charges,
+        /// if the customer has never checked out and the shipping address is unknown.
+        /// </summary>
+        public bool UseShippingOriginIfShippingAddressMissing { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we should return valid options if there are any (no matter of the errors returned by other shipping rate computation methods).
         /// </summary>
         public bool ReturnValidOptionsIfThereAreAny { get; set; } = true;
 

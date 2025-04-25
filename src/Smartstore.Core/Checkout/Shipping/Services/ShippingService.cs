@@ -154,7 +154,7 @@ namespace Smartstore.Core.Checkout.Shipping
             return cartWeight;
         }
 
-        public virtual ShippingOptionRequest CreateShippingOptionRequest(
+        public virtual async Task<ShippingOptionRequest> CreateShippingOptionRequestAsync(
             ShoppingCart cart, 
             Address shippingAddress, 
             int storeId,
@@ -165,11 +165,13 @@ namespace Smartstore.Core.Checkout.Shipping
                 MatchRules = matchRules,
                 StoreId = storeId,
                 Customer = cart.Customer,
-                ShippingAddress = shippingAddress,
+                ShippingAddress = shippingAddress == null && _shippingSettings.UseShippingOriginIfShippingAddressMissing
+                    ? await GetShippingOriginAddressAsync()
+                    : shippingAddress,
                 CountryFrom = null,
                 StateProvinceFrom = null,
                 ZipPostalCodeFrom = string.Empty,
-                Items = new List<OrganizedShoppingCartItem>(cart.Items.Where(x => x.Item.IsShippingEnabled))
+                Items = [.. cart.Items.Where(x => x.Item.IsShippingEnabled)]
             };
         }
 

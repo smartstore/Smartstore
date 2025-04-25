@@ -6,6 +6,5 @@
         public bool CalculateTotalIncludingTax { get; set; } = true;
         public decimal SmallQuantityThreshold { get; set; }
         public decimal SmallQuantitySurcharge { get; set; }
-        public bool UseShippingOriginIfShippingAddressMissing { get; set; } = true;
     }
 }
