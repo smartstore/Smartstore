@@ -158,20 +158,9 @@
 					}
                 </select>
                 <span asp-validation-for="KeyFieldNames"></span>
-            </div>
-        </div>
-        <div sm-if="hasIdKeyField" class="adminRow">
-			<div class="alert alert-warning">
-				@T("Admin.DataExchange.Import.KeyFieldNames.Note")
-			</div>
-        </div>
-        <div sm-if="Model.EntityType == ImportEntityType.Product" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ExtraData.UpdateAllKeyFieldMatches" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="ExtraData.UpdateAllKeyFieldMatches" />
-                <span asp-validation-for="ExtraData.UpdateAllKeyFieldMatches"></span>
+                <div sm-if="hasIdKeyField" class="alert alert-warning mt-2">
+                    @T("Admin.DataExchange.Import.KeyFieldNames.Note")
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -201,13 +190,24 @@
                 <span asp-validation-for="UpdateOnly"></span>
             </div>
         </div>
-        <div sm-if="Model.EntityType == ImportEntityType.Product" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ExtraData.NumberOfPictures" />
+        <div sm-if="Model.EntityType == ImportEntityType.Product">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExtraData.UpdateAllKeyFieldMatches" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ExtraData.UpdateAllKeyFieldMatches" />
+                    <span asp-validation-for="ExtraData.UpdateAllKeyFieldMatches"></span>
+                </div>
             </div>
-            <div class="adminData">
-                <editor asp-for="ExtraData.NumberOfPictures" />
-                <span asp-validation-for="ExtraData.NumberOfPictures"></span>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExtraData.NumberOfPictures" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ExtraData.NumberOfPictures" />
+                    <span asp-validation-for="ExtraData.NumberOfPictures"></span>
+                </div>
             </div>
         </div>
 	</div>

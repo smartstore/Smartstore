@@ -609,8 +609,12 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             builder.AddOrUpdate("Admin.DataExchange.Import.UpdateAllKeyFieldMatches",
                 "Update all that match a key field value",
                 "Alle aktualisieren, die dem Wert eines Schlüsselfelds entsprechen",
-                "Specifies that all records matching the value of a key field are updated. By default, only the first matching record is updated. Enabling this option may reduce the performance of the import.",
-                "Legt fest, dass alle mit dem Wert eines Schlüsselfeldes übereinstimmenden Datensätze aktualisiert werden. Standardmäßig wird nur der erste übereinstimmende Datensatz aktualisiert. Die Aktivierung dieser Option kann die Performance des Imports beeinträchtigen.");
+                "Specifies that all records matching the value of a key field are updated. By default, only the first matching record is updated." +
+                " Enable this option if, for example, you have assigned an MPN multiple times and want to update all products with that MPN in a consistent manner." +
+                " Enabling this option may reduce the performance of the import.",
+                "Legt fest, dass alle mit dem Wert eines Schlüsselfeldes übereinstimmenden Datensätze aktualisiert werden. Standardmäßig wird nur der erste übereinstimmende" +
+                " Datensatz aktualisiert. Aktivieren Sie diese Option, wenn Sie z.B. eine MPN mehrfach vergeben haben und alle Produkte mit dieser MPN einheitlich aktualisieren möchten." +
+                " Die Aktivierung dieser Option kann die Performance des Imports beeinträchtigen.");
 
             // Fix:
             builder.AddOrUpdate("Admin.DataExchange.Import.KeyFieldNames.Note")

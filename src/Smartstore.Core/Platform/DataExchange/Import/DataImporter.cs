@@ -379,17 +379,17 @@ namespace Smartstore.Core.DataExchange.Import
 
                 sb.Clear();
                 sb.AppendLine();
-                sb.AppendLine(new string('-', 40));
-                sb.AppendLine("Object:         " + entityName);
-                sb.AppendLine("Started:        " + result.StartDateUtc.ToLocalTime());
-                sb.AppendLine("Finished:       " + result.EndDateUtc.ToLocalTime());
-                sb.AppendLine("Duration:       " + (result.EndDateUtc - result.StartDateUtc).ToString("g"));
-                sb.AppendLine("Rows total:     " + result.TotalRecords.ToString("N0"));
-                sb.AppendLine("Rows processed: " + result.AffectedRecords.ToString("N0"));
-                sb.AppendLine("Rows imported:  " + result.NewRecords.ToString("N0"));
-                sb.AppendLine("Rows updated:   " + result.ModifiedRecords.ToString("N0"));
-                sb.AppendLine("Warnings:       " + result.Warnings.ToString("N0"));
-                sb.Append("Errors:         " + result.Errors.ToString("N0"));
+                sb.AppendLine(new string('-', 50));
+                sb.AppendLine("Object:            " + entityName);
+                sb.AppendLine("Started:           " + result.StartDateUtc.ToLocalTime());
+                sb.AppendLine("Finished:          " + result.EndDateUtc.ToLocalTime());
+                sb.AppendLine("Duration:          " + (result.EndDateUtc - result.StartDateUtc).ToString("g"));
+                sb.AppendLine("Rows total:        " + result.TotalRecords.ToString("N0"));
+                sb.AppendLine("Records processed: " + result.AffectedRecords.ToString("N0"));
+                sb.AppendLine("Records imported:  " + result.NewRecords.ToString("N0"));
+                sb.AppendLine("Records updated:   " + result.ModifiedRecords.ToString("N0"));
+                sb.AppendLine("Warnings:          " + result.Warnings.ToString("N0"));
+                sb.Append("Errors:            " + result.Errors.ToString("N0"));
                 ctx.Log.Info(sb.ToString());
 
                 foreach (var message in result.Messages)
