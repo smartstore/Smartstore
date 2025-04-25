@@ -233,9 +233,7 @@ namespace Smartstore.Core.AI.Prompting
             // INFO: No need for word limit in SEO properties. Because we advised the KI to be a SEO expert, it already knows the correct limits.
             return AddRoleMessage(AIRole.SEOExpert, chat)
                 .UserTopic(forPromptPart)
-                .System(Resources.ReserveSpaceForShopName())
-                // INFO: Smartstore automatically adds inverted commas to the title.
-                .System(Resources.DontUseQuotes());
+                .System(Resources.ReserveSpaceForShopName());
         }
 
         /// <summary>
@@ -247,8 +245,7 @@ namespace Smartstore.Core.AI.Prompting
         {
             // INFO: No need for word limit in SEO properties. Because we advised the AI to be a SEO expert, it already knows the correct limits.
             return AddRoleMessage(AIRole.SEOExpert, chat)
-                .UserTopic(forPromptPart)
-                .System(Resources.DontUseQuotes());
+                .UserTopic(forPromptPart);
         }
 
         /// <summary>
