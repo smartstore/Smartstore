@@ -41,6 +41,7 @@
 - #1261 Blogs and news: Added a setting indicating whether to allow users to leave comments if they have never purchased before.
 - #1263 Allowed the admin to mark an order as *paid* even if the payment was previously voided.
 - **PayPal:**
+	- Added support for GooglePay.
 	- Added option for admin to decide how to handle orders declined by payment.
 	- Removed Giropay provider.
 	- Added Trustly provider.
