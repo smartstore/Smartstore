@@ -880,21 +880,6 @@ $img-margin-right: 10px;
     }
 }
 
-.dropdown-menu.note-dropdown-emoji {
-    --note-emoji-size: 40px;
-    --note-emoji-gap: 1px;
-    --note-emoji-cols: 10;
-    --note-emoji-padding: 0.5rem;
-    overflow: hidden;
-    height: 400px;
-    width: calc(var(--note-emoji-size) * var(--note-emoji-cols) + (var(--note-emoji-gap) * var(--note-emoji-cols)) + (var(--note-emoji-padding) * 2) + 13px);
-    flex-flow: column;
-
-    &.show {
-        display: flex;
-    }
-}
-
 .note-emoji-searchbox {
     padding-inline: var(--note-emoji-padding);
 }
