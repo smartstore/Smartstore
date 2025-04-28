@@ -382,6 +382,10 @@
 
     window.closePopup = function (id) {
         var modal = $('#' + (id || "modal-popup-shared"));
+        if (!modal.length) {
+            modal = $('.modal.show');
+        }
+
         if (modal.length > 0) {
             modal.modal('hide');
         }
