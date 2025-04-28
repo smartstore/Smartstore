@@ -349,7 +349,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Diese Regeln sind zwingend einzuhalten:");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.Role.HtmlEditor",
-                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. Your output must ALWAYS be valid HTML.!",
+                "You are an intelligent AI editor for web content. You combine the skills of a professional copywriter and technical HTML editor. Your output must ALWAYS be valid HTML!",
                 "Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Deine Ausgabe ist IMMER valides HTML!");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateHtml",

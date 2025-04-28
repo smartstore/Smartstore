@@ -329,13 +329,13 @@ namespace Smartstore.Core.AI.Prompting
         /// <summary>
         /// Instruction to reserve space for the name of the website.
         /// </summary>
-        /// <param name="longestStoreNameCharCount">The title of the table of contents.</param>
+        /// <param name="longestStoreNameLenth">The length of the logest store name.</param>
         /// <returns>
         ///     When creating text for title tags, do not use the name of the website, as this will be added later - 
-        ///     Reserve <paramref name="longestStoreNameCharCount"/> characters for this.
+        ///     Reserve <paramref name="longestStoreNameLenth"/> characters for this.
         /// </returns>
-        public virtual string ReserveSpaceForShopName(int longestStoreNameCharCount)
-            => P("ReserveSpaceForShopName", longestStoreNameCharCount.ToString());
+        public virtual string ReserveSpaceForShopName(int longestStoreNameLenth)
+            => P("ReserveSpaceForShopName", longestStoreNameLenth.ToString());
 
         #region HTML Structure instructions
 
