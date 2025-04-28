@@ -5,10 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true" />
-        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" GeneratePathProperty="true" />
-        <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10" GeneratePathProperty="true" />
-        <PackageReference Include="SQLitePCLRaw.core" Version="2.1.10" GeneratePathProperty="true" />
+        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" GeneratePathProperty="true" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" GeneratePathProperty="true" />
+        <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.11" GeneratePathProperty="true" />
+        <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.4" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.4" GeneratePathProperty="true" />
 
