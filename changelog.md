@@ -81,6 +81,7 @@
   - Fixed checkout shipping link not opening the shipping information dialog.
   - Fixed missing shipping-address-differs checkbox for guests who have not yet entered an address.
   - Fixed checkout bug when address country is null.
+- Fixed an issue where tier prices could be missing when exporting the associated product data.
 - Logging: Excluded file source from DB logging.
 - Fixed missing base path resolution for bootstrap-icons.svg.
 - Ignored surrogate characters (emojis) when building URL slugs.
