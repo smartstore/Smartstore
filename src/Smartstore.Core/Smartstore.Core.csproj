@@ -15,11 +15,11 @@
         <PackageReference Include="DotLiquid" Version="2.3.197" />
         <PackageReference Include="ExcelDataReader" Version="3.7.0" />
         <PackageReference Include="FluentFTP" Version="52.1.0" />
-        <PackageReference Include="FluentMigrator" Version="6.2.0" />
-        <PackageReference Include="FluentMigrator.Runner.MySql" Version="6.2.0" />
-        <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
-        <PackageReference Include="FluentMigrator.Runner.SQLite" Version="6.2.0" />
-        <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="6.2.0" />
+        <PackageReference Include="FluentMigrator" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.MySql" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.Postgres" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.SQLite" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="7.1.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="HtmlSanitizer" Version="8.2.871-beta" />
         <PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
