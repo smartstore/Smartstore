@@ -87,7 +87,19 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         #region Data loaded once per page
 
+        /// <summary>
+        /// Associated product data with applied filters (e.g. for store and customer).
+        /// </summary>
         public ProductBatchContext ProductBatchContext { get; set; }
+
+        /// <summary>
+        /// Associated product data without applied filters.
+        /// </summary>
+        /// <remarks>
+        /// Required for tier prices (and maybe others in the future) where we need both: unfiltered data for export and filtered data for pricing.
+        /// </remarks>
+        public ProductBatchContext ProductBatchContextWithoutFilters { get; set; }
+
         public ProductBatchContext AssociatedProductBatchContext { get; set; }
         public OrderBatchContext OrderBatchContext { get; set; }
         public ManufacturerBatchContext ManufacturerBatchContext { get; set; }

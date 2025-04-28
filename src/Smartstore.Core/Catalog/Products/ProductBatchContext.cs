@@ -59,8 +59,8 @@ namespace Smartstore.Core.Catalog.Products
             bool loadMainMediaOnly = false)
         {
             _componentContext = Guard.NotNull(componentContext);
-            Store = Guard.NotNull(store);
-            Customer = Guard.NotNull(customer);
+            Store = store;
+            Customer = customer;
             _db = Guard.NotNull(db);
 
             _includeHidden = includeHidden;
@@ -260,18 +260,31 @@ namespace Smartstore.Core.Catalog.Products
         protected virtual async Task<Multimap<int, TierPrice>> LoadTierPrices(int[] ids)
         {
             var query = _db.TierPrices
-                    .AsNoTracking()
-                    .Include(x => x.CustomerRole)
-                    .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == Store.Id))
-                    .AsQueryable();
-            var tierPrices = await query.ToListAsync();
+                .AsNoTracking()
+                .Include(x => x.CustomerRole)
+                .Where(x => ids.Contains(x.ProductId));
 
-            return tierPrices
+            if (Store != null)
+            {
+                query = query.Where(x => x.StoreId == 0 || x.StoreId == Store.Id);
+            }
+
+            var tierPrices = await query.ToListAsync();
+            var orderedTierPrices = tierPrices
                 // Sorting locally is most likely faster.
                 .OrderBy(x => x.ProductId)
-                .ThenBy(x => x.Quantity)
-                .FilterForCustomer(Customer)
-                .ToMultimap(x => x.ProductId, x => x);
+                .ThenBy(x => x.Quantity);
+
+            if (Customer != null)
+            {
+                return orderedTierPrices
+                    .FilterForCustomer(Customer)
+                    .ToMultimap(x => x.ProductId, x => x);
+            }
+            else
+            {
+                return orderedTierPrices.ToMultimap(x => x.ProductId, x => x);
+            }
         }
 
         protected virtual async Task<Multimap<int, ProductCategory>> LoadProductCategories(int[] ids)

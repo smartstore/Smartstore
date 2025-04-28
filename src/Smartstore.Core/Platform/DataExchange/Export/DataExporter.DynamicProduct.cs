@@ -382,15 +382,11 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (product.HasTierPrices)
             {
-                var tierPrices = await ctx.ProductBatchContext.TierPrices.GetOrLoadAsync(product.Id);
+                // INFO: Conflict when using ProductBatchContext which contains filtered tier prices.
+                var tierPrices = await ctx.ProductBatchContextWithoutFilters.TierPrices.GetOrLoadAsync(product.Id);
 
                 dynObject.TierPrices = tierPrices
-                    .RemoveDuplicatedQuantities()
-                    .Select(x =>
-                    {
-                        dynamic dyn = new DynamicEntity(x);
-                        return dyn;
-                    })
+                    .Select(x => CreateDynamic(x))
                     .ToList();
             }
 

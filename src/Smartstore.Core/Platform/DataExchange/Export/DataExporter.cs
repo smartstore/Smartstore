@@ -1,6 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Net.Http;
 using System.Security;
+using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
@@ -1043,6 +1044,7 @@ namespace Smartstore.Core.DataExchange.Export
             try
             {
                 ctx.AssociatedProductBatchContext?.Clear();
+                ctx.ProductBatchContextWithoutFilters?.Clear();
 
                 if (ctx.ProductBatchContext != null)
                 {
@@ -1124,6 +1126,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     // Load data behind navigation properties for current entities batch in one go.
                     ctx.ProductBatchContext = _productService.CreateProductBatchContext(entities, ctx.Store, null, includeHidden);
+                    ctx.ProductBatchContextWithoutFilters = new ProductBatchContext(entities, _db, _services.Container, null, null, includeHidden);
                     ctx.PriceCalculationOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx);
                     ctx.AttributeCombinationPriceCalcOptions = await CreatePriceCalculationOptions(ctx.ProductBatchContext, ctx, true);
                     ctx.AssociatedProductBatchContext = null;
