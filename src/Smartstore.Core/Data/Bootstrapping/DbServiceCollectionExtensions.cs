@@ -1,4 +1,6 @@
-﻿using FluentMigrator.Runner;
+﻿using FluentMigrator;
+using FluentMigrator.Runner;
+using FluentMigrator.Runner.Generators;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
 using Smartstore.Core.Data.Migrations;
@@ -39,9 +41,27 @@ namespace Smartstore.Core.Bootstrapping
                         .WithVersionTable(new MigrationHistory())
                         .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120));
                 })
+                .Configure<SelectingGeneratorAccessorOptions>(opt =>
+                {
+                    switch (DataSettings.Instance.DbFactory.DbSystem)
+                    {
+                        case DbSystemType.SqlServer:
+                            opt.GeneratorId = GeneratorIdConstants.SqlServer;
+                            break;
+                        case DbSystemType.MySql:
+                            opt.GeneratorId = GeneratorIdConstants.MySql;
+                            break;
+                        case DbSystemType.PostgreSql:
+                            opt.GeneratorId = GeneratorIdConstants.PostgreSQL;
+                            break;
+                        case DbSystemType.SQLite:
+                            opt.GeneratorId = GeneratorIdConstants.SQLite;
+                            break;
+                    }                    
+                })
                 .Configure<FluentMigratorLoggerOptions>(o =>
                 {
-                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Find a way to get configuration working. Logs like crazy.
+                    o.ShowSql = false;
                     o.ShowElapsedTime = false;
                 });
 
