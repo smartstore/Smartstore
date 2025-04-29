@@ -25,8 +25,8 @@ namespace Smartstore.StripeElements.Services
         private readonly IPaymentService _paymentService;
 
         // INFO: Update API Version when updating Stripe.net dll
-        // Also test webhook endpoint because thats where errors are most likely to occur.
-        public static string ApiVersion => "2024-09-30.acacia";
+        // Also test webhook endpoint because that's where errors are most likely to occur.
+        public static string ApiVersion => "2025-03-31.basil";
 
         public StripeHelper(
             ICommonServices services,
