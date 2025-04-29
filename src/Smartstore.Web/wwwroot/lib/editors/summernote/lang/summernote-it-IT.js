@@ -154,17 +154,44 @@
   });
 
   $.extend(true, $.summernote.lang, {
-    'it-IT': { /* Italian */
+    'fr-FR': {
+      common: {
+        ok: 'OK',
+        cancel: 'Annuler',
+        save: 'Enregistrer',
+        search: 'Rechercher'
+      },
+      emoji: {
+        emoji: 'Émoticône',
+        search: 'Rechercher des émoticônes...',
+        typeTwo: 'Tapez au moins deux caractères...',
+        recent: 'Récemment utilisés'
+      },
+      help: {
+        save: 'Enregistrer',
+      },
+      font: {
+        code: 'Code',
+      },
       attrs: {
-        cssClass: 'CSS Classe',
-        cssStyle: 'CSS Stile',
+        cssClass: 'Classe CSS',
+        cssStyle: 'Style CSS',
         rel: 'Rel',
       },
       link: {
-        browse: 'Sfoglia'
+        browse: 'Parcourir'
       },
       image: {
-        imageProps: 'Attributi Immagine'
+        imageProps: 'Attributs d\'image'
+      },
+      imageShapes: {
+        tooltip: 'Forme',
+        tooltipShapeOptions: ['Responsive', 'Bordure', 'Arrondi', 'Cercle', 'Miniature', 'Ombre (petite)', 'Ombre (moyenne)', 'Ombre (grande)']
+      },
+      tableStyles: {
+        tooltip: "Style de tableau",
+        stylesExclusive: ["Basique", "Avec bordures"],
+        stylesInclusive: ["Rayé", "Condensé", "Survolable"]
       }
     }
   });

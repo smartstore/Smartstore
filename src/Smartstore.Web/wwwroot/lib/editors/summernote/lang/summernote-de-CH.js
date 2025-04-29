@@ -153,4 +153,47 @@
       },
     },
   });
+
+  $.extend(true, $.summernote.lang, {
+    'de-DE': { /* German */
+      common: {
+        ok: 'OK',
+        cancel: 'Abbrechen',
+        save: 'Speichern',
+        search: 'Suchen'
+      },
+      emoji: {
+        emoji: 'Emoji',
+        search: 'Emojis suchen...',
+        typeTwo: 'Mindestens zwei Zeichen eingeben...',
+        recent: 'Kürzlich verwendet'
+      },
+      help: {
+        save: 'Speichern',
+      },
+      font: {
+        code: 'Code'
+      },
+      attrs: {
+        cssClass: 'CSS Klasse',
+        cssStyle: 'CSS Stil',
+        rel: 'Rel',
+      },
+      link: {
+        browse: 'Durchsuchen'
+      },
+      image: {
+        imageProps: 'Bild Eigenschaften'
+      },
+      imageShapes: {
+        tooltip: 'Stil',
+        tooltipShapeOptions: ['Responsiv', 'Rahmen', 'Abgerundet', 'Kreis', 'Thumbnail', 'Schatten (klein)', 'Schatten (mittel)', 'Schatten (gro&szlig)']
+      },
+      tableStyles: {
+        tooltip: "Tabellenstil",
+        stylesExclusive: ["Standard", "Eingerahmt"],
+        stylesInclusive: ["Streifen", "Kompakt", "Hover Effekt"]
+      }
+    }
+  });
 })(jQuery);

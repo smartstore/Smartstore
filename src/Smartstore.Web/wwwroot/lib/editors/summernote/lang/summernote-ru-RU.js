@@ -154,17 +154,44 @@
   });
 
   $.extend(true, $.summernote.lang, {
-    'ru-RU': { /* Russian */
+    'ru-RU': {
+      common: {
+        ok: 'OK',
+        cancel: 'Отмена',
+        save: 'Сохранить',
+        search: 'Поиск'
+      },
+      emoji: {
+        emoji: 'Эмодзи',
+        search: 'Поиск эмодзи...',
+        typeTwo: 'Введите хотя бы два символа...',
+        recent: 'Недавно использованные'
+      },
+      help: {
+        save: 'Сохранить',
+      },
+      font: {
+        code: 'Код',
+      },
       attrs: {
-        cssClass: 'CSS класс',
+        cssClass: 'CSS Класс',
         cssStyle: 'CSS Стиль',
-        rel: 'Тип (rel)',
+        rel: 'Rel',
       },
       link: {
-        browse: 'просматривать'
+        browse: 'Обзор'
       },
       image: {
-        imageProps: 'Свойства изображения'
+        imageProps: 'Атрибуты изображения'
+      },
+      imageShapes: {
+        tooltip: 'Форма',
+        tooltipShapeOptions: ['Адаптивный', 'Рамка', 'Закругленный', 'Круг', 'Миниатюра', 'Тень (маленькая)', 'Тень (средняя)', 'Тень (большая)']
+      },
+      tableStyles: {
+        tooltip: "Стиль таблицы",
+        stylesExclusive: ["Базовый", "С рамкой"],
+        stylesInclusive: ["Полосатый", "Уплотненный", "При наведении"]
       }
     }
   });

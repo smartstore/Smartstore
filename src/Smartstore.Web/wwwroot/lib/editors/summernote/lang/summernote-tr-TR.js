@@ -155,17 +155,44 @@
   });
 
   $.extend(true, $.summernote.lang, {
-    'tr-TR': { /* Turkish */
+    'tr-TR': {
+      common: {
+        ok: 'Tamam',
+        cancel: 'İptal',
+        save: 'Kaydet',
+        search: 'Ara'
+      },
+      emoji: {
+        emoji: 'Emoji',
+        search: 'Emoji ara...',
+        typeTwo: 'En az iki karakter yazın...',
+        recent: 'Son kullanılanlar'
+      },
+      help: {
+        save: 'Kaydet',
+      },
+      font: {
+        code: 'Kod',
+      },
       attrs: {
-        cssClass: 'Sınıf (CSS)',
-        cssStyle: 'Stil (CSS)',
+        cssClass: 'CSS Sınıfı',
+        cssStyle: 'CSS Stili',
         rel: 'Rel',
       },
       link: {
-        browse: 'Seç'
+        browse: 'Göz at'
       },
       image: {
         imageProps: 'Resim Özellikleri'
+      },
+      imageShapes: {
+        tooltip: 'Şekil',
+        tooltipShapeOptions: ['Duyarlı', 'Kenarlık', 'Yuvarlak', 'Daire', 'Küçük Resim', 'Gölge (küçük)', 'Gölge (orta)', 'Gölge (büyük)']
+      },
+      tableStyles: {
+        tooltip: "Tablo stili",
+        stylesExclusive: ["Temel", "Kenarlıklı"],
+        stylesInclusive: ["Çizgili", "Yoğun", "Üzerine gelince"]
       }
     }
   });

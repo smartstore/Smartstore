@@ -153,4 +153,47 @@
       },
     },
   });
+
+  $.extend(true, $.summernote.lang, {
+    'ar-AR': {
+      common: {
+        ok: 'موافق',
+        cancel: 'إلغاء',
+        save: 'حفظ',
+        search: 'بحث'
+      },
+      emoji: {
+        emoji: 'إيموجي',
+        search: 'ابحث عن الإيموجي...',
+        typeTwo: 'اكتب حرفين على الأقل...',
+        recent: 'مستخدمة مؤخراً'
+      },
+      help: {
+        save: 'حفظ',
+      },
+      font: {
+        code: 'كود',
+      },
+      attrs: {
+        cssClass: 'كلاس CSS',
+        cssStyle: 'ستايل CSS',
+        rel: 'Rel',
+      },
+      link: {
+        browse: 'تصفح'
+      },
+      image: {
+        imageProps: 'خصائص الصورة'
+      },
+      imageShapes: {
+        tooltip: 'شكل',
+        tooltipShapeOptions: ['متجاوب', 'إطار', 'مستدير', 'دائري', 'مصغر', 'ظل (صغير)', 'ظل (متوسط)', 'ظل (كبير)']
+      },
+      tableStyles: {
+        tooltip: "نمط الجدول",
+        stylesExclusive: ["أساسي", "محدد"],
+        stylesInclusive: ["مخطط", "مكثف", "قابل للتأثير"]
+      }
+    }
+  });
 })(jQuery);

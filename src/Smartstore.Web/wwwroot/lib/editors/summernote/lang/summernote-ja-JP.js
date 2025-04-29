@@ -152,4 +152,47 @@
       },
     },
   });
+
+  $.extend(true, $.summernote.lang, {
+    'ja-JP': {
+      common: {
+        ok: 'OK',
+        cancel: 'キャンセル',
+        save: '保存',
+        search: '検索'
+      },
+      emoji: {
+        emoji: '絵文字',
+        search: '絵文字を検索...',
+        typeTwo: '2文字以上入力...',
+        recent: '最近使用した'
+      },
+      help: {
+        save: '保存',
+      },
+      font: {
+        code: 'コード',
+      },
+      attrs: {
+        cssClass: 'CSSクラス',
+        cssStyle: 'CSSスタイル',
+        rel: 'Rel',
+      },
+      link: {
+        browse: '参照'
+      },
+      image: {
+        imageProps: '画像属性'
+      },
+      imageShapes: {
+        tooltip: '形状',
+        tooltipShapeOptions: ['レスポンシブ', '枠線', '角丸', '円', 'サムネイル', '影（小）', '影（中）', '影（大）']
+      },
+      tableStyles: {
+        tooltip: "テーブルスタイル",
+        stylesExclusive: ["基本", "枠線あり"],
+        stylesInclusive: ["ストライプ", "コンパクト", "ホバー可能"]
+      }
+    }
+  });
 })(jQuery);
