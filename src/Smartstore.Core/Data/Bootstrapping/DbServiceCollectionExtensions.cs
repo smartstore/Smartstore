@@ -32,32 +32,28 @@ namespace Smartstore.Core.Bootstrapping
                 .AddTransient(typeof(DbMigrator<>))
                 .ConfigureRunner(builder =>
                 {
+                    var provider = DataSettings.Instance.DbFactory?.DbSystem;
+
+                    if (provider == null || provider == DbSystemType.SqlServer)     builder.AddSqlServer2014();
+                    if (provider == null || provider == DbSystemType.MySql)         builder.AddMySql5();
+                    if (provider == null || provider == DbSystemType.PostgreSql)    builder.AddPostgres();
+                    if (provider == null || provider == DbSystemType.SQLite)        builder.AddSQLite();
+
                     builder
-                        //.AddSqlServer()
-                        .AddSqlServer2014()
-                        .AddMySql5()
-                        .AddPostgres()
-                        .AddSQLite()
                         .WithVersionTable(new MigrationHistory())
                         .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120));
                 })
                 .Configure<SelectingGeneratorAccessorOptions>(opt =>
                 {
-                    switch (DataSettings.Instance.DbFactory.DbSystem)
+                    var provider = DataSettings.Instance.DbFactory.DbSystem;
+                    opt.GeneratorId = provider switch
                     {
-                        case DbSystemType.SqlServer:
-                            opt.GeneratorId = GeneratorIdConstants.SqlServer;
-                            break;
-                        case DbSystemType.MySql:
-                            opt.GeneratorId = GeneratorIdConstants.MySql;
-                            break;
-                        case DbSystemType.PostgreSql:
-                            opt.GeneratorId = GeneratorIdConstants.PostgreSQL;
-                            break;
-                        case DbSystemType.SQLite:
-                            opt.GeneratorId = GeneratorIdConstants.SQLite;
-                            break;
-                    }                    
+                        DbSystemType.SqlServer =>   GeneratorIdConstants.SqlServer,
+                        DbSystemType.MySql =>       GeneratorIdConstants.MySql,
+                        DbSystemType.PostgreSql =>  GeneratorIdConstants.PostgreSQL,
+                        DbSystemType.SQLite =>      GeneratorIdConstants.SQLite,
+                        _ => throw new InvalidOperationException($"Unknown database provider: {provider}")
+                    };
                 })
                 .Configure<FluentMigratorLoggerOptions>(o =>
                 {
