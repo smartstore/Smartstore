@@ -62,6 +62,7 @@
 - **ChatGPT:**
   - #1262 Updated OpenAI supported models to the latest and most relevant: `gpt-4o`, `gpt-4o-mini`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-3.5-turbo`
   - Added a setting for the maximum number of completion tokens.
+  - Added support for gpt-image-1 and removed dall-e-2
 - #1236 PayPal: Added setting to disable address application in case the store's address validation settings need to be respected.
 - #1274 Recycle Bin: Possibility to filter products with/without assignment to orders.
 - Store cookie consent information in database and display on customer edit page.
