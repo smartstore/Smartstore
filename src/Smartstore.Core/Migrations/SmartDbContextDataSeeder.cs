@@ -45,8 +45,18 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.CalculateShippingAtCheckout",
                 "Calculate shipping costs during checkout",
                 "Versandkosten während des Checkouts berechnen",
-                "Specifies whether shipping costs are displayed on the shopping cart page as long as the customer has not yet entered a shipping address. If activated, a note appears instead that the calculation will only take place at checkout.",
-                "Legt fest, ob Versandkosten auf der Warenkorbseite angezeigt werden, solange der Kunde noch keine Lieferanschrift eingegeben hat. Wenn aktiviert, erscheint stattdessen ein Hinweis, dass die Berechnung erst beim Checkout erfolgt.");
+                "Specifies whether shipping costs are displayed on the shopping cart page as long as the customer has not yet entered a shipping address." +
+                " If activated, a note appears instead that the calculation will only take place at checkout.",
+                "Legt fest, ob Versandkosten auf der Warenkorbseite angezeigt werden, solange der Kunde noch keine Lieferanschrift eingegeben hat." + 
+                " Wenn aktiviert, erscheint stattdessen ein Hinweis, dass die Berechnung erst beim Checkout erfolgt.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.UseShippingOriginIfShippingAddressMissing",
+                "Shipping origin determines shipping costs if shipping address is missing",
+                "Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift",
+                "Specifies that if the customer has never checked out and the shipping address is unknown, the shipping cost from the location where the order was shipped" +
+                " (according to \"Shipping Origin\") will be used.",
+                "Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt (gemäß \"Versand erfolgt ab\")," +
+                " sofern der Kunde den Checkout noch nie durchlaufen hat und seine Lieferanschrift unbekannt ist.");
 
             builder.AddOrUpdate("Common.CartRules", "Cart rules", "Warenkorbregeln");
             builder.AddOrUpdate("Common.CustomerRules", "Customer rules", "Kundenregeln");
@@ -619,12 +629,6 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
             // Fix:
             builder.AddOrUpdate("Admin.DataExchange.Import.KeyFieldNames.Note")
                 .Value("de", "Bitte verwenden Sie das Feld ID nur dann als Schlüsselfeld, wenn die Daten aus derselben Datenbank stammen, in die sie importiert werden sollen. Andernfalls können falsche Datensätze aktualisiert werden.");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.Shipping.UseShippingOriginIfShippingAddressMissing",
-                "Shipping origin determines shipping costs if shipping address is missing",
-                "Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift",
-                "Specifies that if the customer has never checked out and the shipping address is unknown, the shipping cost from the location where the order was shipped (according to \"Shipping Origin\") will be used.",
-                "Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt (gemäß \"Versand erfolgt ab\"), sofern der Kunde den Checkout noch nie durchlaufen hat und seine Versandanschrift unbekannt ist.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.ReserveSpaceForShopName",
                 "When creating text for title tags, do not use the name of the website, as this will be added later - Reserve {0} characters for this.",

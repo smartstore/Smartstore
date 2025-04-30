@@ -68,6 +68,24 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="CalculateShippingAtCheckout" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CalculateShippingAtCheckout"></setting-editor>
+                <span asp-validation-for="CalculateShippingAtCheckout"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UseShippingOriginIfShippingAddressMissing" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseShippingOriginIfShippingAddressMissing"></setting-editor>
+                <span asp-validation-for="UseShippingOriginIfShippingAddressMissing"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="EstimateShippingEnabled" />
             </div>
             <div class="adminData">
@@ -82,15 +100,6 @@
             <div class="adminData">
                 <setting-editor asp-for="DisplayShipmentEventsToCustomers"></setting-editor>
                 <span asp-validation-for="DisplayShipmentEventsToCustomers"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CalculateShippingAtCheckout" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="CalculateShippingAtCheckout"></setting-editor>
-                <span asp-validation-for="CalculateShippingAtCheckout"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -119,15 +128,6 @@
                 <setting-editor asp-for="ShippingOriginAddress">
                     <editor asp-for="ShippingOriginAddress" />
                 </setting-editor>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="UseShippingOriginIfShippingAddressMissing" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="UseShippingOriginIfShippingAddressMissing"></setting-editor>
-                <span asp-validation-for="UseShippingOriginIfShippingAddressMissing"></span>
             </div>
         </div>
     </div>
