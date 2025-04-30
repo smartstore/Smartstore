@@ -424,13 +424,18 @@ $img-margin-right: 10px;
 }
 
 
-// Placeholder
+// Placeholder & Selection
 // ------------------------------------------
 
 .note-placeholder {
     position: absolute;
     display: none;
     color: var(--gray-600);
+}
+
+.note-selection {
+    background-color: var(--primary-bg-subtle);
+    color: var(--body-color);
 }
 
 
