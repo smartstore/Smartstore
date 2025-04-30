@@ -27,8 +27,8 @@ namespace Smartstore
 
         public static async Task<IDirectory> GetDirectoryForFileInternal(IFileSystem fs, string subpath, bool async)
         {
-            Guard.NotNull(fs, nameof(fs));
-            Guard.NotNull(subpath, nameof(subpath));
+            Guard.NotNull(fs);
+            Guard.NotNull(subpath);
 
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
             if (!file.Exists)
@@ -146,7 +146,7 @@ namespace Smartstore
 
         private static async Task<IFile> CreateFileInternal(IFileSystem fs, string subpath, Stream inStream, bool overwrite, bool async, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(fs);
 
             var dirExists = async ? await fs.DirectoryExistsAsync(subpath) : fs.DirectoryExists(subpath);
             if (dirExists)
@@ -187,7 +187,7 @@ namespace Smartstore
         /// </exception>
         public static void CopyFile(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
         {
-            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(fs);
             fs.GetFile(subpath).CopyTo(newPath, overwrite);
         }
 
@@ -202,7 +202,7 @@ namespace Smartstore
         /// </exception>
         public static async Task CopyFileAsync(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
         {
-            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(fs);
             await (await fs.GetFileAsync(subpath)).CopyToAsync(newPath, overwrite);
         }
     }
