@@ -118,7 +118,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult",
                 "{0} of {1} products have been permanently deleted. {2} Products were skipped as they are assigned to orders and cannot be permanently deleted.",
-                "{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden übersprungen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
+                "{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden ausgelassen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.");
 
             builder.AddOrUpdate("Order.CannotCompleteUnpaidOrder", 
                 "An unpaid order cannot be completed.",
@@ -187,7 +187,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate($"{prefix}.AlwaysPrefetchUrlSlugs",
                 "Always prefetch URL slugs",
-                "URL Slugs immer vorladen  (Prefetch)",
+                "URL Slugs immer vorladen (Prefetch)",
                 "By default, only Instant Search prefetches URL slugs. All other product listings work against the segmented cache. For very large multilingual catalogs (> 500,000), enabling this can improve query performance and reduce resource usage.",
                 "Standardmäßig werden nur bei der Sofortsuche URL slugs vorgeladen. Alle anderen Produktauflistungen arbeiten mit dem segmentierten Cache. Bei sehr großen mehrsprachigen Katalogen (> 500.000) kann die Aktivierung dieser Option die Abfrageleistung verbessern und die Ressourcennutzung verringern.");
 
@@ -474,7 +474,7 @@ Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blocki
                 "Erstelle für jeden Abschnitt einen inhaltlich vollständigen und zusammenhängenden Text.");
 
             builder.AddOrUpdate("Smartstore.AI.Prompts.UseImagePlaceholders",
-                "If an image is to be inserted, use a <div class=“mb-3”> with an <i> tag containing the classes 'far fa-xl fa-file-image ai-preview-file' as a placeholder. " +
+                "If an image is to be inserted, use a <div class=\"mb-3\"> with an <i> tag containing the classes 'far fa-xl fa-file-image ai-preview-file' as a placeholder. " +
                 "The title attribute must correspond to the associated section heading.",
                 "Wenn ein Bild einzufügen ist, verwende als Platzhalter ein <div class=\"mb-3\"> mit einem <i>-Tag, " +
                 "das die Klassen 'far fa-xl fa-file-image ai-preview-file' enthält. Das title-Attribut muss der zugehörigen Abschnittsüberschrift entsprechen.");
