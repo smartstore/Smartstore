@@ -133,10 +133,13 @@
 		<Value>Auftragswert gesamt</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders">
-		<Value>Wiederkehrende Zahlung</Value>
+		<Value>Regelmäßige Lieferungen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.Cancel">
-		<Value>Zahlung abbrechen</Value>
+		<Value>Regelmäßige Lieferung abbrechen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.CancelDelivery">
+		<Value>Möchten Sie die regelmäßige Lieferung abbrechen?</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.CycleInfo">
 		<Value>Interval</Value>
@@ -150,11 +153,11 @@
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.StartDate">
 		<Value>Anfangsdatum</Value>
 	</LocaleResource>
-	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.TotalCycles">
-		<Value>Gesamtzahl</Value>
+	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.SuccessfullyCanceled">
+		<Value>Die regelmäßige Lieferung wurde erfolgreich abgebrochen.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.ViewInitialOrder">
-		<Value>Bestelldetails (ID - {0})</Value>
+	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.TotalCycles">
+		<Value>Lieferungen insgesamt</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.ReturnItems">
 		<Value>Rücksendeartikel</Value>
@@ -400,10 +403,7 @@
 		<Value>E-Mail</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.PasswordRecovery.EmailHasBeenSent">
-		<Value>Es wurde eine E-Mail mit Anweisungen an Sie versandt.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Account.PasswordRecovery.EmailNotFound">
-		<Value>E-Mail nicht gefunden.</Value>
+		<Value>Wir haben Ihnen eine E-Mail mit weiteren Anweisungen geschickt, falls ein Konto mit Ihrer E-Mail-Adresse existiert.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.PasswordRecovery.NewPassword">
 		<Value>Neues Passwort</Value>
@@ -972,6 +972,9 @@
 	<LocaleResource Name="Admin.AI.CreateText">
 		<Value>Text erzeugen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.AI.EditHtml">
+		<Value>HTML-Text bearbeiten</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.AI.ImageCreation.DefaultPrompt">
 		<Value>Erzeuge ein Bild zum Thema: '{0}'.</Value>
 	</LocaleResource>
@@ -985,7 +988,10 @@
 		<Value>Ton ändern</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AI.Suggestions.DefaultPrompt">
-		<Value>Mache einen Vorschlag zum Thema '{0}'.</Value>
+		<Value>Mache {0} Vorschläge zum Thema '{1}'.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.AI.TextCreation.Continue">
+		<Value>Fortsetzen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AI.TextCreation.CreateNew">
 		<Value>Neu generieren</Value>
@@ -1502,6 +1508,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Categories.Fields.FullName.Hint">
 		<Value>Vollständiger Name, der als Titel auf der Warengruppenseite angezeigt wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Categories.Fields.IgnoreInMenus">
+		<Value>In Menüs ignorieren</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Categories.Fields.IgnoreInMenus.Hint">
+		<Value>Legt fest, ob die Warengruppe in Menüs ignoriert wird. Im Gegensatz zu unveröffentlichten Warengruppen bleiben Produkte sichtbar, wenn diese Option und "Produkte von Unterkategorien einschließen" aktiviert sind.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Categories.Fields.Name">
 		<Value>Name</Value>
@@ -2263,6 +2275,12 @@
 	<LocaleResource Name="Admin.Catalog.Products.Fields.DisableWishlistButton.Hint">
 		<Value>Legt fest, ob der Wunschlisten-Button für dieses Produkt deaktiviert werden soll.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.DisplayOrder">
+		<Value>Reihenfolge</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.Fields.DisplayOrder.Hint">
+		<Value>Legt die Reihenfolge fest, in der verknüpfte Produkte eines Gruppenproduktes angezeigt werden. Zusätzlich legt diese Einstellung die Reihenfolge der Treffer bei der Suche fest, sofern in den Sucheinstellungen die Sortierung nach Empfehlung aktiviert ist.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.Fields.DisplayStockAvailability">
 		<Value>Verfügbarkeit anzeigen</Value>
 	</LocaleResource>
@@ -2758,6 +2776,12 @@
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductType.Hint">
 		<Value>Nach einem Produkttyp suchen.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchWithOrders">
+		<Value>Mit Auftragszuordnungen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchWithOrders.Hint">
+		<Value>Filtert nach Produkten mit/ohne Auftragszuordnungen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchWithoutCategories">
 		<Value>Ohne Warengruppenzuordnung</Value>
 	</LocaleResource>
@@ -3049,8 +3073,11 @@
 	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.ClearConfirm">
 		<Value>Sind Sie sicher, dass alle Einträge des Papierkorbs gelöscht werden sollen?</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.DeletedAndSkippedProductsResult">
+		<Value>{0} von {1} Produkten wurden endgültig gelöscht. {2} Produkte wurden ausgelassen, da sie Aufträgen zugeordnet sind und nicht permanent gelöscht werden können.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.DeleteProductsResult">
-		<Value>Es wurden {0} von {1} Produkten entgültig gelöscht. {2} Produkte wurden übersprungen.</Value>
+		<Value>Es wurden {0} von {1} Produkten endgültig gelöscht.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.RecycleBin.ProductWithAssignedOrdersWarning">
 		<Value>Das Produkt ist {0} Aufträgen zugeordnet. Ein Produkt kann nicht permanent gelöscht werden, wenn es einem Auftrag zugeordnet ist.</Value>
@@ -3416,7 +3443,7 @@
 		<Value>Nur Ausgewählte nach PDF exportieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.ExportToPdf.TooManyItems">
-		<Value>Zu viele Objekte! Mehr als 500 Objekte können nicht konvertiert werden. Bitte reduzieren Sie die Anzahl ausgewählter Datensätze.</Value>
+		<Value>Zu viele Objekte! Es können maximal {0} Objekte konvertiert werden. Bitte reduzieren Sie die Anzahl der ausgewählten Datensätze ({1}) oder erhöhen Sie das Limit in den PDF-Einstellungen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.ExportToXml">
 		<Value>Als XML exportieren</Value>
@@ -3589,6 +3616,9 @@
 	<LocaleResource Name="Admin.Common.RestartAppRequest">
 		<Value>Sie müssen die Anwendung neu starten, damit die Änderungen wirksam werden.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Common.RestartHint">
+		<Value>Änderungen an den folgenden Einstellungen werden erst nach einem Neustart der Anwendung wirksam.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Restrictions">
 		<Value>Einschränkungen</Value>
 	</LocaleResource>
@@ -3609,18 +3639,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Search">
 		<Value>Suchen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Common.Search.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Common.Search.EndDate.Hint">
-		<Value>Legt das Enddatum der Suche fest.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Common.Search.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Common.Search.StartDate.Hint">
-		<Value>Legt das Anfangsdatum der Suche fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Selected">
 		<Value>Ausgewählte</Value>
@@ -5665,6 +5683,9 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.HideDownloadableProductsTab.Hint">
 		<Value>Deaktiviert downloadbare Produkte.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.HideMyAccountOrders">
+		<Value>Bestellungen im Bereich "Mein Konto" ausblenden</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.HideNewsletterBlock">
 		<Value>Verberge Newsletter Anmeldeformular</Value>
 	</LocaleResource>
@@ -6155,6 +6176,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon">
 		<Value>Allgemeine Einstellungen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AddAlternateHtmlLinks">
+		<Value>Alternate Links für lokalisierte Seiten hinzufügen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AddAlternateHtmlLinks.Hint">
+		<Value>Legt fest, ob Alternate Links (link rel='alternate') für lokalisierte Seitenversionen in den HTML-Header eingefügt werden sollen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AdminAreaAllowedIpAddresses">
 		<Value>Für den Adminbereich erlaubte IP</Value>
 	</LocaleResource>
@@ -6611,6 +6638,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.LocalizationSettings">
 		<Value>Lokalisierung</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.MaxItemsToPrint">
+		<Value>Maximale Anzahl zu druckender Objekte</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.MaxItemsToPrint.Hint">
+		<Value>Legt die maximale Anzahl der zu druckenden Objekte fest, bei deren Überschreitung eine Fehlermeldung ausgegeben wird. Der Standardwert ist 500 und sollte nicht zu hoch gewählt werden, damit der Vorgang nicht zu lange dauert.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.MetaRobotsContent">
 		<Value>Meta Robots</Value>
 	</LocaleResource>
@@ -6814,6 +6847,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.XmlSitemapEnabled.Hint">
 		<Value>Die XML-Sitemap enthält URLs zu Shop-Seiten, welche von Suchmaschinen wie Google oder Bing automatisch gelesen und indiziert werden können.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.XmlSitemapIncludesAlternateLinks">
+		<Value>Alternate Links für lokalisierte Seiten hinzufügen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.XmlSitemapIncludesAlternateLinks.Hint">
+		<Value>Legt fest, ob Alternate Links (xhtml:link) für lokalisierte Seitenversionen in der XML-Sitemap hinzugefügt werden sollen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.XmlSitemapIncludesBlog">
 		<Value>Blog-Einträge einbeziehen</Value>
@@ -7196,6 +7235,48 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Payment.SkipPaymentSelectionIfSingleOption.Hint">
 		<Value>Legt fest, ob die Zahlartauswahl im Checkout nur angezeigt wird, wenn mehr als eine Zahlart zur Verfügung steht.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance">
+		<Value>Leistung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.AlwaysPrefetchTranslations">
+		<Value>Übersetzungen immer vorladen (Prefetch)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.AlwaysPrefetchTranslations.Hint">
+		<Value>Standardmäßig werden nur bei der Sofortsuche Übersetzungen vorgeladen. Alle anderen Produktauflistungen arbeiten mit dem segmentierten Cache. Bei sehr großen mehrsprachigen Katalogen (&gt; 500.000) kann die Aktivierung dieser Option die Abfrageleistung verbessern und die Ressourcennutzung verringern.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.AlwaysPrefetchUrlSlugs">
+		<Value>URL Slugs immer vorladen (Prefetch)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.AlwaysPrefetchUrlSlugs.Hint">
+		<Value>Standardmäßig werden nur bei der Sofortsuche URL slugs vorgeladen. Alle anderen Produktauflistungen arbeiten mit dem segmentierten Cache. Bei sehr großen mehrsprachigen Katalogen (&gt; 500.000) kann die Aktivierung dieser Option die Abfrageleistung verbessern und die Ressourcennutzung verringern.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.Cache">
+		<Value>Cache</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.CacheSegmentSize">
+		<Value>Cache Segment Größe</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.CacheSegmentSize.Hint">
+		<Value>Die Anzahl der Einträge in einem einzelnen Cache-Segment, wenn Greedy Loading deaktiviert ist. Je größer der Katalog ist, desto kleiner sollte dieser Wert sein. Wir empfehlen eine Segmentgröße von 500 für Kataloge mit weniger als 100.000 Einträgen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.Hint">
+		<Value>Nur für technisch erfahrene Benutzer. Achten Sie auf die CPU- und Speicherauslastung, wenn Sie diese Einstellungen ändern.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.MaxUnavailableAttributeCombinations">
+		<Value>Max. nicht verfügbare Attributkombinationen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.MaxUnavailableAttributeCombinations.Hint">
+		<Value>Maximale Anzahl von Attributkombinationen, die geladen und analysiert werden, um nicht verfügbare Kombinationen zu ermitteln.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.MediaDupeDetectorMaxCacheSize">
+		<Value>Max. Cache-Größe für Medien-Duplikat-Detektor</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.MediaDupeDetectorMaxCacheSize.Hint">
+		<Value>Maximale Anzahl der MediaFile-Entitäten, die für die Duplikat-Erkennung zwischengespeichert werden. Enthält ein Medienordner mehr Dateien, erfolgt aus Gründen der Skalierbarkeit keine Zwischenspeicherung und die MediaFile-Entitäten werden direkt aus der Datenbank geladen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Performance.Resiliency">
+		<Value>Überlastungsschutz</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Price">
 		<Value>Preise</Value>
 	</LocaleResource>
@@ -7373,6 +7454,67 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Price.ValidateDiscountRulesInLists.Hint">
 		<Value>Die Aktivierung dieser Option kann die Performance beeinträchtigen.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.Description">
+		<Value>Überlastungsschutz dient dazu, die Server-Ressourcen unter Kontrolle zu halten, Latenzen nicht ausufern zu lassen und im Falle von erhöhtem Ansturm 
+(z.B. durch nicht identifizierbare "Bad-Bots", Peaks, Sales Events, plötzlich hohe Nutzerzahlen) das System performant und verfügbar zu halten.
+Limits gelten nur für Gastkonten und Bots, nicht für registrierte User.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.EnableOverloadProtection">
+		<Value>Überlastungsschutz aktivieren</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.EnableOverloadProtection.Hint">
+		<Value>Wendet die festgelegten Richtlinien an. Wenn diese Option deaktiviert ist, werden keine Begrenzungen erzwungen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.ForbidNewGuestsIfSubRequest">
+		<Value>Wenn Sub-Request, "neue" Gäste blockieren</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.ForbidNewGuestsIfSubRequest.Hint">
+		<Value>Blockiert "neue" Gastbenutzer, wenn es sich bei der Anforderung um eine untergeordnete/sekundäre Anforderung handelt, z. B. AJAX, POST, Skript, Mediendatei usw. 
+Diese Einstellung kann verwendet werden, um die Erstellung neuer Gastsitzungen bei aufeinander folgenden (sekundären) Ressourcenanfragen einzuschränken. 
+Ein "Bad Bot", der keine Cookies akzeptiert, ist schwer als Bot zu erkennen und kann bei jeder (Unter-)Anfrage eine neue Gastsitzung erzeugen, 
+insbesondere wenn er seine Client-IP-Adresse und den User-Agent-String bei jeder Anfrage ändert. 
+Wenn diese Option aktiviert ist, werden neue Gäste unter diesen Umständen blockiert.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.LongTraffic">
+		<Value>Besucherlimit</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.LongTrafficNotes">
+		<Value>Konfiguration des langen Zeitfensters. Verwenden Sie diese Einstellungen, um Limits über einen längeren Zeitraum zu überwachen, z.B. eine Minute oder länger.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.PeakTraffic">
+		<Value>Lastspitzen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.PeakTrafficNotes">
+		<Value>Der kürzere Zeitraum, der für die Erkennung plötzlicher Lastspitzen verwendet wird. Diese Einstellungen sind nützlich, um auf Lastspitzen zu reagieren, die innerhalb weniger Sekunden auftreten.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitBot">
+		<Value>Bot-Grenzwert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitBot.Hint">
+		<Value>Die maximale Anzahl von Bots innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet: keine Begrenzung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitGlobal">
+		<Value>Globaler Grenzwert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitGlobal.Hint">
+		<Value>Das globale Limit für Gäste und Bots zusammen. Dieses Limit gilt für den kombinierten Traffic von Gästen und Bots. 
+Es stellt sicher, dass die Gesamtsystemlast innerhalb akzeptabler Schwellenwerte bleibt, unabhängig von der Verteilung der Anfragen auf bestimmte Benutzertypen. 
+Im Gegensatz zu Gast- oder Bot-Limitern dient dieses globale Limit als Schutz für das gesamte System. 
+Wenn die kumulierten Anfragen beider Typen dieses Limit innerhalb des Beobachtungsfensters überschreiten, werden weitere Anfragen abgelehnt, 
+auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bedeutet: keine Begrenzung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitGuest">
+		<Value>Gäste-Grenzwert</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficLimitGuest.Hint">
+		<Value>Die maximale Anzahl von Gastbenutzern innerhalb des festgelegten Zeitfensters. Ein leerer Wert bedeutet: keine Begrenzung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficTimeWindow">
+		<Value>Zeitfenster (hh:mm:ss)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Resiliency.TrafficTimeWindow.Hint">
+		<Value>Die Dauer des Zeitfensters, das den Zeitraum definiert, in dem der anhaltende Traffic gemessen wird.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints">
 		<Value>Bonuspunkte-Einstellungen</Value>
 	</LocaleResource>
@@ -7433,6 +7575,12 @@
 	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints.PointsForRegistration.Hint">
 		<Value>Bonuspunkte, die für eine Registrierung gewährt werden.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints.RoundDownPointsForPurchasedAmount">
+		<Value>Betrag bei Punkten für einen Einkauf abrunden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints.RoundDownPointsForPurchasedAmount.Hint">
+		<Value>Legt fest, ob der Betrag bei der Berechnung der Bonuspunkte, die für den Kauf eines Produkts gewährt werden, abgerundet werden soll.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.RewardPoints.RoundDownRewardPoints">
 		<Value>Punkte abrunden</Value>
 	</LocaleResource>
@@ -7456,6 +7604,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.CommonFacet.Alias.Hint">
 		<Value>SEO-konformer URL-Alias für Suchfilter (optional).</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Search.CommonFacet.Sorting">
+		<Value>Sortierung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Search.CommonFacet.Sorting.Hint">
+		<Value>Legt die Sortierung der Suchfilter fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.DefaultSortOrder">
 		<Value>Standardsortierreihenfolge</Value>
@@ -7538,11 +7692,23 @@
 	<LocaleResource Name="Admin.Configuration.Settings.Search.ShowProductImagesInInstantSearch.Hint">
 		<Value>Legt fest, ob Produktbilder in der Instantsuche angezeigt werden sollen.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Search.UseFeaturedSorting">
+		<Value>Nach Empfehlung sortieren</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Search.UseFeaturedSorting.Hint">
+		<Value>Legt fest, ob die Sortierung nach Empfehlungen anstelle der Sortierung nach besten Ergebnissen angeboten wird. Wenn aktiviert, werden die Produkte in der für sie angegebenen Reihenfolge sortiert.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.WildcardSearchNote">
 		<Value>Der Wildcard-Modus kann bei einer großen Anzahl an Objekten die Suche verlangsamen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Shipping">
 		<Value>Versand-Einstellungen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.CalculateShippingAtCheckout">
+		<Value>Versandkosten während des Checkouts berechnen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.CalculateShippingAtCheckout.Hint">
+		<Value>Legt fest, ob Versandkosten auf der Warenkorbseite angezeigt werden, solange der Kunde noch keine Lieferanschrift eingegeben hat. Wenn aktiviert, erscheint stattdessen ein Hinweis, dass die Berechnung erst beim Checkout erfolgt.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Shipping.ChargeOnlyHighestProductShippingSurcharge">
 		<Value>Nur den höchsten Transportzuschlag berechnen</Value>
@@ -7567,6 +7733,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Shipping.EstimateShippingEnabled.Hint">
 		<Value>Benutzer können die Versandkosten schätzen lassen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.FreeShippingCountryIds">
+		<Value>Länder mit kostenlosem Versand</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.FreeShippingCountryIds.Hint">
+		<Value>Legt die Lieferländer fest, für die der kostenlose Versand aktiviert ist. Wird hier kein Land angegeben, ist der kostenlose Versand für alle Länder aktiv (Standardeinstellung).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Shipping.FreeShippingOverXEnabled">
 		<Value>Kostenloser Versand ab Bestellwert aktivieren</Value>
@@ -7603,6 +7775,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Shipping.TodayShipmentHour.Hint">
 		<Value>Legt die Stunde fest, bis zu der die Bestellung noch am selben Tag verschickt wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.UseShippingOriginIfShippingAddressMissing">
+		<Value>Artikelstandort bestimmt Versandkosten bei fehlender Versandanschrift</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Shipping.UseShippingOriginIfShippingAddressMissing.Hint">
+		<Value>Legt fest, dass die Versandkosten des Ortes verwendet werden, von dem aus der Versand erfolgt (gemäß "Versand erfolgt ab"), sofern der Kunde den Checkout noch nie durchlaufen hat und seine Lieferanschrift unbekannt ist.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.ShoppingCart">
 		<Value>Warenkorb-Einstellungen</Value>
@@ -9221,6 +9399,15 @@
 	<LocaleResource Name="Admin.Customers.CanOnlyBeCustomerOrGuest">
 		<Value>Der Kunde kann nicht beiden Kundengruppen ''{0}'' und ''{1}'' zugeordnet werden.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Customers.CookieConsent">
+		<Value>Cookie-Zustimmung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Customers.CookieConsent.ConsentOn">
+		<Value>Cookie-Zustimmung am</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Customers.CookieConsent.ConsentOn.Hint">
+		<Value>Das Datum, an dem der Kunde der Verwendung von Cookies zugestimmt hat.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.CustomerRoles">
 		<Value>Kundengruppen</Value>
 	</LocaleResource>
@@ -9725,6 +9912,9 @@
 	<LocaleResource Name="Admin.Customers.Customers.Updated">
 		<Value>Der Benutzer wurde erfolgreich bearbeitet</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Customers.DeleteCustomer">
+		<Value>Kunde löschen</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Guest">
 		<Value>Gast</Value>
 	</LocaleResource>
@@ -9767,12 +9957,6 @@
 	<LocaleResource Name="Admin.Customers.Reports.BestBy.BestByOrderTotal">
 		<Value>Top 20 Kunden nach Bestellwert</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.Reports.BestBy.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.Reports.BestBy.EndDate.Hint">
-		<Value>Enddatum</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Reports.BestBy.Fields.Customer">
 		<Value>Kunde</Value>
 	</LocaleResource>
@@ -9799,12 +9983,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Reports.BestBy.ShippingStatus.Hint">
 		<Value>Nach einem bestimmten Versandstatus suchen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.Reports.BestBy.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Customers.Reports.BestBy.StartDate.Hint">
-		<Value>Nach einem bestimmten Anfangsdatum suchen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Customers.Reports.BestCustomers">
 		<Value>Top Kunden</Value>
@@ -10581,7 +10759,7 @@
 		<Value>Anhand von Schlüsselfeldern können vorhandene Datensätze zwecks Aktualisierung identifiziert werden. Die Schlüsselfelder werden in der hier festgelegten Reihenfolge verarbeitet.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Import.KeyFieldNames.Note">
-		<Value>Benutzen Sie das ID-Feld bitte nur dann als Schlüsselfeld, wenn die Daten aus der derselben Datenbank stammen, in der sie importiert werden sollen. Ansonsten werden u.U. die falschen Datensätze aktualisiert.</Value>
+		<Value>Bitte verwenden Sie das Feld ID nur dann als Schlüsselfeld, wenn die Daten aus derselben Datenbank stammen, in die sie importiert werden sollen. Andernfalls können falsche Datensätze aktualisiert werden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Import.LastImportResult">
 		<Value>Letztes Importergebnis</Value>
@@ -10615,6 +10793,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Import.SelectTargetProperty">
 		<Value>Hier neue Zuordnung vornehmen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.DataExchange.Import.UpdateAllKeyFieldMatches">
+		<Value>Alle aktualisieren, die dem Wert eines Schlüsselfelds entsprechen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.DataExchange.Import.UpdateAllKeyFieldMatches.Hint">
+		<Value>Legt fest, dass alle mit dem Wert eines Schlüsselfeldes übereinstimmenden Datensätze aktualisiert werden. Standardmäßig wird nur der erste übereinstimmende Datensatz aktualisiert. Aktivieren Sie diese Option, wenn Sie z.B. eine MPN mehrfach vergeben haben und alle Produkte mit dieser MPN einheitlich aktualisieren möchten. Die Aktivierung dieser Option kann die Performance des Imports beeinträchtigen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.DataExchange.Import.UpdateOnly">
 		<Value>Nur aktualisieren</Value>
@@ -10889,6 +11073,18 @@
 	<LocaleResource Name="Admin.Media.CannotMoveToSameProvider">
 		<Value>Medien können nicht zum selben Speichermedium verschoben werden.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Media.Editing.Align">
+		<Value>Ausrichten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Media.Editing.AlignBottom">
+		<Value>Unten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Media.Editing.AlignMiddle">
+		<Value>Mitte</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Media.Editing.AlignTop">
+		<Value>Oben</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Media.Exception.AlbumNonexistent">
 		<Value>Das Album '{0}' existiert nicht.</Value>
 	</LocaleResource>
@@ -11155,6 +11351,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.BillingInfo">
 		<Value>Rechnungsinformation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Orders.CompleteUnpaidOrder">
+		<Value>Der Auftrag hat den Zahlungsstatus &lt;strong&gt;{0}&lt;/strong&gt;. Möchten Sie ihn trotzdem auf komplett setzen?</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.EditOrderDetails">
 		<Value>Auftragsdetails bearbeiten</Value>
@@ -11624,12 +11823,6 @@
 	<LocaleResource Name="Admin.Orders.List.CustomerName.Hint">
 		<Value>Auftragsliste nach dem Kundennamen filtern.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.List.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.List.EndDate.Hint">
-		<Value>Enddatum für die Suche</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.List.GoDirectlyToNumber">
 		<Value>Nach Auftrags- oder Bestellreferenznummer suchen</Value>
 	</LocaleResource>
@@ -11668,12 +11861,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.List.ShippingStatus.Hint">
 		<Value>Suche über den Lieferstatus.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.List.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.List.StartDate.Hint">
-		<Value>Anfangsdatum der Suche.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.NoOrdersSelected">
 		<Value>Es sind keine Aufträge ausgewählt. Bitte wählen Sie die gewünschten Aufträge aus.</Value>
@@ -11846,9 +12033,6 @@
 	<LocaleResource Name="Admin.Orders.Products.Quantity">
 		<Value>Menge</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.Products.RecurringPeriod">
-		<Value>Wiederholungsintervall [Auto-Versand, alle {0} {1}]</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.Products.ReturnRequest">
 		<Value>Rücksendeauftrag</Value>
 	</LocaleResource>
@@ -11917,18 +12101,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.Shipments.List">
 		<Value>Sendungen</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.Shipments.List.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.Shipments.List.EndDate.Hint">
-		<Value>Das Enddatum für die Suche (Erstellungsdatum der Sendung).</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.Shipments.List.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Orders.Shipments.List.StartDate.Hint">
-		<Value>Das Startdatum für die Suche (Erstellungsdatum der Sendung).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.Shipments.List.TrackingNumber">
 		<Value>Tracking-Nummer</Value>
@@ -12097,6 +12269,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Admin">
 		<Value>Administration</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Plugins.KnownGroup.AI">
+		<Value>KI</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Analytics">
 		<Value>Analyse &amp; Statistiken</Value>
@@ -12504,10 +12679,10 @@
 		<Value>Zahlungsintervall auswählen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.Fields.CyclesRemaining">
-		<Value>Noch verbleibende Zahlungen</Value>
+		<Value>Verbleibende Zahlungen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.Fields.CyclesRemaining.Hint">
-		<Value>Noch verbleibende Zahlungsintervalle</Value>
+		<Value>Die Anzahl der verbleibenden Zahlungen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.Fields.ID">
 		<Value>ID</Value>
@@ -12546,7 +12721,7 @@
 		<Value>Gesamtzahl der Wiederholungen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.History">
-		<Value>Archiv</Value>
+		<Value>Historie</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.History.CancelPayment">
 		<Value>Wiederholende Zahlung abbrechen</Value>
@@ -12557,17 +12732,8 @@
 	<LocaleResource Name="Admin.RecurringPayments.History.Order">
 		<Value>Erstellter Auftrag</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.RecurringPayments.History.OrderStatus">
-		<Value>Auftragsstatus</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.RecurringPayments.History.PaymentStatus">
-		<Value>Zahlungsstatus</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.History.ProcessNextPayment">
 		<Value>Nächste Zahlung veranlassen (Auftrag erstellen)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.RecurringPayments.History.ShippingStatus">
-		<Value>Versandstatus</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.Info">
 		<Value>Zahlungsinformation</Value>
@@ -12589,6 +12755,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.List.InitialOrderNumber.Hint">
 		<Value>Liste nach der Nummer des ursprünglichen Auftrages filtern.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.RecurringPayments.List.RemainingCycles">
+		<Value>Verbleibende Zahlungen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.RecurringPayments.List.RemainingCycles.Hint">
+		<Value>Liste nach verbleibenden Zahlungen filtern.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.RecurringPayments.NextPaymentProcessed">
 		<Value>Die Zahlung wurde erfolgreich durchgeführt</Value>
@@ -12983,6 +13155,9 @@
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.Title">
 		<Value>Titel</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.VariantInCart">
+		<Value>Produkt mit SKU im Warenkorb</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.VatNumberStatus">
 		<Value>Status der Steuernummer</Value>
 	</LocaleResource>
@@ -13223,12 +13398,6 @@
 	<LocaleResource Name="Admin.SalesReport.Bestsellers.ByQuantity">
 		<Value>Bestseller nach Menge</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.Bestsellers.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.Bestsellers.EndDate.Hint">
-		<Value>Enddatum für die Suche.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.SalesReport.Bestsellers.Fields.Name">
 		<Value>Name</Value>
 	</LocaleResource>
@@ -13249,12 +13418,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.SalesReport.Bestsellers.PaymentStatus.Hint">
 		<Value>Suche nach einem bestimmten Zahlungsstatus, z.B. bezahlt.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.Bestsellers.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.Bestsellers.StartDate.Hint">
-		<Value>Das Anfangsdatum für die Suche.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.SalesReport.ByAmount">
 		<Value>Nach Betrag</Value>
@@ -13288,18 +13451,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.SalesReport.NeverSold">
 		<Value>Unverkäufliche Produkte</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.NeverSold.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.NeverSold.EndDate.Hint">
-		<Value>Das Enddatum für die Suche.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.NeverSold.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.SalesReport.NeverSold.StartDate.Hint">
-		<Value>Das Anfangsdatum für die Suche.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.SalesReport.NewOrders">
 		<Value>Neue Aufträge</Value>
@@ -13688,12 +13839,6 @@
 	<LocaleResource Name="Admin.System.QueuedEmails.List.AttachmentsCount">
 		<Value>Anzahl Anhänge</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.System.QueuedEmails.List.EndDate">
-		<Value>Enddatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.System.QueuedEmails.List.EndDate.Hint">
-		<Value>Das Enddatum der Suche.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.System.QueuedEmails.List.FromEmail">
 		<Value>Absender</Value>
 	</LocaleResource>
@@ -13723,12 +13868,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.QueuedEmails.List.SendManually.Hint">
 		<Value>Lade nur manuell zu sendende E-Mails.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.System.QueuedEmails.List.StartDate">
-		<Value>Anfangsdatum</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.System.QueuedEmails.List.StartDate.Hint">
-		<Value>Das Anfangsdatums der Suche.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.QueuedEmails.List.ToEmail">
 		<Value>Empfänger</Value>
@@ -14667,6 +14806,9 @@
 	<LocaleResource Name="Common.CaptchaUnableToVerify">
 		<Value>Der API-Aufruf zur Prüfung eines CAPTCHAs ist fehlgeschlagen.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.CartRules">
+		<Value>Warenkorbregeln</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Catalog.EditProduct">
 		<Value>Produkt bearbeiten</Value>
 	</LocaleResource>
@@ -14741,6 +14883,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.CustomerNumberAlreadyExists">
 		<Value>Die von Ihnen gewählte Kundennummer existiert bereits. Bitte geben Sie eine andere Kundennummer an.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.CustomerRules">
+		<Value>Kundenregeln</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Cut">
 		<Value>Ausschneiden</Value>
@@ -15284,6 +15429,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Common.Product">
 		<Value>Artikel</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.ProductRules">
+		<Value>Produktregeln</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Profile">
 		<Value>Profil</Value>
@@ -16012,7 +16160,7 @@
 		<Value>Angezeigter Name: A bis Z</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.FacetSorting.ValueAsc">
-		<Value>Name: A bis Z</Value>
+		<Value>Wert/ID: Niedrigste zuerst</Value>
 	</LocaleResource>
 	<LocaleResource Name="Enums.FacetTemplateHint.Checkboxes">
 		<Value>Kontrollkästchen</Value>
@@ -17274,6 +17422,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotCapture">
 		<Value>Die Zahlung der Bestellung konnte nicht gebucht werden.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Order.CannotCompleteUnpaidOrder">
+		<Value>Ein unbezahlter Auftrag kann nicht abgeschlossen werden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotMarkCompleted">
 		<Value>Die Bestellung kann nicht abgeschlossen werden.</Value>
@@ -19205,7 +19356,7 @@
 		<Value>Geben Sie einen gültigen Empfänger-Namen ein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.RecurringPeriod">
-		<Value>[Auto-Versand, alle {0} {1}]</Value>
+		<Value>[Regelmäßige Lieferung alle {0} {1}]</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShoppingCart.Remove">
 		<Value>Entfernen</Value>
@@ -19318,11 +19469,35 @@
 	<LocaleResource Name="Smartstore.AI.Prompts.AddToc">
 		<Value>Füge ein Inhaltsverzeichnis mit dem Titel '{0}' ein. Der Titel erhält ein {1}-Tag. Verlinke die einzelnen Punkte des Inhaltsverzeichnisses mit den jeweiligen Überschriften der Absätze.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.AppendToLastSpan">
+		<Value>Füge das neue Mark-Up unbedingt an das letzte span-Tag an.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.CaretPos">
+		<Value>Der Platzhalter [CARETPOS] markiert die Stelle, an der dein neuer Text erscheinen soll.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.CharLimit">
-		<Value>Jede Antwort soll maximal {0} Zeichen haben!</Value>
+		<Value>Der Text darf maximal {0} Zeichen enthalten.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.CharWordLimit">
+		<Value>Der Text darf nicht mehr als {0} Zeichen und nicht mehr als {1} Wörter enthalten.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ContinueAtPlaceholder">
+		<Value>Ermittle das nächsthöhere Block-Level-Element, das den Platzhalter [CARETPOS] enthält (z.B. &lt;p&gt; oder &lt;div&gt;). Betrachte dieses Element als gültigen Kontextbereich für deine Textergänzung. Wenn die Benutzeranweisung es verlangt, kann die Ergänzung auch außerhalb der CaretPos innerhalb dieses Elements erfolgen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ContinueHere">
+		<Value>[Fortsetzung hier]</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ContinueTable">
+		<Value>Wenn der User eine Tabellenerweiterung verlangt, verwende [CARETPOS] ausschließlich zur Lokalisierung der Tabelle. Ergänze die Tabelle logisch, ohne direkt an der Caret-Position weiterzuschreiben – es sei denn, der User fordert ausdrücklich eine Bearbeitung der aktuellen Zelle.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.CreateHtml">
-		<Value>Erstelle HTML-Text.</Value>
+		<Value>Gib ausschließlich reinen HTML-Code zurück</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.CreateJson">
+		<Value>Gib ausschließlich ein einziges JSON-Objekt zurück – ohne Formatierungen, Meta-Kommentare oder zusätzlichen Text.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.DontCreateProductTitle">
+		<Value>Erstelle keine Überschrift, die den Produktnamen enthält.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.DontCreateTitle">
 		<Value>Erstelle nicht den Titel: '{0}'.</Value>
@@ -19331,31 +19506,43 @@
 		<Value>Verwende keine Zeilenumbrüche.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.DontUseMarkdown">
-		<Value>Verwende keine Markdown-Formatierungen.</Value>
+		<Value>Verwende keine Markdown-Formatierung, keine Backticks (```) und keine eingerückten Codeabschnitte.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.DontUseQuotes">
-		<Value>Schließe den Text nicht in Anführungszeichen ein.</Value>
+		<Value>Schließe den Text nicht in Anführungszeichen oder andere Zeichen ein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.DontUseTextInImages">
 		<Value>Verwende keinen Text oder Schriftzeichen in den zu erstellenden Bildern. Das Bild soll rein visuell sein, ohne jegliche Schrift oder Beschriftung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ImageAnalyzer.NoContent">
+		<Value>Setze den Wert 'no-content' in jedem Feld, für das kein sinnvoller Inhalt ermittelt werden kann.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition">
+		<Value>Gib genau ein einzelnes JSON-Objekt mit diesen Keys und Bedeutungen zurück:</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Alt">
+		<Value>'alt': klar lesbare Beschreibung des Bildinhalts für das HTML-alt-Attribut</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Tags">
+		<Value>'tags': exakt 5 thematisch passende Begriffe, als kommagetrennte Liste</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ImageAnalyzer.ObjectDefinition.Title">
+		<Value>'title': kurze, präzise Beschreibung des Bildinhalts für das HTML-title-Attribut (max. 60 Zeichen)</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.IncludeConclusion">
 		<Value>Schließe den Text mit einem Fazit ab.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.IncludeImages">
-		<Value>Füge nach jedem Absatz ein weiteres div-Tag mit der CSS-Klasse 'mb-3' ein, das ein i-Tag mit den CSS-Klassen 'far fa-xl fa-file-image ai-preview-file' enthält. Das title-Attribut des i-Tags soll die Überschrift des jeweiligen Absatzes sein.</Value>
+		<Value>Füge nach jedem Absatz ein Bild ein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.IncludeIntro">
 		<Value>Beginne mit einer Einleitung.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Smartstore.AI.Prompts.JustHtml">
-		<Value>Gib nur das erstellte HTML zurück ohne Markdown-Codeblöcke zu verwenden, so dass es direkt in einer Webseite eingebunden werden kann. Mache keine Erklärungen dazu, was du erstellt hast oder Einleitungen wie: 'Gerne, hier ist dein HTML'. Schließe das erzeugte HTML auch nicht in irgendwelche Begrenzer ein wie: '```html'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.KeywordsToAvoid">
 		<Value>Verwende unter keinen Umständen folgende Keywords: '{0}'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Language">
-		<Value>Schreibe in {0}.</Value>
+		<Value>Schreibe auf {0}.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.LanguageStyle">
 		<Value>Der Sprachstil soll {0} sein.</Value>
@@ -19364,73 +19551,172 @@
 		<Value>Der Ton soll {0} sein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.MainHeadingTag">
-		<Value>Die Hauptüberschrift erhält ein {0}-Tag.</Value>
+		<Value>Nutze für die Hauptüberschrift ein {0}-Tag.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.MakeKeywordsBold">
 		<Value>Schließe die Keywords in b-Tags ein.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.MissingCaretPosHandling">
+		<Value>Wenn der Platzhalter [CARETPOS] im HTML nicht enthalten ist, füge den neuen Text am Ende des Dokuments ein.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.NoConclusionImage">
 		<Value>Das Fazit erhält kein Bild.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.NoFriendlyIntroductions">
+		<Value>Erstelle keine Meta-Kommentare oder Einleitungen wie: 'Gerne, hier ist dein HTML.'</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.NoIntroImage">
 		<Value>Das Intro erhält kein Bild.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.OneParagraph">
+		<Value>Der Text beinhaltet nur einen Abschnitt, der von einem p-Tag umschlossen ist.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.ParagraphCount">
 		<Value>Der Text ist in {0} Abschnitte zu gliedern, die von p-Tags umschlossen sind.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.ParagraphHeadingTag">
-		<Value>Die Überschriften der einzelnen Abschnitte erhalten {0}-Tags.</Value>
+		<Value>Nutze für die Überschriften der Abschnitte {0}-Tags.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.ParagraphWordCount">
 		<Value>Jeder Abschnitt soll maximal {0} Wörter enthalten.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.PleaseContinue">
+		<Value>Fahre genau an der markierten Stelle fort, ohne den bisherigen Text zu wiederholen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.PreserveHtmlStructure">
 		<Value>Erhalte unbedingt die HTML-Struktur und die Attribute aller Tags.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.PreserveOriginalText">
+		<Value>Gib in deiner Antwort den vollständigen Text zurück.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.PreservePreviousHighlightTags">
+		<Value>Jegliche Text-Abweichung vom übermittelten Originaltext muss mit dem mark-Tag umschloßen werden. Wenn du eine neue Antwort erstellst, berücksichtige den Text, den du zuvor hinzugefügt hast. Umschließe JEDEN Text, der von dir innerhalb dieses Chat-Verlaufes hinzugefügt wurde, mit dem mark-Tag.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.ProcessHtmlElementsIndividually">
 		<Value>Betrachte dabei jedes HTML-Element einzeln.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Product.NoAssumptions">
+		<Value>Beschreibe nur, was von dem Produkt eindeutig bekannt ist. Stelle keine Vermutungen über das Produkt an.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.RemoveCaretPosPlaceholder">
+		<Value>Entferne den Platzhalter [CARETPOS] vollständig. Er darf in der Antwort NIEMALS enthalten sein – weder sichtbar noch als Steuerzeichen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.ReserveSpaceForShopName">
-		<Value>Verwende dabei nicht den Namen der Website, da dieser später hinzugefügt wird. Reserviere dafür 5 Wörter.</Value>
+		<Value>Verwende bei der Erstellung von Texten für title-Tags nicht den Namen der Website, da dieser später hinzugefügt wird - Reserviere dafür {0} Zeichen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnCompleteDefinitionList">
+		<Value>Gib IMMER das vollständige dl-Tag zurück, in dem der neue Text eingefügt oder verändert wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnCompleteList">
+		<Value>Gib IMMER das vollständige Tag der Liste (&lt;ul&gt;, &lt;ol&gt; oder &lt;menu&gt;) zurück, in dem der neue Text eingefügt oder verändert wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnCompleteParentTag">
+		<Value>Gib IMMER das vollständige umschließende Block-Level-Elternelement zurück, in dem der neue Text eingefügt oder verändert wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnCompleteTable">
+		<Value>Gib IMMER das vollständige table-Tag zurück, in dem der neue Text eingefügt oder verändert wurde.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnInstructionReinforcer">
+		<Value>Gib NUR dieses eine Element zurück – keine anderen Inhalte davor oder danach.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ReturnNewTextOnly">
+		<Value>Gib AUSSCHLIESSLICH den neu erstellten Text zurück - keine Originalbestandteile.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.Blogger">
-		<Value>Sei ein professioneller Blogger.</Value>
+		<Value>Du bist ein professioneller Blogger.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.Copywriter">
-		<Value>Sei ein professioneller Texter.</Value>
+		<Value>Du bist ein professioneller Texter.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Role.HtmlEditor">
+		<Value>Du bist ein intelligenter KI-Editor für Webinhalte. Du kombinierst die Fähigkeiten eines professionellen Texters und technischen HTML-Editors. Deine Ausgabe ist IMMER valides HTML!</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Role.ImageAnalyzer">
+		<Value>Du bist ein Assistent für Bildanalyse.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.Journalist">
-		<Value>Sei ein professioneller Journalist.</Value>
+		<Value>Du bist ein professioneller Journalist.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.Marketer">
-		<Value>Sei ein Marketing-Experte.</Value>
+		<Value>Du bist ein Marketing-Experte.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.ProductExpert">
-		<Value>Sei ein Experte für das Produkt: '{0}'.</Value>
+		<Value>Du bist ein Experte für das Produkt: '{0}'.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Role.Rules">
+		<Value>Diese Regeln sind zwingend einzuhalten:</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.SalesPerson">
-		<Value>Sei ein Assistent bei der Erstellung von Produktbeschreibungen, die einen potentiellen Kunden zum Kauf überzeugen.</Value>
+		<Value>Du bist ein Assistent bei der Erstellung von Produktbeschreibungen, die einen potentiellen Kunden zum Kauf überzeugen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.SEOExpert">
-		<Value>Sei ein SEO-Experte.</Value>
+		<Value>Du bist ein SEO-Experte.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.Role.Translator">
-		<Value>Sei ein professioneller Übersetzer.</Value>
+		<Value>Du bist ein professioneller Übersetzer.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.SeparateListWithComma">
 		<Value>Die Liste soll kommagetrennt sein, so dass sie direkt als META-tag eingefügt werden kann.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.StartWithDivTag">
-		<Value>Starte mit einem div-Tag.</Value>
+		<Value>Erstelle kein vollständiges HTML-Dokument - die Ausgabe muss mit einem &lt;div&gt;-Tag beginnen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Suggestions.CharLimit">
+		<Value>Jeder Vorschlag soll maximal {0} Zeichen haben.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Suggestions.NoNumbering">
+		<Value>Verwende keine Nummerierungen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Suggestions.NoRepitions">
+		<Value>Jeder Vorschlag muss einzigartig sein – Wiederholungen sind nicht erlaubt.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Suggestions.Separation">
+		<Value>Trenne die Vorschläge durch das ¶ Zeichen (Absatzmarke).</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.IgnoreTechnicalAttributes">
+		<Value>Übersetze keine Attributwerte, die technische Funktionen erfüllen, z.B.: 'href, src, id, class, style, data-*'.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.KeepHtmlEntitiesIntact">
+		<Value>Verändere HTML-Entities (z.B. &amp;nbsp;, &amp;copy;, &amp;ndash;) nicht – weder semantisch noch formal.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.NoMetaComments">
+		<Value>Füge keine Erklärungen oder Meta-Kommentare hinzu (z.B. 'Der Text ist schon Englisch.').</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.PreserveHtmlStructure">
+		<Value>Verändere keine HTML-Tags. Füge keine Tags hinzu, entferne keine und ändere keine Verschachtelung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.PreserveToneAndStyle">
+		<Value>Behalte den Tonfall und Stil des Ausgangstexts bei. Verwende keine stilistischen Glättungen, Umschreibungen oder Vereinfachungen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.SkipAlreadyTranslated">
+		<Value>Wenn der Text bereits in der Zielsprache vorliegt, gib ihn unverändert zurück.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.TranslateDescriptiveAttributes">
+		<Value>Übersetze Attributwerte, die dem Leser Informationen vermitteln, z.B. alt und title.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.TranslateTextContentOnly">
+		<Value>Übersetze Textinhalte zwischen HTML-Tags sowie reinen Fließtext ohne HTML-Struktur.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.Translator.TranslateWithContext">
+		<Value>Berücksichtige beim Übersetzen von Textteilen in Inline-Tags (z.B. &lt;strong&gt;, &lt;em&gt;, &lt;span&gt;, &lt;a&gt;, …) immer den vollständigen Satzkontext.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.UseImagePlaceholders">
+		<Value>Wenn ein Bild einzufügen ist, verwende als Platzhalter ein &lt;div class="mb-3"&gt; mit einem &lt;i&gt;-Tag, das die Klassen 'far fa-xl fa-file-image ai-preview-file' enthält. Das title-Attribut muss der zugehörigen Abschnittsüberschrift entsprechen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.UseKeywords">
 		<Value>Verwende folgende Keywords: '{0}'.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.ValidHtmlOutput">
+		<Value>Die erzeugte Ausgabe muss vollständig valides HTML sein, das sich nahtlos in den bestehenden HTML-Inhalt einfügt.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.WordLimit">
 		<Value>Der Text darf maximal {0} Wörter enthalten.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Smartstore.AI.Prompts.WrapNewContentWithHighlightTag">
+		<Value>Umschließe jeden neu generierten Text mit einem echten &lt;mark&gt;-Tag. Beispiel: &lt;mark&gt;Zusätzlicher Text&lt;/mark&gt; oder &lt;li&gt;&lt;mark&gt;Zusätzlicher Listeneintrag&lt;/mark&gt;&lt;/li&gt;. Das Wort 'mark' darf niemals als sichtbarer Textinhalt erscheinen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Smartstore.AI.Prompts.WriteCompleteParagraphs">
-		<Value>Schreibe vollständige Texte für jeden Abschnitt.</Value>
+		<Value>Erstelle für jeden Abschnitt einen inhaltlich vollständigen und zusammenhängenden Text.</Value>
 	</LocaleResource>
 	<LocaleResource Name="SmartStore.Blog.Button">
 		<Value>Zum Blog</Value>
@@ -19488,6 +19774,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Tax.LegalInfoShort2">
 		<Value>Preise {0}, zzgl. Versandkosten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Tax.LegalInfoShort3">
+		<Value>Preise {0}, {1}</Value>
 	</LocaleResource>
 	<LocaleResource Name="Tax.SelectType">
 		<Value>Steuer-Anzeigetyp</Value>
