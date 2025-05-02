@@ -9,6 +9,7 @@
 - **AI**
   - #1258 Added **DeepSeek** AI provider.
   - Added **Gemini** AI provider.
+  - Added *Continue Writing* for HTML editor
   - #1259 Implemented setting for keywords to generally avoid.
 - Added settings to add alternate links for localized page versions to the XML Sitemap and HTML Header.
 - Import: Added an option to update all products that match a key field value.
@@ -26,10 +27,14 @@
   - #1275 Import of product keywords (import file column `MegaSearch.Product.Keywords`).
 - **Summernote HTML editor:**
   - Save HTML content without reloading the page
+  - Emoji support
+    - Multi-language labels, tags and shortcodes
+    - Search for labels and CLDR shortcodes
+    - Inline GitHub-style emoji picker
   - Zoom support ranging from 25% to 500%
   - Displays the tag path of the current selection
   - Sticky toolbar when the editor is focused
-  - Added a function to continue writing by AI 
+  - Added a feature to allow AI to continue writing
 - #1225 Added settings to sort search filters of facet groups: category, brand, and delivery time.
 - Added PDF setting for the maximum number of objects to print.
 - Fixed number of attachments always being 0 in queued email list.
