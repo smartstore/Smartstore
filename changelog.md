@@ -1,6 +1,6 @@
 # Release Notes
 
-## Smartstore 6.0.1
+## Smartstore 6.1.0
 
 ### New Features
 
