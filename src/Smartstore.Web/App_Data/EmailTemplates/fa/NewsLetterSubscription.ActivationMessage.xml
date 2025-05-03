@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ NewsletterSubscription.Email }}</To>
+    <Subject>{{ Store.Name }}. اشتراک خبرنامه</Subject>
+    <ModelTypes>NewsletterSubscription</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  سلام {{ Customer.FullName }}،
+</h1>
+
+<p>
+  برای تأیید اشتراک در خبرنامه ما، روی لینک زیر کلیک کنید:
+</p>
+
+<p class="text-center mt-4 mb-4">
+  <a class="btn btn-success" href="{{ NewsletterSubscription.ActivationUrl }}">تأیید اشتراک</a>
+</p>
+
+<p>
+  اگر لینک باز نشد، لطفاً آدرس زیر را کپی کرده و در نوار آدرس مرورگر خود جای‌گذاری کنید:
+</p>
+
+<p>
+	<a href="{{ NewsletterSubscription.ActivationUrl }}">{{ NewsletterSubscription.ActivationUrl }}</a> 
+</p>
+
+<p>
+  اگر این ایمیل را به اشتباه دریافت کرده‌اید، لطفاً آن را حذف کنید.
+</p>
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

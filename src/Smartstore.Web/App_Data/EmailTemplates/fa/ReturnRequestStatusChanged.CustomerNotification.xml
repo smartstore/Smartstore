@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Customer.FullName }} &lt;{{ Customer.Email }}&gt;</To>
+    <Subject>{{ Store.Name }}. تغییر وضعیت درخواست بازگشت</Subject>
+    <ModelTypes>ReturnRequest, OrderItem, ReturnRequest.Customer, OrderItem.Order</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  سلام {{ Customer.FullName }}،
+</h1>
+
+<p>
+  وضعیت درخواست بازگشت شما با شناسه <b>{{ ReturnRequest.Id }}</b> تغییر کرده است.
+</p>
+
+<p>
+  <b>وضعیت جدید:</b><br />
+  <span>{{ ReturnRequest.Status }}</span>
+</p>
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

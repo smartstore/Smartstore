@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Customer.FullName }} &lt;{{ Customer.Email }}&gt;</To>
+    <Subject>{{ Store.Name }} - سفارش شما '{{ Order.OrderNumber }}' پردازش شده است</Subject>
+    <ModelTypes>Order, Order.Customer</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  سلام {{ Customer.FullName }}،
+</h1>
+<p>
+  سفارش شما با شماره سفارش <b>{{ Order.OrderNumber }}</b> با موفقیت پردازش شده است. برای جزئیات بیشتر لطفاً به اطلاعات زیر مراجعه کنید.
+</p>
+
+<table class="w-100 mb-3">
+  <thead>
+  	<tr>
+      <th class="text-muted text-sm">تاریخ سفارش</th>
+      <th class="text-muted text-sm">شماره سفارش</th>
+      <th class="text-muted text-sm">وضعیت</th>
+      <th class="text-muted text-sm">مجموع</th>
+    </tr>
+  </thead>
+  <tbody class="mb-3">
+  	<tr>
+    	<td class="text-sm">{{ Order.CreatedOn | Date:'d' }}</td>
+      <td class="text-sm">{{ Order.OrderNumber }}</td>
+      <td class="text-sm">{{ Order.Status }}</td>
+      <td class="text-sm text-danger">{{ Order.Totals.Total }}</td>
+    </tr>
+  </tbody>
+</table>
+
+{% if Order.Url %}
+<p class="mt-4 mb-4 text-center">
+  <a class="btn btn-success" href="{{ Order.Url }}">جزئیات سفارش</a>
+</p>
+{% endif %}
+
+<table class="w-100 brd">
+  <tbody>
+  	<tr>
+    	<td class="p-2">
+        
+        <table class="order-details w-100">
+          <tbody>
+            <tr>
+              <td width="50%">
+                <h3>آدرس صورت‌حساب</h3>
+              	{% include 'address' with Order.Billing %}
+                {% if Order.PaymentMethod %}
+                	<h3 class="mt-2">روش پرداخت</h3>
+                	<div class="text-sm">{{ Order.PaymentMethod }}</div>
+                {% endif %}
+              </td>
+              <td width="50%">
+                <h3>آدرس ارسال</h3>
+                {% if Order.Shipping %}
+					{% include 'address' with Order.Shipping %}
+                {% else %}
+                	<p class="text-muted text-sm">مشابه آدرس صورت‌حساب</p>
+                {% endif %} 
+                {% if Order.ShippingMethod %}
+                	<h3 class="mt-2">روش ارسال</h3>
+                	<div class="text-sm">{{ Order.ShippingMethod }} </div>    	
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p> </p>
+
+{% include 'order' %}
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

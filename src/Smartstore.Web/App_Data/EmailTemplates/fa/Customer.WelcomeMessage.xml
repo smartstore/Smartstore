@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Customer.FullName }} &lt;{{ Customer.Email }}&gt;</To>
+    <Subject>خوش آمدید به {{ Store.Name }}</Subject>
+    <ModelTypes>Customer</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  سلام {{ Customer.FullName }}،
+</h1>
+
+<p>
+  به فروشگاه آنلاین ما خوش آمدید، <a href="{{ Store.Url }}">{{ Store.Name }}</a>
+</p>
+
+<p>
+  در مجموعه محصولات ما گشت‌وگذار کنید، وبلاگ را بخوانید و با خبرنامه ما از کمپین‌ها و پیشنهادات ویژه ما مطلع بمانید.
+</p>
+<br />
+<p>
+  با احترام،
+</p>
+
+<p>
+  تیم {{ Store.Name }}
+</p>
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

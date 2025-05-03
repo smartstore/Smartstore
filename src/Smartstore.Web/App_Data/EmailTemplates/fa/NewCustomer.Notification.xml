@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Email.DisplayName }} &lt;{{ Email.Email }}&gt;</To>
+    <Subject>{{ Store.Name }} - ثبت‌نام مشتری جدید</Subject>
+    <ModelTypes>Customer</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  مشتری جدید،
+</h1>
+<p>
+  یک مشتری جدید در فروشگاه شما حساب کاربری ایجاد کرده است.
+</p>
+
+<p>
+  <b>نام:</b><br />
+  <span>{{ Customer.FullName }}</span>
+</p>
+<p>
+  <b>ایمیل:</b><br />
+  <a href="mailto:{{ Customer.Email }}">{{ Customer.Email }}</a>
+</p>
+
+<p class="mt-4 mb-4 text-center">
+	<a class="btn btn-primary" href="{{ Customer.EditUrl }}">مشاهده پروفایل</a>  
+</p>
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

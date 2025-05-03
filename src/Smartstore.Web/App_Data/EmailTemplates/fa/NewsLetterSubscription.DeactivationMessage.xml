@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ NewsletterSubscription.Email }}</To>
+    <Subject>{{ Store.Name }}. لغو اشتراک خبرنامه</Subject>
+    <ModelTypes>NewsletterSubscription</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  سلام {{ Customer.FullName }}،
+</h1>
+
+<p>
+  برای لغو اشتراک از خبرنامه ما، روی لینک زیر کلیک کنید:
+</p>
+
+<p class="text-center mt-4 mb-4">
+  <a class="btn btn-danger" href="{{ NewsletterSubscription.DeactivationUrl }}">لغو اشتراک</a>
+</p>
+
+<p>
+  اگر لینک باز نشد، لطفاً آدرس زیر را کپی کرده و در نوار آدرس مرورگر خود جای‌گذاری کنید:
+</p>
+
+<p>
+	<a href="{{ NewsletterSubscription.DeactivationUrl }}">{{ NewsletterSubscription.DeactivationUrl }}</a> 
+</p>
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

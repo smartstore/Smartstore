@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Email.DisplayName }} &lt;{{ Email.Email }}&gt;</To>
+    <Subject>{{ Store.Name }} - موجودی '{{ Product.Name | Truncate:30 }}' کمتر از حداقل مقدار موجودی است.</Subject>
+    <ModelTypes>Product</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+
+<h1>
+  کاهش موجودی،
+</h1>
+<p>
+  موجودی محصول زیر کمتر از حداقل مقدار موجودی است:
+</p>
+
+<p>
+  <b>محصول:</b><br />
+  <a href="{{ Product.Url }}">{{ Product.Name }}</a>
+</p>
+
+<p>
+  <b>شناسه / کد کالا:</b><br />
+  {{ Product.Id }} / {{ Product.Sku }}
+</p>
+
+<p>
+  <b>مقدار موجودی:</b><br />
+  {{ Product.StockQuantity }}
+</p>
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

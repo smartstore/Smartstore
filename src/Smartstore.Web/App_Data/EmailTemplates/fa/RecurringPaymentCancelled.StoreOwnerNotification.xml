@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Email.DisplayName }} &lt;{{ Email.Email }}&gt;</To>
+    <Subject>{{ Store.Name }}. پرداخت دوره‌ای لغو شد</Subject>
+    <ModelTypes>RecurringPayment, RecurringPayment.InitialOrder, RecurringPayment.InitialOrder.Customer</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+   پرداخت دوره‌ای لغو شد،
+</h1>
+
+<p>
+  <b>{{ Customer.FullName }}</b> یک پرداخت دوره‌ای را لغو کرده است.
+</p>
+
+<p class="mt-4 mb-4 text-center">
+  <a class="btn btn-primary" href="{{ RecurringPayment.Url }}">مشاهده پرداخت</a>
+</p>
+
+<p>
+  <b>شناسه / مشتری:</b><br />
+  <span>{{ RecurringPayment.Id }}</span> /
+  {% if Customer.EditUrl %}
+  	<a href="{{ Customer.EditUrl }}">{{ Customer.FullName }}</a>
+  {% else %}
+  	<span>{{ Customer.FullName }}</span>
+  {% endif %}
+</p>
+
+<p>
+  <b>شروع شده در:</b><br />
+  <span>{{ RecurringPayment.StartedOn }}</span>
+</p>
+
+<p>
+  <b>تاریخ سررسید بعدی:</b><br />
+  <span>{{ RecurringPayment.NextOn }}</span>
+</p>
+
+<p>
+  <b>دوره چرخه:</b><br />
+  <span>{{ RecurringPayment.CyclePeriod }}</span>
+</p>
+
+<p>
+  <b>چرخه‌های باقی‌مانده:</b><br />
+  <span>{{ RecurringPayment.CyclesRemaining }}</span>
+</p>
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>

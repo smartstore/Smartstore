@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Wishlist.To }}</To>
+	<ReplyTo>{% if Wishlist.From %}{{ Wishlist.From }}{% endif %}</ReplyTo>
+    <Subject>{{ Store.Name }} - لیست علاقه‌مندی از {{ Customer.FullName }}</Subject>
+    <ModelTypes>Customer, Product</ModelTypes>
+    <Body>
+        <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+
+<p class="text-center">
+  <b>{{ Customer.FullName }}</b> یک لیست علاقه‌مندی با شما به اشتراک گذاشته است.
+  می‌توانید با کلیک روی دکمه زیر آن را مشاهده کنید:
+</p>
+
+<p class="text-center mt-4 mb-4">
+	<a class="btn btn-primary" href="{{ Customer.WishlistUrl }}">مشاهده لیست علاقه‌مندی</a>
+</p>
+
+{% if Wishlist.PersonalMessage %}
+<table class="w-100 brd bg-light mt-4">
+  <tbody>
+    <tr>
+    	<td class="p-3">
+        <h3>پیام</h3>
+        {{ Wishlist.PersonalMessage }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+
+{% endblock %}]]>
+    </Body>
+</MessageTemplate>
