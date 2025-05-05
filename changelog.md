@@ -5,6 +5,12 @@
 ### Breaking Changes
 - Web API: The `PaymentMethods/GetAllPaymentMethods` endpoint has been enhanced to return all information about a payment provider.
 
+### New Features
+
+### Improvements
+
+- The author of a blog or news post has been added to the Open Graph metadata.
+
 
 ## Smartstore 6.1.0
 

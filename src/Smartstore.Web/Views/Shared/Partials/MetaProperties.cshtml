@@ -1,5 +1,9 @@
 ﻿@model MetaPropertiesModel
 
+@{
+    var article = Model.Article;
+}
+
 <widget target-zone="head">
     <meta property='og:site_name' content='@Model.SiteName' />
     <meta property='og:site' content='@Model.Site' />
@@ -34,17 +38,17 @@
         }
     }
 
-    <meta sm-if="Model.ArticleSection.HasValue()" property='article:section' content='@Model.ArticleSection' />
-
-    @if (Model.ArticleTags != null && Model.ArticleTags.Count() > 0)
+    @if (article != null)
     {
-        foreach (var articleTag in Model.ArticleTags)
+        <meta sm-if="article.PublishedTime != null" property='article:published_time' content='@article.PublishedTime' />
+        <meta sm-if="article.Author.HasValue()" property='article:author' content='@article.Author' />
+        <meta sm-if="article.Section.HasValue()" property='article:section' content='@article.Section' />
+        @foreach (var articleTag in article.Tags ?? [])
         {
             <meta property='article:tag' content='@articleTag' />
         }
     }
 
-    <meta sm-if="Model.PublishedTime != DateTime.MinValue" property='article:published_time' content='@Model.PublishedTime' />
     <meta sm-if="Model.TwitterSite.HasValue()" property='twitter:site' content='@Model.TwitterSite' />
     <meta sm-if="Model.FacebookAppId.HasValue()" property='fb:app_id' content='@Model.FacebookAppId' />
 </widget>

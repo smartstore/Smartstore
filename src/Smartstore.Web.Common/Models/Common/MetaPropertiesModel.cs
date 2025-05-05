@@ -18,11 +18,21 @@ namespace Smartstore.Web.Models.Common
         public int ImageHeight { get; set; }
         public int ImageWidth { get; set; }
 
-        public DateTime PublishedTime { get; set; }
-        public string ArticleSection { get; set; }
-        public IEnumerable<string> ArticleTags { get; set; }
+        public OpenGraphArticle Article { get; set; }
 
         public string TwitterSite { get; set; }
         public string FacebookAppId { get; set; }
+
+        /// <summary>
+        /// Represents Open Graph article meta properties.
+        /// <see cref="https://ogp.me/#no_vertical"/>
+        /// </summary>
+        public class OpenGraphArticle
+        {
+            public DateTime? PublishedTime { get; set; }
+            public string Author { get; set; }
+            public string Section { get; set; }
+            public string[] Tags { get; set; }
+        }
     }
 }
