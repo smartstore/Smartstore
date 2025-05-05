@@ -1,5 +1,11 @@
 # Release Notes
 
+## Smartstore 6.2.0
+
+### Breaking Changes
+- Web API: The `PaymentMethods/GetAllPaymentMethods` endpoint has been enhanced to return all information about a payment provider.
+
+
 ## Smartstore 6.1.0
 
 ### New Features

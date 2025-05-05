@@ -1,4 +1,9 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using System.Dynamic;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Engine.Modularity;
+using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Checkout;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -65,23 +70,35 @@ namespace Smartstore.Web.Api.Controllers
         #region Actions and functions
 
         /// <summary>
-        /// Gets the system name of all payment providers.
+        /// Provides information on payment providers.
         /// </summary>
-        /// <param name="active" example="true">A value indicating whether to only include active payment methods. **False** to load all payment method names.</param>
-        /// <param name="storeId">Filter payment methods by store identifier. 0 to load all.</param>
-        [HttpGet("PaymentMethods/GetAllPaymentMethods(active={active},storeId={storeId})")]
+        /// <param name="active" example="true">A value indicating whether to only include active payment methods. **False** to get information about all payment methods.</param>
+        /// <param name="storeId">Filter payment methods by store identifier. 0 to get all.</param>
+        /// <param name="languageId">The ID of the language in which localizable information is returned. Obtained form working language if 0.</param>
+        [HttpGet("PaymentMethods/GetAllPaymentMethods(active={active},storeId={storeId},languageId={languageId})")]
         [Permission(Permissions.Configuration.PaymentMethod.Read)]
         [Produces(Json)]
-        [ProducesResponseType(typeof(IEnumerable<string>), Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<ProviderInfo<PaymentMethodInfo>>), Status200OK)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetAllPaymentMethods(bool active, int storeId = 0)
+        public async Task<IActionResult> GetAllPaymentMethods(bool active, int storeId = 0, int languageId = 0)
         {
             try
             {
                 var providers = await _paymentService.Value.LoadAllPaymentProvidersAsync(active, storeId);
-                var systemNames = providers.Select(x => x.Metadata.SystemName).ToArray();
+                var mapper = MapperFactory.GetMapper<Provider<IPaymentMethod>, ProviderInfo<PaymentMethodInfo>>();
+                dynamic parameters = new ExpandoObject();
+                parameters.LanguageId = languageId;
 
-                return Ok(systemNames);
+                var infos = await providers
+                    .SelectAwait(async x =>
+                    {
+                        var model = new ProviderInfo<PaymentMethodInfo>();
+                        await mapper.MapAsync(x, model, parameters);
+                        return model;
+                    })
+                    .AsyncToList();
+
+                return Ok(infos);
             }
             catch (Exception ex)
             {
