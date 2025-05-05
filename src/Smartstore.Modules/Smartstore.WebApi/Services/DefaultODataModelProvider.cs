@@ -53,6 +53,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<GiftCardUsageHistory>("GiftCardUsageHistory");
             builder.EntitySet<Language>("Languages");
             builder.EntitySet<LocalizedProperty>("LocalizedProperties");
+            builder.EntitySet<LocaleStringResource>("LocaleStringResources");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
             builder.EntitySet<MeasureWeight>("MeasureWeights");
             builder.EntitySet<OrderNote>("OrderNotes");
