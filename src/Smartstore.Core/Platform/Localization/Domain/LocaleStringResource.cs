@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -86,7 +85,6 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets the language
         /// </summary>
-        [IgnoreDataMember]
         public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);
