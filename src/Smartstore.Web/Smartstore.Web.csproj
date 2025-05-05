@@ -33,7 +33,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.13.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.13.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.13.0">
+            <!-- Prevents BuildHost folders from being copied into the project -->
+            <ExcludeAssets>contentFiles</ExcludeAssets>
+        </PackageReference>
 		<PackageReference Include="System.Runtime.Caching" Version="9.0.4" />
         <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" />
 	</ItemGroup>

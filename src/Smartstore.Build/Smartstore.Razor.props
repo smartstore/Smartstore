@@ -6,6 +6,9 @@
 		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 		<RazorCompileOnPublish>true</RazorCompileOnPublish>
+
+        <!-- Suppresses the generation of the BuildHost processes -->
+        <UseRazorBuildServer>false</UseRazorBuildServer>
 	
 		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
 		<!--
