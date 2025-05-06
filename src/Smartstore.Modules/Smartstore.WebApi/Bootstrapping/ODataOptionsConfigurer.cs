@@ -49,6 +49,9 @@ namespace Smartstore.Web.Api.Bootstrapping
                 // Note: the dot in this URL will cause IIS to return error 404. See ExtensionlessUrlHandler-Integrated-4.0.
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
 
+                // Do not create (duplicate) routes with namespaces such as "/odata/v1/Products({key})/Default.CreateAttributeCombinations".
+                options.RouteOptions.EnableQualifiedOperationCall = false;
+
                 // Why enabling EnableKeyAsSegment? We need KeyInParenthesis for OData functions anyway.
                 options.RouteOptions.EnableKeyAsSegment = false;
                 options.RouteOptions.EnableKeyInParenthesis = true;
