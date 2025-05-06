@@ -22,8 +22,17 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) at /$odata all endpoints are listed twice (named "N/A").
-    // TODO: (mg) (core) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
+    // TODO: (mg) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
+
+    // INFO Web API Routing:
+    // We use both, OData routing and ASP.NET Core routing conventions (see RouteAttribute at WebApiController).
+    // This often results in duplicate endpoint definitions (see the "IsConventional" column under OData Endpoint Mappings at /$odata.
+    // Reasons for ASP.NET Core routing:
+    // 1. Custom methods with correct verb, e.g. DELETE /Products({key})/ProductCategories({relatedkey})
+    // Alternative: Bound Action via EDM. Advantage: Pure OData. Disadvantage: Incorrect verb, as OData only supports POST.
+    // 2. Swagger documentation requires action definition like [HttpPost("Products({key})/CalculatePrice")] otherwise endpoint is ignored,
+    // although unnecessary for OData because it is added to the EDM via ODataModelBuilder.
+    // TODO: (mg) Swagger documentation without side effects on routing. Maybe by implementing IOperationFilter. Something like [SwaggerOperation(OperationId = "CalculatePrice", ...)].
 
     internal class Startup : StarterBase
     {
