@@ -149,11 +149,12 @@ $img-margin-right: 10px;
     img.note-float-right {
         margin-left: $img-margin-left;
     }
-    // Alignment does not work with or without sequences
-    ul li,
-    ol li {
-        list-style-position: inside;
-    }
+
+    // // Alignment does not work with or without sequences
+    //ul li,
+    //ol li {
+    //    list-style-position: inside;
+    //}
 
     table:not(.table-bordered):not([border]),
     table:not(.table-bordered)[border='0'] {
