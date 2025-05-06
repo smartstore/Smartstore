@@ -7,6 +7,8 @@
 
 ### New Features
 
+- **Idealo Feed** plugin (commercial)
+
 ### Improvements
 
 - The author of a blog or news post has been added to the Open Graph metadata.
