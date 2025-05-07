@@ -382,9 +382,10 @@
 
     window.closePopup = function (id) {
         var modal = $('#' + (id || "modal-popup-shared"));
-        if (!modal.length) {
-            modal = $('.modal.show');
-        }
+        // TODO: (mg) Summernote: browsing and selecting files in the link or image dialog also closes the opener dialog. Find another way to fix the issue.
+        //if (!modal.length) {
+        //    modal = $('.modal.show');
+        //}
 
         if (modal.length > 0) {
             modal.modal('hide');
