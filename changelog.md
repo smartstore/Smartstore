@@ -13,6 +13,10 @@
 
 - The author of a blog or news post has been added to the Open Graph metadata.
 
+### Bugfixes
+
+- Summernote: browsing and selecting files in the link or image dialog also closes the opener dialog.
+
 
 ## Smartstore 6.1.0
 
