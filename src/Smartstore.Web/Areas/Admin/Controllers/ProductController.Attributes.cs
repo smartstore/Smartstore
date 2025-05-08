@@ -874,6 +874,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             PrepareViewBag(btnId, formId, true);
+            ViewBag.CloseWindow = true;
 
             return View(model);
         }
