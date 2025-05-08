@@ -775,7 +775,7 @@ namespace Smartstore.Web.Controllers
             long maxFileSize = _customerSettings.MaxAvatarFileSize * 1024;
             var customer = Services.WorkContext.CurrentCustomer;
             var success = false;
-            string avatarUrl = null;
+            string avatar = null;
 
             if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
             {
@@ -800,8 +800,9 @@ namespace Smartstore.Web.Controllers
                             customer.GenericAttributes.AvatarPictureId = newAvatar.Id;
                             await _db.SaveChangesAsync();
 
-                            avatarUrl = _mediaService.GetUrl(newAvatar, _mediaSettings.AvatarPictureSize, null, false);
-                            success = avatarUrl.HasValue();
+                            var model = await customer.MapAsync(null, true, true);
+                            avatar = await InvokePartialViewAsync("Customer.Avatar", model);
+                            success = true;
                         }
                     }
                     else
@@ -811,28 +812,32 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return Json(new { success, avatarUrl });
+            return Json(new { success, avatar });
         }
 
         [HttpPost]
         public async Task<IActionResult> RemoveAvatar()
         {
+            string avatar = null;
             var customer = Services.WorkContext.CurrentCustomer;
             if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
             {
-                var avatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
-                if (avatar != null)
+                var file = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
+                if (file != null)
                 {
-                    await _mediaService.DeleteFileAsync(avatar, true);
+                    await _mediaService.DeleteFileAsync(file, true);
                 }
 
                 customer.GenericAttributes.AvatarPictureId = 0;
                 customer.GenericAttributes.AvatarColor = null;
 
                 await _db.SaveChangesAsync();
+
+                var model = await customer.MapAsync(null, true, true);
+                avatar = await InvokePartialViewAsync("Customer.Avatar", model);
             }
 
-            return Json(new { success = true });
+            return Json(new { success = true, avatar });
         }
 
         #endregion

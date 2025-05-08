@@ -3,7 +3,7 @@
 @model ProfileInfoModel
 
 <div class="profile-info-box row">
-    <div class="user-details col-2 pl-0 text-center">
+    <div class="user-details col-2 pr-0">
         <partial name="Customer.Avatar" model="Model.Avatar" />
         
         <div sm-if="Model.LocationEnabled" class="profile-stat mt-2">
@@ -14,7 +14,7 @@
         <zone name="profile_page_info_userdetails"></zone>
     </div>
 
-    <div class="user-stats col-10">
+    <div class="user-stats col-10 pl-0">
         <div class="title h4">
             @T("Profile.Statistics")
         </div>

@@ -53,13 +53,8 @@
 <script sm-target-zone="scripts" sm-minify="true" data-origin="customer-avatar">
     window['onAvatarUploaded'] = function (file, response, progress) {
         if (response.success) {
-			// Hide letter span.
-            $(".avatar-letter").addClass("d-none");
-
-			// Display image.
-            $(".avatar-img")
-				.attr("src", response.avatarUrl)
-                .removeClass("d-none");
+            // INFO: We have two avatar containers, in above upload and in myaccount header.
+            $('.avatar-container').html(response.avatar);
 
             // Display name.
             $(".fu-message").html(file.name);
@@ -72,10 +67,8 @@
 			cache: false,
 			type: 'POST',
             url: '@Url.Action("RemoveAvatar", "Customer")',
-            success: function () {
-                // Switch display classes for image and letter.
-                $(".avatar-img").addClass("d-none");
-                $(".avatar-letter").removeClass("d-none");
+            success: function (response) {
+                 $('.avatar-container').html(response.avatar);
 			}
 		});
 	}

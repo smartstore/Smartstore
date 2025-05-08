@@ -1,4 +1,4 @@
-﻿@using Smartstore.Web.Models.Customers;
+﻿@using Smartstore.Web.Models.Customers
 
 @model CustomerAvatarModel
 
@@ -13,17 +13,19 @@
 
     async Task Avatar()
     {
-        if ((Model.FileId ?? 0) != 0)
+        if (Model.FileId.GetValueOrDefault() != 0)
         {
-            <img class="avatar-img" attr-class='(Model.DisplayRing, "avatar-ring")' src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)" title="@Model.UserName" />
-            <span class="avatar-letter d-none bg-@(Model.AvatarColor) @(textColor)" title="@Model.UserName">
-                @Model.AvatarLetter
-            </span>
+            <img class="avatar-img"
+                 src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)"
+                 attr-class='(Model.DisplayRing, "avatar-ring")'
+                 alt="@Model.UserName" />
         }
         else
         {
-            <img class="avatar-img d-none" src="" title="@Model.UserName" />
-            <span class="avatar-letter bg-@(Model.AvatarColor) @(textColor)" title="@Model.UserName" attr-style='(!canViewProfile, "cursor: default")'>
+            <span class="avatar-letter bg-@(Model.AvatarColor) @(textColor)"
+                  role="img"
+                  aria-label="@Model.UserName"
+                  attr-style='(!canViewProfile, "cursor: default")'>
                 @Model.AvatarLetter
             </span>
         }
@@ -33,12 +35,14 @@
 <div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")">
     @if (canViewProfile)
     {
-        <a class="avatar-link" asp-route="CustomerProfile" asp-route-id="@Model.Id">
+        <a class="avatar-link avatar-outer" asp-route="CustomerProfile" asp-route-id="@Model.Id" title="@Model.UserName">
             @{ await Avatar(); }
         </a>
     }
     else
     {
-        await Avatar();
+        <span title="@Model.UserName" class="avatar-outer">
+            @{ await Avatar(); }
+        </span>
     }
 </div>
