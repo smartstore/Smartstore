@@ -18,6 +18,8 @@
 - **Summernote**
   - Browsing and selecting files in the link or image dialog also closes the opener dialog.
   - Fixed list/paragraph toggle conflict when `li` contains `p`
+- Forum: Avoid 404 when viewing deleted customer profile.
+- My-account header only shows uploaded avatar after page reload.
 
 
 ## Smartstore 6.1.0
