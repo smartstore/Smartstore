@@ -9,6 +9,8 @@ namespace Smartstore.ModuleBuilder
 {
     class Program
     {
+        private static readonly string[] _dataProviderNames = ["Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql", "Smartstore.Data.Sqlite"];
+
         static void Main(string[] args)
         {
             var projectPath = string.Empty;
@@ -177,6 +179,20 @@ namespace Smartstore.ModuleBuilder
                     }
                 }
             }
+
+            // Delete all compressed static files
+            var wwwroot = new DirectoryInfo(Path.Combine(dir.FullName, "wwwroot"));
+            if (wwwroot.Exists)
+            {
+                var wwwrootEntries = wwwroot.GetFileSystemInfos("*", SearchOption.AllDirectories);
+                foreach (var entry in wwwrootEntries)
+                {
+                    if (entry is FileInfo fi && (fi.Name.EndsWith(".gz") || fi.Name.EndsWith(".br")))
+                    {
+                        fi.Delete();
+                    }
+                }
+            }
         }
 
         //static string[] GetLibNames(DependencyContext context)
@@ -186,7 +202,7 @@ namespace Smartstore.ModuleBuilder
 
         static bool IsDataProviderDir(DirectoryInfo dir)
         {
-            return new[] { "Smartstore.Data.SqlServer", "Smartstore.Data.MySql", "Smartstore.Data.PostgreSql", "Smartstore.Data.Sqlite" }.Contains(dir.Name);
+            return _dataProviderNames.Contains(dir.Name);
         }
 
         class ModuleDescriptor
