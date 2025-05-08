@@ -29,4 +29,11 @@
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 	</PropertyGroup>
 
+    <PropertyGroup>
+        <CompressionEnabled>false</CompressionEnabled>
+        <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+        <StaticWebAssetFingerprintingEnabled>false</StaticWebAssetFingerprintingEnabled>
+        <DisableBuildCompression>true</DisableBuildCompression>
+    </PropertyGroup>
+
 </Project>

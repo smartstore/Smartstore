@@ -1,5 +1,5 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
+    
 	<ItemGroup>
 		<BuildModule Include="$(MSBuildProjectDirectory)\..\..\Smartstore.Build\Smartstore.ModuleBuilder\Smartstore.BuildModule.proj" />
 	</ItemGroup>
