@@ -15,7 +15,9 @@
 
 ### Bugfixes
 
-- Summernote: browsing and selecting files in the link or image dialog also closes the opener dialog.
+- **Summernote**
+  - Browsing and selecting files in the link or image dialog also closes the opener dialog.
+  - Fixed list/paragraph toggle conflict when `li` contains `p`
 
 
 ## Smartstore 6.1.0
