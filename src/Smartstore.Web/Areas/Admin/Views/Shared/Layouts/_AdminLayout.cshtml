@@ -24,7 +24,8 @@
 
 		@if (!(ViewBag.CloseWindow == false))
 		{
-			<text>window.parent.closePopup();</text>
+            var popupId = (ViewBag.PopupId as string) ?? "modal-popup-shared";
+			<text>window.parent.closePopup(@Html.Raw(popupId.EncodeJsString()));</text>
 
             @foreach (var message in Display.GetMessages())
             {
