@@ -875,6 +875,7 @@ namespace Smartstore.Admin.Controllers
 
             PrepareViewBag(btnId, formId, true);
             ViewBag.CloseWindow = true;
+            ViewBag.PopupId = "attribute-combinations";
 
             return View(model);
         }
