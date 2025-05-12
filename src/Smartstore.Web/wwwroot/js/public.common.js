@@ -119,6 +119,8 @@
                 var list = $(this);
                 var slidesToShow = list.data("slides-to-show");
                 var slidesToScroll = list.data("slides-to-scroll");
+                const labelPrev = list.data("label-prev") || '';
+                const labelNext = list.data("label-next") || '';
 
                 list.slick({
                     rtl: $("html").attr("dir") == "rtl",
@@ -128,8 +130,8 @@
                     useCSS: true,
                     useTransform: true,
                     waitForAnimate: true,
-                    prevArrow: '<button type="button" class="btn btn-secondary slick-prev"><i class="fa fa-chevron-left"></i></button>',
-                    nextArrow: '<button type="button" class="btn btn-secondary slick-next"><i class="fa fa-chevron-right"></i></button>',
+                    prevArrow: '<button type="button" class="btn btn-secondary slick-prev" aria-label="' + labelPrev + '"><i class="fa fa-chevron-left"></i></button>',
+                    nextArrow: '<button type="button" class="btn btn-secondary slick-next" aria-label="' + labelNext + '"><i class="fa fa-chevron-right"></i></button>',
                     respondTo: 'slider',
                     slidesToShow: slidesToShow || 6,
                     slidesToScroll: slidesToScroll || 6,
