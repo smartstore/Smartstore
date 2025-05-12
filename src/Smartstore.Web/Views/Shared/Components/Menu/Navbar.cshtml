@@ -50,7 +50,7 @@
         <a href="#" class="megamenu-nav-btn btn btn-icon"><i class="far fa-chevron-left"></i></a>
     </div>
 
-    <ul class="navbar-nav nav flex-row flex-nowrap" id="menu-main">
+    <ul class="navbar-nav nav flex-row flex-nowrap" id="menu-main" role="menubar">
 
         @foreach (var node in root.Children)
         {
@@ -74,7 +74,7 @@
             {
                 if (!isFirst)
                 {
-                    <li><hr /></li>
+                    <li role="none"><hr /></li>
                 }
                 if (itemText.HasValue() && item.Text != "[SKIP]")
                 {
@@ -93,12 +93,19 @@
 
             if (isDropDownActive)
             {
+                var dropdownMenuId = "dropdown-menu-{0}".FormatInvariant(item.Id);
+                linkAttrs["role"] = "menuitem";
+                linkAttrs["aria-controls"] = dropdownMenuId;
+                linkAttrs["aria-haspopup"] = "menu";
                 linkAttrs["aria-expanded"] = "false";
-                linkAttrs["data-target"] = "#dropdown-menu-{0}".FormatInvariant(item.Id);
+                linkAttrs["data-target"] = "#" + dropdownMenuId;
             }
 
-            <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs">
-                <a href="@itemUrl" attrs="linkAttrs">
+            // INFO: Only the first visible element should be focusable. Actual navigation will be handled by '->', '<-', etc
+            linkAttrs["tabindex"] = isFirst ? "0" : "-1";
+            
+            <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs" role="none">
+                <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
                     @if (item.Icon.HasValue())
                     {
                         <i class="@item.Icon"></i>

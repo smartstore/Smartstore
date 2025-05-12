@@ -37,6 +37,7 @@
 
                     if (link.hasClass("dropdown-toggle")) {
                         link.closest("li").removeClass("active");
+                        link.attr("aria-expanded", "false");
                     }
 
                     zoomContainer.css("z-index", "999");
@@ -60,6 +61,7 @@
 
                         if (link.hasClass("dropdown-toggle")) {
                             link.closest("li").addClass("active");
+                            link.attr("aria-expanded", "true");
                         }
 
                         initRotator(link.data("target"));
@@ -129,6 +131,8 @@
                         closeMenuHandler(link);
                     });
                 }
+
+                initKeyNavigation();
 
                 function alignDrop(popper, drop, container) {
 
@@ -430,6 +434,128 @@
                     else {
                         container.find(".placeholder").addClass("empty");
                     }
+                }
+
+                // ARIA
+                function initKeyNavigation() {
+                    // Handles key events for main nav items.
+                    navElems.on("keydown", function (e) {
+                        const key = e.key;
+                        const currentIndex = navElems.index($(this));
+
+                        // ←, →, Home, End
+                        const directionalKeys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+                        if (directionalKeys.includes(key)) {
+                            e.preventDefault();
+
+                            let newIndex;
+                            if (key === 'Home') newIndex = 0;
+                            else if (key === 'End') newIndex = navElems.length - 1;
+                            else {
+                                const dir = key === 'ArrowRight' ? 1 : -1;
+                                newIndex = (currentIndex + dir + navElems.length) % navElems.length;
+                            }
+
+                            navElems.find('.nav-link').attr('tabindex', '-1');
+                            navElems.eq(newIndex).find('.nav-link').attr('tabindex', '0').focus();
+                            return;
+                        }
+
+                        // ↓ / ↑ / Space → Dropdown öffnen
+                        if (key === 'ArrowDown' || key === 'ArrowUp' || key === ' ') {
+                            e.preventDefault();
+
+                            const activeLink = $(".nav-item.active .nav-link");
+                            tryOpen(activeLink);
+
+                            const dropdown = $('#' + activeLink.attr('aria-controls'));
+                            if (!dropdown.length) return;
+
+                            const items = dropdown.find('[role="menuitem"]:visible');
+                            const focusIndex = key === 'ArrowUp' ? items.length - 1 : 0;
+
+                            items.attr('tabindex', '-1');
+                            items.eq(focusIndex).attr('tabindex', '0').focus();
+                            return;
+                        }
+                    });
+
+                    // Handles key events for dropdown nav items.
+                    $('.mega-menu-dropdown').on('keydown', '[role="menuitem"]', function (e) {
+                        const items = $('[role="menuitem"]:visible', $(this).parents('.mega-menu-dropdown'));
+                        const currentIndex = items.index(this);
+                        let newIndex = currentIndex;
+
+                        switch (e.key) {
+                            case 'ArrowDown':
+                                e.preventDefault();
+                                newIndex = (currentIndex + 1) % items.length;
+                                break;
+
+                            case 'ArrowUp':
+                                e.preventDefault();
+                                newIndex = (currentIndex - 1 + items.length) % items.length;
+                                break;
+
+                            case 'ArrowRight':
+                                e.preventDefault();
+                                newIndex = getItemInNextColumn(this, +1, items);
+                                break;
+
+                            case 'ArrowLeft':
+                                e.preventDefault();
+                                newIndex = getItemInNextColumn(this, -1, items);
+                                break;
+
+                            case 'Home':
+                                e.preventDefault();
+                                newIndex = 0;
+                                break;
+
+                            case 'End':
+                                e.preventDefault();
+                                newIndex = items.length - 1;
+                                break;
+
+                            case 'Escape':
+                                e.preventDefault();
+                                var activeLink = $(".nav-item.active .nav-link");
+                                closeNow(activeLink);
+                                activeLink.focus();
+                                return;
+
+                            case 'Tab':
+                                e.preventDefault();
+                                var activeLink = $(".nav-item.active .nav-link");
+                                closeNow(activeLink);
+                                if (e.shiftKey) {
+                                    activeLink.parent().prev().find(".nav-link").focus();
+                                }
+                                else {
+                                    activeLink.parent().next().find(".nav-link").focus();
+                                }
+                                return;
+
+                            default:
+                                return;
+                        }
+
+                        items.attr('tabindex', '-1');
+                        items.eq(newIndex).attr('tabindex', '0').focus();
+                    });
+                }
+
+                function getItemInNextColumn(el, direction, items) {
+                    const $el = $(el);
+                    const col = $el.closest('.col-md-3');
+                    const cols = col.parent().children('.col-md-3');
+                    const currentColIndex = cols.index(col);
+                    const nextColIndex = (currentColIndex + direction + cols.length) % cols.length;
+                    const nextCol = cols.eq(nextColIndex);
+                    const nextItems = nextCol.find('[role="menuitem"]:visible');
+                        
+                    // Fallback: remain in the current index if there is no matching index in another column.
+                    return nextItems.length > 0 ? items.index(nextItems.eq(0)) : items.index($el);
                 }
             })
         }

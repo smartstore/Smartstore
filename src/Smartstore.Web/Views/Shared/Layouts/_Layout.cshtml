@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="megamenu-section d-none d-lg-block">
-                <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
+                <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")" aria-label="@T("AriaLabel.MainNavigation")">
                     <div class="container megamenu-container">
                         <menu name="Main" template="Main" />
                     </div>
