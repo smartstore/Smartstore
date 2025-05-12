@@ -32,7 +32,7 @@
             }
             else if (hasImages && item.ImageUrl.HasValue())
             {
-                <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="" />
+                <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="@itemText" />
             }
             else if (hasImages)
             {
