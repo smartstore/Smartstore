@@ -11,12 +11,13 @@
            class="instasearch-term form-control skip-pd-ajax-update"
            name="associatedProductsSearchTerm"
            placeholder="@T("Common.SearchProducts")"
+           aria-label="@T("AriaLabel.SearchBox")"
            data-url="@Url.Action("AssociatedProducts", "Product", new { id = Model.Id })"
            data-target="#associated-products"
            data-origin="Product/AssociatedProducts" />
 
     <div class="instasearch-addon d-flex align-items-center justify-content-center">
-        <button type="button" class="instasearch-clear input-clear">
+        <button type="button" class="instasearch-clear input-clear" aria-label="@T("Search.SearchBox.Clear")">
             <i class="fa fa-xmark"></i>
         </button>
     </div>

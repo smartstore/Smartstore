@@ -53,7 +53,7 @@
                         <div class="col-12 col-sm-6 col-lg-12">
                             <div class="cnt-newsfeed-item">
                                 <figure sm-if='item.ThumbnailUrl.HasValue()' class="newsfeed-thumbnail" attr-class='(!showPicture, "d-lg-none")'>
-                                    <img class="file-img" src="@item.ThumbnailUrl" />
+                                    <img class="file-img" src="@item.ThumbnailUrl" alt="@item.Title" />
                                 </figure>
                                 <div class="newsfeed-item h-100 py-3 py-lg-@(showDescription ? "3" : "2")" attr-class='(item.IsPinned, "pinned")'>
                                     <div class="newsfeed-item-title" attr-class='(!showDescription, "mb-0")'>

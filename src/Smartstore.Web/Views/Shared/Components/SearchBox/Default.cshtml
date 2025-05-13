@@ -5,18 +5,19 @@
 <form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get">
     <input type="text"
            class="instasearch-term form-control text-truncate"
-            name="q"
-            value="@Model.CurrentQuery"
-            placeholder="@Model.InputPlaceholder"
-            data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
-            data-minlength="@(Model.SearchTermMinimumLength.ToString())"
-            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
-            data-url="@Model.InstantSearchUrl"
-            data-origin="@Model.Origin"
+           name="q"
+           value="@Model.CurrentQuery"
+           placeholder="@Model.InputPlaceholder"
+           aria-label="@T("AriaLabel.SearchBox")"
+           data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
+           data-minlength="@(Model.SearchTermMinimumLength.ToString())"
+           data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
+           data-url="@Model.InstantSearchUrl"
+           data-origin="@Model.Origin"
             attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
     
     <div class="instasearch-addon d-flex align-items-center justify-content-center">
-        <button type="button" class="instasearch-clear input-clear">
+        <button type="button" class="instasearch-clear input-clear" aria-label="@T("Search.SearchBox.Clear")">
             <i class="fa fa-xmark"></i>
         </button>
     </div>

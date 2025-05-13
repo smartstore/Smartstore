@@ -72,12 +72,25 @@
 
                     <div class="row gx-md-4 gy-md-3">
                         <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
-                            <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
-                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@Html.Raw(T("Newsletter.Title"))</h4>
+                            <div class="footer-newsletter nav-collapsible"
+                                 data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" 
+                                 data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
+                                <h4 id="newsletter-subscribe-header"
+                                    class="footer-title nav-toggler collapsed"
+                                    data-toggle="collapse" 
+                                    data-target="#footer-newsletter" 
+                                    aria-controls="footer-newsletter" 
+                                    aria-expanded="false">
+                                    @Html.Raw(T("Newsletter.Title"))
+                                </h4>
                                 <div class="collapse nav-collapse" id="footer-newsletter">
                                     <div id="newsletter-subscribe-block">
                                         <div class="input-group has-icon shadow-xs rounded-pill mb-2">
-                                            <input asp-for="NewsletterEmail" id="newsletter-email" class="rounded-start-pill" placeholder="@T("Newsletter.Email")" />
+                                            <input asp-for="NewsletterEmail" 
+                                                   id="newsletter-email" 
+                                                   class="rounded-start-pill" 
+                                                   placeholder="@T("Newsletter.Email")" 
+                                                   aria-labelledby="newsletter-subscribe-header" />
                                             <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
                                                 <i class="far fa-envelope"></i>
                                             </span>
@@ -120,7 +133,14 @@
 
                         <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
                             <div class="theme-selector nav-collapsible">
-                                <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-themes" aria-controls="footer-newsletter" aria-expanded="false">@Html.Raw(T("Footer.Themes"))</h4>
+                                <h4 id="theme-selector-header" 
+                                    class="footer-title nav-toggler collapsed"
+                                    data-toggle="collapse" 
+                                    data-target="#footer-themes" 
+                                    aria-controls="footer-newsletter" 
+                                    aria-expanded="false">
+                                    @Html.Raw(T("Footer.Themes"))
+                                </h4>
                                 <div id="footer-themes" class="content collapse nav-collapse">
                                     <div class="mb-3 mb-md-0">
                                         @{
