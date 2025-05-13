@@ -22,10 +22,10 @@ namespace Smartstore.Core.Checkout.Cart
         {
             Guard.NotNull(cart);
 
-            return cart.Items
+            return [.. cart.Items
                 .Select(x => x.Item.Product)
                 .Union(cart.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
+                .Where(x => x != null && !x.Deleted)];
         }
 
         /// <summary>
