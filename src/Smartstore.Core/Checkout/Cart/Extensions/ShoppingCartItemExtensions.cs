@@ -22,7 +22,7 @@
         {
             Guard.NotNull(cart);
 
-            var items = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
+            var items = cart.Where(x => x.ShoppingCartTypeId == (int)cartType && x.Product != null && !x.Product.Deleted);
 
             if (storeId.GetValueOrDefault() > 0)
             {
