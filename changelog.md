@@ -5,6 +5,10 @@
 ### Breaking Changes
 - Web API: The `PaymentMethods/GetAllPaymentMethods` endpoint has been enhanced to return all information about a payment provider.
 
+### WCAG (Web Content Accessibility Guidelines)
+
+TBD
+
 ### New Features
 
 - **Idealo Feed** plugin (commercial)
