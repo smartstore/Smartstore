@@ -17,6 +17,8 @@
 
 <form id="store-theme-selector" sm-ajax method="post" asp-action="ChangeTheme" asp-controller="Common" sm-oncomplete="onStoreThemeChangedRequestCompleted">
     <select id="themeName" name="themeName" class="store-theme-list noskin form-control rounded-pill shadow-xs" asp-items="items" aria-labelledby="theme-selector-header"></select>
+    @* INFO: Avoid submit button failure in WCAG checkers. *@
+    <button type="submit" class="sr-only">Submit</button>
 </form>
 
 <script>

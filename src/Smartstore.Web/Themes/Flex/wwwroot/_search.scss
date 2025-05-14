@@ -38,22 +38,29 @@ $facet-selection-color: inherit;
             box-shadow: $box-shadow-sm;
         }
     }
-     &:focus, &:active {
+
+    &:focus, &:active {
         background-color: $searchbox-bg-2;
         border-color: $searchbox-border-2;
         color: $searchbox-color-2;
     }
 
-     &::placeholder {
-         color: $searchbox-color-1;
-         opacity: 0.6;
-     }
-     &:focus::placeholder {
-         color: $searchbox-color-2;
-     }
-     &:active::placeholder {
-         color: $searchbox-color-2;
-     }
+    &::placeholder {
+        color: $searchbox-color-1;
+        opacity: 0.6;
+    }
+
+    &:focus::placeholder {
+        color: $searchbox-color-2;
+    }
+
+    &:active::placeholder {
+        color: $searchbox-color-2;
+    }
+
+    &::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+    }
 
     @include media-breakpoint-down(md) {
         background-color: $searchbox-bg-mobile;
