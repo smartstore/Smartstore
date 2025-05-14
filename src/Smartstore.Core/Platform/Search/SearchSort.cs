@@ -27,9 +27,9 @@
         /// Sort by relevance (document score). <see cref="FieldName"/> is <c>null</c> in this case.
         /// </summary>
         /// <param name="descending">
-        /// <c>true</c> by default: Higher values (scores) are at the front.
+        /// Only relevant for featured sorting. <c>false</c> (default): Entities with a lower display order are at the front.
         /// </param>
-        public static SearchSort ByRelevance(bool descending = true)
+        public static SearchSort ByRelevance(bool descending = false)
         {
             return new SearchSort(null, IndexTypeCode.Empty, descending);
         }
