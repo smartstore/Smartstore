@@ -7,7 +7,7 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
-TBD
+- Catalog and associated products search forms.
 
 ### New Features
 
