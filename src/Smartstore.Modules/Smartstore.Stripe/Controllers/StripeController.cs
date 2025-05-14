@@ -439,7 +439,8 @@ namespace Smartstore.StripeElements.Controllers
                         await _db.SaveChangesAsync();
                     }
                 }
-                else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled)
+                else if (stripeEvent.Type == EventTypes.PaymentIntentCanceled || 
+                         stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                     var order = await GetStripeOrderAsync(paymentIntent.Id);
