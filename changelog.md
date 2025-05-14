@@ -19,6 +19,7 @@ TBD
 
 ### Bugfixes
 
+- The order of products in lists was reversed for featured sorting.
 - Fixed a `NullReferenceException` on the cart page when shopping cart items are activated or deactivated.
 - **Summernote**
   - Browsing and selecting files in the link or image dialog also closes the opener dialog.
