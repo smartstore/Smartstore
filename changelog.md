@@ -25,6 +25,7 @@ TBD
   - Fixed list/paragraph toggle conflict when `li` contains `p`
 - Forum: Avoid 404 when viewing deleted customer profile.
 - My-account header only shows uploaded avatar after page reload.
+- PageBuilder: Slick slider cuts off the edit toolbar.
 
 
 ## Smartstore 6.1.0
