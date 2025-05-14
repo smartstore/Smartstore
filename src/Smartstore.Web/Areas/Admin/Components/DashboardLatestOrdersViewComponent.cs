@@ -23,6 +23,8 @@ namespace Smartstore.Admin.Components
                 .ApplyCustomerFilter(authorizedStoreIds)
                 .AsNoTracking()
                 .AsSplitQuery()
+                .Include(x => x.Customer.BillingAddress)
+                .Include(x => x.Customer.ShippingAddress)
                 .Include(x => x.Customer)
                     .ThenInclude(x => x.CustomerRoleMappings)
                     .ThenInclude(x => x.CustomerRole)
