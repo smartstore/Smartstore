@@ -26,6 +26,7 @@ TBD
 - Forum: Avoid 404 when viewing deleted customer profile.
 - My-account header only shows uploaded avatar after page reload.
 - PageBuilder: Slick slider cuts off the edit toolbar.
+- The "Latest Orders" dashboard does not display the full name of guests.
 
 
 ## Smartstore 6.1.0
