@@ -16,6 +16,7 @@ TBD
 ### Improvements
 
 - The author of a blog or news post has been added to the Open Graph metadata.
+- Stripe: Void order if a message about a failed payment has been sent to the webhook. 
 
 ### Bugfixes
 
