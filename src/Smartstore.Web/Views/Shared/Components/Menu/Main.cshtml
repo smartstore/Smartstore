@@ -27,7 +27,7 @@
 <div class="megamenu-dropdown-container simple">
     @foreach (var node in Model.Root.Children)
     {
-        <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id">
+        <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id" role="menu" aria-labelledby="main-nav-item-@node.Value.Id">
             @{ await CreateDrilldownMenuAsync(node.Children, true); }
         </div>
     }
@@ -38,11 +38,18 @@
 </div>
 
 @{
-    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
+    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot, string parentId = "")
     {
         if (isRoot)
         {
-            @Html.Raw("<div class='dropdown-menu'>")
+            if (parentId.HasValue())
+            {
+                @Html.Raw($"<div id='dropdown-submenu-{parentId}' class='dropdown-menu' aria-labelledby='dropdown-item-link-{parentId}' role='menu'>")
+            }
+            else
+            {
+                @Html.Raw($"<div class='dropdown-menu'>")
+            }
         }
 
         foreach (var node in nodes.Where(x => x.Value.Visible))
@@ -53,13 +60,22 @@
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
 
-            <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")'>
-                <a href="@itemUrl" attrs="@attrs">
+            if (node.HasChildren)
+            {
+                attrs["aria-haspopup"] = "menu";
+                attrs["aria-expanded"] = "false";
+                attrs["aria-controls"] = "dropdown-submenu-" + item.Id;
+            }
+
+            attrs["id"] = "dropdown-item-link-" + item.Id;
+
+            <div id="dropdown-item-@item.Id" data-id="@item.Id" attr-class='(node.HasChildren, "dropdown-group")' role="none">
+                <a href="@itemUrl" attrs="@attrs" role="menuitem">
                     <span sm-language-attributes-for="item">@item.Text</span>
                 </a>
                 @if (node.HasChildren)
                 {
-                    await CreateDrilldownMenuAsync(node.Children, node.HasChildren);
+                    await CreateDrilldownMenuAsync(node.Children, node.HasChildren, item.Id);
                 }
             </div>
         }

@@ -243,6 +243,9 @@ jQuery(function () {
             if (_.isFunction(fn)) fn();
         }
 
+        window.showDrop = showDrop;
+        window.closeDrop = closeDrop;
+
         function handleEnter(group) {
             clearTimeout(group.data('closeTimeout'));
 

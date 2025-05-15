@@ -56,7 +56,6 @@
                     }
                     else {
                         clearTimeout(openTimeout);
-
                         $(link.data("target")).addClass("show");
 
                         if (link.hasClass("dropdown-toggle")) {
@@ -132,7 +131,7 @@
                     });
                 }
 
-                initKeyNavigation();
+                initKeyNavigation(isSimple);
 
                 function alignDrop(popper, drop, container) {
 
@@ -200,7 +199,6 @@
                     var event = window.touchable ? "click" : "mouseenter";
 
                     navElems.on(event, function (e) {
-
                         var navItem = $(this);
                         var targetSelector = navItem.find(".nav-link").data("target");
                         if (!targetSelector)
@@ -437,7 +435,7 @@
                 }
 
                 // ARIA
-                function initKeyNavigation() {
+                function initKeyNavigation(isSimple) {
                     // Handles key events for main nav items.
                     navElems.on("keydown", function (e) {
                         const key = e.key;
@@ -465,12 +463,17 @@
                         if (key === 'ArrowDown' || key === 'ArrowUp' || key === ' ') {
                             e.preventDefault();
 
-                            const activeLink = $(".nav-item.active .nav-link");
+                            const activeLink = isSimple ? $(".nav-item .nav-link[tabindex='0']") : $(".nav-item.active .nav-link");
+
                             tryOpen(activeLink);
 
                             const dropdown = $('#' + activeLink.attr('aria-controls'));
                             if (!dropdown.length) return;
 
+                            if (isSimple) {
+                                alignDrop(activeLink.parent(), dropdown.find(".dropdown-menu"), megamenu);
+                            }
+                            
                             const items = dropdown.find('[role="menuitem"]:visible');
                             const focusIndex = key === 'ArrowUp' ? items.length - 1 : 0;
 
@@ -543,6 +546,69 @@
                         items.attr('tabindex', '-1');
                         items.eq(newIndex).attr('tabindex', '0').focus();
                     });
+
+                    $('.megamenu-dropdown-container.simple').on('keydown', '[role="menuitem"]', function (e) {
+                        const currentItem = $(this);
+                        const key = e.key;
+                        const menu = currentItem.closest('[role="menu"]');
+
+                        const menuItems = menu.find('[role="menuitem"]:visible').filter(function () {
+                            return $(this).closest('[role="menu"]')[0] === menu[0];
+                        });
+
+                        const currentIndex = menuItems.index(currentItem);
+
+                        if (key === 'ArrowDown') {
+                            e.preventDefault();
+                            const nextItem = menuItems.eq(currentIndex + 1);
+                            nextItem.focus();
+                        }
+
+                        if (key === 'ArrowUp') {
+                            e.preventDefault();
+                            const prevIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
+                            const prevItem = menuItems.eq(prevIndex);
+                            prevItem.focus();
+                        }
+
+                        if (key === 'ArrowRight') {
+                            e.preventDefault();
+                            if (currentItem.attr('aria-haspopup') === 'menu') {
+                                const submenuId = currentItem.attr('aria-controls');
+                                const submenu = $('#' + submenuId);
+                                const submenuItems = submenu.find('[role="menuitem"]:visible').filter(function () {
+                                    return $(this).closest('[role="menu"]')[0] === submenu[0];
+                                });
+
+                                if (submenuItems.length) {
+                                    showDrop(currentItem.parent());
+                                    submenuItems.first().focus();
+                                }
+                            }
+                        }
+
+                        if (key === 'ArrowLeft' || key === 'Escape') {
+                            e.preventDefault();
+                            const parentGroup = menu.closest('.dropdown-group');
+                            if (parentGroup.length) {
+                                const parentLink = parentGroup.children('[role="menuitem"]');
+                                if (parentLink.length) {
+                                    menu.removeClass('show');
+                                    parentGroup.removeClass('show');
+                                    parentLink.focus();
+                                }
+                            } else {
+                                // Fallback to close the main dropdown.
+                                const activeMainItem = $('.nav-item .nav-link[tabindex="0"]');
+                                activeMainItem.focus();
+                                const submenuId = activeMainItem.attr('aria-controls');
+                                const submenu = $('#' + submenuId);
+                                submenu.removeClass('show');
+                                activeMainItem.parent().removeClass('active');
+                            }
+                        }
+                    });
+
                 }
 
                 function getItemInNextColumn(el, direction, items) {
@@ -554,7 +620,7 @@
                     const nextCol = cols.eq(nextColIndex);
                     const nextItems = nextCol.find('[role="menuitem"]:visible');
                         
-                    // Fallback: remain in the current index if there is no matching index in another column.
+                    // Fallback: Remain in the current index if there is no matching index in another column.
                     return nextItems.length > 0 ? items.index(nextItems.eq(0)) : items.index($el);
                 }
             })
