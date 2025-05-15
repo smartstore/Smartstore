@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿#nullable enable
+
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
@@ -30,7 +32,7 @@ namespace Smartstore.Web.TagHelpers
         /// <param name="value">The <see cref="TagHelperAttribute.Value"/> to set.</param>
         /// <param name="ignoreNull"><c>false</c> = don't render attribute if value is null.</param>
         /// <remarks><paramref name="name"/> is compared case-insensitively.</remarks>
-        public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, object value, bool ignoreNull = true)
+        public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, object? value, bool ignoreNull = true)
         {
             Guard.NotEmpty(name);
 
@@ -48,7 +50,7 @@ namespace Smartstore.Web.TagHelpers
         /// <param name="valueAccessor">The <see cref="TagHelperAttribute.Value"/> to set.</param>
         /// <param name="ignoreNull"><c>false</c> = don't render attribute if value is null.</param>
         /// <remarks><paramref name="name"/> is compared case-insensitively.</remarks>
-        public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, Func<object> valueAccessor, bool ignoreNull = true)
+        public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, Func<object?> valueAccessor, bool ignoreNull = true)
         {
             Guard.NotEmpty(name);
 

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Content.Blocks
 {
@@ -169,7 +169,7 @@ namespace Smartstore.Core.Content.Blocks
 
             textWriter ??= htmlHelper.ViewContext.Writer;
             var content = await widget.InvokeAsync(htmlHelper.ViewContext);
-            content.WriteTo(textWriter, HtmlEncoder.Default);
+            content.WriteTo(textWriter, WebHelper.HtmlEncoder);
         }
 
         protected virtual Widget GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)

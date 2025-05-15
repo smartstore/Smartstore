@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Http;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -253,18 +254,16 @@ namespace Smartstore
             {
                 return value;
             }
-
-            using var md5 = MD5.Create();
             byte[] data = encoding.GetBytes(value!);
 
             if (toBase64)
             {
-                byte[] hash = md5.ComputeHash(data);
+                byte[] hash = MD5.HashData(data);
                 return Convert.ToBase64String(hash);
             }
             else
             {
-                return md5.ComputeHash(data).ToHexString();
+                return MD5.HashData(data).ToHexString();
             }
         }
 
@@ -294,17 +293,86 @@ namespace Smartstore
         public static string? UrlDecode(this string? value)
             => value.IsEmpty() ? value : Uri.UnescapeDataString(value!);
 
+        /// <summary>
+        /// Encodes a string for use in HTML attributes.
+        /// </summary>
+        /// <param name="useDefaultEncoder">
+        /// Whether to use the system default HTML attribute encoder. 
+        /// If true, the method will use <see cref="HttpUtility.HtmlAttributeEncode(string?)"/> for encoding.
+        /// If false, it will use a custom implementation that replaces only specific characters:
+        /// " and ' by ’, \ by /, & by +, &lt; is removed.
+        /// </param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull(nameof(value))]
-        public static string? AttributeEncode(this string? value)
-            => HttpUtility.HtmlAttributeEncode(value);
+        public static string? AttributeEncode(this string? value, bool useDefaultEncoder = true)
+        {
+            if (useDefaultEncoder)
+            {
+                return HttpUtility.HtmlAttributeEncode(value);
+            }
+            
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            // Don't create string writer if we don't have nothing to encode
+            int pos = value.AsSpan().IndexOfAny("<\"'&");
+            if (pos < 0)
+            {
+                return value;
+            }
+
+            var output = new StringWriter(CultureInfo.InvariantCulture);
+
+            // Write up to first encodable char
+            output.Write(value.AsSpan(0, pos));
+
+            var remaining = value.AsSpan(pos);
+            for (int i = 0; i < remaining.Length; i++)
+            {
+                char ch = remaining[i];
+                if (ch <= '<')
+                {
+                    switch (ch)
+                    {
+                        case '<':
+                            break;
+                        case '"':
+                            output.Write('’');
+                            break;
+                        case '\'':
+                            output.Write('/');
+                            break;
+                        case '&':
+                            output.Write('+');
+                            break;
+                        default:
+                            output.Write(ch);
+                            break;
+                    }
+                }
+                else
+                {
+                    output.Write(ch);
+                }
+            }
+
+            return output.ToString();
+        }
 
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull(nameof(value))]
         public static string? HtmlEncode(this string? value)
-            => HttpUtility.HtmlEncode(value);
+        {
+            if (value is null)
+            {
+                return null;
+            }
+            
+            return WebHelper.HtmlEncoder.Encode(value!);
+        }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -385,7 +453,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int[] ToIntArray(this string? value)
         {
-            return value.Convert<int[]>() ?? Array.Empty<int>();
+            return value.Convert<int[]>() ?? [];
         }
     }
 }

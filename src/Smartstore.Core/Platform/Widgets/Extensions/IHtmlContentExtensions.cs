@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets
 {
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Widgets
             {
                 var sb = new StringBuilder(100);
                 using var writer = new StringWriter(sb);
-                content.WriteTo(writer, HtmlEncoder.Default);
+                content.WriteTo(writer, WebHelper.HtmlEncoder);
 
                 return new HtmlString(writer.ToString());
             }

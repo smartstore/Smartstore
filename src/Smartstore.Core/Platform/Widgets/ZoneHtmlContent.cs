@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets
 {
@@ -79,7 +80,7 @@ namespace Smartstore.Core.Widgets
         private string DebuggerToString()
         {
             using var writer = new StringWriter();
-            WriteTo(writer, HtmlEncoder.Default);
+            WriteTo(writer, WebHelper.HtmlEncoder);
             return writer.ToString();
         }
     }

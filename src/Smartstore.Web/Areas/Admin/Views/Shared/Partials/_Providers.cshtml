@@ -1,4 +1,5 @@
-﻿@using Smartstore.Admin.Models.Modularity
+﻿@using Smartstore.Http
+@using Smartstore.Admin.Models.Modularity
 
 @model ProviderModelCollection
 
@@ -37,7 +38,7 @@
         var result = template as HelperResult;
         if (result != null)
         {
-            result.WriteTo(Html.ViewContext.Writer, HtmlEncoder.Default);
+            result.WriteTo(Html.ViewContext.Writer, WebHelper.HtmlEncoder);
         }
         return null;
     }
@@ -48,7 +49,7 @@
     {
         <div class="module-item card shadow-sm sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
             <div sm-if="item.IsEditable" class="sortable-grip rounded-left"></div>
-            
+
             <!-- Body -->
             <div class="card-body">
                 <!-- Icon -->
