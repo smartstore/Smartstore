@@ -259,6 +259,7 @@ namespace Smartstore.Web.Controllers
                 ModelState.AddModelError(string.Empty, captchaError);
             }
 
+            // TODO: (mh) Password validation is already performed in the UserManager.AddPasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
                 AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.Password));
@@ -477,6 +478,7 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
+            // TODO: (mh) Password validation is already performed in the UserManager.ChangePasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
                 AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
@@ -568,6 +570,7 @@ namespace Smartstore.Web.Controllers
         {
             var customer = await _userManager.FindByEmailAsync(model.Email);
 
+            // TODO: (mh) Password validation is already performed in the UserManager.ResetPasswordAsync method. Refactor workflow.
             foreach (var validator in _userManager.PasswordValidators)
             {
                 AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
