@@ -8,6 +8,7 @@
 ### WCAG (Web Content Accessibility Guidelines)
 
 - Catalog and associated products search forms.
+- Avatar upload.
 
 ### New Features
 
