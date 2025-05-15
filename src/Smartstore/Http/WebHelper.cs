@@ -1,11 +1,15 @@
-﻿using System.Collections.Concurrent;
+﻿#nullable enable
+
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
+using System.Text.Unicode;
 using Autofac;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -22,18 +26,20 @@ namespace Smartstore.Http
 {
     public static partial class WebHelper
     {
-        private static IFileSystem _webRoot;
-        private static IHttpContextAccessor _httpContextAccessor;
+        private static IFileSystem? _webRoot;
+        private static IHttpContextAccessor? _httpContextAccessor;
         private static PathString? _webBasePath;
-        private static Lazy<int> _resolvedHttpsPort = new(TryResolveHttpsPort);
+        private static HtmlEncoder? _htmlEncoder;
+        private static HtmlEncoder? _relaxedHtmlEncoder;
 
+        private static readonly Lazy<int> _resolvedHttpsPort = new(TryResolveHttpsPort);
         private static readonly CompositeFormat _formatUrl = CompositeFormat.Parse("{0}://{1}{2}");
         private static readonly AsyncLock _asyncLock = new();
         private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
-        private static IHttpContextAccessor HttpContextAccessor
+        private static IHttpContextAccessor? HttpContextAccessor
             => _httpContextAccessor ??= EngineContext.Current.Application.Services.ResolveOptional<IHttpContextAccessor>();
 
         /// <summary>
@@ -43,6 +49,33 @@ namespace Smartstore.Http
         {
             get => _webRoot ??= EngineContext.Current.Application.WebRoot;
             set => _webRoot = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the global <see cref="HtmlEncoder"/> instance used to encode HTML strings.
+        /// </summary>
+        public static HtmlEncoder HtmlEncoder
+        {
+            get
+            {
+                if (_htmlEncoder != null)
+                {
+                    return _htmlEncoder;
+                }
+                
+                var registeredEncoder = EngineContext.Current.Application.Services.ResolveOptional<HtmlEncoder>();
+                if (registeredEncoder != null)
+                {
+                    _htmlEncoder = registeredEncoder;
+                    return registeredEncoder;
+                }
+                else
+                {
+                    _relaxedHtmlEncoder ??= HtmlEncoder.Create(new TextEncoderSettings(UnicodeRanges.All));
+                    return _relaxedHtmlEncoder;
+                }
+            }
+            set => _htmlEncoder = value;
         }
 
         /// <summary>
@@ -80,7 +113,7 @@ namespace Smartstore.Http
         /// </summary>
         /// <param name="path">Path to check.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAppRelativePath(string path)
+        public static bool IsAppRelativePath(string? path)
         {
             return !IsAbsolutePath(path, out _);
         }
@@ -92,7 +125,7 @@ namespace Smartstore.Http
         /// </summary>
         /// <param name="path">Path to check.</param>
         /// <param name="relativePath">If given path is absolute, contains the remaing path segment (which forms the actual relative path).</param>
-        public static bool IsAbsolutePath(string path, out PathString relativePath)
+        public static bool IsAbsolutePath(string? path, out PathString relativePath)
         {
             relativePath = default;
 
@@ -149,7 +182,7 @@ namespace Smartstore.Http
         /// </remarks>
         /// <param name="path">The virtual path to convert.</param>
         /// <returns>The absolute path.</returns>
-        public static string ToAbsolutePath(string path)
+        public static string? ToAbsolutePath(string? path)
         {
             if (!string.IsNullOrEmpty(path) && path[0] == '~')
             {
@@ -173,7 +206,7 @@ namespace Smartstore.Http
         /// </remarks>
         public static string MakeAllUrlsAbsolute(string html, HttpRequest request)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request);
 
             if (!request.Host.HasValue)
             {
@@ -231,7 +264,7 @@ namespace Smartstore.Http
         /// </summary>
         /// <param name="path">The relative path without base part.</param>
         /// <param name="protocol">Changes the protocol if passed.</param>
-        public static string GetAbsoluteUrl(string path, HttpRequest request, bool enforceScheme = false, string protocol = null)
+        public static string GetAbsoluteUrl(string path, HttpRequest request, bool enforceScheme = false, string? protocol = null)
         {
             Guard.NotNull(path);
             Guard.NotNull(request);
@@ -255,7 +288,7 @@ namespace Smartstore.Http
                     : path;
             }
 
-            path = ToAbsolutePath(path).EnsureStartsWith('/'); // request.PathBase + path.EnsureStartsWith('/');
+            path = ToAbsolutePath(path)!.EnsureStartsWith('/'); // request.PathBase + path.EnsureStartsWith('/');
             path = _formatUrl.FormatInvariant(protocol, request.Host.Value, path);
 
             return path;
@@ -266,9 +299,9 @@ namespace Smartstore.Http
         /// </summary>
         /// <param name="url">URL.</param>
         /// <returns>Valid file name, otherwise <c>null</c>.</returns>
-        public static string GetFileNameFromUrl(string url)
+        public static string? GetFileNameFromUrl(string? url)
         {
-            string localPath = url;
+            string? localPath = url;
             if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
             {
                 // Exclude query string parts!
@@ -304,7 +337,7 @@ namespace Smartstore.Http
         /// </code>
         /// </para>
         /// </example>
-        public static bool IsLocalUrl(string url)
+        public static bool IsLocalUrl(string? url)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -371,7 +404,7 @@ namespace Smartstore.Http
         /// <param name="extensionType">Type of extension</param>
         /// <param name="extensionName">Name of extension (segment after "/modules" or "/themes") without slashes</param>
         /// <param name="remainingPath">The remaining segment after <paramref name="extensionName"/> including leading slash.</param>
-        public static bool IsExtensionPath(string path, out ExtensionType? extensionType, out string extensionName, out string remainingPath)
+        public static bool IsExtensionPath(string? path, out ExtensionType? extensionType, out string? extensionName, out string? remainingPath)
         {
             extensionType = null;
             extensionName = null;
@@ -419,7 +452,7 @@ namespace Smartstore.Http
 
                 if (i == 2)
                 {
-                    remainingPath = segment.Buffer[(segment.Offset - 1)..];
+                    remainingPath = segment.Buffer![(segment.Offset - 1)..];
                     break;
                 }
 
