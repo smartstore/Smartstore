@@ -266,8 +266,7 @@ fieldset.content-group {
 // Validation
 // ------------------------------------------------------
 
-.validation-summary-valid,
-.validation-summary-errors {
+:is(.validation-summary-valid, .validation-summary-errors) {
     @extend .alert;
 }
 
@@ -280,8 +279,7 @@ fieldset.content-group {
     @extend .alert-danger;
 }
 
-.field-validation-error,
-.field-validation-valid {
+:is(.field-validation-valid, .field-validation-error) {
     display: block;
     font-size: $font-size-sm;
     width: 100%;
@@ -299,11 +297,8 @@ fieldset.content-group {
 	color: $form-feedback-valid-color;
 }
 
-.is-valid,
-.is-invalid {
-	&:focus {
-		box-shadow: none !important;
-	}
+:is(.is-valid, .is-invalid):focus {
+    box-shadow: none !important;
 }
 
 .input-validation-error {
@@ -324,8 +319,7 @@ fieldset.content-group {
 // Link Builder (maybe move to custom file later)
 // ------------------------------------------------------
 
-.link-control > .form-control,
-.link-control > .select2 {
+.link-control > :is(.form-control, .select2) {
 	border-color: $input-border-color !important;
 }
 

@@ -26,8 +26,7 @@
     // This way we can still use .fal or .far in our markup without determining the
     // license. Our CSS will render solid icons when the light or regular variant does not exist.
     @each $content, $name in $fa-free-regular-icons {
-        .fal.fa-#{$name}, 
-        .far.fa-#{$name} {
+        :is(.fal, .far).fa-#{$name} {
             font-weight: 400;
         }
     }

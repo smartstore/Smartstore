@@ -41,15 +41,13 @@ $btn-wide-padding-x-sm: 1.2rem;
     gap: 0.5em;
     min-height: var(--btn-height);
 
-    > i, 
-    > svg {
+    > :is(i, svg) {
         color: var(--btn-icon-color);
         transition: var(--btn-icon-transition);
     }
 
     &:hover {
-        > i, 
-        > svg {
+        > :is(i, svg) {
             color: var(--btn-icon-hover-color);
         }
     }
@@ -57,8 +55,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     &.disabled,
     &:disabled,
     fieldset:disabled & {
-        > i, 
-        > svg {
+        > :is(i, svg) {
             color: var(--btn-icon-color);
         }
     }
@@ -66,8 +63,7 @@ $btn-wide-padding-x-sm: 1.2rem;
     &:active,
     &.active,
     .show > &.dropdown-toggle {
-        > i, 
-        > svg {
+        > :is(i, svg) {
             color: var(--btn-icon-active-color);
         }
     }
@@ -104,10 +100,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 // Light addon buttons without border looking shitty
 // -----------------------------------------------------
 
-.input-group-append > .btn-secondary,
-.input-group-append > .btn-light,
-.input-group-prepend > .btn-secondary,
-.input-group-prepend > .btn-light { 
+:is(.input-group-append, .input-group-prepend) > :is(.btn-secondary, .btn-light) { 
     --btn-border-color: #{rgba($gray-700, 0.15)};
     --btn-hover-border-color: var(--btn-border-color);
     --btn-active-border-color: #{rgba($gray-700, 0.2)};
@@ -363,7 +356,7 @@ $btn-wide-padding-x-sm: 1.2rem;
         transition: transform 0.2s ease-out;
         transform: translate(0, 0);
 
-        > i, > svg {
+        > :is(i, svg) {
             position: absolute;
             display: inline-block;
             vertical-align: middle;
@@ -390,7 +383,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 
     &:hover > span {
         transform: translateX(var(--btn-animate-offset));
-        > i, > svg {
+        > :is(i, svg) {
             opacity: 1;
         }
     }
@@ -430,7 +423,7 @@ $btn-wide-padding-x-sm: 1.2rem;
 .btn-to-primary {
     --btn-transition: none;
 
-    > i, > svg {
+    > :is(i, svg) {
         opacity: 1;
     }
 }
@@ -556,8 +549,7 @@ $btn-wide-padding-x-sm: 1.2rem;
             padding-inline-end: $input-btn-padding-x-lg * 2;
         }
 
-        > em,
-        > span {
+        > :is(em, span) {
             display: block;
             margin-bottom: 1px; // equalizes button heights
             @include text-truncate();

@@ -9,10 +9,7 @@
     @extend .link-transition;
 }
 
-.alert-info,
-.alert-danger,
-.alert-success,
-.alert-warning {
+:is(.alert-info, .alert-danger, .alert-success, .alert-warning) {
     --alert-icon-bg: rgba(var(--alert-base-rgb), 1);
     --alert-icon-bg-rgb: var(--alert-base-rgb);
     --alert-icon-color: var(--alert-bg);

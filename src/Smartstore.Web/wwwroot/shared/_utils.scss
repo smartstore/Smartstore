@@ -121,8 +121,7 @@
 	text-decoration: none !important;
 	outline: none !important;
 
-    > img,
-    > figure {
+    > :is(img, figure) {
 		position: absolute;
 		max-width: 100%;
 		max-height: 100%;
@@ -509,7 +508,9 @@ table th {
         z-index: 100;
     }
 
-    &.active:before, &.gloss-hover:hover:before, &.gloss-focus:focus:before {
+    &.active:before, 
+    &.gloss-hover:hover:before, 
+    &.gloss-focus:focus:before {
         transform: scale3d(1.8, 1.3, 1) rotate3d(0,0,1,45deg) translate3d(0,240%,0);
         opacity: 1;
     }

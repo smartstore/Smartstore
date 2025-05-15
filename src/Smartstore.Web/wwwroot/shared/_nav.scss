@@ -36,18 +36,14 @@
         }
     }
 
-	.nav-link > img,
-	.nav-link > i,
-    .nav-link > svg {
+	.nav-link > :is(img, i, svg) {
         position: relative;
 		font-size: inherit;
 		color: var(--nav-link-icon-color);
 	}
 
-	.nav-link:hover > i,
-    .nav-link:hover > svg,
-	.nav-link.active > i,
-    .nav-link.active > svg {
+    .nav-link:hover > :is(i, svg),
+    .nav-link.active > :is(i, svg) {
 		color: inherit;
 	}
 
@@ -154,9 +150,7 @@
 			opacity: 0.4;
 		}
 
-		> i,
-        > svg,
-        > img {
+		> :is(i, svg, img) {
 			display: none;
 		}
 
@@ -165,9 +159,7 @@
         }
 
 		@include media-breakpoint-up(lg) {
-			> i,
-            > svg,
-            > img {
+			> :is(i, svg, img) {
 				display: inline-block;
 			}
 		}
@@ -270,9 +262,7 @@
         max-width: 250px;
         min-height: 100%;
 
-	    .nav-link > img,
-	    .nav-link > i,
-        .nav-link > svg {
+	    .nav-link > :is(i, svg, img) {
             // Move icon slightly away from label if tabs are placed on left or right
             //inset-inline-start: -0.25em;
             margin-inline: 0.25em;
@@ -327,8 +317,7 @@
                     transition: all ease 0.15s;
                 }
 
-                &:not(.active) > i,
-                &:not(.active) > svg {
+                &:not(.active) > :is(i, svg) {
                     color: $dropdown-icon-color;
                     transition: transform ease 0.15s;
                 }
@@ -345,8 +334,7 @@
                         transform: translateX(2px);
                     }
 
-                    > i,
-                    > svg {
+                    > :is(i, svg) {
                         color: $gray-700;
                         transform: scale(1.2);
                     }

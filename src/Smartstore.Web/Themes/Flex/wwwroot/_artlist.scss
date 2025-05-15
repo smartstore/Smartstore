@@ -393,8 +393,7 @@
 // Font sizes
 // ---------------------------------------------
 
-.art-name,
-.art-genericname {
+:is(.art-name, .art-genericname) {
     font-size: var(--art-font-size);
     > a { 
         color: $body-color; 
@@ -477,8 +476,7 @@
         margin-bottom: 0.5rem;
     }
 
-    .art-brand,
-    .art-rating {
+    :is(art-brand, .art-rating) {
         font-size: var(--art-font-size-xs);
         position: relative;
         margin-bottom: 0;
@@ -506,10 +504,7 @@
         margin-bottom: 0.5em;
     }
 
-    .art-price,
-    .art-finalprice,
-    .art-compareprice-group,
-    .art-compareprice {
+    :is(.art-price, .art-finalprice, .art-compareprice-group, .art-compareprice) {
         display: block;
     }
 
@@ -549,8 +544,7 @@
         white-space: normal;
     }
 
-    .delivery-time, 
-    .delivery-date-block {
+    :is(.delivery-time, .delivery-date-block) {
         vertical-align: initial;
     }
 }
@@ -597,8 +591,7 @@
     @include make-art-col(2);
 
     // Ensure equal height for some elements in grid style lists
-    .art-name,
-    .art-description {
+    :is(.art-name, .art-description) {
         // At least 2 lines height for name & description
         overflow: hidden;
         text-overflow: ellipsis;
@@ -619,18 +612,14 @@
         height: calc(var(--art-font-size-sm) * var(--art-line-height) * 2);
     }
 
-    .art-brand,
-    .art-delivery-info,
-    .art-more-opts {
+    :is(.art-brand, .art-delivery-info, .art-more-opts) {
         // Always 1 small line height, even if empty
         box-sizing: content-box;
         min-height: calc(var(--art-font-size-sm) * var(--art-line-height));
         @include text-truncate();
     }
 
-    .art-shipsurcharge,
-    .art-delivery-info,
-    .art-pangv {
+    :is(.art-shipsurcharge, .art-delivery-info, .art-pangv) {
         // Always 1 line height, even if empty
         box-sizing: content-box;
         min-height: calc(var(--art-font-size-xs) * var(--art-line-height));
@@ -649,9 +638,7 @@
     }
 
     @include media-breakpoint-up(sm) {
-        &.artlist-4-cols,
-        &.artlist-5-cols,
-        &.artlist-6-cols {
+        &:is(.artlist-4-cols, .artlist-5-cols, .artlist-6-cols) {
             @include make-art-col(3);
         }
         &.artlist-8-cols {
@@ -672,12 +659,10 @@
     }
 
     @include media-breakpoint-up(lg) {
-        &.artlist-3-cols,
-        &.artlist-4-cols {
+        &:is(.artlist-3-cols, .artlist-4-cols) {
             @include make-art-col(3);
         }
-        &.artlist-5-cols,
-        &.artlist-6-cols {
+        &:is(.artlist-5-cols, .artlist-6-cols) {
             @include make-art-col(4);
         }
         &.artlist-8-cols {

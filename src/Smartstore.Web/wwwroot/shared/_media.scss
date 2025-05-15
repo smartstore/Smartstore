@@ -7,8 +7,7 @@
     margin-bottom: 0;
 }
 
-.file-icon,
-.file-thumb {
+:is(.file-icon, .file-thumb) {
     align-self: center;
     opacity: 0;
     transition: opacity 0.65s ease;

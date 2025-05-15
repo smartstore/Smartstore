@@ -25,15 +25,13 @@
 	// Tables
 	// ------------------------------
 
-	td[align="right"],
-	th[align="right"] {
-		text-align: start;
-	}
+    :is(td, th)[align="right"] {
+        text-align: start;
+    }
 
-	td[align="left"],
-	th[align="left"] {
-		text-align: end;
-	}
+    :is(td, th)[align="left"] {
+        text-align: end;
+    }
 
 
 	// Forms

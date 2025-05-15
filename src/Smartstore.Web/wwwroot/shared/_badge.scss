@@ -32,8 +32,7 @@
 // Badge closer
 // -----------------------------------------------------
 
-.badge > .close,
-.badge > .btn-close {
+.badge > :is(.close, .btn-close) {
     position: relative;
     box-sizing: border-box;
     transform: scale(0.85);
@@ -60,8 +59,7 @@
 }
 
 @each $color, $value in $theme-colors {
-    .badge-subtle.badge-#{$color},
-    .badge-outline.badge-#{$color} {
+    :is(.badge-subtle, .badge-outline).badge-#{$color} {
         --badge-bg: var(--#{$color}-bg-subtle);
         --badge-bg-rgb: var(--#{$color}-bg-subtle-rgb);
         --badge-color: var(--#{$color}-text-emphasis);

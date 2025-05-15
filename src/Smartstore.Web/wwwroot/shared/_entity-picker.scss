@@ -72,8 +72,7 @@
         color: $gray-600;
     }
 
-    .thumb,
-    .data {
+    :is(.thumb, .data) {
         position: relative;
         box-sizing: border-box;
         display: block;

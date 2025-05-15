@@ -18,13 +18,7 @@ img.slick-loading {
 // ------------------------------------------------------
 
 .gal-box {
-    .slick-arrow,
-    .gal-arrow {
-        //font-size: 1.25rem;
-    }
-    
-    .slick-arrow.slick-disabled,
-    .gal-arrow.gal-disabled {
+    :is(.slick-arrow.slick-disabled, .gal-arrow.gal-disabled) {
         opacity: 0.2;
         background: transparent !important;
         border-color: transparent !important;
@@ -76,9 +70,8 @@ img.slick-loading {
 		background: #fff;
 		border-color: $gray-400;
     }
-
-    .slick-prev,
-    .slick-next {
+    
+    :is(.slick-prev, .slick-next) {
         border-radius: $btn-border-radius-lg;
     }
 
@@ -144,34 +137,34 @@ img.slick-loading {
     display: inline-block;
     cursor: pointer;
     height: 10px;
-}
 
-.slick-dots li button {
-    font-size: 0;
-    line-height: 0;
-    cursor: pointer;
-    color: transparent;
-    outline: 0 none;
-    padding: 0;
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: $gray-300;
-    border: 1px solid $gray-500;
-}
+    button {
+        font-size: 0;
+        line-height: 0;
+        cursor: pointer;
+        color: transparent;
+        outline: 0 none;
+        padding: 0;
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: $gray-300;
+        border: 1px solid $gray-500;
+    }
 
-.slick-dots li.slick-active button {
-    background: $gray-500;
-}
+    &.slick-active button {
+        background: $gray-500;
+    }
 
-.slick-dots li button:hover,
-.slick-dots li button:focus {
-    outline: none;
-}
-.slick-dots li button:hover:before,
-.slick-dots li button:focus:before {
-    opacity: 1;
+    button:hover,
+    button:focus {
+        outline: none;
+    }
+    button:hover:before,
+    button:focus:before {
+        opacity: 1;
+    }
 }
 
 .slick-track {

@@ -14,8 +14,7 @@
     line-height: 1;
     //-webkit-backface-visibility: hidden;
 
-    > use,
-    > g {
+    > :is(use, g) {
         transform-origin: center;
     }
 }

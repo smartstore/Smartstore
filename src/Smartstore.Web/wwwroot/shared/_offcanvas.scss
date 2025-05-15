@@ -115,8 +115,7 @@ body.canvas-blocking .canvas-blocker {
         @include border-left-radius(var(--offcanvas-border-radius));
     }
 
-    &.offcanvas-top,
-    &.offcanvas-bottom {
+    &:is(offcanvas-top, .offcanvas-bottom) {
         --offcanvas-x-offset: 0;
         --offcanvas-width: 100%;
         --offcanvas-height: 80vh;

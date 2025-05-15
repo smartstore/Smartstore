@@ -230,3 +230,11 @@
     @include trailing-action($size);
     --input-clear-size: #{$size};
 }
+
+@mixin matches-any($selectors...) {
+    // join with comma + space
+    $list: join($selectors, ", ");
+    #{":is"}(#{$list}) {
+        @content;
+    }
+}

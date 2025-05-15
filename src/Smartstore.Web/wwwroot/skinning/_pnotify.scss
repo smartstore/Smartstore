@@ -8,8 +8,7 @@
 .ui-pnotify {
     --animate-timing: #{$ease-out-back};
 
-    &.fadeOutLeft,
-    &.fadeOutRight {
+    &:is(.fadeOutLeft, .fadeOutRight) {
         --animate-timing: #{$ease-in-back};
     }
 }
@@ -146,8 +145,7 @@
 }
 
 [dir=rtl] {
-	.ui-pnotify-closer, 
-	.ui-pnotify-sticker {
+	:is(.ui-pnotify-closer, .ui-pnotify-sticker) {
 		float: left;
 	}
 }

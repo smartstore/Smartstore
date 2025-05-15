@@ -73,14 +73,12 @@
         margin-bottom: 0 !important;
     }
     
-    .card,
-    .card .card-header { 
+    :is(.card, .card .card-header) { 
         border-radius: 0;
     }
 
     .card:first-child,
-    .card:first-child .card-header,
-    .card:first-child .card-title-link {
+    .card:first-child :is(.card-header, .card-title-link) {
         @include border-top-radius($card-border-radius);
     }
 

@@ -179,11 +179,11 @@ a.pretty-link {
         letter-spacing: .015625rem;
     }
 
-    h2, h3, h4 {
+    :is(h2, h3, h4) {
         font-weight: $font-weight-bold;
     }
 
-    h5, h6 {
+    :is(h5, h6) {
         font-weight: $font-weight-medium;
     }
 
@@ -202,12 +202,12 @@ a.pretty-link {
         margin-bottom: 1.5rem;
     }
 
-    h4, h5, h6 {
+    :is(h4, h5, h6) {
         font-size: inherit;
         @include margin-top(2rem);
     }
 
-    h3, h6 {
+    :is(h3, h6) {
         color: $gray-700;
     }
 }
