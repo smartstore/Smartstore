@@ -463,7 +463,7 @@
                         if (key === 'ArrowDown' || key === 'ArrowUp' || key === ' ') {
                             e.preventDefault();
 
-                            const activeLink = isSimple ? $(".nav-item .nav-link[tabindex='0']") : $(".nav-item.active .nav-link");
+                            const activeLink = $(".nav-item .nav-link[tabindex='0']");
 
                             tryOpen(activeLink);
 
@@ -485,6 +485,12 @@
 
                     // Handles key events for dropdown nav items.
                     $('.mega-menu-dropdown').on('keydown', '[role="menuitem"]', function (e) {
+                        const isBrandMenu = $(this).closest('#dropdown-menu-brand.brand-picture-grid').length > 0;
+                        if (isBrandMenu) {
+                            handleBrandMenuNavigation(e, this);
+                            return;
+                        }
+
                         const items = $('[role="menuitem"]:visible', $(this).parents('.mega-menu-dropdown'));
                         const currentIndex = items.index(this);
                         let newIndex = currentIndex;
@@ -608,7 +614,52 @@
                             }
                         }
                     });
+                }
 
+                function handleBrandMenuNavigation(e, currentItem) {
+                    const allItems = $('#dropdown-menu-brand.').find('[role="menuitem"]:visible');
+                    const currentIndex = allItems.index(currentItem);
+                    // TODO: WCDG (mh) Should we extract this from artlist class 'artlist-8-cols'? or count by ourseleves?
+                    const cols = 8;
+
+                    // INFO: Code for col extraction from artlist class.
+                    //const container = $('#dropdown-menu-brand .artlist');
+                    //const match = container.attr('class').match(/artlist-(\d+)-cols/);
+                    //const cols = match ? parseInt(match[1], 10) : 1; // Fallback: 1 Spalte
+
+                    let newIndex = currentIndex;
+
+                    switch (e.key) {
+                        case 'ArrowDown':
+                            newIndex = (currentIndex + cols) % allItems.length;
+                            break;
+                        case 'ArrowUp':
+                            newIndex = (currentIndex - cols + allItems.length) % allItems.length;
+                            break;
+                        case 'ArrowRight':
+                            newIndex = (currentIndex + 1) % allItems.length;
+                            break;
+                        case 'ArrowLeft':
+                            newIndex = (currentIndex - 1 + allItems.length) % allItems.length;
+                            break;
+                        case 'Home': {
+                            const rowStart = Math.floor(currentIndex / cols) * cols;
+                            newIndex = rowStart;
+                            break;
+                        }
+                        case 'End': {
+                            const rowStart = Math.floor(currentIndex / cols) * cols;
+                            const rowEnd = Math.min(rowStart + cols - 1, allItems.length - 1);
+                            newIndex = rowEnd;
+                            break;
+                        }
+                        default:
+                            return;
+                    }
+
+                    e.preventDefault();
+                    allItems.attr('tabindex', '-1');
+                    allItems.eq(newIndex).attr('tabindex', '0').focus();
                 }
 
                 function getItemInNextColumn(el, direction, items) {
