@@ -477,6 +477,11 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
+            }
+
             if (ModelState.IsValid)
             {
                 var passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
@@ -562,6 +567,11 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
         {
             var customer = await _userManager.FindByEmailAsync(model.Email);
+
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.NewPassword));
+            }
 
             if (ModelState.IsValid)
             {
@@ -816,7 +826,7 @@ namespace Smartstore.Web.Controllers
             }
 
             if (!customer.IsRegistered())
-            {               
+            {
                 var registeredRole = await _db.CustomerRoles
                     .AsNoTracking()
                     .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
@@ -1012,7 +1022,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private async Task FinalizeLoginAsync(Customer guest, Customer registered, bool logActivity) 
+        private async Task FinalizeLoginAsync(Customer guest, Customer registered, bool logActivity)
         {
             await _shoppingCartService.MigrateCartAsync(guest, registered);
             await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = registered });
