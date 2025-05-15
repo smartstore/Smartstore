@@ -38,5 +38,7 @@
             <div sm-if="Model.WishlistEnabled" class="tab-pane fade" id="occ-wishlist" role="tabpanel"></div>
             <div sm-if="Model.CompareProductsEnabled" class="tab-pane fade" id="occ-compare" role="tabpanel"></div>
         </div>
+        @* INFO: Avoid submit button failure in WCAG checkers. *@
+        <button type="submit" class="sr-only">Submit</button>
     </form>
 </div>

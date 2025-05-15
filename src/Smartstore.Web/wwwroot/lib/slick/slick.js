@@ -1,3 +1,4 @@
+// mgesing: Updated slick.js to fulfill WCAG. Search for "WCAG" to see changes.
 /*
      _ _      _       _
  ___| (_) ___| | __  (_)___
@@ -1283,12 +1284,16 @@
             'tabindex': '-1'
         });
 
-        _.$slideTrack.attr('role', 'listbox');
+        // mgesing WCAG: Changed role for slide track from 'listbox' to 'group'.
+        //_.$slideTrack.attr('role', 'listbox');
+        _.$slideTrack.attr('role', 'group');
 
         _.$slides.not(_.$slideTrack.find('.slick-cloned')).each(function(i) {
             $(this).attr({
-                'role': 'option',
-                'aria-describedby': 'slick-slide' + _.instanceUid + i + ''
+                // mgesing WCAG: Removed 'option' role from slides.
+                //'role': 'option',
+                // mgesing WCAG: Removed 'aria-describedby' from slides (wrong attribute and also wrong value/id).
+                //'aria-describedby': 'slick-slide' + _.instanceUid + i + ''
             });
         });
 
