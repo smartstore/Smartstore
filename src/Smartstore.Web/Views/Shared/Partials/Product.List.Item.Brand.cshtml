@@ -14,12 +14,12 @@
             if (_catalogSettings.LinkManufacturerLogoInLists)
             {
                 <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" title="@image.Title">
-                    <img sm-model="image" class="art-brand-picture" />
+                    <img sm-model="image" class="art-brand-picture" attr-alt='(image.Alt.IsEmpty(), Model.Brand.Name)' />
                 </a>
             }
             else
             {
-                <img sm-model="image" class="art-brand-picture" />
+                <img sm-model="image" class="art-brand-picture" attr-alt='(image.Alt.IsEmpty(), Model.Brand.Name)' />
             }
         }
         else

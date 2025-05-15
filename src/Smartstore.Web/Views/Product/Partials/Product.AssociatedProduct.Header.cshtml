@@ -121,7 +121,7 @@
                     <div class="pd-assoc-img">
                         @if (img != null)
                         {
-                            <img class="@imgClass" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
+                            <img class="@imgClass" src="@img.GetUrl(gallery.ThumbSize)" alt="@(img.Alt.NullEmpty() ?? img.TitleAttribute)" title="@img.TitleAttribute" />
                         }
                         else if (gallery.ThumbFallbackUrl.HasValue())
                         {

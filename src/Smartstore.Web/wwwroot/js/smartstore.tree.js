@@ -299,7 +299,7 @@
                 html += `<span class="tree-icon"><i class="${iconClass}"></i></span>`;
             }
             else if (iconUrl) {
-                html += `<span class="tree-icon"><img src="${iconUrl}" /></span>`;
+                html += `<span class="tree-icon"><img src="${iconUrl}" alt="${name}" /></span>`;
             }
 
             html += `<span class="${textClass}">${labelHtml}</span>`;

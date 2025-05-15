@@ -17,7 +17,7 @@
         <div class="pd-variant-picture img-center-container">
             @if (img != null)
             {
-                <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ImageSize)" alt="@(img?.Alt)" title="@(img?.TitleAttribute)" />
+                <img class="pd-dyn-thumb" src="@img.GetUrl(gallery.ImageSize)" alt="@(img.Alt.NullEmpty() ?? img.TitleAttribute)" title="@img.TitleAttribute" />
             }
             else if (gallery.FallbackUrl.HasValue())
             {

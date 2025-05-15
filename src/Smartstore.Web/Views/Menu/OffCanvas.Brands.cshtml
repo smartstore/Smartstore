@@ -19,7 +19,7 @@
                         @if (brand.Image.HasImage() && !Model.HideBrandDefaultPictures)
                         {
                             <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" class="ocm-img-link">
-                                <img sm-model="brand.Image" sm-size="Model.BrandThumbImageSize" />
+                                <img sm-model="brand.Image" sm-size="Model.BrandThumbImageSize" attr-alt='(brand.Image.Alt.IsEmpty(), brand.Name)' />
                             </a>
                         }
                     </div>

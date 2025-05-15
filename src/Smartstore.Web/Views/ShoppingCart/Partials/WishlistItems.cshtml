@@ -19,7 +19,7 @@
         <div class="row">
             @* Image *@
             <div class="cart-item-img col-3" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
-                <img sm-model="item.Image" class="img-fluid" />
+                <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
             </div>
 
             @* Data *@

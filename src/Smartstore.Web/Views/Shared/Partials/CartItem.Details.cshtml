@@ -13,21 +13,22 @@
     var showInfos = showDeliveryTime || Model.ShowSku || Model.ShowWeight;
     var showVariants = Model.AttributeInfo.HasValue();
     var showEssentialAttributes = Model.EssentialSpecAttributesInfo.HasValue();
+    var brand = Model.Brand;
 }
 
 <div class="cart-item-group">
-    <div sm-if="Model.Brand != null" class="cart-item-brand">
-        @if (Model.Brand.Image != null)
+    <div sm-if="brand != null" class="cart-item-brand">
+        @if (brand.Image != null)
         {
             if (_catalogSettings.LinkManufacturerLogoInLists)
             {
-                <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" title="@Model.Brand.Image.Title">
-                    <img sm-model="Model.Brand.Image" class="cart-item-brand-image" />
+                <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" title="@brand.Image.Title">
+                    <img sm-model="brand.Image" class="cart-item-brand-image" attr-alt='(brand.Image.Alt.IsEmpty(), brand.Name)' />
                 </a>
             }
             else
             {
-                <img sm-model="Model.Brand.Image" class="cart-item-brand-image" />
+                <img sm-model="brand.Image" class="cart-item-brand-image" attr-alt='(brand.Image.Alt.IsEmpty(), brand.Name)' />
             }
         }
         else

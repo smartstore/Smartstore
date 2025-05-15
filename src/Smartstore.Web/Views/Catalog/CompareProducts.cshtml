@@ -108,7 +108,7 @@
                                         }
                                     </div>
                                     <a sm-if="product.Image.HasImage()" class="art-picture img-center-container" href="@product.DetailUrl">
-                                        <img sm-model="product.Image" class="img-fluid" loading="lazy" />
+                                        <img sm-model="product.Image" class="img-fluid" loading="lazy" attr-alt='(product.Image.Alt.IsEmpty(), product.Name)' />
                                     </a>
                                 </div>
                             </th>

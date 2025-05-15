@@ -335,7 +335,8 @@
                     }
 
                     if (imageUrl) {
-                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '><img class="choice-item-img" src="' + imageUrl + '" />' + text + '</span>' + postHtml);
+                        const img = `<img src="${imageUrl}" class="choice-item-img" alt="${text}" />`;
+                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '>' + img + text + '</span>' + postHtml);
                     }
                     else if (color) {
                         return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '><span class="choice-item-color" style="background-color: ' + color + '"></span>' + text + '</span>' + postHtml);

@@ -44,7 +44,7 @@
 
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
-                                <img sm-model="item.Image" />
+                                <img sm-model="item.Image" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                             </a>
                         </div>
 
@@ -62,9 +62,9 @@
                             <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
                                 @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
                                 {
-                                    var bundleItem = bundleItemsWithImages[i];
-                                    <a href="@bundleItem.ProductUrl" title="@bundleItem.ProductName" class="link-dnn">
-                                        <img sm-model="bundleItem.Image" />
+                                    var item = bundleItemsWithImages[i];
+                                    <a href="@item.ProductUrl" title="@item.ProductName" class="link-dnn">
+                                        <img sm-model="item.Image" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                                     </a>
                                     <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
                                 }

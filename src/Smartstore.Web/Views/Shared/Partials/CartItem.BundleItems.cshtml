@@ -43,7 +43,7 @@
                             <span class="cart-item-bundle-img mr-1" style="width: @thumbSize; height: @thumbSize;">
                                 @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
                                 {
-                                    <img sm-model="item.Image" class="img-fluid" />
+                                    <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                                 }
                             </span>
                         }

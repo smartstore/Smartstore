@@ -112,14 +112,14 @@ Smartstore.media = (function () {
                 : 'file-icon show fa-fw ';
 
             if (o.isImage) {
-                o.thumbHtml = '<img class="' + imgCssClasses + '" title="' + file.title + '" src="' + file.thumbUrl + '" />';
+                o.thumbHtml = `<img src="${file.thumbUrl}" class="${imgCssClasses}" title="${file.title}" alt="${file.title}" />`;
             }
             else {
                 // Title must be on the Picture attribute, otherwise it's covered by the CSS play-video symbol.
                 o.thumbHtml = '<figure class="file-figure">'
                     + '<i class="' + iconCssClasses + iconHint.name + '" style="color: ' + iconHint.color + '"></i>'
                     + '<picture class="file-thumb" data-type="' + file.type + '" title="' + file.title + '">'
-                    + '<img class="' + imgCssClasses + '" data-src="' + file.thumbUrl + '" />'
+                    + `<img data-src="${file.thumbUrl}" class="${imgCssClasses}" alt="${file.title}" />`
                     + '</picture>'
                     + '</figure>';
             }

@@ -40,7 +40,6 @@
                     if (img != null)
                     {
                         <a class="link-dnn" asp-route="Product" asp-route-SeName="@item.SeName" title="@item.Name">
-                            @* TODO: (mg) Apply attr-alt to all images that use sm-file or sm-model, use alt otherwise *@
                             <img sm-file="img" sm-size="gallery.ThumbSize" attr-alt='(img.Alt.IsEmpty(), item.Name)' />
                         </a>
                     }
@@ -53,7 +52,7 @@
                 {
                     if (img != null)
                     {
-                        <img sm-file="img" sm-size="gallery.ThumbSize" alt="@item.Name" />
+                        <img sm-file="img" sm-size="gallery.ThumbSize" attr-alt='(img.Alt.IsEmpty(), item.Name)' />
                     }
                     else
                     {

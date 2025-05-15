@@ -30,7 +30,7 @@
                         @if (image.HasImage())
                         {
                             <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle">
-                                <img sm-model="image" loading="lazy" />
+                                <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' />
                             </a>
                         }
                     </div>

@@ -33,7 +33,7 @@
             <div class="row">
                 @* Image *@
                 <div class="cart-item-img col-3 col-xl-2" sm-if="Model.ShowProductImages && item.Image != null && item.Image.HasImage()">
-                    <img sm-model="item.Image" class="img-fluid" />
+                    <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                 </div>
 
                 @* Data *@
@@ -119,7 +119,7 @@
                                 <span class="cart-item-bundle-img mr-1" style="width: @(bundleItemThumbSize)px; height: @(bundleItemThumbSize)px;">
                                     @if (item.Image != null && item.Image.HasImage() && !item.HideThumbnail)
                                     {
-                                        <img sm-model="item.Image" class="img-fluid" />
+                                        <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                                     }
                                 </span>
                             }

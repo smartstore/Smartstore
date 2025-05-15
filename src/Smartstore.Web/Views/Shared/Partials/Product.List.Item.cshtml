@@ -35,7 +35,7 @@
         {
             var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);
             <a class="art-picture img-center-container@(addImageClass)" href="@Model.DetailUrl" title="@linkTitle" attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
-                <img sm-model="image" loading="lazy" />
+                <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), Model.Name)' />
             </a>
         }
     </div>

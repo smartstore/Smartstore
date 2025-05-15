@@ -20,7 +20,7 @@
                 var image = item.Image;
                 <div class="art-picture-block">
                     <a href="@url" class="art-picture img-center-container">
-                        <img sm-model="image" loading="lazy" />
+                        <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' />
                     </a>
                 </div>
             }
