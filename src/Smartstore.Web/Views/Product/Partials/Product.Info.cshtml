@@ -16,7 +16,7 @@
         <a class="pd-brand" asp-route="Manufacturer" asp-route-SeName="@brand.SeName">
             @if (brand.Image != null && brand.Image.HasImage())
             {
-                <img sm-model="brand.Image" class="pd-brand-picture" alt="@brand.Name" />
+                <img sm-model="brand.Image" class="pd-brand-picture" attr-alt='(brand.Image.Alt.IsEmpty(), brand.Name)' />
             }
             else
             {
