@@ -82,7 +82,11 @@
     <partial name="Search.ActiveFilters" model="Model.SourceResult" />
 }
 
-<div sm-if="Model.PagedList.TotalCount > 0" id="@id" class='@string.Join(" ", listCssClasses)'>
+<div sm-if="Model.PagedList.TotalCount > 0" 
+     id="@id" 
+     class='@string.Join(" ", listCssClasses)'
+     data-label-prev="@T("AriaLabel.ShowPreviousProducts")"
+     data-label-next="@T("AriaLabel.ShowNextProducts")">
     @foreach (var product in Model.Items)
     {
         <partial name="Product.List.Item" model="product" />
