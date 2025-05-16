@@ -6,13 +6,12 @@
     var list = Model.Parent;
     var image = Model.Image;
     var hasImage = image?.HasImage() == true;
-
     var isLinesMode = list.ViewMode == ProductSummaryViewMode.List;
     var showButtons = list.ShowButtons && (!Model.Price.DisableWishlistButton || list.CompareEnabled || (!Model.Price.DisableBuyButton && list.BuyEnabled));
     var showVariants = (Model.ColorAttributes != null && Model.ColorAttributes.Any()) || (Model.Attributes != null && Model.Attributes.Any());
     var showDrop = showButtons || showVariants;
     var showAttrs = isLinesMode && (list.ShowSku || list.ShowWeight || list.ShowDimensions);
-    var addImageClass = image.File == null ? " no-picture" : "";
+    var addImageClass = image.File == null ? " no-picture" : string.Empty;
     if (!hasImage)
     {
         addImageClass += " no-default-picture";
@@ -22,7 +21,6 @@
 }
 
 <article class="art" data-id="@Model.Id">
-
     <div class="art-picture-block">
         @* TODO: (mc) Let user define one free badge per product in backend *@
         <div sm-if="Model.Badges.Count > 0" class="art-badges">
@@ -33,8 +31,10 @@
         </div>
         @if (image.Title.HasValue())
         {
-            var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);
-            <a class="art-picture img-center-container@(addImageClass)" href="@Model.DetailUrl" title="@linkTitle" attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
+            <a class="art-picture img-center-container@(addImageClass)" 
+               href="@Model.DetailUrl"
+               title="@T("Media.Product.ImageLinkTitleFormat", Model.Name)"
+               attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
                 <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), Model.Name)' />
             </a>
         }
@@ -73,16 +73,16 @@
         }
     }
 
-    <h3 class="art-name" sm-language-attributes-for="Model.Name">
+    <div class="art-name h3" sm-language-attributes-for="Model.Name">
         <a href="@Model.DetailUrl" title="@Model.Name.ToString()">
             <span>@Html.Raw(Model.Name)</span>
         </a>
-    </h3>
+    </div>
 
     @if (list.ShowDescription)
     {
         <div class="art-description" title="@Model.ShortDescription.ToString()" sm-language-attributes-for="Model.ShortDescription">
-            @Html.Raw(Model.ShortDescription.Truncate(160, "..."))
+            @Html.Raw(Model.ShortDescription.Truncate(160, "…"))
         </div>
     }
 
