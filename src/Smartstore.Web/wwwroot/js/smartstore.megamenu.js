@@ -132,7 +132,6 @@
                 }
 
                 function alignDrop(popper, drop, container) {
-
                     var nav = $(".navbar-nav", container),
                         left,
                         right,
@@ -438,6 +437,7 @@
                     tryOpen,
                     closeNow,
                     // Elements
+                    megamenu,
                     navElems
                 };
 

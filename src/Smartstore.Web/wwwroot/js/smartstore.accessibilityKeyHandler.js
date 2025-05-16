@@ -1,4 +1,16 @@
 ﻿window.AccessibilityKeyHandler = class {
+    static KEY = {
+        LEFT: 'ArrowLeft',
+        UP: 'ArrowUp',
+        RIGHT: 'ArrowRight',
+        DOWN: 'ArrowDown',
+        HOME: 'Home',
+        END: 'End',
+        ESC: 'Escape',
+        SPACE: ' ',
+        TAB: 'Tab'
+    };
+
     static init(handler, ...args) {
         const method = this[handler];
         if (typeof method === "function") {
@@ -10,6 +22,7 @@
 
     static MegaMenu(menuPlugin, isSimple) {
         const megaMenuAPI = menuPlugin.data('megaMenuAPI');
+        const megamenu = megaMenuAPI.megamenu;
         const navElems = megaMenuAPI.navElems;
         const self = this;
 
@@ -19,28 +32,28 @@
             const currentIndex = navElems.index($(e.currentTarget));
 
             // ←, →, Home, End
-            const directionalKeys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+            const directionalKeys = [KEY.RIGHT, KEY.LEFT, KEY.HOME, KEY.END];
             if (directionalKeys.includes(key)) {
                 e.preventDefault();
 
                 let newIndex;
-                if (key === 'Home') newIndex = 0;
-                else if (key === 'End') newIndex = navElems.length - 1;
+                if (key === KEY.HOME) newIndex = 0;
+                else if (key === KEY.END) newIndex = navElems.length - 1;
                 else {
-                    const dir = key === 'ArrowRight' ? 1 : -1;
+                    const dir = key === KEY.RIGHT ? 1 : -1;
                     newIndex = (currentIndex + dir + navElems.length) % navElems.length;
                 }
 
-                navElems.find('.nav-link').attr('tabindex', '-1');
-                navElems.eq(newIndex).find('.nav-link').attr('tabindex', '0').focus();
+                this.setTabIndex(navElems.find('.nav-link'), newIndex);
+
                 return;
             }
 
             // ↓ / ↑ / Space → Dropdown open
-            if (key === 'ArrowDown' || key === 'ArrowUp' || key === ' ') {
+            if (key === KEY.DOWN || key === KEY.UP || key === KEY.SPACE) {
                 e.preventDefault();
 
-                const activeLink = $(".nav-item .nav-link[tabindex='0']");
+                const activeLink = megamenu.find(".nav-item .nav-link[tabindex='0']");
 
                 megaMenuAPI.tryOpen(activeLink);
 
@@ -52,17 +65,15 @@
                 }
 
                 const items = dropdown.find('[role="menuitem"]:visible');
-                const focusIndex = key === 'ArrowUp' ? items.length - 1 : 0;
+                const newIndex = key === KEY.UP ? items.length - 1 : 0;
 
-                items.attr('tabindex', '-1');
-                items.eq(focusIndex).attr('tabindex', '0').focus();
+                this.setTabIndex(items, newIndex);
                 return;
             }
 
-            // Tab must reset all index attributes and set the first element to tabindex=0. 
-            if (key === 'Tab') {
-                self.resetTabIndexes(navElems);
-                navElems.eq(0).find('.nav-link').attr('tabindex', '0');
+            // KEY.TAB must reset all index attributes and set the first element to tabindex=0.
+            if (key === KEY.TAB) {
+                this.setTabIndex(navElems.find('.nav-link'), 0);
             }
         });
 
@@ -80,46 +91,46 @@
             let newIndex = currentIndex;
 
             switch (e.key) {
-                case 'ArrowDown':
+                case KEY.DOWN:
                     e.preventDefault();
                     newIndex = (currentIndex + 1) % items.length;
                     break;
 
-                case 'ArrowUp':
+                case KEY.UP:
                     e.preventDefault();
                     newIndex = (currentIndex - 1 + items.length) % items.length;
                     break;
 
-                case 'ArrowRight':
+                case KEY.RIGHT:
                     e.preventDefault();
                     newIndex = self._getItemInNextColumn(e.currentTarget, +1, items);
                     break;
 
-                case 'ArrowLeft':
+                case KEY.LEFT:
                     e.preventDefault();
                     newIndex = self._getItemInNextColumn(e.currentTarget, -1, items);
                     break;
 
-                case 'Home':
+                case KEY.HOME:
                     e.preventDefault();
                     newIndex = 0;
                     break;
 
-                case 'End':
+                case KEY.END:
                     e.preventDefault();
                     newIndex = items.length - 1;
                     break;
 
-                case 'Escape':
+                case KEY.ESC:
                     e.preventDefault();
-                    var activeLink = $(".nav-item.active .nav-link");
+                    var activeLink = megamenu.find(".nav-item.active .nav-link");
                     megaMenuAPI.closeNow(activeLink);
                     activeLink.focus();
                     return;
 
-                case 'Tab':
+                case KEY.TAB:
                     e.preventDefault();
-                    var activeLink = $(".nav-item.active .nav-link");
+                    var activeLink = megamenu.find(".nav-item.active .nav-link");
                     megaMenuAPI.closeNow(activeLink);
                     if (e.shiftKey) {
                         activeLink.parent().prev().find(".nav-link").focus();
@@ -133,43 +144,42 @@
                     return;
             }
 
-            items.attr('tabindex', '-1');
-            items.eq(newIndex).attr('tabindex', '0').focus();
+            this.setTabIndex(items, newIndex);
         });
 
         $('.megamenu-dropdown-container.simple').on('keydown', '[role="menuitem"]', function (e) {
             const $el = $(this);
             const key = e.key;
-            const menu = currentItem.closest('[role="menu"]');
+            const menu = $el.closest('[role="menu"]');
 
-            const menuItems = menu.find('[role="menuitem"]:visible').filter(function () {
-                return $el.closest('[role="menu"]')[0] === menu[0];
-            });
+            // Find direct menuitems - no items of submenus!!!
+            function findDirectMenuitems(menu) {
+                menu.find('[role="menuitem"]:visible').filter(function () {
+                    return $(this).closest('[role="menu"]')[0] === menu[0];
+                });
+            }
 
+            const menuItems = findDirectMenuitems(menu);
             const currentIndex = menuItems.index($el);
 
-            if (key === 'ArrowDown') {
+            if (key === KEY.DOWN) {
                 e.preventDefault();
                 const nextItem = menuItems.eq(currentIndex + 1);
                 nextItem.focus();
             }
 
-            if (key === 'ArrowUp') {
+            if (key === KEY.UP) {
                 e.preventDefault();
                 const prevIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
                 const prevItem = menuItems.eq(prevIndex);
                 prevItem.focus();
             }
 
-            if (key === 'ArrowRight') {
+            if (key === KEY.RIGHT) {
                 e.preventDefault();
                 if ($el.attr('aria-haspopup') === 'menu') {
-                    const submenuId = $el.attr('aria-controls');
-                    const submenu = $('#' + submenuId);
-                    // TODO: Maybe build a function for this? See identical code above
-                    const submenuItems = submenu.find('[role="menuitem"]:visible').filter(function () {
-                        return $el.closest('[role="menu"]')[0] === submenu[0];
-                    });
+                    const submenu = $('#' + $el.attr('aria-controls'));
+                    const submenuItems = findDirectMenuitems(submenu)
 
                     if (submenuItems.length) {
                         showDrop($el.parent());
@@ -178,7 +188,7 @@
                 }
             }
 
-            if (key === 'ArrowLeft' || key === 'Escape') {
+            if (key === KEY.LEFT || key === KEY.ESC) {
                 e.preventDefault();
                 const parentGroup = menu.closest('.dropdown-group');
                 if (parentGroup.length) {
@@ -190,10 +200,9 @@
                     }
                 } else {
                     // Fallback to close the main dropdown.
-                    const activeMainItem = $('.nav-item .nav-link[tabindex="0"]');
+                    const activeMainItem = megamenu.find('.nav-item .nav-link[tabindex="0"]');
                     activeMainItem.focus();
-                    const submenuId = activeMainItem.attr('aria-controls');
-                    const submenu = $('#' + submenuId);
+                    const submenu = $('#' + activeMainItem.attr('aria-controls'));
                     submenu.removeClass('show');
                     activeMainItem.parent().removeClass('active');
                 }
@@ -210,39 +219,39 @@
         context.find('[tabindex="0"]').attr('tabindex', '-1');
     }
 
+    static setTabIndex(items, activeIndex) {
+        items.attr('tabindex', '-1');
+        items.eq(activeIndex).attr('tabindex', '0').focus();
+    }
+
     // Private methods
     static _handleBrandMenuNavigation(e, currentItem) {
-        const allItems = $('#dropdown-menu-brand.').find('[role="menuitem"]:visible');
+        const allItems = $('#dropdown-menu-brand').find('[role="menuitem"]:visible');
         const currentIndex = allItems.index(currentItem);
-        // TODO: WCDG (mh) Should we extract this from artlist class 'artlist-8-cols'? or count by ourseleves?
-        const cols = 8;
-
-        // INFO: Code for col extraction from artlist class.
-        //const container = $('#dropdown-menu-brand .artlist');
-        //const match = container.attr('class').match(/artlist-(\d+)-cols/);
-        //const cols = match ? parseInt(match[1], 10) : 1; // Fallback: 1 Spalte
+        const match = $('#dropdown-menu-brand .artlist').attr('class').match(/artlist-(\d+)-cols/);
+        const cols = match ? parseInt(match[1], 10) : 8;
 
         let newIndex = currentIndex;
 
         switch (e.key) {
-            case 'ArrowDown':
+            case KEY.DOWN:
                 newIndex = (currentIndex + cols) % allItems.length;
                 break;
-            case 'ArrowUp':
+            case KEY.UP:
                 newIndex = (currentIndex - cols + allItems.length) % allItems.length;
                 break;
-            case 'ArrowRight':
+            case KEY.RIGHT:
                 newIndex = (currentIndex + 1) % allItems.length;
                 break;
-            case 'ArrowLeft':
+            case KEY.LEFT:
                 newIndex = (currentIndex - 1 + allItems.length) % allItems.length;
                 break;
-            case 'Home': {
+            case KEY.HOME: {
                 const rowStart = Math.floor(currentIndex / cols) * cols;
                 newIndex = rowStart;
                 break;
             }
-            case 'End': {
+            case KEY.END: {
                 const rowStart = Math.floor(currentIndex / cols) * cols;
                 const rowEnd = Math.min(rowStart + cols - 1, allItems.length - 1);
                 newIndex = rowEnd;
@@ -253,8 +262,8 @@
         }
 
         e.preventDefault();
-        allItems.attr('tabindex', '-1');
-        allItems.eq(newIndex).attr('tabindex', '0').focus();
+
+        this.setTabIndex(allItems, newIndex);
     }
 
     static _getItemInNextColumn(el, direction, items) {
@@ -270,3 +279,5 @@
         return nextItems.length > 0 ? items.index(nextItems.eq(0)) : items.index($el);
     }
 }
+
+const { KEY } = AccessibilityKeyHandler;  
