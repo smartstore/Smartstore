@@ -49,6 +49,8 @@ namespace Smartstore.Engine.Modularity.NuGet
             }
         }
 
+        internal static Settings EmptySettings => new(Path.GetTempPath(), "NuGet.config", false);
+
         /// <summary>
         /// Full physical path to the nuget local package directory, 
         /// usually "C:\Users\{User}\.nuget\packages" or "App_Data\.nuget\packages".
@@ -59,22 +61,22 @@ namespace Smartstore.Engine.Modularity.NuGet
         {
             try
             {
-                var path = SettingsUtility.GetGlobalPackagesFolder(NullSettings.Instance);
+                var path = SettingsUtility.GetGlobalPackagesFolder(EmptySettings);
                 var dir = LocalFolderUtility.GetAndVerifyRootDirectory(path);
 
                 if (!dir.Exists)
                 {
                     dir.Create();
                 }
-                else
+
+                // Check write permissions
+                var permissionChecker = new FilePermissionChecker(_appContext.OSIdentity);
+                if (!permissionChecker.CanAccess(dir, FileEntryRights.Write | FileEntryRights.Modify | FileEntryRights.Delete))
                 {
-                    // Check write permissions
-                    var permissionChecker = new FilePermissionChecker(_appContext.OSIdentity);
-                    if (!permissionChecker.CanAccess(dir, FileEntryRights.Write | FileEntryRights.Modify | FileEntryRights.Delete))
-                    {
-                        throw new UnauthorizedAccessException();
-                    }
+                    throw new UnauthorizedAccessException();
                 }
+
+                _logger.LogInformation($"Using global NuGet packages folder: {dir.FullName}");
 
                 return dir.FullName;
             }
@@ -83,7 +85,11 @@ namespace Smartstore.Engine.Modularity.NuGet
                 var dir = _appContext.AppDataRoot.GetDirectory(".nuget/packages");
                 dir.Create();
 
-                _logger.Error(ex, "Error while resolving NuGet global packages folder. Falling back to app wide folder '.nuget/packages'.");
+                _logger.Error(ex, "Error while resolving global NuGet packages folder. Falling back to app wide folder '.nuget/packages'.");
+
+                Environment.SetEnvironmentVariable("NUGET_PACKAGES", dir.PhysicalPath);
+                Environment.SetEnvironmentVariable("NUGET_CONFIG_FILE", Path.Combine(dir.Parent.PhysicalPath, "NuGet.config"));
+                //Environment.SetEnvironmentVariable("NUGET_HTTP_CACHE_PATH", @"D:\NuGet\Cache");
 
                 return dir.PhysicalPath;
             }
@@ -99,7 +105,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         /// <returns>Found package info or <c>null</c>.</returns>
         public LocalPackageInfo FindLocalPackage(string id, string minVersion = null, string maxVersion = null)
         {
-            Guard.NotEmpty(id, nameof(id));
+            Guard.NotEmpty(id);
 
             var localPackages = LocalFolderUtility
                 .GetPackagesV3(OfflinePackageFolder, id, _nuLogger)
@@ -136,7 +142,7 @@ namespace Smartstore.Engine.Modularity.NuGet
             string maxVersion = null,
             CancellationToken cancelToken = default)
         {
-            Guard.NotEmpty(id, nameof(id));
+            Guard.NotEmpty(id);
 
             await EnsureServiceIndexAsync(_indexUri, cancelToken);
 
@@ -234,7 +240,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         /// <param name="cancelToken"></param>
         public async Task<LocalPackageInfo> DownloadPackageAsync(PackageIdentity package, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(package, nameof(package));
+            Guard.NotNull(package);
 
             await EnsureServiceIndexAsync(_indexUri, cancelToken);
 
@@ -258,7 +264,7 @@ namespace Smartstore.Engine.Modularity.NuGet
                 var extractionContext = new PackageExtractionContext(
                     PackageSaveMode.Defaultv3,
                     XmlDocFileSaveMode.Compress,
-                    ClientPolicyContext.GetClientPolicy(NullSettings.Instance, _nuLogger),
+                    ClientPolicyContext.GetClientPolicy(EmptySettings, _nuLogger),
                     _nuLogger);
 
                 var feedContext = new OfflineFeedAddContext(

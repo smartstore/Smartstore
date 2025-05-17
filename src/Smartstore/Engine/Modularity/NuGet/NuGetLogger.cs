@@ -12,7 +12,7 @@ namespace Smartstore.Engine.Modularity.NuGet
 
         public NuGetLogger(MsLogger logger)
         {
-            _logger = Guard.NotNull(logger, nameof(logger));
+            _logger = Guard.NotNull(logger);
         }
 
         public override void Log(ILogMessage message)

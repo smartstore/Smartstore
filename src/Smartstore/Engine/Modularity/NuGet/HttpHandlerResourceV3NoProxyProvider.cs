@@ -43,7 +43,7 @@ namespace Smartstore.Engine.Modularity.NuGet
             // Originally this was: ProxyCache.Instance.GetProxy(), but on IIS ProxyCache
             // tries to write a file in 'C:\WINDOWS\system32\config\systemprofile' folder, which fails of course,
             // because IIS_IUSRS has no write permission there and we simply won't require this to happen.
-            var proxy = new ProxyCache(NullSettings.Instance, EnvironmentVariableWrapper.Instance).GetProxy(sourceUri);
+            var proxy = new ProxyCache(NuGetExplorer.EmptySettings, EnvironmentVariableWrapper.Instance).GetProxy(sourceUri);
 
             // replace the handler with the proxy aware handler
             var clientHandler = new HttpClientHandler
