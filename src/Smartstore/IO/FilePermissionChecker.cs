@@ -26,11 +26,11 @@ namespace Smartstore.IO
         /// <summary>
         /// Gets the relative paths of all files that require write access.
         /// </summary>
-        public static readonly string[] WrittenFiles = new[]
-        {
-            $"App_Data/Tenants/{DataSettings.Instance.TenantName}/InstalledPlugins.txt",
+        public static readonly string[] WrittenFiles =
+        [
+            $"App_Data/Tenants/{DataSettings.Instance.TenantName}/InstalledModules.txt",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Settings.txt",
-        };
+        ];
 
         private readonly IOSIdentity _osIdentity;
 
@@ -41,7 +41,7 @@ namespace Smartstore.IO
 
         public virtual bool CanAccess(FileSystemInfo entry, FileEntryRights rights)
         {
-            Guard.NotNull(entry, nameof(entry));
+            Guard.NotNull(entry);
 
             if (!entry.Exists)
             {

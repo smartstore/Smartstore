@@ -16,7 +16,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         public static SourceRepository GetCoreV3Custom(this Repository.RepositoryFactory factory, PackageSource source)
         {
             var providers = Repository.Provider.GetCoreV3()
-                .Concat(new[] { new Lazy<INuGetResourceProvider>(() => new HttpHandlerResourceV3NoProxyProvider()) });
+                .Concat([new Lazy<INuGetResourceProvider>(() => new HttpHandlerResourceV3NoProxyProvider())]);
 
             return Repository.CreateSource(providers, source);
         }
