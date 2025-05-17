@@ -23,6 +23,7 @@
 
 - The order of products in lists was reversed for featured sorting.
 - Fixed a `NullReferenceException` on the cart page when shopping cart items are activated or deactivated.
+- Fixed `Failed to read NuGet.config due to unauthorized access` exception.
 - **Summernote**
   - Browsing and selecting files in the link or image dialog also closes the opener dialog.
   - Fixed list/paragraph toggle conflict when `li` contains `p`
