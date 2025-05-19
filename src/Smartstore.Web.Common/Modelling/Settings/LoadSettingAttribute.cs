@@ -24,7 +24,7 @@ namespace Smartstore.Web.Modelling.Settings
             : base(filterType)
         {
             BindParameterFromStore = bindParameterFromStore;
-            Arguments = new object[] { this };
+            Arguments = [this];
         }
 
         public bool BindParameterFromStore { get; set; }
@@ -149,7 +149,7 @@ namespace Smartstore.Web.Modelling.Settings
             bool throwIfNotFound = true,
             Func<ParameterDescriptor, bool> predicate = null)
         {
-            Guard.NotNull(actionDescriptor, nameof(actionDescriptor));
+            Guard.NotNull(actionDescriptor);
 
             var t = typeof(T);
 

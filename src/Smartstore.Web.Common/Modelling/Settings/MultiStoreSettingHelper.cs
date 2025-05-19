@@ -111,9 +111,9 @@ namespace Smartstore.Web.Modelling.Settings
 
         public static bool IsOverrideChecked(Type settingType, string name, IFormCollection form)
         {
-            Guard.NotNull(settingType, nameof(settingType));
-            Guard.NotEmpty(name, nameof(name));
-            Guard.NotNull(form, nameof(form));
+            Guard.NotNull(settingType);
+            Guard.NotEmpty(name);
+            Guard.NotNull(form);
 
             return IsOverrideChecked(settingType.Name, name, form, out _);
         }
