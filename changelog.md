@@ -9,6 +9,7 @@
 
 - Catalog and associated products search forms.
 - Avatar upload.
+- Polls.
 
 ### New Features
 
