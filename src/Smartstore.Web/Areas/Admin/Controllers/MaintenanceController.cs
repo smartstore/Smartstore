@@ -1040,6 +1040,9 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> PerformanceSettings(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
         {
+            // These settings have no store scope configuration.
+            Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = 0;
+
             var model = new PerformanceSettingsModel();
 
             // Map entities to model
