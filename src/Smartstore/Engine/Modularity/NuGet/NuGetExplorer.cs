@@ -61,7 +61,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         {
             try
             {
-                var path = SettingsUtility.GetGlobalPackagesFolder(EmptySettings);
+                var path = SettingsUtility.GetGlobalPackagesFolder(NullSettings.Instance);
                 var dir = LocalFolderUtility.GetAndVerifyRootDirectory(path);
 
                 if (!dir.Exists)
