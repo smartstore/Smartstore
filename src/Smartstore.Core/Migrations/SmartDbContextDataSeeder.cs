@@ -42,6 +42,8 @@ namespace Smartstore.Core.Data.Migrations
                 + " um zu überprüfen, ob Internetformulare von Menschen oder Roboter (Bots) ausgefüllt werden, da Bots hier oft missbräuchlich eingesetzt werden."
                 + " reCAPTCHA-Konten werden bei <a class=\"alert-link\" href=\"https://cloud.google.com/security/products/recaptcha?hl=de\" target=\"_blank\">Google</a>"
                 + " angelegt. Wählen Sie als reCAPTCHA-Typ <b>Aufgabe (v2)</b> aus.");
+
+            builder.AddOrUpdate("Polls.TotalVotes", "{0} votes cast.", "{0} abgegebene Stimmen.");
         }
     }
 }
