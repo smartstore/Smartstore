@@ -31,6 +31,8 @@
 - My-account header only shows uploaded avatar after page reload.
 - PageBuilder: Slick slider cuts off the edit toolbar.
 - The "Latest Orders" dashboard does not display the full name of guests.
+- A bug that caused an old script to be loaded from the browser cache, resulting in an endless minibasket loading process, has been fixed.
+- The handling of multi-store settings for the AI modules and performance settings has been corrected.
 
 
 ## Smartstore 6.1.0
