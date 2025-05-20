@@ -23,7 +23,9 @@
     </div>
 
     <span class="input-group-icon instasearch-icon">
-        <i class="fa fa-magnifying-glass"></i>
+        <button type="submit" class="instasearch-submit input-clear bg-transparent" aria-label="@T("Common.Search")">
+            <i class="fa fa-magnifying-glass"></i>
+        </button>
     </span>
 
     <div class="instasearch-drop">
@@ -31,7 +33,4 @@
     </div>
 
     <zone name="searchbox_addon"></zone>
-
-    @* INFO: Avoid submit button failure in WCAG checkers. *@
-    <button type="submit" class="sr-only">Submit</button>
 </form>
