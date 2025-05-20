@@ -34,6 +34,7 @@
 - The "Latest Orders" dashboard does not display the full name of guests.
 - A bug that caused an old script to be loaded from the browser cache, resulting in an endless minibasket loading process, has been fixed.
 - The handling of multi-store settings for the AI modules and performance settings has been corrected.
+- Added route attribute to the actions Patch and PatchLocalized of the EntityController to avoid a 404 error which occurred under certain undetermined conditions.
 
 
 ## Smartstore 6.1.0
