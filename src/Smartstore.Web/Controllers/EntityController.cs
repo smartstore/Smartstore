@@ -399,10 +399,12 @@ namespace Smartstore.Web.Controllers
             return PartialView("Picker.List", model);
         }
 
+        // INFO: The route attribute had to be added to avoid a 404 error which occurred under certain undetermined conditions.
         [HttpPost]
         [AuthorizeAdmin]
         [Permission(Permissions.System.AccessBackend)]
         [ValidateAntiForgeryToken]
+        [Route("entity/patch")]
         public async Task<IActionResult> Patch(string entityName, int entityId, string propertyName, [FromBody] object value)
         {
             var success = false;
@@ -430,6 +432,7 @@ namespace Smartstore.Web.Controllers
         [AuthorizeAdmin]
         [Permission(Permissions.System.AccessBackend)]
         [ValidateAntiForgeryToken]
+        [Route("entity/patchlocalized")]
         public async Task<IActionResult> PatchLocalized(int languageId, string entityName, int entityId, string propertyName, [FromBody] object value)
         {
             var success = false;
