@@ -847,13 +847,7 @@ namespace Smartstore.Web.Controllers
             }
 
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.SelectedAttributes);
-            model.ProductUrl = _urlHelper.RouteUrl("Product", new { model.SeName, culture = language.UniqueSeoCode });
-            if (ctx.SelectedAttributes.HasAttributes)
-            {
-                var tmpQuery = new ProductVariantQuery();
-                await _productUrlHelper.AddAttributesToQueryAsync(tmpQuery, ctx.SelectedAttributes, product.Id);
-                model.ProductUrl += _productUrlHelper.ToQueryString(tmpQuery);
-            }
+            model.ProductUrl = await _productUrlHelper.GetProductPathAsync(product.Id, model.SeName, ctx.SelectedAttributes);
 
             if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
                 (product.AttributeCombinationRequired && model.SelectedCombination == null))
