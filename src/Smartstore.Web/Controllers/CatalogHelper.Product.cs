@@ -792,6 +792,7 @@ namespace Smartstore.Web.Controllers
             var query = ctx.VariantQuery;
             var productBundleItem = ctx.ProductBundleItem;
             var bundleItemId = productBundleItem?.Id ?? 0;
+            var language = _workContext.WorkingLanguage;
             var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
             var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
             var attributes = await ctx.BatchContext.Attributes.GetOrLoadAsync(product.Id);
@@ -845,8 +846,14 @@ namespace Smartstore.Web.Controllers
                     ctx.Customer);
             }
 
-            model.ProductUrl = await _productUrlHelper.GetAbsoluteProductUrlAsync(product.Id, model.SeName, ctx.SelectedAttributes);
             model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.SelectedAttributes);
+            model.ProductUrl = _urlHelper.RouteUrl("Product", new { model.SeName, culture = language.UniqueSeoCode });
+            if (ctx.SelectedAttributes.HasAttributes)
+            {
+                var tmpQuery = new ProductVariantQuery();
+                await _productUrlHelper.AddAttributesToQueryAsync(tmpQuery, ctx.SelectedAttributes, product.Id);
+                model.ProductUrl += _productUrlHelper.ToQueryString(tmpQuery);
+            }
 
             if ((model.SelectedCombination != null && !model.SelectedCombination.IsActive) ||
                 (product.AttributeCombinationRequired && model.SelectedCombination == null))

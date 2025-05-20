@@ -163,8 +163,13 @@
             }
 
             if (!_.isEmpty(data.ProductUrl) && location.hostname !== "localhost") {
-                // Replace state to not flood history when variant changed.
-                history.replaceState(null, '', data.ProductUrl);
+                try {
+                    // Replace state to not flood history when variant changed.
+                    history.replaceState(null, '', data.ProductUrl);
+                }
+                catch (ex) {
+                    console.log(ex);
+                }
             }
 
             // Trigger event for plugins devs to subscribe.
