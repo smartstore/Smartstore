@@ -7,9 +7,9 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
-- Catalog and associated products search forms.
-- Avatar upload.
-- Polls.
+- Catalog and associated products search forms have been made accessible to screen readers.
+- The upload of an avatar has been enabled for screen readers.
+- Polls have been made accessible to screen readers.
 
 ### New Features
 
