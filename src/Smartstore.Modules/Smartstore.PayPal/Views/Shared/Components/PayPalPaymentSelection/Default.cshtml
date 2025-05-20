@@ -35,7 +35,7 @@
     };
 
     $(function () {
-        const ppButton = new PayPalButton("#paypal-button-container", "@Model.Funding");
+        const ppButton = new PayPalButton("#paypal-button-container", "@(Model.Funding == "googlepay" ? "paypal" : Model.Funding)");
         const btnNext = $(".payment-method-next-step-button");
         const btnContainer = $("#paypal-button-container");
         const btnContainerGooglePay = $("#paypal-google-pay-container");
