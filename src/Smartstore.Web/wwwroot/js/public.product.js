@@ -101,6 +101,11 @@
                 }
             });
 
+            $('#pd-assoc-search-btn').on('click', function (e) {
+                e.preventDefault();
+                return false;
+            });
+
             EventBroker.subscribe('ajaxcart.error', function (msg, data) {
                 // Expand item to let the user select attributes.
                 var el = $('#associated-product' + data.response.productId);

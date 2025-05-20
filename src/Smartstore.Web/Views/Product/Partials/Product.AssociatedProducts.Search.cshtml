@@ -11,7 +11,7 @@
            class="instasearch-term form-control skip-pd-ajax-update"
            name="associatedProductsSearchTerm"
            placeholder="@T("Common.SearchProducts")"
-           aria-label="@T("AriaLabel.SearchBox")"
+           aria-label="@T("Common.SearchProducts")"
            data-url="@Url.Action("AssociatedProducts", "Product", new { id = Model.Id })"
            data-target="#associated-products"
            data-origin="Product/AssociatedProducts" />
@@ -22,7 +22,8 @@
         </button>
     </div>
     <span class="input-group-icon instasearch-icon">
-        <i class="fa fa-magnifying-glass"></i>
+        <button id="pd-assoc-search-btn" type="submit" class="instasearch-submit input-clear bg-transparent" aria-label="@T("Common.Search")">
+            <i class="fa fa-magnifying-glass"></i>
+        </button>
     </span>
-    <button type="submit" class="sr-only">Submit</button>
 </div>
