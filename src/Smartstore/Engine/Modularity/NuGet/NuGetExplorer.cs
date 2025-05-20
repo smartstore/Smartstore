@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net;
+using System.Net.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
@@ -63,6 +66,13 @@ namespace Smartstore.Engine.Modularity.NuGet
             {
                 var path = SettingsUtility.GetGlobalPackagesFolder(NullSettings.Instance);
                 var dir = LocalFolderUtility.GetAndVerifyRootDirectory(path);
+                var isUnderneathRoot = dir.FullName.Replace('\\', '/').StartsWithNoCase(_appContext.ContentRoot.Root.Replace('\\', '/'));
+                if (isUnderneathRoot)
+                {
+                    // If the global packages folder is under the app root, use the dedicated app local package folder instead.
+                    _logger.Info("Using app local package folder 'App_Data/.nuget/packages'.");
+                    return GetAppLocalPackageFolder().PhysicalPath;
+                }
 
                 if (!dir.Exists)
                 {
@@ -76,23 +86,27 @@ namespace Smartstore.Engine.Modularity.NuGet
                     throw new UnauthorizedAccessException();
                 }
 
-                _logger.LogInformation($"Using global NuGet packages folder: {dir.FullName}");
+                _logger.Info($"Using global NuGet packages folder: {dir.FullName}");
 
                 return dir.FullName;
             }
             catch (Exception ex)
             {
-                var dir = _appContext.AppDataRoot.GetDirectory(".nuget/packages");
-                dir.Create();
-
-                _logger.Error(ex, "Error while resolving global NuGet packages folder. Falling back to app wide folder '.nuget/packages'.");
-
-                Environment.SetEnvironmentVariable("NUGET_PACKAGES", dir.PhysicalPath);
-                Environment.SetEnvironmentVariable("NUGET_CONFIG_FILE", Path.Combine(dir.Parent.PhysicalPath, "NuGet.config"));
-                //Environment.SetEnvironmentVariable("NUGET_HTTP_CACHE_PATH", @"D:\NuGet\Cache");
-
-                return dir.PhysicalPath;
+                _logger.Error(ex, "Error while resolving global NuGet packages folder. Falling back to app local folder 'App_Data/.nuget/packages'.");
+                return GetAppLocalPackageFolder().PhysicalPath;
             }
+        }
+
+        private IDirectory GetAppLocalPackageFolder()
+        {
+            var dir = _appContext.AppDataRoot.GetDirectory(".nuget/packages");
+            dir.Create();
+
+            Environment.SetEnvironmentVariable("NUGET_PACKAGES", dir.PhysicalPath);
+            Environment.SetEnvironmentVariable("NUGET_CONFIG_FILE", Path.Combine(dir.Parent.PhysicalPath, "NuGet.config"));
+            //Environment.SetEnvironmentVariable("NUGET_HTTP_CACHE_PATH", @"D:\NuGet\Cache");
+
+            return dir;
         }
 
         /// <summary>
@@ -192,7 +206,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         {
             if (_serviceIndex == null)
             {
-                await EnsureHttpSourceAsync();
+                EnsureHttpSource();
 
                 var index = await _httpSource.GetJObjectAsync(_indexUri, _cacheContext, _nuLogger, cancelToken);
                 var resources = (index["resources"] as JArray);
@@ -209,27 +223,62 @@ namespace Smartstore.Engine.Modularity.NuGet
         /// <summary>
         /// Ensure <see cref="HttpSource"/> has been initialized.
         /// </summary>
-        private async Task EnsureHttpSourceAsync()
+        private void EnsureHttpSource()
         {
-            if (_httpSource == null)
+            if (_httpSource != null)
             {
-                var packageSource = new PackageSource(_indexUri.AbsoluteUri);
-                var source = Repository.Factory.GetCoreV3Custom(packageSource);
-                var handlerResource = await source.GetResourceAsync<HttpHandlerResource>();
+                return;
+            }
 
-                _httpSource = new HttpSource(
-                    packageSource,
-                    () => Task.FromResult(handlerResource),
-                    NullThrottle.Instance);
+            var packageSource = new PackageSource(_indexUri.AbsoluteUri);
 
-                if (string.IsNullOrEmpty(UserAgent.UserAgentString)
-                    || new UserAgentStringBuilder().Build()
-                        .Equals(UserAgent.UserAgentString, StringComparison.Ordinal))
-                {
-                    // Set the user agent string if it was not already set.
-                    var userAgent = new UserAgentStringBuilder($"Smartstore {SmartstoreVersion.CurrentFullVersion}");
-                    UserAgent.SetUserAgentString(userAgent);
-                }
+            // Originally this was: ProxyCache.Instance.GetProxy(), but on IIS ProxyCache
+            // tries to write a file in 'C:\WINDOWS\system32\config\systemprofile' folder, which fails of course,
+            // because IIS_IUSRS has no write permission there and we simply won't require this to happen.
+            var proxy = new ProxyCache(NuGetExplorer.EmptySettings, EnvironmentVariableWrapper.Instance).GetProxy(packageSource.SourceUri);
+
+            // Replace the handler with the proxy aware handler
+            var clientHandler = new HttpClientHandler
+            {
+                Proxy = null, // optional: dein Proxy
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            };
+
+            // Setup http client handler client certificates
+            if (packageSource.ClientCertificates != null)
+            {
+                clientHandler.ClientCertificates.AddRange(packageSource.ClientCertificates.ToArray());
+            }
+
+            // HTTP handler pipeline can be injected here, around the client handler
+            HttpMessageHandler messageHandler = new ServerWarningLogHandler(clientHandler);
+
+            if (proxy != null)
+            {
+                messageHandler = new ProxyAuthenticationHandler(clientHandler, HttpHandlerResourceV3.CredentialService?.Value, ProxyCache.Instance);
+            }
+
+            var innerHandler = messageHandler;
+
+            messageHandler = new HttpSourceAuthenticationHandler(packageSource, clientHandler, HttpHandlerResourceV3.CredentialService?.Value)
+            {
+                InnerHandler = innerHandler
+            };
+
+            var handlerResource = new HttpHandlerResourceV3(clientHandler, messageHandler);
+
+            _httpSource = new HttpSource(
+                packageSource,
+                () => Task.FromResult<HttpHandlerResource>(handlerResource),
+                NullThrottle.Instance);
+
+            if (string.IsNullOrEmpty(UserAgent.UserAgentString)
+                || new UserAgentStringBuilder().Build()
+                    .Equals(UserAgent.UserAgentString, StringComparison.Ordinal))
+            {
+                // Set the user agent string if it was not already set.
+                var userAgent = new UserAgentStringBuilder($"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+                UserAgent.SetUserAgentString(userAgent);
             }
         }
 

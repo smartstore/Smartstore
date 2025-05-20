@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
-using NuGet.Configuration;
 using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -12,17 +11,6 @@ namespace Smartstore.Engine.Modularity.NuGet
     internal static class NuGetExtensions
     {
         private static readonly string[] PackageBaseAddressUrl = { "PackageBaseAddress/3.0.0" };
-
-        public static SourceRepository GetCoreV3Custom(this Repository.RepositoryFactory factory, PackageSource source)
-        {
-            var providers = Repository.Provider.GetCoreV3()
-                .Prepend(new Lazy<INuGetResourceProvider>(() => new HttpHandlerResourceV3NoProxyProvider()));
-
-            //// Add the HttpHandlerResourceV3NoProxyProvider to the beginning of the list
-            //providers.Insert(0, new Lazy<INuGetResourceProvider>(() => new HttpHandlerResourceV3NoProxyProvider()));
-
-            return Repository.CreateSource(providers, source);
-        }
 
         public static Task<JObject> GetJObjectAsync(this HttpSource source,
             Uri uri,
