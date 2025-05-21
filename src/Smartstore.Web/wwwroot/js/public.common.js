@@ -68,11 +68,11 @@
         },
         // Newsletter subsription
         function (ctx) {
-            var newsletterContainer = $(".footer-newsletter");
-            if (newsletterContainer.length > 0) {
-                var url = newsletterContainer.data("subscription-url");
+            let newsletterForm = $('#newsletter-form');
+            if (newsletterForm.length > 0) {
+                newsletterForm.find('#newsletter-subscribe-button').on("click", function (e) {
+                    e.preventDefault();
 
-                newsletterContainer.find('#newsletter-subscribe-button').on("click", function () {
                     var email = $("#newsletter-email").val();
                     var subscribe = 'true';
                     var resultDisplay = $("#newsletter-result-block");
@@ -86,7 +86,7 @@
                     $.ajax({
                         cache: false,
                         type: "POST",
-                        url: url,
+                        url: newsletterForm.attr('action'),
                         data: { "subscribe": subscribe, "email": email, "GdprConsent": subscribe == 'true' ? gdprConsent : true },
                         success: function (data) {
                             resultDisplay.html(data.Result);
@@ -95,13 +95,14 @@
                                 resultDisplay.removeClass("alert-danger d-none").addClass("alert-success d-block");
                             }
                             else {
-                                if (data.Result != "")
+                                if (data.Result != "") {
                                     resultDisplay.removeClass("alert-success d-none").addClass("alert-danger d-block").fadeIn("slow").delay(2000).fadeOut("slow");
+                                }
                             }
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             resultDisplay.empty()
-                                .text(newsletterContainer.data('subscription-failure'))
+                                .text(newsletterForm.data('subscription-failure'))
                                 .removeClass("alert-success d-none")
                                 .addClass("alert-danger d-block");
                         }

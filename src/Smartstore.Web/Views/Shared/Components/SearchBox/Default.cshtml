@@ -2,14 +2,19 @@
 
 @model SearchBoxModel
 
-<form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get">
+@{
+    string description = T("AriaDescription.SearchBox") +
+        (Model.InstantSearchEnabled ? " " + T("AriaDescription.InstantSearch") : string.Empty);
+}
+
+<form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get" role="search">
     <input type="search"
            class="instasearch-term form-control text-truncate"
            name="q"
            value="@Model.CurrentQuery"
            placeholder="@Model.InputPlaceholder"
            aria-label="@Model.InputPlaceholder"
-           aria-description="@T("AriaDescription.InstantSearchBox")"
+           aria-description="@description"
            data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
            data-minlength="@(Model.SearchTermMinimumLength.ToString())"
            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"

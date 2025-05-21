@@ -28,9 +28,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Show next product group",
                 "Nächste Produktgruppe anzeigen");
 
-            builder.AddOrUpdate("AriaDescription.InstantSearchBox",
-                "Enter a search term. Results will appear automatically as you type. Press the Enter key to view all the results.",
-                "Geben Sie einen Suchbegriff ein. Während Sie tippen, erscheinen automatisch erste Ergebnisse. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.");
+            builder.AddOrUpdate("AriaDescription.SearchBox",
+                "Enter a search term. Press the Enter key to view all the results.",
+                "Geben Sie einen Suchbegriff ein. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.");
+            builder.AddOrUpdate("AriaDescription.InstantSearch",
+                "Results will appear automatically as you type.",
+                "Während Sie tippen, erscheinen automatisch erste Ergebnisse.");
             builder.AddOrUpdate("AriaDescription.AutoSearchBox",
                 "Enter a search term. Results will appear automatically as you type.",
                 "Geben Sie einen Suchbegriff ein. Die Ergebnisse erscheinen automatisch, während Sie tippen.");

@@ -72,64 +72,66 @@
 
                     <div class="row gx-md-4 gy-md-3">
                         <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
-                            <div class="footer-newsletter nav-collapsible"
-                                 data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" 
-                                 data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
-                                <h4 id="newsletter-subscribe-header"
-                                    class="footer-title nav-toggler collapsed"
-                                    data-toggle="collapse" 
-                                    data-target="#footer-newsletter" 
-                                    aria-controls="footer-newsletter" 
-                                    aria-expanded="false">
-                                    @* TODO: (mg) Actually this IS initially expanded on desktop, but not on mobile. Problem?! Investigate and TBD with MC. *@
-                                    @Html.Raw(T("Newsletter.Title"))
-                                </h4>
-                                <div class="collapse nav-collapse" id="footer-newsletter">
-                                    <div id="newsletter-subscribe-block">
-                                        <div class="input-group has-icon shadow-xs rounded-pill mb-2">
-                                            <input asp-for="NewsletterEmail" 
-                                                   id="newsletter-email" 
-                                                   class="rounded-start-pill" 
-                                                   placeholder="@T("Newsletter.Email")" 
-                                                   aria-labelledby="newsletter-subscribe-header" />
-                                            <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
-                                                <i class="far fa-envelope"></i>
-                                            </span>
-                                            <span class="input-group-append">
-                                                <span class="input-group-inline-addon rounded-end-pill">
-                                                    <button id="newsletter-subscribe-button" class="btn btn-primary">
-                                                        <span>@T("Newsletter.Button")</span>
-                                                    </button>
+                            <form id="newsletter-form" sm-ajax method="post" asp-action="Subscribe" asp-controller="Newsletter"
+                                  data-subscription-failure="@T("Newsletter.SubscriptionFailed")"
+                                  aria-labelledby="newsletter-subscribe-header">
+                                <div class="footer-newsletter nav-collapsible">
+                                    <h4 id="newsletter-subscribe-header"
+                                        class="footer-title nav-toggler collapsed"
+                                        data-toggle="collapse" 
+                                        data-target="#newsletter-body"
+                                        aria-controls="newsletter-body"
+                                        aria-expanded="false">
+                                        @* TODO: (wcag) (mg) Actually this IS initially expanded on desktop, but not on mobile. Problem?! Investigate and TBD with MC. *@
+                                        @Html.Raw(T("Newsletter.Title"))
+                                    </h4>
+                                    <div id="newsletter-body" class="collapse nav-collapse">
+                                        <div id="newsletter-subscribe-block">
+                                            <div class="input-group has-icon shadow-xs rounded-pill mb-2">
+                                                <input asp-for="NewsletterEmail" 
+                                                       id="newsletter-email" 
+                                                       type="email"
+                                                       class="rounded-start-pill" 
+                                                       placeholder="@T("Newsletter.Email")" 
+                                                       aria-label="@T("Newsletter.Email")"
+                                                       autocomplete="email" />
+                                                <span class="input-group-icon text-muted" style="--inline-icon-offset: 4px">
+                                                    <i class="far fa-envelope" aria-hidden="true"></i>
                                                 </span>
-                                            </span>
-                                        </div>
+                                                <span class="input-group-append">
+                                                    <span class="input-group-inline-addon rounded-end-pill">
+                                                        <button id="newsletter-subscribe-button" type="submit" class="btn btn-primary">
+                                                            <span>@T("Newsletter.Button")</span>
+                                                        </button>
+                                                    </span>
+                                                </span>
+                                            </div>
 
-                                        <div class="mb-2">
-                                            <div class="hstack">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
-                                                    <label class="form-check-label" for="newsletter-subscribe">
-                                                        <span>@T("Newsletter.Subscribe")</span>
-                                                    </label>
-                                                </div>
+                                            <div class="mb-2">
+                                                <div class="hstack">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" id="newsletter-subscribe" name="optionsRadios" value="newsletter-subscribe" checked="checked">
+                                                        <label class="form-check-label" for="newsletter-subscribe">
+                                                            <span>@T("Newsletter.Subscribe")</span>
+                                                        </label>
+                                                    </div>
 
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
-                                                    <label class="form-check-label" for="newsletter-unsubscribe">
-                                                        <span>@T("Newsletter.Unsubscribe")</span>
-                                                    </label>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" id="newsletter-unsubscribe" name="optionsRadios" value="newsletter-unsubscribe">
+                                                        <label class="form-check-label" for="newsletter-unsubscribe">
+                                                            <span>@T("Newsletter.Unsubscribe")</span>
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            <zone name="gdpr_consent_small"></zone>
+                                            <span asp-validation-for="NewsletterEmail"></span>
                                         </div>
-
-                                        <zone name="gdpr_consent_small"></zone>
-
-                                        <span asp-validation-for="NewsletterEmail"></span>
-
+                                        <div id="newsletter-result-block" class="alert alert-success d-none mt-2" role="status" aria-live="polite"></div>
                                     </div>
-                                    <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
 
                         <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
@@ -138,7 +140,7 @@
                                     class="footer-title nav-toggler collapsed"
                                     data-toggle="collapse" 
                                     data-target="#footer-themes" 
-                                    aria-controls="footer-newsletter" 
+                                    aria-controls="footer-themes" 
                                     aria-expanded="false">
                                     @Html.Raw(T("Footer.Themes"))
                                 </h4>
