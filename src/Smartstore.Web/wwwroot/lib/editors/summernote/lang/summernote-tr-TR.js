@@ -193,6 +193,12 @@
         tooltip: "Tablo stili",
         stylesExclusive: ["Temel", "Kenarlıklı"],
         stylesInclusive: ["Çizgili", "Yoğun", "Üzerine gelince"]
+      },
+      paste: {
+        title: "Yapıştırma",
+        description: "Yapıştırılan içeriğin biçimlendirmesi korunsun mu kaldırılsın mı?",
+        keepFormat: "Biçimi koru",
+        removeFormat: "Biçimi temizle"
       }
     }
   });

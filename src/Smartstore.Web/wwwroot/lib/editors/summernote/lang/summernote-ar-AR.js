@@ -193,6 +193,12 @@
         tooltip: "نمط الجدول",
         stylesExclusive: ["أساسي", "محدد"],
         stylesInclusive: ["مخطط", "مكثف", "قابل للتأثير"]
+      },
+      paste: {
+        title: "خيارات اللصق",
+        description: "هل تريد الاحتفاظ بتنسيق المحتوى المُلصق أم إزالته؟",
+        keepFormat: "حفظ التنسيق",
+        removeFormat: "حذف التنسيق"
       }
     }
   });

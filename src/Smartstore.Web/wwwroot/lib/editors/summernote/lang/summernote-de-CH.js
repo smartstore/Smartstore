@@ -193,6 +193,12 @@
         tooltip: "Tabellenstil",
         stylesExclusive: ["Standard", "Eingerahmt"],
         stylesInclusive: ["Streifen", "Kompakt", "Hover Effekt"]
+      },
+      paste: {
+        title: "Einfüge-Optionen",
+        description: "Soll die Formatierung im eingefügten Inhalt beibehalten oder entfernt werden?",
+        keepFormat: "Formatierung behalten",
+        removeFormat: "Formatierung entfernen"
       }
     }
   });

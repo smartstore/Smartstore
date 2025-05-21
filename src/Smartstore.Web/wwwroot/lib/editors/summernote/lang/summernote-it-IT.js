@@ -192,6 +192,12 @@
         tooltip: "Style de tableau",
         stylesExclusive: ["Basique", "Avec bordures"],
         stylesInclusive: ["Rayé", "Condensé", "Survolable"]
+      },
+      paste: {
+        title: "Opzioni incolla",
+        description: "Mantenere o rimuovere la formattazione del contenuto incollato?",
+        keepFormat: "Mantieni formato",
+        removeFormat: "Rimuovi formato"
       }
     }
   });

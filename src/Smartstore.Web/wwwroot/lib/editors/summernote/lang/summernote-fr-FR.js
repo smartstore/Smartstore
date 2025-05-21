@@ -192,6 +192,12 @@
         tooltip: "Style de tableau",
         stylesExclusive: ["Basique", "Avec bordures"],
         stylesInclusive: ["Rayé", "Condensé", "Survolable"]
+      },
+      paste: {
+        title: "Options de collage",
+        description: "Conserver ou supprimer la mise en forme du contenu collé ?",
+        keepFormat: "Garder format",
+        removeFormat: "Nettoyer format"
       }
     }
   });

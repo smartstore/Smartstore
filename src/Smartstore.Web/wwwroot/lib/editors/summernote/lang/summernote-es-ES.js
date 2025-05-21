@@ -198,6 +198,12 @@
         tooltip: "Estilo de tabla",
         stylesExclusive: ["Básico", "Con bordes"],
         stylesInclusive: ["Rayado", "Condensado", "Hoverable"]
+      },
+      paste: {
+        title: "Opciones al pegar",
+        description: "¿Conservar o eliminar el formato del contenido pegado?",
+        keepFormat: "Conservar formato",
+        removeFormat: "Quitar formato"
       }
     }
   });

@@ -194,6 +194,12 @@
         tooltip: "Estilo da tabela",
         stylesExclusive: ["Básico", "Com bordas"],
         stylesInclusive: ["Listrado", "Condensado", "Hoverable"]
+      },
+      paste: {
+        title: "Opções de colar",
+        description: "Manter ou remover a formatação do conteúdo colado?",
+        keepFormat: "Manter formato",
+        removeFormat: "Limpar formato"
       }
     }
   });

@@ -192,6 +192,12 @@
         tooltip: "テーブルスタイル",
         stylesExclusive: ["基本", "枠線あり"],
         stylesInclusive: ["ストライプ", "コンパクト", "ホバー可能"]
+      },
+      paste: {
+        title: "貼り付け設定",
+        description: "貼り付けた内容の書式を保持しますか、それとも解除しますか？",
+        keepFormat: "書式を保持",
+        removeFormat: "書式解除"
       }
     }
   });
