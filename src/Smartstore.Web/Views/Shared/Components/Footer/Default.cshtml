@@ -107,7 +107,8 @@
                                                 </span>
                                             </div>
 
-                                            <div class="mb-2">
+                                            <fieldset class="mb-2">
+                                                <legend class="sr-only">@T("Common.SelectAction")</legend>
                                                 <div class="hstack">
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" id="newsletter-subscribe" name="optionsRadios" value="newsletter-subscribe" checked="checked">
@@ -115,7 +116,6 @@
                                                             <span>@T("Newsletter.Subscribe")</span>
                                                         </label>
                                                     </div>
-
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" id="newsletter-unsubscribe" name="optionsRadios" value="newsletter-unsubscribe">
                                                         <label class="form-check-label" for="newsletter-unsubscribe">
@@ -123,7 +123,7 @@
                                                         </label>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </fieldset>
 
                                             <zone name="gdpr_consent_small"></zone>
                                             <span asp-validation-for="NewsletterEmail"></span>

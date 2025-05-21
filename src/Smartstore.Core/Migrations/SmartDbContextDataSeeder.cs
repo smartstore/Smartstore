@@ -40,6 +40,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
+            builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.General.Common.Captcha.Hint",
                 "CAPTCHAs are used for security purposes to help distinguish between human and machine users. They are typically used to verify that internet forms are being"
