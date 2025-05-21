@@ -10,6 +10,7 @@
 - Catalog and associated products search forms have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
 - Polls have been made accessible to screen readers.
+- Newsletter subscription and theme selector in footer menu have been made accessible to screen readers.
 
 ### New Features
 
