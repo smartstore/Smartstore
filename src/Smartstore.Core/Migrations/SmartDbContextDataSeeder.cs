@@ -21,15 +21,19 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("AriaLabel.MainNavigation", "Main navigation", "Hauptnavigation");
-            builder.AddOrUpdate("AriaLabel.SearchBox",
-                "Type in a search term and press Enter to search for products.",
-                "Geben Sie einen Suchbegriff ein und drücken Sie die Eingabetaste, um nach Produkten zu suchen.");
             builder.AddOrUpdate("AriaLabel.ShowPreviousProducts",
                 "Show previous product group",
                 "Vorherige Produktgruppe anzeigen");
             builder.AddOrUpdate("AriaLabel.ShowNextProducts",
                 "Show next product group",
                 "Nächste Produktgruppe anzeigen");
+
+            builder.AddOrUpdate("AriaDescription.InstantSearchBox",
+                "Enter a search term. Results will appear automatically as you type. Press the Enter key to view all the results.",
+                "Geben Sie einen Suchbegriff ein. Während Sie tippen, erscheinen automatisch erste Ergebnisse. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.");
+            builder.AddOrUpdate("AriaDescription.AutoSearchBox",
+                "Enter a search term. Results will appear automatically as you type.",
+                "Geben Sie einen Suchbegriff ein. Die Ergebnisse erscheinen automatisch, während Sie tippen.");
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");

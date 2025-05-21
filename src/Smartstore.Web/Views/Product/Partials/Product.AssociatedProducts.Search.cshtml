@@ -12,6 +12,7 @@
            name="associatedProductsSearchTerm"
            placeholder="@T("Common.SearchProducts")"
            aria-label="@T("Common.SearchProducts")"
+           aria-description="@T("AriaDescription.AutoSearchBox")"
            data-url="@Url.Action("AssociatedProducts", "Product", new { id = Model.Id })"
            data-target="#associated-products"
            data-origin="Product/AssociatedProducts" />
