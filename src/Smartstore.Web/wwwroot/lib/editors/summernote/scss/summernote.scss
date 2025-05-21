@@ -463,6 +463,11 @@ $img-margin-right: 10px;
 
     .modal-footer > .btn {
         min-width: 80px;
+        > svg { 
+            height: 16px;
+            color: currentColor;
+            fill: currentColor;
+        }
     }
 }
 
