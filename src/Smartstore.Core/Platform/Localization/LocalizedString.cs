@@ -66,32 +66,11 @@ namespace Smartstore.Core.Localization
         /// <inheritdoc />
         public void WriteTo(TextWriter writer, HtmlEncoder encoder)
         {
-            if (writer == null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+            Guard.NotNull(writer);
+            Guard.NotNull(encoder);
 
-            if (encoder == null)
-            {
-                throw new ArgumentNullException(nameof(encoder));
-            }
-
-            if (Arguments.Length == 0)
-            {
-                writer.Write(Value);
-            }
-            else
-            {
-                try
-                {
-                    var formattableString = new HtmlFormattableString(Value, Arguments);
-                    formattableString.WriteTo(writer, encoder);
-                }
-                catch
-                {
-                    writer.Write(Value);
-                }
-            }
+            var value = Arguments.Length > 0 ? string.Format(Value, Arguments) : Value;
+            encoder.Encode(writer, value);
         }
 
         /// <inheritdoc />
@@ -102,21 +81,7 @@ namespace Smartstore.Core.Localization
                 return string.Empty;
             }
 
-            if (Arguments.Length == 0)
-            {
-                return Value;
-            }
-            else
-            {
-                try
-                {
-                    return string.Format(Value, Arguments);
-                }
-                catch
-                {
-                    return Value;
-                }
-            }
+            return Arguments.Length > 0 ? string.Format(Value, Arguments) : Value;
         }
 
         /// <inheritdoc />
