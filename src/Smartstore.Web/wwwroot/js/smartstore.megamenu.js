@@ -431,19 +431,45 @@
                     }
                 }
 
-                const api = {
-                    // Functions 
-                    alignDrop,
-                    tryOpen,
-                    closeNow,
-                    // Elements
-                    megamenu,
-                    navElems
-                };
+                // Accessibility event handling
+                // Main nav elements
+                navElems.on("ak:menu:open", function (e) {
+                    //const el = $(e.target);
+                    const el = $(e.detail.trigger);
+                    if (isSimple) {
+                        const menu = $(e.detail.menu);
+                        alignDrop(el.parent(), menu.find(".dropdown-menu"), megamenu);
+                    }
+                    tryOpen(el);
+                });
 
-                megamenuContainer.data('megaMenuAPI', api);
+                navElems.on("ak:menu:close", function (e) {
+                    //closeNow($(e.target));
+                    closeNow($(e.detail.trigger));
+                });
 
-                AccessibilityKeyHandler.init("MegaMenu", megamenuContainer, isSimple);
+                // Submenus (only available in simple menu)
+                const menuItems = $('.megamenu-dropdown-container.simple [role="menuitem"]');
+                menuItems.on("ak:menu:open", function (e) {
+                    //const currentItem = $(e.target);
+                    const currentItem = $(e.detail.trigger);
+                    const menu = $(e.detail.menu);
+                    const firstSubmenuItem = menu.find('[role="menuitem"]:visible').first();
+                    
+                    showDrop(currentItem.parent());
+                    firstSubmenuItem.focus();
+                });
+
+                menuItems.on("ak:menu:close", function (e) {
+                    //const currentItem = $(e.target);
+                    const currentItem = $(e.detail.trigger);
+                    const menu = $(e.detail.menu);
+
+                    if (menu.length) {
+                        closeDrop(currentItem.parent());
+                        currentItem.focus();
+                    } 
+                });
             })
         }
     });

@@ -94,7 +94,6 @@
             if (isDropDownActive)
             {
                 var dropdownMenuId = "dropdown-menu-{0}".FormatInvariant(item.Id);
-                linkAttrs["role"] = "menuitem";
                 linkAttrs["aria-controls"] = dropdownMenuId;
                 linkAttrs["aria-haspopup"] = "menu";
                 linkAttrs["aria-expanded"] = "false";
@@ -103,7 +102,8 @@
 
             // INFO: Only the first visible element should be focusable. Actual navigation will be handled by '->', '<-', etc
             linkAttrs["tabindex"] = isFirst ? "0" : "-1";
-            
+            linkAttrs["role"] = "menuitem";
+
             <li id="main-nav-item-@item.Id" data-id="@item.Id" attrs="attrs" role="none">
                 <a id="main-nav-item-link-@item.Id" href="@itemUrl" attrs="linkAttrs">
                     @if (item.Icon.HasValue())
