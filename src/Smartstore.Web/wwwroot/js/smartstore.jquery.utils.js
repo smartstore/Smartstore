@@ -178,11 +178,6 @@
         },
 
 		/**
-		 * Copyright 2012, Digital Fusion
-		 * Licensed under the MIT license.
-		 * http://teamdf.com/jquery-plugins/license/
-		 *
-		 * @author Sam Sehnert
 		 * @desc A small plugin that checks whether elements are within
 		 *       the user visible viewport of a web browser.
 		 *       only accounts for vertical position, not horizontal.
@@ -357,6 +352,46 @@
 
                     timeout = window.requestAnimationFrame(resizeAllGridItems);
                 });
+            });
+        },
+
+        /**
+         * Gets or sets ARIA attributes on the matched elements.
+         * 
+         * @param {String|Object} key Either the ARIA attribute name (without 'aria-' prefix) 
+         *                            or an object of key-value pairs
+         * @param {String} [value] The value to set (if setting a single attribute)
+         * @return {String|jQuery} Returns the attribute value when getting, or the jQuery object for chaining when setting
+         */
+        aria: function (key, value) {
+            // Handle getting values
+            if (value === undefined && typeof key === 'string') {
+                // Get the first element's attribute
+                if (this.length === 0) return undefined;
+                var attrName = 'aria-' + key;
+                var attrValue = this[0].getAttribute(attrName);
+
+                // Convert "true"/"false" to booleans if they're not strings
+                if (attrValue === 'true') return true;
+                if (attrValue === 'false') return false;
+
+                return attrValue;
+            }
+
+            // Handle setting values
+            return this.each(function () {
+                // Handle object of key-value pairs
+                if (typeof key === 'object') {
+                    for (var k in key) {
+                        if (key.hasOwnProperty(k)) {
+                            this.setAttribute('aria-' + k, key[k]);
+                        }
+                    }
+                }
+                // Handle single key-value pair
+                else if (typeof key === 'string') {
+                    this.setAttribute('aria-' + key, value);
+                }
             });
         }
     }); // $.fn.extend
