@@ -9,7 +9,9 @@
 
     @*Hamburger Menu*@
     <div class="shopbar-tool d-lg-none" id="shopbar-menu">
-        <a class="shopbar-button" href="#" data-toggle="offcanvas" data-autohide="true" data-placement="start" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-menu">
+        <a id="offcanvas-menu-opener" class="shopbar-button" href="#" 
+           data-toggle="offcanvas" data-autohide="true" data-placement="start" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-menu"
+           aria-controls="offcanvas-menu" aria-expanded="false">
             <span class="shopbar-button-icon">
                 <i class="icm icm-menu"></i>
             </span>
@@ -95,10 +97,11 @@
 </div>
 
 <widget target-zone="end" key="offcanvas-menu">
-    <aside id="offcanvas-menu" class="offcanvas offcanvas-shadow" data-blocker="true" data-overlay="true">
+    <aside id="offcanvas-menu" class="offcanvas offcanvas-shadow" data-blocker="true" data-overlay="true" 
+           aria-hidden="true" aria-labelledby="offcanvas-menu-opener" tabindex="-1">
         <div class="offcanvas-content">
             <div id="offcanvas-menu-container" data-url="@(Url.Action("OffCanvas", "Menu"))">
-                @*Ajax content will be rendered here*@ 
+                @*Ajax content will be rendered here*@
             </div>
         </div>
     </aside>

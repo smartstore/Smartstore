@@ -343,6 +343,7 @@
             if (self.state !== 'slide-in') return;
             body.addClass('canvas-slid');
             self.state = 'slid';
+            self.el.attr("aria-hidden", false);
             self.el.trigger('shown.sm.offcanvas');
         });
         
@@ -375,6 +376,7 @@
 
             body.removeClass('canvas-sliding-out');
             self.state = null;
+            self.el.attr("aria-hidden", true);
             self.el.trigger('hidden.sm.offcanvas');
         });
 

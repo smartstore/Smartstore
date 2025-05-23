@@ -12,19 +12,22 @@
 
 <div class="ocm-home-layer layer" data-id="0" data-depth="0" data-disallow-navigation="@((!allowNavigation).ToString().ToLower())">
     <div class="offcanvas-menu-header offcanvas-tabs" attr-class='(!showTabs, "d-none")'>
-        <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist">
+        <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist" aria-label="@T("AriaLabel.OffCanvasMenuTab")">
             <li sm-if="showNodes" class="nav-item col">
-                <a id="ocm-tab-menu" class="nav-link" data-toggle="tab" href="#ocm-menu" role="tab" data-initialized="true">
+                <a id="ocm-tab-menu" class="nav-link" data-toggle="tab" href="#ocm-menu" data-initialized="true"
+                   role="tab" aria-controls="ocm-menu" aria-selected="true" tabindex="0">
                     <span class="title">@T("Offcanvas.Menu.Categories")</span>
                 </a>
             </li>
             <li sm-if="showBrands" class="nav-item col">
-                <a id="ocm-tab-brands" class="nav-link" data-toggle="tab" href="#ocm-brands" data-url="@Url.Action("OffCanvasBrands", "Menu")" role="tab">
+                <a id="ocm-tab-brands" class="nav-link" data-toggle="tab" href="#ocm-brands" data-url="@Url.Action("OffCanvasBrands", "Menu")" 
+                   role="tab" aria-controls="ocm-brands" aria-selected="false" tabindex="-1">
                     <span class="title">@T("Offcanvas.Menu.Brands")</span>
                 </a>
             </li>
             <li class="nav-item col">
-                <a id="ocm-tab-service" class="nav-link" data-toggle="tab" href="#ocm-service" role="tab">
+                <a id="ocm-tab-service" class="nav-link" data-toggle="tab" href="#ocm-service"
+                   role="tab" aria-controls="ocm-service" aria-selected="false" tabindex="-1">
                     <span class="title">@T("Offcanvas.Menu.Service")</span>
                 </a>
             </li>
@@ -32,7 +35,8 @@
     </div>
 
     <div class="tab-content offcanvas-menu-body offcanvas-scrollable">
-        <div sm-if="showNodes" class="tab-pane fade" id="ocm-menu" role="tabpanel">
+        <div sm-if="showNodes" class="tab-pane fade" id="ocm-menu" 
+             role="tabpanel" aria-labelledby="ocm-tab-menu">
             @{
                 // Prevent subsequent AJAX call from script by rendering the current submenu (either root level or a submenu)
                 if (Model != null)
@@ -41,8 +45,10 @@
                 }
             }
         </div>
-        <div sm-if="showBrands" class="tab-pane fade" id="ocm-brands" role="tabpanel"></div>
-        <div class="tab-pane fade" id="ocm-service" role="tabpanel"></div>
+        <div sm-if="showBrands" class="tab-pane fade" id="ocm-brands" 
+             role="tabpanel" aria-labelledby="ocm-tab-brands"></div>
+        <div class="tab-pane fade" id="ocm-service" 
+             role="tabpanel" aria-labelledby="ocm-tab-service"></div>
     </div>
 
     <div sm-if="allowNavigation" class="offcanvas-menu-footer d-none">
