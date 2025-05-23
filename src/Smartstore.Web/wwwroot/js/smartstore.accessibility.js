@@ -7,47 +7,6 @@
 (function (window) {
     'use strict';
 
-    /* --------------------------------------------------
-     *  AccessKit core – plugin host + key dispatcher
-     * -------------------------------------------------- */
-    class AccessKit {
-        constructor(opts = {}) {
-            this.opts = opts;
-            this.rtl = opts.rtl ?? (document.documentElement.dir === 'rtl');
-
-            /* instantiate plugins */
-            this._plugins = AccessKit._registry.map(Plugin => new Plugin(this));
-
-            /* one keydown listener – capture phase */
-            window.addEventListener('keydown', this._dispatchKey.bind(this), true);
-
-            // TODO: (wcag) (mh) Is this really needed? Lets wait if we can use it anywhere before we remove it.
-            /* announce init */
-            document.dispatchEvent(new CustomEvent('ak:init', {
-                bubbles: true,
-                detail: { instance: this }
-            }));
-        }
-
-        _dispatchKey(e) {
-            for (const plugin of this._plugins) {
-                if (typeof plugin.handleKey === 'function' && plugin.handleKey(e) === true) {
-                    if (e.key !== 'Tab') e.preventDefault(); // keep natural Tab
-                    e.stopPropagation();
-                    return;
-                }
-            }
-        }
-
-        static register(Plugin) {
-            AccessKit._registry.push(Plugin);
-        }
-    }
-    AccessKit._registry = [];
-
-    /* --------------------------------------------------
-     *  Shared helpers
-     * -------------------------------------------------- */
     const KEY = {
         LEFT: 'ArrowLeft',
         UP: 'ArrowUp',
@@ -61,13 +20,65 @@
         ENTER: 'Enter'
     };
 
-    // Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
-    function getNavKeys(orientation, rtl = false) {
-        if (orientation === 'horizontal') {
-            return rtl ? [KEY.RIGHT, KEY.LEFT] : [KEY.LEFT, KEY.RIGHT];
+    /* --------------------------------------------------
+     *  AccessKit core – plugin host + key dispatcher
+     * -------------------------------------------------- */
+    class AccessKit {
+        constructor(opts = {}) {
+            // TODO: (wcag) (mh) Rename opts --> options
+            this.opts = opts;
+            this.rtl = opts.rtl ?? (document.documentElement.dir === 'rtl');
+
+            // TODO: (wcag) (mh) I don't get it, do you? Plugin => new Plugin(this) ???
+            /* instantiate plugins */
+            this._plugins = AccessKit._registry.map(Plugin => new Plugin(this));
+
+            /* one keydown listener – capture phase */
+            // TODO: (wcag) (api) API problem: we also need keyup for special cases (to cancel the action)
+            // TODO: (wcag) (api) Maybe it is sufficient to bind this listener to *[role] elements instead of globally handling window keystrokes?
+            window.addEventListener('keydown', this._dispatchKey.bind(this), true);
+
+            // TODO: (wcag) (mh) Is this really needed? Lets wait if we can use it anywhere before we remove it.
+            /* announce init */
+            document.dispatchEvent(new CustomEvent('ak:init', {
+                bubbles: true,
+                detail: { instance: this }
+            }));
         }
-        // vertical
-        return [KEY.UP, KEY.DOWN];
+
+        _dispatchKey(e) {
+            if (e.target?.matches('input, textarea') || e.target?.isContentEditable === true) {
+                // Never handle input elements
+                return;
+            }
+
+            // TODO: (wcag) (mh) Can this dispatcher be narrowed down to specific elements only? Like a, [role], [tabindex] etc.?
+
+            for (const plugin of this._plugins) {
+                if (_.isFunction(plugin.handleKey) && plugin.handleKey(e)) {
+                    if (e.key !== KEY.TAB) e.preventDefault(); // keep natural Tab
+                    e.stopPropagation();
+                    return;
+                }
+            }
+        }
+
+        static register(Plugin) {
+            // TODO: (wcag) (mh) ??????
+            AccessKit._registry.push(Plugin);
+        }
+    }
+    AccessKit._registry = [];
+
+    /* --------------------------------------------------
+     *  Shared helpers
+     * -------------------------------------------------- */
+
+    // Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
+    const getNavKeys = (orientation, rtl = false) => {
+        return orientation === 'horizontal'
+            ? (rtl ? [KEY.RIGHT, KEY.LEFT] : [KEY.LEFT, KEY.RIGHT])
+            : [KEY.UP, KEY.DOWN];
     }
 
     const nextIdx = (cur, delta, len) => (cur + delta + len) % len;
@@ -90,8 +101,12 @@
      *  Handles all items of role="menubar" based on subitems role="menu" & role="menuitem".
      * -------------------------------------------------- */
     class MenuPlugin {
+        // TODO: (wcag) (mh) Very obfuscated code. Bad naming conventions, no comments. Don't trust ChatGPT unmoderated! TBD with MC.
+        // TODO: (wcag) (mh) Implement base class with actual contract, not just loose stuff.
+        // TODO: (wcag) (mh) A special "key handler plugin" belongs to the plugin file if it excsts. In this case: smartstore.megamenu.js. But not if it is generic enough to handle more than one widget type.
         constructor(ak) {
             this.ak = ak;
+            // TODO: (wcag) (mh) Slow!
             this.menubars = Array.from(document.querySelectorAll('[role="menubar"]'));
             this._initRovingTabindex();
 
@@ -112,19 +127,22 @@
         }
 
         _items(container) {
+            // TODO: (wcag) (mh) Slow!
             return [...container.querySelectorAll('[role="menuitem"]')]
-                .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === container);
+                .filter(mi => mi.closest('[role="menubar"], [role="menu"]') === container);
         }
 
-        /* entry point for dispatcher */
+        /* Entry point for dispatcher */
         handleKey(e) {
             const el = e.target;
 
             if (!el || el.getAttribute('role') !== 'menuitem') return false;
 
+            // TODO: (wcag) (mh) Slow!
             const menubar = el.closest('[role="menubar"]');
             if (menubar) return this._menubarKey(e, menubar);
 
+            // TODO: (wcag) (mh) Slow!
             const submenu = el.closest('[role="menu"]');
             if (submenu) return this._submenuKey(e, submenu);
 
@@ -133,6 +151,7 @@
 
         /* top‑level */
         _menubarKey(e, menubar) {
+            // TODO: (wcag) (mh) DRY: nearly identical to _submenuKey().
             const items = this._items(menubar);
             const idx = items.indexOf(e.target);
             if (idx === -1) return false;
@@ -174,9 +193,10 @@
             //const dirClose = this.ak.rtl ? KEY.RIGHT : KEY.LEFT;
 
             const orientation = submenu.getAttribute('aria-orientation') ?? 'vertical';
+            const isVertical = orientation === 'vertical';
             const [KEY_PREV, KEY_NEXT] = getNavKeys(orientation, this.ak.rtl);
-            const dirOpen = orientation === 'vertical' ? (this.ak.rtl ? KEY.LEFT : KEY.RIGHT) : KEY.DOWN;
-            const dirClose = orientation === 'vertical' ? (this.ak.rtl ? KEY.RIGHT : KEY.LEFT) : KEY.UP;
+            const dirOpen = isVertical ? (this.ak.rtl ? KEY.LEFT : KEY.RIGHT) : KEY.DOWN;
+            const dirClose = isVertical ? (this.ak.rtl ? KEY.RIGHT : KEY.LEFT) : KEY.UP;
 
             switch (e.key) {
                 //case KEY.DOWN: setActive(items, nextIdx(idx, +1, items.length)); return true;

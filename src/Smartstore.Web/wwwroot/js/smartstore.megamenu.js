@@ -431,10 +431,13 @@
                     }
                 }
 
+                // TODO: (mh) (wcag) Bad API design. These callback handlers should call methods that already exist here and not introduce new code and flow.
+                // TODO: (mh) (wcag) Don't attach events to the menu items, but to the menu itself as delegated event. This way we can use the same event for all submenus.
                 // Accessibility event handling
                 // Main nav elements
-                navElems.on("ak:menu:open", function (e) {
+                navElems.on("ak:menu:open", (e) => {
                     //const el = $(e.target);
+                    // TODO: (mh) (wcag) Rename detail --> data or another better name
                     const el = $(e.detail.trigger);
                     if (isSimple) {
                         const menu = $(e.detail.menu);
@@ -443,31 +446,33 @@
                     tryOpen(el);
                 });
 
-                navElems.on("ak:menu:close", function (e) {
+                // TODO: (mh) (wcag) Don't attach events to the menu items, but to the menu itself as delegated event. This way we can use the same event for all submenus.
+                navElems.on("ak:menu:close", (e) => {
                     //closeNow($(e.target));
                     closeNow($(e.detail.trigger));
                 });
 
+                // TODO: (mh) (wcag) Don't attach events to the menu items, but to the menu itself as delegated event. This way we can use the same event for all submenus.
                 // Submenus (only available in simple menu)
                 const menuItems = $('.megamenu-dropdown-container.simple [role="menuitem"]');
-                menuItems.on("ak:menu:open", function (e) {
+                menuItems.on("ak:menu:open", (e) => {
                     //const currentItem = $(e.target);
                     const currentItem = $(e.detail.trigger);
                     const menu = $(e.detail.menu);
                     const firstSubmenuItem = menu.find('[role="menuitem"]:visible').first();
                     
                     showDrop(currentItem.parent());
-                    firstSubmenuItem.focus();
+                    firstSubmenuItem.trigger('focus');
                 });
 
-                menuItems.on("ak:menu:close", function (e) {
+                menuItems.on("ak:menu:close", (e) => {
                     //const currentItem = $(e.target);
                     const currentItem = $(e.detail.trigger);
                     const menu = $(e.detail.menu);
 
                     if (menu.length) {
                         closeDrop(currentItem.parent());
-                        currentItem.focus();
+                        currentItem.trigger('focus');
                     } 
                 });
             })

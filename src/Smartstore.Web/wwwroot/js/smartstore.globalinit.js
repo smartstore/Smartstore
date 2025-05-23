@@ -317,7 +317,8 @@ jQuery(function () {
 
             if (type === 'enter') {
                 handleEnter(group);
-            } else if (e.type == 'mouseleave') {
+            }
+            else if (e.type == 'mouseleave') {
                 // Close drop delayed to allow for mouse re-entry
                 handleLeave(group, leaveDelay);
             }
