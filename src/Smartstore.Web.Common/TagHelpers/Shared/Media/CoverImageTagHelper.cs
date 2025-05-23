@@ -81,6 +81,15 @@ namespace Smartstore.Web.TagHelpers.Shared
                 widgetProvider.RegisterHtml("admin_actions", dropdown);
             }
 
+            var caption = Alt ?? Title;
+            if (caption.HasValue())
+            {
+                var figCaption = new TagBuilder("figcaption");
+                figCaption.Attributes["class"] = "sr-only";
+                figCaption.InnerHtml.AppendHtml(caption);
+                figure.InnerHtml.AppendHtml(figCaption);
+            }
+
             // Order: First the image then the dropdown.
             output.WrapElementWith(InnerHtmlPosition.Append, figure);
         }

@@ -52,6 +52,14 @@ namespace Smartstore.Core.Data.Migrations
                 + " angelegt. Wählen Sie als reCAPTCHA-Typ <b>Aufgabe (v2)</b> aus.");
 
             builder.AddOrUpdate("Polls.TotalVotes", "{0} votes cast.", "{0} abgegebene Stimmen.");
+
+            builder.AddOrUpdate("Blog.RSS.Hint",
+                "Opens the RSS feed with the latest blog posts. Subscribe with an RSS reader to stay informed.",
+                "Öffnet den RSS-Feed mit aktuellen Blogbeiträgen. Mit einem RSS-Reader abonnieren und informiert bleiben.");
+
+            builder.AddOrUpdate("News.RSS.Hint",
+                "Opens the RSS feed with the latest news. Subscribe with an RSS reader to stay informed.",
+                "Öffnet den RSS-Feed mit aktuellen News. Mit einem RSS-Reader abonnieren und informiert bleiben.");
         }
     }
 }

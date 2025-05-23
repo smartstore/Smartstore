@@ -19,6 +19,18 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(AppendVersionAttributeName)]
         public bool AppendVersion { get; set; }
 
+        [HtmlAttributeNotBound]
+        internal string Alt
+        {
+            get => Model?.Alt ?? File?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty();
+        }
+
+        [HtmlAttributeNotBound]
+        internal string Title
+        {
+            get => Model?.Title ?? File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty();
+        }
+
         protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
         {
             if (Src.IsEmpty())
@@ -36,8 +48,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.AppendCssClass("file-img");
             output.Attributes.SetAttribute("src", src);
 
-            output.Attributes.SetAttributeNoReplace("alt", () => Model?.Alt ?? File?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty());
-            output.Attributes.SetAttributeNoReplace("title", () => Model?.Title ?? File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("alt", () => Alt);
+            output.Attributes.SetAttributeNoReplace("title", () => Title);
         }
     }
 }
