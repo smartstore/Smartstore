@@ -66,7 +66,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
             IEnumerable<Product> products = null;
             var localeKeyGroup = nameof(Product);
             var localeKey = nameof(Product.Name);
-            var languageId = _workContext.WorkingLanguage.Id;
+            var language = _workContext.WorkingLanguage;
             var fields = new List<string> { "name" };
             var hasMoreData = false;
             var skip = context.PageIndex * context.PageSize;
@@ -87,7 +87,8 @@ namespace Smartstore.Core.Catalog.Products.Rules
             {
                 searchQuery = searchQuery
                     .Slice(skip, take)
-                    .SortBy(ProductSortingEnum.NameAsc);
+                    .SortBy(ProductSortingEnum.NameAsc)
+                    .WithLanguage(language);
 
                 var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
                 var hits = await searchResult.GetHitsAsync();
@@ -115,13 +116,13 @@ namespace Smartstore.Core.Catalog.Products.Rules
                     .ToListAsync();
             }
 
-            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, languageId, products.Select(x => x.Id).ToArray());
+            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, language.Id, products.Select(x => x.Id).ToArray());
 
             var options = products
                 .Select(x => new RuleValueSelectListOption
                 {
                     Value = x.Id.ToString(),
-                    Text = _localizedEntityService.GetLocalizedValue(languageId, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
+                    Text = _localizedEntityService.GetLocalizedValue(language.Id, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
                     Hint = x.Sku
                 })
                 .ToList();
