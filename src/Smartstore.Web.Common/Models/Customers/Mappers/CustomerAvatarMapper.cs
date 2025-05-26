@@ -2,6 +2,7 @@
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Customers
 {
@@ -60,6 +61,8 @@ namespace Smartstore.Web.Models.Customers
             _mediaSettings = mediaSettings;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         protected override void Map(Customer from, CustomerAvatarModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
@@ -74,11 +77,7 @@ namespace Smartstore.Web.Models.Customers
             to.Large = (bool)(parameters.LargeAvatar == true);
             to.DisplayRing = (bool)(parameters.DisplayRing == true);
             to.AvatarPictureSize = _mediaSettings.AvatarPictureSize;
-
-            to.UserName = (parameters.UserName as string).NullEmpty() 
-                ?? from.GetFullName().NullEmpty() 
-                ?? from.Username.NullEmpty()
-                ?? from.FindEmail();
+            to.UserName = (parameters.UserName as string).NullEmpty() ?? from.FormatUserName(_customerSettings, T, false);
 
             if (from.IsGuest())
             {
