@@ -28,6 +28,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("AriaLabel.ShowNextProducts",
                 "Show next product group",
                 "Nächste Produktgruppe anzeigen");
+            builder.AddOrUpdate("AriaLabel.ReadMore", "Read more: {0}", "Mehr lesen: {0}");
 
             builder.AddOrUpdate("AriaDescription.SearchBox",
                 "Enter a search term. Press the Enter key to view all the results.",
