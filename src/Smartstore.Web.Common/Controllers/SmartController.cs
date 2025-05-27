@@ -263,16 +263,30 @@ namespace Smartstore.Web.Controllers
 
         #region Redirection
 
+        /// <summary>
+        /// Gets a <see cref="RedirectResult"/> (HTTP status code 302) to the referrer.
+        /// If a secure referrer cannot be determined, a <see cref="RedirectToRouteResult"/> to the homepage is returned.
+        /// </summary>
         protected ActionResult RedirectToReferrer()
         {
             return RedirectToReferrer(null, () => RedirectToRoute("Homepage"));
         }
 
+        /// <summary>
+        /// Gets a <see cref="RedirectResult"/> (HTTP status code 302) to the referrer. 
+        /// If a secure referrer cannot be determined, a <see cref="RedirectToRouteResult"/> to the homepage is returned.
+        /// </summary>
+        /// <param name="referrer">Optional desired referrer URL. URLs that are not local are considered unsafe and are ignored.</param>
         protected ActionResult RedirectToReferrer(string? referrer)
         {
             return RedirectToReferrer(referrer, () => RedirectToRoute("Homepage"));
         }
 
+        /// <summary>
+        /// Gets a <see cref="RedirectResult"/> (HTTP status code 302) to the referrer. If a secure referrer cannot be determined, 
+        /// a <see cref="RedirectResult"/> to <paramref name="fallbackUrl"/> or <see cref="NotFoundResult"/> is returned.
+        /// </summary>
+        /// <param name="referrer">Optional desired referrer URL. URLs that are not local are considered unsafe and are ignored.</param>
         protected ActionResult RedirectToReferrer(string? referrer, string? fallbackUrl)
         {
             return RedirectToReferrer(
@@ -280,6 +294,11 @@ namespace Smartstore.Web.Controllers
                 fallbackUrl.HasValue() ? () => Redirect(fallbackUrl!) : null);
         }
 
+        /// <summary>
+        /// Gets a <see cref="RedirectResult"/> (HTTP status code 302) to the referrer. If a secure referrer cannot be determined, 
+        /// a <paramref name="fallbackResult"/> or <see cref="NotFoundResult"/> is returned.
+        /// </summary>
+        /// <param name="referrer">Optional desired referrer URL. URLs that are not local are considered unsafe and are ignored.</param>
         protected virtual ActionResult RedirectToReferrer(string? referrer, Func<ActionResult>? fallbackResult)
         {
             if (referrer == null || (referrer != null && !Url.IsLocalUrl(referrer)))
