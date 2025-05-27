@@ -282,11 +282,14 @@ namespace Smartstore.Web.Controllers
 
         protected virtual ActionResult RedirectToReferrer(string? referrer, Func<ActionResult>? fallbackResult)
         {
-            referrer ??= Url.Referrer();
+            if (referrer == null || (referrer != null && !Url.IsLocalUrl(referrer)))
+            {
+                referrer = Url.Referrer();
+            }
 
             if (referrer.HasValue() && !referrer.EqualsNoCase(Request.RawUrl()))
             {
-                return Redirect(referrer);
+                return Redirect(referrer!);
             }
 
             if (fallbackResult != null)
