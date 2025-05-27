@@ -99,7 +99,7 @@ namespace Smartstore.Web.Controllers
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage,
             };
 
-            ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/");
+            ViewBag.ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
 
             return View(model);
         }
@@ -115,6 +115,11 @@ namespace Smartstore.Web.Controllers
             if (_captchaSettings.ShowOnLoginPage && captchaError.HasValue())
             {
                 ModelState.AddModelError(string.Empty, captchaError);
+            }
+
+            if (!Url.IsLocalUrl(returnUrl))
+            {
+                returnUrl = string.Empty;
             }
 
             ViewBag.ReturnUrl = returnUrl;
@@ -151,8 +156,7 @@ namespace Smartstore.Web.Controllers
                         if (returnUrl.IsEmpty()
                             || returnUrl == "/"
                             || returnUrl.Contains("/passwordrecovery", StringComparison.OrdinalIgnoreCase)
-                            || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
-                            || !Url.IsLocalUrl(returnUrl))
+                            || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase))
                         {
                             return RedirectToRoute("Homepage");
                         }
@@ -224,7 +228,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Disabled });
             }
 
-            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : string.Empty;
 
             var model = new RegisterModel();
             await PrepareRegisterModelAsync(model);
@@ -263,6 +267,11 @@ namespace Smartstore.Web.Controllers
             foreach (var validator in _userManager.PasswordValidators)
             {
                 AddModelStateErrors(await validator.ValidateAsync(_userManager, customer, model.Password));
+            }
+
+            if (!Url.IsLocalUrl(returnUrl))
+            {
+                returnUrl = string.Empty;
             }
 
             ViewData["ReturnUrl"] = returnUrl;
@@ -687,7 +696,7 @@ namespace Smartstore.Web.Controllers
                     NotifyError(T("Account.Register.Result.Disabled"));
                 }
 
-                return RedirectToLocal(returnUrl);
+                return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
             }
         }
 
@@ -713,7 +722,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/access-denied", Name = "AccessDenied")]
         public IActionResult AccessDenied(string returnUrl = null)
         {
-            throw new AccessDeniedException(null, returnUrl);
+            throw new AccessDeniedException(null, Url.IsLocalUrl(returnUrl) ? returnUrl : null);
         }
 
         #endregion
@@ -797,7 +806,7 @@ namespace Smartstore.Web.Controllers
                     await _signInManager.SignInAsync(customer, isPersistent: false);
 
                     var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
-                    if (returnUrl.HasValue())
+                    if (Url.IsLocalUrl(returnUrl))
                     {
                         redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + returnUrl.UrlEncode());
                     }
@@ -1009,11 +1018,6 @@ namespace Smartstore.Web.Controllers
 
             // Remove customer from 'Guests' role.
             await _userManager.RemoveFromRoleAsync(customer, SystemCustomerRoleNames.Guests);
-        }
-
-        private ActionResult RedirectToLocal(string returnUrl)
-        {
-            return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
         }
 
         private void AddModelStateErrors(IdentityResult result)

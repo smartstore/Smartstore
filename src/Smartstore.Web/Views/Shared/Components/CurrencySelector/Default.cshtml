@@ -1,12 +1,12 @@
 ﻿@{
     var currencies = ViewBag.AvailableCurrencies as IList<CurrencyModel>;
-
     if (currencies.Count <= 1)
     {
         return;
     }
 
     var activeCurr = currencies.FirstOrDefault(x => x.Id == WorkContext.WorkingCurrency.Id) ?? currencies.FirstOrDefault();
+    var returnUrl = Context.Request.Query["returnUrl"].ToString().UrlEncode();
 }
 
 <div class="dropdown currency-selector">
@@ -19,7 +19,6 @@
     <div class="dropdown-menu">
         @foreach (var curr in currencies)
         {
-            var returnUrl = Context.Request.Query["returnUrl"].ToString().UrlEncode();
             var changeCurrencyUrl = Url.RouteUrl("ChangeCurrency", new { customerCurrency = curr.Id });
             var href = Display.ModifyQueryString(changeCurrencyUrl, "returnUrl=" + returnUrl);
 

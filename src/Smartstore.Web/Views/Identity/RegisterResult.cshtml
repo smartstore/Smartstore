@@ -2,7 +2,7 @@
     Assets.AppendTitleParts(T("PageTitle.Register"));
 
     var continueUrl = Context.Request.Query["returnUrl"].ToString();
-    if (!continueUrl.HasValue())
+    if (!Url.IsLocalUrl(continueUrl))
     {
         continueUrl = Url.RouteUrl("Homepage");
     }
