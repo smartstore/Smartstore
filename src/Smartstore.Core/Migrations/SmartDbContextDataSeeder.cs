@@ -21,6 +21,7 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("AriaLabel.MainNavigation", "Main navigation", "Hauptnavigation");
+            builder.AddOrUpdate("AriaLabel.PageNavigation", "Page navigation", "Seitennavigation");
             builder.AddOrUpdate("AriaLabel.OffCanvasMenuTab", "Shop sections", "Shop-Bereiche");
             builder.AddOrUpdate("AriaLabel.ShowPreviousProducts",
                 "Show previous product group",

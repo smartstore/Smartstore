@@ -129,7 +129,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var items = CreateItemList();
 
-            output.Attributes.Add("aria-label", "Page navigation");
+            output.Attributes.Add("aria-label", T("AriaLabel.PageNavigation"));
             output.AppendCssClass("pagination-container");
 
             if (ContentTarget.HasValue())
@@ -200,7 +200,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             var currentPage = ListItems.PageNumber;
             var totalPages = ListItems.TotalPages;
             var maxPages = Math.Max(5, MaxPagesToDisplay); // Cannot handle less than 5 items: First + ... + CURRENT + ... + Last
-
             var items = new List<PagerItem>();
 
             // First link
@@ -478,17 +477,29 @@ namespace Smartstore.Web.TagHelpers.Shared
             classList.Dispose();
 
             var isClickable = item.Type is PagerItemType.Page or PagerItemType.Gap;
-            var innerAOrSpan = new TagBuilder(isClickable || item.IsNavButton ? "a" : "span");
+            var isNavOrClickable = isClickable || item.IsNavButton;
+            var innerAOrSpan = new TagBuilder(isNavOrClickable ? "a" : "span");
 
-            if (isClickable || item.IsNavButton)
+            if (isNavOrClickable)
             {
                 innerAOrSpan.Attributes.Add("href", item.Url);
+
+                if (item.State == PagerItemState.Selected)
+                {
+                    innerAOrSpan.Attributes.Add("aria-current", "page");
+                }
+                if (item.State == PagerItemState.Disabled)
+                {
+                    innerAOrSpan.Attributes.Add("aria-disabled", "true");
+                    innerAOrSpan.Attributes.Add("role", "link");
+                    innerAOrSpan.Attributes.Add("tabindex", "-1");
+                }
 
                 if (item.IsNavButton)
                 {
                     innerAOrSpan.Attributes.Add("title", item.Text.AttributeEncode());
                     innerAOrSpan.Attributes.Add("aria-label", item.Text.AttributeEncode());
-                    innerAOrSpan.Attributes.Add("tab-index", "-1");
+
                     if (Style != PagerStyle.Blog)
                     {
                         innerAOrSpan.Attributes.Add("rel", "tooltip");
@@ -497,11 +508,16 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
                 else
                 {
-                    var formatStr = ItemTitleFormatString;
-                    if (formatStr.HasValue())
+                    if (ItemTitleFormatString.HasValue())
                     {
-                        innerAOrSpan.Attributes.Add("title", string.Format(formatStr, item.Text).AttributeEncode());
+                        var titleStr = string.Format(ItemTitleFormatString, item.Text).AttributeEncode();
+                        innerAOrSpan.Attributes.Add("title", titleStr);
+                        innerAOrSpan.Attributes.Add("aria-label", titleStr);
                         innerAOrSpan.Attributes.Add("rel", "tooltip");
+                    }
+                    else if (item.Type == PagerItemType.Page)
+                    {
+                        innerAOrSpan.Attributes.Add("aria-label", T("Pager.PageX").Value.FormatInvariant(item.Text).AttributeEncode());
                     }
                 }
             }
