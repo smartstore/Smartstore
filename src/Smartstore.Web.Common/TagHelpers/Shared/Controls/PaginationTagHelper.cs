@@ -517,7 +517,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                     else if (item.Type == PagerItemType.Page)
                     {
-                        innerAOrSpan.Attributes.Add("aria-label", T("Pager.PageX").Value.FormatInvariant(item.Text).AttributeEncode());
+                        // INFO: (wcag) (mg) Due to a recent fix in T(), .FormatInvariant() or .AttributeEncode() is not necessary anymore.
+                        innerAOrSpan.Attributes.Add("aria-label", T("Pager.PageX", item.Text));
                     }
                 }
             }
