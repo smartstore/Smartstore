@@ -470,7 +470,7 @@ namespace Smartstore.Tests.Extensions
         [TestCase("[]", "[", "]", true)]
         [TestCase("abc", "", "]", false)]
         [TestCase("abc", "[", "", false)]
-        public void IsEnclosedIn_StartEndEncloser_VariousInputs(string? value, string? start, string? end, bool expected)
+        public void IsEnclosedIn_StartEndEncloser_VariousInputs(string value, string start, string end, bool expected)
         {
             Assert.That(value.IsEnclosedIn(start, end), Is.EqualTo(expected));
         }
@@ -502,7 +502,7 @@ namespace Smartstore.Tests.Extensions
         // IsEnclosedIn (string start, string end) Tests - Explicit Comparison
         [TestCase("[TEST]", "[", "]", StringComparison.Ordinal, true)]
         [TestCase("[TEST]", "[", "]", StringComparison.OrdinalIgnoreCase, true)]
-        public void IsEnclosedIn_StartEndEncloser_WithComparison_VariousInputs(string? value, string? start, string? end, StringComparison comparison, bool expected)
+        public void IsEnclosedIn_StartEndEncloser_WithComparison_VariousInputs(string value, string start, string end, StringComparison comparison, bool expected)
         {
             Assert.That(value.IsEnclosedIn(start, end, comparison), Is.EqualTo(expected));
         }
@@ -1371,7 +1371,7 @@ namespace Smartstore.Tests.Extensions
         [TestCase("", "")]
         public void RemoveInvalidXmlChars_VariousInputs(string? input, string? expected)
         {
-            Assert.That(input.RemoveInvalidXmlChars(), Is.EqualTo(expected));
+            Assert.That(input!.RemoveInvalidXmlChars(), Is.EqualTo(expected));
         }
 
         // ReplaceCsvChars Tests
@@ -1381,7 +1381,7 @@ namespace Smartstore.Tests.Extensions
         [TestCase("", "")]
         public void ReplaceCsvChars_VariousInputs(string? input, string expected)
         {
-            Assert.That(input.ReplaceCsvChars(), Is.EqualTo(expected));
+            Assert.That(input!.ReplaceCsvChars(), Is.EqualTo(expected));
         }
 
         // HighlightKeywords Tests
@@ -1454,7 +1454,7 @@ namespace Smartstore.Tests.Extensions
         }
 
         // Added from ExtensionsTests.cs
-        private static Stream GetFileStream(string fileName)
+        private static Stream? GetFileStream(string fileName)
         {
             return typeof(StringExtensionsTests).Assembly.GetManifestResourceStream("Smartstore.Tests.Files.{0}".FormatInvariant(fileName));
         }
@@ -1561,7 +1561,7 @@ namespace Smartstore.Tests.Extensions
         [TestCase("", "=", false, "", "", false)]
         public void SplitToPair_VariousInputs(string? input, string? delimiter, bool splitAfterLast, string? expectedLeft, string expectedRight, bool expectedResult)
         {
-            bool result = input.SplitToPair(out string left, out string right, delimiter, splitAfterLast);
+            bool result = input.SplitToPair(out string? left, out string right, delimiter, splitAfterLast);
             Assert.That(result, Is.EqualTo(expectedResult));
             Assert.That(left, Is.EqualTo(expectedLeft));
             Assert.That(right, Is.EqualTo(expectedRight));
