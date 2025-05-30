@@ -68,6 +68,7 @@
 
         _initOffCanvasTrap() {
             // TODO: (wcag) (mh) Implement focus trapping.
+            // TODO: (wcag) (mh) We need a generic focusHandler that also can handle modal dialogs, popovers etc.
 
             // INFO: Jquery must be used here, because original event is namespaced & triggered via Jquery.
             $(document).on('shown.sm.offcanvas', function (e) {
@@ -127,6 +128,7 @@
 
     // Plugin base class for AccessKit plugins.
     // TODO: (wcag) (mh) Shift to own file.
+    // TODO: (wcag) (mh) The goal must be to give this base class more power/implementation, so that plugins can be more generic and less specific.
     class AccessKitPluginBase {
         constructor(ak) {
             this.ak = ak;
