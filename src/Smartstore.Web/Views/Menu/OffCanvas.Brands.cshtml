@@ -18,7 +18,8 @@
                     <div sm-if="Model.DisplayImages" class="col col-img">
                         @if (brand.Image.HasImage() && !Model.HideBrandDefaultPictures)
                         {
-                            <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" class="ocm-img-link">
+                            <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" class="ocm-img-link" title="@brand.Name"
+                               aria-hidden="true" tabindex="-1">
                                 <img sm-model="brand.Image" sm-size="Model.BrandThumbImageSize" attr-alt='(brand.Image.Alt.IsEmpty(), brand.Name)' />
                             </a>
                         }

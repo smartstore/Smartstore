@@ -40,6 +40,16 @@
                     // Activate first tab if any
                     layer.find('[data-toggle="tab"]').first().trigger('click');
 
+                    //// TODO: (wcag) (mh) Better code
+                    //// Focus
+                    //const firstTab = layer.find('[data-toggle="tab"]').first();
+                    //firstTab.attr("tabindex", "0");
+                    //setTimeout(() => {
+                    //    firstTab[0].focus();
+
+                    //    console.log("I'm so focused right now", firstTab);
+                    //}, 1000);
+                    
                     self.initialized = true;
                 });
 
@@ -88,9 +98,18 @@
                     var nodeId = el.data("id");
                     self.navigateToLayer(nodeId || 0, dir, function (layer) {
                         li.removeClass("animating");
+                        layer.find('.ocm-nav .ocm-link[role="treeitem"]').first().focus();
                     });
 
                     return false;
+                });
+
+                this.container.on('ak-tree-open', '.ocm-link', function (e) {
+                    $(this).trigger("click");
+                });
+
+                this.container.on('ak-tree-close', '.ocm-link', function (e) {
+                    $(this).closest(".ocm-menu").find(".ocm-back .ocm-link").trigger("click");
                 });
             }
         };

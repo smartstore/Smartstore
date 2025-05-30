@@ -19,22 +19,23 @@
 
 <div class="ocm-menu" data-depth="@targetNode.Depth">
     <div sm-if="targetNode.Depth > 0" class="ocm-menu-header ocm-back">
-        <a href="@(targetNode.Parent.Value.GenerateUrl(this.Url) ?? "#")" class="ocm-link btn btn-secondary btn-icon btn-sm rounded-circle" data-id="@(targetNode.Parent.IsRoot ? 0 : targetNode.Parent.Id)" data-ajax="true">
+        <a href="@(targetNode.Parent.Value.GenerateUrl(this.Url) ?? "#")" 
+           class="ocm-link btn btn-secondary btn-icon btn-sm rounded-circle" 
+           data-id="@(targetNode.Parent.IsRoot ? 0 : targetNode.Parent.Id)" 
+           data-ajax="true"
+           aria-label="@T("Common.Back")">
             <i class="fa fa-arrow-left"></i>
         </a>
         <h5 class="ocm-title text-truncate" sm-language-attributes-for="WorkContext.WorkingLanguage">@targetNode.Value.Text</h5>
     </div>
     
-    <ul class="ocm-nav list-unstyled">
-        @if (targetNode.Depth > 0)
-        {
-            <li sm-if="!targetNode.Value.IsVoid()" class="show-current-node ocm-item">
-                <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
-                    @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)
-                </a>
-            </li>
-        }
-
+    <ul class="ocm-nav list-unstyled" role="@(targetNode.Depth > 0 ? "group" : "tree")" id="ocm-nav-@targetNode.Id">
+        <li sm-if="targetNode.Depth > 0 && !targetNode.Value.IsVoid()" class="show-current-node ocm-item">
+            <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
+                @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)
+            </a>
+        </li>
+        
         @foreach (var node in targetNode.Children)
         {
             var item = node.Value;
@@ -68,9 +69,13 @@
             }
             linkAttrs.PrependCssClass("ocm-link has-count");
 
+            linkAttrs.Add("role", "treeitem");
+
             if (node.HasChildren)
             {
                 linkAttrs.Add("data-ajax", "true");
+                linkAttrs.Add("aria-expanded", "false");
+                linkAttrs.Add("aria-controls", "ocm-nav-" + node.Id);
             }
 
             if (item.ElementsCount > 0)
