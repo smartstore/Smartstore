@@ -263,7 +263,7 @@ namespace Smartstore.Core.Seo.Routing
                 // ...then determine the active slug for the determined language.
                 var slug = await GetActiveSlugAsync(urlRecord, language.Id);
 
-                if (slug.HasValue() && slug != currentSlug)
+                if (slug.HasValue() && !slug.EqualsNoCase(currentSlug))
                 {
                     // ...now check if target language is default
                     if (culture.EqualsNoCase(defaultCulture) && _localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
