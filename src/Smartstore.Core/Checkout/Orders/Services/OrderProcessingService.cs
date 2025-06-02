@@ -293,7 +293,9 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (order.OrderStatus != OrderStatus.Complete)
             {
-                var message = order.PaymentStatus != PaymentStatus.Paid ? T("Order.CannotCompleteUnpaidOrder") : T("Order.CannotMarkCompleted");
+                var message = order.PaymentStatus != PaymentStatus.Paid 
+                    ? T("Order.CannotCompleteUnpaidOrder", _localizationService.GetLocalizedEnum(order.PaymentStatus)) 
+                    : T("Order.CannotMarkCompleted");
                 throw new InvalidOperationException(message);
             }
         }

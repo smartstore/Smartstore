@@ -491,7 +491,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 if (item.State == PagerItemState.Disabled)
                 {
                     innerAOrSpan.Attributes.Add("aria-disabled", "true");
-                    innerAOrSpan.Attributes.Add("role", "link");
                     innerAOrSpan.Attributes.Add("tabindex", "-1");
                 }
 

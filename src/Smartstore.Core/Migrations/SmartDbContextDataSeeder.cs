@@ -67,6 +67,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("News.RSS.Hint",
                 "Opens the RSS feed with the latest news. Subscribe with an RSS reader to stay informed.",
                 "Öffnet den RSS-Feed mit aktuellen News. Mit einem RSS-Reader abonnieren und informiert bleiben.");
+
+            builder.AddOrUpdate("Order.CannotCompleteUnpaidOrder",
+                "An order with a payment status of \"{0}\" cannot be completed.",
+                "Ein Auftrag mit dem Zahlungsstatus \"{0}\" kann nicht abgeschlossen werden.");
         }
     }
 }
