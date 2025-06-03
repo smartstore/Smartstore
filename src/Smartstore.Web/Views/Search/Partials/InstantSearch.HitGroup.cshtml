@@ -1,4 +1,4 @@
-﻿@using Smartstore.Web.Models.Search;
+﻿@using Smartstore.Web.Models.Search
 
 @model SearchResultModelBase.HitGroup
 
@@ -8,7 +8,7 @@
 
 <h6 sm-if="Model.DisplayName.HasValue()" class="instasearch-group-header">@Model.DisplayName</h6>
 
-<ul class="instasearch-hits">
+<ul class="instasearch-hits" aria-label="@(Model.DisplayName.NullEmpty() ?? T("Search.Hits"))">
     @foreach (var hit in Model.Hits)
     {
         <li>

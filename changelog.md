@@ -7,7 +7,7 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
-- Catalog and associated products search forms have been made accessible to screen readers.
+- Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
 - The Blog, News, and Polls plugins have been improved for better screen reader accessibility.
 - Newsletter subscription and theme selector in footer menu have been made accessible to screen readers.
