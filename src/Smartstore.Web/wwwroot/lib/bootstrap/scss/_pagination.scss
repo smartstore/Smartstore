@@ -25,7 +25,7 @@
 
   &:focus {
     z-index: 3;
-    outline: $pagination-focus-outline;
+    x-outline: $pagination-focus-outline;
     box-shadow: $pagination-focus-box-shadow;
   }
 }
