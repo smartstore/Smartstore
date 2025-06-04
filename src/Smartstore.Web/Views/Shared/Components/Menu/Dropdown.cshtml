@@ -18,11 +18,12 @@
     }
 
     var item = root.Value;
+    var menuName = Model.Name.HasValue() ? Model.Name.ToLower() : root.Id.ToString();
 }
 
-<div class="cms-menu cms-menu-dropdown" data-menu-name="@(Model.Name?.ToLower())">
+<div class="cms-menu cms-menu-dropdown" data-menu-name="@menuName">
     <div class="dropdown">
-        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#" rel="nofollow" attrs="@item.GetCombinedAttributes().PrependCssClass("menubar-link")">
+        <a id="@(menuName)-opener" data-toggle="dropdown" aria-haspopup="listbox" aria-expanded="false" href="#" rel="nofollow" attrs="@item.GetCombinedAttributes().PrependCssClass("menubar-link")">
             <span sm-language-attributes-for="item">@root.GetItemText(T)</span>
             <i class="fal fa-angle-down menubar-caret"></i>
         </a>
@@ -42,7 +43,7 @@
         var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
         var hasImages = nodes.Any(x => x.Value.ImageUrl.HasValue());
 
-        <div class="dropdown-menu">
+        <div class="dropdown-menu" aria-labelledby="@(menuName)-opener" role="listbox" aria-hidden="true">
             @foreach (var node in nodes)
             {
                 var item = node.Value;
@@ -70,7 +71,7 @@
 
                 var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item menu-link");
 
-                <a href="@itemUrl" attrs="attrs">
+                <a href="@itemUrl" attrs="attrs" role="option">
                     @if (hasIcons)
                     {
                         <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
