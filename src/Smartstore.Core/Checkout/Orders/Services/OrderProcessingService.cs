@@ -289,7 +289,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // INFO: CheckOrderStatus performs commit.
-            await CheckOrderStatusAsync(order);
+            await CheckOrderStatusAsync(order, true);
 
             if (order.OrderStatus != OrderStatus.Complete)
             {
@@ -903,19 +903,28 @@ namespace Smartstore.Core.Checkout.Orders
             await _db.SaveChangesAsync();
         }
 
-        protected virtual async Task CheckOrderStatusAsync(Order order)
+        /// <summary>
+        /// Updates the order status based on payment and shipping status.
+        /// </summary>
+        /// <param name="order">Order whose status is to be checked.</param>
+        /// <param name="completeOnRefund">
+        /// Indicates whether to complete the order if the payment has been refunded.
+        /// If set to <c>false</c>, the order is only completed if it was paid.
+        /// </param>
+        protected virtual async Task CheckOrderStatusAsync(Order order, bool completeOnRefund = false)
         {
             Guard.NotNull(order);
 
+            var ps = order.PaymentStatus;
+
             using (var scope = new DbContextScope(_db, deferCommit: true))
             {
-                if (order.PaymentStatus == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
+                if (ps == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
                 {
                     order.PaidDateUtc = DateTime.UtcNow;
                 }
 
-                if (order.OrderStatus == OrderStatus.Pending &&
-                    (order.PaymentStatus == PaymentStatus.Authorized || order.PaymentStatus == PaymentStatus.Paid))
+                if (order.OrderStatus == OrderStatus.Pending && (ps == PaymentStatus.Authorized || ps == PaymentStatus.Paid))
                 {
                     await SetOrderStatusAsync(order, OrderStatus.Processing, false);
                 }
@@ -931,7 +940,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (order.OrderStatus != OrderStatus.Cancelled &&
                 order.OrderStatus != OrderStatus.Complete &&
-                order.PaymentStatus == PaymentStatus.Paid &&
+                (ps == PaymentStatus.Paid || (completeOnRefund && (ps == PaymentStatus.Refunded || ps == PaymentStatus.PartiallyRefunded))) &&
                 (order.ShippingStatus == ShippingStatus.ShippingNotRequired || order.ShippingStatus == ShippingStatus.Delivered))
             {
                 // INFO: SetOrderStatusAsync performs commit. Exclude from scope commit because QueuedEmail.Id is required for messages.
