@@ -501,7 +501,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                     if (Style != PagerStyle.Blog)
                     {
-                        innerAOrSpan.Attributes.Add("rel", "tooltip");
                         innerAOrSpan.AddCssClass("page-nav");
                     }
                 }
@@ -512,7 +511,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                         var titleStr = string.Format(ItemTitleFormatString, item.Text).AttributeEncode();
                         innerAOrSpan.Attributes.Add("title", titleStr);
                         innerAOrSpan.Attributes.Add("aria-label", titleStr);
-                        innerAOrSpan.Attributes.Add("rel", "tooltip");
                     }
                     else if (item.Type == PagerItemType.Page)
                     {

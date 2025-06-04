@@ -394,7 +394,6 @@ namespace Smartstore.Web.Rendering
             var a = new TagBuilder("a");
             a.Attributes.Add("href", "#");
             a.Attributes.Add("onclick", "return false;");
-            //a.Attributes.Add("rel", "tooltip");
             a.Attributes.Add("title", hintText);
             a.Attributes.Add("tabindex", "-1");
             a.Attributes.Add("class", "hint");
