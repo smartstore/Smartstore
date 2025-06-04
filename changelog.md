@@ -9,7 +9,7 @@
 
 - Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
-- The Blog, News, and Polls plugins have been improved for better screen reader accessibility.
+- The Blog, News, Forums and Polls plugins have been improved for better screen reader accessibility.
 - Newsletter subscription and theme selector in footer menu have been made accessible to screen readers.
 
 ### New Features
@@ -18,6 +18,7 @@
 
 ### Improvements
 
+- Allow an order to be completed if its payment has been refunded.
 - The author of a blog or news post has been added to the Open Graph metadata.
 - Stripe: Void order if a message about a failed payment has been sent to the webhook. 
 
