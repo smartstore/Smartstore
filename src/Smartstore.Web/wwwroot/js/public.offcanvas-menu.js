@@ -150,6 +150,7 @@
             if (footer.length === 0)
                 return;
 
+            // TODO: (wcag) (mh) Don't use such selectors. IDs should be unique across the entire page. I didn't fix it because I didn't want to break anything.
             var langSelector = $(".menubar-section #language-options");
             var currencySelector = $(".menubar-section #currency-selector");
             var ocmLangSelector = $("#ocm-language-selector", footer);
