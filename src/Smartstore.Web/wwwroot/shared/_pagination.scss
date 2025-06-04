@@ -80,6 +80,10 @@
     &:active {
         background-color: $gray-300;
     }
+
+    &:focus-visible {
+        @include button-focus-visible();
+    }
 }
 
 .page-item.gap > .page-link {

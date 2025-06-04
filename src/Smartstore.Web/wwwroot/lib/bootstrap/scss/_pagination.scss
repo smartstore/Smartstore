@@ -1,3 +1,7 @@
+/// <reference path="_variables.scss" />
+/// <reference path="_functions.scss" />
+/// <reference path="_mixins.scss" />
+
 .pagination {
   display: flex;
   @include list-unstyled();
@@ -25,7 +29,7 @@
 
   &:focus {
     z-index: 3;
-    x-outline: $pagination-focus-outline;
+    outline: $pagination-focus-outline;
     box-shadow: $pagination-focus-box-shadow;
   }
 }
@@ -33,7 +37,7 @@
 .page-item {
   &:first-child {
     .page-link {
-      margin-left: 0;
+      margin-inline-start: 0;
       @include border-left-radius($border-radius);
     }
   }

@@ -123,3 +123,10 @@
   --btn-border-radius: #{$border-radius};
   @include rfs($font-size, --btn-font-size);
 }
+
+@mixin button-focus-visible() {
+  $ow: cssmax(0px, $btn-focus-width - 1px);
+  outline: #{$ow} solid $input-focus-border-color;
+  outline-offset: calc(#{$ow} * -1);
+  box-shadow: #{$btn-focus-box-shadow};
+}
