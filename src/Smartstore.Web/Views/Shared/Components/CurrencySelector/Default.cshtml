@@ -9,32 +9,33 @@
     var returnUrl = Context.Request.Query["returnUrl"].ToString().UrlEncode();
 }
 
-<div class="dropdown currency-selector">
-    <a class="menubar-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
-        <span>@activeCurr.ISOCode</span>
-        <span class="lrm">(@activeCurr.Symbol)</span>
+<div class="dropdown">
+    <button id="currency-selector" class="menubar-link btn btn-link" data-toggle="dropdown" aria-haspopup="listbox" aria-expanded="false">
+        <span aria-hidden="true">@activeCurr.ISOCode</span>
+        <span aria-hidden="true" class="lrm">(@activeCurr.Symbol)</span>
+        <span class="sr-only">
+            @T("ScreenReaderOnly.CurrencySelector", activeCurr.Name)
+        </span>
         <i class="fa fa-angle-down"></i>
-    </a>
-
-    <div class="dropdown-menu">
+    </button>
+    @*TODO: (wcag) (mh) Don't forget to set aria-hidden to false, when the "combobox" opens (role=combobox must be set on the opening button) *@
+    <div id="currency-options" class="dropdown-menu" aria-labelledby="currency-selector" role="listbox" aria-hidden="true">
         @foreach (var curr in currencies)
         {
             var changeCurrencyUrl = Url.RouteUrl("ChangeCurrency", new { customerCurrency = curr.Id });
             var href = Display.ModifyQueryString(changeCurrencyUrl, "returnUrl=" + returnUrl);
+            var isSelected = curr.Id == activeCurr.Id;
 
-            <a href="@href" class="dropdown-item" attr-class='(curr.Id == activeCurr.Id, "disabled")' title="@curr.Name" rel="nofollow"
-               data-selected="@(curr.Equals(activeCurr) ? "true" : "false")" data-abbreviation="@($"{curr.ISOCode} ({curr.Symbol})")">
+            <a role="option" attr-aria-selected='(isSelected, "true")' attr-aria-current='(isSelected, "page")' attr-aria-disabled='(isSelected, "false")'
+               href="@href"
+               class="dropdown-item" attr-class='(isSelected, "disabled")'
+               title="@curr.Name"
+               rel="nofollow"
+               data-selected="@(isSelected ? "true" : "false")"
+               data-abbreviation="@($"{curr.ISOCode} ({curr.Symbol})")">
                 <span>@curr.Name</span>
                 <span class="abbreviation">- @curr.ISOCode <span class="lrm">(@curr.Symbol)</span></span>
             </a>
         }
     </div>
 </div>
-
-<script sm-target-zone="scripts" data-origin="currency-selector">
-	$(function () {
-		$(".currency-selector .dropdown-item.disabled").on('click', function (e) {
-			e.preventDefault();
-        });
-    });
-</script>

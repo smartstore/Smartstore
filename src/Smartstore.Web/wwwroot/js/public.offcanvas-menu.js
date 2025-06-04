@@ -40,16 +40,6 @@
                     // Activate first tab if any
                     layer.find('[data-toggle="tab"]').first().trigger('click');
 
-                    //// TODO: (wcag) (mh) Better code
-                    //// Focus
-                    //const firstTab = layer.find('[data-toggle="tab"]').first();
-                    //firstTab.attr("tabindex", "0");
-                    //setTimeout(() => {
-                    //    firstTab[0].focus();
-
-                    //    console.log("I'm so focused right now", firstTab);
-                    //}, 1000);
-                    
                     self.initialized = true;
                 });
 
@@ -104,11 +94,11 @@
                     return false;
                 });
 
-                this.container.on('ak-tree-open', '.ocm-link', function (e) {
+                this.container.on('ak-toggle-open', '.ocm-link', function (e) {
                     $(this).trigger("click");
                 });
 
-                this.container.on('ak-tree-close', '.ocm-link', function (e) {
+                this.container.on('ak-toggle-close', '.ocm-link', function (e) {
                     $(this).closest(".ocm-menu").find(".ocm-back .ocm-link").trigger("click");
                 });
             }
@@ -160,8 +150,8 @@
             if (footer.length === 0)
                 return;
 
-            var langSelector = $(".menubar-section .language-selector");
-            var currencySelector = $(".menubar-section .currency-selector");
+            var langSelector = $(".menubar-section #language-options");
+            var currencySelector = $(".menubar-section #currency-selector");
             var ocmLangSelector = $("#ocm-language-selector", footer);
             var ocmCurrencySelector = $("#ocm-currency-selector", footer);
             var displayCurrencySelector = currencySelector.length > 0;
@@ -207,7 +197,7 @@
             var menubar = $(".menubar-section .menubar").clone().removeClass('navbar navbar-slide');
 
             // remove currency & language selectors 
-            menubar.find(".currency-selector, .language-selector").remove();
+            menubar.find("#currency-selector, #language-selector").closest(".dropdown").remove();
 
             // remove data-toggle attributes
             menubar.find("[data-toggle=dropdown]").removeAttr("data-toggle");

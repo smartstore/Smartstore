@@ -45,6 +45,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Enter a search term. Results will appear automatically as you type.",
                 "Geben Sie einen Suchbegriff ein. Die Ergebnisse erscheinen automatisch, während Sie tippen.");
 
+            builder.AddOrUpdate("ScreenReaderOnly.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
+            builder.AddOrUpdate("ScreenReaderOnly.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
+
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
