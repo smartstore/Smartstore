@@ -20,33 +20,29 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("AriaLabel.MainNavigation", "Main navigation", "Hauptnavigation");
-            builder.AddOrUpdate("AriaLabel.PageNavigation", "Page navigation", "Seitennavigation");
-            builder.AddOrUpdate("AriaLabel.OffCanvasMenuTab", "Shop sections", "Shop-Bereiche");
-            builder.AddOrUpdate("AriaLabel.ShowPreviousProducts",
-                "Show previous product group",
-                "Vorherige Produktgruppe anzeigen");
-            builder.AddOrUpdate("AriaLabel.ShowNextProducts",
-                "Show next product group",
-                "Nächste Produktgruppe anzeigen");
-            builder.AddOrUpdate("AriaLabel.CommentForm", "Comment form", "Kommentarformular");
-            builder.AddOrUpdate("AriaLabel.SearchFilters", "Search filters", "Suchfilter");
-            builder.AddOrUpdate("AriaLabel.SelectAllListEntries",
-                "Select or deselect all entries in the list",
-                "Alle Einträge der Liste aus- oder abwählen");
+            builder.AddOrUpdate("Aria.Label.MainNavigation", "Main navigation", "Hauptnavigation");
+            builder.AddOrUpdate("Aria.Label.PageNavigation", "Page navigation", "Seitennavigation");
+            builder.AddOrUpdate("Aria.Label.OffCanvasMenuTab", "Shop sections", "Shop-Bereiche");
+            builder.AddOrUpdate("Aria.Label.ShowPreviousProducts", "Show previous product group", "Vorherige Produktgruppe anzeigen");
+            builder.AddOrUpdate("Aria.Label.ShowNextProducts", "Show next product group", "Nächste Produktgruppe anzeigen");
+            builder.AddOrUpdate("Aria.Label.CommentForm", "Comment form", "Kommentarformular");
 
-            builder.AddOrUpdate("AriaDescription.SearchBox",
+            // TODO: (wcag) (mg) Not used anywhere? I couldn't find these resources.
+            builder.AddOrUpdate("Aria.Label.SearchFilters", "Search filters", "Suchfilter");
+            builder.AddOrUpdate("Aria.Label.SelectAllListEntries", "Select or deselect all entries in the list", "Alle Einträge der Liste aus- oder abwählen");
+
+            builder.AddOrUpdate("Aria.Description.SearchBox",
                 "Enter a search term. Press the Enter key to view all the results.",
                 "Geben Sie einen Suchbegriff ein. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.");
-            builder.AddOrUpdate("AriaDescription.InstantSearch",
+            builder.AddOrUpdate("Aria.Description.InstantSearch",
                 "Enter a search term. Results will appear automatically as you type. Press the Enter key to view all the results.",
                 "Geben Sie einen Suchbegriff ein. Während Sie tippen, erscheinen automatisch erste Ergebnisse. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.");
-            builder.AddOrUpdate("AriaDescription.AutoSearchBox",
+            builder.AddOrUpdate("Aria.Description.AutoSearchBox",
                 "Enter a search term. Results will appear automatically as you type.",
                 "Geben Sie einen Suchbegriff ein. Die Ergebnisse erscheinen automatisch, während Sie tippen.");
 
-            builder.AddOrUpdate("ScreenReaderOnly.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
-            builder.AddOrUpdate("ScreenReaderOnly.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
+            builder.AddOrUpdate("Aria.ScreenReaderOnly.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
+            builder.AddOrUpdate("Aria.ScreenReaderOnly.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");

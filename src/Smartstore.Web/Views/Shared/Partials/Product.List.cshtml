@@ -85,8 +85,8 @@
 <div sm-if="Model.PagedList.TotalCount > 0" 
      id="@id" 
      class='@string.Join(" ", listCssClasses)'
-     data-label-prev="@T("AriaLabel.ShowPreviousProducts")"
-     data-label-next="@T("AriaLabel.ShowNextProducts")">
+     data-label-prev="@T("Aria.Label.ShowPreviousProducts")"
+     data-label-next="@T("Aria.Label.ShowNextProducts")">
     @foreach (var product in Model.Items)
     {
         <partial name="Product.List.Item" model="product" />

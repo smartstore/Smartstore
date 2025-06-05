@@ -129,7 +129,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var items = CreateItemList();
 
-            output.Attributes.Add("aria-label", T("AriaLabel.PageNavigation"));
+            output.Attributes.Add("aria-label", T("Aria.Label.PageNavigation"));
             output.AppendCssClass("pagination-container");
 
             if (ContentTarget.HasValue())
