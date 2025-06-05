@@ -1,6 +1,7 @@
 ﻿/**
  * WCAG‑2.2 keyboard framework
  * TODO: (wcag) (mh) Docs
+ * TODO: (wcag) (mh) Apply an element's active class if applicable, e.g. in dropdowns. Don't programmatically focus in this case.
  */
 (function (window) {
     'use strict';
@@ -113,6 +114,7 @@
         items.forEach(el => el.tabIndex = -1);
         const el = items[idx];
         if (el) {
+            // TODO: (wcag) (mh) Move this part to the base class, method setFocus(el). A derivative plugin could overwrite this, e.g. $(el).addClass('active'). Also need removeFocus(el) without impl in base.
             el.tabIndex = 0;
             el.focus();
         }
