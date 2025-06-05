@@ -31,6 +31,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     .nav-link {
         font-weight: $font-weight-medium;
         font-size: $megamenu-navlink-font-size;
+        border-radius: var(--mm-link-border-radius);
     }
 
     .dropdown-toggle:after {
@@ -71,6 +72,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
     transition: margin-inline-start 0.12s ease-in-out;
     margin-inline-start: 0;
     line-height: $megamenu-line-height;
+    gap: var(--mm-link-gap);
+    padding-block: var(--mm-nav-padding-y);
 
     &:after {
         content: "";
@@ -100,21 +103,25 @@ $mixed-megamenu-bg:             $megamenu-bg;
             content: "";
         }
 
-        &.active:before {
-            content: "";
-            inset-inline-end: 4px;
+        &.active:before, 
+        &.active:after {
             position: absolute;
+            content: "";
+            transform: translateY(var(--mm-nav-padding-y));
+        }
+
+        &.active:before {
+            inset-inline-end: 4px;
             border-bottom: 10px solid $megamenu-dropdown-bg;
             border-right: 12px solid transparent;
             border-left: 12px solid transparent;
             bottom: -1px;
+            transform: translateY(var(--mm-nav-padding-y));
             z-index: ($megamenu-zindex-base + 3);
         }
 
         &.active:after {
-            content: "";
             inset-inline-end: 2px;
-            position: absolute;
             border-bottom: 12px solid $dropdown-border-color;
             border-right: 14px solid transparent;
             border-left: 14px solid transparent;
@@ -129,7 +136,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
             position: absolute;
             width: 100%;
             inset-inline-start: 0;
-            bottom: 1px;
+            bottom: calc((var(--mm-nav-padding-y) * -1) + 1px);
             height: 3px;
             background: $header-selected-color;
         }
@@ -234,6 +241,12 @@ $mixed-megamenu-bg:             $megamenu-bg;
 }
 
 .megamenu-container {
+    --mm-nav-padding-y: 0.5em;
+    --mm-link-padding-y: 0.5em;
+    --mm-link-padding-x: 0.6em;
+    --mm-link-gap: 0;
+    --mm-link-border-radius: var(--border-radius-md);
+
     position: relative;
 
     .mega-menu-dropdown,
@@ -250,7 +263,11 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 
     .nav-link {
-        padding: 1em .6em;
+        padding: var(--mm-link-padding-y) var(--mm-link-padding-x);
+
+        &:focus-visible {
+            outline-offset: -1px;
+        }
     }
 
     .megamenu-dropdown-container {

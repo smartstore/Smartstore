@@ -211,7 +211,7 @@
 
                 megamenuContainer.evenIfHidden(function (el) {
 
-                    megamenuContainer.find('ul').wrap('<div class="nav-slider" style="overflow:hidden; position:relative;" />');
+                    megamenuContainer.find('ul').wrap('<div class="nav-slider position-relative" style="overflow-x: hidden" />');
 
                     var navSlider = $(".nav-slider", megamenu);
                     var nav = $(".navbar-nav", navSlider);
