@@ -9,8 +9,13 @@
 
 - Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
-- The Blog, News, Forums and Polls plugins have been improved for better screen reader accessibility.
 - Newsletter subscription and theme selector in footer menu have been made accessible to screen readers.
+- The following plugins have been updated to provide better accessibility for screen readers:
+  - Blog
+  - Direct Order
+  - Forums
+  - News
+  - Polls
 
 ### New Features
 

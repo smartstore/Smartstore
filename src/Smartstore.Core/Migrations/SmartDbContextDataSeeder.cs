@@ -27,7 +27,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.ShowNextProducts", "Show next product group", "Nächste Produktgruppe anzeigen");
             builder.AddOrUpdate("Aria.Label.CommentForm", "Comment form", "Kommentarformular");
 
-            // TODO: (wcag) (mg) Not used anywhere? I couldn't find these resources.
             builder.AddOrUpdate("Aria.Label.SearchFilters", "Search filters", "Suchfilter");
             builder.AddOrUpdate("Aria.Label.SelectAllListEntries", "Select or deselect all entries in the list", "Alle Einträge der Liste aus- oder abwählen");
 
