@@ -66,6 +66,12 @@ namespace Smartstore.Imaging
                 return false;
             }
 
+            if (htmlColor == "transparent")
+            {
+                result = Color.Transparent;
+                return true;
+            }
+
             if (SharpColor.TryParse(htmlColor, out var sharpColor))
             {
                 result = ConvertColor(sharpColor);
@@ -109,7 +115,7 @@ namespace Smartstore.Imaging
             // Separate the values by spaces and/or commas.
             rgba = ColorComponentDelimiterRegex.Replace(rgba, " ");
             var rgbParts = rgba.Split(' ');
-            
+
             // Convert the values to integers.
             var r = ConvertColorComponent(rgbParts[0]);
             var g = ConvertColorComponent(rgbParts[1]);
@@ -178,9 +184,15 @@ namespace Smartstore.Imaging
         /// <returns>
         /// A number in the range of 0 (black) to 255 (White). 
         /// For text contrast colors, an optimal cutoff value is 130.
+        /// Transparent and empty colors are treated as white (255).
         /// </returns>
         public static int GetPerceivedBrightness(Color color)
         {
+            if (color.IsEmpty || color.A == 0)
+            {
+                return 255;
+            }
+
             return (int)Math.Sqrt(
                color.R * color.R * .241 +
                color.G * color.G * .691 +
