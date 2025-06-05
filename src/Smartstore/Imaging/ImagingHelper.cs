@@ -66,12 +66,6 @@ namespace Smartstore.Imaging
                 return false;
             }
 
-            if (htmlColor == "transparent")
-            {
-                result = Color.Transparent;
-                return true;
-            }
-
             if (SharpColor.TryParse(htmlColor, out var sharpColor))
             {
                 result = ConvertColor(sharpColor);
