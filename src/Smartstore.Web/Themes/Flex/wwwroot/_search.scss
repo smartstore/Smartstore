@@ -4,7 +4,8 @@
 // InstantSearch Box & Drop Styles
 // --------------------------------------------------
 
-$facet-selection-color: inherit;
+$facet-selection-color:         inherit;
+$facet-selection-glyph-color:   darken($success, 10%);
 
 .instasearch-form {
     position: relative;
@@ -366,7 +367,7 @@ $facet-selection-color: inherit;
         text-align: center;
         vertical-align: middle;
         font-size: 14px;
-        color: $facet-selection-color;
+        color: $facet-selection-glyph-color;
     }
 
     *:checked + & {
@@ -424,7 +425,7 @@ $facet-selection-color: inherit;
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: $facet-selection-color;
+            background: $facet-selection-glyph-color;
             margin: 3px 0 0 3px;
         }
     }
