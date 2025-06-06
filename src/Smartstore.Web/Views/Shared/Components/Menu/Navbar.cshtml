@@ -118,9 +118,9 @@
                 </a>
                 @if (item.BadgeText.HasValue())
                 {
-                    <label class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes">
+                    <span class="badge badge-@(((BadgeStyle)item.BadgeStyle).ToString().ToLower())" attrs="item.BadgeHtmlAttributes">
                         @item.BadgeText
-                    </label>
+                    </span>
                 }
             </li>
 

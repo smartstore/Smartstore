@@ -31,6 +31,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     --mm-link-border-radius: var(--border-radius-md);
     --mm-link-color: #{$megamenu-color};
     --mm-link-bg-active: #{$header-hover-bg};
+    --mm-arrow-size: 12px;
 }
 
 .navbar-light > .megamenu-container {
@@ -71,22 +72,25 @@ $mixed-megamenu-bg:             $megamenu-bg;
     .nav-item {
         position: relative;
 
-        .badge {
+        > .badge {
             position: absolute;
             inset-inline-start: 3px;
-            top: 4px;
+            top: calc((var(--mm-nav-padding-y) * -1) + 3px);
             font-size: $font-size-xs;
         }
 
-        .badge-important {
+        > .badge-important {
             background: $primary;
+            color: $color-contrast-light;
         }
 
-        .badge-inverse {
+        > .badge-inverse {
             background: $danger;
+            color: $color-contrast-light;
         }
 
-        &:before, &:after {
+        &:before, 
+        &:after {
             content: "";
         }
 
@@ -100,25 +104,19 @@ $mixed-megamenu-bg:             $megamenu-bg;
         &.active:after {
             position: absolute;
             content: "";
-            transform: translateY(var(--mm-nav-padding-y));
+            inset-inline-end: 4px;
+            border-inline: var(--mm-arrow-size) solid transparent;
+            border-bottom: calc(var(--mm-arrow-size) - 2px) solid $megamenu-dropdown-bg;
         }
 
         &.active:before {
-            inset-inline-end: 4px;
-            border-bottom: 10px solid $megamenu-dropdown-bg;
-            border-right: 12px solid transparent;
-            border-left: 12px solid transparent;
-            bottom: -1px;
-            transform: translateY(var(--mm-nav-padding-y));
+            bottom: 0;
             z-index: ($megamenu-zindex-base + 3);
         }
 
         &.active:after {
-            inset-inline-end: 2px;
-            border-bottom: 12px solid $dropdown-border-color;
-            border-right: 14px solid transparent;
-            border-left: 14px solid transparent;
-            bottom: -2px;
+            border-bottom-color: darken($dropdown-border-color, 8%);
+            bottom: 1px;
             z-index: ($megamenu-zindex-base + 2);
         }
 
@@ -129,7 +127,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
             position: absolute;
             width: 100%;
             inset-inline-start: 0;
-            bottom: calc((var(--mm-nav-padding-y) * -1) + 1px);
+            bottom: 1px;
             height: 3px;
             background: $header-selected-color;
         }
@@ -221,8 +219,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     }
 }
 
-.megamenu.megamenu-blend--next .megamenu-nav--next,
-.megamenu.megamenu-blend--prev .megamenu-nav--prev {
+:is(.megamenu-blend--next, .megamenu-blend--prev) :is(megamenu-nav--next, .megamenu-nav--prev) {
     opacity: 1;
     display: block;
 }
@@ -252,8 +249,9 @@ $mixed-megamenu-bg:             $megamenu-bg;
 .megamenu-container {
     position: relative;
 
-    .mega-menu-dropdown,
-    .dropdown-menu {
+    :where(.dropdown-menu, .mega-menu-dropdown) {
+        --y1: 0.5em;
+        --y2: calc((var(--mm-nav-padding-y) * -1) - 1px);
         @include sliding-dropdown-menu();
     }
 
@@ -262,7 +260,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
         display: block;
         visibility: visible;
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(var(--y2));
     }
 
     .nav-link {
@@ -447,7 +445,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 	}
 }
 
-// brand menu 
+// Brand menu 
 #dropdown-menu--10 .dropdown-menu .mega-menu-dropdown-heading {
     line-height: 1.125rem;
 }
