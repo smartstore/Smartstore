@@ -15,6 +15,7 @@
   - Direct Order
   - File Manager
   - Forums
+  - GDPR
   - News
   - Polls
 

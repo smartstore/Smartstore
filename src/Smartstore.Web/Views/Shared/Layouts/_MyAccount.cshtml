@@ -26,11 +26,13 @@
                 </div>
             </div>
             <div class="col-md-8 col-lg-9">
-                <div class="page-title pt-4 pt-md-0">
-                    <h1 class="h3">@ViewBag.PageTitle</h1>
-                </div>
+                <section aria-labelledby="myaccount-header">
+                    <div class="page-title pt-4 pt-md-0">
+                        <h1 id="myaccount-header" class="h3">@ViewBag.PageTitle</h1>
+                    </div>
 
-                @RenderBody()
+                    @RenderBody()
+                </section>
             </div>
         </div>
     </div>
