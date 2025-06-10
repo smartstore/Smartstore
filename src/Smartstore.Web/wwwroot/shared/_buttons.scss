@@ -5,6 +5,18 @@ $btn-wide-padding-x-lg: 2.5rem;
 $btn-wide-padding-x-sm: 1.2rem;
 
 
+// Some common utils
+// -----------------------------------------------------
+
+button:where(.reset) {
+    // Use with non-.btn buttons. :where(.reset) (instead of .reset) for lower specificity.
+    user-select: none;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+}
+
+
 // Make icon font-size 14px in small buttons
 // (looks ugly otherwise)
 // -----------------------------------------------------
