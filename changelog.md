@@ -16,6 +16,7 @@
   - File Manager
   - Forums
   - GDPR
+  - MegaSearchPlus (extended facet templates)
   - News
   - Polls
 

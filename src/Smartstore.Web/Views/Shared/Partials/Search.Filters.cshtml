@@ -61,19 +61,24 @@
             var selectedCount = selectedFilters.Length;
             var expanded = i <= 3 || selectedCount > 0;
             var widget = templateProvider.GetTemplateWidget(group);
+            var key = group.Key;
+            var label = group.Label ?? key;
+            var srLabel = selectedCount > 0 ? $"{label} ({selectedCount})" : label;
 
-            <div class="facet-group" data-key="@group.Key">
+            <fieldset class="facet-group" data-key="@key">
+                <legend id="facet-group-legend-@key" class="sr-only">@srLabel</legend>
                 <a class="facet-group-header facet-toggle@(!expanded ? " collapsed" : "")@(selectedCount > 0 ? " has-selection" : "")"
                    data-toggle="collapse"
-                   href="#facet-body-@(group.Key)"
+                   role="button"
+                   href="#facet-body-@(key)"
                    aria-expanded="@expanded.ToString().ToLower()"
-                   aria-controls="facet-body-@(group.Key)"
+                   aria-controls="facet-body-@(key)"
+                   aria-labelledby="facet-group-legend-@key"
                    attr-data-selections="(selectedCount > 0, selectedCount.ToString())">
-
-                    @(group.Label ?? group.Key)
-                    <span sm-if="selectedCount > 0" class="badge badge-info badge-subtle badge-ring badge-counter facet-selection">@selectedCount</span>
+                    @label
+                    <span sm-if="selectedCount > 0" class="badge badge-info badge-subtle badge-ring badge-counter facet-selection" aria-hidden="true">@selectedCount</span>
                 </a>
-                <div id="facet-body-@(group.Key)" class="facet-body collapse" attr-class='(expanded, "show")' aria-expanded="@expanded.ToString().ToLower()">
+                <div id="facet-body-@(key)" class="facet-body collapse" attr-class='(expanded, "show")' aria-expanded="@expanded.ToString().ToLower()">
                     @if (widget != null)
                     {
                         @await widget.InvokeAsync(ViewContext)
@@ -85,7 +90,7 @@
                         </a>
                     }
                 </div>
-            </div>
+            </fieldset>
         }
     </div>
 </div>

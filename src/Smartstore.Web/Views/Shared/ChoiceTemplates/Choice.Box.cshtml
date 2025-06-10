@@ -61,7 +61,7 @@
 
             <li class="@boxClass">
                 <label class="choice-box-label">
-                    <input type="radio" class="choice-box-control-native" id="@(controlId)_@(item.Id)" name="@(controlId)" value="@item.Id" 
+                    <input id="@(controlId)_@(item.Id)" type="radio" class="choice-box-control-native sr-only" name="@(controlId)" value="@item.Id"
                            attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
 
                     <span class="choice-box-content tooltip-toggle tooltip-toggle-touch" title="@label">
