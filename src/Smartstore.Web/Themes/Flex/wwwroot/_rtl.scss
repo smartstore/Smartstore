@@ -4,7 +4,6 @@
 // --------------------------------------------------
 
 [dir=rtl] {
-    
     // Text expander
     // -------------
 
@@ -18,17 +17,12 @@
         // Don't swap direction in gallery. Doesn't synch with thumbs otherwise.
         float: left;
     }
-
-
     // Megamenu
     // -------
 
-    .megamenu-dropdown-container.simple {
-        .dropdown-menu.ar {
-            transform: translateX(-($grid-gutter-width));
-        }
+    .dropdown-menu.mega-menu-dropdown {
+        inset-inline-start: 0;
     }
-
 
     // Rating
     // -------
@@ -37,23 +31,17 @@
     .rating > * {
         background-position-x: 100%;
     }
-
-
     // Search
     // ------
 
     .active-filter-item {
         float: right;
     }
-
-    
     // Logo
     // ------
     .search-focused .shop-logo {
         transform: translateX(-100%);
     }
-
-
     // Checkout
     // ------
 
@@ -78,8 +66,6 @@
             background-color: $costep-active-border;
         }
     }
-
-
     // Category Menu
     // -------------
 
@@ -117,7 +103,6 @@
         // Completely turning off the transition suppresses the transitionEnd event, which we actually need.
         transition-duration: 0.05s;
     }
-
     // Product
     // -------
 
@@ -129,7 +114,6 @@
     .drift-zoom-pane img {
         left: 0;
     }
-
     // Footer
     // -------
 
