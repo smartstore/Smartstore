@@ -11,57 +11,67 @@
 
     <zone name="footer_top"></zone>
 
-    <div sm-if="Model.ShowSocialLinks && Model.SocialLinks.Any()" class="footer-social-wrapper">
+    <nav sm-if="Model.ShowSocialLinks && Model.SocialLinks.Any()" class="footer-social-wrapper" aria-label="@T("Aria.Label.SocialMediaLinks")">
         <div class="container footer-social">
             <div class="row">
                 <div class="col text-center">
                     <div class="d-flex flex-wrap justify-content-center">
                         @foreach (var link in Model.SocialLinks)
                         {
-                            <a href="@link.Href" target="_blank" class="btn btn-icon rounded-circle btn-flat btn-social btn-brand-@link.CssClass" title="@link.DisplayName">
-                                <i class="fab fa-@link.CssClass"></i>
+                            <a href="@link.Href" 
+                               target="_blank" rel="noopener"
+                               class="btn btn-icon rounded-circle btn-flat btn-social btn-brand-@link.CssClass" 
+                               title="@link.DisplayName"
+                               aria-label="@link.DisplayName">
+                                <i class="fab fa-@link.CssClass" aria-hidden="true"></i>
                             </a>
                         }
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 
     <div class="footer-main-wrapper">
         <div class="container footer-main">
             <div class="row sm-gutters">
 
                 <div class="col-md-4 col-lg-3">
-                    <nav class="footer-links nav-collapsible">
-                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-info" aria-controls="footer-info" aria-expanded="false">
+                    <nav class="footer-links nav-collapsible" aria-labelledby="footer-info-heading">
+                        <h4 id="footer-info-heading" class="footer-title nav-toggler collapsed" 
+                            data-toggle="collapse" data-target="#footer-info" 
+                            aria-controls="footer-info" aria-expanded="false" role="button">
                             @Html.Raw(T("Footer.Info"))
                         </h4>
-                        <div class="collapse nav-collapse" id="footer-info">
+                        <div class="collapse nav-collapse" id="footer-info" role="region" aria-labelledby="footer-info-heading">
                             <menu name="FooterInformation" template="LinkList" />
                         </div>
                     </nav>
                 </div>
 
                 <div class="col-md-4 col-lg-3">
-                    <nav class="footer-links nav-collapsible">
-                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-service" aria-controls="footer-service" aria-expanded="false">
+                    <nav class="footer-links nav-collapsible" aria-labelledby="footer-service-heading">
+                        <h4 id="footer-service-heading" class="footer-title nav-toggler collapsed" 
+                            data-toggle="collapse" data-target="#footer-service" 
+                            aria-controls="footer-service" aria-expanded="false" role="button">
                             <span class="d-none d-md-block">@Html.Raw(T("Footer.Service"))</span>
                             <span class="d-md-none">@Html.Raw(T("Footer.Service.Mobile"))</span>
                         </h4>
-                        <div class="collapse nav-collapse" id="footer-service">
+                        <div class="collapse nav-collapse" id="footer-service" role="region" aria-labelledby="footer-service-heading">
                             <menu name="FooterService" template="LinkList" />
                         </div>
                     </nav>
                 </div>
 
                 <div class="col-md-4 col-lg-3">
-                    <nav class="footer-links company nav-collapsible">
-                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-company" aria-controls="footer-company" aria-expanded="false">
+                    <nav class="footer-links nav-collapsible" aria-labelledby="footer-company-heading">
+                        <h4 id="footer-company-heading" class="footer-title nav-toggler collapsed" 
+                            data-toggle="collapse" data-target="#footer-company" 
+                            aria-controls="footer-company" aria-expanded="false" role="button">
                             <span class="d-none d-md-block">@Html.Raw(T("Footer.Company"))</span>
                             <span class="d-md-none">@Html.Raw(T("Footer.Company.Mobile"))</span>
                         </h4>
-                        <div class="collapse nav-collapse" id="footer-company">
+                        <div class="collapse nav-collapse" id="footer-company" role="region" aria-labelledby="footer-company-heading">
                             <menu name="FooterCompany" template="LinkList" />
                         </div>
                     </nav>
@@ -74,18 +84,14 @@
                         <div sm-if="!Model.HideNewsletterBlock" class="col-12 col-md col-lg-12">
                             <form id="newsletter-form" sm-ajax method="post" asp-action="Subscribe" asp-controller="Newsletter"
                                   data-subscription-failure="@T("Newsletter.SubscriptionFailed")"
-                                  aria-labelledby="newsletter-subscribe-header">
+                                  aria-labelledby="newsletter-subscribe-heading">
                                 <div class="footer-newsletter nav-collapsible">
-                                    <h4 id="newsletter-subscribe-header"
-                                        class="footer-title nav-toggler collapsed"
-                                        data-toggle="collapse" 
-                                        data-target="#newsletter-body"
-                                        aria-controls="newsletter-body"
-                                        aria-expanded="false">
-                                        @* TODO: (wcag) (mg) Actually this IS initially expanded on desktop, but not on mobile. Problem?! Investigate and TBD with MC. *@
+                                    <h4 id="newsletter-subscribe-heading" class="footer-title nav-toggler collapsed"
+                                        data-toggle="collapse" data-target="#newsletter-body"
+                                        aria-controls="newsletter-body" aria-expanded="false" role="button">
                                         @Html.Raw(T("Newsletter.Title"))
                                     </h4>
-                                    <div id="newsletter-body" class="collapse nav-collapse">
+                                    <div id="newsletter-body" class="collapse nav-collapse" role="region" aria-labelledby="newsletter-subscribe-heading">
                                         <div id="newsletter-subscribe-block">
                                             <div class="input-group has-icon shadow-xs rounded-pill mb-2">
                                                 <input asp-for="NewsletterEmail" 
@@ -136,15 +142,12 @@
 
                         <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
                             <div class="theme-selector nav-collapsible">
-                                <h4 id="theme-selector-header" 
-                                    class="footer-title nav-toggler collapsed"
-                                    data-toggle="collapse" 
-                                    data-target="#footer-themes" 
-                                    aria-controls="footer-themes" 
-                                    aria-expanded="false">
+                                <h4 id="theme-selector-heading" class="footer-title nav-toggler collapsed"
+                                    data-toggle="collapse" data-target="#footer-themes" 
+                                    aria-controls="footer-themes" aria-expanded="false"role="button">
                                     @Html.Raw(T("Footer.Themes"))
                                 </h4>
-                                <div id="footer-themes" class="content collapse nav-collapse">
+                                <div id="footer-themes" class="content collapse nav-collapse" role="region" aria-labelledby="theme-selector-heading">
                                     <div class="mb-3 mb-md-0">
                                         @{
                                             @await Component.InvokeAsync("StoreThemeSelector")
@@ -181,3 +184,14 @@
         </div>
     </div>
 </footer>
+
+<script>
+    // TODO: (wcag) (mh) Find a proper place after review
+    // INFO: There's no other way to ensure the correct attribute value of aria-expanded in our desktop/mobile footer scenario
+    $(function () {
+        var viewport = ResponsiveBootstrapToolkit;
+        if (viewport.is('>=md')) {
+            $('.footer-title.nav-toggler').attr("aria-expanded", "true");
+        }
+    });
+</script>

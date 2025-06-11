@@ -1,4 +1,6 @@
+using Org.BouncyCastle.Utilities;
 using Smartstore.Data.Migrations;
+using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -42,7 +44,8 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Aria.Label.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
             builder.AddOrUpdate("Aria.Label.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
-
+            builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social Media Kanäle");
+            
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");

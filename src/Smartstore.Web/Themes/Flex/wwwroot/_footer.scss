@@ -91,6 +91,9 @@
 }
 
 @include media-breakpoint-up(md) {
+    .footer-title {
+        pointer-events: none !important;
+    }
     .footer-bottom {
         margin-top: 1rem;
     }
