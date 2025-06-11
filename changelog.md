@@ -48,6 +48,7 @@
 - Added route attribute to the actions Patch and PatchLocalized of the EntityController to avoid a 404 error which occurred under certain undetermined conditions.
 - Use a relative product URL instead of an absolute one to avoid the JS error "Failed to execute replaceState on History".
 - PayPal: If Google Pay was initially selected on the payment selection page, a script error occurred which prevented all PayPal buttons from loading.
+- AmazonPay: Fixed issue of the private key being unintentionally deleted when saving a multistore configuration.
 
 
 ## Smartstore 6.1.0
