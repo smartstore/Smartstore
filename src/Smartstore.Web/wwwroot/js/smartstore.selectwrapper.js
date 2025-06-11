@@ -472,12 +472,12 @@
             }
 
             // WCAG: Consider aria-labelledby attribute of the native select control for select2 selection element.
-            const labelledby = sel.attr("aria-labelledby");
-            if (!_.isEmpty(labelledby)) {
-                const elSelection = sel.data("select2").$container.find('.select2-selection');
-                if (elSelection.length) {
-                    const existingLabelledby = elSelection.attr('aria-labelledby');
-                    elSelection.attr('aria-labelledby', _.isEmpty(existingLabelledby) ? labelledby : `${labelledby} ${existingLabelledby}`);
+            const labelledBy = sel.aria("labelledby");
+            if (!_.isEmpty(labelledBy)) {
+                const $sel = sel.data("select2").$container.find('.select2-selection');
+                if ($sel.length) {
+                    const existingLabelledBy = $sel.aria('labelledby');
+                    $sel.aria('labelledby', _.isEmpty(existingLabelledBy) ? labelledBy : `${labelledBy} ${existingLabelledBy}`);
                 }
             }
 
