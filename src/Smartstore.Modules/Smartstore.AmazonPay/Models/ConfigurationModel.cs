@@ -10,7 +10,7 @@
         public string PublicKeyId { get; set; }
 
         [LocalizedDisplay("*PrivateKey")]
-        public bool HasPrivateKey { get; set; }
+        public string PrivateKey { get; set; }
 
         [LocalizedDisplay("*SellerId")]
         public string SellerId { get; set; }

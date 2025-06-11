@@ -64,7 +64,6 @@ namespace Smartstore.AmazonPay.Controllers
             }
             model.MerchantSandboxIpnUrl = model.IpnUrl;
             model.MerchantProductionIpnUrl = model.IpnUrl;
-            model.HasPrivateKey = settings.PrivateKey.HasValue();
 
             model.LanguageLocale = language.UniqueSeoCode.EmptyNull().ToLower() switch
             {
@@ -151,7 +150,8 @@ namespace Smartstore.AmazonPay.Controllers
             var privateKey = await sourceStream.AsStringAsync();
 
             settings.PrivateKey = privateKey.TrimSafe();
-            await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+            await Services.Settings.ApplySettingAsync(settings, x => x.PrivateKey, storeScope);
+            await Services.DbContext.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
@@ -164,8 +164,8 @@ namespace Smartstore.AmazonPay.Controllers
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
 
-            settings.PrivateKey = null;
-            await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+            await Services.Settings.RemoveSettingAsync(settings, x => x.PrivateKey, storeScope);
+            await Services.DbContext.SaveChangesAsync();
 
             return RedirectToAction(nameof(Configure));
         }
