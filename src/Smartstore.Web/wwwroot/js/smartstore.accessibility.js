@@ -1,7 +1,7 @@
 ﻿/**
  * WCAG‑2.2 keyboard framework
  * TODO: (wcag) (mh) Docs
- * TODO: (wcag) (mh) Apply an element's active class if applicable, e.g. in dropdowns. Don't programmatically focus in this case.
+ * TODO: (wcag) (mh) Remove closure
  */
 (function (window) {
     'use strict';
@@ -32,6 +32,15 @@
 
             /* one keydown/keyup listener for relevant elements – capture phase */
             const handleKey = e => {
+
+                // TODO: (wcag) (mh) Should these checks be combined to one?
+                if (e.target?.matches('input, textarea') || e.target?.isContentEditable === true) {
+                    // Never handle input elements
+                    return;
+                }
+
+                // TODO: (wcag) (mh) Get out if no navigational key ???
+
                 // Only execute further code if relevant.
                 if (!e.target?.matches('a,[role],[tabindex]'))
                     return;
@@ -42,6 +51,8 @@
             window.addEventListener('keydown', handleKey, true);
             window.addEventListener('keyup', handleKey, true);
 
+            // TODO: (wcag) (mh) Maybe this ain't the correct place to handle this. 
+            // Finish the job!!! Build proper generic trapping mechanism for all modal like components and evaluate anew. 
             this._initOffCanvasTrap();
         }
 
@@ -105,24 +116,8 @@
 
     AccessKit._registry = [];
 
-    /* --------------------------------------------------
-     *  Shared helpers
-     * -------------------------------------------------- */
-
-    // TODO: (wcag) (mh) Move it to the plugin it belongs to or use it elsewhere.
-    const setActive = (items, idx) => {
-        items.forEach(el => el.tabIndex = -1);
-        const el = items[idx];
-        if (el) {
-            // TODO: (wcag) (mh) Move this part to the base class, method setFocus(el). A derivative plugin could overwrite this, e.g. $(el).addClass('active'). Also need removeFocus(el) without impl in base.
-            el.tabIndex = 0;
-            el.focus();
-        }
-    };
-
     // Plugin base class for AccessKit plugins.
     // TODO: (wcag) (mh) Shift to own file.
-    // TODO: (wcag) (mh) The goal must be to give this base class more power/implementation, so that plugins can be more generic and less specific.
     class AccessKitPluginBase {
         constructor(ak) {
             this.ak = ak;
@@ -161,6 +156,8 @@
             target.tabIndex = 0;
             target.focus();
         }
+
+        removeFocus(el) {}
 
         // Add event listener to element and store the handle for later removal.
         on(el, evt, fn, opts) {
@@ -205,27 +202,26 @@
             el.dispatchEvent(event);
         }
 
-        // TODO: (wcag) (mh) Use everywhere.
-        // TODO: (wcag) (mh) Rtl should not be a param. We can obtain it directly in this function.
         /*
          * Key handler for plugins using a roving tabindex list 
          * @param {KeyboardEvent}  e        – Original event
          * @param {HTMLElement[]}  items    – Currently visible/focusable list elements
          * @param {Object} [cfg]            – Optional configuration
          *        orientation   'vertical' | 'horizontal'   (Default: 'vertical')
-         *        rtl           boolean                     (Default: false)
          *        activateFn    function(el, idx, items)    Callback for ENTER/SPACE
          *        extraKeysFn   function(e, idx, items)     Special keys for plugins
          *
          * @returns {boolean}   true → Event processed, false → delegate to browser
          */
-        handleRovingKeys(e, items, {orientation = 'vertical', rtl = false, activateFn = null, extraKeysFn = null} = {}) {
+        handleRovingKeys(e, items, {orientation = 'vertical', activateFn = null, extraKeysFn = null} = {}) {
             const idx = items.indexOf(e.target);
             if (idx === -1) return false;
 
             // Determine navigation keys depending on orientation & rtl
-            const PREV_KEY = orientation === 'vertical' ? KEY.UP : rtl ? KEY.RIGHT : KEY.LEFT;
-            const NEXT_KEY = orientation === 'vertical' ? KEY.DOWN : rtl ? KEY.LEFT : KEY.RIGHT;
+            const rtl = this.ak?.rtl === true;
+            //const PREV_KEY = orientation === 'vertical' ? KEY.UP : rtl ? KEY.RIGHT : KEY.LEFT;
+            //const NEXT_KEY = orientation === 'vertical' ? KEY.DOWN : rtl ? KEY.LEFT : KEY.RIGHT;
+            const [PREV_KEY, NEXT_KEY] = this._getNavKeys(orientation, rtl);
 
             switch (e.key) {
                 /* Navigate ------------------------------------------------------- */
@@ -256,6 +252,7 @@
             if (typeof extraKeysFn === 'function') {
                 return extraKeysFn(e, idx, items) === true;
             }
+
             return false;
         }
 
@@ -357,12 +354,6 @@
             });
         }
 
-        //_initRovingTabindex() {
-        //    this.menubars.forEach(bar => {
-        //        this._items(bar).forEach((el, i) => el.tabIndex = i === 0 ? 0 : -1);
-        //    });
-        //}
-
         _items(container) {
             // TODO: (wcag) (mh) Slow!
             return this._getCache(container, () =>
@@ -393,11 +384,9 @@
             if (!items.length) return false;
 
             const orientation = menu.getAttribute('aria-orientation') ?? (isMenubar ? 'horizontal' : 'vertical');
-            const rtl = this.ak?.rtl === true;
-
+            
             return this.handleRovingKeys(e, items, {
                 orientation,
-                rtl,
 
                 /** ENTER/SPACE → Open submenu or execute command */
                 activateFn: (item) => {
@@ -411,8 +400,8 @@
                 /** Menu specific keys (Open, close, TAB) */
                 extraKeysFn: (ev) => {
                     const isVertical = orientation === 'vertical';
-                    const dirOpen = isMenubar ? null : isVertical ? rtl ? KEY.LEFT : KEY.RIGHT : KEY.DOWN;
-                    const dirClose = isMenubar ? null : isVertical ? rtl ? KEY.RIGHT : KEY.LEFT : KEY.UP;
+                    const dirOpen = isMenubar ? null : isVertical ? this.ak.rtl ? KEY.LEFT : KEY.RIGHT : KEY.DOWN;
+                    const dirClose = isMenubar ? null : isVertical ? this.ak.rtl ? KEY.RIGHT : KEY.LEFT : KEY.UP;
 
                     /* Open sub menu -------------------------------------- */
                     if ((isMenubar && [KEY.DOWN, KEY.SPACE, KEY.ENTER].includes(ev.key)) || (!isMenubar && ev.key === dirOpen)) {
@@ -448,58 +437,6 @@
                     return false;
                 },
             });
-        }
-
-        // TODO: (wcag) (mh): Remove when the new function is working as expected.
-        _menuKey_OLD(e, menu, isMenubar = false) {
-            const items = this._items(menu);
-            const idx = items.indexOf(e.target);
-            if (idx === -1) return false;
-
-            const orientation = menu.getAttribute('aria-orientation') ?? (isMenubar ? 'horizontal' : 'vertical');
-            const [KEY_PREV, KEY_NEXT] = this._getNavKeys(orientation, this.ak.rtl);
-            const isVertical = orientation === 'vertical';
-            const dirOpen = isMenubar ? null : (isVertical ? (this.ak.rtl ? KEY.LEFT : KEY.RIGHT) : KEY.DOWN);
-            const dirClose = isMenubar ? null : (isVertical ? (this.ak.rtl ? KEY.RIGHT : KEY.LEFT) : KEY.UP);
-            const openKeysRoot = [KEY.DOWN, KEY.SPACE, KEY.ENTER];
-
-            switch (e.key) {
-                /* Navigate   ------------------------------------------------------ */
-                case KEY_NEXT: setActive(items, this._nextIdx(idx, +1, items.length)); return true;
-                case KEY_PREV: setActive(items, this._nextIdx(idx, -1, items.length)); return true;
-                case KEY.HOME: setActive(items, 0); return true;
-                case KEY.END: setActive(items, items.length - 1); return true;
-
-                /* Open   ---------------------------------------------------------- */
-                case (isMenubar ? openKeysRoot.find(k => k === e.key) : dirOpen):
-                    if (e.target.getAttribute('aria-haspopup') === 'menu') {
-                        this._open(e.target);
-                        return true;
-                    }
-                    return false;
-
-                /* Close     ------------------------------------------------------- */
-                case KEY.ESC:
-                case dirClose:
-                    if (isMenubar) {
-                        this._closeAll(); 
-                    } else {
-                        const trigger = document.querySelector(`[aria-controls="${menu.id}"]`);
-                        this._close(trigger, menu);
-                        trigger?.focus();
-                    }
-                    return true;
-
-                /* Tab = Leave component ------------------------------------------- */
-                case KEY.TAB:
-                    if (isMenubar) {
-                        setActive(items, 0);     // Reset focus & tabIndex on menubar items.
-                    } else {
-                        this._closeAll();   // Close all submenus.
-                    }
-                    return true;
-            }
-            return false;
         }
 
         _open(trigger) {
@@ -548,31 +485,6 @@
      *  Handles all items of [role="tablist"] + [role="tab"] + [role="tabpanel"]
      * -------------------------------------------------- */
     class TablistPlugin extends AccessKitPluginBase {
-        //init(container = document) {
-        //    const lists = Array.from(container.querySelectorAll('[role="tablist"]'));
-        //    lists.forEach((list) => this._initRovingTabindex(list));
-        //};
-
-        //_initRovingTabindex(list) {
-        //    const tabs = this._tabs(list);
-        //    // Find preselected tab, otherwise first - always only ONE “aria-selected=true”!
-        //    let selectedIdx = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
-        //    if (selectedIdx === -1) {
-        //        selectedIdx = 0;
-        //    }
-
-        //    tabs.forEach((tab, i) => {
-        //        tab.tabIndex = i === selectedIdx ? 0 : -1;
-        //    });
-
-        //    this._select(tabs[selectedIdx], false);
-        //}
-
-        //_tabs(list) {
-        //    return [...list.querySelectorAll('[role="tab"]')]
-        //        .filter(tab => tab.closest('[role="tablist"]') === list);
-        //}
-
         init(container = document) {
             container.querySelectorAll('[role="tablist"]').forEach(list => {
                 const tabs = this.applyRoving(list, '[role="tab"]');
@@ -596,60 +508,11 @@
             );
 
             const orientation = list.getAttribute('aria-orientation') ?? 'horizontal';
-            const rtl = this.ak?.rtl === true;
 
             return this.handleRovingKeys(e, tabs, {
                 orientation,
-                rtl,
                 activateFn: (el) => this._select(el),
             });
-        }
-
-        handleKey_OLD(e) {
-            const tab = e.target;
-            if (!tab || tab.getAttribute('role') !== 'tab')
-                return false;
-
-            const list = tab.closest('[role="tablist"]');
-            if (!list)
-                return false;
-
-            const tabs = this._getCache(list, () => this.applyRoving(list, '[role="tab"]'));
-            const idx = tabs.indexOf(tab);
-            if (idx === -1)
-                return false;
-
-            const orientation = list.getAttribute('aria-orientation') ?? 'horizontal';
-            const [KEY_PREV, KEY_NEXT] = this._getNavKeys(orientation, this.ak.rtl);
-
-            switch (e.key) {
-                /* Navigate   ------------------------------------------------------ */
-                case KEY_NEXT: {
-                    const next = tabs[this._nextIdx(idx, +1, tabs.length)];
-                    this._move(next);
-                    return true;
-                }
-                case KEY_PREV: {
-                    const prev = tabs[this._nextIdx(idx, -1, tabs.length)];
-                    this._move(prev);
-                    return true;
-                }
-                case KEY.HOME: {
-                    this._move(tabs[0]);
-                    return true;
-                }
-                case KEY.END: {
-                    this._move(tabs[tabs.length - 1]);
-                    return true;
-                }
-                /* Select      ------------------------------------------------------ */
-                case KEY.SPACE:
-                case KEY.ENTER: {
-                    this._select(tab);
-                    return true;
-                }
-            }
-            return false;
         }
 
         // Shift roving focus to the next tab.
@@ -687,29 +550,11 @@
      *  TreePlugin – 
      *  Handles all items of [role="tree"] + [role="treeitem"]
      * -------------------------------------------------- */
-    //class TreePlugin extends AccessKitPluginBase {
     class TreePlugin extends AccessKitExpandablePluginBase {
-        //init(container = document) {
-        //    const trees = Array.from(container.querySelectorAll('[role="tree"]'));
-        //    trees.forEach(tree => this._initRovingTabindex(tree));
-        //}
-
         _initRovingTabindex(tree) {
             const items = this._visibleItems(tree);
             items.forEach((item, i) => item.tabIndex = i === 0 ? 0 : -1);
         }
-
-        //// A treeitem is included if no ancestor treeitem is set to aria-expanded=“false”. The treeitem itself may therefore be collapsed.
-        //_visibleItems(tree) {
-        //    return Array.from(tree.querySelectorAll('[role="treeitem"]')).filter(node => {
-        //        let anc = node.parentElement?.closest('[role="treeitem"]');
-        //        while (anc) {
-        //            if (anc.getAttribute('aria-expanded') === 'false') return false;
-        //            anc = anc.parentElement?.closest('[role="treeitem"]');
-        //        }
-        //        return true; // No collapsed ancestor found
-        //    });
-        //}
 
         init(container = document) {
             container.querySelectorAll('[role="tree"]').forEach(tree => {
@@ -725,17 +570,6 @@
         }
 
         _visibleItems(tree) {
-            //const all = this._allItems(tree);
-            //return all.filter(it => {
-            //        /* Wenn das Item oder einer seiner Vorfahren per CSS/hidden ausgeblendet ist, fällt es raus. */
-            //        if (it.offsetParent === null) return false;
-
-            //        /* Ist ein Vorfahr-Treeitem collapsed (aria-expanded="false")? */
-            //        const collapsedAncestor = it.closest('[role=\"treeitem\"][aria-expanded=\"false\"] [role=\"group\"]'
-            //    );
-            //    return !collapsedAncestor;
-            //});
-
             // TODO: (wcag) (mh) Correct this and use cached items. 
             return Array.from(tree.querySelectorAll('[role="treeitem"]')).filter(node => {
                 let anc = node.parentElement?.closest('[role="treeitem"]');
@@ -748,8 +582,6 @@
         }
 
         handleKey(e) {
-            // TODO: (wcag) (mh) Don't forget rtl and orientation.
-
             const item = e.target;
             if (!item || item.getAttribute('role') !== 'treeitem')
                 return false;
@@ -759,74 +591,33 @@
                 return false;
 
             const items = this._visibleItems(tree);
-            const idx = items.indexOf(item);
-            if (idx === -1)
+            if (!items.length)
                 return false;
 
-            switch (e.key) {
-                /* Navigate   ------------------------------------------------------ */
-                case KEY.UP: {
-                    const prev = items[this._nextIdx(idx, -1, items.length)];
-                    this._move(prev, tree, items);
-                    return true;
-                }
-                case KEY.DOWN: {    
-                    const next = items[this._nextIdx(idx, +1, items.length)];
-                    this._move(next, tree, items);
-                    return true;
-                }
-                case KEY.HOME: {
-                    this._move(items[0], tree, items);
-                    return true;
-                }
-                case KEY.END: {
-                    this._move(items[items.length - 1], tree, items);
-                    return true;
-                }
-                case KEY.RIGHT: {
-                    //const expanded = item.getAttribute('aria-expanded') === 'true';
-                    //if (!expanded) {
-                    //    // Always attempt to expand, even if children not yet present (lazy loading)
-                    //    this._toggle(item, true);
-                    //    return true;
-                    //}
-                    //// After expansion, move into first child if it exists
-                    //const firstChild = item.querySelector('[role="group"] [role="treeitem"]');
-                    //if (firstChild) {
-                    //    this._move(firstChild, tree); // siblings recalc inside _move
-                    //}
-                    this.toggleExpanded(item, true, { focusTarget: 'first' });
-                    return true;
-                }
-                /* Close     ------------------------------------------------------ */
-                case KEY.ESC: 
-                case KEY.LEFT: {
-                    //const group = item.closest('[role="group"]');
-                    //if (group) {
-                    //    this._toggle(item, false);
-                    //    return true;
-                    //}
-                    //const parent = item.parentElement?.closest('[role="treeitem"]');
-                    //if (parent) this._move(parent, tree, items);
-                    this.toggleExpanded(item, false);
-                    return true;
-                }
-                /* Open      ------------------------------------------------------ */
-                case KEY.SPACE:
-                case KEY.ENTER: {
-                    item.trigger("click");
+            const orientation = tree.getAttribute('aria-orientation') ?? 'vertical';
+
+            return this.handleRovingKeys(e, items, {
+                orientation,
+                activateFn: (el) => (el.trigger ? el.trigger('click') : el.click()),
+                extraKeysFn: (ev, _idx, list) => {
+                    if (ev.key === KEY.RIGHT) {
+                        this.toggleExpanded(item, true, { focusTarget: 'first' });
+                        return true;
+                    }
+
+                    if (ev.key === KEY.LEFT || ev.key === KEY.ESC) {
+                        this.toggleExpanded(item, false);
+                        return true;
+                    }
+
+                    if (ev.key === KEY.TAB) {
+                        this.applyRoving(tree, '[role="treeitem"]');
+                        return false;
+                    }
+
                     return false;
-                }
-                /* Leave component ------------------------------------------------ */
-                case KEY.TAB: {
-                    // INFO: Roving tab index is initialized here to ensure tabindex is set correctly in OffCanvas-AJAX scenario
-                    // where we can't rely on JS initialization of the AccessKit.
-                    //this._initRovingTabindex(tree);
-                    this.applyRoving(tree, '[role="treeitem"]');
-                    return false;
-                }
-            }
-            return false;
+                },
+            });
         }
 
         /* -------- Move roving focus -------- */
@@ -837,45 +628,8 @@
             tree = tree || item.closest('[role="tree"]');
             siblings = siblings || this._visibleItems(tree);
 
-            siblings.forEach((i) => (i.tabIndex = -1));
-            item.tabIndex = 0;
-            item.focus();
+            super._move(item, siblings);
         }
-
-        /* -------- Expand / Collapse -------- */
-        //_toggle(item, expandForce = null) {
-        //    const expanded = item.getAttribute('aria-expanded') === 'true';
-        //    const newState = expandForce !== null ? expandForce : !expanded;
-        //    item.setAttribute('aria-expanded', newState ? 'true' : 'false');
-
-        //    // TODO: (wcag) (mh) Rename to innergroup or something like this.
-        //    let group = item.querySelector('[role="group"]');
-        //    if (group) {
-        //        group.hidden = !newState;
-        //    }
-
-        //    const parentGroup = item.closest('[role="group"]');
-
-        //    if (parentGroup) { 
-        //        const parentId = parentGroup.getAttribute('id');
-        //        if (parentId) {
-        //            const parentLink = document.querySelector(`[aria-controls="${parentId}"]`);
-        //            if (!newState) {
-        //                parentLink.setAttribute('aria-expanded', 'false');
-        //            }
-        //        }
-        //    }
-
-        //    // Immer Event feuern – auch wenn group (noch) nicht vorhanden ist → Ajax-Lazy‑Load
-        //    this._dispatchEvent(newState ? 'ak-tree-open' : 'ak-tree-close', item, { item, group });
-
-        //    // Roving‑Tabindex nachträglich aktualisieren, wenn Kinder schon existieren
-        //    if (group) {
-        //        const tree = item.closest('[role="tree"]');
-        //        //this._initRovingTabindex(tree);
-        //        this.applyRoving(tree, '[role="treeitem"]');
-        //    }
-        //}
     }
 
     /* --------------------------------------------------
@@ -940,7 +694,6 @@
 
         handleKey(e) {
             const opt = e.target;
-
             if (!opt || opt.getAttribute('role') !== 'option')
                 return false;
 
@@ -949,51 +702,31 @@
                 return false;
 
             const options = this._options(list);
-            const idx = options.indexOf(opt);
-            if (idx === -1)
+            if (!options.length)
                 return false;
 
-            // TODO: (wcag) (mh) Is a listbox always vertical or are there cases where they are horizontal?
-            switch (e.key) {
-                /* Navigate -------------------------------------------------- */
-                case KEY.UP:
-                    this._move(options[this._nextIdx(idx, -1, options.length)], list, options);
-                    return true;
-                case KEY.DOWN:
-                    this._move(options[this._nextIdx(idx, +1, options.length)], list, options);
-                    return true;
-                case KEY.HOME:
-                    this._move(options[0], list, options);
-                    return true;
-                case KEY.END:
-                    this._move(options[options.length - 1], list, options);
-                    return true;
-
-                /* Select ---------------------------------------------------- */
-                case KEY.SPACE:
-                case KEY.ENTER:
-                    this._toggleSelect(opt, list, options);
-                    return true;
-
-                /* Type‑ahead ------------------------------------------------ */
-                default:
-                    if (e.key.length === 1 && /\S/.test(e.key)) {
-                        this._typeahead(e.key, idx, options, list);
+            const orientation = list.getAttribute('aria-orientation') ?? 'vertical';
+            
+            return this.handleRovingKeys(e, options, {
+                orientation,
+                activateFn: (el, _idx, opts) => this._toggleSelect(el, list, opts),
+                extraKeysFn: (ev, idx, opts) => {
+                    if (ev.key.length === 1 && /\S/.test(ev.key)) {
+                        this._typeahead(ev.key, idx, opts, list);
                         return true;
                     }
-            }
-            return false;
+                    return false;
+                }
+            });
         }
 
         /* -------- Move roving focus -------- */
         _move(opt, list, options) {
-            if (!opt) return;
-            options.forEach(o => o.tabIndex = -1);
-            opt.tabIndex = 0;
-            opt.focus();
+            super._move(opt, null, options);
 
+            // TODO: Evaluate if this is needed 
             // In single‑select listboxes, moving also selects
-            if (list.dataset.akMultiselect !== 'true') {
+            if (list.length && list.dataset.akMultiselect !== 'true') {
                 this._toggleSelect(opt, list, options, /*replace*/ true);
             }
         }
