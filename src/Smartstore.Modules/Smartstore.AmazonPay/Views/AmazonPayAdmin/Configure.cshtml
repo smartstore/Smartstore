@@ -92,15 +92,25 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="HasPrivateKey" />
+                <smart-label asp-for="PrivateKey" />
             </div>
             <div class="adminData">
-                <div sm-if="Model.HasPrivateKey" class="form-control-plaintext">
-                    <span>*******</span>
-                    <button id="remove-private-key" type="button" class="btn btn-secondary btn-to-danger btn-sm ml-3" data-url="@Url.Action("RemovePrivateKey")">
-                        <i class="far fa-trash-can"></i>
-                        <span>@T("Admin.Common.Delete")</span>
-                    </button>
+                <div class="hide">
+                    <setting-editor asp-for="PrivateKey"></setting-editor>
+                </div>
+                <div class="form-control-plaintext">
+                    @if (Model.PrivateKey.HasValue())
+                    {
+                        <span>*****************</span>
+                        <button id="remove-private-key" type="button" class="btn btn-secondary btn-to-danger btn-sm ml-3" data-url="@Url.Action("RemovePrivateKey")">
+                            <i class="far fa-trash-can"></i>
+                            <span>@T("Admin.Common.Delete")</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="muted">@StringExtensions.NotAvailable</span>
+                    }
                 </div>
                 <div class="mt-1">
                     <file-uploader file-uploader-name="private-key-uploader"
