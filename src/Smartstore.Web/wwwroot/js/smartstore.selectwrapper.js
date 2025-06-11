@@ -471,6 +471,16 @@
                 sel.data("select2").$container.addClass("autowidth");
             }
 
+            // WCAG: Consider aria-labelledby attribute of the native select control for select2 selection element.
+            const labelledby = sel.attr("aria-labelledby");
+            if (!_.isEmpty(labelledby)) {
+                const elSelection = sel.data("select2").$container.find('.select2-selection');
+                if (elSelection.length) {
+                    const existingLabelledby = elSelection.attr('aria-labelledby');
+                    elSelection.attr('aria-labelledby', _.isEmpty(existingLabelledby) ? labelledby : `${labelledby} ${existingLabelledby}`);
+                }
+            }
+
             function getPlaceholder() {
                 return options.placeholder ||
                     sel.attr("placeholder") ||
