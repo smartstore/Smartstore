@@ -54,6 +54,9 @@
             // TODO: (wcag) (mh) Maybe this ain't the correct place to handle this. 
             // Finish the job!!! Build proper generic trapping mechanism for all modal like components and evaluate anew. 
             this._initOffCanvasTrap();
+
+            // Handle .nav-collapsible aria-expanded attribute on page resize
+            this._initCollapsibles();
         }
 
         _dispatchKey(e) {
@@ -76,6 +79,22 @@
 
         static register(plugin) {
             AccessKit._registry.push(plugin);
+        }
+
+        _initCollapsibles() {
+            // Handle .nav-collapsible aria-expanded attribute on page resize
+            const setCollapsibleState = (viewport) => {
+                const toggles = document.querySelectorAll('.nav-collapsible > [data-toggle="collapse"]');
+                toggles.forEach(el => {
+                    el.setAttribute('aria-expanded', viewport.is('>=md') ? 'true' : !el.matches('.collapsed'))
+                });
+            };
+
+            EventBroker.subscribe("page.resized", function (_, viewport) {
+                setCollapsibleState(viewport);
+            });
+
+            setCollapsibleState(ResponsiveBootstrapToolkit);
         }
 
         _initOffCanvasTrap() {

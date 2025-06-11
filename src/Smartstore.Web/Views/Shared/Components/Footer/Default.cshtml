@@ -184,14 +184,3 @@
         </div>
     </div>
 </footer>
-
-<script>
-    // TODO: (wcag) (mh) Find a proper place after review
-    // INFO: There's no other way to ensure the correct attribute value of aria-expanded in our desktop/mobile footer scenario
-    $(function () {
-        var viewport = ResponsiveBootstrapToolkit;
-        if (viewport.is('>=md')) {
-            $('.footer-title.nav-toggler').attr("aria-expanded", "true");
-        }
-    });
-</script>
