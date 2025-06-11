@@ -7,9 +7,10 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
+- Laguage and currency selectors have been made accessible to screen readers.
 - Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
-- Newsletter subscription and theme selector in footer menu have been made accessible to screen readers.
+- All elements in the footer have been made accessible to screen readers.
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
   - Direct Order
@@ -19,6 +20,20 @@
   - MegaSearchPlus (extended facet templates)
   - News
   - Polls
+- A script to handle key navigation has been implemented. It identifies the role of several components and determines their navigateable child elements.
+	- MenuPlugin handles all items of role="menubar" based on subitems of role="menu" & role="menuitem". It is used in ...
+		- ... the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
+	- TablistPlugin handles all items of role="tablist" based on subitems role="tab". It is used in ...
+		-  ... the Offcanvas Menu 
+		-  ... the Offcanvas Cart
+	- TreePlugin handles all items of role="tree" based on subitems of role="treeitem". It is used in ...
+		- ... the catalog navigation in the Offcanvas Menu
+	- ListboxPlugin handles widgets using role="listbox" based on subitems of role="option". It is used in ...
+		-  ... language and currency selector
+		-  ... all dropdown menus rendered by menu TagHelper
+- Nested nav elements were removed from the top bar.
+
+		
 
 ### New Features
 
