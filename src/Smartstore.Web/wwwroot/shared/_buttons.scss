@@ -257,7 +257,6 @@ button:where(.reset) {
     --btn-hover-color: var(--btn-color);
     --btn-hover-bg: #{rgba(#fff, 0.15)};
     --btn-hover-border-color: var(--btn-border-color);
-    --btn-hover-shadow: none;
     --btn-active-color: var(--btn-hover-color);
     --btn-active-bg: #{rgba(#fff, 0.12)};
     --btn-active-border-color: #{rgba(#fff, 0.4)};
@@ -281,7 +280,6 @@ button:where(.reset) {
     --btn-hover-color: #{darken($yiq-text-dark, 8%)};
     --btn-hover-bg: #{rgba(#000, 0.06)};
     --btn-hover-border-color: #{rgba(#000, 0.1)};
-    --btn-hover-shadow: none;
     --btn-active-color: var(--btn-hover-color);
     --btn-active-bg: #{rgba(#000, 0.08)};
     --btn-active-border-color: #{rgba(#000, 0.15)};

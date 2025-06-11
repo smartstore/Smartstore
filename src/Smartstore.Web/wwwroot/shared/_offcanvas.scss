@@ -32,7 +32,6 @@ body.canvas-noscroll {
     background-color: transparent;
     outline: none;
     &:focus { outline: none }
-    &:focus-visible { outline: revert }
 }
 
 

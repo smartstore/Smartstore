@@ -179,71 +179,54 @@ $mixed-megamenu-bg:             $megamenu-bg;
     opacity: 0;
     z-index: $megamenu-zindex-base;
     display: none;
+    align-items: center;
+    justify-content: center;
 
     // INFO: No logical CSS here, else directions change.
     &.alpha {
         left: 0;
-        a { padding-right: 10px; }
+        background-image: linear-gradient(to left, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
     }
 
     &.omega {
         right: 0;
-        a { padding-left: 10px; }
-    }
-
-    .megamenu-nav-btn {
-        border: none;
-        box-shadow: none;
-        position: relative;
-        z-index: ($megamenu-zindex-base + 10);
-        padding: 0px;
-        width: 40px;
-        height: 98%;
-        box-shadow: none !important;
-
-        > i {
-            font-size: 32px;
-            transition: all .2s ease-in-out;
-            height: 58px;
-            line-height: 58px;
-            vertical-align: middle;
-            text-align: center;
-            padding: 0;
-            margin: 0;
-            display: inline-block;
-            opacity: 0.6;
-
-            &:hover { opacity: 0.85; }
-            &:active { opacity: 1; }
-        }
+        background-image: linear-gradient(to right, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
     }
 }
 
-:is(.megamenu-blend--next, .megamenu-blend--prev) :is(megamenu-nav--next, .megamenu-nav--prev) {
+.btn.megamenu-nav-btn {
+    --btn-color: var(--mm-link-color);
+    --btn-hover-color: var(--btn-color);
+    --btn-active-shadow: none;
+    --btn-hover-bg: var(--mm-link-bg-active); // #{darken($mixed-megamenu-bg, 6%)};
+    --btn-active-bg: var(--btn-hover-bg); // #{darken($mixed-megamenu-bg, 10%)};
+    --btn-border-color: transparent;
+    --btn-hover-border-color: transparent;
+    --btn-active-border-color: transparent;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: ($megamenu-zindex-base + 10);
+
+    &:active > .megamenu-nav-btn-icon {
+        opacity: 1;
+    }
+}
+
+.megamenu-nav-btn-icon {
+    opacity: 0.75;
+    font-size: 1.5em;
+}
+
+.megamenu-blend--next .megamenu-nav--next,
+.megamenu-blend--prev .megamenu-nav--prev {
     opacity: 1;
-    display: block;
+    display: flex;
 }
 
-.megamenu .megamenu-nav.alpha > .megamenu-nav-btn {
-    background-image: linear-gradient(to left, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%) !important;
-}
-.megamenu .megamenu-nav.omega > .megamenu-nav-btn {
-    background-image: linear-gradient(to right, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%) !important;
-}
 
-.touchevents .megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn > i,
-.touchevents .megamenu-section .megamenu-nav-btn > i,
-.megamenu .megamenu-nav i {
-    color: $header-color;
-    display: none;
-}
-.touchevents .megamenu-section .navbar-inverse.navbar:hover .show-scroll-buttons .megamenu-nav-btn > i,
-.touchevents .megamenu-section .navbar-inverse .megamenu-nav-btn > i,
-.navbar-inverse .megamenu .megamenu-nav i {
-    color: $header-inverse-color;
-}
-.megamenu-section .navbar:hover .show-scroll-buttons .megamenu-nav-btn > i {
-    display: block;
+.navbar:hover > .megamenu-container.show-scroll-buttons .megamenu-nav-btn {
+    opacity: 1;
 }
 
 .megamenu-container {
@@ -265,10 +248,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
     .nav-link {
         padding: var(--mm-link-padding-y) var(--mm-link-padding-x);
-
-        &:focus-visible {
-            outline-offset: -1px;
-        }
     }
 
     .megamenu-dropdown-container {
