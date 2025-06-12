@@ -33,7 +33,7 @@
 		-  ... all dropdown menus rendered by menu TagHelper
 - Nested nav elements were removed from the top bar.
 
-		
+	​	
 
 ### New Features
 
@@ -64,6 +64,7 @@
 - Use a relative product URL instead of an absolute one to avoid the JS error "Failed to execute replaceState on History".
 - PayPal: If Google Pay was initially selected on the payment selection page, a script error occurred which prevented all PayPal buttons from loading.
 - AmazonPay: Fixed issue of the private key being unintentionally deleted when saving a multistore configuration.
+- Added missing xml declaration to sitemap index file.
 
 
 ## Smartstore 6.1.0
