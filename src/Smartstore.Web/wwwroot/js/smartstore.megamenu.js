@@ -356,7 +356,7 @@
                             megamenuContainer.removeClass("show-scroll-buttons");
                         }
 
-                        megamenuDropdownContainer.find('.mega-menu-product-rotator > .artlist-grid').each(function (i, el) {
+                        megamenuDropdownContainer.find('.megamenu-product-rotator > .artlist-grid').each(function (i, el) {
                             try {
                                 $(this).slick('unslick');
                                 $(this).attr('data-slick', '{"dots": false, "autoplay": true}');
@@ -382,7 +382,7 @@
                     var displayRotator = container.data("display-rotator");
 
                     // reinit slick product rotator
-                    container.find('.mega-menu-product-rotator > .artlist-grid').each(function (i, el) {
+                    container.find('.megamenu-product-rotator > .artlist-grid').each(function (i, el) {
                         try {
                             $(this).slick('unslick');
                             $(this).attr('data-slick', '{"dots": false, "autoplay": true}');
@@ -413,7 +413,7 @@
                                     // add html view
                                     rotatorColumn.find(".rotator-content").html(data);
 
-                                    var list = container.find('.mega-menu-product-rotator > .artlist-grid');
+                                    var list = container.find('.megamenu-product-rotator > .artlist-grid');
                                     list.attr('data-slick', '{"dots": false, "autoplay": true}');
 
                                     // Init carousel
