@@ -640,12 +640,7 @@ namespace Smartstore.Core.Seo
                 root.Add(xel);
             }
 
-            XDeclaration declaration = new XDeclaration("1.0", "UTF-8", "yes");
-            XDocument document = new XDocument(root);
-            var xml = declaration.ToString() + document.ToString(SaveOptions.DisableFormatting);
-            CheckDocumentSize(xml);
-
-            return xml;
+            return GenerateXmlDocument(root);
         }
 
         /// <summary>
@@ -673,8 +668,14 @@ namespace Smartstore.Core.Seo
                 root.Add(xel);
             }
 
+            return GenerateXmlDocument(root);
+        }
+
+        private string GenerateXmlDocument(XElement root)
+        {
+            var declaration = new XDeclaration("1.0", "UTF-8", "yes");
             var document = new XDocument(root);
-            var xml = document.ToString(SaveOptions.DisableFormatting);
+            var xml = declaration.ToString() + document.ToString(SaveOptions.DisableFormatting);
             CheckDocumentSize(xml);
 
             return xml;
