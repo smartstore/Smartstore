@@ -121,8 +121,11 @@
 //
 // MyAccount
 // -------------------------------------------------
-.recurring-payments-box td {
-    vertical-align: middle;
+.recurring-payments-box {
+    td, th[scope=row] {
+        font-weight: normal;
+        vertical-align: middle;
+    }
 }
 
 .myaccount-header {

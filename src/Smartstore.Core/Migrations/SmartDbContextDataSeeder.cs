@@ -72,6 +72,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Order.CannotCompleteUnpaidOrder",
                 "An order with a payment status of \"{0}\" cannot be completed.",
                 "Ein Auftrag mit dem Zahlungsstatus \"{0}\" kann nicht abgeschlossen werden.");
+
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.Cancel",
+                "Cancel repeat delivery for order {0}",
+                "Regelm‰ﬂige Lieferung zu Auftrag {0} abbrechen");
         }
     }
 }
