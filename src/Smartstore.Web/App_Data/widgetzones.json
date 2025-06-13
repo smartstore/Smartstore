@@ -53,16 +53,6 @@
       ]
     },
     {
-      "name": "Admin.Common.News",
-      "zones": [
-        "newslist_page_before_items",
-        "newslist_page_after_items",
-        "newsitem_page_before_body",
-        "newsitem_page_before_comments",
-        "newsitem_page_after_comments"
-      ]
-    },
-    {
       "name": "Admin.Catalog.Categories",
       "zones": [
         "categorydetails_top",
