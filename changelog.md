@@ -45,7 +45,9 @@
 
 - Allow an order to be completed if its payment has been refunded.
 - The author of a blog or news post has been added to the Open Graph metadata.
-- Stripe: Void order if a message about a failed payment has been sent to the webhook. 
+- Stripe: 
+	- Void the order if a message about a failed payment has been sent to the webhook. 
+	- Payment status (Paid & Authorized) was set to early in checkout process. 
 
 ### Bugfixes
 
