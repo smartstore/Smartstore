@@ -19,6 +19,7 @@
   - GDPR
   - MegaSearchPlus (extended facet templates)
   - News
+  - Offline Payment
   - Polls
   - Wallet
 - A script to handle key navigation has been implemented. It identifies the role of several components and determines their navigateable child elements.
