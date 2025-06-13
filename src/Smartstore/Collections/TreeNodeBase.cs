@@ -38,12 +38,12 @@ namespace Smartstore.Collections
 
         #region Id
 
-        private void PropagateNodeId(object? value /* Id */, IDictionary<object, TreeNodeBase<T>> idNodeMap)
+        private void PropagateNodeId(object? value /* Id */, Dictionary<object, TreeNodeBase<T>> idNodeMap)
         {
             if (value != null)
             {
                 // We support multi-keys for single nodes
-                var ids = value as IEnumerable<object> ?? new object[] { value };
+                var ids = value as IEnumerable<object> ?? [value];
                 foreach (var id in ids)
                 {
                     idNodeMap[id] = this;
@@ -51,18 +51,15 @@ namespace Smartstore.Collections
             }
         }
 
-        private static void RemoveNodeId(object? value /* Id */, IDictionary<object, TreeNodeBase<T>> idNodeMap)
+        private static void RemoveNodeId(object? value /* Id */, Dictionary<object, TreeNodeBase<T>> idNodeMap)
         {
             if (value != null)
             {
                 // We support multi-keys for single nodes
-                var ids = value as IEnumerable<object> ?? new object[] { value };
+                var ids = value as IEnumerable<object> ?? [value];
                 foreach (var id in ids)
                 {
-                    if (idNodeMap.ContainsKey(id))
-                    {
-                        idNodeMap.Remove(id);
-                    }
+                    idNodeMap.Remove(id);
                 }
             }
         }
@@ -77,7 +74,7 @@ namespace Smartstore.Collections
             if (prevParent != null)
             {
                 // A node is moved. We need to detach first.
-                keyedNodes = new List<TreeNodeBase<T>>();
+                keyedNodes = [];
 
                 // Detach ids from prev map
                 var prevMap = prevParent.GetIdNodeMap();
@@ -204,7 +201,7 @@ namespace Smartstore.Collections
             var state = _contextState.Get();
             if (state == null)
             {
-                state = new Dictionary<string, object?>();
+                state = [];
                 _contextState.Push(state);
             }
 
@@ -327,19 +324,19 @@ namespace Smartstore.Collections
 
         public IReadOnlyList<T> Children
         {
-            get => ChildrenInternal;
+            get => (IReadOnlyList<T>)_children ?? ArraySegment<T>.Empty;
         }
 
         [IgnoreDataMember]
         public IEnumerable<T> LeafNodes
         {
-            get => _children?.Where(x => x.IsLeaf) ?? Enumerable.Empty<T>();
+            get => _children?.Where(x => x.IsLeaf) ?? [];
         }
 
         [IgnoreDataMember]
         public IEnumerable<T> NonLeafNodes
         {
-            get => _children?.Where(x => !x.IsLeaf) ?? Enumerable.Empty<T>();
+            get => _children?.Where(x => !x.IsLeaf) ?? [];
         }
 
 
@@ -492,7 +489,7 @@ namespace Smartstore.Collections
         {
             get
             {
-                var trail = _depth.HasValue ? new List<T>(_depth.Value + 1) : new List<T>();
+                var trail = _depth.HasValue ? new List<T>(_depth.Value + 1) : [];
                 
                 var node = (T)this;
                 do
@@ -615,12 +612,7 @@ namespace Smartstore.Collections
         {
             Guard.NotNull(refNode);
 
-            var refParent = refNode._parent;
-            if (refParent == null)
-            {
-                throw new ArgumentException("The reference node cannot be a root node and must be attached to the tree.", nameof(refNode));
-            }
-
+            var refParent = refNode._parent ?? throw new ArgumentException("The reference node cannot be a root node and must be attached to the tree.", nameof(refNode));
             AttachTo(refParent, refNode._index + (after ? 1 : 0));
         }
 
@@ -645,7 +637,7 @@ namespace Smartstore.Collections
             return FlattenNodes(predicate, includeSelf);
         }
 
-        private static void FixIndexes(IList<T> list, int startIndex, int summand = 1)
+        private static void FixIndexes(List<T> list, int startIndex, int summand = 1)
         {
             if (startIndex < 0 || startIndex >= list.Count)
                 return;
@@ -764,7 +756,7 @@ namespace Smartstore.Collections
 
         protected IEnumerable<T> FlattenNodes(Func<T, bool>? predicate, bool includeSelf = true)
         {
-            var list = includeSelf ? new[] { (T)this } : Enumerable.Empty<T>();
+            var list = includeSelf ? [(T)this] : Enumerable.Empty<T>();
 
             if (_children == null)
             {
