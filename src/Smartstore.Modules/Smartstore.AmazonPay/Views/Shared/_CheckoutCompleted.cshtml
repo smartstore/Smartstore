@@ -8,8 +8,8 @@
 {
     <script src="@Html.Raw(_settings.GetCheckoutScriptUrl())"></script>
     <p>
-        <button id="amazonpay-signout" class="btn btn-sm btn-secondary">
-            <i class="fas fa-right-from-bracket"></i>
+        <button id="amazonpay-signout" type="button" class="btn btn-sm btn-secondary">
+            <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
             <span>@T("Plugins.Payments.AmazonPay.Signout")</span>
         </button>
     </p>

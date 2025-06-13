@@ -22,7 +22,7 @@ namespace Smartstore.Facebook.Auth.Components
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
             var href = Url.Action("ExternalLogin", "Identity", new { provider = "Facebook", returnUrl });
             var title = T("Plugins.ExternalAuth.Facebook.Login").Value;
-            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-facebook' href='{href}'>" +
+            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-facebook' href='{href}' rel='nofollow'>" +
                        $"<i class='fab fa-fw fa-lg fa-facebook-f' aria-hidden='true'></i><span>{title}</span></a>";
 
             return HtmlContent(html);

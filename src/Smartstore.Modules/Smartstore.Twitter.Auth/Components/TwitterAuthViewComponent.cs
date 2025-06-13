@@ -22,7 +22,7 @@ namespace Smartstore.Twitter.Auth.Components
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
             var href = Url.Action("ExternalLogin", "Identity", new { provider = "Twitter", returnUrl });
             var title = T("Plugins.ExternalAuth.Twitter.Login").Value;
-            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-x-twitter' href='{href}'>" +
+            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-x-twitter' href='{href}' rel='nofollow'>" +
                        $"<i class='fab fa-fw fa-lg fa-x-twitter' aria-hidden='true'></i><span>{title}</span></a>";
 
             return HtmlContent(html);

@@ -23,7 +23,7 @@ namespace Smartstore.Microsoft.Auth.Components
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
             var href = Url.Action("ExternalLogin", "Identity", new { provider = "Microsoft", returnUrl });
             var title = T("Plugins.Smartstore.Microsoft.Auth.Login").Value;
-            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-microsoft' href='{href}'>" +
+            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-microsoft' href='{href}' rel='nofollow'>" +
                        $"<i class='fab fa-fw fa-lg fa-microsoft font-weight-100' aria-hidden='true'></i><span>{title}</span></a>";
 
             return HtmlContent(html);
