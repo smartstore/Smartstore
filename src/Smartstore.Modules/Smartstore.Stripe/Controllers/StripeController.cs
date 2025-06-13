@@ -292,6 +292,12 @@ namespace Smartstore.StripeElements.Controllers
                         {
                             redirectUrl = paymentIntent.NextAction.RedirectToUrl.Url;
                         }
+                        else
+                        {
+                            paymentRequest.NewPaymentStatus = settings.CaptureMethod == "automatic"
+                                ? PaymentStatus.Paid
+                                : PaymentStatus.Authorized;
+                        }
 
                         success = true;
                         state.IsConfirmed = true;
@@ -411,8 +417,11 @@ namespace Smartstore.StripeElements.Controllers
                         // INFO: This can also be a partial capture.
                         decimal convertedAmount = paymentIntent.Amount / 100M;
 
+                        var settings = await Services.SettingFactory.LoadSettingsAsync<StripeSettings>(order.StoreId);
+                        var completedPaymentStatus = settings.CaptureMethod == "automatic" ? PaymentStatus.Paid : PaymentStatus.Authorized;
+
                         // Check if full order amount was captured.
-                        order.PaymentStatus = order.OrderTotal == convertedAmount ? PaymentStatus.Paid : PaymentStatus.Pending;
+                        order.PaymentStatus = order.OrderTotal == convertedAmount ? completedPaymentStatus : PaymentStatus.Pending;
 
                         await _db.SaveChangesAsync();
                     }

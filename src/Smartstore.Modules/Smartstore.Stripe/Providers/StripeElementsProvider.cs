@@ -95,7 +95,7 @@ namespace Smartstore.StripeElements.Providers
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
         }
 
-        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             // INFO: Real process payment happens in StripeController > ConfirmOrder
 
@@ -104,7 +104,10 @@ namespace Smartstore.StripeElements.Providers
                 throw new Exception($"{nameof(processPaymentRequest.OrderGuid)} is missing.");
             }
 
-            var result = new ProcessPaymentResult();
+            var result = new ProcessPaymentResult { 
+                NewPaymentStatus = PaymentStatus.Pending
+            };
+
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
 
             if (state.PaymentIntent.Id.IsEmpty())
@@ -115,13 +118,7 @@ namespace Smartstore.StripeElements.Providers
             // Store PaymentIntent.Id in AuthorizationTransactionId.
             result.AuthorizationTransactionId = state.PaymentIntent.Id;
 
-            var settings = await _settingFactory.LoadSettingsAsync<StripeSettings>(processPaymentRequest.StoreId);
-
-            result.NewPaymentStatus = settings.CaptureMethod == "automatic"
-                ? PaymentStatus.Paid
-                : PaymentStatus.Authorized;
-
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
