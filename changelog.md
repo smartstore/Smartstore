@@ -20,6 +20,7 @@
   - MegaSearchPlus (extended facet templates)
   - News
   - Polls
+  - Wallet
 - A script to handle key navigation has been implemented. It identifies the role of several components and determines their navigateable child elements.
 	- MenuPlugin handles all items of role="menubar" based on subitems of role="menu" & role="menuitem". It is used in ...
 		- ... the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
