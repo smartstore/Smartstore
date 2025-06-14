@@ -337,60 +337,9 @@ $mixed-megamenu-bg:             $megamenu-bg;
         }
     }
 
-    .megamenu-subitem {
-        font-size: $font-size-sm;
-        text-decoration: none;
-        display: block;
-        color: $megamenu-subitem-color;
-
-        &:hover {
-            color: #222;
-        }
-
-        &.more-link {
-            font-weight: bold;
-            color: #464646;
-            font-size: $font-size-sm;
-        }
-    }
-
-    .inline-container {
-        line-height: 1.25rem;
-
-        .megamenu-subitem {
-            font-size: $font-size-sm;
-            line-height: .875rem;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
-
-    .megamenu-subitem-wrap {
-        white-space: nowrap;
-    }
-
-    .comma-separated {
-        .megamenu-subitem {
-            display: inline;
-            margin-right: -.15rem;
-
-            &.more-link {
-                display: block;
-            }
-
-            &:focus,
-            &:hover {
-                background-color: transparent;
-                color: #888;
-            }
-        }
-    }
-
     // Product rotator 
     .rotator-container {
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba($black, .1);
         background: $megamenu-rotator-bg;
         overflow: hidden;
 	    min-height: 320px;
@@ -401,12 +350,60 @@ $mixed-megamenu-bg:             $megamenu-bg;
 
         .rotator-content > div.placeholder {
             height: 280px;
-            background-color: rgba(255,255,255, 0.85);
+            background-color: rgba($white, 0.85);
 
             .empty {
                 background-color: transparent;
             }
         }
+    }
+}
+
+.megamenu-dropdown-heading + .megamenu-subitems {
+    margin-top: 3px;
+}
+
+.megamenu-subitems {
+    display: flex;
+
+    &.inline {
+        flex-flow: row;
+        flex-wrap: wrap;
+
+        > .megamenu-subitem-wrap {
+            display: inline-flex;
+        }
+
+        .megamenu-subitem:hover {
+            text-decoration: underline;
+            color: var(--gray-600);
+        }
+    }
+
+    &.block {
+        flex-flow: column;
+        flex-wrap: nowrap;
+    }
+}
+
+.megamenu-subitem-wrap {
+    white-space: nowrap;
+}
+
+.megamenu-subitem {
+    font-size: $font-size-sm;
+    text-decoration: none;
+    color: $megamenu-subitem-color;
+    transition: color 0.1s ease;
+
+    &:hover {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    &.more-link {
+        color: inherit;
+        text-decoration: none !important;
     }
 }
 
