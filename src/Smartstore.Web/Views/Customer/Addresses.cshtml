@@ -14,7 +14,7 @@
 
 <div class="add-address">
     <a asp-action="AddressAdd" class="btn btn-primary btn-lg add-address-button mb-4" rel="nofollow">
-        <i class="fa fa-plus"></i>
+        <i class="fa fa-plus" aria-hidden="true"></i>
         <span>@T("Common.AddNew")</span>
     </a>
 </div>
@@ -24,31 +24,42 @@
     return;
 }
 
-<div class="row card-grid g-3 row-cols-1 row-cols-lg-2 address-list">
+<span id="caddr-edit-label" class="sr-only">@T("Common.Edit")</span>
+<span id="caddr-delete-label" class="sr-only">@T("Common.Delete")</span>
+<span id="caddr-setdefault-label" class="sr-only">@T("Address.SetDefaultAddress")</span>
+<span id="caddr-empty" aria-hidden="true" class="sr-only"></span>
+
+<ul class="row card-grid g-3 row-cols-1 row-cols-lg-2 address-list list-unstyled" aria-labelledby="myaccount-header">
     @foreach (var address in Model)
     {
-        <div class="col">
-            <div class="card address-list-item">
+        var id = address.Id;
+        var addressUrl = Url.Action("AddressEdit", new { id });
+        <li class="col address-list-item" aria-labelledby="caddr-fullname@(id)" aria-describedby="caddr-hint@(id)">
+            <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title h5">
-                        <a href="@Url.Action("AddressEdit", new { id = address.Id })" title="@T("Common.Edit")" rel="nofollow">
-                            <span sm-if="address.FirstName.IsEmpty() && address.LastName.IsEmpty()">@address.Company</span>
-                            <span class="bidi-embed">@address.FirstName</span>
-                            <span class="bidi-embed">@address.LastName</span>
+                    <div class="card-title h5">
+                        <a href="@addressUrl" 
+                           title="@T("Common.Edit")"
+                           aria-labelledby="caddr-fullname@(id)"
+                           aria-describedby="caddr-hint@(id)"
+                           rel="nofollow">
+                            <span aria-hidden="true">
+                                <span sm-if="address.FirstName.IsEmpty() && address.LastName.IsEmpty()">@address.Company</span>
+                                <span class="bidi-embed">@address.FirstName</span>
+                                <span class="bidi-embed">@address.LastName</span>
+                            </span>
                         </a>
-                    </h4>
+                        <span id="caddr-fullname@(id)" class="sr-only">@address.FullName</span>
+                    </div>
                     <div class="mb-2">
                         <div class="email">
-                            <label asp-for="@address.Email" class="m-0"></label>:
-                            @address.Email
+                            <span>@T("Address.Fields.Email")</span>: @address.Email
                         </div>
                         <div sm-if="address.PhoneEnabled" class="phone">
-                            <label asp-for="@address.PhoneNumber" class="m-0"></label>:
-                            @address.PhoneNumber
+                            <span>@T("Address.Fields.PhoneNumber")</span>: @address.PhoneNumber
                         </div>
                         <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
-                            <label asp-for="@address.FaxNumber" class="m-0"></label>:
-                            @address.FaxNumber
+                            <span>@T("Address.Fields.FaxNumber")</span>: @address.FaxNumber
                         </div>
                     </div>
                     <div>
@@ -57,45 +68,56 @@
                 </div>
 
                 <div class="card-footer d-flex p-2">
-                    <a class="btn btn-light btn-flat btn-icon btn-sm edit-address-button" asp-action="AddressEdit" asp-route-id="@address.Id"
+                    @* INFO: aria-labelledby: Consistent order -> first action, then name.
+                             aria-describedby: Let SR ignore the title attribute so that the action is not read twice. *@
+                    <a href="@addressUrl"
+                       class="btn btn-light btn-flat btn-icon btn-sm edit-address-button"
                        title="@T("Common.Edit")"
+                       aria-labelledby="caddr-edit-label caddr-fullname@(id)"
+                       aria-describedby="caddr-empty"
                        rel="nofollow">
-                        <i class="far fa-edit"></i>
+                        <i class="far fa-edit" aria-hidden="true"></i>
                     </a>
-                    <button type="button" class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button"
-                            data-url="@Url.Action("AddressDelete", new { id = address.Id })"
-                            title="@T("Common.Delete")">
-                        <i class="far fa-trash-can"></i>
+                    <button type="button" 
+                            class="btn btn-light btn-flat btn-icon btn-sm btn-to-danger ml-1 delete-address-button"
+                            data-url="@Url.Action("AddressDelete", new { id })"
+                            title="@T("Common.Delete")"
+                            aria-labelledby="caddr-delete-label caddr-fullname@(id)"
+                            aria-describedby="caddr-empty">
+                        <i class="far fa-trash-can" aria-hidden="true"></i>
                     </button>
 
                     <div sm-if="address.DefaultAddressesEnabled" class="d-flex ml-auto">
                         @if (address.IsDefaultBillingAddress && address.IsDefaultShippingAddress)
                         {
-                            <span class="badge badge-success align-self-center p-1 pr-2">
-                                <i class="fa fa-check mx-1"></i>
+                            <span id="caddr-hint@(id)" class="badge badge-success align-self-center p-1 pr-2">
+                                <i class="fa fa-check mx-1" aria-hidden="true"></i>
                                 <span>@T("Address.IsDefaultAddress")</span>
                             </span>
                         }
                         else if (address.IsDefaultBillingAddress || address.IsDefaultShippingAddress)
                         {
-                            <span class="badge badge-info align-self-center py-1 px-2 ml-auto">
+                            <span id="caddr-hint@(id)" class="badge badge-info align-self-center py-1 px-2 ml-auto">
                                 <span>@T(address.IsDefaultBillingAddress ? "Address.IsDefaultBillingAddress" : "Address.IsDefaultShippingAddress")</span>
                             </span>
                         }
                         else
                         {
-                            <button type="button" class="btn btn-light btn-flat btn-sm default-address-button"
-                                    data-url="@Url.Action("SetDefaultAddress", new { id = address.Id })"
-                                    title="@T("Address.SetDefaultAddress")">
-                                <span>@T("Common.SetDefault")</span>
+                            <button type="button" 
+                                    class="btn btn-light btn-flat btn-sm default-address-button"
+                                    data-url="@Url.Action("SetDefaultAddress", new { id })"
+                                    title="@T("Address.SetDefaultAddress")"
+                                    aria-labelledby="caddr-setdefault-label caddr-fullname@(id)"
+                                    aria-describedby="caddr-empty">
+                                <span aria-hidden="true">@T("Common.SetDefault")</span>
                             </button>
                         }
                     </div>
                 </div>
             </div>
-        </div>
+        </li>
     }
-</div>
+</ul>
 
 <script sm-target-zone="scripts" data-origin="myaccount-addresses">
     $(function () {

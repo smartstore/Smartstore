@@ -119,6 +119,7 @@ namespace Smartstore.Web.Models.Common
                 to.EmailMatch = from.Email;
                 to.CountryName = from.Country?.GetLocalized(x => x.Name);
                 to.StateProvinceName = from.StateProvince?.GetLocalized(x => x.Name);
+                to.FullName = from.GetFullName();
                 to.FormattedAddress = await _addressService.FormatAddressAsync(from, true);
             }
 

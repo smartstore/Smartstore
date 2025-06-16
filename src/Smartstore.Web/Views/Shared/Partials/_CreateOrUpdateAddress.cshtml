@@ -34,7 +34,7 @@
         {
             <label asp-for="Title" class="col-@(breakpoint)-3 col-form-label@(Model.SalutationEnabled ? " text-right" : "")"></label>
             <div class="col-@(breakpoint)-3">
-                <input asp-for="Title" autocomplete="organization-title" />
+                <input asp-for="Title" autocomplete="honorific-prefix" />
                 <span asp-validation-for="Title"></span>
             </div>
         }
@@ -91,7 +91,7 @@
     </div>
 
     <div sm-if="Model.CountryEnabled" class="form-group row">
-        <label asp-for="CountryId" class="col-@(breakpoint)-3 col-form-label@(Model.CountryRequired ? " required" : "")"></label>
+        <label id="address-country-label" asp-for="CountryId" class="col-@(breakpoint)-3 col-form-label@(Model.CountryRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
             @{
                 var countrySelectorViewData = new
@@ -107,18 +107,20 @@
                     asp-additional-viewdata='countrySelectorViewData'
                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                     data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                    data-addEmptyStateIfRequired="@Model.StateProvinceRequired" />
+                    data-addEmptyStateIfRequired="@Model.StateProvinceRequired"
+                    aria-labelledby="address-country-label" />
             <span asp-validation-for="CountryId"></span>
         </div>
     </div>
 
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
-        <label asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
+        <label id="address-state-province-label" asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
             <select asp-for="StateProvinceId"
                     asp-items="Model.AvailableStates"
                     sm-required="Model.StateProvinceRequired"
                     attr-placeholder='(!Model.StateProvinceRequired, T("Common.PleaseSelect"))'
+                    aria-labelledby="address-state-province-label"
                     data-select-selected-id="@Model.StateProvinceId"></select>
             <span asp-validation-for="StateProvinceId"></span>
         </div>

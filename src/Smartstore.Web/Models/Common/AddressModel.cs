@@ -104,6 +104,7 @@ namespace Smartstore.Web.Models.Common
         public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();
 
+        public string FullName { get; set; }
         public string FormattedAddress { get; set; }
 
         public string GetFormattedCityStateZip()
