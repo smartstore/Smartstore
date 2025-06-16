@@ -803,6 +803,8 @@ namespace Smartstore.Web.Controllers
                             var model = await customer.MapAsync(null, true, true);
                             avatar = await InvokePartialViewAsync("Customer.Avatar", model);
                             success = true;
+
+                            NotifyInfo(T("Account.Avatar.AvatarChanged"));
                         }
                     }
                     else
@@ -835,6 +837,8 @@ namespace Smartstore.Web.Controllers
 
                 var model = await customer.MapAsync(null, true, true);
                 avatar = await InvokePartialViewAsync("Customer.Avatar", model);
+
+                NotifyInfo(T("Account.Avatar.AvatarRemoved"));
             }
 
             return Json(new { success = true, avatar });

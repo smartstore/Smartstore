@@ -76,6 +76,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.Cancel",
                 "Cancel repeat delivery for order {0}",
                 "Regelm‰ﬂige Lieferung zu Auftrag {0} abbrechen");
+
+            builder.AddOrUpdate("Account.Avatar.AvatarChanged", "The avatar has been changed.", "Der Avatar wurde ge‰ndert.");
+            builder.AddOrUpdate("Account.Avatar.AvatarRemoved", "The avatar has been removed.", "Der Avatar wurde entfernt.");
         }
     }
 }

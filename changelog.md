@@ -14,6 +14,7 @@
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
   - Direct Order
+  - Email Reminder
   - File Manager
   - Forums
   - GDPR
