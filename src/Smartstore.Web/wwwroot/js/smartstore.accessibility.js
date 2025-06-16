@@ -52,6 +52,7 @@ class AccessKit {
         if (!t.matches('a,[role],[tabindex]')) return;
 
         // Exit if no navigational key is pressed.
+        // TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
         if (![AK.KEY.TAB, AK.KEY.UP, AK.KEY.DOWN, AK.KEY.LEFT, AK.KEY.RIGHT, AK.KEY.HOME, AK.KEY.END, AK.KEY.ENTER, AK.KEY.SPACE, AK.KEY.ESC].includes(e.key))
             return;
 

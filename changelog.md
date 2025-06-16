@@ -48,7 +48,7 @@
 - The author of a blog or news post has been added to the Open Graph metadata.
 - Stripe: 
 	- Void the order if a message about a failed payment has been sent to the webhook. 
-	- Payment status (Paid & Authorized) was set to early in checkout process. 
+	- Payment status (Paid & Authorized) was set too early in the checkout process. 
 
 ### Bugfixes
 
