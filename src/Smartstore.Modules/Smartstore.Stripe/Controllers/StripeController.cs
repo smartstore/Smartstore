@@ -292,12 +292,12 @@ namespace Smartstore.StripeElements.Controllers
                         {
                             redirectUrl = paymentIntent.NextAction.RedirectToUrl.Url;
                         }
-                        else
-                        {
-                            paymentRequest.NewPaymentStatus = settings.CaptureMethod == "automatic"
-                                ? PaymentStatus.Paid
-                                : PaymentStatus.Authorized;
-                        }
+                        //else
+                        //{
+                        //    paymentRequest.NewPaymentStatus = settings.CaptureMethod == "automatic"
+                        //        ? PaymentStatus.Paid
+                        //        : PaymentStatus.Authorized;
+                        //}
 
                         success = true;
                         state.IsConfirmed = true;
