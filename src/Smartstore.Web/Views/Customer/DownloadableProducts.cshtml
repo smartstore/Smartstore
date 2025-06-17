@@ -12,112 +12,148 @@
 
 @if (Model.Items.Count == 0)
 {
-    <div class="alert alert-warning">
+    <div class="alert alert-warning" role="status" aria-live="polite">
         @T("DownloadableProducts.NoItems")
     </div>
     return;
 }
 
-<div class="esd-list">
+<span id="esd-order-details" class="sr-only">@T("Order.OrderDetails")</span>
+
+<ul class="esd-list list-unstyled" aria-labelledby="myaccount-header">
     @foreach (var item in Model.Items)
     {
-        <div class="card shadow-sm esd-item mb-3">
-            <div class="card-body">
-                <h4 class="card-title mb-4" sm-language-attributes-for="item.ProductName">@item.ProductName.Value.Truncate(50, "...")</h4>
-                <dl class="row mb-0">
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.Order#")</dt>
-                    <dd class="col-sm-9">
-                        <a asp-action="Details" asp-controller="Order" asp-route-id="@item.OrderId" rel="nofollow">@item.OrderId</a>
-                    </dd>
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Common.CreatedOn")</dt>
-                    <dd class="col-sm-9">@item.CreatedOn.ToNativeString("d")</dd>
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("DownloadableProducts.Fields.Product")</dt>
-                    <dd class="col-sm-9">
-                        <a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                        <div sm-if="item.ProductAttributes.HasValue()">
-                            @Html.Raw(item.ProductAttributes)
-                        </div>
-                    </dd>
-                </dl>
+        var createdOnStr = item.CreatedOn.ToNativeString("d");
+        <li class="esd-item mb-3" aria-label="@T("Aria.Label.ProductOfOrderPlacedOn", item.OrderId, createdOnStr, item.ProductName)">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="card-title h4 mb-4" sm-language-attributes-for="item.ProductName" title="@item.ProductName">
+                        @item.ProductName.Value.Truncate(50, "…")
+                    </div>
+                    <dl class="row mb-0" role="presentation">
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.Order#")</dt>
+                        <dd class="col-sm-9">
+                            <a id="esd-order-link@(item.Id)"
+                               asp-action="Details" 
+                               asp-controller="Order" 
+                               asp-route-id="@item.OrderId" 
+                               aria-labelledby="esd-order-details esd-order-link@(item.Id)"
+                               rel="nofollow">@item.OrderId</a>
+                        </dd>
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Common.CreatedOn")</dt>
+                        <dd class="col-sm-9">@createdOnStr</dd>
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("DownloadableProducts.Fields.Product")</dt>
+                        <dd class="col-sm-9">
+                            <a href="@item.ProductUrl" sm-language-attributes-for="item.ProductName">
+                                @item.ProductName
+                            </a>
+                            <div sm-if="item.ProductAttributes.HasValue()">
+                                @Html.Raw(item.ProductAttributes)
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+
+                @if (item.IsDownloadAllowed || item.LicenseId > 0)
+                {
+                    <div class="card-footer d-flex p-2">
+                        @if (item.IsDownloadAllowed)
+                        {
+                            <a class="btn btn-light btn-sm btn-flat" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                                <span>@T("DownloadableProducts.Fields.Download")</span>
+                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                            </a>
+                            <button sm-if="item.DownloadVersions.Count > 1" 
+                               id="esd-versions-button@(item.Id)"
+                               class="btn btn-light btn-sm btn-flat" 
+                               data-toggle="collapse" 
+                               data-target="#download-versions-@item.OrderId"
+                               aria-controls="download-versions-@item.OrderId"
+                               aria-expanded="false">
+                                <i class="fa fa-info" aria-hidden="true"></i>
+                                <span>@T("Common.Download.Versions")</span>
+                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                            </button>
+                        }
+                        else
+                        {
+                            <a class="btn btn-light btn-sm btn-flat disabled" href="javascript:;" rel="nofollow">
+                                <span>@T("DownloadableProducts.Fields.Download.NA")</span>
+                            </a>
+                        }
+
+                        @if (item.LicenseId > 0)
+                        {
+                            <a class="btn btn-light btn-sm btn-flat" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                                <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
+                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                            </a>
+                        }
+                    </div>
+
+                    <div sm-if="item.IsDownloadAllowed && item.DownloadVersions.Count > 1" 
+                         id="download-versions-@item.OrderId"
+                         class="collapse download-versions">
+                        <table class="table mb-0" aria-labelledby="esd-versions-button@(item.Id)">
+                            <thead>
+                                <tr>
+                                    <th scope="col"><span class="sr-only">@T("Common.ExpandCollapse")</span></th>
+                                    <th scope="col">@T("Common.Download.Version")</th>
+                                    <th scope="col">@T("Common.File")</th>
+                                </tr>
+                            </thead>
+                            <tbody id="download-versions">
+                                @foreach (var download in item.DownloadVersions)
+                                {
+                                    var dwlId = download.DownloadId;
+                                    <tr role="button"
+                                        tabindex="0"
+                                        data-toggle="collapse" 
+                                        data-target="#download-@dwlId" 
+                                        aria-controls="download-@dwlId"
+                                        aria-expanded="false"
+                                        class="download-version">
+                                        <td>
+                                            <i class="fa fa-fw fa-angle-right" aria-hidden="true"></i>
+                                        </td>
+                                        <td>
+                                            @download.FileVersion
+                                        </td>
+                                        <td>
+                                            <a asp-action="GetDownload" 
+                                               asp-controller="Download" 
+                                               asp-route-id="@item.OrderItemGuid"
+                                               asp-route-fileVersion="@download.FileVersion" 
+                                               class="download-link">
+                                                <span>@download.FileName</span>
+                                                <span class="sr-only">&nbsp;@download.FileVersion</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr id="download-@dwlId" class="download-changelog collapse bg-light">
+                                        <td colspan="3">
+                                            <div>
+                                                @if (download.Changelog.HasValue())
+                                                {
+                                                    @Html.Raw(download.Changelog)
+                                                }
+                                                else
+                                                {
+                                                    @T("Customer.Downloads.NoChangelogAvailable")
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
-
-            @if (item.IsDownloadAllowed || item.LicenseId > 0)
-            {
-                <div class="card-footer d-flex p-2">
-                    @if (item.IsDownloadAllowed)
-                    {
-                        <a class="btn btn-light btn-sm btn-flat" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
-                            <i class="fa fa-download"></i>
-                            <span>@T("DownloadableProducts.Fields.Download")</span>
-                        </a>
-                        <a sm-if="item.DownloadVersions.Count > 1" class="btn btn-light btn-sm btn-flat" data-toggle="collapse" href="#download-versions-@item.OrderId" rel="nofollow">
-                            <i class="fa fa-info"></i>
-                            <span>@T("Common.Download.Versions")</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-light btn-sm btn-flat disabled" href="javascript:void(0)" rel="nofollow">
-                            <span>@T("DownloadableProducts.Fields.Download.NA")</span>
-                        </a>
-                    }
-
-                    @if (item.LicenseId > 0)
-                    {
-                        <a class="btn btn-light btn-sm btn-flat" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
-                            <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
-                        </a>
-                    }
-                </div>
-
-                <div sm-if="item.IsDownloadAllowed && item.DownloadVersions.Count > 1" class="collapse download-versions" id="download-versions-@item.OrderId">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col"></th>
-                                <th scope="col">#</th>
-                                <th scope="col">@T("Common.Download.Version")</th>
-                            </tr>
-                        </thead>
-                        <tbody id="download-versions">
-                            @foreach (var download in item.DownloadVersions)
-                            {
-                                <tr data-toggle="collapse" data-target="#download-@download.DownloadId" class="download-version">
-                                    <th scope="row">
-                                        <i class="fa fa-fw fa-angle-right"></i>
-                                    </th>
-                                    <td>
-                                        @download.FileVersion
-                                    </td>
-                                    <td>
-                                        <a asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" asp-route-fileVersion="@download.FileVersion" class="download-link">
-                                            @download.FileName
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr id="download-@download.DownloadId" class="download-changelog collapse bg-light">
-                                    <td colspan="3">
-                                        <div>
-                                            @if (download.Changelog.HasValue())
-                                            {
-                                                @Html.Raw(download.Changelog)
-                                            }
-                                            else
-                                            {
-                                                @T("Customer.Downloads.NoChangelogAvailable")
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
+        </li>
     }
-</div>
+</ul>
 
 <script sm-target-zone="scripts" data-origin="downloadable-products">
     $(function () {

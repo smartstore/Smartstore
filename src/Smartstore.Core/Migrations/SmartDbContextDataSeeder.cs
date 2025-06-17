@@ -45,10 +45,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
             builder.AddOrUpdate("Aria.Label.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
             builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social Media Kanäle");
-            
+
+            builder.AddOrUpdate("Aria.Label.ProductOfOrderPlacedOn", "Order {0} from {1}, {2}", "Auftrag {0} vom {1}, {2}");
+
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
+            builder.AddOrUpdate("Common.ExpandCollapse", "Expand/collapse", "Auf-/zuklappen");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.General.Common.Captcha.Hint",
                 "CAPTCHAs are used for security purposes to help distinguish between human and machine users. They are typically used to verify that internet forms are being"

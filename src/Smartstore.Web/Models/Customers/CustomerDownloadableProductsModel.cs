@@ -4,9 +4,9 @@ namespace Smartstore.Web.Models.Customers
 {
     public partial class CustomerDownloadableProductsModel : ModelBase
     {
-        public List<DownloadableProductsModel> Items { get; set; } = new();
+        public List<DownloadableProductsModel> Items { get; set; } = [];
 
-        public partial class DownloadableProductsModel : ModelBase
+        public partial class DownloadableProductsModel : EntityModelBase
         {
             public Guid OrderItemGuid { get; set; }
             public int OrderId { get; set; }
@@ -18,7 +18,7 @@ namespace Smartstore.Web.Models.Customers
             public int LicenseId { get; set; }
             public bool IsDownloadAllowed { get; set; }
             public DateTime CreatedOn { get; set; }
-            public List<DownloadVersion> DownloadVersions { get; set; } = new();
+            public List<DownloadVersion> DownloadVersions { get; set; } = [];
         }
     }
 

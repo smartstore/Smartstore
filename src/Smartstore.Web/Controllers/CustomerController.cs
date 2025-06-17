@@ -655,20 +655,20 @@ namespace Smartstore.Web.Controllers
             {
                 var itemModel = new CustomerDownloadableProductsModel.DownloadableProductsModel
                 {
+                    Id = item.Id,
                     OrderItemGuid = item.OrderItemGuid,
                     OrderId = item.OrderId,
                     CreatedOn = _dateTimeHelper.ConvertToUserTime(item.Order.CreatedOnUtc, DateTimeKind.Utc),
                     ProductName = item.Product.GetLocalized(x => x.Name),
                     ProductSeName = await item.Product.GetActiveSlugAsync(),
                     ProductAttributes = item.AttributeDescription,
-                    ProductId = item.ProductId
+                    ProductId = item.ProductId,
+                    IsDownloadAllowed = _downloadService.IsDownloadAllowed(item)
                 };
 
                 itemModel.ProductUrl = await _productUrlHelper.GetProductPathAsync(item.ProductId, itemModel.ProductSeName, item.AttributeSelection);
 
                 model.Items.Add(itemModel);
-
-                itemModel.IsDownloadAllowed = _downloadService.IsDownloadAllowed(item);
 
                 if (itemModel.IsDownloadAllowed)
                 {
@@ -680,7 +680,7 @@ namespace Smartstore.Web.Controllers
                         .ToListAsync())
                         .OrderByVersion();
 
-                    itemModel.DownloadVersions = downloads
+                    itemModel.DownloadVersions = [.. downloads
                         .Select(x => new DownloadVersion
                         {
                             DownloadId = x.Id,
@@ -688,8 +688,7 @@ namespace Smartstore.Web.Controllers
                             FileName = x.UseDownloadUrl ? x.DownloadUrl : x.MediaFile.Name,
                             DownloadGuid = x.DownloadGuid,
                             Changelog = x.Changelog
-                        })
-                        .ToList();
+                        })];
                 }
 
                 if (_downloadService.IsLicenseDownloadAllowed(item))
