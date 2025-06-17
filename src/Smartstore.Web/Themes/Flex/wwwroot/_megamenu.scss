@@ -332,8 +332,21 @@ $mixed-megamenu-bg:             $megamenu-bg;
         color: $megamenu-heading-color;
         transition: transform 0.2s ease-in-out;
 
+        //&:after {
+        //    display: inline-block;
+        //    position: relative;
+        //    content: '\21E2';
+        //    opacity: 0;
+        //    transform: translateX(-30%) scaleX(0.5);
+        //    transition: all 0.15s ease;
+        //}
+
         &:hover {
             transform: translateX(5px);
+            //&:after {
+            //    opacity: 1;
+            //    transform: translateX(0) scaleX(1);
+            //}
         }
     }
 

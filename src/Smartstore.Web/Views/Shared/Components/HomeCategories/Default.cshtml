@@ -13,11 +13,12 @@
     @foreach (var item in Model)
     {
         var image = item.Image;
+        var hasImage = image != null && image.HasImage();
         var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
 
         <article class="art" data-id="@item.Id">
             <div class="art-picture-block">
-                @if (image != null && image.HasImage())
+                @if (hasImage)
                 {
                     <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle">
                         <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' />
@@ -25,7 +26,7 @@
                 }
             </div>
             <div class="art-genericname">
-                <a href="@item.Url" title="@linkTitle">
+                <a href="@item.Url" title="@linkTitle" tabindex="-1" attr-tabindex='(hasImage, "-1")'>
                     <span sm-language-attributes-for="item.Name">@item.Name</span>
                 </a>
             </div>
