@@ -434,7 +434,7 @@
                 // TODO: (mh) (wcag) Bad API design. These callback handlers should call methods that already exist here and not introduce new code and flow.
                 // Accessibility event handling
                 // Main nav elements
-                megamenu.on("ak-toggle-open", '.navbar-nav .nav-item', (e) => {
+                megamenu.on("ak-expand", '.navbar-nav .nav-item', (e) => {
                     // TODO: (mh) (wcag) Rename detail --> data or another better name
                     // RE: detail is part of the CustomEvent API, see https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
                     const el = $(e.detail.trigger);
@@ -445,18 +445,18 @@
                     tryOpen(el);
                 });
 
-                megamenu.on("ak-toggle-close", '.navbar-nav .nav-item', (e) => {
+                megamenu.on("ak-collapse", '.navbar-nav .nav-item', (e) => {
                     closeNow($(e.detail.trigger));
                 });
 
                 // Submenus (only available in simple menu)
                 if (isSimple) {
-                    megamenuDropdownContainer.on("ak-toggle-open", '[role="menuitem"]', (e) => {
+                    megamenuDropdownContainer.on("ak-expand", '[role="menuitem"]', (e) => {
                         showDrop($(e.detail.trigger).parent());
                         $(e.detail.menu).find('[role="menuitem"]:visible').first().trigger('focus');
                     });
 
-                    megamenuDropdownContainer.on("ak-toggle-close", '[role="menuitem"]', (e) => {
+                    megamenuDropdownContainer.on("ak-collapse", '[role="menuitem"]', (e) => {
                         if ($(e.detail.menu).length) {
                             const currentItem = $(e.detail.trigger);
                             closeDrop(currentItem.parent());

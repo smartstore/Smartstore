@@ -366,7 +366,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         const shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
         // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
-        this._dispatchEvent(shouldOpen ? 'ak-toggle-open' : 'ak-toggle-close', trigger, { trigger, target });
+        this._dispatchEvent(shouldOpen ? 'ak-expand' : 'ak-collapse', trigger, { trigger, target });
 
         // Set attributes & visibilty
         if (trigger.hasAttribute('aria-expanded')) {

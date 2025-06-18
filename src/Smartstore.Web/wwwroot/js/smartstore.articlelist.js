@@ -43,11 +43,11 @@
         }
     });
 
-    $('.artlist-grid').on('ak-toggle-open', '.art', function (e) {
+    $('.artlist-grid').on('ak-expand', '.art', (e) => {
         $(e.target).trigger("mouseenter");
     });
 
-    $('.artlist-grid').on('ak-toggle-close', '.art', function (e) {
+    $('.artlist-grid').on('ak-collapse', '.art', (e) => {
         $(e.target).trigger("mouseleave");
     });
 

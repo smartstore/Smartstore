@@ -94,11 +94,11 @@
                     return false;
                 });
 
-                this.container.on('ak-toggle-open', '.ocm-link', function (e) {
+                this.container.on('ak-expand', '.ocm-link', function () {
                     $(this).trigger("click");
                 });
 
-                this.container.on('ak-toggle-close', '.ocm-link', function (e) {
+                this.container.on('ak-collapse', '.ocm-link', function () {
                     $(this).closest(".ocm-menu").find(".ocm-back .ocm-link").trigger("click");
                 });
             }
