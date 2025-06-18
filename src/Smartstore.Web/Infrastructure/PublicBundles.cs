@@ -104,7 +104,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.media.js",
                 js + "smartstore.cmp.js",
                 js + "smartstore.accessibility.js",
-                js + "smartstore.focustrap.js",
+                js + "smartstore.accessibility.focustrap.js",
                 // Shop
                 js + "public.common.js",
                 js + "public.search.js",
