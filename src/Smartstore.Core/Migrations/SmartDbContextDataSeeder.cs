@@ -82,6 +82,8 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Account.Avatar.AvatarChanged", "The avatar has been changed.", "Der Avatar wurde geändert.");
             builder.AddOrUpdate("Account.Avatar.AvatarRemoved", "The avatar has been removed.", "Der Avatar wurde entfernt.");
+
+            builder.AddOrUpdate("RewardPoints.History", "History of your reward points", "Verlauf Ihrer Bonuspunkte");
         }
     }
 }

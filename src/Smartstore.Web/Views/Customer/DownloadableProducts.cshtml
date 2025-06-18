@@ -41,7 +41,9 @@
                                rel="nofollow">@item.OrderId</a>
                         </dd>
                         <dt class="col-sm-3 font-weight-400 text-muted">@T("Common.CreatedOn")</dt>
-                        <dd class="col-sm-9">@createdOnStr</dd>
+                        <dd class="col-sm-9">
+                            <time datetime="@item.CreatedOn.ToIso8601String()">@createdOnStr</time>
+                        </dd>
                         <dt class="col-sm-3 font-weight-400 text-muted">@T("DownloadableProducts.Fields.Product")</dt>
                         <dd class="col-sm-9">
                             <a href="@item.ProductUrl" sm-language-attributes-for="item.ProductName">
@@ -62,10 +64,9 @@
                             <a class="btn btn-light btn-sm btn-flat" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
                                 <i class="fa fa-download" aria-hidden="true"></i>
                                 <span>@T("DownloadableProducts.Fields.Download")</span>
-                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                                <span class="sr-only"> @item.ProductName</span>
                             </a>
                             <button sm-if="item.DownloadVersions.Count > 1" 
-                               id="esd-versions-button@(item.Id)"
                                class="btn btn-light btn-sm btn-flat" 
                                data-toggle="collapse" 
                                data-target="#download-versions-@item.OrderId"
@@ -73,7 +74,7 @@
                                aria-expanded="false">
                                 <i class="fa fa-info" aria-hidden="true"></i>
                                 <span>@T("Common.Download.Versions")</span>
-                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                                <span class="sr-only"> @item.ProductName</span>
                             </button>
                         }
                         else
@@ -87,7 +88,7 @@
                         {
                             <a class="btn btn-light btn-sm btn-flat" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
                                 <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
-                                <span class="sr-only">&nbsp;@item.ProductName</span>
+                                <span class="sr-only"> @item.ProductName</span>
                             </a>
                         }
                     </div>
@@ -95,7 +96,8 @@
                     <div sm-if="item.IsDownloadAllowed && item.DownloadVersions.Count > 1" 
                          id="download-versions-@item.OrderId"
                          class="collapse download-versions">
-                        <table class="table mb-0" aria-labelledby="esd-versions-button@(item.Id)">
+                        <table class="table mb-0">
+                            <caption class="sr-only">@T("Common.Download.Versions") @item.ProductName</caption>
                             <thead>
                                 <tr>
                                     <th scope="col"><span class="sr-only">@T("Common.ExpandCollapse")</span></th>
@@ -127,7 +129,7 @@
                                                asp-route-fileVersion="@download.FileVersion" 
                                                class="download-link">
                                                 <span>@download.FileName</span>
-                                                <span class="sr-only">&nbsp;@download.FileVersion</span>
+                                                <span class="sr-only"> @download.FileVersion</span>
                                             </a>
                                         </td>
                                     </tr>

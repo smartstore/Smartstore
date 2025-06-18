@@ -860,22 +860,24 @@ namespace Smartstore.Web.Controllers
                 return ChallengeOrForbid();
             }
 
-            var model = new CustomerRewardPointsModel();
-            foreach (var rph in customer.RewardPointsHistory.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id))
-            {
-                model.RewardPoints.Add(new CustomerRewardPointsModel.RewardPointsHistoryModel()
-                {
-                    Points = rph.Points,
-                    PointsBalance = rph.PointsBalance,
-                    Message = rph.Message,
-                    CreatedOn = _dateTimeHelper.ConvertToUserTime(rph.CreatedOnUtc, DateTimeKind.Utc)
-                });
-            }
-
-            int rewardPointsBalance = customer.GetRewardPointsBalance();
+            var rewardPointsBalance = customer.GetRewardPointsBalance();
             var rewardPointsAmountBase = _orderCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
             var rewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, Services.WorkContext.WorkingCurrency);
-            model.RewardPointsBalanceFormatted = T("RewardPoints.CurrentBalance", rewardPointsBalance, rewardPointsAmount.ToString());
+
+            var model = new CustomerRewardPointsModel
+            {
+                RewardPointsBalanceFormatted = T("RewardPoints.CurrentBalance", rewardPointsBalance.ToString("N0"), rewardPointsAmount.ToString()),
+                RewardPoints = [.. customer.RewardPointsHistory
+                    .OrderByDescending(rph => rph.CreatedOnUtc)
+                    .ThenByDescending(rph => rph.Id)
+                    .Select(x => new CustomerRewardPointsModel.RewardPointsHistoryModel()
+                    {
+                        Points = x.Points,
+                        PointsBalance = x.PointsBalance,
+                        Message = x.Message,
+                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                    })]
+            };
 
             return View(model);
         }

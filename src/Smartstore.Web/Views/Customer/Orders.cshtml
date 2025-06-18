@@ -17,44 +17,54 @@
 
 @if (Model.Orders.Count == 0)
 {
-    <div class="alert alert-warning">
+    <div class="alert alert-warning" role="status" aria-live="polite">
         @T("Account.CustomerOrders.NoOrders")
     </div>
     return;
 }
 
-<div class="order-list">
+<ul class="order-list list-unstyled" aria-labelledby="myaccount-header">
     @foreach (var order in Model.Orders)
     {
-        <div class="card order-item mb-3">
-            <div class="card-body">
-                <h4 class="card-title h5 mb-4">@T("Order.Order#"): @order.OrderNumber</h4>
-                <dl class="row mb-0">
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderStatus")</dt>
-                    <dd class="col-sm-9">@order.OrderStatus</dd>
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderDate")</dt>
-                    <dd class="col-sm-9">@order.CreatedOn.ToNativeString()</dd>
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderTotal")</dt>
-                    <dd class="col-sm-9 price">@order.OrderTotal</dd>
-                </dl>
-            </div>
+        <li class="order-item mb-3" aria-labelledby="order-title@(order.Id)">
+            <div class="card">
+                <div class="card-body">
+                    <div id="order-title@(order.Id)" class="card-title h5 mb-4">
+                        @T("Order.Order#"): @order.OrderNumber
+                    </div>
+                    <dl class="row mb-0" role="presentation">
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderStatus")</dt>
+                        <dd class="col-sm-9">@order.OrderStatus</dd>
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderDate")</dt>
+                        <dd class="col-sm-9">
+                            <time datetime="@order.CreatedOn.ToIso8601String()">@order.CreatedOn.ToNativeString()</time>
+                        </dd>
+                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderTotal")</dt>
+                        <dd class="col-sm-9 price">
+                            <data value="@RoundingHelper.Round(order.OrderTotal).ToStringInvariant()">@order.OrderTotal</data>
+                        </dd>
+                    </dl>
+                </div>
 
-            <div class="card-footer d-flex p-2">
-                <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                    <i class="far fa-rectangle-list"></i>
-                    <span>@T("Order.OrderDetails")</span>
-                </a>
-                @if (order.IsReturnRequestAllowed)
-                {
-                    <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
-                        <i class="fa fa-reply"></i>
-                        <span>@T("Account.CustomerOrders.ReturnItems")</span>
+                <div class="card-footer d-flex p-2">
+                    <a asp-action="Details" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
+                        <i class="far fa-rectangle-list" aria-hidden="true"></i>
+                        <span>@T("Order.OrderDetails")</span>
+                        <span class="sr-only"> @order.OrderNumber</span>
                     </a>
-                }
+                    @if (order.IsReturnRequestAllowed)
+                    {
+                        <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-light btn-sm btn-flat" rel="nofollow">
+                            <i class="fa fa-reply" aria-hidden="true"></i>
+                            <span>@T("Account.CustomerOrders.ReturnItems")</span>
+                            <span class="sr-only"> @order.OrderNumber</span>
+                        </a>
+                    }
+                </div>
             </div>
-        </div>
+        </li>
     }
-</div>
+</ul>
 
 <div sm-if="Model.Orders.TotalPages > 1" class="mt-1">
     <pagination sm-list-items="Model.Orders" sm-query-param="page" id="paginator" />

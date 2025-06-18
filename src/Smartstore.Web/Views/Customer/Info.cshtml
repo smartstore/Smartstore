@@ -26,8 +26,8 @@
     <fieldset class="content-group">
         <legend><span>@T("Account.YourPersonalDetails")</span></legend>
 
-        <div sm-if="Model.GenderEnabled" class="form-group row">
-            <label class="col-lg-3 col-form-label">@T("Account.Fields.Gender")</label>
+        <fieldset sm-if="Model.GenderEnabled" class="form-group row">
+            <legend class="col-lg-3 col-form-label fwm pt-0">@T("Account.Fields.Gender")</legend>
             <div class="col-lg-9">
                 <div class="form-check form-check-inline">
                     <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
@@ -38,7 +38,7 @@
                     <label class="form-check-label" for="gender-female">@T("Account.Fields.Gender.Female")</label>
                 </div>
             </div>
-        </div>
+        </fieldset>
 
         <div sm-if="Model.TitleEnabled" class="form-group row">
             <label asp-for="Title" class="col-lg-3 col-form-label"></label>
@@ -126,13 +126,13 @@
             <table class="table table-hover border-top-0">
                 <thead>
                     <tr>
-                        <th class="border-top-0">
+                        <th class="border-top-0" scope="col">
                             @T("Account.AssociatedExternalAuth.AuthMethodName")
                         </th>
-                        <th class="border-top-0">
+                        <th class="border-top-0" scope="col">
                             @T("Account.AssociatedExternalAuth.Email")
                         </th>
-                        <th class="border-top-0">
+                        <th class="border-top-0" scope="col">
                             @T("Account.AssociatedExternalAuth.ExternalIdentifier")
                         </th>
                     </tr>
@@ -141,7 +141,7 @@
                     @foreach (var item in Model.AssociatedExternalAuthRecords)
                     {
                         <tr>
-                            <td>@item.AuthMethodName</td>
+                            <th scope="row" class="fwn">@item.AuthMethodName</th>
                             <td>@item.Email</td>
                             <td>@item.ExternalIdentifier</td>
                         </tr>
@@ -162,13 +162,16 @@
             </div>
         </div>
         <div sm-if="Model.DisplayVatNumber" class="form-group row">
-            <label asp-for="VatNumber" class="col-lg-3 col-form-label"></label>
+            <label id="vat-number-label" asp-for="VatNumber" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <div class="input-group">
-                    <input asp-for="VatNumber" />
+                    <input asp-for="VatNumber" aria-labelledby="vat-number-label vat-number-status" aria-describedby="vat-number-note" />
                     <div class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>
+                    <span id="vat-number-status" class="sr-only"> @Model.VatNumberStatusNote</span>
                 </div>
-                <div class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
+                <div id="vat-number-note" class="form-text text-muted vat-note">
+                    @T("Account.Fields.VatNumber.Note")
+                </div>
             </div>
         </div>
     </fieldset>
@@ -206,7 +209,7 @@
         </div>
 
         <div sm-if="Model.CountryEnabled" class="form-group row">
-            <label asp-for="CountryId" class="col-lg-3 col-form-label"></label>
+            <label id="customer-country-label" asp-for="CountryId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 @{
                     var countrySelectorViewData = new
@@ -223,15 +226,16 @@
                         asp-additional-viewdata='countrySelectorViewData'
                         data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                         data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                        data-addEmptyStateIfRequired="true" />
+                        data-addEmptyStateIfRequired="true"
+                        aria-labelledby="customer-country-label" />
                 <span asp-validation-for="CountryId"></span>
             </div>
         </div>
 
         <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
-            <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
+            <label id="customer-state-province-label" asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" aria-labelledby="customer-state-province-label"></select>
                 <span asp-validation-for="StateProvinceId"></span>
             </div>
         </div>
@@ -272,23 +276,31 @@
     <fieldset sm-if="Model.AllowCustomersToSetTimeZone || canChangePreferredShipping || canChangePreferredPayment" class="content-group">
         <legend><span>@T("Account.Preferences")</span></legend>
         <div sm-if="Model.AllowCustomersToSetTimeZone" class="form-group row">
-            <label asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
+            <label id="customer-timezone" asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
+                <select asp-for="TimeZoneId" 
+                        asp-items="ViewBag.AvailableTimeZones" 
+                        aria-labelledby="customer-timezone"></select>
                 <span asp-validation-for="TimeZoneId"></span>
             </div>
         </div>
         <div sm-if="canChangePreferredShipping" class="form-group row">
-            <label asp-for="PreferredShippingMethodId" class="col-lg-3 col-form-label"></label>
+            <label id="customer-pref-shipping" asp-for="PreferredShippingMethodId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="PreferredShippingMethodId" asp-items="shippingMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <select asp-for="PreferredShippingMethodId" 
+                        asp-items="shippingMethods" 
+                        asp-placeholder="@T("Common.Unspecified")"
+                        aria-labelledby="customer-pref-shipping"></select>
                 <span asp-validation-for="PreferredShippingMethodId"></span>
             </div>
         </div>
         <div sm-if="canChangePreferredPayment" class="form-group row">
-            <label asp-for="PreferredPaymentMethod" class="col-lg-3 col-form-label"></label>
+            <label id="customer-pref-payment" asp-for="PreferredPaymentMethod" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="PreferredPaymentMethod" asp-items="paymentMethods" asp-placeholder="@T("Common.Unspecified")"></select>
+                <select asp-for="PreferredPaymentMethod" 
+                        asp-items="paymentMethods" 
+                        asp-placeholder="@T("Common.Unspecified")"
+                        aria-labelledby="customer-pref-payment"></select>
                 <span asp-validation-for="PreferredPaymentMethod"></span>
             </div>
         </div>
@@ -305,7 +317,7 @@
     <div class="form-group row">
         <div class="col">
             <button type="submit" name="save-info-button" class="btn btn-primary btn-lg save-customer-info-button">
-                <i class="fa fa-check"></i>
+                <i class="fa fa-check" aria-hidden="true"></i>
                 <span>@T("Common.Save")</span>
             </button>
         </div>

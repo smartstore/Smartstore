@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Customers;
+﻿@using Smartstore.Web.Models.Customers
+@using Smartstore.Utilities.Html
 
 @model CustomerRewardPointsModel
 
@@ -8,9 +9,18 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "rewardpoints";
     ViewBag.PageTitle = T("Account.RewardPoints").Value;
+
+    // TODO: (wcag) (mg) Create an extension or utility method for this somewhere and apply it everywhere (e.g. Wallet).
+    // Do not use hyphens as a sign, as these are not recognized by screen readers.
+    IHtmlContent ToHtmlString(decimal value)
+    {
+        return new HtmlString(value < 0
+            ? "&minus;" + Math.Abs(value).ToString("N0", CultureInfo.CurrentCulture)
+            : value.ToString("N0", CultureInfo.CurrentCulture));
+    }
 }
 
-<div class="alert alert-info">
+<div class="alert alert-info" role="status" aria-live="polite">
     @Model.RewardPointsBalanceFormatted
 </div>
 
@@ -27,18 +37,19 @@
         {
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
+                    <caption class="sr-only">@T("RewardPoints.History")</caption>
                     <thead>
                         <tr>
-                            <th class="border-top-0">
+                            <th class="border-top-0" scope="col">
                                 @T("Common.CreatedOn")
                             </th>
-                            <th class="border-top-0">
+                            <th class="border-top-0 text-center" scope="col">
                                 @T("RewardPoints.Fields.Points")
                             </th>
-                            <th class="border-top-0">
+                            <th class="border-top-0 text-center" scope="col">
                                 @T("RewardPoints.Fields.PointsBalance")
                             </th>
-                            <th class="border-top-0">
+                            <th class="border-top-0" scope="col">
                                 @T("RewardPoints.Fields.Message")
                             </th>
                         </tr>
@@ -47,9 +58,15 @@
                         @foreach(var item in Model.RewardPoints)
                         {
                             <tr>
-                                <td>@item.CreatedOn.ToNativeString()</td>
-                                <td>@item.Points.ToString("N0")</td>
-                                <td>@item.PointsBalance.ToString("N0")</td>
+                                <td>
+                                    <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
+                                </td>
+                                <td class="text-center">
+                                    @ToHtmlString(item.Points)
+                                </td>
+                                <td class="text-center">
+                                    @ToHtmlString(item.PointsBalance)
+                                </td>
                                 <td dir="auto">@item.Message</td>
                             </tr>
                         }

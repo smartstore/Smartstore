@@ -2,7 +2,7 @@
 {
     public partial class CustomerRewardPointsModel : ModelBase
     {
-        public List<RewardPointsHistoryModel> RewardPoints { get; set; } = new();
+        public List<RewardPointsHistoryModel> RewardPoints { get; set; }
         public Money RewardPointsBalance { get; set; }
         public string RewardPointsBalanceFormatted { get; set; }
 

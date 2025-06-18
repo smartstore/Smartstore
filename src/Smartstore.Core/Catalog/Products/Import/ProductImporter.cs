@@ -915,11 +915,6 @@ namespace Smartstore.Core.DataExchange.Import
                         ?.Distinct()
                         ?.ToArray();
 
-                    if (row.RowInfo.Position >= 524 && row.RowInfo.Position <= 526)
-                    {
-                        row.RowInfo.Position.ToStringInvariant().Dump();
-                    }
-
                     existingCrossSellProductsMap.TryGetValues(row.Entity.Id, out var existingMappingsTmp);
                     var existingMappings = existingMappingsTmp?.AsEnumerable() ?? Enumerable.Empty<CrossSellProduct>();
 

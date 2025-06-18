@@ -5,11 +5,12 @@
 <form asp-action="Orders">
     <div class="recurring-payments mb-4">
         <fieldset class="content-group mb-0">
-            <legend id="recurring-orders" class="mb-0">
+            <legend class="mb-0">
                 <span>@T("Account.CustomerOrders.RecurringOrders")</span>
             </legend>
             <div class="recurring-payments-box table-responsive">
-                <table class="table table-striped table-hover" aria-labelledby="recurring-orders">
+                <table class="table table-striped table-hover">
+                    <caption class="sr-only">@T("Account.CustomerOrders.RecurringOrders")</caption>
                     <thead>
                         <tr>
                             <th class="text-center border-0" scope="col">
@@ -46,7 +47,7 @@
                                     </a>
                                 </th>
                                 <td title="@item.StartDate.ToString()">
-                                    @item.StartDate.ToString("d")
+                                    <time datetime="@item.StartDate.ToIso8601String()">@item.StartDate.ToString("d")</time>
                                 </td>
                                 <td class="text-center">
                                     @item.CyclesRemaining
