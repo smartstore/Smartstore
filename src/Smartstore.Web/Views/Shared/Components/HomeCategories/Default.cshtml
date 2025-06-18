@@ -9,24 +9,24 @@
     }
 }
 
-<div class="artlist artlist-grid artlist-6-cols artlist-boxed artlist-homepage-categories">
+<div class="artlist artlist-grid artlist-6-cols artlist-boxed artlist-homepage-categories" role="list">
     @foreach (var item in Model)
     {
         var image = item.Image;
         var hasImage = image != null && image.HasImage();
         var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
 
-        <article class="art" data-id="@item.Id">
+        <article class="art" data-id="@item.Id" role="listitem">
             <div class="art-picture-block">
                 @if (hasImage)
                 {
-                    <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle">
-                        <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' />
+                    <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle" tabindex="-1" aria-hidden="true">
+                        <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' role="presentation" />
                     </a>
                 }
             </div>
             <div class="art-genericname">
-                <a href="@item.Url" title="@linkTitle" tabindex="-1" attr-tabindex='(hasImage, "-1")'>
+                <a class="art-name-link" href="@item.Url" title="@linkTitle">
                     <span sm-language-attributes-for="item.Name">@item.Name</span>
                 </a>
             </div>

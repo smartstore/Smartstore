@@ -7,10 +7,11 @@
 .artlist {
     --art-padding: #{$grid-gutter-width / 2};
     --art-gutter: #{$grid-gutter-width / 2};
-    --art-line-height: 1.3;
+    --art-line-height: 1.25;
     --art-font-size: #{$font-size-sm};
     --art-font-size-sm: #{$font-size-xs};
     --art-font-size-xs: 0.75rem;
+    --art-font-size-lg: #{$font-size-base};
     --art-finalprice-font-size: 1rem;
     --art-finalprice-color: #{$product-price-color};
     --art-finalprice-offer-color: #{$product-price-color};
@@ -27,6 +28,7 @@
         --art-font-size: #{$font-size-base};
         --art-font-size-sm: #{$font-size-sm};
         --art-font-size-xs: #{$font-size-xs};
+        --art-font-size-lg: #{$font-size-lg};
         --art-finalprice-font-size: 1.25rem;
     }
 }
@@ -226,10 +228,15 @@
 }
 
 .art-genericname {
+    font-size: 15px;
     font-weight: $font-weight-medium;
     text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+    > a.art-name-link {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .art-description {
@@ -393,13 +400,16 @@
 // ---------------------------------------------
 
 :is(.art-name, .art-genericname) {
-    font-size: var(--art-font-size);
-    > a { 
+    font-size: var(--art-font-size-lg);
+    > a.art-name-link { 
         color: $body-color; 
-    }
+        text-decoration: none;
+        text-wrap: pretty;
+        border-radius: 2px;
 
-    > a:not(:hover) {
-        text-decoration: none; 
+        &:hover {
+            color: $link-color;
+        }
     }
 }
 
