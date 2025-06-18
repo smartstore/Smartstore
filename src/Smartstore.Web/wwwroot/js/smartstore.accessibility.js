@@ -36,9 +36,10 @@ class AccessKit {
         document.addEventListener('keydown', e => this._onKey(e), true);
         document.addEventListener('keyup', e => this._onKey(e), true);
 
-        // TODO: (wcag) (mh) Maybe this ain't the correct place to handle this. 
-        // Finish the job!!! Build proper generic trapping mechanism for all modal like components and evaluate anew. 
+        // TODO: (wcag) (mh) Maybe this ain't the correct place to handle this. These handlers belong into
+        // the focus trap script || in the corresponding plugin scripts || global init script.
         this._initOffCanvasTrap();
+        this._initDialogTrap();
 
         // Handle .nav-collapsible aria-expanded attribute on page resize
         this._initCollapsibles();
@@ -122,37 +123,39 @@ class AccessKit {
     }
 
     _initOffCanvasTrap() {
-        // TODO: (wcag) (mh) Implement focus trapping.
-        // TODO: (wcag) (mh) We need a generic focusHandler that also can handle modal dialogs, popovers etc.
-
         // INFO: Jquery must be used here, because original event is namespaced & triggered via Jquery.
         $(document).on('shown.sm.offcanvas', function (e) {
-            const offcanvas = $(e.target);
-            offcanvas.attr("aria-hidden", false);
+            const offcanvas = $(e.target).attr("aria-hidden", false);
 
-            // Get opener and set attribute aria-expanded.
-            const opener = $(`[aria-controls="${offcanvas.attr('id')}"]`);
-            opener.attr("aria-expanded", true);
+            // Set attribute aria-expanded for opening element.
+            $(`[aria-controls="${offcanvas.attr('id')}"]`).attr("aria-expanded", true);
 
-            // TODO: (wcag) (mh) Find a better way to get the first activatable element in an offcanvas
-            // Select first clickable element.
-            //const firstActivatableElem = offcanvas.find('[data-toggle="tab"]').first();
-
-            // INFO: Terrible selector, but ensures to find first link in offcanvas facette filter
-            const firstActivatableElem = offcanvas.find('a[href]').first();
-            firstActivatableElem.trigger("focus");
-
-            // TODO: (wcag) (mh) Reinit AccessToolkit
+            AccessKitFocusTrap.activate(offcanvas[0]);
         });
 
         $(document).on('hidden.sm.offcanvas', function (e) {
-            const offcanvas = $(e.target);
-            offcanvas.attr("aria-hidden", true);
+            const offcanvas = $(e.target).attr("aria-hidden", true);
 
-            // Get opener and set attribute aria-expanded.
-            const opener = $(`[aria-controls="${offcanvas.attr('id')}"]`);
-            opener.attr("aria-expanded", false);
-            opener.trigger("focus");
+            // Set attribute aria-expanded for the element that has opened offcanvas.
+            $(`[aria-controls="${offcanvas.attr('id')}"]`).attr("aria-expanded", false);
+
+            AccessKitFocusTrap.deactivate(); 
+        });
+
+        // Offcanvas layers must maintain focus after they are loaded and displayed via AJAX.
+        $(document).on('shown.sm.offcanvaslayer', function (e) {
+            AccessKitFocusTrap.activate(e.target);
+            // INFO: Deactivation will be handled automatically on hidden.sm.offcanvas
+        });
+    }
+
+    _initDialogTrap() {
+        $(document).on('shown.bs.modal', function (e) {
+            AccessKitFocusTrap.activate(e.target);
+        });
+
+        $(document).on('hidden.bs.modal', function (e) {
+            AccessKitFocusTrap.deactivate();
         });
     }
 }
@@ -206,8 +209,21 @@ const KEY = AK.KEY;
 
         // Apply roving tabindex to all elements matching the selector within the root element.
         applyRoving(root, selector, start = 0) {
-            const items = [...root.querySelectorAll(selector)]
-                .filter(i => i.closest(root.getAttribute('role') ? `[role="${root.getAttribute('role')}"]` : root) === root);
+            // TODO: (wcag) (mh) OBSOLETE > remove...
+            //const items = [...root.querySelectorAll(selector)]
+            //    .filter(i => i.closest(root.getAttribute('role') ? `[role="${root.getAttribute('role')}"]` : root) === root);
+
+            /* Build a safe scope for roving-focus:
+               1. If the container has a role ⇒ use [role="…"].
+               2. Else if it has an id        ⇒ use #id.
+               3. Otherwise no selector, fall back to root.contains().
+               Keep only items whose closest() match equals the container. */
+            const role = root.getAttribute('role');
+            const scopeSelector = role ? `[role="${CSS.escape(role)}"]` : root.id ? `#${CSS.escape(root.id)}` : null;                               
+            const items = [...root.querySelectorAll(selector)].filter(el => {
+                return scopeSelector ? el.closest(scopeSelector) === root : root.contains(el);
+            });
+
             items.forEach((el, i) => el.tabIndex = i === start ? 0 : -1);
             return items;
         }
@@ -812,13 +828,119 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
     }
 }
 
+// TODO: (wcag) (mh) Test with real accordion.
+/* --------------------------------------------------
+    *  DisclosurePlugin – 
+    *  Handles standalone disclosures & accordions
+    * -------------------------------------------------- */
+
+    /**
+        * Disclosure/Accordion keyboard handler
+        *
+        * ▸ Stand‑alone pattern:
+        *    <button aria-expanded="false" aria-controls="panel">…</button>
+        *    <div id="panel" hidden>…</div>
+        *
+        * ▸ Accordion pattern (container gets data-ak-accordion):
+        *    <div data-ak-accordion>
+        *       <button aria-expanded="false" aria-controls="p1">…</button>
+        *       <div id="p1" hidden>…</div>
+        *       … (n×) …
+        *    </div>
+        *
+        * Keyboard‑Support
+        *   ↑ / ↓ / ← / →    Roving focus within accordion (orientation aware)
+        *   HOME / END       Jump first / last header in accordion
+        *   ENTER / SPACE    Toggle current disclosure / accordion item
+        *   ESC              Collapse current item (accordion only)
+        */
+    AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
+        init(container = document) {
+            /* --- Accordions -------------------------------- */
+            container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
+                const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');
+                this._setCache(acc, triggers);
+
+                triggers.forEach(trig => {
+                    // Pointer interaction mirrors keyboard behaviour
+                    this.on(trig, 'click', e => {
+                        this.toggleExpanded(e.currentTarget, /*expand*/ null, {
+                            collapseSiblings: true,
+                            focusTarget: 'trigger'
+                        });
+                    });
+                });
+            });
+
+            /* --- Stand‑alone disclosures ------------------ */
+            container.querySelectorAll('[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded])')
+                .forEach(trig => {
+                    this.on(trig, 'click', e => {
+                        this.toggleExpanded(e.currentTarget, /*toggle*/ null, { focusTarget: 'trigger' });
+                    });
+                });
+        }
+
+        handleKey(e) {
+            const trigger = e.target;
+            if (!trigger || !trigger.hasAttribute('aria-expanded'))
+                return false;
+
+            const accordion = trigger.closest('[data-ak-accordion]');
+
+            // If we are in accordion mode apply roving tab index.
+            if (accordion) {
+                const triggers = this._getCache(accordion, () =>
+                    this.applyRoving(accordion, '[aria-controls][aria-expanded]'));
+
+                const orientation = accordion.getAttribute('aria-orientation') ?? 'vertical';
+
+                return this.handleRovingKeys(e, triggers, {
+                    orientation,
+                    activateFn: (el) =>
+                        this.toggleExpanded(el, null, { collapseSiblings: true, focusTarget: 'trigger' }),
+                    extraKeysFn: (ev) => {
+                        if (ev.key === AK.KEY.ESC) {
+                            // ESC collapses current panel
+                            this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+                            return true;
+                        }
+                        return false;
+                    },
+                });
+            }
+
+            // Stand‑alone disclosure (no accordion)
+            if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
+                this.toggleExpanded(trigger);
+                return true;
+            }
+
+            return false;
+        }
+
+        _move(trigger, accordion = null, triggers = null) {
+            if (!trigger) return;
+            accordion = accordion || trigger.closest('[data-ak-accordion]');
+            triggers = triggers || (accordion ? this._getCache(accordion) : [trigger]);
+            super._move(trigger, null, triggers);
+        }
+    };
+
+
 AccessKit.register({
     ctor: AK.MenuPlugin,
     match(el) {
         return el.closest('[role="menubar"],[role="menu"]') ||
-            (el.closest('[role="menuitem"][aria-controls]') && 
-                document.getElementById(el.getAttribute('aria-controls')));
+            (el.closest('[role="menuitem"][aria-controls]') && document.getElementById(el.getAttribute('aria-controls')));
     }
+});
+
+AccessKit.register({
+    ctor: AK.DisclosurePlugin,
+    // TODO: (wcag) (mh) This can't be correct.
+    // We claim any element that has aria-expanded + aria-controls
+    match(el) { return el.closest('[aria-controls][aria-expanded]'); }
 });
 
 AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
