@@ -5,7 +5,7 @@
 
 ; (function ($, window, document, undefined) {
 
-    $('.artlist-grid').on('mouseenter', '.art', function (e) {
+    $('.artlist-grid').on('mouseenter focusin', '.art', function (e) {
         if (window.touchable)
             return;
 
@@ -26,7 +26,7 @@
         }
     });
 
-    $('.artlist-grid').on('mouseleave', '.art', function (e) {
+    $('.artlist-grid').on('mouseleave focusout', '.art', function (e) {
         var art = $(this);
 
         if (art.hasClass('active')) {

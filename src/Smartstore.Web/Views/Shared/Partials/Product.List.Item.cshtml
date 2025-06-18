@@ -23,17 +23,19 @@
 <article class="art" data-id="@Model.Id">
     <div class="art-picture-block">
         @* TODO: (mc) Let user define one free badge per product in backend *@
-        <div sm-if="Model.Badges.Count > 0" class="art-badges">
+        <figcaption sm-if="Model.Badges.Count > 0" class="art-badges">
             @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
             {
                 <span class="art-badge badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
             }
-        </div>
+        </figcaption>
         @if (image.Title.HasValue())
         {
             <a class="art-picture img-center-container@(addImageClass)" 
                href="@Model.DetailUrl"
                title="@T("Media.Product.ImageLinkTitleFormat", Model.Name)"
+               tabindex="-1"
+               aria-hidden="true"
                attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
                 <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), Model.Name)' />
             </a>
