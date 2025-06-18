@@ -8,6 +8,7 @@
 ### WCAG (Web Content Accessibility Guidelines)
 
 - Laguage and currency selectors have been made accessible to screen readers.
+- The CookieManager dialog has been made accessible to screen readers and traps the focus until it's closed.
 - Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
 - All elements in the footer have been made accessible to screen readers.
@@ -34,6 +35,9 @@
 	- ListboxPlugin handles widgets using role="listbox" based on subitems of role="option". It is used in ...
 		-  ... language and currency selector
 		-  ... all dropdown menus rendered by menu TagHelper
+	- DisclosurePlugin handles standalone disclosures & accordions. It is used in ...
+		- CookieManager dialog
+- A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.
 
 	​	
