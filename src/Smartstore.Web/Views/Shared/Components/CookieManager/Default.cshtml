@@ -44,11 +44,11 @@
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="RequiredConsent" disabled sm-switch="true" aria-labelledby="cookie-required-header" />
                         </div>
-                        <button id="cookie-required-header" class="cm-consent-title collapsed col m-0 pl-3 reset fs-h5" type="button"
+                        <button id="cookie-required-header" class="cm-consent-title collapsed col reset" type="button"
                                 data-toggle="collapse" data-target="#required-cookies"
                                 aria-controls="required-cookies" aria-expanded="false" role="heading" aria-level="5">
                             @T("CookieManager.Dialog.Required.Heading")
-                            <i class="fas fa-angle-up collapse-chevron"></i>
+                            <i class="fas fa-angle-up collapse-chevron" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -74,11 +74,11 @@
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="AnalyticsConsent" sm-switch="true" aria-labelledby="cookie-analytics-header" />
                         </div>
-                        <button id="cookie-analytics-header" class="cm-consent-title collapsed col m-0 pl-3 reset fs-h5" type="button"
+                        <button id="cookie-analytics-header" class="cm-consent-title collapsed col reset" type="button"
                                 data-toggle="collapse" data-target="#analytics-cookies"
                                 aria-controls="analytics-cookies" aria-expanded="false" role="heading" aria-level="5">
                             @T("CookieManager.Dialog.Analytics.Heading")
-                            <i class="fas fa-angle-up collapse-chevron"></i>
+                            <i class="fas fa-angle-up collapse-chevron" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -104,11 +104,11 @@
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="ThirdPartyConsent" sm-switch="true" aria-labelledby="cookie-thirdparty-header" />
                         </div>
-                        <button id="cookie-thirdparty-header" class="cm-consent-title collapsed col m-0 pl-3 reset fs-h5" type="button"
+                        <button id="cookie-thirdparty-header" class="cm-consent-title collapsed col reset" type="button"
                             data-toggle="collapse" data-target="#third-party-cookies" 
                             aria-controls="third-party-cookies" aria-expanded="false" role="heading" aria-level="5">
                             @T("CookieManager.Dialog.ThirdParty.Heading")
-                            <i class="fas fa-angle-up collapse-chevron"></i>
+                            <i class="fas fa-angle-up collapse-chevron" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -134,11 +134,11 @@
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="AdUserDataConsent" sm-switch="true" aria-labelledby="cookie-aduserdataconsent-header" />
                         </div>
-                        <button id="cookie-aduserdataconsent-header" class="cm-consent-title collapsed col m-0 pl-3 reset fs-h5" type="button"
+                        <button id="cookie-aduserdataconsent-header" class="cm-consent-title collapsed col reset" type="button"
                             data-toggle="collapse" data-target="#ad-user-data-consent" 
                             aria-controls="ad-user-data-consent" aria-expanded="false" role="heading" aria-level="5">
                             @T("CookieManager.Dialog.AdUserDataConsent.Heading")
-                            <i class="fas fa-angle-up collapse-chevron"></i>
+                            <i class="fas fa-angle-up collapse-chevron" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -164,11 +164,11 @@
                         <div class="cm-consent-switch col col-auto">
                             <input type="checkbox" asp-for="AdPersonalizationConsent" sm-switch="true" aria-labelledby="cookie-adpersonalizationconsent-header" />
                         </div>
-                        <button id="cookie-adpersonalizationconsent-header" class="cm-consent-title collapsed col m-0 pl-3 reset fs-h5" type="button"
+                        <button id="cookie-adpersonalizationconsent-header" class="cm-consent-title collapsed col reset" type="button"
                             data-toggle="collapse" data-target="#ad-personalization-consent" 
                             aria-controls="ad-personalization-consent" aria-expanded="false" role="heading" aria-level="5">
                             @T("CookieManager.Dialog.AdPersonalizationConsent.Heading")
-                            <i class="fas fa-angle-up collapse-chevron"></i>
+                            <i class="fas fa-angle-up collapse-chevron" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -229,7 +229,7 @@
             Smartstore.Cmp.Form.submit();
         });
 
-        $(".cm-consent-title").on('ak-toggle-open ak-toggle-close', function (e) {
+        $(".cm-consent-title").on('ak-expand ak-collapse', function (e) {
             $(this).trigger("click");
         });
     });
