@@ -6,7 +6,7 @@
         - What else must be trapped?
     */
 (() => {
-    let releaseFn = null;
+    let onRelease = null;
     let lastActiveElement = null;
 
     // TODO: (wcag) (mh) We also have classes .disabled
@@ -25,10 +25,11 @@
             el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden' && (!excludeSel || !el.closest(excludeSel))
         );
 
-    function activate(container, { initial, exclude } = { }) {
+    function activate(container, { initial, exclude } = {}) {
+        // TODO: (wcag) (mh) What about modals with embedded iframes?
         // There can only be one active focus trap at a time.
-        if (releaseFn)
-            releaseFn();               
+        if (onRelease)
+            onRelease();               
 
         lastActiveElement = document.activeElement;
 
@@ -48,15 +49,17 @@
 
             if (e.shiftKey && document.activeElement === firstEl)
             {
-                e.preventDefault(); lastEl.focus();
+                e.preventDefault();
+                lastEl.focus();
             }
             else if (!e.shiftKey && document.activeElement === lastEl)
             {
-                e.preventDefault(); firstEl.focus();
+                e.preventDefault();
+                firstEl.focus();
             }
         };
 
-        /** Fokus darf Container nicht verlassen */
+        /** Focus must not leave container */
         const onFocusIn = (e) => {
             if (!container.contains(e.target))
             {
@@ -66,19 +69,22 @@
 
         document.addEventListener('keydown', onKey, true);
         document.addEventListener('focusin', onFocusIn, true);
+
+        // Set initial focus
         first?.focus();
 
-        releaseFn = () => {
+        onRelease = () => {
             document.removeEventListener('keydown', onKey, true);
             document.removeEventListener('focusin', onFocusIn, true);
-            releaseFn = null;
-            lastActiveElement?.focus();            // Return focus to opener
+            onRelease = null;
+            // Return focus to opener
+            lastActiveElement?.focus();            
         };
     }
 
     function deactivate()
     {
-        if (releaseFn) releaseFn();
+        if (onRelease) onRelease();
     }
 
     window.AccessKitFocusTrap = { activate, deactivate };

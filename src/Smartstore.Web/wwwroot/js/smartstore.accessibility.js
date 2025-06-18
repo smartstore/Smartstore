@@ -123,8 +123,9 @@ class AccessKit {
     }
 
     _initOffCanvasTrap() {
+        // TODO: (wcag) (mh) Move all focustrap related stuff/events to the focustrap script.
         // INFO: Jquery must be used here, because original event is namespaced & triggered via Jquery.
-        $(document).on('shown.sm.offcanvas', function (e) {
+        $(document).on('shown.sm.offcanvas', (e) => {
             const offcanvas = $(e.target).attr("aria-hidden", false);
 
             // Set attribute aria-expanded for opening element.
@@ -133,7 +134,7 @@ class AccessKit {
             AccessKitFocusTrap.activate(offcanvas[0]);
         });
 
-        $(document).on('hidden.sm.offcanvas', function (e) {
+        $(document).on('hidden.sm.offcanvas', (e) => {
             const offcanvas = $(e.target).attr("aria-hidden", true);
 
             // Set attribute aria-expanded for the element that has opened offcanvas.
@@ -143,18 +144,18 @@ class AccessKit {
         });
 
         // Offcanvas layers must maintain focus after they are loaded and displayed via AJAX.
-        $(document).on('shown.sm.offcanvaslayer', function (e) {
+        $(document).on('shown.sm.offcanvaslayer', (e) => {
             AccessKitFocusTrap.activate(e.target);
             // INFO: Deactivation will be handled automatically on hidden.sm.offcanvas
         });
     }
 
     _initDialogTrap() {
-        $(document).on('shown.bs.modal', function (e) {
+        $(document).on('shown.bs.modal', (e) => {
             AccessKitFocusTrap.activate(e.target);
         });
 
-        $(document).on('hidden.bs.modal', function (e) {
+        $(document).on('hidden.bs.modal', () => {
             AccessKitFocusTrap.deactivate();
         });
     }

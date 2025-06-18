@@ -265,13 +265,13 @@
                 prevLayer = currentLayer.prev();
 
             var finalize = function (layer) {
-                layer.one('transitionend', function (e) {
+                layer.one('transitionend', (e) => {
                     callback(layer);
                     self.selectedNodeId = nodeId;
-                });
 
-                // Fire event for focus trap
-                layer.trigger('shown.sm.offcanvaslayer');
+                    // Fire event for focus trap
+                    layer.trigger('shown.sm.offcanvaslayer');
+                });
             };
 
             if (dir === "out") {
