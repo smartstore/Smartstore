@@ -11,8 +11,9 @@
     ViewBag.PageTitle = T("Account.RewardPoints").Value;
 
     // TODO: (wcag) (mg) Create an extension or utility method for this somewhere and apply it everywhere (e.g. Wallet).
+    // TODO: (wcag) (mg) Add a Left-to-Right Mark (U+200E) to prevent the digit and sign from being torn apart or the sign being displayed on the right.
     // Do not use hyphens as a sign, as these are not recognized by screen readers.
-    IHtmlContent ToHtmlString(decimal value)
+    IHtmlContent ToHtmlNumber(decimal value)
     {
         return new HtmlString(value < 0
             ? "&minus;" + Math.Abs(value).ToString("N0", CultureInfo.CurrentCulture)
@@ -62,10 +63,10 @@
                                     <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
                                 </td>
                                 <td class="text-center">
-                                    @ToHtmlString(item.Points)
+                                    @ToHtmlNumber(item.Points)
                                 </td>
                                 <td class="text-center">
-                                    @ToHtmlString(item.PointsBalance)
+                                    @ToHtmlNumber(item.PointsBalance)
                                 </td>
                                 <td dir="auto">@item.Message</td>
                             </tr>
