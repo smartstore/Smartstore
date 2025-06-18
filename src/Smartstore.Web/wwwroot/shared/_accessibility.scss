@@ -1,6 +1,6 @@
 /// <reference path="references.scss" />
 
-:is(a, button):where(:focus-visible) {
+:is(a, button, .form-check-input):is(:focus-visible) {
     outline: 0;
     box-shadow: $focus-ring-box-shadow;
 }

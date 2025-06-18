@@ -148,6 +148,13 @@ a.pretty-link {
     }
 }
 
+a.link-overlay {
+    display: block;
+    pointer-events: initial;
+    position: absolute;
+    inset: 0 0 0 0;
+}
+
 
 // Bidi
 // ======================================
