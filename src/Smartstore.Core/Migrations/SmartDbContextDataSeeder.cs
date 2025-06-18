@@ -45,6 +45,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
             builder.AddOrUpdate("Aria.Label.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
             builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social Media Kanäle");
+            builder.AddOrUpdate("Aria.Label.Rating", "Rating: {0} out of 5 stars ({1})", "Bewertung: {0} von 5 Sternen ({1})");
+            builder.AddOrUpdate("Aria.Label.OpenFurtherOptions", "Open further options for {0}", "Weitere Optionen zu {0} öffnen");
+            
 
             builder.AddOrUpdate("Aria.Label.ProductOfOrderPlacedOn", "Order {0} from {1}, {2}", "Auftrag {0} vom {1}, {2}");
 
@@ -84,6 +87,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Account.Avatar.AvatarRemoved", "The avatar has been removed.", "Der Avatar wurde entfernt.");
 
             builder.AddOrUpdate("RewardPoints.History", "History of your reward points", "Verlauf Ihrer Bonuspunkte");
+
+            builder.AddOrUpdate("Reviews.Overview.NoReviews", 
+                "There are no reviews for this product yet.", 
+                "Zu diesem Produkt liegen noch keine Bewertungen vor.");
+            
         }
     }
 }

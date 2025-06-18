@@ -50,7 +50,7 @@ class AccessKit {
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
         if (t.matches('input, textarea') || t.isContentEditable) return;
-        if (!t.matches('a,[role],[tabindex]')) return;
+        if (!t.matches('a,button,[role],[tabindex]')) return;
 
         // Exit if no navigational key is pressed.
         // TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
@@ -374,7 +374,8 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
             trigger.open = shouldOpen;
         }
 
-        if (target) target.hidden = !shouldOpen;
+        // TODO: (wcag) (mh) Don't do this! This should be handled by the event consumer. Remove after testing in all expandable plugins.
+        //if (target) target.hidden = !shouldOpen;
 
         // Accordeon mode > toggle siblings
         if (shouldOpen && opt.collapseSiblings && trigger.parentElement) {
@@ -387,9 +388,11 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         // Focus
         if (shouldOpen && target) {
             let focusEl = null;
+
             if (opt.focusTarget === 'first') {
                 // TODO: (wcag) (mh) This smells :-)
-                focusEl = target.querySelector('[tabindex="0"],[role],button,a,input,select,textarea');
+                //focusEl = target.querySelector('[tabindex="0"],[role],button,a,input,select,textarea');
+                focusEl = target.querySelector('[tabindex="0"],button,a,input,select,textarea');
             } else if (opt.focusTarget instanceof HTMLElement) {
                 focusEl = opt.focusTarget;
             } else if (opt.focusTarget === 'trigger') {
@@ -796,7 +799,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
         // TODO: Evaluate if this is needed 
         // In single‑select listboxes, moving also selects
-        if (list.length && list.dataset.akMultiselect !== 'true') {
+        if (list && list.length && list.dataset.akMultiselect !== 'true') {
             this._toggleSelect(opt, list, options, /*replace*/ true);
         }
     }
@@ -912,7 +915,32 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
             // Stand‑alone disclosure (no accordion)
             if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
-                this.toggleExpanded(trigger);
+                this.toggleExpanded(trigger, true, { focusTarget: 'first' });
+
+                // Handle leaving via ESC or TAB to the next element outside the panel.
+                const panelId = trigger.getAttribute("aria-controls");
+                const panel = panelId && document.getElementById(panelId);
+                if (panel) {
+                    // Close on ESC from inside the panel
+                    const escHandler = ev => {
+                        if (ev.key === AK.KEY.ESC) {
+                            this.toggleExpanded(trigger, false);
+                            panel.removeEventListener('keydown', escHandler);
+                        }
+                    };
+                    panel.addEventListener('keydown', escHandler);
+
+                    // Close on TAB to the outside of the panel.
+                    const focusHandler = ev => {
+                        const tgt = ev.target;
+                        if (!panel.contains(tgt) && tgt !== trigger) {
+                            this.toggleExpanded(trigger, false);
+                            document.removeEventListener('focusin', focusHandler, true);
+                        }
+                    };
+                    document.addEventListener('focusin', focusHandler, true);
+                }
+
                 return true;
             }
 

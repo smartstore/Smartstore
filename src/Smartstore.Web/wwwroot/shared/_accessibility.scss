@@ -5,3 +5,34 @@
     box-shadow: $focus-ring-box-shadow;
 }
 
+.sr-toggle {
+    position: absolute;
+    inset: 0;
+    z-index: 1060; // TODO: (wcag) (mc/mh) One higher then art-drop right now. Must it be higher?
+
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    // Visible for AT, visually hidden
+    clip-path: inset(50%);
+    clip: rect(1px, 1px, 1px, 1px);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+// Visible as soon as keyboard focus or open status is present
+.sr-toggle:focus-visible,
+.sr-toggle[aria-expanded="true"] {
+    clip-path: none;
+    clip: auto;
+    overflow: visible;
+
+    // TODO: (wcag) (mc) Style
+    outline: 2px solid var(--focus-ring, #005fcc);
+    background: rgba(0, 0, 0, 0.04); 
+    border-radius: .25rem;
+}

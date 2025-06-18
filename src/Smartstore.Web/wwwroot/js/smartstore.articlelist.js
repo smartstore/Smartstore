@@ -5,7 +5,7 @@
 
 ; (function ($, window, document, undefined) {
 
-    $('.artlist-grid').on('mouseenter focusin', '.art', function (e) {
+    $('.artlist-grid').on('mouseenter', '.art', function (e) {
         if (window.touchable)
             return;
 
@@ -19,14 +19,17 @@
         var drop = art.find('.art-drop');
 
         if (drop.length > 0) {
-            drop.css('bottom', ((drop.outerHeight(true) * -1) + 2) + 'px');
+            var bottomMargin = (drop.outerHeight(true) * -1) + 2;
+            drop.css('bottom', bottomMargin + 'px');
             art.addClass('active');
             // the Drop can be overlayed by succeeding elements otherwise
             list.css('z-index', 100);
+
+            art.find('.sr-toggle').css("bottom", bottomMargin + "px") 
         }
     });
 
-    $('.artlist-grid').on('mouseleave focusout', '.art', function (e) {
+    $('.artlist-grid').on('mouseleave', '.art', function (e) {
         var art = $(this);
 
         if (art.hasClass('active')) {
@@ -35,9 +38,18 @@
                 .css('bottom', 0)
                 .closest('.artlist')
                 .css('z-index', 'initial');
+
+            art.find('.sr-toggle').attr("aria-expanded", false).css("bottom", 0) 
         }
     });
 
+    $('.artlist-grid').on('ak-toggle-open', '.art', function (e) {
+        $(e.target).trigger("mouseenter");
+    });
+
+    $('.artlist-grid').on('ak-toggle-close', '.art', function (e) {
+        $(e.target).trigger("mouseleave");
+    });
 
     // Action panels
     // -------------------------------------------------------------------

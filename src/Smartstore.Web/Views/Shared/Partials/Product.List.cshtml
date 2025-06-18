@@ -86,7 +86,8 @@
      id="@id" 
      class='@string.Join(" ", listCssClasses)'
      data-label-prev="@T("Aria.Label.ShowPreviousProducts")"
-     data-label-next="@T("Aria.Label.ShowNextProducts")">
+     data-label-next="@T("Aria.Label.ShowNextProducts")"
+     role="list">
     @foreach (var product in Model.Items)
     {
         <partial name="Product.List.Item" model="product" />

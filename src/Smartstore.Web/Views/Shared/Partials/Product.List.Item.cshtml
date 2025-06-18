@@ -20,9 +20,10 @@
     ViewBag.ArtDetailUrl = Model.DetailUrl;
 }
 
-<article class="art" data-id="@Model.Id">
+<article class="art" data-id="@Model.Id" role="listitem">
     <div class="art-picture-block">
         @* TODO: (mc) Let user define one free badge per product in backend *@
+        @* TODO: (wcag) (mc) figcaption without figure breaks HTML semantic *@
         <figcaption sm-if="Model.Badges.Count > 0" class="art-badges">
             @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
             {
@@ -31,7 +32,7 @@
         </figcaption>
         @if (image.Title.HasValue())
         {
-            <a class="art-picture img-center-container@(addImageClass)" 
+            <a class="art-picture img-center-container@(addImageClass)"
                href="@Model.DetailUrl"
                title="@T("Media.Product.ImageLinkTitleFormat", Model.Name)"
                tabindex="-1"
@@ -136,7 +137,11 @@
         @Html.Raw("</div>")
     }
 
-    <div sm-if="!isLinesMode && showDrop" class="art-drop">
+    <button class="sr-toggle" aria-expanded="false" aria-controls="art-drop-@Model.Id">
+        <span class="sr-only">@T("Aria.Label.OpenFurtherOptions", Model.Name)</span>
+    </button>
+
+    <div sm-if="!isLinesMode && showDrop" id="art-drop-@Model.Id" class="art-drop">
         @if (showVariants)
         {
             <partial name="Product.List.Item.Variants" model="Model" />

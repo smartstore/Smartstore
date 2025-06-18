@@ -17,7 +17,7 @@
         {
             <span class="delivery-time" title="@T("Products.DeliveryTime") @delivery.StatusLabel" 
                   attr-style='(delivery.DisplayDeliveryTimeAccordingToStock, "color:" + delivery.DeliveryTimeHexValue)'>
-                <i class="fa fa-circle delivery-time-status"></i>
+                <i class="fa fa-circle delivery-time-status" aria-hidden="true"></i>
                 <span dir="auto">@delivery.StatusLabel</span>
             </span>
         }
