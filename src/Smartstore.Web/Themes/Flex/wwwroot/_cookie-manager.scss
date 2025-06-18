@@ -13,6 +13,8 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
+    color: var(--body-color);
+    font-weight: 600 !important;
 
     > .collapse-chevron {
         transition: transform 0.35s;
