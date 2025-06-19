@@ -154,10 +154,21 @@
 
     border-collapse: collapse;
 
+    .sr-toggle-info {
+        inset: 2px 2px auto 2px;
+        background-color: rgba(var(--primary-rgb), 0.85);
+        color: #fff;
+        @include border-top-radius(var(--border-radius-sm));
+    }
+
     &.active {
         background: var(--art-active-bg-color);
         border-color: var(--art-active-border-color) !important;
         box-shadow: var(--art-box-shadow);
+
+        .sr-toggle-info {
+            display: none !important;
+        }
     }
 }
 
@@ -228,7 +239,6 @@
 }
 
 .art-genericname {
-    font-size: 15px;
     font-weight: $font-weight-medium;
     text-align: center;
 
@@ -344,8 +354,8 @@
         padding: 0.65rem 0;
         border-radius: 0;
 
-        &:focus:not(:active) {
-            box-shadow: none !important;
+        &:not(:active) {
+            box-shadow: none;
         }
 
         &.btn-secondary {
@@ -401,7 +411,9 @@
 
 :is(.art-name, .art-genericname) {
     font-size: var(--art-font-size-lg);
-    > a.art-name-link { 
+
+    > a.art-name-link {
+        display: block;
         color: $body-color; 
         text-decoration: none;
         text-wrap: pretty;
@@ -600,15 +612,16 @@
     @include make-art-col(2);
 
     // Ensure equal height for some elements in grid style lists
-    :is(.art-name, .art-description) {
+    :is(.art-name-link, .art-description) {
         // At least 2 lines height for name & description
+        display: block;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .art-name {
+    .art-name > .art-name-link {
         // At least 2 lines height for name
-        height: calc(var(--art-font-size) * var(--art-line-height) * 2);
+        height: calc(var(--art-font-size-lg) * var(--art-line-height) * 2);
     }
 
     .art-description {

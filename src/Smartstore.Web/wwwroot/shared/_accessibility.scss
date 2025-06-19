@@ -5,11 +5,14 @@
     box-shadow: $focus-ring-box-shadow;
 }
 
+.focus-inset:focus-visible {
+    box-shadow: inset 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color, inset 0 0 0 ($focus-ring-width * 2) hsla(0,0%,100%, 0.92) !important;
+}
+
 .sr-toggle {
     position: absolute;
     inset: 0;
-    z-index: 1060; // TODO: (wcag) (mc/mh) One higher then art-drop right now. Must it be higher?
-
+    z-index: $zindex-popover;
     background: none;
     border: none;
     padding: 0;
@@ -22,6 +25,16 @@
     clip: rect(1px, 1px, 1px, 1px);
     overflow: hidden;
     white-space: nowrap;
+    border-radius: var(--border-radius-sm);
+
+    > .sr-toggle-info {
+        position: absolute;
+        inset: 0 0 auto 0;
+        display: block;
+        background-color: #fff;
+        white-space: normal;
+        padding: 0.5rem;
+    }
 }
 
 // Visible as soon as keyboard focus or open status is present
@@ -30,9 +43,4 @@
     clip-path: none;
     clip: auto;
     overflow: visible;
-
-    // TODO: (wcag) (mc) Style
-    outline: 2px solid var(--focus-ring, #005fcc);
-    background: rgba(0, 0, 0, 0.04); 
-    border-radius: .25rem;
 }

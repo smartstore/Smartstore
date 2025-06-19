@@ -137,18 +137,21 @@
         @Html.Raw("</div>")
     }
 
-    <button class="sr-toggle" aria-expanded="false" aria-controls="art-drop-@Model.Id">
-        <span class="sr-only">@T("Aria.Label.OpenFurtherOptions", Model.Name)</span>
-    </button>
+    @if (!isLinesMode && showDrop)
+    {
+        <button class="sr-toggle" aria-expanded="false" aria-controls="art-drop-@Model.Id">
+            <small class="sr-toggle-info">@T("Aria.Label.ExpandItem", Model.Name)</small>
+        </button>
 
-    <div sm-if="!isLinesMode && showDrop" id="art-drop-@Model.Id" class="art-drop">
-        @if (showVariants)
-        {
-            <partial name="Product.List.Item.Variants" model="Model" />
-        }
-        @if (showButtons)
-        {
-            <partial name="Product.List.Item.Buttons" model="Model" />
-        }
-    </div>
+        <div id="art-drop-@Model.Id" class="art-drop">
+            @if (showVariants)
+            {
+                <partial name="Product.List.Item.Variants" model="Model" />
+            }
+            @if (showButtons)
+            {
+                <partial name="Product.List.Item.Buttons" model="Model" />
+            }
+        </div>
+    }
 </article>
