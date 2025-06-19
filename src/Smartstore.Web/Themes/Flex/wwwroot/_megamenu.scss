@@ -184,11 +184,13 @@ $mixed-megamenu-bg:             $megamenu-bg;
     // INFO: No logical CSS here, else directions change.
     &.alpha {
         left: 0;
+        padding-right: 1rem;
         background-image: linear-gradient(to left, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
     }
 
     &.omega {
         right: 0;
+        padding-left: 1rem;
         background-image: linear-gradient(to right, rgba($mixed-megamenu-bg, 0), $mixed-megamenu-bg 40%, $mixed-megamenu-bg 100%);
     }
 }
