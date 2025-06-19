@@ -15,8 +15,8 @@
     {
         <div class="facet-item facet-radio" data-href="@Url.FacetToggle(facet)" title="@facet.Value.Label">
             <label>
-                <input class="facet-control-native" type="radio" name="optradio-@(Model.Key)" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' />
-                <span class="facet-control-ui"></span>
+                <input class="facet-control-native" type="radio" name="optradio-@(Model.Key)" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' tabindex="-1" />
+                <span class="facet-control-ui" tabindex="0"></span>
                 <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                     <span class="rating">
                         <span style="width: @(facet.Value.Value.Convert<int>() * 20)%"></span>
