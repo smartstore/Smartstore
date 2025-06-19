@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Web.Models.Customers
-@using Smartstore.Utilities.Html
 
 @model CustomerRewardPointsModel
 
@@ -9,20 +8,10 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "rewardpoints";
     ViewBag.PageTitle = T("Account.RewardPoints").Value;
-
-    // TODO: (wcag) (mg) Create an extension or utility method for this somewhere and apply it everywhere (e.g. Wallet).
-    // TODO: (wcag) (mg) Add a Left-to-Right Mark (U+200E) to prevent the digit and sign from being torn apart or the sign being displayed on the right.
-    // Do not use hyphens as a sign, as these are not recognized by screen readers.
-    IHtmlContent ToHtmlNumber(decimal value)
-    {
-        return new HtmlString(value < 0
-            ? "&minus;" + Math.Abs(value).ToString("N0", CultureInfo.CurrentCulture)
-            : value.ToString("N0", CultureInfo.CurrentCulture));
-    }
 }
 
 <div class="alert alert-info" role="status" aria-live="polite">
-    @Model.RewardPointsBalanceFormatted
+    @Html.Raw(Model.RewardPointsBalanceFormatted)
 </div>
 
 <fieldset class="content-group mt-4">
@@ -63,10 +52,10 @@
                                     <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
                                 </td>
                                 <td class="text-center">
-                                    @ToHtmlNumber(item.Points)
+                                    @Html.Raw(item.Points.ToHtmlDisplayString())
                                 </td>
                                 <td class="text-center">
-                                    @ToHtmlNumber(item.PointsBalance)
+                                    @Html.Raw(item.PointsBalance.ToHtmlDisplayString())
                                 </td>
                                 <td dir="auto">@item.Message</td>
                             </tr>
