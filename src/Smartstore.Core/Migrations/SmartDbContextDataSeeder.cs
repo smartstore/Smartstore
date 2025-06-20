@@ -57,6 +57,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
             builder.AddOrUpdate("Common.ExpandCollapse", "Expand/collapse", "Auf-/zuklappen");
             builder.AddOrUpdate("Common.DeleteSelected", "Delete selected", "Ausgewählte löschen");
+            builder.AddOrUpdate("Common.Consent", "Consent", "Zustimmung");
 
             builder.Delete(
                 "Account.BackInStockSubscriptions.DeleteSelected",
@@ -97,7 +98,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Reviews.Overview.NoReviews", 
                 "There are no reviews for this product yet.", 
                 "Zu diesem Produkt liegen noch keine Bewertungen vor.");
-            
+
+            builder.AddOrUpdate("DownloadableProducts.IAgree", 
+                "I have read and agree to the user agreement.", 
+                "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
         }
     }
 }
