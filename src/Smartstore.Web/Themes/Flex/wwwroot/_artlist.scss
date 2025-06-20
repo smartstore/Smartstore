@@ -331,7 +331,6 @@
     padding-top: 1px;
     clip-path: inset(0 -20px -20px -20px);
     border-radius: 0 0 var(--art-border-radius) var(--art-border-radius);
-    overflow: hidden;
     opacity: 0;
     visibility: hidden;
     z-index: -1;
@@ -340,6 +339,11 @@
         opacity: 1;
         visibility: visible;
         z-index: $zindex-popover - 1;
+    }
+
+    > .art-btn-group {
+        overflow: hidden;
+        @include border-bottom-radius(var(--art-border-radius));
     }
 }
 
@@ -634,7 +638,7 @@
         height: calc(var(--art-font-size-sm) * var(--art-line-height) * 2);
     }
 
-    :is(.art-brand, .art-delivery-info, .art-more-opts) {
+    :is(.art-brand, .art-delivery-info) {
         // Always 1 small line height, even if empty
         box-sizing: content-box;
         min-height: calc(var(--art-font-size-sm) * var(--art-line-height));

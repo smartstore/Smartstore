@@ -18,8 +18,8 @@
         <span class="bidi-embed@(list.ViewMode == ProductSummaryViewMode.List ? "" : " d-block")">
             @T(Model.Attributes.Count == 1 ? "Products.PlusOption" : "Products.PlusOptions"):
         </span>
-        <a href="@Model.DetailUrl" class="font-weight-medium bidi-embed" sm-language-attributes-for="Model.Attributes[0].Name">
-            @string.Join(", ", Model.Attributes.Select(x => x.Name.ToHtmlString())).Truncate(50, "...")
+        <a href="@Model.DetailUrl" class="art-more-opt-link d-block text-truncate">
+            <span class="fwm bidi-embed" sm-language-attributes-for="Model.Attributes[0].Name">@string.Join(", ", Model.Attributes.Select(x => x.Name.ToHtmlString())).Truncate(50, "...")</span>
         </a>
     </div>
 </div>
