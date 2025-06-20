@@ -16,7 +16,7 @@
         var hasImage = image != null && image.HasImage();
         var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
 
-        <article class="art" data-id="@item.Id" role="listitem">
+        <div class="art" data-id="@item.Id" role="listitem">
             <div class="art-picture-block">
                 @if (hasImage)
                 {
@@ -30,6 +30,6 @@
                     <span sm-language-attributes-for="item.Name">@item.Name</span>
                 </a>
             </div>
-        </article>
+        </div>
     }
 </div>

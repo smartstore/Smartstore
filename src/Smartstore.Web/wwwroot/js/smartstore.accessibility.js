@@ -110,8 +110,10 @@ class AccessKit {
         // Handle .nav-collapsible aria-expanded attribute on page resize
         const setCollapsibleState = (viewport) => {
             const toggles = document.querySelectorAll('.nav-collapsible > [data-toggle="collapse"]');
+            const isLargeScreen = viewport.is('>=md');
             toggles.forEach(el => {
-                el.setAttribute('aria-expanded', viewport.is('>=md') ? 'true' : !el.matches('.collapsed'))
+                el.setAttribute('aria-expanded', isLargeScreen ? 'true' : !el.matches('.collapsed'));
+                el.setAttribute('role', isLargeScreen ? 'none' : 'button')
             });
         };
 

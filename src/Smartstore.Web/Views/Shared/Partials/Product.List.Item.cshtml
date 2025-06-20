@@ -20,7 +20,7 @@
     ViewBag.ArtDetailUrl = Model.DetailUrl;
 }
 
-<article class="art" data-id="@Model.Id" role="listitem">
+<div class="art" data-id="@Model.Id" role="listitem">
     <div class="art-picture-block">
         @* TODO: (mc) Let user define one free badge per product in backend *@
         @* TODO: (wcag) (mc) figcaption without figure breaks HTML semantic *@
@@ -154,4 +154,4 @@
             }
         </div>
     }
-</article>
+</div>
