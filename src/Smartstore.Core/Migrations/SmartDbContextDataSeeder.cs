@@ -58,6 +58,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.ExpandCollapse", "Expand/collapse", "Auf-/zuklappen");
             builder.AddOrUpdate("Common.DeleteSelected", "Delete selected", "Ausgewählte löschen");
             builder.AddOrUpdate("Common.Consent", "Consent", "Zustimmung");
+            builder.AddOrUpdate("Common.SelectView", "Select view", "Ansicht wählen");
 
             builder.Delete(
                 "Account.BackInStockSubscriptions.DeleteSelected",

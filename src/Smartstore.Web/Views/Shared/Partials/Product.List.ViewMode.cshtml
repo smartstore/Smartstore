@@ -9,18 +9,26 @@
 }
 
 <div class="artlist-action artlist-action--viewmode">
-    <div class="btn-group btn-group-toggle" data-toggle="buttons" role="radiogroup" aria-label="Ansicht wählen">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons" role="radiogroup" aria-label="@T("Common.SelectView")">
         <a href='@Display.ModifyQueryString(null, "?v=grid")' rel="nofollow" 
-            class="btn btn-secondary btn-icon btn-artlist-action tooltip-toggle" attr-class='(isGrid, "active")' 
-            title="@resSwitchToGrid" data-toggle="tooltip"
-            role="radio" aria-checked="@(isGrid ? "true" : "false")" aria-label="@resSwitchToGrid">
+           class="btn btn-secondary btn-icon btn-artlist-action tooltip-toggle" 
+           attr-class='(isGrid, "active")' 
+           title="@resSwitchToGrid" 
+           data-toggle="tooltip"
+           role="radio" 
+           aria-checked="@(isGrid ? "true" : "false")" 
+           aria-label="@resSwitchToGrid">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-grid" attr-checked='(isGrid, "checked")' aria-hidden="true" tabindex="-1" />
             <i class="fa fa-grip" aria-hidden="true"></i>
         </a>
-        <a href='@Display.ModifyQueryString(null, "?v=list")' rel="nofollow" 
-            class="btn btn-secondary btn-icon btn-artlist-action tooltip-toggle" attr-class='(!isGrid, "active")' 
-            title="@resSwitchToList" data-toggle="tooltip"
-            role="radio" aria-checked="@(!isGrid ? "true" : "false")" aria-label="@resSwitchToList">
+        <a href='@Display.ModifyQueryString(null, "?v=list")' 
+           rel="nofollow" 
+           class="btn btn-secondary btn-icon btn-artlist-action tooltip-toggle" 
+           attr-class='(!isGrid, "active")' 
+           title="@resSwitchToList" data-toggle="tooltip"
+           role="radio" 
+           aria-checked="@(!isGrid ? "true" : "false")" 
+           aria-label="@resSwitchToList">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-list" attr-checked='(!isGrid, "checked")' aria-hidden="true" tabindex="-1" />
             <i class="fa fa-list" aria-hidden="true"></i>
         </a>

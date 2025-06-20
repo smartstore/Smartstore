@@ -4,9 +4,12 @@
 @model IListActions
 
 <div sm-if="Model.AllowFiltering" class="artlist-action artlist-action--filter d-lg-none">
-    <button id="toggle-filter-widget" type="button" 
-            class="btn btn-primary w-100 justify-content-between" data-title="@T("Products.ToFilterAndSort")"
-            aria-controls="filter-widget" aria-expanded="false"> 
+    <button id="toggle-filter-widget" 
+            type="button" 
+            class="btn btn-primary w-100 justify-content-between" 
+            data-title="@T("Products.ToFilterAndSort")"
+            aria-controls="filter-widget" 
+            aria-expanded="false"> 
         <span>@T("Products.ToFilterAndSort")</span>
         <i class="fa fa-fw fa-sliders-h" aria-hidden="true"></i>
     </button>
@@ -14,9 +17,14 @@
 
 <div sm-if="Model.AllowSorting" class="artlist-action artlist-action--sort d-none d-lg-flex">
     <div id="artlist-action-sort" class="dropdown">
-        <button id="btn-artlist-action-sort" class="btn btn-secondary btn-artlist-action dropdown-toggle fwn" 
-                data-toggle="dropdown" title="@T("Products.SortByX", Model.CurrentSortOrderName)"
-                role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-artlist-action-sort">
+        <button id="btn-artlist-action-sort" 
+                class="btn btn-secondary btn-artlist-action dropdown-toggle fwn" 
+                data-toggle="dropdown" 
+                title="@T("Products.SortByX", Model.CurrentSortOrderName)"
+                role="combobox" 
+                aria-haspopup="listbox" 
+                aria-expanded="false" 
+                aria-controls="dropdown-artlist-action-sort">
             <span>@Html.Raw(T("Products.SortByX", $"<span class='fwm'>{Model.CurrentSortOrderName}</span>"))</span>
         </button>
         <div id="dropdown-artlist-action-sort" class="dropdown-menu" role="listbox" aria-labelledby="btn-artlist-action-sort">
