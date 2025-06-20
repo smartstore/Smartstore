@@ -12,6 +12,7 @@
 - Catalog and associated products search boxes have been made accessible to screen readers.
 - The upload of an avatar has been enabled for screen readers.
 - All elements in the footer have been made accessible to screen readers.
+- Article list actions have been made accessible to screen readers.
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
   - Direct Order
@@ -26,19 +27,23 @@
   - Wallet
 - A script to handle key navigation has been implemented. It identifies the role of several components and determines their navigateable child elements.
 	- MenuPlugin handles all items of role="menubar" based on subitems of role="menu" & role="menuitem". It is used in ...
-		- ... the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
+		- the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
 	- TablistPlugin handles all items of role="tablist" based on subitems role="tab". It is used in ...
-		-  ... the Offcanvas Menu 
-		-  ... the Offcanvas Cart
+		- the Offcanvas Menu 
+		- the Offcanvas Cart
 	- TreePlugin handles all items of role="tree" based on subitems of role="treeitem". It is used in ...
-		- ... the catalog navigation in the Offcanvas Menu
+		- the catalog navigation in the Offcanvas Menu
 	- ListboxPlugin handles widgets using role="listbox" based on subitems of role="option". It is used in ...
-		-  ... language and currency selector
-		-  ... all dropdown menus rendered by menu TagHelper
+		- language and currency selector
+		- all dropdown menus rendered by menu TagHelper
+		- Variant color squares in art list 
 	- DisclosurePlugin handles standalone disclosures & accordions. It is used in ...
 		- CookieManager dialog
 		- Article list dropdowns (.art-drop is the element which contains article actions e.g. add to cart, add to wishlist)
 		- Product list filter button for mobile devices
+	- ComboboxPlugin integrates ListboxPlugin navigation, opens/closes the dropdown, and supports both single- and multi-select via data-ak-multiselect=true. It is used in ...
+		- Article list sorting dropdown.
+	
 - A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.
 
