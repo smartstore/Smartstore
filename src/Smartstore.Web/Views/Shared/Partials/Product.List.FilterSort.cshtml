@@ -4,9 +4,11 @@
 @model IListActions
 
 <div sm-if="Model.AllowFiltering" class="artlist-action artlist-action--filter d-lg-none">
-    <button class="btn btn-primary w-100 justify-content-between btn-toggle-filter-widget" data-title="@T("Products.ToFilterAndSort")">
+    <button id="toggle-filter-widget" type="button" 
+            class="btn btn-primary w-100 justify-content-between" data-title="@T("Products.ToFilterAndSort")"
+            aria-controls="filter-widget" aria-expanded="false"> 
         <span>@T("Products.ToFilterAndSort")</span>
-        <i class="fa fa-fw fa-sliders-h"></i>
+        <i class="fa fa-fw fa-sliders-h" aria-hidden="true"></i>
     </button>
 </div>
 
