@@ -811,6 +811,10 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         if (!multiselect || replace) {
             options.forEach(o => o.setAttribute('aria-selected', o === opt ? 'true' : 'false'));
             this._dispatchEvent('ak-listbox-select', list, { list, opt });
+
+            // TODO: Maybe we need an option to turn this behavior on/off.
+            // Call click immediately for single select lists.
+            opt.click();
         } else {
             const selected = opt.getAttribute('aria-selected') === 'true';
             opt.setAttribute('aria-selected', selected ? 'false' : 'true');
@@ -818,6 +822,8 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         }
     }
 
+    // TODO: (wcag) (mh) This seems to be to expensive. We don't listen for these keys right now.
+    // Either find a way to reigister listing for these keys in a smarter way or throw away. See _onKey in base constructor.
     /* -------- First‑character type‑ahead -------- */
     _typeahead(char, startIdx, options, list) {
         char = char.toLowerCase();
@@ -832,10 +838,139 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
     }
 }
 
+/**
+* Combobox‑specific plugin that delegates option navigation to AK.ListboxPlugin.  
+* Handles only:
+*   – opening / closing the popup listbox
+*   – synchronising the selected <option> value back to the trigger
+*   – closing on ENTER / ESC / TAB / ALT+↑ and on pointer clicks
+*
+*  Mark‑up (single‑select):
+*     <input type="text" role="combobox" aria-controls="city-list" aria-expanded="false" aria-autocomplete="list" />
+*     <ul id="city-list" role="listbox" hidden>
+*        <li role="option">Berlin</li>
+*        …
+*     </ul>
+*/
+AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBase {
+    init(container = document) {
+        container.querySelectorAll('[role="combobox"]').forEach(cb => this._initCombobox(cb));
+    }
+
+    _initCombobox(cb) {
+        const listId = cb.getAttribute('aria-controls');
+        const list = listId && document.getElementById(listId);
+        if (!list || list.getAttribute('role') !== 'listbox') return;
+
+        /* --- Pointer interactions --------------------------------------- */
+        this.on(cb, 'click', () => {
+            const open = cb.getAttribute('aria-expanded') === 'true';
+            this.toggleExpanded(cb, !open, { focusTarget: open ? 'trigger' : this._firstOption(list) });
+        });
+
+        this.on(list, 'click', e => {
+            const opt = e.target.closest('[role="option"]');
+            if (!opt || !list.contains(opt)) return;
+            this._commitSelection(opt, cb);
+        });
+
+        // Listen to self & execute default click behavior.
+        this.on(cb, 'ak-expand', () => {
+            const open = cb.getAttribute('aria-expanded') === 'true';
+            if (!open) cb.click();
+        });
+
+        /* --- Keydown inside listbox (only CLOSE / COMMIT keys) ---------- */
+        this.on(list, 'keydown', e => {
+            switch (e.key) {
+                case AK.KEY.ESC:
+                case AK.KEY.TAB:
+                case AK.KEY.UP && e.altKey:
+                    if (e.key !== AK.KEY.TAB) e.preventDefault();
+                    this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+                    break;
+                case AK.KEY.ENTER:
+                    const sel = list.querySelector('[role="option"][aria-selected="true"]') || e.target.closest('[role="option"]');
+                    if (sel) this._commitSelection(sel, cb);
+                    break;
+            }
+        });
+
+        /* --- Sync trigger value when ListboxPlugin selects -------------- */
+        this.on(list, 'ak-listbox-select', ev => {
+            const { opt } = ev.detail || {};
+            if (opt) this._syncToTrigger(cb, opt);
+        });
+
+        /* --- Close when clicking outside -------------------------------- */
+        this.on(document, 'mousedown', ev => {
+            if (!cb.contains(ev.target) && !list.contains(ev.target)) {
+                this.toggleExpanded(cb, false);
+            }
+        });
+    }
+
+    handleKey(e) {
+        const el = e.target;
+        if (el.getAttribute('role') === 'combobox') {
+            return this._comboKey(e, el);
+        }
+        return false;
+    }
+
+    _comboKey(e, cb) {
+        const list = document.getElementById(cb.getAttribute('aria-controls'));
+        if (!list) return false;
+
+        const firstOpt = this._firstOption(list);
+        const lastOpt = this._lastOption(list);
+        const isOpen = cb.getAttribute('aria-expanded') === 'true';
+
+        switch (e.key) {
+            case AK.KEY.DOWN:
+                this.toggleExpanded(cb, true, { focusTarget: firstOpt });
+                return true;
+            case AK.KEY.UP:
+                this.toggleExpanded(cb, true, { focusTarget: lastOpt });
+                return true;
+            case AK.KEY.ENTER:
+            case AK.KEY.SPACE:
+                this.toggleExpanded(cb, !isOpen, { focusTarget: isOpen ? 'trigger' : firstOpt });
+                return true;
+            case AK.KEY.ESC:
+            case AK.KEY.TAB:
+                if (isOpen) {
+                    this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+                }
+                return e.key !== AK.KEY.TAB; // Prevent default on ESC, allow Tab
+        }
+        return false;
+    }
+
+    /* --------------------------- Selection helpers ---------------------- */
+    _commitSelection(opt, cb) {
+        const list = opt.closest('[role="listbox"]');
+
+        if (list && list.getAttribute('data-ak-multiselect') == "true") {
+            // Multi‑select → commit immediately (incl. close)
+            this._syncToTrigger(cb, opt);
+            this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+        }
+    }
+
+    // TODO: (wcag) (mh) Research this.
+    _syncToTrigger(cb, opt) {
+        cb.value = (opt.textContent || '').trim();
+        cb.setAttribute('aria-activedescendant', opt.id || (opt.id = `ak-opt-${crypto.randomUUID()}`));
+    }
+
+    _firstOption(list) { return list.querySelector('[role="option"]'); }
+    _lastOption(list) { const opts = list.querySelectorAll('[role="option"]'); return opts[opts.length - 1] || null; }
+};
+
 // TODO: (wcag) (mh) Test with real accordion.
 /* --------------------------------------------------
-    *  DisclosurePlugin – 
-    *  Handles standalone disclosures & accordions
+    *  DisclosurePlugin – Handles standalone disclosures & accordions
     * -------------------------------------------------- */
 
     /**
@@ -966,10 +1101,15 @@ AccessKit.register({
 });
 
 AccessKit.register({
+    ctor: AK.ComboboxPlugin,
+    match(el) { return el.closest('[role="combobox"]'); }
+});
+
+AccessKit.register({
     ctor: AK.DisclosurePlugin,
     // TODO: (wcag) (mh) This can't be correct.
     // We claim any element that has aria-expanded + aria-controls
-    match(el) { return el.closest('[aria-controls][aria-expanded]'); }
+    match(el) { return el.closest('[aria-controls][aria-expanded]:not([role="combobox"])'); }
 });
 
 AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
