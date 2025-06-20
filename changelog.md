@@ -68,6 +68,7 @@
 - **PageBuilder**
   - Slick slider cuts off the edit toolbar.
   - Some widget zone names appeared twice when editing a story.
+  - Fixed: Product details were not updating when a story with a slick slider was placed in the widget zone `productdetail_offer_after`.
 - The "Latest Orders" dashboard does not display the full name of guests.
 - A bug that caused an old script to be loaded from the browser cache, resulting in an endless minibasket loading process, has been fixed.
 - The handling of multi-store settings for the AI modules and performance settings has been corrected.
