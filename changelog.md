@@ -37,6 +37,7 @@
 		-  ... all dropdown menus rendered by menu TagHelper
 	- DisclosurePlugin handles standalone disclosures & accordions. It is used in ...
 		- CookieManager dialog
+		- Article list dropdowns (.art-drop is the element which contains article actions e.g. add to cart, add to wishlist)
 - A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.
 
