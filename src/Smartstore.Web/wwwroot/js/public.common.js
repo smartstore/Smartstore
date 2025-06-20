@@ -123,6 +123,10 @@
                 const labelPrev = list.data("label-prev") || '';
                 const labelNext = list.data("label-next") || '';
 
+                if (list.hasClass('slick-initialized')) {
+                    list.slick('destroy');
+                }
+
                 list.slick({
                     rtl: $("html").attr("dir") == "rtl",
                     dots: true,
