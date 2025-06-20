@@ -18,6 +18,7 @@ namespace Smartstore
             return (char)((value - 10) + 97);
         }
 
+        // TODO: (mg) Too specific for an int extension method. Move to ConvertUtility.cs with IHtmlContent return type, not string.
         /// <summary>
         /// Converts <paramref name="value"/> to a string representation suitable for HTML display, 
         /// including a minus sign (&minus;) if the value is negative.
