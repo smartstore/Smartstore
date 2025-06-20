@@ -12,75 +12,91 @@
 
 @if (Model.Subscriptions.Count == 0)
 {
-    <div class="alert alert-warning">
+    <div class="alert alert-warning" role="status" aria-live="polite">
         @T("Account.BackInStockSubscriptions.NoSubscriptions")
     </div>
     return;
 }
 
-<div class="alert alert-success mb-0">
+<div class="alert alert-success" role="status" aria-live="polite">
     @T("Account.BackInStockSubscriptions.Description")
 </div>
 
 <form asp-action="StockSubscriptions">
-    <div id="stock-subscription-list" class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 30px">
-                        <input type="checkbox" id="select-all-stock-subscriptions" />
-                    </th>
-                    <th>
-                        @T("Account.BackInStockSubscriptions.ProductColumn")
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Subscriptions)
-                {
+    <fieldset>
+        <legend class="sr-only">@T("Common.DeleteSelected")</legend>
+        <div id="stock-subs-list" class="table-responsive">
+            <table class="table">
+                <caption class="sr-only">@T("Account.BackInStockSubscriptions")</caption>
+                <thead>
                     <tr>
-                        <td style="width: 30px">
-                            <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
+                        @* WCAG: td not th! Otherwise SR reads both labels for checkboxes. *@
+                        <td style="width: 30px" scope="col">
+                            <input id="stock-subs-selectall" type="checkbox" aria-label="@T("Aria.Label.SelectDeselectEntries")" />
+                            <span id="stock-subs-select" class="sr-only">@T("Aria.Label.SelectDeselectEntry")</span>
                         </td>
-                        <td sm-language-attributes-for="item.ProductName">
-                            @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
-                        </td>
+                        <th scope="col">
+                            @T("Account.BackInStockSubscriptions.ProductColumn")
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Subscriptions)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" aria-labelledby="stock-subs-select stock-subs-name@(item.Id)" />
+                            </td>
+                            <td id="stock-subs-name@(item.Id)" sm-language-attributes-for="item.ProductName">
+                                @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-        @if (Model.TotalPages > 1)
-        {
-            <pagination sm-list-items="Model" sm-query-param="page" id="paginator" />
-        }
+            @if (Model.TotalPages > 1)
+            {
+                <pagination sm-list-items="Model" sm-query-param="page" id="paginator" />
+            }
 
-        <div class="buttons">
-            <button id="btn-stock-subscriptions-delete" type="submit" class="btn btn-danger btn-lg disabled" disabled>
-                <span>@T("Account.BackInStockSubscriptions.DeleteSelected")</span>
-            </button>
+            <div class="buttons">
+                <button id="btn-stock-subs-delete" 
+                        type="submit" 
+                        class="btn btn-danger btn-lg disabled" 
+                        aria-disabled="true"
+                        disabled>
+                    <i class="far fa-trash-can" aria-hidden="true"></i>
+                    <span>@T("Common.DeleteSelected")</span>
+                </button>
+            </div>
         </div>
-    </div>
+    </fieldset>
 </form>
 
+@* TODO: (mg) DRY. Consolidate. This script exists many times.*@
 <script sm-target-zone="scripts" sm-minify="true" data-origin="stock-subscriptions">
     $(function () {
-        $('#select-all-stock-subscriptions').on('click', function () {
-            $('#stock-subscription-list .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
+        $('#stock-subs-selectall').on('click', function () {
+            $('#stock-subs-list .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
         });
 
-        $(document).on('change', '#stock-subscription-list .rowcheckbox', function () {
-            var numChkBoxes = $('#stock-subscription-list .rowcheckbox').length;
-            var numChkBoxesChecked = $('#stock-subscription-list .rowcheckbox:checked').length;
-            var buttons = $('#btn-stock-subscriptions-delete');
+        $(document).on('change', '#stock-subs-list .rowcheckbox', function () {
+            var numChkBoxes = $('#stock-subs-list .rowcheckbox').length;
+            var numChkBoxesChecked = $('#stock-subs-list .rowcheckbox:checked').length;
+            var buttons = $('#btn-stock-subs-delete');
 
-            $('#select-all-stock-subscriptions').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+            $('#stock-subs-selectall').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
 
             if (numChkBoxesChecked > 0) {
-                buttons.prop('disabled', false).removeClass('disabled');
+                buttons.prop('disabled', false)
+                    .attr('aria-disabled', 'false')
+                    .removeClass('disabled');
             }
             else {
-                buttons.addClass('disabled').prop('disabled', true);
+                buttons.addClass('disabled')
+                    .attr('aria-disabled', 'true')
+                    .prop('disabled', true);
             }
         });
     });

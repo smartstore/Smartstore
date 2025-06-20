@@ -30,7 +30,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CommentForm", "Comment form", "Kommentarformular");
 
             builder.AddOrUpdate("Aria.Label.SearchFilters", "Search filters", "Suchfilter");
-            builder.AddOrUpdate("Aria.Label.SelectAllListEntries", "Select or deselect all entries in the list", "Alle Einträge der Liste aus- oder abwählen");
+            builder.AddOrUpdate("Aria.Label.SelectDeselectEntries", "Select or deselect all entries in the list", "Alle Einträge der Liste aus- oder abwählen");
+            builder.AddOrUpdate("Aria.Label.SelectDeselectEntry", "Select or deselect entry", "Eintrag aus- oder abwählen");
 
             builder.AddOrUpdate("Aria.Description.SearchBox",
                 "Enter a search term. Press the Enter key to view all the results.",
@@ -55,6 +56,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
             builder.AddOrUpdate("Common.ExpandCollapse", "Expand/collapse", "Auf-/zuklappen");
+            builder.AddOrUpdate("Common.DeleteSelected", "Delete selected", "Ausgewählte löschen");
+
+            builder.Delete(
+                "Account.BackInStockSubscriptions.DeleteSelected",
+                "PrivateMessages.Inbox.DeleteSelected");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.General.Common.Captcha.Hint",
                 "CAPTCHAs are used for security purposes to help distinguish between human and machine users. They are typically used to verify that internet forms are being"
