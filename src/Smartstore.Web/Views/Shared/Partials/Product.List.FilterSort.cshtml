@@ -14,15 +14,19 @@
 
 <div sm-if="Model.AllowSorting" class="artlist-action artlist-action--sort d-none d-lg-flex">
     <div id="artlist-action-sort" class="dropdown">
-        <button class="btn btn-secondary btn-artlist-action dropdown-toggle fwn" data-toggle="dropdown" title="@T("Products.SortByX", Model.CurrentSortOrderName)">
+        <button id="btn-artlist-action-sort" class="btn btn-secondary btn-artlist-action dropdown-toggle fwn" 
+                data-toggle="dropdown" title="@T("Products.SortByX", Model.CurrentSortOrderName)"
+                role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-artlist-action-sort">
             <span>@Html.Raw(T("Products.SortByX", $"<span class='fwm'>{Model.CurrentSortOrderName}</span>"))</span>
         </button>
-        <div class="dropdown-menu">
+        <div id="dropdown-artlist-action-sort" class="dropdown-menu" role="listbox" aria-labelledby="btn-artlist-action-sort">
             @foreach (var sort in Model.AvailableSortOptions)
             {
                 var sortName = (Model is ProductSummaryModel && sort.Key == (int)ProductSortingEnum.Relevance) ? Model.RelevanceSortOrderName : null;
                 var isSelected = sort.Key == Model.CurrentSortOrder;
-                <a href="@Display.ModifyQueryString(null, $"?o={sort.Key}", removeParamName: "i")" class="dropdown-item" attr-class='(isSelected, "fwm")' rel="nofollow">
+                <a href="@Display.ModifyQueryString(null, $"?o={sort.Key}", removeParamName: "i")" rel="nofollow"
+                   class="dropdown-item" attr-class='(isSelected, "fwm")' 
+                   role="option" attr-aria-selected='(isSelected, "true")'>
                     @(sortName ?? sort.Value)
                 </a>
             }

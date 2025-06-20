@@ -67,7 +67,7 @@
             <partial name="Product.List.FilterSort" model="Model" />
         </div>
         <div sm-if="Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--viewmode">
-            <div sm-if="Model.AllowSorting" class="vr mx-2 text-body-tertiary"></div>
+            <div sm-if="Model.AllowSorting" class="vr mx-2 text-body-tertiary" aria-hidden="true"></div>
             @* ViewMode *@
             @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
             {
