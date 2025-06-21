@@ -27,7 +27,7 @@
 }
 
 <div class="block block-catmenu mb-3">
-    <nav class="list-group catmenu">
+    <nav class="list-group catmenu" role="menu" aria-label="@T("Categories")">
         @if (path.Count > 0)
         {
             foreach (var node in path)
@@ -84,13 +84,13 @@
 
         if (isSelected)
         {
-            <div class="@cssClass">
+            <div class="@cssClass" role="menuitem" aria-current="page">
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </div>
         }
         else
         {
-            <a class="@cssClass" href="@node.Value.GenerateUrl(this.Url)">
+            <a class="@cssClass" href="@node.Value.GenerateUrl(this.Url)" role="menuitem">
                 <span class="has-count" attr-data-count="(node.Value.ElementsCount.HasValue, node.Value.ElementsCount.ToString())">@node.Value.Text</span>
             </a>
         }

@@ -58,7 +58,7 @@
   // Hover state
   &:hover,
   &:focus {
-    z-index: 1; // Place hover/focus items above their siblings for proper border styling
+    z-index: 3; // Place hover/focus items above their siblings for proper border styling
     color: var(--#{$prefix}list-group-action-hover-color);
     text-decoration: none;
     background-color: var(--#{$prefix}list-group-action-hover-bg);
