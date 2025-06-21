@@ -13,13 +13,14 @@
 
 <zone name="breadcrumb_before"></zone>
 
-<div class="breadcrumb-container d-none d-md-flex flex-wrap align-items-center mb-4">
-    <ol class="breadcrumb mb-0" itemscope itemtype="http://schema.org/BreadcrumbList">
+<nav class="breadcrumb-container d-none d-md-flex flex-wrap align-items-center mb-4" aria-label="@T("Aria.Label.Breadcrumb")">
+    <ol class="breadcrumb mb-0" role="list" itemscope itemtype="http://schema.org/BreadcrumbList">
         <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
             <a asp-route="Homepage" title="@T("Categories.Breadcrumb.Top")" itemprop="item">
                 <meta itemprop="name" content="@T("HomePage")">
                 <meta itemprop="position" content="1">
-                <i class="fa fa-home"></i>
+                <i class="fa fa-home" aria-hidden="true"></i>
+                <span class="sr-only">@T("Categories.Breadcrumb.Top")</span>
             </a>
         </li>
         @for (int i = 0; i < trail.Count - 1; i++)
@@ -34,10 +35,10 @@
                 }
             </li>
         }
+        <li class="breadcrumb-item active" aria-current="page">
+            <span>@Html.Raw(trail.LastOrDefault().Text)</span>
+        </li>
     </ol>
-    <div class="breadcrumb-item active">
-        <span>@Html.Raw(trail.LastOrDefault().Text)</span>
-    </div>
-</div>
+</nav>
 
 <zone name="breadcrumb_after"></zone>
