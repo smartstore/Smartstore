@@ -21,6 +21,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Rendering;
@@ -866,7 +867,7 @@ namespace Smartstore.Web.Controllers
 
             var model = new CustomerRewardPointsModel
             {
-                RewardPointsBalanceFormatted = T("RewardPoints.CurrentBalance", rewardPointsBalance.ToHtmlDisplayString(), rewardPointsAmount.ToString()),
+                RewardPointsBalanceFormatted = T("RewardPoints.CurrentBalance", ConvertUtility.ToHtmlDisplayString(rewardPointsBalance), rewardPointsAmount.ToString()),
                 RewardPoints = [.. customer.RewardPointsHistory
                     .OrderByDescending(rph => rph.CreatedOnUtc)
                     .ThenByDescending(rph => rph.Id)

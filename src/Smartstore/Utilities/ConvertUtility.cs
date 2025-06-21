@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json.Linq;
 using Smartstore.ComponentModel;
@@ -228,6 +229,31 @@ namespace Smartstore.Utilities
 
                 return value;
             }
+        }
+
+        /// <summary>
+        /// Converts <paramref name="value"/> to a string representation suitable for HTML display, 
+        /// including a minus sign (&minus;) if the value is negative.
+        /// </summary>
+        /// <param name="value">Value to cvonvert.</param>
+        /// <param name="format">A standard or custom numeric format.</param>
+        /// <param name="culture">
+        /// Supplies culture-specific formatting information.
+        /// <see cref="CultureInfo.CurrentCulture"/> if <c>null</c>.
+        /// </param>
+        /// <returns>A string representation of <paramref name="value"/> suitable for HTML display.</returns>
+        public static IHtmlContent ToHtmlDisplayString(int value, string format = "N0", CultureInfo? culture = null)
+        {
+            culture ??= CultureInfo.CurrentCulture;
+
+            var str = Math.Abs(value).ToString(format, culture);
+
+            if (value < 0)
+            {
+                str = (culture.TextInfo.IsRightToLeft ? "&lrm;&minus;" : "&minus;") + str;
+            }
+
+            return new HtmlString(str);
         }
     }
 }

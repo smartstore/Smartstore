@@ -18,32 +18,6 @@ namespace Smartstore
             return (char)((value - 10) + 97);
         }
 
-        // TODO: (mg) Too specific for an int extension method. Move to ConvertUtility.cs with IHtmlContent return type, not string.
-        /// <summary>
-        /// Converts <paramref name="value"/> to a string representation suitable for HTML display, 
-        /// including a minus sign (&minus;) if the value is negative.
-        /// </summary>
-        /// <param name="value">Value to cvonvert.</param>
-        /// <param name="format">A standard or custom numeric format.</param>
-        /// <param name="culture">
-        /// Supplies culture-specific formatting information.
-        /// <see cref="CultureInfo.CurrentCulture"/> if <c>null</c>.
-        /// </param>
-        /// <returns>A string representation of <paramref name="value"/> suitable for HTML display.</returns>
-        public static string ToHtmlDisplayString(this int value, string format = "N0", CultureInfo culture = null)
-        {
-            culture ??= CultureInfo.CurrentCulture;
-
-            var str = Math.Abs(value).ToString(format, culture);
-
-            if (value < 0)
-            {
-                return (culture.TextInfo.IsRightToLeft ? "&lrm;&minus;" : "&minus;") + str;
-            }
-
-            return str;
-        }
-
         public static (int lower, int upper) GetRange(this int id, int size = 500)
         {
             // Max [size] values per cache item

@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Customers
+﻿@using Smartstore.Utilities
+@using Smartstore.Web.Models.Customers
 
 @model CustomerRewardPointsModel
 
@@ -52,10 +53,10 @@
                                     <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
                                 </td>
                                 <td class="text-center">
-                                    @Html.Raw(item.Points.ToHtmlDisplayString())
+                                    @ConvertUtility.ToHtmlDisplayString(item.Points)
                                 </td>
                                 <td class="text-center">
-                                    @Html.Raw(item.PointsBalance.ToHtmlDisplayString())
+                                    @ConvertUtility.ToHtmlDisplayString(item.PointsBalance)
                                 </td>
                                 <td dir="auto">@item.Message</td>
                             </tr>
