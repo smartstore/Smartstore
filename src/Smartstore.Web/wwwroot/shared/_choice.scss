@@ -196,10 +196,23 @@ label.required,
     }
 }
 
-.choice-box-control-native:checked + .choice-box-content {
+.choice-box-control-native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+
+    &:focus-visible + .choice-box-label {
+        .choice-box-element {
+            box-shadow: $focus-ring-box-shadow !important;
+        }
+    }
+}
+
+.choice-box-control-native:checked + .choice-box-label {
     .choice-box-element {
         border-color: $gray-700;
-        box-shadow: inset 0 0 0 2px rgba(#fff, 1);
+        box-shadow: inset 0 0 0 2px rgba($white, 1);
     }
 
     &:after {

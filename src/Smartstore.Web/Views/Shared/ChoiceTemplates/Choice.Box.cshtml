@@ -6,7 +6,7 @@
 }
 
 <div class="choice-boxes" id="choice-boxes-@Model.Id">
-    <ul class="choice-box-group">
+    <ul class="choice-box-group" role="radiogroup" attr-aria-required='(Model.IsRequired, "true")'>
         @foreach (var item in items)
         {
             string css = null;
@@ -60,10 +60,16 @@
             }
 
             <li class="@boxClass">
-                <label class="choice-box-label">
-                    <input id="@(controlId)_@(item.Id)" type="radio" class="choice-box-control-native sr-only" name="@(controlId)" value="@item.Id"
-                           attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
+                <input type="radio"
+                       class="choice-box-control-native"
+                       id="@(controlId)_@(item.Id)"
+                       name="@(controlId)"
+                       value="@item.Id"
+                       aria-label="@label"
+                       attr-checked='(item.IsPreSelected, "checked")'
+                       attr-disabled='(item.IsDisabled, "disabled")' />
 
+                <label for="@(controlId)_@(item.Id)" class="choice-box-label">
                     <span class="choice-box-content tooltip-toggle tooltip-toggle-touch" title="@label">
                         <span class="@elClass" attr-style="(css.HasValue(), css)">
                             <span sm-if="!css.HasValue()" class="choice-box-text">@item.Name</span>
