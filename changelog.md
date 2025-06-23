@@ -88,6 +88,7 @@
 - PayPal: If Google Pay was initially selected on the payment selection page, a script error occurred which prevented all PayPal buttons from loading.
 - AmazonPay: Fixed issue of the private key being unintentionally deleted when saving a multistore configuration.
 - Added missing xml declaration to sitemap index file.
+- Do not create database tables for `NamedEntity` and `VariantValueMetadata`.
 
 
 ## Smartstore 6.1.0
