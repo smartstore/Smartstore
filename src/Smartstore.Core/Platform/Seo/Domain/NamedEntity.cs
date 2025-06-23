@@ -1,6 +1,9 @@
-﻿namespace Smartstore.Core.Seo
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Smartstore.Core.Seo
 {
-    public class NamedEntity : BaseEntity, ISlugSupported
+    [NotMapped]
+    public sealed class NamedEntity : BaseEntity, ISlugSupported
     {
         public string EntityName { get; set; }
         public string DisplayName { get; set; }

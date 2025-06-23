@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
@@ -309,7 +310,10 @@ namespace Smartstore.Data
         {
             var entityTypes = assemblies
                 .SelectMany(x => x.GetExportedTypes())
-                .Where(x => typeof(BaseEntity).IsAssignableFrom(x) && !x.IsAbstract && x.HasDefaultConstructor())
+                .Where(x => typeof(BaseEntity).IsAssignableFrom(x) 
+                    && !x.IsAbstract 
+                    && x.HasDefaultConstructor() 
+                    && !x.GetCustomAttributes<NotMappedAttribute>(true).Any())
                 .ToList();
 
             foreach (var type in entityTypes)
