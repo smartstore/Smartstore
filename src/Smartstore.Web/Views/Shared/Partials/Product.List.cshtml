@@ -94,12 +94,6 @@
     }
 </div>
 
-<div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom d-none">
-    <div class="artlist-action-group artlist-action-group--page">
-        <partial name="Product.List.Pager" model="Model" />
-    </div>
-</div>
-
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-pagination hstack mb-4">
     <partial name="Product.List.Pager" model="Model" />
 </div>
