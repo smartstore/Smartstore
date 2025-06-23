@@ -313,7 +313,7 @@ namespace Smartstore.Data
                 .Where(x => typeof(BaseEntity).IsAssignableFrom(x) 
                     && !x.IsAbstract 
                     && x.HasDefaultConstructor() 
-                    && !x.GetCustomAttributes<NotMappedAttribute>(true).Any())
+                    && !x.HasAttribute<NotMappedAttribute>(true))
                 .ToList();
 
             foreach (var type in entityTypes)
