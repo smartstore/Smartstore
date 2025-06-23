@@ -1,6 +1,11 @@
-﻿@using Smartstore.Web.Models.Customers
+﻿@using Smartstore.Utilities
+@using Smartstore.Web.Models.Customers
 
 @model MyAccountHeaderModel
+
+@{
+    var customerSince = $"<time datetime=\"{Model.CustomerSince.ToIso8601String()}\">{Model.CustomerSince.ToString("MMM yyyy")}</time>";
+}
 
 <div class="myaccount-header row gx-2 gy-1">
     <div class="avatar-container col-auto d-flex align-self-center justify-content-center">
@@ -11,10 +16,12 @@
             @Model.CustomerName
         </div>
         <div class="my-account-info small hstack flex-wrap justify-content-start justify-content-md-center justify-content-xl-start" style="row-gap: 3px; column-gap: 6px">
-            <span class="text-muted">@T("Account.CustomerSince", Model.CustomerSince)</span>
+            <span class="text-muted">
+                @Html.Raw(T("Account.CustomerSince", customerSince))
+            </span>
             <span sm-if="Model.RewardPoints > 0" class="badge badge-pill badge-success pl-1">
-                <i class="far fa-certificate"></i>
-                @T("ShoppingCart.Totals.RewardPoints", Model.RewardPoints)
+                <i class="far fa-certificate" aria-hidden="true"></i>
+                @T("ShoppingCart.Totals.RewardPoints", ConvertUtility.ToHtmlDisplayString(Model.RewardPoints))
             </span>
         </div>
     </div>

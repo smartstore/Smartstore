@@ -3,7 +3,7 @@
     public partial class MyAccountHeaderModel : ModelBase
     {
         public string CustomerName { get; set; }
-        public string CustomerSince { get; set; }
+        public DateTime CustomerSince { get; set; }
         public int RewardPoints { get; set; }
 
         /// <summary>

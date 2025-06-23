@@ -12,7 +12,13 @@
                 </div>
 
                 <div class="card my-account-menu nav-collapsible">
-                    <div class="card-header p-2 nav-toggler collapsed" data-toggle="collapse" data-target="#myaccount-menu" aria-controls="myaccount-menu" aria-expanded="false">
+                    <div role="button"
+                         tabindex="0"
+                         class="card-header p-2 nav-toggler collapsed"
+                         data-toggle="collapse" 
+                         data-target="#myaccount-menu" 
+                         aria-controls="myaccount-menu" 
+                         aria-expanded="false">
                         @await Component.InvokeAsync("MyAccountHeader")
                     </div>
 

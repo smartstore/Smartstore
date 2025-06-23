@@ -15,7 +15,7 @@ namespace Smartstore.Web.Components
                 CustomerEmail = customer.Email,
                 CustomerName = customerName,
                 Avatar = await customer.MapAsync(customerName, true, true),
-                CustomerSince = customer.CreatedOnUtc.ToString("MMM yyyy"),
+                CustomerSince = customer.CreatedOnUtc,
                 RewardPoints = customer.GetRewardPointsBalance()
             };
 

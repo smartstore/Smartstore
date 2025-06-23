@@ -7,12 +7,14 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
-- Laguage and currency selectors have been made accessible to screen readers.
-- The CookieManager dialog has been made accessible to screen readers and traps the focus until it's closed.
-- Catalog and associated products search boxes have been made accessible to screen readers.
-- The upload of an avatar has been enabled for screen readers.
-- All elements in the footer have been made accessible to screen readers.
-- Article list actions have been made accessible to screen readers.
+- The following frontend sections have been made accessible to screen readers:
+  - Laguage and currency selectors
+  - Customer's "My account"
+  - Catalog and associated products search boxes
+  - All elements in the footer
+  - Article list actions
+  - CookieManager dialog. It also traps the focus until it's closed.
+  
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
   - Direct Order
