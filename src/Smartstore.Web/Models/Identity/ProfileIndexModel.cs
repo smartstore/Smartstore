@@ -17,9 +17,9 @@ namespace Smartstore.Web.Models.Identity
         public string Location { get; set; }
 
         public bool JoinDateEnabled { get; set; }
-        public string JoinDate { get; set; }
+        public DateTime JoinDate { get; set; }
 
         public bool DateOfBirthEnabled { get; set; }
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
     }
 }

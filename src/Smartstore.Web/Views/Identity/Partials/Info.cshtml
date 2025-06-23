@@ -3,29 +3,39 @@
 @model ProfileInfoModel
 
 <div class="profile-info-box row">
-    <div class="user-details col-2 pr-0">
+    <div class="user-details col col-sm-auto pb-3">
         <partial name="Customer.Avatar" model="Model.Avatar" />
-        
-        <div sm-if="Model.LocationEnabled" class="profile-stat mt-2">
-            <span class="pr-1">@T("Profile.Country"):</span>
-            <span class="profile-stat-value">@Model.Location</span>
-        </div>
 
         <zone name="profile_page_info_userdetails"></zone>
     </div>
 
-    <div class="user-stats col-10 pl-0">
-        <div class="title h4">
-            @T("Profile.Statistics")
-        </div>
+    <div class="user-stats col col-sm-auto">
+        <div sm-if="Model.LocationEnabled || Model.JoinDateEnabled || Model.DateOfBirthEnabled">
+            <div class="title h4">
+                @T("Profile.Statistics")
+            </div>
 
-        <div sm-if="Model.JoinDateEnabled" class="profile-stat">
-            <span class="pr-1">@T("Profile.JoinDate"):</span>
-            <span class="profile-stat-value">@Model.JoinDate</span>
-        </div>
-        <div sm-if="Model.DateOfBirthEnabled" class="profile-stat">
-            <span class="pr-1">@T("Profile.DateOfBirth"):</span>
-            <span class="profile-stat-value">@Model.DateOfBirth</span>
+            <dl class="row profile-stat">
+                @if (Model.LocationEnabled)
+                {
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.Country")</dt>
+                    <dd class="col-sm-9">@Model.Location</dd>
+                }
+                @if (Model.JoinDateEnabled)
+                {
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.JoinDate")</dt>
+                    <dd class="col-sm-9">
+                        <time datetime="@Model.JoinDate.ToIso8601String()">@Model.JoinDate.ToString("f")</time>
+                    </dd>
+                }
+                @if (Model.DateOfBirthEnabled)
+                {
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.DateOfBirth")</dt>
+                    <dd class="col-sm-9">
+                        <time datetime="@Model.DateOfBirth.ToIso8601String()">@Model.DateOfBirth.ToString("D")</time>
+                    </dd>
+                }
+            </dl>
         </div>
         
         <zone name="profile_page_info_userstats"></zone>

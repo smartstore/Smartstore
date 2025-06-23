@@ -261,6 +261,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             var classList = ul.GetClassList();
             classList.Add("nav");
 
+            ul.Attributes.Add("role", "tablist");
+
             if (Style == TabsStyle.Tabs)
             {
                 classList.Add("nav-tabs");
@@ -385,7 +387,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             paneDiv.GenerateId(tab.Id, "-");
             var paneId = paneDiv.Attributes["id"];
 
-            paneDiv.Attributes.Add("aria-labelledby", $"{paneDiv.Attributes["id"]}-tab");
+            paneDiv.Attributes.Add("aria-labelledby", paneId + "-tab");
             paneDiv.Attributes.Add("data-tab-name", tab.Name);
 
             if (Responsive)
@@ -461,7 +463,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 // Link/Target
                 var itemId = "#" + tab.Id;
+
                 a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
+                a.MergeAttribute("id", tab.Id + "-tab");
+                a.MergeAttribute("role", "tab");
+                a.MergeAttribute("aria-controls", tab.Id);
+                a.MergeAttribute("aria-selected", tab.Selected.ToString().ToLower());
 
                 if (tab.LinkClass.HasValue())
                 {

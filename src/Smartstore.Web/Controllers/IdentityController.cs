@@ -16,7 +16,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Identity;
 using Smartstore.Web.Rendering;
@@ -29,7 +28,6 @@ namespace Smartstore.Web.Controllers
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
         private readonly RoleManager<CustomerRole> _roleManager;
-        private readonly IProviderManager _providerManager;
         private readonly ITaxService _taxService;
         private readonly IAddressService _addressService;
         private readonly IShoppingCartService _shoppingCartService;
@@ -41,7 +39,6 @@ namespace Smartstore.Web.Controllers
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly TaxSettings _taxSettings;
         private readonly LocalizationSettings _localizationSettings;
-        private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
         public IdentityController(
@@ -49,7 +46,6 @@ namespace Smartstore.Web.Controllers
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
             RoleManager<CustomerRole> roleManager,
-            IProviderManager providerManager,
             ITaxService taxService,
             IAddressService addressService,
             IShoppingCartService shoppingCartService,
@@ -61,14 +57,12 @@ namespace Smartstore.Web.Controllers
             DateTimeSettings dateTimeSettings,
             TaxSettings taxSettings,
             LocalizationSettings localizationSettings,
-            ExternalAuthenticationSettings externalAuthenticationSettings,
             RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _providerManager = providerManager;
             _taxService = taxService;
             _addressService = addressService;
             _shoppingCartService = shoppingCartService;
@@ -80,7 +74,6 @@ namespace Smartstore.Web.Controllers
             _dateTimeSettings = dateTimeSettings;
             _taxSettings = taxSettings;
             _localizationSettings = localizationSettings;
-            _externalAuthenticationSettings = externalAuthenticationSettings;
             _rewardPointsSettings = rewardPointsSettings;
         }
 
@@ -443,14 +436,14 @@ namespace Smartstore.Web.Controllers
             if (_customerSettings.ShowCustomersJoinDate)
             {
                 info.JoinDateEnabled = true;
-                info.JoinDate = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc).ToString("f");
+                info.JoinDate = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
             }
 
             // Birth date.
             if (_customerSettings.DateOfBirthEnabled && customer.BirthDate.HasValue)
             {
                 info.DateOfBirthEnabled = true;
-                info.DateOfBirth = customer.BirthDate.Value.ToString("D");
+                info.DateOfBirth = _dateTimeHelper.ConvertToUserTime(customer.BirthDate.Value, DateTimeKind.Utc);
             }
 
             var model = new ProfileIndexModel
