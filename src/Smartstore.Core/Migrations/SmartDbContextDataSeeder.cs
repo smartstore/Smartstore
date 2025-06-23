@@ -28,7 +28,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.ShowPreviousProducts", "Show previous product group", "Vorherige Produktgruppe anzeigen");
             builder.AddOrUpdate("Aria.Label.ShowNextProducts", "Show next product group", "Nächste Produktgruppe anzeigen");
             builder.AddOrUpdate("Aria.Label.CommentForm", "Comment form", "Kommentarformular");
-            builder.AddOrUpdate("Aria.Label.Breadcrumb", "Breadcrumb", "Brotkrümel");
+            builder.AddOrUpdate("Aria.Label.Breadcrumb", "Breadcrumb", "Brotkrumen-Navigation");
 
             builder.AddOrUpdate("Aria.Label.SearchFilters", "Search filters", "Suchfilter");
             builder.AddOrUpdate("Aria.Label.SelectDeselectEntries", "Select or deselect all entries in the list", "Alle Einträge der Liste aus- oder abwählen");
@@ -104,6 +104,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("DownloadableProducts.IAgree", 
                 "I have read and agree to the user agreement.", 
                 "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
+
+            builder.Delete("Categories.Breadcrumb.Top");
         }
     }
 }
