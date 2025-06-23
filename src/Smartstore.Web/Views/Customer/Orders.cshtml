@@ -33,13 +33,13 @@
                         @T("Order.Order#"): @order.OrderNumber
                     </div>
                     <dl class="row mb-0" role="presentation">
-                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderStatus")</dt>
+                        <dt class="col-sm-3 fwn text-muted">@T("Order.OrderStatus")</dt>
                         <dd class="col-sm-9">@order.OrderStatus</dd>
-                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderDate")</dt>
+                        <dt class="col-sm-3 fwn text-muted">@T("Order.OrderDate")</dt>
                         <dd class="col-sm-9">
                             <time datetime="@order.CreatedOn.ToIso8601String()">@order.CreatedOn.ToNativeString()</time>
                         </dd>
-                        <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.OrderTotal")</dt>
+                        <dt class="col-sm-3 fwn text-muted">@T("Order.OrderTotal")</dt>
                         <dd class="col-sm-9 price">
                             <data value="@RoundingHelper.Round(order.OrderTotal).ToStringInvariant()">@order.OrderTotal</data>
                         </dd>

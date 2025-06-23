@@ -21,23 +21,23 @@
                         @T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnRequestStatus)
                     </div>
                     <dl class="row mb-0" role="presentation">
-                        <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Item")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Item")</dt>
                         <dd class="col-sm-8">
                             <a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
                         </dd>
-                        <dt class="col-sm-4 font-weight-400 text-muted">@T("Products.Qty")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("Products.Qty")</dt>
                         <dd class="col-sm-8">@item.Quantity</dd>
-                        <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Reason")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Reason")</dt>
                         <dd class="col-sm-8">@item.ReturnReason</dd>
-                        <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Action")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Action")</dt>
                         <dd class="col-sm-8">@item.ReturnAction</dd>
-                        <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
                         <dd class="col-sm-8">
                             <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
                         </dd>
                         @if (item.Comments.HasValue())
                         {
-                            <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
+                            <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
                             <dd class="col-sm-8" dir="auto">@Html.Raw(HtmlUtility.ConvertPlainTextToHtml(item.Comments))</dd>
                         }
                     </dl>

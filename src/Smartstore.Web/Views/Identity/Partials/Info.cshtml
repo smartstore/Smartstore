@@ -18,19 +18,19 @@
             <dl class="row profile-stat">
                 @if (Model.LocationEnabled)
                 {
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.Country")</dt>
+                    <dt class="col-sm-3 fwn text-muted">@T("Profile.Country")</dt>
                     <dd class="col-sm-9">@Model.Location</dd>
                 }
                 @if (Model.JoinDateEnabled)
                 {
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.JoinDate")</dt>
+                    <dt class="col-sm-3 fwn text-muted">@T("Profile.JoinDate")</dt>
                     <dd class="col-sm-9">
                         <time datetime="@Model.JoinDate.ToIso8601String()">@Model.JoinDate.ToString("f")</time>
                     </dd>
                 }
                 @if (Model.DateOfBirthEnabled)
                 {
-                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Profile.DateOfBirth")</dt>
+                    <dt class="col-sm-3 fwn text-muted">@T("Profile.DateOfBirth")</dt>
                     <dd class="col-sm-9">
                         <time datetime="@Model.DateOfBirth.ToIso8601String()">@Model.DateOfBirth.ToString("D")</time>
                     </dd>
