@@ -12,17 +12,13 @@
                 </div>
 
                 <div class="card my-account-menu nav-collapsible">
-                    <div role="button"
-                         tabindex="0"
-                         class="card-header p-2 nav-toggler collapsed"
-                         data-toggle="collapse" 
-                         data-target="#myaccount-menu" 
-                         aria-controls="myaccount-menu" 
-                         aria-expanded="false">
+                    <div class="card-header p-2 nav-toggler collapsed" 
+                         data-toggle="collapse" data-target="#myaccount-menu" 
+                         aria-controls="myaccount-menu" aria-expanded="false" tabindex="0">
                         @await Component.InvokeAsync("MyAccountHeader")
                     </div>
 
-                    <div id="myaccount-menu" class="collapse nav-collapse">
+                    <div id="myaccount-menu" class="collapse nav-collapse" role="region">
                         <menu name="MyAccount" template="ListGroup" />
                     </div>
                 </div>
@@ -43,3 +39,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(function () {
+        $(".my-account-menu .card-header").on('ak-expand ak-collapse', function (e) {
+            $(this).trigger("click");
+        });
+    });
+</script>

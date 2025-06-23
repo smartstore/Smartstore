@@ -1017,13 +1017,30 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             container.querySelectorAll('[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded])')
                 .forEach(trig => {
                     this.on(trig, 'click', e => {
-                        this.toggleExpanded(e.currentTarget, /*toggle*/ null, { focusTarget: 'trigger' });
+                        this.toggleExpanded(e.currentTarget, null, { focusTarget: 'trigger' });
                     });
                 });
         }
 
         handleKey(e) {
             const trigger = e.target;
+            const panelId = trigger.getAttribute("aria-controls");
+
+            // TODO: (wcag) (mh) trigger.closest('[id]') is really bad > we use it to get the panel when a link within the panel is currently active.
+            // Better look for closest aria-hidden=false
+            const panel = (panelId && document.getElementById(panelId)) || trigger.closest('[id]');
+
+            // ESC within an open panel 
+            if (e.key === AK.KEY.ESC) {
+                if (panel) {
+                    const opener = document.querySelector( `[aria-expanded="true"][aria-controls="${panel.id}"]`);
+                    if (opener) {
+                        this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
+                        return true;                 
+                    }
+                }
+            }
+
             if (!trigger || !trigger.hasAttribute('aria-expanded'))
                 return false;
 
@@ -1055,23 +1072,25 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
                 this.toggleExpanded(trigger, true, { focusTarget: 'first' });
 
+                // TODO: (wcag) (mh) ESC is OBSOLETE > Remove it.
                 // Handle leaving via ESC or TAB to the next element outside the panel.
-                const panelId = trigger.getAttribute("aria-controls");
-                const panel = panelId && document.getElementById(panelId);
+                //const panelId = trigger.getAttribute("aria-controls");
+                //const panel = panelId && document.getElementById(panelId);
                 if (panel) {
                     // Close on ESC from inside the panel
-                    const escHandler = ev => {
-                        if (ev.key === AK.KEY.ESC) {
-                            this.toggleExpanded(trigger, false);
-                            panel.removeEventListener('keydown', escHandler);
-                        }
-                    };
-                    panel.addEventListener('keydown', escHandler);
+                    //const escHandler = e => {
+                    //    if (e.key === AK.KEY.ESC) {
+                    //        this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+                    //        panel.removeEventListener('keydown', escHandler);
+                    //        panel.removeEventListener('focusin', focusHandler, true);
+                    //    }
+                    //};
+                    //panel.addEventListener('keydown', escHandler);
 
                     // Close on TAB to the outside of the panel.
-                    const focusHandler = ev => {
-                        const tgt = ev.target;
-                        if (!panel.contains(tgt) && tgt !== trigger) {
+                    const focusHandler = e => {
+                        const el = e.target;
+                        if (!panel.contains(el) && el !== trigger && trigger.hasAttribute("ak-close-on-leave")) {
                             this.toggleExpanded(trigger, false);
                             document.removeEventListener('focusin', focusHandler, true);
                         }
@@ -1090,6 +1109,14 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             accordion = accordion || trigger.closest('[data-ak-accordion]');
             triggers = triggers || (accordion ? this._getCache(accordion) : [trigger]);
             super._move(trigger, null, triggers);
+        }
+
+        toggleExpanded(trigger, expand = null, opt = {}) {
+            super.toggleExpanded(trigger, expand, opt);
+
+            // TODO: (wcag) (mh) Maybe we need an option to turn this behavior on/off.
+            // Call click immediately for single select lists.
+            //trigger.click();
         }
     };
 

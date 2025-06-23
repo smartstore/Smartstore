@@ -43,8 +43,10 @@
 		- CookieManager dialog
 		- Article list dropdowns (.art-drop is the element which contains article actions e.g. add to cart, add to wishlist)
 		- Product list filter button for mobile devices
+		- Footer (on mobile displays)
+		- My account toggler (on mobile displays)
 	- ComboboxPlugin integrates ListboxPlugin navigation, opens/closes the dropdown, and supports both single- and multi-select via data-ak-multiselect=true. It is used in ...
-		- Article list sorting dropdown.
+		- Article list sorting dropdown
 	
 - A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.

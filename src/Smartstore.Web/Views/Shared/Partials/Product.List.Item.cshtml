@@ -139,7 +139,7 @@
 
     @if (!isLinesMode && showDrop)
     {
-        <button class="sr-toggle" aria-expanded="false" aria-controls="art-drop-@Model.Id">
+        <button class="sr-toggle" aria-expanded="false" aria-controls="art-drop-@Model.Id" ak-close-on-leave>
             <small class="sr-toggle-info">@T("Aria.Label.ExpandItem", Model.Name)</small>
         </button>
 
