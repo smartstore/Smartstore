@@ -9,7 +9,7 @@
 </h3>
 <h3 align="center"><strong>Ready. Sell. Grow.</strong></h3>
 <p align="center">
-    A modular, scalable and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 7.
+    A modular, scalable and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 9.
 </p>
 <p align="center">
 	<a href="#try-it-online">Try Online</a> ∙ 
@@ -22,7 +22,7 @@
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
 
-Smartstore is a cross-platform, modular, scalable and ultra-fast open source all-in-one eCommerce platform based on ASP.NET Core 7, Entity Framework, Vue.js, Sass, Bootstrap and more.
+Smartstore is a cross-platform, modular, scalable and ultra-fast open source all-in-one eCommerce platform based on ASP.NET Core 9, Entity Framework, Vue.js, Sass, Bootstrap and more.
 
 **Smartstore includes all the essential features to create multi-language, multi-store, multi-currency shops** targeting desktop or mobile devices and enables SEO-optimised, rich product catalogs with support for unlimited number of products and categories, variants, bundles, datasheets, ESD, discounts, coupons and much more.
 
@@ -30,7 +30,7 @@ A comprehensive set of tools for CRM & CMS, Sales, Marketing, Payment & Shipping
 
 **Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a high level design approach, including components like `Sass`, `Bootstrap` and others. The included *Flex* theme is modern, clean and fully responsive, giving shoppers the best possible shopping experience on any device.
 
-The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity Framework Core 7` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
+The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity Framework Core 9` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
 
 * :house: **Website:** [http://www.smartstore.com](http://www.smartstore.com)
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
@@ -42,7 +42,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 7`, `Entity
 
 ## Technology & Design
 
-* State-of-the-art architecture with `ASP.NET Core 7`, `Entity Framework Core 7` and domain-driven design
+* State-of-the-art architecture with `ASP.NET Core 9`, `Entity Framework Core 9` and domain-driven design
 * Cross-platform: run it on Windows, Linux, or Mac
 * Supports `Docker` out of the box for easy deployment
 * Composable, extensible and highly flexible due to modular design
