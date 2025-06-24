@@ -89,6 +89,7 @@
 - AmazonPay: Fixed issue of the private key being unintentionally deleted when saving a multistore configuration.
 - Added missing xml declaration to sitemap index file.
 - Do not create database tables for `NamedEntity` and `VariantValueMetadata`.
+- Customer profile did not display the private message button or the forum statistics.
 
 
 ## Smartstore 6.1.0
