@@ -283,7 +283,7 @@
 
                 var collapser = el.find('.btn-text-expander--collapse');
                 if (collapser.length === 0) {
-                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--collapse" aria-expanded="true" aria-controls="${elId}">`
+                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--collapse focus-inset" aria-expanded="true" aria-controls="${elId}">`
                         + `<i class="fa fa fa-angle-double-up pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.Less']}</span></a>`);
                 }
             });

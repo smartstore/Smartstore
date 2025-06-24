@@ -29,16 +29,23 @@
         text-decoration: none !important;
     }
 
-    .btn-text-expander--expand::after {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
+    .btn-text-expander--expand {
+        &:before {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
+            background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
+        }
 
-        background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
+        &:focus-visible {
+            box-shadow: none;
+            outline: $focus-ring-width solid $focus-ring-color;
+            outline-offset: -$focus-ring-width;
+        }
     }
 
     .btn-text-expander--collapse {
