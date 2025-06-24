@@ -49,9 +49,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social Media Kanäle");
             builder.AddOrUpdate("Aria.Label.Rating", "Rating: {0} out of 5 stars ({1})", "Bewertung: {0} von 5 Sternen ({1})");
             builder.AddOrUpdate("Aria.Label.ExpandItem", "Press ENTER for more options to {0}", "Drücken Sie ENTER für mehr Optionen zu {0}");
-            
-
             builder.AddOrUpdate("Aria.Label.ProductOfOrderPlacedOn", "Order {0} from {1}, {2}", "Auftrag {0} vom {1}, {2}");
+            builder.AddOrUpdate("Aria.Label.PaginatorItemsPerPage", "Results per page:", "Ergebnisse pro Seite:");
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");

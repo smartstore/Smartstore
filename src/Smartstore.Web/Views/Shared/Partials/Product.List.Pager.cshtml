@@ -49,21 +49,30 @@
 
 @if (Model.AvailablePageSizes != null && Model.AvailablePageSizes.Count() > 1)
 {
+    var firstOption = Model.AvailablePageSizes.First();
     <div class="artlist-action--pagesize d-none d-sm-block">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle d-inline-block fwn" data-toggle="dropdown">
+            <button type="button" 
+                    class="btn btn-secondary dropdown-toggle d-inline-block fwn" 
+                    data-toggle="dropdown" 
+                    role="combobox" 
+                    aria-haspopup="listbox" 
+                    aria-expanded="false" 
+                    aria-controls="artlist-paginator" 
+                    aria-label="@T("Aria.Label.PaginatorItemsPerPage", firstOption)">
                 @Html.Raw(T("Pager.XPerPage", $"<span class='fwm'>{pageable.PageSize}</span>"))
             </button>
-            <div class="dropdown-menu">
+            <div id="artlist-paginator" class="dropdown-menu" role="listbox"> 
                 @foreach (var size in Model.AvailablePageSizes)
                 {
-                    <a href="@Display.ModifyQueryString(null, $"?s={size}", removeParamName: "i")" class="dropdown-item">@size</a>
+                    var isSelected = size == firstOption;
+                    <a href="@Display.ModifyQueryString(null, $"?s={size}", removeParamName: "i")" class="dropdown-item" role="option" attr-aria-selected='(isSelected, "true")'>@size</a>
                 }
             </div>
         </div>
     </div>
 
-    <div class="vr text-body-tertiary d-none d-sm-block mx-2"></div>
+    <div class="vr text-body-tertiary d-none d-sm-block mx-2" aria-hidden="true" role="presentation"></div>
 }
 
 <pagination

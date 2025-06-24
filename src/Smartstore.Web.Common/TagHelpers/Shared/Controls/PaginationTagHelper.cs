@@ -494,6 +494,15 @@ namespace Smartstore.Web.TagHelpers.Shared
                     innerAOrSpan.Attributes.Add("tabindex", "-1");
                 }
 
+                if (item.Type == PagerItemType.PreviousPage)
+                {
+                    innerAOrSpan.Attributes.Add("rel", "prev");
+                }
+                else if (item.Type == PagerItemType.NextPage)
+                {
+                    innerAOrSpan.Attributes.Add("rel", "next");
+                }
+
                 if (item.IsNavButton)
                 {
                     innerAOrSpan.Attributes.Add("title", item.Text.AttributeEncode());
@@ -516,6 +525,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                     {
                         innerAOrSpan.Attributes.Add("aria-label", T("Pager.PageX", item.Text));
                     }
+                    else if (item.Type == PagerItemType.Gap)
+                    {
+                        innerAOrSpan.Attributes.Add("aria-label", T("Pager.PageX", item.Index.ToString()));
+                    }
                 }
             }
 
@@ -530,6 +543,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected virtual TagBuilder GetItemInnerContent(PagerItem item, TagBuilder innerAOrSpan)
         {
             var iconI = new TagBuilder("i");
+            iconI.Attributes.Add("aria-hidden", "true");
 
             switch (item.Type)
             {
