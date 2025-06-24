@@ -43,6 +43,13 @@ class AccessKit {
 
         // Handle .nav-collapsible aria-expanded attribute on page resize
         this._initCollapsibles();
+
+        // Generic event handler for collapsibles
+        ['expand.ak', 'collapse.ak'].forEach(eventName => {
+            document.addEventListener(eventName, (e) => {
+                e.target.click();
+            });
+        });
     }
 
     _onKey(e) {
@@ -371,16 +378,6 @@ const KEY = AK.KEY;
 
 // Base plugin for accessible expandable elements (tree, menubar, combobox, disclosure, accordion).
 AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends AK.AccessKitPluginBase {
-    init(container) {
-        super.init(container);
-        ['expand.ak', 'collapse.ak'].forEach(eventName => {
-            this.on(document, eventName, (e) => {
-                console.log(e.type, e, e.target);
-                e.target.click();
-            });
-        });
-    }
-
     /**
     * Opens, closes or toggles an expand/collapse trigger.
     * @param {HTMLElement} trigger   Element mit aria-expanded oder open
@@ -459,7 +456,6 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
     // TODO: (wcag) (mh) A special "key handler plugin" belongs to the plugin file if it exists. In this case: smartstore.megamenu.js. But not if it is generic enough to handle more than one widget type.
 
     init(container = document) {
-        super.init(container);
         // TODO: (wcag) (mh) Slow!
         container.querySelectorAll('[role="menubar"]').forEach(menubar => {
             const menuitem = this.applyRoving(menubar, '[role="menuitem"]');   
@@ -670,7 +666,6 @@ AK.TreePlugin = class TreePlugin extends AK.AccessKitExpandablePluginBase {
     }
 
     init(container = document) {
-        supr.init(container);
         container.querySelectorAll('[role="tree"]').forEach(tree => {
             const items = this.applyRoving(tree, '[role="treeitem"]');
             this._setCache(tree, items);
@@ -894,7 +889,6 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 */
 AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBase {
     init(container = document) {
-        super.init(container);
         container.querySelectorAll('[role="combobox"]').forEach(cb => this._initCombobox(cb));
     }
 
@@ -1037,7 +1031,6 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         */
     AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
         init(container = document) {
-            super.init(container);
             /* --- Accordions -------------------------------- */
             container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
                 const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');
@@ -1186,7 +1179,7 @@ AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
 AccessKit.register({ ctor: AK.TablistPlugin, rootSelector: '[role="tablist"]' });
 AccessKit.register({ ctor: AK.ListboxPlugin, rootSelector: '[role="listbox"]' });
 
-/* Boot */
+// Boot
 document.addEventListener('DOMContentLoaded', () => {
     window.AccessKitInstance = new AccessKit(window.AccessKitConfig || {});
 });
