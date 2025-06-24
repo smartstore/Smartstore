@@ -3,13 +3,13 @@
 @model ProfileInfoModel
 
 <div class="profile-info-box row">
-    <div class="user-details col col-sm-auto pb-3">
+    <div class="user-details col col-sm-auto text-center pb-3">
         <partial name="Customer.Avatar" model="Model.Avatar" />
 
         <zone name="profile_page_info_userdetails"></zone>
     </div>
 
-    <div class="user-stats col col-sm-auto">
+    <div class="user-stats col">
         <div sm-if="Model.LocationEnabled || Model.JoinDateEnabled || Model.DateOfBirthEnabled">
             <div class="title h4">
                 @T("Profile.Statistics")
@@ -35,9 +35,8 @@
                         <time datetime="@Model.DateOfBirth.ToIso8601String()">@Model.DateOfBirth.ToString("D")</time>
                     </dd>
                 }
+                <zone name="profile_page_info_userstats"></zone>
             </dl>
         </div>
-        
-        <zone name="profile_page_info_userstats"></zone>
     </div>
 </div>
