@@ -68,8 +68,7 @@
 //
 // Customer avatar
 // -------------------------------------------------
-.customer-avatar,
-.customer-avatar-lg {
+:is(.customer-avatar, .customer-avatar-lg) {
     display: inline-flex;
 
     .avatar-link {
@@ -77,9 +76,8 @@
         color: inherit;
     }
 
-    .avatar-outer, 
-    .avatar-img, 
-    .avatar-letter {
+    :is(.avatar-outer, .avatar-img, .avatar-letter) {
+        display: inline-block;
         border-radius: 50%;
         border: 0;
         width: 100%;
@@ -122,7 +120,7 @@
 // MyAccount
 // -------------------------------------------------
 .recurring-payments-box {
-    td, th[scope=row] {
+    :is(td, th[scope=row]) {
         font-weight: normal;
         vertical-align: middle;
     }

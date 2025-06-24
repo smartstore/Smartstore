@@ -15,7 +15,7 @@
     {
         if (Model.FileId.GetValueOrDefault() != 0)
         {
-            <img class="avatar-img"
+            <img class="avatar-img avatar-ring"
                  src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)"
                  attr-class='(Model.DisplayRing, "avatar-ring")'
                  role="presentation"

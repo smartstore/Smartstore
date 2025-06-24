@@ -21,9 +21,8 @@
 }
 
 <div class="art" data-id="@Model.Id" role="listitem">
-    <div class="art-picture-block">
+    <figure class="art-picture-block">
         @* TODO: (mc) Let user define one free badge per product in backend *@
-        @* TODO: (wcag) (mc) figcaption without figure breaks HTML semantic *@
         <figcaption sm-if="Model.Badges.Count > 0" class="art-badges">
             @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
             {
@@ -41,7 +40,7 @@
                 <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), Model.Name)' />
             </a>
         }
-    </div>
+    </figure>
 
     @if (isLinesMode)
     {
