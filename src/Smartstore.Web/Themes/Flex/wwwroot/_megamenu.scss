@@ -400,6 +400,8 @@ $mixed-megamenu-bg:             $megamenu-bg;
 }
 
 .megamenu-subitem-wrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
