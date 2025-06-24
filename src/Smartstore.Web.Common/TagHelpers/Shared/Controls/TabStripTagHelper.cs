@@ -445,6 +445,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             li.Attributes.TryRemove("id", out _);
             li.Attributes.TryRemove("href", out _);
+            li.Attributes.Add("role", "presentation");
 
             li.AppendCssClass("nav-item");
 
