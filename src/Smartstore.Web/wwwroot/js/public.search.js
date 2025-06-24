@@ -249,7 +249,8 @@
 
             function facetControlClickHandler(e) {
                 // TODO: (wcag) (mh) Remove $(this).closest('[data-href]').data('href')
-                let href = $(this).closest('[data-href]').data('href') || $(this).data('href');
+                // INFO: closest() begins with the current element and traverses up the DOM tree
+                let href = $(this).closest('[data-href]').data('href');
                 if (href) {
                     setLocation(href);
                 }
