@@ -250,12 +250,6 @@ const KEY = AK.KEY;
 
         removeFocus(el) {}
 
-        // Add event listener to element and store the handle for later removal.
-        on(el, evt, fn, opts) {
-            el.addEventListener(evt, fn, opts);
-            this._handles.push(() => el.removeEventListener(evt, fn, opts));
-        }
-
         // Remove all event listeners that were registered by this plugin.
         destroy() { this._handles.forEach(off => off()); }
 
@@ -285,9 +279,15 @@ const KEY = AK.KEY;
             return (cur + delta + len) % len;
         }
 
-        _triggerEvent(name, element, args = {}) {
+        // Add event listener to element and store the handle for later removal.
+        on(el, evt, fn, opts) {
+            el.addEventListener(evt, fn, opts);
+            this._handles.push(() => el.removeEventListener(evt, fn, opts));
+        }
+
+        trigger(name, element, args = {}) {
             // Event publisher that is compatible with both vanilla JS and jQuery event handling mechanism.
-            // TODO: (wcag) (mc) Move _triggerEvent to a common place/script.
+            // TODO: (wcag) (mc) Move trigger method to a common place/script.
 
             if (!name.endsWith(EVENT_NAMESPACE)) {
                 name += EVENT_NAMESPACE;
@@ -401,7 +401,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         const shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
         // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
-        this._triggerEvent(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
+        this.trigger(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
 
         // Set attributes & visibilty
         if (trigger.hasAttribute('aria-expanded')) {
@@ -845,7 +845,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         const multiselect = list.dataset.akMultiselect === 'true';
         if (!multiselect || replace) {
             options.forEach(o => o.setAttribute('aria-selected', o === opt ? 'true' : 'false'));
-            this._triggerEvent('select.listbox', list, { list, opt });
+            this.trigger('select.listbox', list, { list, opt });
 
             // TODO: Maybe we need an option to turn this behavior on/off.
             // Call click immediately for single select lists.
@@ -853,7 +853,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         } else {
             const selected = opt.getAttribute('aria-selected') === 'true';
             opt.setAttribute('aria-selected', selected ? 'false' : 'true');
-            this._triggerEvent(selected ? 'deselect.listbox' : 'select.listbox', list, { list, opt });
+            this.trigger(selected ? 'deselect.listbox' : 'select.listbox', list, { list, opt });
         }
     }
 
@@ -1231,7 +1231,7 @@ AK.RadiogroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
         });
 
         radio.focus();
-        group.dispatchEvent( new CustomEvent('select.radiogroup.ak', { detail: { radio }, bubbles: true }) );
+        this.trigger('select.radiogroup', group, { radio });
     }
 };
 
