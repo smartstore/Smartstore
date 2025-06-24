@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Catalog;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -29,6 +30,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var maxHeight = MaxHeight ?? _catalogSettings.HtmlTextCollapsedHeight;
 
                 var outer = new TagBuilder("div");
+                outer.MergeAttribute("id", "more-less" + CommonHelper.GenerateRandomInteger());
                 outer.Attributes.Add("class", "more-less");
                 outer.Attributes.Add("data-max-height", maxHeight.ToString());
 

@@ -13,16 +13,14 @@
     {
         registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.UrlEncode());
     }
-
-    var currentUser = WorkContext.CurrentCustomer;
 }
 
 @{
     async Task SignInBlock()
     {
-        <h3 class="text-center mb-4">
+        <h2 class="text-center mb-4 h3">
             @T("Account.Login.ReturningCustomer")
-        </h3>
+        </h2>
 
         <div asp-validation-summary="ModelOnly">@T("Account.Login.Unsuccessful")</div>
 
@@ -56,7 +54,7 @@
 
             <div class="form-floating mb-3">
                 <input asp-for="Password" sm-enable-visibility-toggle="false" class="password" autocomplete="current-password" placeholder="@Html.DisplayNameFor(x => x.Password)" />
-                <button type="button" class="btn-toggle-pwd">
+                <button type="button" class="btn-toggle-pwd" aria-hidden="true">
                     <i class="far fa-fw fa-eye-slash"></i>
                 </button>
                 <label asp-for="Password"></label>
@@ -110,7 +108,7 @@
                     <div class="col-12">
                         <a class="btn btn-secondary btn-lg btn-block checkout-as-guest-button" asp-route="Checkout">
                             <span>@T("Account.Login.CheckoutAsGuest")</span>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -130,7 +128,6 @@
 }
 
 <div class="page login-page">
-	
     <div class="row mb-4">
         <div class="col-12 col-md-10 offset-md-1 col-xl-8 offset-xl-2">
             <div class="page-title">

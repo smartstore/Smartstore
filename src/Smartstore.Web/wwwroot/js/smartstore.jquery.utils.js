@@ -253,7 +253,8 @@
                     });
                 }
 
-                var maxHeight = el.data('max-height') || 260;
+                const elId = el.attr('id') || '';
+                const maxHeight = el.data('max-height') || 260;
 
                 if (actualHeight <= maxHeight) {
                     el.css('max-height', 'none');
@@ -266,23 +267,24 @@
 
                 el.on('click', '.btn-text-expander', function (e) {
                     e.preventDefault();
-                    if ($(this).hasClass('btn-text-expander--expand')) {
-                        el.addClass('expanded').removeClass('collapsed');
-                    }
-                    else {
-                        el.addClass('collapsed').removeClass('expanded');
-                    }
+                    const expanding = $(this).hasClass('btn-text-expander--expand');
+
+                    el.toggleClass('expanded', expanding).toggleClass('collapsed', !expanding);
+                    el.find('.btn-text-expander--expand').aria('expanded', expanding);
+                    el.find('.btn-text-expander--collapse').aria('expanded', !expanding);
                     return false;
                 });
 
                 var expander = el.find('.btn-text-expander--expand');
                 if (expander.length === 0) {
-                    el.append('<a href="#" class="btn-text-expander btn-text-expander--expand"><i class="fa fa fa-angle-double-down pr-2"></i><span>' + Res['Products.Longdesc.More'] + '</span></a>');
+                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--expand" aria-expanded="false" aria-controls="${elId}">`
+                        + `<i class="fa fa fa-angle-double-down pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.More']}</span></a>`);
                 }
 
                 var collapser = el.find('.btn-text-expander--collapse');
                 if (collapser.length === 0) {
-                    el.append('<a href="#" class="btn-text-expander btn-text-expander--collapse"><i class="fa fa fa-angle-double-up pr-2"></i><span>' + Res['Products.Longdesc.Less'] + '</span></a>');
+                    el.append(`<a href="#" class="btn-text-expander btn-text-expander--collapse" aria-expanded="true" aria-controls="${elId}">`
+                        + `<i class="fa fa fa-angle-double-up pr-2" aria-hidden="true"></i><span>${Res['Products.Longdesc.Less']}</span></a>`);
                 }
             });
         },
