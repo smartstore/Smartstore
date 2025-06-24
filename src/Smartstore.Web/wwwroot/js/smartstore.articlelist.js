@@ -43,12 +43,10 @@
         }
     });
 
-    $('.artlist-grid').on('ak-expand', '.art', (e) => {
-        $(e.target).trigger("mouseenter");
-    });
-
-    $('.artlist-grid').on('ak-collapse', '.art', (e) => {
-        $(e.target).trigger("mouseleave");
+    $('.artlist-grid').on('expand.ak collapse.ak', '.art', (e) => {
+        e.stopPropagation();
+        const mouseEvent = e.type == 'expand' ? 'mouseenter' : 'mouseleave';
+        $(e.target).trigger(mouseEvent);
     });
 
     // Action panels

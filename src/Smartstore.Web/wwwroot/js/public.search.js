@@ -434,7 +434,10 @@
                 toggleOffCanvas(true);
             });
 
-            btn.on('ak-expand', () => btn.trigger("click") );
+            btn.on('expand.ak', (e) => {
+                e.stopPropagation();
+                btn.trigger("click");
+            });
 
             _.delay(toggleOffCanvas, 10);
         })();

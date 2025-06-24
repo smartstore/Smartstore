@@ -187,6 +187,8 @@ const KEY = AK.KEY;
 // TODO: (wcag) (mh) Create a separate file for every base class and every plugin.
 // TODO: (wcag) (mh) Use this closure for every modular scripts when you place them in separate files.
 (function (AK) {
+    const EVENT_NAMESPACE = '.ak';
+
     AK.AccessKitPluginBase = class AccessKitPluginBase {
         constructor(ak) {
             this.ak = ak;
@@ -276,12 +278,36 @@ const KEY = AK.KEY;
             return (cur + delta + len) % len;
         }
 
-        _dispatchEvent(name, el, detail = {}) {
-            const event = new CustomEvent(name, {
-                bubbles: true,
-                detail: detail
-            });
-            el.dispatchEvent(event);
+        _triggerEvent(name, element, args = {}) {
+            // Event publisher that is compatible with both vanilla JS and jQuery event handling mechanism.
+            // TODO: (wcag) (mc) Move _triggerEvent to a common place/script.
+
+            if (!name.endsWith(EVENT_NAMESPACE)) {
+                name += EVENT_NAMESPACE;
+            }
+
+            const jEvent = $.Event(name, { detail: args });
+            $(element).trigger(jEvent);
+
+            const bubbles = !jEvent.isPropagationStopped();
+            const nativeDispatch = !jEvent.isImmediatePropagationStopped();
+            const defaultPrevented = jEvent.isDefaultPrevented();
+
+            const event = new CustomEvent(name, { bubbles, detail: args, cancelable: true });
+
+            if (defaultPrevented) {
+                event.preventDefault();
+            }
+
+            if (nativeDispatch) {
+                element.dispatchEvent(event);
+            }
+
+            if (event.defaultPrevented) {
+                jEvent.preventDefault();
+            }
+
+            return event;
         }
 
         /*
@@ -345,6 +371,16 @@ const KEY = AK.KEY;
 
 // Base plugin for accessible expandable elements (tree, menubar, combobox, disclosure, accordion).
 AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends AK.AccessKitPluginBase {
+    init(container) {
+        super.init(container);
+        ['expand.ak', 'collapse.ak'].forEach(eventName => {
+            this.on(document, eventName, (e) => {
+                console.log(e.type, e, e.target);
+                e.target.click();
+            });
+        });
+    }
+
     /**
     * Opens, closes or toggles an expand/collapse trigger.
     * @param {HTMLElement} trigger   Element mit aria-expanded oder open
@@ -368,7 +404,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         const shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
         // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
-        this._dispatchEvent(shouldOpen ? 'ak-expand' : 'ak-collapse', trigger, { trigger, target });
+        this._triggerEvent(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
 
         // Set attributes & visibilty
         if (trigger.hasAttribute('aria-expanded')) {
@@ -423,6 +459,7 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
     // TODO: (wcag) (mh) A special "key handler plugin" belongs to the plugin file if it exists. In this case: smartstore.megamenu.js. But not if it is generic enough to handle more than one widget type.
 
     init(container = document) {
+        super.init(container);
         // TODO: (wcag) (mh) Slow!
         container.querySelectorAll('[role="menubar"]').forEach(menubar => {
             const menuitem = this.applyRoving(menubar, '[role="menuitem"]');   
@@ -633,6 +670,7 @@ AK.TreePlugin = class TreePlugin extends AK.AccessKitExpandablePluginBase {
     }
 
     init(container = document) {
+        supr.init(container);
         container.querySelectorAll('[role="tree"]').forEach(tree => {
             const items = this.applyRoving(tree, '[role="treeitem"]');
             this._setCache(tree, items);
@@ -812,7 +850,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         const multiselect = list.dataset.akMultiselect === 'true';
         if (!multiselect || replace) {
             options.forEach(o => o.setAttribute('aria-selected', o === opt ? 'true' : 'false'));
-            this._dispatchEvent('ak-listbox-select', list, { list, opt });
+            this._triggerEvent('select.listbox', list, { list, opt });
 
             // TODO: Maybe we need an option to turn this behavior on/off.
             // Call click immediately for single select lists.
@@ -820,7 +858,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         } else {
             const selected = opt.getAttribute('aria-selected') === 'true';
             opt.setAttribute('aria-selected', selected ? 'false' : 'true');
-            this._dispatchEvent(selected ? 'ak-listbox-deselect' : 'ak-listbox-select', list, { list, opt });
+            this._triggerEvent(selected ? 'deselect.listbox' : 'select.listbox', list, { list, opt });
         }
     }
 
@@ -856,6 +894,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 */
 AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBase {
     init(container = document) {
+        super.init(container);
         container.querySelectorAll('[role="combobox"]').forEach(cb => this._initCombobox(cb));
     }
 
@@ -877,7 +916,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         });
 
         // Listen to self & execute default click behavior.
-        this.on(cb, 'ak-expand', () => {
+        this.on(cb, 'expand.ak', (e) => {
+            e.stopPropagation();
             const open = cb.getAttribute('aria-expanded') === 'true';
             if (!open) cb.click();
         });
@@ -899,8 +939,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         });
 
         /* --- Sync trigger value when ListboxPlugin selects -------------- */
-        this.on(list, 'ak-listbox-select', ev => {
-            const { opt } = ev.detail || {};
+        this.on(list, 'select.listbox.ak', e => {
+            const { opt } = e.detail || {};
             if (opt) this._syncToTrigger(cb, opt);
         });
 
@@ -997,6 +1037,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         */
     AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
         init(container = document) {
+            super.init(container);
             /* --- Accordions -------------------------------- */
             container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
                 const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');

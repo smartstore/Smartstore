@@ -434,9 +434,8 @@
                 // TODO: (mh) (wcag) Bad API design. These callback handlers should call methods that already exist here and not introduce new code and flow.
                 // Accessibility event handling
                 // Main nav elements
-                megamenu.on("ak-expand", '.navbar-nav .nav-item', (e) => {
-                    // TODO: (mh) (wcag) Rename detail --> data or another better name
-                    // RE: detail is part of the CustomEvent API, see https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
+                megamenu.on("expand.ak", '.navbar-nav .nav-item', (e) => {
+                    e.stopPropagation();
                     const el = $(e.detail.trigger);
 
                     if (isSimple) {
@@ -445,18 +444,21 @@
                     tryOpen(el);
                 });
 
-                megamenu.on("ak-collapse", '.navbar-nav .nav-item', (e) => {
+                megamenu.on("collapse.ak", '.navbar-nav .nav-item', (e) => {
+                    e.stopPropagation();
                     closeNow($(e.detail.trigger));
                 });
 
                 // Submenus (only available in simple menu)
                 if (isSimple) {
-                    megamenuDropdownContainer.on("ak-expand", '[role="menuitem"]', (e) => {
+                    megamenuDropdownContainer.on("expand.ak", '[role="menuitem"]', (e) => {
+                        e.stopPropagation();
                         showDrop($(e.detail.trigger).parent());
                         $(e.detail.menu).find('[role="menuitem"]:visible').first().trigger('focus');
                     });
 
-                    megamenuDropdownContainer.on("ak-collapse", '[role="menuitem"]', (e) => {
+                    megamenuDropdownContainer.on("collapse.ak", '[role="menuitem"]', (e) => {
+                        e.stopPropagation();
                         if ($(e.detail.menu).length) {
                             const currentItem = $(e.detail.trigger);
                             closeDrop(currentItem.parent());
