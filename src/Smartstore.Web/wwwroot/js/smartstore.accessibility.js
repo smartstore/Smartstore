@@ -422,13 +422,13 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         }
 
         // Focus
-        if (shouldOpen && target) {
+        //if (shouldOpen && target) {
+        if (target) {
             let focusEl = null;
 
             if (opt.focusTarget === 'first') {
                 // TODO: (wcag) (mh) This smells :-)
-                //focusEl = target.querySelector('[tabindex="0"],[role],button,a,input,select,textarea');
-                focusEl = target.querySelector('[tabindex="0"],button,a,input,select,textarea');
+                focusEl = target.querySelector(':is([tabindex="0"], button, a, input, select, textarea):not([tabindex="-1"])');
             } else if (opt.focusTarget instanceof HTMLElement) {
                 focusEl = opt.focusTarget;
             } else if (opt.focusTarget === 'trigger') {
@@ -1086,14 +1086,17 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
                     this.applyRoving(accordion, '[aria-controls][aria-expanded]'));
 
                 const orientation = accordion.getAttribute('aria-orientation') ?? 'vertical';
+                const collapseSiblings = accordion.getAttribute('data-collapse-siblings') ?? false; 
 
                 return this.handleRovingKeys(e, triggers, {
                     orientation,
                     activateFn: (el) =>
-                        this.toggleExpanded(el, null, { collapseSiblings: true, focusTarget: 'trigger' }),
+                        this.toggleExpanded(el, null, { collapseSiblings: collapseSiblings, focusTarget: 'first' }),
                     extraKeysFn: (ev) => {
                         if (ev.key === AK.KEY.ESC) {
                             // ESC collapses current panel
+
+
                             this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
                             return true;
                         }
@@ -1154,6 +1157,83 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         }
     };
 
+// TODO: (wcag) (mh) Throw this away if it mustn't be used anywhere.
+AK.RadiogroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
+    // helper methods
+    _isNativeRadio(el) {
+        return el.matches('input[type="radio"]');
+    }
+
+    _isChecked(el) {
+        return this._isNativeRadio(el) ? el.checked : el.getAttribute('aria-checked') === 'true';
+    }
+
+    _setChecked(el, state) {
+        if (this._isNativeRadio(el)) {
+            el.checked = state;
+        }
+        el.setAttribute('aria-checked', state);
+    }
+
+    init(container = document) {
+        const groups = [...container.querySelectorAll('[role="radiogroup"]')];
+        groups.forEach(g => this._initGroup(g));
+    }
+
+    _initGroup(group) {
+        const radios = this.applyRoving(group, '[role="radio"],input[type="radio"]');
+        this._setCache(group, radios);
+
+        let active = radios.find(r => this._isChecked(r)) || radios[0];
+        radios.forEach(r => {
+            this._setChecked(r, r === active);
+            r.tabIndex = r === active ? 0 : -1;
+        });
+
+        this.on(group, 'click', e => {
+            const tgt = e.target.closest('[role="radio"],input[type="radio"]');
+            if (tgt && group.contains(tgt)) {
+                this._activate(tgt, group);
+            }
+        });
+    }
+
+    handleKey(e) {
+        const radio = e.target;
+        if (!(radio && (radio.getAttribute('role') === 'radio' || this._isNativeRadio(radio)))) {
+            return false;
+        }
+
+        const group = radio.closest('[role="radiogroup"]');
+        if (!group) return false;
+
+        const radios = this._options(group);
+        if (!radios.length) return false;
+
+        const orientation = group.getAttribute('aria-orientation') ?? 'vertical';
+
+        return this.handleRovingKeys(e, radios, {
+            orientation,
+            activateFn: el => this._activate(el, group)
+        });
+    }
+
+    _options(group) {
+        return this._getCache(group, () => [...group.querySelectorAll('[role="radio"],input[type="radio"]')]);
+    }
+
+    _activate(radio, group) {
+        const radios = this._options(group);
+        radios.forEach(r => {
+            const selected = r === radio;
+            r.tabIndex = selected ? 0 : -1;
+            this._setChecked(r, selected);
+        });
+
+        radio.focus();
+        group.dispatchEvent( new CustomEvent('select.radiogroup.ak', { detail: { radio }, bubbles: true }) );
+    }
+};
 
 AccessKit.register({
     ctor: AK.MenuPlugin,
@@ -1178,6 +1258,7 @@ AccessKit.register({
 AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
 AccessKit.register({ ctor: AK.TablistPlugin, rootSelector: '[role="tablist"]' });
 AccessKit.register({ ctor: AK.ListboxPlugin, rootSelector: '[role="listbox"]' });
+//AccessKit.register({ ctor: AK.RadiogroupPlugin, rootSelector: '[role="radiogroup"]' });
 
 // Boot
 document.addEventListener('DOMContentLoaded', () => {

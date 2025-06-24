@@ -410,27 +410,24 @@ $facet-selection-glyph-color:   darken($success, 10%);
     }
 }
 
-.facet-check .facet-control-native {
-    + .facet-control-ui {
-        border-radius: 2px;
-    }
+// TODO: (wcag) (mh) Remove obsolete selectors
+.facet-check .facet-control-ui,
+.facet-check .facet-control-native + .facet-control-ui {
+    border-radius: 2px;
 }
+.facet-radio .facet-control-ui,
+.facet-radio .facet-control-native + .facet-control-ui { 
+    border-radius: 50%;
 
-.facet-radio .facet-control-native {
-    + .facet-control-ui {
+    &:after {
+        content: "";
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-
-        &:after {
-            content: "";
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: $facet-selection-glyph-color;
-            margin: 3px 0 0 3px;
-        }
-    }
+        background: $facet-selection-glyph-color;
+        margin: 3px 0 0 3px;
+    }   
 }
-
 
 //
 // Facet Label

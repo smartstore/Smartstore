@@ -7,42 +7,64 @@
 }
 
 <div class="facet-body-inner">
+    <div role="listbox" aria-multiselectable="false" aria-labelledby="facet-group-header-@Model.Key">
+        @foreach (var facet in Model.Facets)
+        {
+            if (facet.Key != "custom" && facet.Published)
+            {
+                <div class="facet-item facet-radio">
+                    <label for="optradio-@(facet.Value.Key)">
+                        <span class="facet-control-ui reset" 
+                              tabindex="0"
+                              role="option" 
+                              aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
+                              aria-label="@(facet.Value.Label ?? facet.Value.ToString())"></span>
+                        <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
+                            @(facet.Value.Label ?? facet.Value.ToString())
+                        </span>
+                    </label>
+                </div>
+            }
+        }
+    </div>
+    
     @foreach (var facet in Model.Facets)
     {
         if (facet.Key != "custom" && facet.Published)
         {
-            <div class="facet-item facet-radio" data-href="@Url.FacetToggle(facet)">
-                <label>
-                    <input class="facet-control-native" type="radio" name="optradio-@(Model.Key)" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' tabindex="-1" />
-                    <span class="facet-control-ui reset" tabindex="0"></span>
-                    <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
-                        @(facet.Value.Label ?? facet.Value.ToString())
-                    </span>
-                </label>
-            </div>
+            <input class="facet-control-native sr-only" 
+                   type="radio" 
+                   id="optradio-@(facet.Value.Key)" 
+                   name="optradio-@(Model.Key)" 
+                   value="@facet.Value.ToString()"
+                   attr-checked='(facet.Value.IsSelected, "checked")'
+                   data-href="@Url.FacetToggle(facet)" />
         }
     }
-
+    
     @if (customRangeFacet != null)
     {
         string value = customRangeFacet.Value.Value != null ? customRangeFacet.Value.Value.ToString() : string.Empty;
         string upperValue = customRangeFacet.Value.UpperValue != null ? customRangeFacet.Value.UpperValue.ToString() : string.Empty;
 
-        <div class="facet-range-container d-flex align-items-center mt-2">
+        <fieldset class="facet-range-container d-flex align-items-center mt-2">
+            <legend class="sr-only">@T("Aria.Label.PriceRange")</legend>
             <div class="flex-grow-1 pr-2">
+                <label for="price-range-from" class="sr-only">@T("Search.PriceRange.From")</label>
                 <input type="number" maxlength="7" id="price-range-from" class="facet-range-from form-control form-control-sm" value="@value" placeholder="@T("Search.PriceRange.From")" />
             </div>
             <div class="flex-grow-0 font-weight-700">
                 <span>-</span>
             </div>
             <div class="flex-grow-1 pl-2">
+                <label for="price-range-to" class="sr-only">@T("Search.PriceRange.To")</label>
                 <input type="number" maxlength="7" id="price-range-to" class="facet-range-to form-control form-control-sm" value="@upperValue" placeholder="@T("Search.PriceRange.To")" />
             </div>
             <div class="flex-grow-0 pl-2">
-                <button type="button" class="btn-custom-range btn btn-primary btn-sm btn-icon" id="btn-custom-price-range" data-qname="p">
-                    <i class="fa fa-angle-right fs-h5"></i>
+                <button type="button" class="btn-custom-range btn btn-primary btn-sm btn-icon" id="btn-custom-price-range" data-qname="p" aria-label="@T("Aria.Label.ApplyPriceRange")">
+                    <i class="fa fa-angle-right fs-h5" aria-hidden="true"></i>
                 </button>
             </div>
-        </div>
+        </fieldset>
     }
 </div>

@@ -21,7 +21,7 @@
 <zone name="search_filters_before" />
 
 <div class="faceted-search-container">
-    <div class="faceted-search" id="faceted-search">
+    <div class="faceted-search" id="faceted-search" data-ak-accordion>
 
         @* Sorting *@
         <div sm-if="Model.AllowSorting" class="facet-group d-lg-none" data-key="orderby">
@@ -68,6 +68,7 @@
             <fieldset class="facet-group" data-key="@key">
                 <legend id="facet-group-legend-@key" class="sr-only">@srLabel</legend>
                 <a class="facet-group-header facet-toggle@(!expanded ? " collapsed" : "")@(selectedCount > 0 ? " has-selection" : "")"
+                   id="facet-group-header-@key"
                    data-toggle="collapse"
                    role="button"
                    href="#facet-body-@(key)"
@@ -78,7 +79,7 @@
                     @label
                     <span sm-if="selectedCount > 0" class="badge badge-info badge-subtle badge-ring badge-counter facet-selection" aria-hidden="true">@selectedCount</span>
                 </a>
-                <div id="facet-body-@(key)" class="facet-body collapse" attr-class='(expanded, "show")' aria-expanded="@expanded.ToString().ToLower()">
+                <div id="facet-body-@(key)" class="facet-body collapse" attr-class='(expanded, "show")'>
                     @if (widget != null)
                     {
                         @await widget.InvokeAsync(ViewContext)

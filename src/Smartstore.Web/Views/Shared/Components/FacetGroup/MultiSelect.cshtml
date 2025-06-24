@@ -9,17 +9,20 @@
 <div sm-if="facets.Count() > 7" class="facet-local-search has-icon has-icon-right input-group-sm mb-3">
     <input type="text" class="form-control facet-local-search-input" placeholder="@T("Search.Facet.FindPlaceholder", Model.Label)" />
     <span class="input-group-icon">
-        <i class="fa fa-search text-muted"></i>
+        <i class="fa fa-search text-muted" aria-hidden="true"></i>
     </span>
 </div>
 
-<div class="facet-body-inner@(Model.IsScrollable ? " scrollable custom-scrollbar" : "")">
+<div class="facet-body-inner" attr-class='(Model.IsScrollable, "scrollable custom-scrollbar")' role="listbox" aria-labelledby="facet-group-header-@Model.Key">
     @foreach (var facet in facets)
     {
-        <div class="facet-item facet-check" data-href="@Url.FacetToggle(facet)">
-            <label>
-                <input class="facet-control-native" type="checkbox" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' tabindex="-1" />
-                <span class="facet-control-ui reset" tabindex="0"></span>
+        <div class="facet-item facet-check">
+            <label for="optcheck-@(facet.Value.Key)">
+                <span class="facet-control-ui reset" 
+                      role="option" 
+                      tabindex="0"
+                      aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
+                      aria-label="@(facet.Value.Label ?? facet.Value.ToString())"></span>
                 <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                     @(facet.Value.Label ?? facet.Value.ToString())
                 </span>
@@ -27,6 +30,16 @@
         </div>
     }
 </div>
+
+@foreach (var facet in facets)
+{
+    <input class="facet-control-native sr-only" 
+           type="checkbox" 
+           id="optcheck-@(facet.Value.Key)" 
+           value="@facet.Value.ToString()" 
+           attr-checked='(facet.Value.IsSelected, "checked")' 
+           data-href="@Url.FacetToggle(facet)" />
+}
 
 @functions
 {

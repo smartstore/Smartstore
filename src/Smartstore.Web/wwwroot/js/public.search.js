@@ -248,7 +248,8 @@
             widget.on('click', ':input[type=radio].facet-control-native', facetControlClickHandler);
 
             function facetControlClickHandler(e) {
-                let href = $(this).closest('[data-href]').data('href');
+                // TODO: (wcag) (mh) Remove $(this).closest('[data-href]').data('href')
+                let href = $(this).closest('[data-href]').data('href') || $(this).data('href');
                 if (href) {
                     setLocation(href);
                 }

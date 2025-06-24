@@ -51,7 +51,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.ExpandItem", "Press ENTER for more options to {0}", "Drücken Sie ENTER für mehr Optionen zu {0}");
             builder.AddOrUpdate("Aria.Label.ProductOfOrderPlacedOn", "Order {0} from {1}, {2}", "Auftrag {0} vom {1}, {2}");
             builder.AddOrUpdate("Aria.Label.PaginatorItemsPerPage", "Results per page:", "Ergebnisse pro Seite:");
-
+            builder.AddOrUpdate("Aria.Label.ApplyPriceRange", "Apply price range", "Preisbereich anwenden");
+            builder.AddOrUpdate("Aria.Label.PriceRange", "Price range", "Preisspanne");
+            
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
             builder.AddOrUpdate("Common.SelectAction", "Select action", "Aktion wählen");
