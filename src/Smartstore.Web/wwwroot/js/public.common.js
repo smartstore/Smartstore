@@ -38,8 +38,8 @@
                 : '[data-toggle=tooltip], .tooltip-toggle';
             ctx.tooltip({
                 selector: selector,
-                animation: false,
-                trigger: 'hover'
+                animation: true,
+                trigger: 'hover focus'
             });
         },
         // Popovers
