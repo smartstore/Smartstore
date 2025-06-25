@@ -262,9 +262,9 @@
             if (curIdx === idx)
                 return;
 
-            curItem.removeClass('gal-current').aria('current', false);
+            curItem.removeClass('gal-current').aria('selected', false);
             curItem = self.nav.find('[data-gal-index=' + idx + ']');
-            curItem.addClass('gal-current').aria('current', true);
+            curItem.addClass('gal-current').aria('selected', true);
 
             let page = Math.floor(idx / self.options.thumbsToShow);
             self._slideToNavPage(page);
@@ -398,7 +398,7 @@
             if (this.nav) {
                 this.nav.off('.gal');
                 this.nav.data('current-page', null);
-                this.nav.find('.gal-item').removeClass('gal-current').removeAttr('data-gal-index').removeAttr('aria-current');
+                this.nav.find('.gal-item').removeClass('gal-current').removeAttr('data-gal-index').removeAttr('aria-selected');
             }
 
             if (this.pswp) this.pswp.off('.gal');
