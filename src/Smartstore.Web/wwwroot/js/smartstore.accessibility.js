@@ -1015,225 +1015,146 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
     _lastOption(list) { const opts = list.querySelectorAll('[role="option"]'); return opts[opts.length - 1] || null; }
 };
 
-// TODO: (wcag) (mh) Test with real accordion.
 /* --------------------------------------------------
-    *  DisclosurePlugin – Handles standalone disclosures & accordions
-    * -------------------------------------------------- */
+*  DisclosurePlugin – Handles standalone disclosures & accordions
+* -------------------------------------------------- */
 
-    /**
-        * Disclosure/Accordion keyboard handler
-        *
-        * ▸ Stand‑alone pattern:
-        *    <button aria-expanded="false" aria-controls="panel">…</button>
-        *    <div id="panel" hidden>…</div>
-        *
-        * TODO: Doc for data-collapse-siblings
-        * ▸ Accordion pattern (container gets data-ak-accordion):
-        *    <div data-ak-accordion>
-        *       <button aria-expanded="false" aria-controls="p1">…</button>
-        *       <div id="p1" hidden>…</div>
-        *       … (n×) …
-        *    </div>
-        *
-        * Keyboard‑Support
-        *   ↑ / ↓ / ← / →    Roving focus within accordion (orientation aware)
-        *   HOME / END       Jump first / last header in accordion
-        *   ENTER / SPACE    Toggle current disclosure / accordion item
-        *   ESC              Collapse current item (accordion only)
-        */
-    AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
-        init(container = document) {
-            /* --- Accordions -------------------------------- */
-            container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
-                const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');
-                this._setCache(acc, triggers);
+/**
+    * Disclosure/Accordion keyboard handler
+    *
+    * ▸ Stand‑alone pattern:
+    *    <button aria-expanded="false" aria-controls="panel">…</button>
+    *    <div id="panel" hidden>…</div>
+    *
+    * TODO: Doc for data-collapse-siblings
+    * ▸ Accordion pattern (container gets data-ak-accordion):
+    *    <div data-ak-accordion>
+    *       <button aria-expanded="false" aria-controls="p1">…</button>
+    *       <div id="p1" hidden>…</div>
+    *       … (n×) …
+    *    </div>
+    *
+    * Keyboard‑Support
+    *   ↑ / ↓ / ← / →    Roving focus within accordion (orientation aware)
+    *   HOME / END       Jump first / last header in accordion
+    *   ENTER / SPACE    Toggle current disclosure / accordion item
+    *   ESC              Collapse current item (accordion only)
+    */
+AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
+    init(container = document) {
+        /* --- Accordions -------------------------------- */
+        container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
+            const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');
+            this._setCache(acc, triggers);
 
-                triggers.forEach(trig => {
-                    // Pointer interaction mirrors keyboard behaviour
-                    this.on(trig, 'click', e => {
-                        this.toggleExpanded(e.currentTarget, null, {
-                            collapseSiblings: acc.getAttribute('data-collapse-siblings') ?? false,
-                            focusTarget: 'trigger'
-                        });
+            triggers.forEach(trig => {
+                // Pointer interaction mirrors keyboard behaviour
+                this.on(trig, 'click', e => {
+                    this.toggleExpanded(e.currentTarget, null, {
+                        collapseSiblings: acc.getAttribute('data-collapse-siblings') ?? false,
+                        focusTarget: 'trigger'
                     });
                 });
             });
-
-            /* --- Stand‑alone disclosures ------------------ */
-            container.querySelectorAll('[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded])')
-                .forEach(trig => {
-                    this.on(trig, 'click', e => {
-                        this.toggleExpanded(e.currentTarget, null, { focusTarget: 'trigger' });
-                    });
-                });
-        }
-
-        handleKey(e) {
-            const trigger = e.target;
-            const panelId = trigger.getAttribute("aria-controls");
-
-            // TODO: (wcag) (mh) trigger.closest('[id]') is really bad > we use it to get the panel when a link within the panel is currently active.
-            // Better look for closest aria-hidden=false
-            const panel = (panelId && document.getElementById(panelId)) || trigger.closest('[id]');
-
-            // ESC within an open panel 
-            if (e.key === AK.KEY.ESC) {
-                if (panel) {
-                    const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
-                    if (opener) {
-                        this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
-                        return true;                 
-                    }
-                }
-            }
-
-            if (!trigger || !trigger.hasAttribute('aria-expanded'))
-                return false;
-
-            const accordion = trigger.closest('[data-ak-accordion]');
-
-            // If we are in accordion mode apply roving tab index.
-            if (accordion) {
-                const triggers = this._getCache(accordion, () =>
-                    this.applyRoving(accordion, '[aria-controls][aria-expanded]'));
-
-                const orientation = accordion.getAttribute('aria-orientation') ?? 'vertical';
-                const collapseSiblings = accordion.getAttribute('data-collapse-siblings') ?? false; 
-
-                return this.handleRovingKeys(e, triggers, {
-                    orientation,
-                    activateFn: (el) =>
-                        this.toggleExpanded(el, true, { collapseSiblings: collapseSiblings, focusTarget: 'first' }),
-                    extraKeysFn: (ev) => {
-                        if (ev.key === AK.KEY.ESC) {
-                            // ESC collapses current panel
-                            this.toggleExpanded(trigger, false, { collapseSiblings: collapseSiblings, focusTarget: 'trigger' });
-                            return true;
-                        }
-                        return false;
-                    },
-                });
-            }
-
-            // Stand‑alone disclosure (no accordion)
-            if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
-                this.toggleExpanded(trigger, true, { focusTarget: 'first' });
-
-                // TODO: (wcag) (mh) ESC is OBSOLETE > Remove it.
-                // Handle leaving via ESC or TAB to the next element outside the panel.
-                //const panelId = trigger.getAttribute("aria-controls");
-                //const panel = panelId && document.getElementById(panelId);
-                if (panel) {
-                    // Close on ESC from inside the panel
-                    //const escHandler = e => {
-                    //    if (e.key === AK.KEY.ESC) {
-                    //        this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
-                    //        panel.removeEventListener('keydown', escHandler);
-                    //        panel.removeEventListener('focusin', focusHandler, true);
-                    //    }
-                    //};
-                    //panel.addEventListener('keydown', escHandler);
-
-                    // Close on TAB to the outside of the panel.
-                    const focusHandler = e => {
-                        const el = e.target;
-                        if (!panel.contains(el) && el !== trigger && trigger.hasAttribute("ak-close-on-leave")) {
-                            this.toggleExpanded(trigger, false);
-                            document.removeEventListener('focusin', focusHandler, true);
-                        }
-                    };
-                    document.addEventListener('focusin', focusHandler, true);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        _move(trigger, accordion = null, triggers = null) {
-            if (!trigger) return;
-            accordion = accordion || trigger.closest('[data-ak-accordion]');
-            triggers = triggers || (accordion ? this._getCache(accordion) : [trigger]);
-            super._move(trigger, null, triggers);
-        }
-    };
-
-// TODO: (wcag) (mh) Throw this away if it mustn't be used anywhere.
-AK.RadiogroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
-    // helper methods
-    _isNativeRadio(el) {
-        return el.matches('input[type="radio"]');
-    }
-
-    _isChecked(el) {
-        return this._isNativeRadio(el) ? el.checked : el.getAttribute('aria-checked') === 'true';
-    }
-
-    _setChecked(el, state) {
-        if (this._isNativeRadio(el)) {
-            el.checked = state;
-        }
-        el.setAttribute('aria-checked', state);
-    }
-
-    init(container = document) {
-        const groups = [...container.querySelectorAll('[role="radiogroup"]')];
-        groups.forEach(g => this._initGroup(g));
-    }
-
-    _initGroup(group) {
-        const radios = this.applyRoving(group, '[role="radio"],input[type="radio"]');
-        this._setCache(group, radios);
-
-        let active = radios.find(r => this._isChecked(r)) || radios[0];
-        radios.forEach(r => {
-            this._setChecked(r, r === active);
-            r.tabIndex = r === active ? 0 : -1;
         });
 
-        this.on(group, 'click', e => {
-            const tgt = e.target.closest('[role="radio"],input[type="radio"]');
-            if (tgt && group.contains(tgt)) {
-                this._activate(tgt, group);
-            }
-        });
+        /* --- Stand‑alone disclosures ------------------ */
+        container.querySelectorAll('[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded])')
+            .forEach(trig => {
+                this.on(trig, 'click', e => {
+                    this.toggleExpanded(e.currentTarget, null, { focusTarget: 'trigger' });
+                });
+            });
     }
 
     handleKey(e) {
-        const radio = e.target;
-        if (!(radio && (radio.getAttribute('role') === 'radio' || this._isNativeRadio(radio)))) {
-            return false;
+        const trigger = e.target;
+        const panelId = trigger.getAttribute("aria-controls");
+
+        // TODO: (wcag) (mh) trigger.closest('[id]') is really bad > we use it to get the panel when a link within the panel is currently active.
+        // Better look for closest aria-hidden=false
+        const panel = (panelId && document.getElementById(panelId)) || trigger.closest('[id]');
+
+        // ESC within an open panel 
+        if (e.key === AK.KEY.ESC) {
+            if (panel) {
+                const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
+                if (opener) {
+                    this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
+                    return true;                 
+                }
+            }
         }
 
-        const group = radio.closest('[role="radiogroup"]');
-        if (!group) return false;
+        if (!trigger || !trigger.hasAttribute('aria-expanded'))
+            return false;
 
-        const radios = this._options(group);
-        if (!radios.length) return false;
+        const accordion = trigger.closest('[data-ak-accordion]');
 
-        const orientation = group.getAttribute('aria-orientation') ?? 'vertical';
+        // If we are in accordion mode apply roving tab index.
+        if (accordion) {
+            const triggers = this._getCache(accordion, () =>
+                this.applyRoving(accordion, '[aria-controls][aria-expanded]'));
 
-        return this.handleRovingKeys(e, radios, {
-            orientation,
-            activateFn: el => this._activate(el, group)
-        });
+            const orientation = accordion.getAttribute('aria-orientation') ?? 'vertical';
+            const collapseSiblings = accordion.getAttribute('data-collapse-siblings') ?? false; 
+
+            return this.handleRovingKeys(e, triggers, {
+                orientation,
+                activateFn: (el) =>
+                    this.toggleExpanded(el, true, { collapseSiblings: collapseSiblings, focusTarget: 'first' }),
+                extraKeysFn: (ev) => {
+                    if (ev.key === AK.KEY.ESC) {
+                        // ESC collapses current panel
+                        this.toggleExpanded(trigger, false, { collapseSiblings: collapseSiblings, focusTarget: 'trigger' });
+                        return true;
+                    }
+                    return false;
+                },
+            });
+        }
+
+        // Stand‑alone disclosure (no accordion)
+        if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
+            this.toggleExpanded(trigger, true, { focusTarget: 'first' });
+
+            // TODO: (wcag) (mh) ESC is OBSOLETE > Remove it.
+            // Handle leaving via ESC or TAB to the next element outside the panel.
+            //const panelId = trigger.getAttribute("aria-controls");
+            //const panel = panelId && document.getElementById(panelId);
+            if (panel) {
+                // Close on ESC from inside the panel
+                //const escHandler = e => {
+                //    if (e.key === AK.KEY.ESC) {
+                //        this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+                //        panel.removeEventListener('keydown', escHandler);
+                //        panel.removeEventListener('focusin', focusHandler, true);
+                //    }
+                //};
+                //panel.addEventListener('keydown', escHandler);
+
+                // Close on TAB to the outside of the panel.
+                const focusHandler = e => {
+                    const el = e.target;
+                    if (!panel.contains(el) && el !== trigger && trigger.hasAttribute("ak-close-on-leave")) {
+                        this.toggleExpanded(trigger, false);
+                        document.removeEventListener('focusin', focusHandler, true);
+                    }
+                };
+                document.addEventListener('focusin', focusHandler, true);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
-    _options(group) {
-        return this._getCache(group, () => [...group.querySelectorAll('[role="radio"],input[type="radio"]')]);
-    }
-
-    _activate(radio, group) {
-        const radios = this._options(group);
-        radios.forEach(r => {
-            const selected = r === radio;
-            r.tabIndex = selected ? 0 : -1;
-            this._setChecked(r, selected);
-        });
-
-        radio.focus();
-        this.trigger('select.radiogroup', group, { radio });
+    _move(trigger, accordion = null, triggers = null) {
+        if (!trigger) return;
+        accordion = accordion || trigger.closest('[data-ak-accordion]');
+        triggers = triggers || (accordion ? this._getCache(accordion) : [trigger]);
+        super._move(trigger, null, triggers);
     }
 };
 
@@ -1260,7 +1181,6 @@ AccessKit.register({
 AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
 AccessKit.register({ ctor: AK.TablistPlugin, rootSelector: '[role="tablist"]' });
 AccessKit.register({ ctor: AK.ListboxPlugin, rootSelector: '[role="listbox"]' });
-//AccessKit.register({ ctor: AK.RadiogroupPlugin, rootSelector: '[role="radiogroup"]' });
 
 // Boot
 document.addEventListener('DOMContentLoaded', () => {

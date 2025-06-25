@@ -410,13 +410,10 @@ $facet-selection-glyph-color:   darken($success, 10%);
     }
 }
 
-// TODO: (wcag) (mh) Remove obsolete selectors
-.facet-check .facet-control-ui,
-.facet-check .facet-control-native + .facet-control-ui {
+.facet-check .facet-control-ui {
     border-radius: 2px;
 }
-.facet-radio .facet-control-ui,
-.facet-radio .facet-control-native + .facet-control-ui { 
+.facet-radio .facet-control-ui { 
     border-radius: 50%;
 
     &:after {
