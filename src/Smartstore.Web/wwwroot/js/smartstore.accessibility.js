@@ -119,8 +119,18 @@ class AccessKit {
             const toggles = document.querySelectorAll('.nav-collapsible > [data-toggle="collapse"]');
             const isLargeScreen = viewport.is('>=md');
             toggles.forEach(el => {
-                el.setAttribute('aria-expanded', isLargeScreen ? 'true' : !el.matches('.collapsed'));
-                el.setAttribute('role', isLargeScreen ? 'none' : 'button')
+                if (isLargeScreen) {
+                    el.removeAttribute('role');
+                    el.removeAttribute('aria-expanded');
+                    el.setAttribute('data-aria-controls', el.getAttribute('aria-controls'));
+                    el.removeAttribute('aria-controls');
+                }
+                else {
+                    el.setAttribute('role', 'button');
+                    el.setAttribute('aria-expanded', !el.matches('.collapsed'));
+                    el.setAttribute('aria-controls', el.getAttribute('data-aria-controls'));
+                    el.removeAttribute('data-aria-controls');
+                }
             });
         };
 
