@@ -22,8 +22,8 @@
 
                     <honeypot sm-enabled="true" />
 
-                    <div sm-if="Model.GenderEnabled" class="form-group row">
-                        <label class="col-md-3 col-form-label">@T("Account.Fields.Gender")</label>
+                    <fieldset sm-if="Model.GenderEnabled" class="form-group row">
+                        <legend class="col-md-3 col-form-label fwm pt-0">@T("Account.Fields.Gender")</legend>
                         <div class="col-md-9">
                             <div class="form-check form-check-inline">
                                 <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input remember" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
@@ -34,7 +34,7 @@
                                 <label class="form-check-label" for="gender-female">@T("Account.Fields.Gender.Female")</label>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
                     <div class="form-group row">
                         <label asp-for="FirstName" class="col-md-3 col-form-label" attr-class='(Model.FirstNameRequired, "required")'></label>
@@ -130,14 +130,18 @@
                     </div>
 
                     <div sm-if="Model.DisplayVatNumber" class="form-group row">
-                        <label asp-for="VatNumber" class="col-md-3 col-form-label" attr-class='(Model.VatRequired, "required")'></label>
+                        <label id="vat-number-label" asp-for="VatNumber" class="col-md-3 col-form-label" attr-class='(Model.VatRequired, "required")'></label>
                         <div class="col-md-9">
                             <div class="input-group">
-                                <input asp-for="VatNumber" sm-required="Model.VatRequired" class="remember" />
+                                <input asp-for="VatNumber" 
+                                       sm-required="Model.VatRequired" 
+                                       class="remember" 
+                                       aria-labelledby="vat-number-label vat-number-status" 
+                                       aria-describedby="vat-number-note" />
                                 <div sm-if="Model.VatNumberStatusNote.HasValue()" class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>
                             </div>
                             <span asp-validation-for="VatNumber"></span>
-                            <div class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
+                            <div id="vat-number-note" class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
                         </div>
                     </div>
 
@@ -176,7 +180,7 @@
                     </div>
 
                     <div sm-if="Model.CountryEnabled" class="form-group row">
-                        <label asp-for="CountryId" class="col-md-3 col-form-label"></label>
+                        <label id="customer-country-label" asp-for="CountryId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
                             @{
                                 var countrySelectorViewData = new
@@ -192,14 +196,20 @@
                                     asp-additional-viewdata='countrySelectorViewData'
                                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                                     data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
-                                    data-addEmptyStateIfRequired="true" />
+                                    data-addEmptyStateIfRequired="true"
+                                    aria-labelledby="customer-country-label" />
                         </div>
                     </div>
 
                     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row" attr-class='(Model.StateProvinceRequired, "required")'>
-                        <label asp-for="StateProvinceId" class="col-md-3 col-form-label"></label>
+                        <label id="customer-state-province-label" asp-for="StateProvinceId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
-                            <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" sm-required="@Model.StateProvinceRequired" placeholder="@T("Common.PleaseSelect")" class="remember"></select>
+                            <select asp-for="StateProvinceId" 
+                                    asp-items="ViewBag.AvailableStates" 
+                                    sm-required="@Model.StateProvinceRequired" 
+                                    placeholder="@T("Common.PleaseSelect")" 
+                                    class="remember"
+                                    aria-labelledby="customer-state-province-label"></select>
                             <span asp-validation-for="StateProvinceId"></span>
                         </div>
                     </div>
