@@ -151,12 +151,6 @@ class AccessKit {
             $(`[aria-controls="${offcanvas.attr('id')}"]`).attr("aria-expanded", true);
 
             AccessKitFocusTrap.activate(offcanvas[0]);
-
-            // Handle ESC
-            $(document).on('keydown.offcanvasEsc', (e) => {
-                if (e.key === 'Escape')
-                    offcanvas.offcanvas('hide');
-            });
         });
 
         $(document).on('hidden.sm.offcanvas', (e) => {
