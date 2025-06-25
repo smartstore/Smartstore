@@ -114,12 +114,13 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             // Step down
+            var stepperTemplate = "<a href='javascript:;' class='numberinput-stepper numberinput-{0}' tabindex='-1' aria-label='{1}'><i class='{2}'></i></a>";
             var stepDownIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "minus" : "chevron-down");
-            output.PostElement.AppendHtml($"<a href='javascript:;' class='numberinput-stepper numberinput-down' tabindex='-1'><i class='{stepDownIcon}'></i></a>");
+            output.PostElement.AppendHtml(stepperTemplate.FormatInvariant("down", _localizationService.GetResource("Common.IncreaseValue"), stepDownIcon));
 
             // Step up
             var stepUpIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "plus" : "chevron-up");
-            output.PostElement.AppendHtml($"<a href='javascript:;' class='numberinput-stepper numberinput-up' tabindex='-1'><i class='{stepUpIcon}'></i></a>");
+            output.PostElement.AppendHtml(stepperTemplate.FormatInvariant("up", _localizationService.GetResource("Common.DecreaseValue"), stepUpIcon));
 
             // Parent wrapper tag
             var group = new TagBuilder("div");
