@@ -425,7 +425,6 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         //if (shouldOpen && target) {
         if (target) {
             let focusEl = null;
-
             if (opt.focusTarget === 'first') {
                 // TODO: (wcag) (mh) This smells :-)
                 focusEl = target.querySelector(':is([tabindex="0"], button, a, input, select, textarea):not([tabindex="-1"])');
@@ -898,7 +897,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         if (!list || list.getAttribute('role') !== 'listbox') return;
 
         /* --- Pointer interactions --------------------------------------- */
-        this.on(cb, 'click', () => {
+        this.on(cb, 'click', e => {
             const open = cb.getAttribute('aria-expanded') === 'true';
             this.toggleExpanded(cb, !open, { focusTarget: open ? 'trigger' : this._firstOption(list) });
         });
@@ -939,8 +938,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         });
 
         /* --- Close when clicking outside -------------------------------- */
-        this.on(document, 'mousedown', ev => {
-            if (!cb.contains(ev.target) && !list.contains(ev.target)) {
+        this.on(document, 'mousedown', e => {
+            if (!cb.contains(e.target) && !list.contains(e.target)) {
                 this.toggleExpanded(cb, false);
             }
         });
@@ -1016,6 +1015,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         *    <button aria-expanded="false" aria-controls="panel">…</button>
         *    <div id="panel" hidden>…</div>
         *
+        * TODO: Doc for data-collapse-siblings
         * ▸ Accordion pattern (container gets data-ak-accordion):
         *    <div data-ak-accordion>
         *       <button aria-expanded="false" aria-controls="p1">…</button>
@@ -1039,8 +1039,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
                 triggers.forEach(trig => {
                     // Pointer interaction mirrors keyboard behaviour
                     this.on(trig, 'click', e => {
-                        this.toggleExpanded(e.currentTarget, /*expand*/ null, {
-                            collapseSiblings: true,
+                        this.toggleExpanded(e.currentTarget, null, {
+                            collapseSiblings: acc.getAttribute('data-collapse-siblings') ?? false,
                             focusTarget: 'trigger'
                         });
                     });
@@ -1067,7 +1067,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             // ESC within an open panel 
             if (e.key === AK.KEY.ESC) {
                 if (panel) {
-                    const opener = document.querySelector( `[aria-expanded="true"][aria-controls="${panel.id}"]`);
+                    const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
                     if (opener) {
                         this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
                         return true;                 
@@ -1091,13 +1091,11 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
                 return this.handleRovingKeys(e, triggers, {
                     orientation,
                     activateFn: (el) =>
-                        this.toggleExpanded(el, null, { collapseSiblings: collapseSiblings, focusTarget: 'first' }),
+                        this.toggleExpanded(el, true, { collapseSiblings: collapseSiblings, focusTarget: 'first' }),
                     extraKeysFn: (ev) => {
                         if (ev.key === AK.KEY.ESC) {
                             // ESC collapses current panel
-
-
-                            this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+                            this.toggleExpanded(trigger, false, { collapseSiblings: collapseSiblings, focusTarget: 'trigger' });
                             return true;
                         }
                         return false;
@@ -1146,14 +1144,6 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             accordion = accordion || trigger.closest('[data-ak-accordion]');
             triggers = triggers || (accordion ? this._getCache(accordion) : [trigger]);
             super._move(trigger, null, triggers);
-        }
-
-        toggleExpanded(trigger, expand = null, opt = {}) {
-            super.toggleExpanded(trigger, expand, opt);
-
-            // TODO: (wcag) (mh) Maybe we need an option to turn this behavior on/off.
-            // Call click immediately for single select lists.
-            //trigger.click();
         }
     };
 

@@ -35,6 +35,7 @@
 {
     <input class="facet-control-native sr-only" 
            type="checkbox" 
+           tabindex="-1"
            id="optcheck-@(facet.Value.Key)" 
            value="@facet.Value.ToString()" 
            attr-checked='(facet.Value.IsSelected, "checked")' 

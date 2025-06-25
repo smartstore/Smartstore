@@ -97,3 +97,20 @@
 </div>
 
 <zone name="search_filters_after" />
+
+<script>
+    $(function () {
+        // TODO: (wcag) (mh) Low prio: Maybe TAB from inside a panel should go to the next collabsable
+        $(".facet-group-header").on('expand.ak collapse.ak', function (e) {
+            e.stopPropagation();
+            var el = e.delegateTarget;
+
+            if (el.getAttribute("aria-expanded") === 'true' && e.type == "collapse") {
+                $(this).trigger("click");
+            }
+            else if (el.getAttribute("aria-expanded") === 'false' && e.type == "expand") {
+                $(this).trigger("click");
+            }
+        });
+    });
+</script>
