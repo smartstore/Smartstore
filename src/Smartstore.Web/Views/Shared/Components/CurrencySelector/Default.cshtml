@@ -10,7 +10,14 @@
 }
 
 <div class="dropdown">
-    <button id="currency-selector" class="menubar-link reset" data-toggle="dropdown" aria-haspopup="listbox" aria-expanded="false">
+    <button id="currency-selector" 
+            type="button" 
+            class="menubar-link reset" 
+            data-toggle="dropdown" 
+            role="combobox" 
+            aria-haspopup="listbox" 
+            aria-expanded="false"
+            aria-controls="currency-options">
         <span aria-hidden="true">@activeCurr.ISOCode</span>
         <span aria-hidden="true" class="lrm">(@activeCurr.Symbol)</span>
         <span class="sr-only">
@@ -18,8 +25,7 @@
         </span>
         <i class="fa fa-angle-down"></i>
     </button>
-    @*TODO: (wcag) (mh) Don't forget to set aria-hidden to false, when the "combobox" opens (role=combobox must be set on the opening button) *@
-    <div id="currency-options" class="dropdown-menu" aria-labelledby="currency-selector" role="listbox" aria-hidden="true">
+    <div id="currency-options" class="dropdown-menu" aria-labelledby="currency-selector" role="listbox">
         @foreach (var curr in currencies)
         {
             var changeCurrencyUrl = Url.RouteUrl("ChangeCurrency", new { customerCurrency = curr.Id });

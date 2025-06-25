@@ -12,15 +12,21 @@
 }
 
 <div class="dropdown">
-    <button id="language-selector" type="button" class="menubar-link reset" data-toggle="dropdown" aria-haspopup="listbox" aria-expanded="false">
+    <button id="language-selector" 
+            type="button" 
+            class="menubar-link reset" 
+            data-toggle="dropdown" 
+            role="combobox"
+            aria-haspopup="listbox" 
+            aria-expanded="false"
+            aria-controls="language-options">
         <span aria-hidden="true">@activeLang.UniqueSeoCode.ToUpper()</span>
         <span class="sr-only">
             @T("Aria.Label.LanguageSelector", activeLang.LocalizedShortName)
         </span>
         <i class="fa fa-angle-down"></i>
     </button>
-    @*TODO: (wcag) (mh) Don't forget to set aria-hidden to false, when the "combobox" opens (role=combobox must be set on the opening button) *@
-    <div id="language-options" class="dropdown-menu" aria-labelledby="language-selector" role="listbox" aria-hidden="true">
+    <div id="language-options" class="dropdown-menu" aria-labelledby="language-selector" role="listbox">
         @foreach (var localizedUrl in localizedUrls)
         {
             var lang = localizedUrl.Language;

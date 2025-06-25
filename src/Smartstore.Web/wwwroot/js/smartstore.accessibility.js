@@ -174,6 +174,9 @@ class AccessKit {
             AccessKitFocusTrap.deactivate();
         });
     }
+
+    // TODO: (wcag) (mh) Apply this to listbox also. Disabled options never can be selected and thus not obtain focus!
+    static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
 }
 
 // Global namespace
@@ -1011,8 +1014,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         cb.setAttribute('aria-activedescendant', opt.id || (opt.id = `ak-opt-${crypto.randomUUID()}`));
     }
 
-    _firstOption(list) { return list.querySelector('[role="option"]'); }
-    _lastOption(list) { const opts = list.querySelectorAll('[role="option"]'); return opts[opts.length - 1] || null; }
+    _firstOption(list) { return list.querySelector(AK.ACTIVE_OPTION_SELECTOR); }
+    _lastOption(list) { const opts = list.querySelectorAll(AK.ACTIVE_OPTION_SELECTOR); return opts[opts.length - 1] || null; }
 };
 
 /* --------------------------------------------------

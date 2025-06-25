@@ -38,7 +38,7 @@
 	- TreePlugin handles all items of role="tree" based on subitems of role="treeitem". It is used in ...
 		- the catalog navigation in the Offcanvas Menu
 	- ListboxPlugin handles widgets using role="listbox" based on subitems of role="option". It is used in ...
-		- language and currency selector
+		- language and currency select lists
 		- all dropdown menus rendered by menu TagHelper
 		- Variant color squares in art list 
 	- DisclosurePlugin handles standalone disclosures & accordions. It is used in ...
@@ -49,6 +49,7 @@
 		- My account toggler (on mobile displays)
 	- ComboboxPlugin integrates ListboxPlugin navigation, opens/closes the dropdown, and supports both single- and multi-select via data-ak-multiselect=true. It is used in ...
 		- Article list sorting dropdown
+		- language and currency selector
 	
 - A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.
