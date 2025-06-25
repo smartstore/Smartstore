@@ -7,9 +7,11 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
 
+    var avatarStr = T("Account.Avatar");
+
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "avatar";
-    ViewBag.PageTitle = T("Account.Avatar").Value;
+    ViewBag.PageTitle = avatarStr.Value;
 
     var fileId = Model?.Avatar?.FileId ?? 0;
     var currentFile = await MediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
@@ -44,7 +46,12 @@
 
         <div class="fu-progress">
             <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" 
+                     role="progressbar" 
+                     style="width: 0%" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100" 
+                     aria-label="@(currentFile?.Name.NullEmpty() ?? T("Aria.Label.ProgressBar", avatarStr))"></div>
             </div>
         </div>
     </div>
