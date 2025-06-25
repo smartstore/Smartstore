@@ -475,10 +475,20 @@
             const labelledBy = sel.aria("labelledby");
             if (!_.isEmpty(labelledBy)) {
                 const $sel = sel.data("select2").$container.find('.select2-selection');
-                if ($sel.length) {
-                    const existingLabelledBy = $sel.aria('labelledby');
-                    $sel.aria('labelledby', _.isEmpty(existingLabelledBy) ? labelledBy : `${labelledBy} ${existingLabelledBy}`);
+
+                if (applyLabelledBy($sel, labelledBy)) {
+                    const $textbox = $sel.find('[role=textbox]')
+                    applyLabelledBy($textbox, labelledBy);
                 }
+            }
+
+            function applyLabelledBy($el, idToApply) {
+                if ($el.length) {
+                    const existingId = $el.aria('labelledby');
+                    $el.aria('labelledby', _.isEmpty(existingId) ? idToApply : `${idToApply} ${existingId}`);
+                    return true;
+                }
+                return false;
             }
 
             function getPlaceholder() {
