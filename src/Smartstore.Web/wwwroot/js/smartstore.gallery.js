@@ -200,8 +200,9 @@
 
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {
-                    self.navPrevArrow = $('<button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-prev gal-disabled"><i class="fa fa-chevron-up" style="vertical-align: top"></i></button>').prependTo(nav);
-                    self.navNextArrow = $('<button type="button" class="btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-next gal-disabled"><i class="fa fa-chevron-down"></i></button>').appendTo(nav);
+                    const cssClass = 'btn btn-secondary btn-no-border btn-icon rounded-circle btn-sm gal-arrow gal-disabled';
+                    self.navPrevArrow = $(`<button type="button" class="${cssClass} gal-prev" aria-label="${Res['Common.MoveUp']}" aria-disabled="true"><i class="fa fa-chevron-up" style="vertical-align: top" aria-hidden="true"></i></button>`).prependTo(nav);
+                    self.navNextArrow = $(`<button type="button" class="${cssClass} gal-next" aria-label="${Res['Common.MoveDown']}" aria-disabled="true"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>`).appendTo(nav);
                 }
 
                 list.height(itemHeight * self.options.thumbsToShow);
@@ -261,9 +262,9 @@
             if (curIdx === idx)
                 return;
 
-            curItem.removeClass('gal-current');
+            curItem.removeClass('gal-current').aria('current', false);
             curItem = self.nav.find('[data-gal-index=' + idx + ']');
-            curItem.addClass('gal-current');
+            curItem.addClass('gal-current').aria('current', true);
 
             let page = Math.floor(idx / self.options.thumbsToShow);
             self._slideToNavPage(page);
@@ -289,22 +290,22 @@
 
                 const hasArrows = !!(this.navPrevArrow) && !!(this.navNextArrow);
                 if (page === 0 && hasArrows) {
-                    this.navPrevArrow.addClass('gal-disabled');
-                    this.navNextArrow.removeClass('gal-disabled');
+                    this.navPrevArrow.addClass('gal-disabled').aria('disabled', true);
+                    this.navNextArrow.removeClass('gal-disabled').aria('disabled', false);
                 }
                 else if (page > 0 && hasArrows) {
-                    this.navPrevArrow.removeClass('gal-disabled');
+                    this.navPrevArrow.removeClass('gal-disabled').aria('disabled', false);
                     var totalPages = Math.ceil(this.navItemsCount / this.options.thumbsToShow);
                     var isLastPage = page >= totalPages - 1;
-                    this.navNextArrow.toggleClass('gal-disabled', isLastPage);
+                    this.navNextArrow.toggleClass('gal-disabled', isLastPage).aria('disabled', isLastPage);
                 }
 
                 const navListHeight = this.navList.height();
                 const maxOffsetY = (this.navTrack.height() - navListHeight);
                 const offsetY = navListHeight * page;
-                const translateY = Math.min(offsetY, maxOffsetY) * -1;
+                const translateY = (Math.min(offsetY, maxOffsetY) * -1) + 'px';
 
-                this.navTrack.css('transform', 'translate3d(0, ' + translateY + 'px, 0)');
+                this.navTrack.css('transform', `translate3d(0, ${translateY}, 0)`);
             }
         },
 
@@ -397,7 +398,7 @@
             if (this.nav) {
                 this.nav.off('.gal');
                 this.nav.data('current-page', null);
-                this.nav.find('.gal-item').removeClass('gal-current').removeAttr('data-gal-index');
+                this.nav.find('.gal-item').removeClass('gal-current').removeAttr('data-gal-index').removeAttr('aria-current');
             }
 
             if (this.pswp) this.pswp.off('.gal');

@@ -15,9 +15,9 @@
 <div class="gal-box">
     <!-- Thumbnail navigation -->
     <div class="gal-nav-cell@(Model.Files.Count <= 1 ? " gal-nav-hidden" : "")">
-        <div class="gal-nav">
+        <div class="gal-nav" role="region" aria-label="@T("Aria.Label.MediaGallery")">
             <div class="gal-list">
-                <div class="gal-track" itemscope itemtype="http://schema.org/ImageGallery">
+                <div class="gal-track" role="list" aria-orientation="vertical" itemscope itemtype="http://schema.org/ImageGallery">
                     @for (int i = 0; i < Model.Files.Count; i++)
                     {
                         var file = Model.Files[i];
@@ -36,7 +36,7 @@
                             picTitle = file.TitleAttribute;
                         }
 
-                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
+                        <div class="gal-item" role="listitem" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
                             <a class="gal-item-viewport"
                                itemprop="contentUrl"
                                href="@file.GetUrl()"
