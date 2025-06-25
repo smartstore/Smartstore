@@ -14,6 +14,7 @@
   - All elements in the footer
   - Article list actions
   - CookieManager dialog. It also traps the focus until it's closed.
+  - Catalog facets
   
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
@@ -27,6 +28,7 @@
   - Offline Payment
   - Polls
   - Wallet
+
 - A script to handle key navigation has been implemented. It identifies the role of several components and determines their navigateable child elements.
 	- MenuPlugin handles all items of role="menubar" based on subitems of role="menu" & role="menuitem". It is used in ...
 		- the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
