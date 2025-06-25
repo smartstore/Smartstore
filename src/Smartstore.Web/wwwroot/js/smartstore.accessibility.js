@@ -906,18 +906,18 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         if (!list || list.getAttribute('role') !== 'listbox') return;
 
         /* --- Pointer interactions --------------------------------------- */
-        this.on(cb, 'click', e => {
+        this.on(cb, 'click', () => {
             const open = cb.getAttribute('aria-expanded') === 'true';
             this.toggleExpanded(cb, !open, { focusTarget: open ? 'trigger' : this._firstOption(list) });
         });
 
-        this.on(list, 'click', e => {
+        this.on(list, 'click', (e) => {
             const opt = e.target.closest('[role="option"]');
             if (!opt || !list.contains(opt)) return;
             this._commitSelection(opt, cb);
         });
 
-        const outsideClick = e => {
+        const outsideClick = (e) => {
             if (!cb.contains(e.target) && !list.contains(e.target)) {
                 this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
             }
@@ -938,7 +938,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         });
 
         /* --- Keydown inside listbox (only CLOSE / COMMIT keys) ---------- */
-        this.on(list, 'keydown', e => {
+        this.on(list, 'keydown', (e) => {
             switch (e.key) {
                 case AK.KEY.ESC:
                 case AK.KEY.TAB:

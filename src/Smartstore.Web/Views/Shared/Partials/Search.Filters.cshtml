@@ -98,18 +98,20 @@
 
 <zone name="search_filters_after" />
 
-<script>
+<script sm-target-zone="scripts" data-origin="Search.Filters">
     $(function () {
-        // TODO: (wcag) (mh) Low prio: Maybe TAB from inside a panel should go to the next collabsable
-        $(".facet-group-header").on('expand.ak collapse.ak', function (e) {
+        // TODO: (wcag) (mh) TAB from inside a panel should go to the next collabsible
+        $(".facet-group-header").on('expand.ak collapse.ak', (e) => {
             e.stopPropagation();
-            var el = e.delegateTarget;
 
-            if (el.getAttribute("aria-expanded") === 'true' && e.type == "collapse") {
-                $(this).trigger("click");
+            const el = $(e.currentTarget);
+            const isExpanded = el.aria("expanded");
+
+            if (e.type == "collapse" && isExpanded) {
+                el.trigger("click");
             }
-            else if (el.getAttribute("aria-expanded") === 'false' && e.type == "expand") {
-                $(this).trigger("click");
+            else if (e.type == "expand" && !isExpanded) {
+                el.trigger("click");
             }
         });
     });
