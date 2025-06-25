@@ -54,8 +54,8 @@
 
             <div class="form-floating mb-3">
                 <input asp-for="Password" sm-enable-visibility-toggle="false" class="password" autocomplete="current-password" placeholder="@Html.DisplayNameFor(x => x.Password)" />
-                <button type="button" class="btn-toggle-pwd" aria-hidden="true">
-                    <i class="far fa-fw fa-eye-slash"></i>
+                <button type="button" class="btn-toggle-pwd" aria-pressed="false" aria-controls="Password" aria-label="@T("Aria.Label.ShowPassword")">
+                    <i class="far fa-fw fa-eye-slash" aria-hidden="true"></i>
                 </button>
                 <label asp-for="Password"></label>
                 <span asp-validation-for="Password"></span>

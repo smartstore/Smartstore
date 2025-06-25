@@ -460,12 +460,15 @@ jQuery(function () {
 
     // Toggle password visibility
     $(document).on('click', '.btn-toggle-pwd', function () {
-        const input = $(this).prev('.form-control')[0];
+        const $btn = $(this);
+        const input = $btn.prev('.form-control')[0];
         if (input?.type == 'text') {
             input.type = 'password';
+            $btn.aria('pressed', 'false').aria('label', window.Res["Aria.Label.ShowPassword"]);
         }
         else if (input?.type == 'password') {
             input.type = 'text';
+            $btn.aria('pressed', 'true').aria('label', window.Res["Aria.Label.HidePassword"]);
         }
     });
 
