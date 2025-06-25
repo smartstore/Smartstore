@@ -7,12 +7,16 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string NameAttributeName = "name";
         const string TemplateAttributeName = "template";
+        const string PublicNameAttributeName = "public-name";
 
         [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
 
         [HtmlAttributeName(TemplateAttributeName)]
         public string Template { get; set; }
+        
+        [HtmlAttributeName(PublicNameAttributeName)]
+        public string PublicName { get; set; }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -23,7 +27,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var widget = new ComponentWidget("Menu", new { name = Name, template = Template });
+            var widget = new ComponentWidget("Menu", new { name = Name, template = Template, publicName = PublicName });
 
             output.TagMode = TagMode.StartTagAndEndTag;
             //var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);

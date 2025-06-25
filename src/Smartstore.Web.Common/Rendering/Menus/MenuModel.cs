@@ -8,8 +8,20 @@ namespace Smartstore.Web.Rendering.Menus
         private TreeNode<MenuItem> _selectedNode;
         private bool _seekedSelectedNode;
 
+        /// <summary>
+        /// System name used to get the <see cref="IMenu"/>.
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Template view name.
+        /// </summary>
         public string Template { get; set; }
+
+        /// <summary>
+        /// Used to be displayed in frontend if needed.
+        /// </summary>
+        public string PublicName { get; set; }
 
         public TreeNode<MenuItem> Root { get; set; }
         public IList<TreeNode<MenuItem>> Path { get; set; }

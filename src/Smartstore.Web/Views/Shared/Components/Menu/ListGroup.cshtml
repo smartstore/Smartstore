@@ -14,7 +14,7 @@
     var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
 }
         
-<nav class="list-group list-group-flush has-icons cms-menu cms-menu-listgroup" role="menu" aria-orientation="vertical" data-menu-name="@(Model.Name?.ToLower())">
+<nav class="list-group list-group-flush has-icons cms-menu cms-menu-listgroup" role="menu" aria-orientation="vertical" data-menu-name="@(Model.Name?.ToLower())" aria-label="@Model.PublicName">
     @foreach (var node in Model.Root.Children.Where(x => x.Value.Visible))
     {
         var item = node.Value;

@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Content.Menus;
-using Smartstore.Core.OutputCache;
 using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.Components
@@ -13,7 +12,7 @@ namespace Smartstore.Web.Components
             _menuService = menuService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string name, string template = null)
+        public async Task<IViewComponentResult> InvokeAsync(string name, string template = null, string publicName = "")
         {
             Guard.NotEmpty(name);
 
@@ -25,7 +24,8 @@ namespace Smartstore.Web.Components
             }
 
             var model = await menu.CreateModelAsync(template, ViewContext);
-            
+            model.PublicName = publicName;
+
             var viewName = model.Template ?? model.Name;
             if (viewName[0] != '~' && !viewName.StartsWith("Menus/", StringComparison.OrdinalIgnoreCase))
             {
