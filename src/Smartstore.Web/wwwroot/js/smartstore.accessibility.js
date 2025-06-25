@@ -908,11 +908,24 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             this._commitSelection(opt, cb);
         });
 
+        const outsideClick = e => {
+            if (!cb.contains(e.target) && !list.contains(e.target)) {
+                this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+            }
+        };
+
         // Listen to self & execute default click behavior.
         this.on(cb, 'expand.ak', (e) => {
             e.stopPropagation();
             const open = cb.getAttribute('aria-expanded') === 'true';
-            if (!open) cb.click();
+            if (!open) {
+                cb.click();
+                document.addEventListener('mousedown', outsideClick, true);
+            }
+        });
+
+        this.on(cb, 'collapse.ak', () => {
+            document.removeEventListener('mousedown', outsideClick, true);
         });
 
         /* --- Keydown inside listbox (only CLOSE / COMMIT keys) ---------- */
@@ -935,13 +948,6 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         this.on(list, 'select.listbox.ak', e => {
             const { opt } = e.detail || {};
             if (opt) this._syncToTrigger(cb, opt);
-        });
-
-        /* --- Close when clicking outside -------------------------------- */
-        this.on(document, 'mousedown', e => {
-            if (!cb.contains(e.target) && !list.contains(e.target)) {
-                this.toggleExpanded(cb, false);
-            }
         });
     }
 
