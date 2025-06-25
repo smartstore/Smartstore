@@ -93,16 +93,22 @@
 		font-size: 2rem;
 	}
 }
+
 .gal-nav .gal-item-viewport {
 	border: 1px solid rgba($black, 0.12);
     border-radius: var(--border-radius-md);
 }
+
 .gal-nav .gal-item-viewport:hover {
-	border-color: rgba(#000, 0.35);
+	border-color: rgba($black, 0.35);
 }
+
 .gal-nav .gal-current .gal-item-viewport {
-	border-color: rgba(#000, 0.4);
-	box-shadow: 0 0 0 1px rgba(#000, 0.6);
+	border-color: rgba($black, 0.4);
+
+    &:not(:focus-visible) {
+        box-shadow: 0 0 0 1px rgba($black, 0.6);
+    }
 }
 
 .gal-nav .gal-item-content {

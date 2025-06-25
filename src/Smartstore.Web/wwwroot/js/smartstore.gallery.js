@@ -208,7 +208,7 @@
 
                 nav.on('click.gal', '.gal-arrow', function (e) {
                     e.preventDefault();
-                    var btn = $(this);
+                    const btn = $(this);
 
                     if (btn.hasClass('gal-disabled')) {
                         return;
@@ -255,9 +255,9 @@
         },
 
         _selectNavItem: function (idx, sync) {
-            var self = this;
-            var curItem = self.nav.find('.gal-current');
-            var curIdx = curItem.data('gal-index');
+            let self = this;
+            let curItem = self.nav.find('.gal-current');
+            let curIdx = curItem.data('gal-index');
             if (curIdx === idx)
                 return;
 
@@ -265,7 +265,7 @@
             curItem = self.nav.find('[data-gal-index=' + idx + ']');
             curItem.addClass('gal-current');
 
-            var page = Math.floor(idx / self.options.thumbsToShow);
+            let page = Math.floor(idx / self.options.thumbsToShow);
             self._slideToNavPage(page);
 
             if (sync) {
@@ -274,12 +274,12 @@
         },
 
         _slideToPrevNavPage: function () {
-            var curPage = this.nav.data('current-page');
+            let curPage = this.nav.data('current-page');
             this._slideToNavPage(curPage - 1);
         },
 
         _slideToNextNavPage: function () {
-            var curPage = this.nav.data('current-page');
+            let curPage = this.nav.data('current-page');
             this._slideToNavPage(curPage + 1);
         },
 
@@ -287,7 +287,7 @@
             if (this.nav.data('current-page') !== page) {
                 this.nav.data('current-page', page);
 
-                var hasArrows = !!(this.navPrevArrow) && !!(this.navNextArrow);
+                const hasArrows = !!(this.navPrevArrow) && !!(this.navNextArrow);
                 if (page === 0 && hasArrows) {
                     this.navPrevArrow.addClass('gal-disabled');
                     this.navNextArrow.removeClass('gal-disabled');
@@ -299,10 +299,12 @@
                     this.navNextArrow.toggleClass('gal-disabled', isLastPage);
                 }
 
-                var navListHeight = this.navList.height();
-                var maxOffsetY = (this.navTrack.height() - navListHeight) * -1;
-                var offsetY = navListHeight * page * -1;
-                this.navTrack.css('transform', 'translate3d(0, ' + Math.max(offsetY, maxOffsetY) + 'px, 0)');
+                const navListHeight = this.navList.height();
+                const maxOffsetY = (this.navTrack.height() - navListHeight);
+                const offsetY = navListHeight * page;
+                const translateY = Math.min(offsetY, maxOffsetY) * -1;
+
+                this.navTrack.css('transform', 'translate3d(0, ' + translateY + 'px, 0)');
             }
         },
 
