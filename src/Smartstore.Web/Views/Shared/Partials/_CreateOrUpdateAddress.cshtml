@@ -152,7 +152,7 @@
     <div sm-if="Model.FaxEnabled" class="form-group row">
         <label asp-for="FaxNumber" class="col-@(breakpoint)-3 col-form-label@(Model.FaxRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <input asp-for="FaxNumber" sm-required="Model.FaxRequired" />
+            <input asp-for="FaxNumber" sm-required="Model.FaxRequired" autocomplete="tel-extension" />
             <span asp-validation-for="FaxNumber"></span>
         </div>
     </div>

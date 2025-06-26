@@ -31,16 +31,17 @@
             <fieldset sm-if="Model.HasAddresses" class="content-group mb-3">
                 <legend><span>@T("Checkout.SelectShippingAddress")</span></legend>
 
-                <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list">
+                <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list" role="list">
                     @foreach (var item in Model.ExistingAddresses)
                     {
                         <div class="col">
                             <div class="card card-body address-list-item">
-                                <div class="address-item">
+                                <div class="address-item" role="listitem">
                                     <button class="btn btn-warning btn-block select-shipping-address-button"
-                                            data-url="@Url.Action("SelectShippingAddress", new { addressId = item.Id })">
+                                            data-url="@Url.Action("SelectShippingAddress", new { addressId = item.Id })"
+                                            aria-label="@T("Checkout.ShipToThisAddress"): @(item.FormattedAddress.Replace("<br>", ", ").RemoveHtml())">
                                         <span>@T("Checkout.ShipToThisAddress")</span>
-                                        <i class="fa fa-angle-right"></i>
+                                        <i class="fa fa-angle-right" aria-hidden="true"></i>
                                     </button>
 
                                     <div class="address-data mt-3">
@@ -72,7 +73,7 @@
                         </div>
                     }
 
-                    <div class="col">
+                    <div class="col" role="listitem">
                         <partial name="AddAddressButton" />
                     </div>
                 </div>
@@ -80,7 +81,7 @@
 
             <zone name="checkout_shipping_address_middle" />
 
-            <fieldset class="content-group cnt-add-new-address" attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'>
+            <fieldset id="cnt-add-new-address" class="content-group" attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'>
                 <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterShippingAddress")</span></legend>
                 <div class="enter-address">
                     <div class="enter-address-body">

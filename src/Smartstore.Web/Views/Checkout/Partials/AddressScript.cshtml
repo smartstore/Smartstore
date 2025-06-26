@@ -28,7 +28,11 @@
 
         $('.add-new-address').on('click', function (e) {
             e.preventDefault();
-            $('.cnt-add-new-address').slideDown();
+            $(e.currentTarget).aria("expanded", "true");
+            const cntNewAddress = $('#cnt-add-new-address');
+            cntNewAddress.slideDown(function () {
+                cntNewAddress.find(".address-form input:first").focus();
+            });
             return false;
         });
 
