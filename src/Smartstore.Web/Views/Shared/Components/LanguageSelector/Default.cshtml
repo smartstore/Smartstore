@@ -19,12 +19,10 @@
             role="combobox"
             aria-haspopup="listbox" 
             aria-expanded="false"
-            aria-controls="language-options">
+            aria-controls="language-options"
+            aria-label="@T("Aria.Label.LanguageSelector", activeLang.LocalizedShortName)">
         <span aria-hidden="true">@activeLang.UniqueSeoCode.ToUpper()</span>
-        <span class="sr-only">
-            @T("Aria.Label.LanguageSelector", activeLang.LocalizedShortName)
-        </span>
-        <i class="fa fa-angle-down"></i>
+        <i class="fa fa-angle-down" aria-hidden="true"></i>
     </button>
     <div id="language-options" class="dropdown-menu" aria-labelledby="language-selector" role="listbox">
         @foreach (var localizedUrl in localizedUrls)
@@ -44,7 +42,7 @@
                data-abbreviation="@name">
                 @if (ViewBag.UseImages == true)
                 {
-                    //INFO: No alt-Attribute here because there's also a span which already contains the purpose of this link.
+                    // INFO: No alt-Attribute here because there's also a span which already contains the purpose of this link.
                     <img src="@Url.Content("~/images/flags/" + lang.FlagImageFileName)" role="presentation" />
                 }
                 <span>@name</span>

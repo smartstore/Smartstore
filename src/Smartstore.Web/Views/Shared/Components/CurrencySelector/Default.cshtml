@@ -17,13 +17,11 @@
             role="combobox" 
             aria-haspopup="listbox" 
             aria-expanded="false"
-            aria-controls="currency-options">
+            aria-controls="currency-options"
+            aria-label="@T("Aria.Label.CurrencySelector", activeCurr.Name)">
         <span aria-hidden="true">@activeCurr.ISOCode</span>
         <span aria-hidden="true" class="lrm">(@activeCurr.Symbol)</span>
-        <span class="sr-only">
-            @T("Aria.Label.CurrencySelector", activeCurr.Name)
-        </span>
-        <i class="fa fa-angle-down"></i>
+        <i class="fa fa-angle-down" aria-hidden="true"></i>
     </button>
     <div id="currency-options" class="dropdown-menu" aria-labelledby="currency-selector" role="listbox">
         @foreach (var curr in currencies)
