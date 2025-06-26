@@ -10,6 +10,7 @@
 - The following frontend sections have been made accessible to screen readers:
   - Laguage and currency selectors
   - Customer's "My account"
+  - Customer identity features such as login and registration.
   - Catalog and associated products search boxes
   - All elements in the footer
   - Article list actions
