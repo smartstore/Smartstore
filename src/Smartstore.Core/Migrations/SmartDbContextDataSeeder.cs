@@ -115,7 +115,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
 
             builder.AddOrUpdate("Common.FormFields.Required.Hint",
-                "* Input elements with asterisk are required and have to be filled out.",
+                "* Input fields with an asterisk are mandatory and must be filled in.",
                 "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
             
 
