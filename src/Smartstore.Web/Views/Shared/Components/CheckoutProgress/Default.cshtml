@@ -15,7 +15,7 @@
         {
             var isNavigatable = step.Visited || step.Active;
             var stateLabel = step.Visited ? T("Aria.Label.CheckoutStep.Visited").Value : step.Active 
-                ? T("Aria.Label.CheckoutStep.Active").Value : T("Aria.Label.CheckoutStep.InActive").Value;
+                ? T("Aria.Label.CheckoutStep.Current").Value : T("Aria.Label.CheckoutStep.Pending").Value;
 
             <div class="costep col-@cols @step.StateClass" data-step="@step.Name" role="listitem">
                 <a class="costep-link"
