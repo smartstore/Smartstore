@@ -2,6 +2,9 @@
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    /// <summary>
+    /// Adds assistive aria attributes to a <span> element that is used to display validation messages.
+    /// </summary>
     [HtmlTargetElement("span", Attributes = "asp-validation-for")]
     public class ValidationTagHelper : TagHelper
     {
@@ -10,22 +13,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             // Screen readers recognize a text change and read it out immediately.
-            if (!output.Attributes.ContainsName("role"))
-            {
-                output.Attributes.Add("role", "alert");
-            }
+            output.Attributes.SetAttributeNoReplace("role", "alert");
 
             // A live region informs assistive technologies (AT) that the content may change without changing the focus, so it must be read.
-            if (!output.Attributes.ContainsName("aria-live"))
-            {
-                output.Attributes.Add("aria-live", "assertive");
-            }
+            output.Attributes.SetAttributeNoReplace("aria-live", "assertive");
 
             // It ensures that the entire message will be read again when an update is made (not just updated parts). 
-            if (!output.Attributes.ContainsName("aria-atomic"))
-            {
-                output.Attributes.Add("aria-atomic", "true");
-            }
+            output.Attributes.SetAttributeNoReplace("aria-atomic", "true");
         }
     }
 }
