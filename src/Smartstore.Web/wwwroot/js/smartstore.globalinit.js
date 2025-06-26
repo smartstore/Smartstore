@@ -464,11 +464,11 @@ jQuery(function () {
         const input = $btn.prev('.form-control')[0];
         if (input?.type == 'text') {
             input.type = 'password';
-            $btn.aria('pressed', 'false').aria('label', window.Res["Aria.Label.ShowPassword"]);
+            $btn.aria('pressed', 'false').aria('label', Res["Aria.Label.ShowPassword"]);
         }
         else if (input?.type == 'password') {
             input.type = 'text';
-            $btn.aria('pressed', 'true').aria('label', window.Res["Aria.Label.HidePassword"]);
+            $btn.aria('pressed', 'true').aria('label', Res["Aria.Label.HidePassword"]);
         }
     });
 

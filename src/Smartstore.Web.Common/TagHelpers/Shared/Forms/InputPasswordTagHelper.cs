@@ -35,9 +35,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 if (DataSettings.DatabaseIsInstalled())
                 {
                     var T = ViewContext.HttpContext.GetServiceScope().Resolve<Localizer>();
-                    var id = output.Attributes.TryGetAttribute("id", out var idAttr) ? idAttr.ValueAsString().NullEmpty() : null;
+                    var id = (output.Attributes.TryGetAttribute("id", out var idAttr) ? idAttr.ValueAsString() : null).EmptyNull();
 
-                    htmlAttributes = $"aria-pressed=\"false\" aria-controls=\"{id ?? string.Empty}\" aria-label=\"{T("Aria.Label.ShowPassword")}\"";
+                    htmlAttributes = $"aria-pressed=\"false\" aria-controls=\"{id}\" aria-label=\"{T("Aria.Label.ShowPassword")}\"";
                 }
                 else
                 {
