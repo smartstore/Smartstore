@@ -57,6 +57,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.UploaderProgressBar", "{0} fileupload", "{0} Datei-Upload");
             builder.AddOrUpdate("Aria.Label.ShowPassword", "Show password", "Passwort anzeigen");
             builder.AddOrUpdate("Aria.Label.HidePassword", "Hide password", "Passwort verbergen");
+            builder.AddOrUpdate("Aria.Label.CheckoutProcess", "Checkout process", "Bestellprozess");
+            builder.AddOrUpdate("Aria.Label.CheckoutStep.Visited", "Completed", "Abgeschlossen");
+            builder.AddOrUpdate("Aria.Label.CheckoutStep.Active", "Current step", "Aktueller Schritt");
+            builder.AddOrUpdate("Aria.Label.CheckoutStep.InActive", "Not visited", "Noch nicht besucht");
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");

@@ -9,17 +9,28 @@
 
 <zone name="checkout_steps_before" />
 
-<div class="costeps row g-0 mx-auto">
-    @foreach (var step in Model)
-    {
-        <div class="costep col-@cols @step.StateClass" data-step="@step.Name">
-            <a class="costep-link@(step.Visited || step.Active ? string.Empty : " disabled")"
-                href="@(step.Visited || step.Active ? step.Url : "javascript:;")">
-                <i class="costep-icon"></i>
-                <span class="costep-label">@step.Label</span>
-            </a>
-        </div>
-    }
-</div>
+<nav aria-label="@T("Aria.Label.CheckoutProcess")">
+    <div class="costeps row g-0 mx-auto" role="list">
+        @foreach (var step in Model)
+        {
+            var isNavigatable = step.Visited || step.Active;
+            var stateLabel = step.Visited ? T("Aria.Label.CheckoutStep.Visited").Value : step.Active 
+                ? T("Aria.Label.CheckoutStep.Active").Value : T("Aria.Label.CheckoutStep.InActive").Value;
+
+            <div class="costep col-@cols @step.StateClass" data-step="@step.Name" role="listitem">
+                <a class="costep-link"
+                   attr-class='(!isNavigatable, "disabled")'
+                   attr-aria-disabled='(!isNavigatable, "true")'
+                   attr-tabindex='(!isNavigatable, "-1")'
+                   attr-aria-current='(step.Active, "step")'
+                   href="@(step.Visited || step.Active ? step.Url : "#")">
+                    <i class="costep-icon" aria-hidden="true"></i>
+                    <span class="costep-label">@step.Label</span>
+                    <span class="sr-only">@stateLabel</span>
+                </a>
+            </div>
+        }
+    </div>
+</nav>
 
 <zone name="checkout_steps_after" />
