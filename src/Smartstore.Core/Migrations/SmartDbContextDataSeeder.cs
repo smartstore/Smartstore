@@ -114,6 +114,11 @@ namespace Smartstore.Core.Data.Migrations
                 "I have read and agree to the user agreement.", 
                 "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
 
+            builder.AddOrUpdate("Common.FormFields.Required.Hint",
+                "* Input elements with asterisk are required and have to be filled out.",
+                "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
+            
+
             builder.Delete("Categories.Breadcrumb.Top");
 
             // Typo
