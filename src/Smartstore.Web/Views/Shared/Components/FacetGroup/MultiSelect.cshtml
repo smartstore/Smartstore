@@ -13,16 +13,19 @@
     </span>
 </div>
 
-<div class="facet-body-inner" attr-class='(Model.IsScrollable, "scrollable custom-scrollbar")' role="listbox" aria-labelledby="facet-group-header-@Model.Key">
+<div class="facet-body-inner" attr-class='(Model.IsScrollable, "scrollable custom-scrollbar")' role="group" aria-labelledby="facet-group-header-@Model.Key">
     @foreach (var facet in facets)
     {
         <div class="facet-item facet-check">
-            <label for="optcheck-@(facet.Value.Key)">
-                <span class="facet-control-ui reset" 
-                      role="option" 
-                      tabindex="0"
-                      aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
-                      aria-label="@(facet.Value.Label ?? facet.Value.ToString())"></span>
+            <label class="facet-control-label">
+                <input class="facet-control-native"
+                       type="checkbox"
+                       role="option"
+                       id="optcheck-@(facet.Value.Key)"
+                       value="@facet.Value.ToString()"
+                       attr-checked='(facet.Value.IsSelected, "checked")'
+                       data-href="@Url.FacetToggle(facet)" />
+                <span class="facet-control-ui"></span>
                 <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                     @(facet.Value.Label ?? facet.Value.ToString())
                 </span>
@@ -30,17 +33,6 @@
         </div>
     }
 </div>
-
-@foreach (var facet in facets)
-{
-    <input class="facet-control-native sr-only" 
-           type="checkbox" 
-           tabindex="-1"
-           id="optcheck-@(facet.Value.Key)" 
-           value="@facet.Value.ToString()" 
-           attr-checked='(facet.Value.IsSelected, "checked")' 
-           data-href="@Url.FacetToggle(facet)" />
-}
 
 @functions
 {

@@ -265,7 +265,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
 
 
 //
-// Facetes
+// Facettes
 // --------------------------------------------------
 
 .facet-group {
@@ -345,6 +345,13 @@ $facet-selection-glyph-color:   darken($success, 10%);
 // Facets (Check/Radio)
 // --------------------------------------------------
 
+.facet-control-native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
 .facet-control-ui {
     position: absolute;
     display: block;
@@ -353,7 +360,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
     height: $facet-control-size;
     line-height: $facet-control-size;
 
-    border: 1px solid rgba(#000, 0.2);
+    border: 1px solid rgba($black, 0.2);
     border-radius: 2px;
     box-shadow: none;
 
@@ -371,6 +378,10 @@ $facet-selection-glyph-color:   darken($success, 10%);
         color: $facet-selection-glyph-color;
     }
 
+    *:focus-visible + & {
+        box-shadow: $focus-ring-box-shadow;
+    }
+
     *:checked + & {
         vertical-align: middle;
         text-align: center;
@@ -385,7 +396,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
 
 .facet-item input:checked + .facet-control-ui,
 .facet-item:hover .facet-control-ui {
-    border-color: rgba(#000, 0.35);
+    border-color: rgba($black, 0.35);
 }
 
 .facet-check,
