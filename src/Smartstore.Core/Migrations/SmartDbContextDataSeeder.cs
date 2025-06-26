@@ -111,6 +111,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
 
             builder.Delete("Categories.Breadcrumb.Top");
+
+            // Typo
+            builder.AddOrUpdate("Common.FormFields.Required.Hint")
+                .Value("de", "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
         }
     }
 }
