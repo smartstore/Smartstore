@@ -316,6 +316,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
 
 .facet-body {
     font-size: 14px;
+    padding-top: 2px;
     padding-bottom: 1rem;
 
     .numberinput-group {
@@ -486,9 +487,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
 // --------------------------------------------------
 
 .offcanvas {
-    .facet-toggle,
-    .facet-group-header,
-    .facet-body {
+    :is(.facet-toggle, .facet-group-header, .facet-body) {
         padding-inline: var(--offcanvas-padding-x, 1.5rem);
     }
 

@@ -106,12 +106,21 @@
 
             const el = $(e.currentTarget);
             const isExpanded = el.aria("expanded");
+            const shouldExpand = e.type == "expand";
 
-            if (e.type == "collapse" && isExpanded) {
+            if (isExpanded != shouldExpand) {
+                const callback = e.detail?.callback;
+                if (callback) {
+                    if (shouldExpand) {
+                        $(e.detail.target).one('transitionend', callback);
+                    }
+                }
+
                 el.trigger("click");
-            }
-            else if (e.type == "expand" && !isExpanded) {
-                el.trigger("click");
+
+                if (callback && !shouldExpand) {
+                    callback();
+                }
             }
         });
     });
