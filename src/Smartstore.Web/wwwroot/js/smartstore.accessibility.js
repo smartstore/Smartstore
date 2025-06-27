@@ -9,6 +9,7 @@
 * -------------------------------------------------- */
 class AccessKit {
     static _registry = [];
+    static _textInputTypes = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
 
     /**
     * Add a plugin descriptor to the global plugin registry of AccessKit
@@ -21,7 +22,7 @@ class AccessKit {
     *                                       root element or null. Use when the widget is not in the ancestor chain (e.g. menu dropdowns).
     *
     * Either `rootSelector` or `match` must be provided.
-    * The descriptor is stored in `AccessKit._registry` and later queried by `_initIfNeeded` to lazily instantiate plugins.
+    * The descriptor is stored in `AccessKit._registry` and later queried by `_findMatchingPlugin` to lazily instantiate plugins.
     */
     static register({ ctor, rootSelector, match }) {
         this._registry.push({ ctor, rootSelector, match });
@@ -33,8 +34,8 @@ class AccessKit {
         this._plugins = new Map();
 
         /* one keydown/keyup listener for relevant elements – capture phase */
-        document.addEventListener('keydown', e => this._onKey(e), true);
-        document.addEventListener('keyup', e => this._onKey(e), true);
+        document.addEventListener('keydown', e => this._onKeyDown(e), true);
+        document.addEventListener('keyup', e => this._onKeyUp(e), true);
 
         // TODO: (wcag) (mh) Maybe this ain't the correct place to handle this. These handlers belong into
         // the focus trap script || in the corresponding plugin scripts || global init script.
@@ -52,23 +53,40 @@ class AccessKit {
         });
     }
 
-    _onKey(e) {
+    _isTextInput(el) {
+        // TODO: (wcag) (mc) Put this somewhere global.
+        if (el.tagName == 'TEXTAREA' || el.isContentEditable) {
+            return true;
+        }
+        if (el.tagName == 'INPUT') {
+            return AccessKit._textInputTypes.has(el.type);
+        }
+        return false;
+    };
+
+    _onKeyDown(e) {
         // Skip irrelevant targets immediately.
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
-        if (t.matches('input, textarea') || t.isContentEditable) return;
-        if (!t.matches('a,button,[role],[tabindex]')) return;
 
+        if (this._isTextInput(t)) return;
+        if (!t.matches('a,button,[role],[tabindex]')) return;
+        
         // Exit if no navigational key is pressed.
         // TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
         if (![AK.KEY.TAB, AK.KEY.UP, AK.KEY.DOWN, AK.KEY.LEFT, AK.KEY.RIGHT, AK.KEY.HOME, AK.KEY.END, AK.KEY.ENTER, AK.KEY.SPACE, AK.KEY.ESC].includes(e.key))
             return;
 
         // Init plugin if needed.
-        this._initIfNeeded(t);
+        this._findMatchingPlugin(t);
 
         // Dispatch event to all already active plugins.
         this._dispatchKey(e);
+    }
+
+    _onKeyUp(e) {
+        // TODO: (wcag) (mh) (mc) ???
+        // ...
     }
 
     /**
@@ -80,7 +98,7 @@ class AccessKit {
     * 
     * @param {Element} target  element that holds keyboard focus (event.target from a key event)
     */
-    _initIfNeeded(target) {
+    _findMatchingPlugin(target) {
         for (const plugin of AccessKit._registry) {
             let root = plugin.rootSelector ? target.closest(plugin.rootSelector) : typeof plugin.match === 'function' ? plugin.match(target) : null;
 
@@ -91,6 +109,7 @@ class AccessKit {
                 const instance = new plugin.ctor(this, root);
                 this._plugins.set(plugin.ctor, instance);
             }
+
             return;         
         }
     }
@@ -472,8 +491,8 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
     init(container = document) {
         // TODO: (wcag) (mh) Slow!
         container.querySelectorAll('[role="menubar"]').forEach(menubar => {
-            const menuitem = this.applyRoving(menubar, '[role="menuitem"]');   
-            this._setCache(menubar, menuitem);
+            const menuitems = this.applyRoving(menubar, '[role="menuitem"]');   
+            this._setCache(menubar, menuitems);
         });
     }
 
@@ -689,7 +708,7 @@ AK.TreePlugin = class TreePlugin extends AK.AccessKitExpandablePluginBase {
     _allItems(tree) {
         return this._getCache(tree, () =>
         [...tree.querySelectorAll('[role="treeitem"]')]
-            .filter(it => it.closest('[role=\"tree\"]') === tree));
+            .filter(it => it.closest('[role="tree"]') === tree));
     }
 
     _visibleItems(tree) {
@@ -768,8 +787,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
     _initListbox(list) {
         // Determine selection mode
-        const multiselect = list.getAttribute('aria-multiselectable') === 'true';
-        list.dataset.akMultiselect = multiselect;
+        list.dataset.akMultiselect = list.getAttribute('aria-multiselectable');
 
         // Initialise roving tabindex & ensure aria-selected is set
         //const options = this._options(list);
@@ -848,8 +866,8 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         super._move(opt, null, options);
 
         // TODO: Evaluate if this is needed 
-        // In single‑select listboxes, moving also selects
-        if (list && list.length && list.dataset.akMultiselect !== 'true') {
+        // In single‑select listboxes, moving also selects (if manualselect is not true)
+        if (list && list.length && list.dataset.akMultiselect !== 'true' && list.dataset.manualselect !== 'true') {
             this._toggleSelect(opt, list, options, /*replace*/ true);
         }
     }
@@ -861,7 +879,6 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
             options.forEach(o => o.setAttribute('aria-selected', o === opt ? 'true' : 'false'));
             this.trigger('select.listbox', list, { list, opt });
 
-            // TODO: Maybe we need an option to turn this behavior on/off.
             // Call click immediately for single select lists.
             opt.click();
         } else {
@@ -939,7 +956,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
             }
         });
 
-        this.on(cb, 'collapse.ak', () => {
+        this.on(cb, 'collapse.ak', (e) => {
             document.removeEventListener('mousedown', outsideClick, true);
         });
 
@@ -1168,28 +1185,31 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
 };
 
 AccessKit.register({
+    ctor: AK.ListboxPlugin,
+    match: (el) => el.matches('[role="option"]') && el.closest('[role="listbox"]')
+});
+
+AccessKit.register({
     ctor: AK.MenuPlugin,
-    match(el) {
-        return el.closest('[role="menubar"],[role="menu"]') ||
-            (el.closest('[role="menuitem"][aria-controls]') && document.getElementById(el.getAttribute('aria-controls')));
-    }
+    match: (el) =>
+        el.closest('[role="menubar"],[role="menu"]') ||
+        (el.closest('[role="menuitem"][aria-controls]') && document.getElementById(el.getAttribute('aria-controls')))
 });
 
 AccessKit.register({
     ctor: AK.ComboboxPlugin,
-    match(el) { return el.closest('[role="combobox"]'); }
+    match: (el) => el.closest('[role="combobox"]')
 });
 
 AccessKit.register({
     ctor: AK.DisclosurePlugin,
     // TODO: (wcag) (mh) This can't be correct.
     // We claim any element that has aria-expanded + aria-controls
-    match(el) { return el.closest('[aria-controls][aria-expanded]:not([role="combobox"])'); }
+    match: (el) => el.closest('[aria-controls][aria-expanded]:not([role="combobox"])')
 });
 
 AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
 AccessKit.register({ ctor: AK.TablistPlugin, rootSelector: '[role="tablist"]' });
-AccessKit.register({ ctor: AK.ListboxPlugin, rootSelector: '[role="listbox"]' });
 
 // Boot
 document.addEventListener('DOMContentLoaded', () => {
