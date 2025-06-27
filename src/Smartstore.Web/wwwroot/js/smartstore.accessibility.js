@@ -66,10 +66,11 @@ class AccessKit {
         // Skip irrelevant targets immediately.
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
+        if (e.key != AK.KEY.ESC) {
+            if (this._isTextInput(t)) return;
+            if (!t.matches('a,button,[role],[tabindex]')) return;
+        }
 
-        if (this._isTextInput(t)) return;
-        if (!t.matches('a,button,[role],[tabindex]')) return;
-        
         // Exit if no navigational key is pressed.
         // TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
         if (![AK.KEY.TAB, AK.KEY.UP, AK.KEY.DOWN, AK.KEY.LEFT, AK.KEY.RIGHT, AK.KEY.HOME, AK.KEY.END, AK.KEY.ENTER, AK.KEY.SPACE, AK.KEY.ESC].includes(e.key))
