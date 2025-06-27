@@ -1110,10 +1110,7 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
     handleKey(e) {
         const trigger = e.target;
         const panelId = trigger.getAttribute("aria-controls");
-
-        // TODO: (wcag) (mh) trigger.closest('[id]') is really bad > we use it to get the panel when a link within the panel is currently active.
-        // Better look for closest aria-hidden=false
-        const panel = (panelId && document.getElementById(panelId)) || trigger.closest('[id]');
+        const panel = (panelId && document.getElementById(panelId)) || trigger.closest('[aria-hidden=false]');
 
         // ESC within an open panel 
         if (e.key === AK.KEY.ESC) {
