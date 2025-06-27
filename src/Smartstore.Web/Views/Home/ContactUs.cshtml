@@ -32,13 +32,21 @@
                         <honeypot />
 
                         <div class="form-floating mb-3">
-                            <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.FullName)" />
+                            <input asp-for="FullName" 
+                                   sm-required="Model.FullNameRequired"
+                                   class="remember remember-disallow-empty" 
+                                   placeholder="@Html.DisplayNameFor(x => x.FullName)"
+                                   autocomplete="name" />
                             <label asp-for="FullName" attr-class='(Model.FullNameRequired, "required")'></label>
                             <span asp-validation-for="FullName"></span>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input asp-for="Email" sm-required="true" class="remember remember-disallow-empty" placeholder="@Html.DisplayNameFor(x => x.Email)" />
+                            <input asp-for="Email" 
+                                   sm-required="true" 
+                                   class="remember remember-disallow-empty" 
+                                   placeholder="@Html.DisplayNameFor(x => x.Email)"
+                                   autocomplete="email" />
                             <label asp-for="Email" class="required"></label>
                             <span asp-validation-for="Email"></span>
                         </div>

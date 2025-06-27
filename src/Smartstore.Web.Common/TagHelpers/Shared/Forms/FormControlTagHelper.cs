@@ -199,9 +199,13 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
 
                 // Render "required" attribute
-                if (IsRequired == true && !output.Attributes.ContainsName("required"))
+                if (IsRequired == true)
                 {
-                    output.Attributes.Add(new TagHelperAttribute("required", null, HtmlAttributeValueStyle.Minimized));
+                    if (!output.Attributes.ContainsName("required"))
+                    {
+                        output.Attributes.Add(new TagHelperAttribute("required", null, HtmlAttributeValueStyle.Minimized));
+                    }
+                    output.MergeAttribute("aria-required", "true");
                 }
             }
 

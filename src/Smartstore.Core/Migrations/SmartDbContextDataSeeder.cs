@@ -69,6 +69,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.DeleteSelected", "Delete selected", "Ausgewählte löschen");
             builder.AddOrUpdate("Common.Consent", "Consent", "Zustimmung");
             builder.AddOrUpdate("Common.SelectView", "Select view", "Ansicht wählen");
+            builder.AddOrUpdate("Common.SecurityPrompt", "Security prompt", "Sicherheitsabfrage");
 
             builder.Delete(
                 "Account.BackInStockSubscriptions.DeleteSelected",

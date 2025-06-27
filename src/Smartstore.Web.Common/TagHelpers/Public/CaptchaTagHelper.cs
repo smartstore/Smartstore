@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Utilities;
 
@@ -13,12 +14,18 @@ namespace Smartstore.Web.TagHelpers.Public
         private readonly CaptchaSettings _captchaSettings;
         private readonly IWorkContext _workContext;
         private readonly SmartConfiguration _appConfig;
+        private readonly Localizer T;
 
-        public CaptchaTagHelper(CaptchaSettings captchaSettings, IWorkContext workContext, SmartConfiguration appConfig)
+        public CaptchaTagHelper(
+            CaptchaSettings captchaSettings, 
+            IWorkContext workContext, 
+            SmartConfiguration appConfig,
+            Localizer localizer)
         {
             _captchaSettings = captchaSettings;
             _workContext = workContext;
             _appConfig = appConfig;
+            T = localizer;
         }
 
         /// <summary>
@@ -39,6 +46,8 @@ namespace Smartstore.Web.TagHelpers.Public
 
             output.TagName = "div";
             output.AppendCssClass("captcha-box");
+            output.Attributes.SetAttribute("role", "region");
+            output.Attributes.SetAttribute("aria-label", T("Common.SecurityPrompt").Value);
 
             var widgetUrl = _appConfig.Google.RecaptchaWidgetUrl;
             var ident = CommonHelper.GenerateRandomDigitCode(5);

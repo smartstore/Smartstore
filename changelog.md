@@ -16,6 +16,7 @@
   - Article list actions
   - CookieManager dialog. It also traps the focus until it's closed.
   - Catalog facets
+  - Contact us
   
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
