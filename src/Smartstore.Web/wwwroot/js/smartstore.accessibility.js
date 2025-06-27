@@ -91,8 +91,7 @@ class AccessKit {
     * Lazily boot the first plugin whose root contains the currently-focused element.
     * 
     * If the focused element belongs to a widget that has no plugin yet,
-    * try to match the element, create ONE instance of
-    * the corresponding ctor, store it in this._plugins, then exit.
+    * try to match the element, create ONE instance of the corresponding ctor, store it in this._plugins, then exit.
     * 
     * @param {Element} target  element that holds keyboard focus (event.target from a key event)
     */
@@ -248,10 +247,6 @@ const KEY = AK.KEY;
 
         // Apply roving tabindex to all elements matching the selector within the root element.
         applyRoving(root, selector, start = 0) {
-            // TODO: (wcag) (mh) OBSOLETE > remove...
-            //const items = [...root.querySelectorAll(selector)]
-            //    .filter(i => i.closest(root.getAttribute('role') ? `[role="${root.getAttribute('role')}"]` : root) === root);
-
             /* Build a safe scope for roving-focus:
                1. If the container has a role ⇒ use [role="…"].
                2. Else if it has an id        ⇒ use #id.
@@ -467,7 +462,6 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
             }
 
             // Focus
-            //if (shouldOpen && target) {
             if (target) {
                 let focusEl = null;
                 if (opt.focusTarget === 'first') {
@@ -497,9 +491,6 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
 *  Handles all items of role="menubar" based on subitems role="menu" & role="menuitem".
 * -------------------------------------------------- */
 AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
-    // TODO: (wcag) (mh) Very obfuscated code. Bad naming conventions, no comments. Don't trust ChatGPT unmoderated! TBD with MC.
-    // TODO: (wcag) (mh) A special "key handler plugin" belongs to the plugin file if it exists. In this case: smartstore.megamenu.js. But not if it is generic enough to handle more than one widget type.
-
     init(container = document) {
         // TODO: (wcag) (mh) Slow!
         container.querySelectorAll('[role="menubar"]').forEach(menubar => {
@@ -802,15 +793,6 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         list.dataset.akMultiselect = list.getAttribute('aria-multiselectable');
 
         // Initialise roving tabindex & ensure aria-selected is set
-        //const options = this._options(list);
-
-        //options.forEach((opt, i) => {
-        //    opt.tabIndex = i === 0 ? 0 : -1;
-        //    if (!opt.hasAttribute('aria-selected')) {
-        //        opt.setAttribute('aria-selected', 'false');
-        //    }
-        //});
-
         const options = this.applyRoving(list, AK.activeOptionSelector);
         this._setCache(list, options);
             options.forEach(opt => {
@@ -836,9 +818,6 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
     }
 
     _options(list) {
-        //return [...list.querySelectorAll('[role="option"]')]
-        //    .filter(opt => opt.closest('[role="listbox"]') === list);
-
         return this._getCache(list, () =>
             [...list.querySelectorAll(AK.activeOptionSelector)]
                 .filter(opt => opt.closest('[role="listbox"]') === list)
@@ -1053,31 +1032,27 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
     _lastOption(list) { const opts = list.querySelectorAll(AK.activeOptionSelector); return opts[opts.length - 1] || null; }
 };
 
-/* --------------------------------------------------
-*  DisclosurePlugin – Handles standalone disclosures & accordions
-* -------------------------------------------------- */
-
 /**
-    * Disclosure/Accordion keyboard handler
-    *
-    * ▸ Stand‑alone pattern:
-    *    <button aria-expanded="false" aria-controls="panel">…</button>
-    *    <div id="panel" hidden>…</div>
-    *
-    * TODO: Doc for data-collapse-siblings
-    * ▸ Accordion pattern (container gets data-ak-accordion):
-    *    <div data-ak-accordion>
-    *       <button aria-expanded="false" aria-controls="p1">…</button>
-    *       <div id="p1" hidden>…</div>
-    *       … (n×) …
-    *    </div>
-    *
-    * Keyboard‑Support
-    *   ↑ / ↓ / ← / →    Roving focus within accordion (orientation aware)
-    *   HOME / END       Jump first / last header in accordion
-    *   ENTER / SPACE    Toggle current disclosure / accordion item
-    *   ESC              Collapse current item (accordion only)
-    */
+* Disclosure/Accordion keyboard handler
+*
+* ▸ Stand‑alone pattern:
+*    <button aria-expanded="false" aria-controls="panel">…</button>
+*    <div id="panel" hidden>…</div>
+*
+* TODO: (wcag) (mh) Doc for data-collapse-siblings
+* ▸ Accordion pattern (container gets data-ak-accordion):
+*    <div data-ak-accordion>
+*       <button aria-expanded="false" aria-controls="p1">…</button>
+*       <div id="p1" hidden>…</div>
+*       … (n×) …
+*    </div>
+*
+* Keyboard‑Support
+*   ↑ / ↓ / ← / →    Roving focus within accordion (orientation aware)
+*   HOME / END       Jump first / last header in accordion
+*   ENTER / SPACE    Toggle current disclosure / accordion item
+*   ESC              Collapse current item (accordion only)
+*/
 AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePluginBase {
     init(container = document) {
         /* --- Accordions -------------------------------- */
@@ -1153,21 +1128,8 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
         if (e.key === AK.KEY.ENTER || e.key === AK.KEY.SPACE) {
             this.toggleExpanded(trigger, true, { focusTarget: 'first' });
 
-            // TODO: (wcag) (mh) ESC is OBSOLETE > Remove it.
-            // Handle leaving via ESC or TAB to the next element outside the panel.
-            //const panelId = trigger.getAttribute("aria-controls");
-            //const panel = panelId && document.getElementById(panelId);
+            // Handle leaving via TAB to the next element outside the panel.
             if (panel) {
-                // Close on ESC from inside the panel
-                //const escHandler = e => {
-                //    if (e.key === AK.KEY.ESC) {
-                //        this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
-                //        panel.removeEventListener('keydown', escHandler);
-                //        panel.removeEventListener('focusin', focusHandler, true);
-                //    }
-                //};
-                //panel.addEventListener('keydown', escHandler);
-
                 // Close on TAB to the outside of the panel.
                 const focusHandler = e => {
                     const el = e.target;
