@@ -11,6 +11,7 @@ class AccessKit {
     static _registry = [];
     static _textInputTypes = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
     static _activeOptionSelector = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
+    static _activeRadioSelector = 'input[type="radio"]:not([disabled])';
 
     /**
     * Add a plugin descriptor to the global plugin registry of AccessKit
@@ -51,15 +52,15 @@ class AccessKit {
         });
     }
 
-    _isTextInput(el) {
-        // TODO: (wcag) (mc) Put this somewhere global.
+    _isCandidateElement(el) {
         if (el.tagName == 'TEXTAREA' || el.isContentEditable) {
-            return true;
+            return false;
         }
         if (el.tagName == 'INPUT') {
-            return AccessKit._textInputTypes.has(el.type);
+            return !AccessKit._textInputTypes.has(el.type);
         }
-        return false;
+
+        return el.matches('a,button,[role],[tabindex]');
     };
 
     _onKeyDown(e) {
@@ -67,8 +68,7 @@ class AccessKit {
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
         if (e.key != AK.KEY.ESC) {
-            if (this._isTextInput(t)) return;
-            if (!t.matches('a,button,[role],[tabindex]')) return;
+            if (!this._isCandidateElement(t)) return;
         }
 
         // Exit if no navigational key is pressed.
@@ -78,7 +78,7 @@ class AccessKit {
 
         // Init plugin if needed.
         this._findMatchingPlugin(t);
-
+        
         // Dispatch event to all already active plugins.
         this._dispatchKey(e);
     }
@@ -896,6 +896,62 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
     }
 }
 
+/* --------------------------------------------------
+ *  RadiogroupPlugin – Roving‑Tabindex & Selection.
+ *  Handles widgets using [role="radiogroup"] and input[type="radio"] children.
+ *  Supports only single‑‑select.
+ * -------------------------------------------------- */
+AK.RadioGroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
+    init(container = document) {
+        const groups = Array.from(container.querySelectorAll('[role="radiogroup"]'));
+        groups.forEach(group => this._initRadioGroup(group));
+    }
+
+    _initRadioGroup(group) {
+        // Initialise roving tabindex
+        const options = this.applyRoving(group, AK._activeRadioSelector);
+        this._setCache(group, options);
+
+        // Make radiogroup focusable itself (fallback if options are removed dynamically)
+        if (!group.hasAttribute('tabindex')) {
+            group.tabIndex = -1;
+        }
+    }
+
+    _options(group) {
+        return this._getCache(group, () => group.querySelectorAll(AK._activeRadioSelector));
+    }
+
+    handleKey(e) {
+        const opt = e.target;
+        const group = opt.closest('[role="radiogroup"]');
+        if (!group)
+            return false;
+
+        const options = this._options(group);
+        if (!options.length)
+            return false;
+
+        const orientation = group.getAttribute('aria-orientation') ?? 'vertical';
+
+        return this.handleRovingKeys(e, options, {
+            orientation,
+            activateFn: (el, _idx, _opts) => el.click()
+        });
+    }
+
+    /* -------- Move roving focus -------- */
+    _move(opt, group, options) {
+        super._move(opt, null, options);
+
+        // TODO: Evaluate if this is needed 
+        // In radiogroups, moving also selects (if manualselect is not true)
+        if (group && group.length && group.dataset.manualselect !== 'true') {
+            opt.click();
+        }
+    }
+}
+
 /**
 * Combobox‑specific plugin that delegates option navigation to AK.ListboxPlugin.  
 * Handles only:
@@ -1193,6 +1249,11 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
     AccessKit.register({
         ctor: AK.ListboxPlugin,
         match: (el) => matchRole(el, 'listbox', 'option')
+    });
+
+    AccessKit.register({
+        ctor: AK.RadioGroupPlugin,
+        match: (el) => el.matches('input[type="radio"]') && el.closest('[role="radiogroup"]')
     });
 
     AccessKit.register({
