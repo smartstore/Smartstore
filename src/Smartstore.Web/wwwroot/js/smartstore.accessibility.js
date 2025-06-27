@@ -433,10 +433,17 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         this.trigger(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
 
         // Wait for transition end to set focus
-        const isInTransition = target.getAnimations().some(a => a instanceof CSSTransition && a.playState === 'running');
+        async function waitForTransitions(el) {
+            const trans = el.getAnimations().filter(a => a instanceof CSSTransition);
+            if (trans.length === 0) return;
 
-        if (isInTransition && shouldOpen) {
-            target.addEventListener('transitionend', setAttrsAndFocus, { once: true });
+            await Promise.all(
+                trans.map(a => a.finished.catch(() => { }))
+            );
+        }
+
+        if (shouldOpen) {
+            waitForTransitions(target).then(setAttrsAndFocus);
         }
         else {
             setAttrsAndFocus();
