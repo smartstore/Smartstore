@@ -16,16 +16,13 @@ class AccessKit {
     *
     * @param {Object} param
     * @param {Function} param.ctor          Plugin constructor.
-    * @param {string=}  param.rootSelector  CSS selector; if the element that receives focus lies inside an ancestor
-    *                                       matching this selector, the plugin is considered applicable.
-    * @param {Function=} param.match        Alternative test — receives the focused element and must return the widget’s
+    * @param {Function=} param.match        Matcher — receives the focused element and must return the widget’s
     *                                       root element or null. Use when the widget is not in the ancestor chain (e.g. menu dropdowns).
     *
-    * Either `rootSelector` or `match` must be provided.
     * The descriptor is stored in `AccessKit._registry` and later queried by `_findMatchingPlugin` to lazily instantiate plugins.
     */
-    static register({ ctor, rootSelector, match }) {
-        this._registry.push({ ctor, rootSelector, match });
+    static register({ ctor, match }) {
+        this._registry.push({ ctor, match });
     }
 
     constructor(options = {}) {
@@ -93,14 +90,14 @@ class AccessKit {
     * Lazily boot the first plugin whose root contains the currently-focused element.
     * 
     * If the focused element belongs to a widget that has no plugin yet,
-    * find its root (via rootSelector or match()), create ONE instance of
+    * try to match the element, create ONE instance of
     * the corresponding ctor, store it in this._plugins, then exit.
     * 
     * @param {Element} target  element that holds keyboard focus (event.target from a key event)
     */
     _findMatchingPlugin(target) {
         for (const plugin of AccessKit._registry) {
-            let root = plugin.rootSelector ? target.closest(plugin.rootSelector) : typeof plugin.match === 'function' ? plugin.match(target) : null;
+            let root = typeof plugin.match === 'function' ? plugin.match(target) : null;
 
             if (!root)
                 continue;
@@ -509,7 +506,7 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
 
         // Get items and store them in cache.
         items = [...container.querySelectorAll('[role="menuitem"]')]
-            .filter(mi =>mi.closest('[role="menubar"],[role="menu"]') === container);
+            .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === container);
         
         this._setCache(container, items);
         
@@ -1184,34 +1181,55 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
     }
 };
 
-AccessKit.register({
-    ctor: AK.ListboxPlugin,
-    match: (el) => el.matches('[role="option"]') && el.closest('[role="listbox"]')
-});
+(function () {
+    const matchRole = (el, parentRole, role = null) => {
+        if (role && el.getAttribute('role') !== role) {
+            return null;
+        }
+        return el.closest(`[role="${parentRole}"]`);
+    }
 
-AccessKit.register({
-    ctor: AK.MenuPlugin,
-    match: (el) =>
-        el.closest('[role="menubar"],[role="menu"]') ||
-        (el.closest('[role="menuitem"][aria-controls]') && document.getElementById(el.getAttribute('aria-controls')))
-});
+    AccessKit.register({
+        ctor: AK.MenuPlugin,
+        match: (el) => {
+            let root = el.closest('[role="menubar"], [role="menu"]');
+            if (!root && document.getElementById(el.getAttribute('aria-controls'))) {
+                root = el.closest('[role="menuitem"][aria-controls]');
+            }
 
-AccessKit.register({
-    ctor: AK.ComboboxPlugin,
-    match: (el) => el.closest('[role="combobox"]')
-});
+            return root;
+        }
+    });
 
-AccessKit.register({
-    ctor: AK.DisclosurePlugin,
-    // TODO: (wcag) (mh) This can't be correct.
-    // We claim any element that has aria-expanded + aria-controls
-    match: (el) => el.closest('[aria-controls][aria-expanded]:not([role="combobox"])')
-});
+    AccessKit.register({
+        ctor: AK.ComboboxPlugin,
+        match: (el) => el.closest('[role="combobox"]')
+    });
 
-AccessKit.register({ ctor: AK.TreePlugin, rootSelector: '[role="tree"]' });
-AccessKit.register({ ctor: AK.TablistPlugin, rootSelector: '[role="tablist"]' });
+    AccessKit.register({
+        ctor: AK.DisclosurePlugin,
+        // TODO: (wcag) (mh) This can't be correct.
+        // We claim any element that has aria-expanded + aria-controls
+        match: (el) => el.closest('[aria-controls][aria-expanded]:not([role="combobox"])')
+    });
 
-// Boot
-document.addEventListener('DOMContentLoaded', () => {
-    window.AccessKitInstance = new AccessKit(window.AccessKitConfig || {});
-});
+    AccessKit.register({
+        ctor: AK.ListboxPlugin,
+        match: (el) => matchRole(el, 'listbox', 'option')
+    });
+
+    AccessKit.register({
+        ctor: AK.TreePlugin,
+        match: (el) => matchRole(el, 'tree', 'treeitem')
+    });
+
+    AccessKit.register({
+        ctor: AK.TablistPlugin,
+        match: (el) => matchRole(el, 'tablist', 'tab')
+    });
+
+    // Boot
+    document.addEventListener('DOMContentLoaded', () => {
+        window.AccessKitInstance = new AccessKit(window.AccessKitConfig || {});
+    });
+})();
