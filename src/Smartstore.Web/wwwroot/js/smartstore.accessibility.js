@@ -942,6 +942,7 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         this.on(cb, 'expand.ak', (e) => {
             e.stopPropagation();
             const open = cb.getAttribute('aria-expanded') === 'true';
+
             if (!open) {
                 cb.click();
                 document.addEventListener('mousedown', outsideClick, true);
@@ -1058,7 +1059,8 @@ AK.DisclosurePlugin = class DisclosurePlugin extends AK.AccessKitExpandablePlugi
     init(container = document) {
         /* --- Accordions -------------------------------- */
         container.querySelectorAll('[data-ak-accordion]').forEach(acc => {
-            const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]');
+            // TODO: (wcag) (mh) DRY > See registration selector below...
+            const triggers = this.applyRoving(acc, '[aria-controls][aria-expanded]:not([role="combobox"])');
             this._setCache(acc, triggers);
 
             triggers.forEach(trig => {
