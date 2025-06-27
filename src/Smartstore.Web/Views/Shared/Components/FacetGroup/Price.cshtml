@@ -6,35 +6,30 @@
     var customRangeFacet = Model.Facets.FirstOrDefault(x => x.Key == "custom");
 }
 
-<div class="facet-body-inner" 
-     role="listbox"
-     data-manualselect="true"
-     aria-multiselectable="false" 
-     aria-orientation="vertical" 
-     aria-labelledby="facet-group-header-@Model.Key">
-    @foreach (var facet in Model.Facets)
-    {
-        if (facet.Key != "custom" && facet.Published)
+<div class="facet-body-inner">
+    <div role="radiogroup" data-manualselect="true" aria-orientation="vertical" aria-labelledby="facet-group-header-@Model.Key">
+        @foreach (var facet in Model.Facets)
         {
-            <div class="facet-item facet-radio">
-                <label class="facet-control-label">
-                    <input class="facet-control-native"
-                           type="radio"
-                           id="optradio-@(facet.Value.Key)"
-                           name="optradio-@(Model.Key)"
-                           value="@facet.Value.ToString()"
-                           role="option"
-                           aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
-                           attr-checked='(facet.Value.IsSelected, "checked")'
-                           data-href="@Url.FacetToggle(facet)" />
-                    <span class="facet-control-ui" aria-hidden="true"></span>
-                    <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
-                        @(facet.Value.Label ?? facet.Value.ToString())
-                    </span>
-                </label>
-            </div>
+            if (facet.Key != "custom" && facet.Published)
+            {
+                <div class="facet-item facet-radio">
+                    <label class="facet-control-label">
+                        <input class="facet-control-native"
+                               type="radio"
+                               id="optradio-@(facet.Value.Key)"
+                               name="optradio-@(Model.Key)"
+                               value="@facet.Value.ToString()"
+                               attr-checked='(facet.Value.IsSelected, "checked")'
+                               data-href="@Url.FacetToggle(facet)" />
+                        <span class="facet-control-ui" aria-hidden="true"></span>
+                        <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
+                            @(facet.Value.Label ?? facet.Value.ToString())
+                        </span>
+                    </label>
+                </div>
+            }
         }
-    }
+    </div>
     
     @if (customRangeFacet != null)
     {

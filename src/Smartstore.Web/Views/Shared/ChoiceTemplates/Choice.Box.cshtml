@@ -7,9 +7,8 @@
 
 <div class="choice-boxes" id="choice-boxes-@Model.Id">
     <ul class="choice-box-group" 
-        role="listbox"      
+        role="radiogroup"      
         data-manualselect="true"
-        aria-multiselectable="false" 
         aria-orientation="horizontal"  
         attr-aria-required='(Model.IsRequired, "true")'>
         @foreach (var item in items)
@@ -70,9 +69,7 @@
                        id="@(controlId)_@(item.Id)"
                        name="@(controlId)"
                        value="@item.Id"
-                       role="option"
                        aria-label="@label"
-                       aria-selected="@item.IsPreSelected.ToString().ToLower()"
                        attr-checked='(item.IsPreSelected, "checked")'
                        attr-disabled='(item.IsDisabled, "disabled")' />
 
