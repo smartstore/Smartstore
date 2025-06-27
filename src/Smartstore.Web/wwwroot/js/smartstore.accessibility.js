@@ -102,6 +102,8 @@ class AccessKit {
             if (!root)
                 continue;
 
+            // TODO: (wcag) (mh) Create one plugin instance per widget. Save the instance in the "root" element above.
+
             if (!this._plugins.has(plugin.ctor)) {
                 const instance = new plugin.ctor(this, root);
                 this._plugins.set(plugin.ctor, instance);
