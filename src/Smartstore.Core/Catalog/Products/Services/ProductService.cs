@@ -184,36 +184,37 @@ namespace Smartstore.Core.Catalog.Products
             return result;
         }
 
-        public virtual void ApplyProductReviewTotals(Product product)
+        public virtual async Task ApplyProductReviewTotalsAsync(IEnumerable<Product> products, CancellationToken cancelToken = default)
         {
-            Guard.NotNull(product);
-
-            // TODO: (core) Make a faster ApplyProductReviewTotals later without the necessity to eager load reviews.
-
-            var approvedRatingSum = 0;
-            var notApprovedRatingSum = 0;
-            var approvedTotalReviews = 0;
-            var notApprovedTotalReviews = 0;
-            var reviews = product.ProductReviews;
-
-            foreach (var pr in reviews)
+            if (products.IsNullOrEmpty())
             {
-                if (pr.IsApproved)
-                {
-                    approvedRatingSum += pr.Rating;
-                    approvedTotalReviews++;
-                }
-                else
-                {
-                    notApprovedRatingSum += pr.Rating;
-                    notApprovedTotalReviews++;
-                }
+                return;
             }
 
-            product.ApprovedRatingSum = approvedRatingSum;
-            product.NotApprovedRatingSum = notApprovedRatingSum;
-            product.ApprovedTotalReviews = approvedTotalReviews;
-            product.NotApprovedTotalReviews = notApprovedTotalReviews;
+            var productIds = products.ToDistinctArray(x => x.Id);
+            var allStats = await _db.ProductReviews
+                .Where(x => productIds.Contains(x.ProductId))
+                .GroupBy(x => x.ProductId)
+                .Select(g => new 
+                {
+                    ProductId = g.Key,
+                    ApprovedRatingSum = g.Where(x => x.IsApproved).Sum(x => (int?)x.Rating) ?? 0,
+                    NotApprovedRatingSum = g.Where(x => !x.IsApproved).Sum(x => (int?)x.Rating) ?? 0,
+                    ApprovedTotalReviews = g.Count(x => x.IsApproved),
+                    NotApprovedTotalReviews = g.Count(x => !x.IsApproved)
+                })
+                .ToDictionaryAsync(x => x.ProductId, x => x, cancelToken);
+
+            foreach (var product in products)
+            {
+                if (allStats.TryGetValue(product.Id, out var stats))
+                {
+                    product.ApprovedRatingSum = stats.ApprovedRatingSum;
+                    product.NotApprovedRatingSum = stats.NotApprovedRatingSum;
+                    product.ApprovedTotalReviews = stats.ApprovedTotalReviews;
+                    product.NotApprovedTotalReviews = stats.NotApprovedTotalReviews;
+                }
+            }
         }
 
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity)

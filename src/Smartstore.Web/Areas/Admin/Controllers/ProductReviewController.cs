@@ -12,14 +12,14 @@ namespace Smartstore.Admin.Controllers
 {
     public class ProductReviewController : AdminController
     {
-        private readonly static SelectListItem[] _ratings = new[]
-        {
+        private readonly static SelectListItem[] _ratings =
+        [
             new SelectListItem { Text = "5", Value = "5" },
             new SelectListItem { Text = "4", Value = "4" },
             new SelectListItem { Text = "3", Value = "3" },
             new SelectListItem { Text = "2", Value = "2" },
             new SelectListItem { Text = "1", Value = "1" }
-        };
+        ];
 
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;
@@ -121,17 +121,8 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var productReviews = await _db.ProductReviews.GetManyAsync(ids, true);
-                var productIds = productReviews.ToDistinctArray(x => x.ProductId);
 
                 _db.CustomerContent.RemoveRange(productReviews);
-                await _db.SaveChangesAsync();
-
-                var products = await _db.Products
-                    .Include(x => x.ProductReviews)
-                    .Where(x => productIds.Contains(x.Id))
-                    .ToListAsync();
-
-                products.Each(x => _productService.ApplyProductReviewTotals(x));
                 await _db.SaveChangesAsync();
 
                 success = true;
@@ -146,20 +137,13 @@ namespace Smartstore.Admin.Controllers
         {
             var productReview = await _db.CustomerContent
                 .OfType<ProductReview>()
-                .Include(x => x.Product)
-                .FindByIdAsync(id);
-
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (productReview == null)
             {
                 return NotFound();
             }
 
-            var product = productReview.Product;
-
             _db.CustomerContent.Remove(productReview);
-            await _db.SaveChangesAsync();
-
-            _productService.ApplyProductReviewTotals(product);
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Catalog.ProductReviews.Deleted"));
@@ -214,7 +198,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (approvedChanged)
                 {
-                    _productService.ApplyProductReviewTotals(productReview.Product);
+                    await _productService.ApplyProductReviewTotalsAsync([productReview.Product]);
                     _customerService.ApplyRewardPointsForProductReview(productReview.Customer, productReview.Product, productReview.IsApproved);
 
                     await _db.SaveChangesAsync();
@@ -329,35 +313,35 @@ namespace Smartstore.Admin.Controllers
             var numUpdated = 0;
             var ids = selectedIds.ToIntArray();
 
-            if (ids.Any())
+            if (ids.Length > 0)
             {
                 var productReviews = await _db.CustomerContent
                     .OfType<ProductReview>()
-                    .Include(x => x.Customer).ThenInclude(x => x.RewardPointsHistory)
+                    .Include(x => x.Customer)
+                    .ThenInclude(x => x.RewardPointsHistory)
                     .Where(x => ids.Contains(x.Id) && x.IsApproved != approved)
                     .ToListAsync();
 
-                if (productReviews.Any())
+                if (productReviews.Count > 0)
                 {
                     productReviews.Each(x => x.IsApproved = approved);
+                    await _db.SaveChangesAsync();
 
                     numUpdated = productReviews.Count;
-                    await _db.SaveChangesAsync();
 
                     // Update product review totals.
                     var productIds = productReviews.ToDistinctArray(x => x.ProductId);
-
                     var products = await _db.Products
-                        .Include(x => x.ProductReviews)
                         .Where(x => productIds.Contains(x.Id))
-                        .ToDictionaryAsync(x => x.Id, x => x);
+                        .ToListAsync();
 
-                    products.Each(x => _productService.ApplyProductReviewTotals(x.Value));
+                    await _productService.ApplyProductReviewTotalsAsync(products);
 
                     // Update reward points history.
-                    foreach (var productReview in productReviews)
+                    var productsMap = products.ToDictionarySafe(x => x.Id, x => x);
+                    foreach (var pr in productReviews)
                     {
-                        _customerService.ApplyRewardPointsForProductReview(productReview.Customer, products.Get(productReview.ProductId), productReview.IsApproved);
+                        _customerService.ApplyRewardPointsForProductReview(pr.Customer, productsMap.Get(pr.ProductId), pr.IsApproved);
                     }
 
                     await _db.SaveChangesAsync();

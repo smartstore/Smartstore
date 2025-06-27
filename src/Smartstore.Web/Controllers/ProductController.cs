@@ -564,11 +564,8 @@ namespace Smartstore.Web.Controllers
         [GdprConsent]
         public async Task<IActionResult> ReviewsAdd(int id, ProductReviewsModel model, string captchaError)
         {
-            // INFO: Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
-            var product = await _db.Products
-                .IncludeReviews()
-                .FindByIdAsync(id);
-
+            // INFO: Entity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
+            var product = await _db.Products.FindByIdAsync(id);
             if (product == null || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
             {
                 return NotFound();
@@ -580,7 +577,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-
             if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
             {
                 ModelState.AddModelError(string.Empty, T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
@@ -610,18 +606,22 @@ namespace Smartstore.Web.Controllers
                 };
 
                 product.ProductReviews.Add(productReview);
-                _productService.ApplyProductReviewTotals(product);
+                await _db.SaveChangesAsync();
 
-                if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
-                {
-                    await _messageFactory.Value.SendProductReviewNotificationMessageAsync(productReview, _localizationSettings.DefaultAdminLanguageId);
-                }
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddProductReview, T("ActivityLog.PublicStore.AddProductReview"), product.Name);
+                await _productService.ApplyProductReviewTotalsAsync([product]);
 
                 if (isApproved)
                 {
                     _customerService.ApplyRewardPointsForProductReview(customer, product, true);
+                }
+
+                await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddProductReview, T("ActivityLog.PublicStore.AddProductReview"), product.Name);
+
+                if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
+                {
+                    await _messageFactory.Value.SendProductReviewNotificationMessageAsync(productReview, _localizationSettings.DefaultAdminLanguageId);
                 }
 
                 TempData["SuccessfullyAdded"] = true;
@@ -631,6 +631,7 @@ namespace Smartstore.Web.Controllers
 
             // If we got this far something failed. Redisplay form.
             await _helper.PrepareProductReviewsModelAsync(model, product);
+
             return View(model);
         }
 

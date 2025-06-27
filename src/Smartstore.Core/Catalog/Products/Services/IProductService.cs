@@ -42,10 +42,9 @@ namespace Smartstore.Core.Catalog.Products
         Task<IList<Product>> GetCrossSellProductsByProductIdsAsync(int[] productIds, int numberOfProducts, bool includeHidden = false);
 
         /// <summary>
-        /// Applies the product review totals to a product entity. The caller is responsible for database commit.
+        /// Applies the product review totals to <paramref name="products"/>. The caller is responsible for database commit.
         /// </summary>
-        /// <param name="product">Product entity.</param>
-        void ApplyProductReviewTotals(Product product);
+        Task ApplyProductReviewTotalsAsync(IEnumerable<Product> products, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Adjusts product inventory. The caller is responsible for database commit.
