@@ -379,7 +379,7 @@ $facet-selection-glyph-color:   darken($success, 10%);
     }
 
     *:focus-visible + & {
-        box-shadow: $focus-ring-box-shadow;
+        box-shadow: $focus-ring-box-shadow !important;
     }
 
     *:checked + & {

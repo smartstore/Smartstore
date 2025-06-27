@@ -2,18 +2,28 @@
 
 @model FacetGroup
 
-<div class="facet-body-inner" attr-class='(Model.IsScrollable, "scrollable custom-scrollbar")' role="listbox" aria-labelledby="facet-group-header-@Model.Key">
+<div class="facet-body-inner" attr-class='(Model.IsScrollable, "scrollable custom-scrollbar")' 
+     role="listbox"
+     data-manualselect="true"
+     aria-multiselectable="false" 
+     aria-orientation="vertical" 
+     aria-labelledby="facet-group-header-@Model.Key">
     @foreach (var facet in Model.Facets)
     {
         if (facet.Published)
         {
             <div class="facet-item facet-radio">
-                <label for="optradio-@(facet.Value.Key)">
-                    <span class="facet-control-ui" 
-                          role="option" 
-                          tabindex="0"
-                          aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
-                          aria-label="@(facet.Value.Label ?? facet.Value.ToString())"></span>
+                <label class="choice-box-label" for="optradio-@(facet.Value.Key)">
+                    <input class="facet-control-native"
+                           type="radio"
+                           id="optradio-@(facet.Value.Key)"
+                           name="optradio-@(Model.Key)"
+                           value="@facet.Value.ToString()"
+                           role="option"
+                           aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
+                           attr-checked='(facet.Value.IsSelected, "checked")'
+                           data-href="@Url.FacetToggle(facet)" />
+                    <span class="facet-control-ui" aria-label="@(facet.Value.Label ?? facet.Value.ToString())"></span>
                     <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                         @(facet.Value.Label ?? facet.Value.ToString())
                     </span>
@@ -22,18 +32,3 @@
         }
     }
 </div>
-
-@foreach (var facet in Model.Facets)
-{
-    if (facet.Published)
-    {
-        <input class="facet-control-native sr-only" 
-               type="radio" 
-               tabindex="-1"
-               id="optradio-@(facet.Value.Key)" 
-               name="optradio-@(Model.Key)" 
-               value="@facet.Value.ToString()" 
-               attr-checked='(facet.Value.IsSelected, "checked")' 
-               data-href="@Url.FacetToggle(facet)" />
-    }
-}

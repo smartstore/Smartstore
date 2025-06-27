@@ -6,7 +6,12 @@
     var customRangeFacet = Model.Facets.FirstOrDefault(x => x.Key == "custom");
 }
 
-<div class="facet-body-inner" role="group" aria-multiselectable="false" aria-labelledby="facet-group-header-@Model.Key">
+<div class="facet-body-inner" 
+     role="listbox"
+     data-manualselect="true"
+     aria-multiselectable="false" 
+     aria-orientation="vertical" 
+     aria-labelledby="facet-group-header-@Model.Key">
     @foreach (var facet in Model.Facets)
     {
         if (facet.Key != "custom" && facet.Published)
@@ -18,9 +23,11 @@
                            id="optradio-@(facet.Value.Key)"
                            name="optradio-@(Model.Key)"
                            value="@facet.Value.ToString()"
+                           role="option"
+                           aria-selected="@facet.Value.IsSelected.ToString().ToLower()"
                            attr-checked='(facet.Value.IsSelected, "checked")'
                            data-href="@Url.FacetToggle(facet)" />
-                    <span class="facet-control-ui"></span>
+                    <span class="facet-control-ui" aria-hidden="true"></span>
                     <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
                         @(facet.Value.Label ?? facet.Value.ToString())
                     </span>
