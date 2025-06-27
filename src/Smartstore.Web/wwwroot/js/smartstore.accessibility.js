@@ -10,7 +10,7 @@
 class AccessKit {
     static _registry = [];
     static _textInputTypes = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
-    static activeOptionSelector = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
+    static _activeOptionSelector = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
 
     /**
     * Add a plugin descriptor to the global plugin registry of AccessKit
@@ -794,7 +794,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         list.dataset.akMultiselect = list.getAttribute('aria-multiselectable');
 
         // Initialise roving tabindex & ensure aria-selected is set
-        const options = this.applyRoving(list, AK.activeOptionSelector);
+        const options = this.applyRoving(list, AK._activeOptionSelector);
         this._setCache(list, options);
             options.forEach(opt => {
                 if (!opt.hasAttribute('aria-selected')) {
@@ -804,7 +804,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
         // Pointer interaction mirrors keyboard behaviour
         list.addEventListener('click', e => {
-            const opt = e.target.closest(AK.activeOptionSelector);
+            const opt = e.target.closest(AK._activeOptionSelector);
             if (opt && list.contains(opt)) {
                 const opts = this._options(list);
                 this._move(opt, list, opts);
@@ -820,7 +820,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
     _options(list) {
         return this._getCache(list, () =>
-            [...list.querySelectorAll(AK.activeOptionSelector)]
+            [...list.querySelectorAll(AK._activeOptionSelector)]
                 .filter(opt => opt.closest('[role="listbox"]') === list)
         );
     }
@@ -1030,8 +1030,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         cb.setAttribute('aria-activedescendant', opt.id || (opt.id = `ak-opt-${crypto.randomUUID()}`));
     }
 
-    _firstOption(list) { return list.querySelector(AK.activeOptionSelector); }
-    _lastOption(list) { const opts = list.querySelectorAll(AK.activeOptionSelector); return opts[opts.length - 1] || null; }
+    _firstOption(list) { return list.querySelector(AK._activeOptionSelector); }
+    _lastOption(list) { const opts = list.querySelectorAll(AK._activeOptionSelector); return opts[opts.length - 1] || null; }
 };
 
 /**
