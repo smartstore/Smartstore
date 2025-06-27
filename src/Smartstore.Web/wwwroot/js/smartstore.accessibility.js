@@ -430,50 +430,60 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         const shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
         // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
-        this.trigger(shouldOpen ? 'expand' : 'collapse', trigger, {
-            trigger, target, callback: () => {
-                // Set attributes & visibilty
-                if (trigger.hasAttribute('aria-expanded')) {
-                    trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-                } else if ('open' in trigger) {
-                    trigger.open = shouldOpen;
-                }
+        this.trigger(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
 
-                // TODO: (wcag) (mh) Don't do this! This should be handled by the event consumer. Remove after testing in all expandable plugins.
-                //if (target) target.hidden = !shouldOpen;
+        // Wait for transition end to set focus
+        const isInTransition = target.getAnimations().some(a => a instanceof CSSTransition && a.playState === 'running');
 
-                // Accordeon mode > toggle siblings
-                if (shouldOpen && opt.collapseSiblings && trigger.parentElement) {
-                    const peers = trigger.parentElement.querySelectorAll('[aria-expanded="true"],[open]');
-                    peers.forEach((p) => {
-                        if (p !== trigger) this.toggleExpanded(p, false);
-                    });
-                }
-
-                // Focus
-                //if (shouldOpen && target) {
-                if (target) {
-                    let focusEl = null;
-                    if (opt.focusTarget === 'first') {
-                        // TODO: (wcag) (mh) This smells :-)
-                        focusEl = target.querySelector(':is([tabindex="0"], button, a, input, select, textarea):not([tabindex="-1"])');
-                    } else if (opt.focusTarget instanceof HTMLElement) {
-                        focusEl = opt.focusTarget;
-                    } else if (opt.focusTarget === 'trigger') {
-                        focusEl = trigger;
-                    }
-
-                    focusEl?.focus();
-                }
-
-                // Set attributes
+        if (isInTransition && shouldOpen) {
+            target.addEventListener('transitionend', setAttrsAndFocus, { once: true });
+        }
+        else {
+            setAttrsAndFocus();
+        }
+        
+        function setAttrsAndFocus() {
+            // Set attributes & visibilty
+            if (trigger.hasAttribute('aria-expanded')) {
                 trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-
-                if (target) {
-                    target.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-                }
+            } else if ('open' in trigger) {
+                trigger.open = shouldOpen;
             }
-        });
+
+            // TODO: (wcag) (mh) Don't do this! This should be handled by the event consumer. Remove after testing in all expandable plugins.
+            //if (target) target.hidden = !shouldOpen;
+
+            // Accordeon mode > toggle siblings
+            if (shouldOpen && opt.collapseSiblings && trigger.parentElement) {
+                const peers = trigger.parentElement.querySelectorAll('[aria-expanded="true"],[open]');
+                peers.forEach((p) => {
+                    if (p !== trigger) this.toggleExpanded(p, false);
+                });
+            }
+
+            // Focus
+            //if (shouldOpen && target) {
+            if (target) {
+                let focusEl = null;
+                if (opt.focusTarget === 'first') {
+                    // TODO: (wcag) (mh) This smells :-)
+                    focusEl = target.querySelector(':is([tabindex="0"], button, a, input, select, textarea):not([tabindex="-1"])');
+                } else if (opt.focusTarget instanceof HTMLElement) {
+                    focusEl = opt.focusTarget;
+                } else if (opt.focusTarget === 'trigger') {
+                    focusEl = trigger;
+                }
+
+                focusEl?.focus();
+            }
+
+            // Set attributes
+            trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+
+            if (target) {
+                target.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+            }
+        }
     }
 }
 
