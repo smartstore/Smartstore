@@ -10,6 +10,7 @@
 class AccessKit {
     static _registry = [];
     static _textInputTypes = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
+    static activeOptionSelector = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
 
     /**
     * Add a plugin descriptor to the global plugin registry of AccessKit
@@ -194,9 +195,6 @@ class AccessKit {
             AccessKitFocusTrap.deactivate();
         });
     }
-
-    // TODO: (wcag) (mh) Apply this to listbox also. Disabled options never can be selected and thus not obtain focus!
-    static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
 }
 
 // Global namespace
@@ -813,7 +811,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         //    }
         //});
 
-        const options = this.applyRoving(list, '[role="option"]');
+        const options = this.applyRoving(list, AK.activeOptionSelector);
         this._setCache(list, options);
             options.forEach(opt => {
                 if (!opt.hasAttribute('aria-selected')) {
@@ -823,7 +821,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
 
         // Pointer interaction mirrors keyboard behaviour
         list.addEventListener('click', e => {
-            const opt = e.target.closest('[role="option"]');
+            const opt = e.target.closest(AK.activeOptionSelector);
             if (opt && list.contains(opt)) {
                 const opts = this._options(list);
                 this._move(opt, list, opts);
@@ -842,7 +840,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
         //    .filter(opt => opt.closest('[role="listbox"]') === list);
 
         return this._getCache(list, () =>
-            [...list.querySelectorAll('[role="option"]')]
+            [...list.querySelectorAll(AK.activeOptionSelector)]
                 .filter(opt => opt.closest('[role="listbox"]') === list)
         );
     }
@@ -1051,8 +1049,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         cb.setAttribute('aria-activedescendant', opt.id || (opt.id = `ak-opt-${crypto.randomUUID()}`));
     }
 
-    _firstOption(list) { return list.querySelector(AK.ACTIVE_OPTION_SELECTOR); }
-    _lastOption(list) { const opts = list.querySelectorAll(AK.ACTIVE_OPTION_SELECTOR); return opts[opts.length - 1] || null; }
+    _firstOption(list) { return list.querySelector(AK.activeOptionSelector); }
+    _lastOption(list) { const opts = list.querySelectorAll(AK.activeOptionSelector); return opts[opts.length - 1] || null; }
 };
 
 /* --------------------------------------------------
