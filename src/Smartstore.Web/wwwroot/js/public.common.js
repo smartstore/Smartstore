@@ -123,6 +123,9 @@
                 const labelPrev = list.data("label-prev") || '';
                 const labelNext = list.data("label-next") || '';
 
+                // Slick adds role="list" in one of its wrappers. Keeping root role ist invalid.
+                list.removeAttr('role');
+
                 if (list.hasClass('slick-initialized')) {
                     list.slick('destroy');
                 }
