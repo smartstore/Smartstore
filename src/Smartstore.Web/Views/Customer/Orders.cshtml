@@ -41,7 +41,7 @@
                         </dd>
                         <dt class="col-sm-3 fwn text-muted">@T("Order.OrderTotal")</dt>
                         <dd class="col-sm-9 price">
-                            <data value="@RoundingHelper.Round(order.OrderTotal).ToStringInvariant()">@order.OrderTotal</data>
+                            <data asp-for="@order.OrderTotal"></data>
                         </dd>
                     </dl>
                 </div>

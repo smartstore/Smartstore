@@ -127,7 +127,6 @@ namespace Smartstore.Web.Models.Orders
         public partial class GiftCard : ModelBase
         {
             public Money Amount { get; set; }
-            public string FormattedAmount { get; set; }
             public Money Remaining { get; set; }
             public string CouponCode { get; set; }
         }

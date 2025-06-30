@@ -70,9 +70,7 @@
 
                     @* Single unit price *@
                     <div class="pd-finalprice">
-                        <data class="pd-finalprice-amount" value="@RoundingHelper.Round(item.UnitPrice).ToStringInvariant()">
-                            @Html.Raw(item.UnitPrice)
-                        </data>
+                        <data asp-for="@item.UnitPrice" class="pd-finalprice-amount"></data>
                     </div>
 
                     @* Quantity *@
@@ -83,9 +81,7 @@
                     @* Subtotal *@
                     <div sm-if="item.UnitPrice != item.SubTotal" class="pd-subtotal pd-muted">
                         <span class="pd-subtotal-label">@T("Order.Product(s).Total"):</span>
-                        <data class="pd-subtotal-amount fwm" value="@RoundingHelper.Round(item.SubTotal).ToStringInvariant()">
-                            @Html.Raw(item.SubTotal)
-                        </data>
+                        <data asp-for="@item.SubTotal" class="pd-subtotal-amount fwm"></data>
                     </div>
                 </div>
             </div>
@@ -151,9 +147,7 @@
                     @* Price *@
                     <div sm-if="item.PriceWithDiscount > 0" class="cart-item-price-group cart-item-group">
                         <div class="pd-finalprice">
-                            <data class="pd-finalprice-amount" value="@RoundingHelper.Round(item.PriceWithDiscount).ToStringInvariant()">
-                                @item.PriceWithDiscount
-                            </data>
+                            <data asp-for="@item.PriceWithDiscount" class="pd-finalprice-amount"></data>
                         </div>
                     </div>
                 </div>
@@ -214,7 +208,7 @@
                 <div class="col-6 col-sm-auto pb-3">
                     <div class="text-muted h5">@T("Order.OrderTotal")</div>
                     <div class="text-success-emphasis fwm">
-                        <data value="@RoundingHelper.Round(Model.OrderTotal).ToStringInvariant()">@Model.OrderTotal</data>
+                        <data asp-for="@Model.OrderTotal"></data>
                     </div>
                 </div>
             </div>
@@ -319,25 +313,25 @@
                                         @*TODO: (wcag) (mg) Should be "th scope=row".*@
                                         <td class="cart-summary-label">@T("Order.SubTotal"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderSubtotal).ToStringInvariant()">@Model.OrderSubtotal</data>
+                                            <data asp-for="@Model.OrderSubtotal"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderSubTotalDiscount != 0" class="cart-summary-subtotaldiscount cart-summary-pos">
                                         <td class="cart-summary-label">@T("Order.SubTotalDiscount"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderSubTotalDiscount).ToStringInvariant()">@Model.OrderSubTotalDiscount</data>
+                                            <data asp-for="@Model.OrderSubTotalDiscount"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.IsShippable" class="cart-summary-shipping cart-summary-neg">
                                         <td class="cart-summary-label">@T("Order.Shipping"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderShipping).ToStringInvariant()">@Model.OrderShipping</data>
+                                            <data asp-for="@Model.OrderShipping"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.PaymentMethodAdditionalFee != 0" class="cart-summary-payfee cart-summary-neg">
                                         <td class="cart-summary-label">@T("Order.PaymentMethodAdditionalFee"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.PaymentMethodAdditionalFee).ToStringInvariant()">@Model.PaymentMethodAdditionalFee</data>
+                                            <data asp-for="@Model.PaymentMethodAdditionalFee"></data>
                                         </td>
                                     </tr>
                                     @if (Model.DisplayTaxRates && Model.TaxRates.Count > 0)
@@ -347,7 +341,7 @@
                                             <tr class="cart-summary-tax">
                                                 <td class="cart-summary-label">@T("Order.TaxRateLine", taxRate.FormattedRate):</td>
                                                 <td class="cart-summary-value">
-                                                    <data value="@RoundingHelper.Round(taxRate.Amount).ToStringInvariant()">@taxRate.Amount</data>
+                                                    <data asp-for="@taxRate.Amount"></data>
                                                 </td>
                                             </tr>
                                         }
@@ -355,18 +349,19 @@
                                     <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
                                         <td class="cart-summary-label">@T("Order.Tax"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.Tax).ToStringInvariant()">@Model.Tax</data>
+                                            <data asp-for="@Model.Tax"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderTotalDiscount != 0" class="cart-summary-totaldiscount cart-summary-pos">
                                         <td class="cart-summary-label">@T("Order.TotalDiscount"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderTotalDiscount).ToStringInvariant()">@Model.OrderTotalDiscount</data>
+                                            <data asp-for="@Model.OrderTotalDiscount"></data>
                                         </td>
                                     </tr>
 
                                     @foreach (var gc in Model.GiftCards)
                                     {
+                                        var gcAmount = gc.Amount * -1;
                                         var gcRemaining = $"<data value=\"{RoundingHelper.Round(gc.Remaining).ToStringInvariant()}\">{gc.Remaining}</data>";
                                         <tr class="cart-summary-giftcard">
                                             <td class="cart-summary-label">
@@ -376,7 +371,7 @@
                                                 </span>
                                             </td>
                                             <td class="cart-summary-value cart-summary-pos">
-                                                <data value="@RoundingHelper.Round(gc.Amount * -1).ToStringInvariant()">@gc.FormattedAmount</data>
+                                                <data asp-for="@gcAmount"></data>
                                             </td>
                                         </tr>
                                     }
@@ -384,19 +379,19 @@
                                     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
                                         <td class="cart-summary-label">@T("Order.RewardPoints", Model.RedeemedRewardPoints):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.RedeemedRewardPointsAmount).ToStringInvariant()">@Model.RedeemedRewardPointsAmount</data>
+                                            <data asp-for="@Model.RedeemedRewardPointsAmount"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.CreditBalance > 0" class="cart-summary-credit-balance cart-summary-pos">
                                         <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.CreditBalance).ToStringInvariant()">@Model.CreditBalance</data>
+                                            <data asp-for="@Model.CreditBalance"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderTotalRounding != 0" class="cart-summary-totalrounding cart-summary-pos">
                                         <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderTotalRounding).ToStringInvariant()">@Model.OrderTotalRounding</data>
+                                            <data asp-for="@Model.OrderTotalRounding"></data>
                                         </td>
                                     </tr>
                                     <tr>
@@ -405,7 +400,7 @@
                                     <tr class="cart-summary-total">
                                         <td class="cart-summary-label">@T("Order.OrderTotal"):</td>
                                         <td class="cart-summary-value">
-                                            <data value="@RoundingHelper.Round(Model.OrderTotal).ToStringInvariant()">@Model.OrderTotal</data>
+                                            <data asp-for="@Model.OrderTotal"></data>
                                         </td>
                                     </tr>
                                 </table>

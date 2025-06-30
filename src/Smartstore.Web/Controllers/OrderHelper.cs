@@ -518,7 +518,6 @@ namespace Smartstore.Web.Controllers
                 model.GiftCards.Add(new OrderDetailsModel.GiftCard
                 {
                     Amount = amount,
-                    FormattedAmount = (amount * -1).ToString(),
                     Remaining = ConvertToExchangeRate(remainingAmount.Amount),
                     CouponCode = gcuh.GiftCard.GiftCardCouponCode
                 });

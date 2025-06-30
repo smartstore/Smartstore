@@ -250,9 +250,12 @@
                         {
                             foreach (var gc in order.GiftCards)
                             {
+                                var gcAmount = gc.Amount * -1;
                                 <tr>
                                     <td class="label">@Html.Raw(T("Order.GiftCardInfo", gc.CouponCode)):</td>
-                                    <td class="value">@gc.FormattedAmount</td>
+                                    <td class="value">
+                                        <data asp-for="@gcAmount"></data>
+                                    </td>
                                 </tr>
                             }
                         }
