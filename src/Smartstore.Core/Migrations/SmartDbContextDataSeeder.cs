@@ -61,6 +61,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CheckoutStep.Visited", "Completed", "Abgeschlossen");
             builder.AddOrUpdate("Aria.Label.CheckoutStep.Current", "Current step", "Aktueller Schritt");
             builder.AddOrUpdate("Aria.Label.CheckoutStep.Pending", "Not visited", "Noch nicht besucht");
+            builder.AddOrUpdate("Aria.Label.SearchHitCount", "Search results", "Suchergebnisse");
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");

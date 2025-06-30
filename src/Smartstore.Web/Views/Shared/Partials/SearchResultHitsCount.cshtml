@@ -12,6 +12,9 @@
         var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
         var pageSize = $"<span class='lrm'>{Model.TotalHitsCount.ToString("N0")}</span>";
 
-        <h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+        <p class="search-hitcount h5 mb-2">
+            <span class="sr-only">@T("Aria.Label.SearchHitCount"): </span>
+            @Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))
+        </p>
     }
 }
