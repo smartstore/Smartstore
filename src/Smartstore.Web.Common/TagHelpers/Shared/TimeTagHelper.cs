@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -19,15 +18,45 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             var value = For?.Model;
 
-            if (value is not DateTime dateTime)
+            string attr = null;
+            string content = null;
+
+            if (value is DateTime dt)
             {
-                output.SuppressOutput();
-                return;
+                attr = dt.ToIso8601String();
+                content = Humanize ? dt.ToHumanizedString(false) : dt.ToNativeString(Format);
+            }
+            else if (value is DateTimeOffset dto)
+            {
+                attr = dto.ToIso8601String();
+                content = Humanize ? dto.ToHumanizedString() : dto.ToNativeString(Format);
+            }
+            else if (value is DateOnly dateOnly)
+            {
+                attr = dateOnly.ToIso8601String();
+                content = Humanize ? dateOnly.ToHumanizedString() : dateOnly.ToNativeString(Format);
+            }
+            else if (value is TimeSpan timeSpan)
+            {
+                var timeOnly = TimeOnly.FromTimeSpan(timeSpan);
+                attr = timeOnly.ToIso8601String();
+                content = Humanize ? timeOnly.ToHumanizedString() : timeOnly.ToNativeString(Format);
+            }
+            else if (value is TimeOnly timeOnly)
+            {
+                attr = timeOnly.ToIso8601String();
+                content = Humanize ? timeOnly.ToHumanizedString() : timeOnly.ToNativeString(Format);
             }
 
-            output.TagName = "time";
-            output.Attributes.SetAttribute("datetime", dateTime.ToIso8601String());
-            output.Content.SetContent(Humanize ? dateTime.ToHumanizedString(false) : dateTime.ToNativeString(Format));
+            if (attr == null && content == null)
+            {
+                output.SuppressOutput();
+            }
+            else
+            {
+                output.Attributes.SetAttribute("datetime", attr);
+                output.Content.SetContent(content);
+            }
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using System.Globalization;
+﻿#nullable enable
+
+using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Xml;
 using Humanizer;
 
 namespace Smartstore
@@ -16,7 +19,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToUniversalTime(this DateTime? value)
         {
-            return value.HasValue ? value.Value.ToUniversalTime() : (DateTime?)null;
+            return value.HasValue ? value.Value.ToUniversalTime() : null;
         }
 
         /// <summary>
@@ -27,7 +30,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToLocalTime(this DateTime? value)
         {
-            return value.HasValue ? value.Value.ToLocalTime() : (DateTime?)null;
+            return value.HasValue ? value.Value.ToLocalTime() : null;
         }
 
 
@@ -174,45 +177,73 @@ namespace Smartstore
         /// Converts a DateTime to a string with native digits
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToNativeString(this DateTime value)
-        {
-            return value.ToNativeString(null, null);
-        }
+        public static string ToNativeString(this DateTime value, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, null, provider);
 
         /// <summary>
         /// Converts a DateTime to a string with native digits
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToNativeString(this DateTime value, IFormatProvider provider)
-        {
-            return value.ToNativeString(null, provider);
-        }
+        public static string ToNativeString(this DateTime value, string? format, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, format, provider);
 
         /// <summary>
-        /// Converts a DateTime to a string with native digits
+        /// Converts a DateTimeOffset to a string with native digits
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToNativeString(this DateTime value, string format)
-        {
-            return value.ToNativeString(format, null);
-        }
+        public static string ToNativeString(this DateTimeOffset value, string? format, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, format, provider);
 
         /// <summary>
-        /// Converts a DateTime to a string with native digits
+        /// Converts a DateOnly to a string with native digits
         /// </summary>
-        public static string ToNativeString(this DateTime value, string format, IFormatProvider provider)
-        {
-            provider ??= CultureInfo.CurrentCulture;
-            return value.ToString(format, provider).ReplaceNativeDigits(provider);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToNativeString(this DateOnly value, string? format, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, format, provider);
+
+        /// <summary>
+        /// Converts a TimeOnly to a string with native digits
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToNativeString(this TimeOnly value, string? format, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, format, provider);
+
+        /// <summary>
+        /// Converts a TimeSpan to a string with native digits
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToNativeString(this TimeSpan value, string? format, IFormatProvider? provider = null)
+            => FormatWithNativeDigits(value, format, provider);
 
         /// <summary>
         /// Converts a DateTime to ISO 8601 string
         /// </summary>
         public static string ToIso8601String(this DateTime value)
-        {
-            return value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-        }
+            => value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// Converts a DateTimeOffset to ISO 8601 string
+        /// </summary>
+        public static string ToIso8601String(this DateTimeOffset value)
+            => value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// Converts a DateOnly to ISO 8601 string
+        /// </summary>
+        public static string ToIso8601String(this DateOnly value)
+            => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// Converts a TimeOnly to ISO 8601 string
+        /// </summary>
+        public static string ToIso8601String(this TimeOnly value)
+            => value.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// Converts a TimeSpan to ISO 8601 string
+        /// </summary>
+        public static string ToIso8601String(this TimeSpan value)
+            => XmlConvert.ToString(value);
 
         /// <inheritdoc cref="DateHumanizeExtensions.Humanize(DateTime, bool?, DateTime?, CultureInfo)"/>
         public static string ToHumanizedString(this DateTime value, bool? utcDate = null, DateTime? dateToCompareAgainst = null)
@@ -239,6 +270,55 @@ namespace Smartstore
             {
                 return value.Humanize(utcDate, dateToCompareAgainst, CultureInfo.InvariantCulture);
             }
+        }
+
+        /// <inheritdoc cref="DateHumanizeExtensions.Humanize(DateTimeOffset, DateTimeOffset?, CultureInfo)"/>
+        public static string ToHumanizedString(this DateTimeOffset value, DateTimeOffset? dateToCompareAgainst = null)
+        {
+            try
+            {
+                return value.Humanize(dateToCompareAgainst);
+            }
+            catch (ArgumentException)
+            {
+                // See https://github.com/smartstore/Smartstore/issues/1041
+                return value.Humanize(dateToCompareAgainst, CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <inheritdoc cref="DateHumanizeExtensions.Humanize(DateOnly, DateOnly?, CultureInfo)"/>
+        public static string ToHumanizedString(this DateOnly value, DateOnly? dateToCompareAgainst = null)
+        {
+            try
+            {
+                return value.Humanize(dateToCompareAgainst);
+            }
+            catch (ArgumentException)
+            {
+                // See https://github.com/smartstore/Smartstore/issues/1041
+                return value.Humanize(dateToCompareAgainst, CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <inheritdoc cref="DateHumanizeExtensions.Humanize(TimeOnly, TimeOnly?, bool, CultureInfo)"/>
+        public static string ToHumanizedString(this TimeOnly value, bool useUtc = true, TimeOnly? dateToCompareAgainst = null)
+        {
+            try
+            {
+                return value.Humanize(dateToCompareAgainst, useUtc);
+            }
+            catch (ArgumentException)
+            {
+                // See https://github.com/smartstore/Smartstore/issues/1041
+                return value.Humanize(dateToCompareAgainst, useUtc, CultureInfo.InvariantCulture);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static string FormatWithNativeDigits<T>(T value, string? format, IFormatProvider? provider) where T : IFormattable
+        {
+            provider ??= CultureInfo.CurrentCulture;
+            return value.ToString(format, provider).ReplaceNativeDigits(provider);
         }
     }
 }
