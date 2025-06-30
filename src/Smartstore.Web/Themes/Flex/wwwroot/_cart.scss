@@ -343,9 +343,13 @@
     width: 100%;
     line-height: 1.3;
 
-    td {
+    td, th {
         padding: 0.4rem 0;
         vertical-align: top;
+    }
+
+    th {
+        font-weight: $font-weight-normal;
     }
 
     .cart-summary-label {
@@ -369,10 +373,12 @@
     }
 
     .cart-summary-total {
-        font-size: $font-size-lg;
-        font-weight: $font-weight-medium;
+        td, th { padding-top: 0.75rem; }
 
-        td { padding-top: 0.75rem; }
+        > .cart-summary-label, > .cart-summary-value {
+            font-size: $font-size-lg;
+            font-weight: $font-weight-medium;
+        }
     }
 
     .cart-summary-giftcard br {

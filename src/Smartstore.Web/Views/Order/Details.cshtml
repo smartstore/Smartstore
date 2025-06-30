@@ -310,26 +310,25 @@
                             <div class="col-12 cart-footer-group">
                                 <table class="cart-summary">
                                     <tr class="cart-summary-subtotal">
-                                        @*TODO: (wcag) (mg) Should be "th scope=row".*@
-                                        <td class="cart-summary-label">@T("Order.SubTotal"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.SubTotal"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderSubtotal"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderSubTotalDiscount != 0" class="cart-summary-subtotaldiscount cart-summary-pos">
-                                        <td class="cart-summary-label">@T("Order.SubTotalDiscount"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.SubTotalDiscount"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderSubTotalDiscount"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.IsShippable" class="cart-summary-shipping cart-summary-neg">
-                                        <td class="cart-summary-label">@T("Order.Shipping"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.Shipping"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderShipping"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.PaymentMethodAdditionalFee != 0" class="cart-summary-payfee cart-summary-neg">
-                                        <td class="cart-summary-label">@T("Order.PaymentMethodAdditionalFee"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.PaymentMethodAdditionalFee"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.PaymentMethodAdditionalFee"></data>
                                         </td>
@@ -339,7 +338,7 @@
                                         foreach (var taxRate in Model.TaxRates)
                                         {
                                             <tr class="cart-summary-tax">
-                                                <td class="cart-summary-label">@T("Order.TaxRateLine", taxRate.FormattedRate):</td>
+                                                <th scope="row" class="cart-summary-label">@T("Order.TaxRateLine", taxRate.FormattedRate):</th>
                                                 <td class="cart-summary-value">
                                                     <data asp-for="@taxRate.Amount"></data>
                                                 </td>
@@ -347,13 +346,13 @@
                                         }
                                     }
                                     <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
-                                        <td class="cart-summary-label">@T("Order.Tax"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.Tax"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.Tax"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderTotalDiscount != 0" class="cart-summary-totaldiscount cart-summary-pos">
-                                        <td class="cart-summary-label">@T("Order.TotalDiscount"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.TotalDiscount"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderTotalDiscount"></data>
                                         </td>
@@ -364,12 +363,12 @@
                                         var gcAmount = gc.Amount * -1;
                                         var gcRemaining = $"<data value=\"{RoundingHelper.Round(gc.Remaining).ToStringInvariant()}\">{gc.Remaining}</data>";
                                         <tr class="cart-summary-giftcard">
-                                            <td class="cart-summary-label">
+                                            <th scope="row" class="cart-summary-label">
                                                 <span class="cart-summary-pos pr-1">@T("Order.GiftCardInfo", gc.CouponCode)</span>
                                                 <span class="text-nowrap text-muted small">
                                                     @Html.Raw(T("ShoppingCart.Totals.GiftCardInfo.Remaining", gcRemaining))
                                                 </span>
-                                            </td>
+                                            </th>
                                             <td class="cart-summary-value cart-summary-pos">
                                                 <data asp-for="@gcAmount"></data>
                                             </td>
@@ -377,19 +376,19 @@
                                     }
 
                                     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
-                                        <td class="cart-summary-label">@T("Order.RewardPoints", Model.RedeemedRewardPoints):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.RewardPoints", Model.RedeemedRewardPoints):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.RedeemedRewardPointsAmount"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.CreditBalance > 0" class="cart-summary-credit-balance cart-summary-pos">
-                                        <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.CreditBalance"></data>
                                         </td>
                                     </tr>
                                     <tr sm-if="Model.OrderTotalRounding != 0" class="cart-summary-totalrounding cart-summary-pos">
-                                        <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderTotalRounding"></data>
                                         </td>
@@ -398,7 +397,7 @@
                                         <td colspan="2"><hr class="my-0" /></td>
                                     </tr>
                                     <tr class="cart-summary-total">
-                                        <td class="cart-summary-label">@T("Order.OrderTotal"):</td>
+                                        <th scope="row" class="cart-summary-label">@T("Order.OrderTotal"):</th>
                                         <td class="cart-summary-value">
                                             <data asp-for="@Model.OrderTotal"></data>
                                         </td>
