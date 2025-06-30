@@ -19,7 +19,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            output.TagName = "data";
             output.Attributes.SetAttribute("value", _roundingHelper.Round(money).ToStringInvariant());
             output.AppendCssClass("text-nowrap");
             output.Content.SetContent(money.ToString());
