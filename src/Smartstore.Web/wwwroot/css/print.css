@@ -118,6 +118,10 @@ tr {
     page-break-inside: avoid;
 }
 
+address {
+    font-style: normal;
+}
+
 
 /* -------------------------------------------------------------- 
  	Layout
@@ -1002,7 +1006,7 @@ th, td {
     font-weight: bold;
 }
 
-.order-totals td.label {
+.order-totals .label {
     font-weight: bold;
     padding-left: 0;
 }

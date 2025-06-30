@@ -102,7 +102,9 @@
                         </span>
                     </div>
                     <div sm-if="order.BillingAddress != null" class="mt-2">
-                        @Html.Raw(order.BillingAddress.FormattedAddress)
+                        <address>
+                            @Html.Raw(order.BillingAddress.FormattedAddress)
+                        </address>
                     </div>
                 </div>
 
@@ -111,23 +113,23 @@
                 <div class="order-info text-small pull-right float-right">
                     <table>
                         <tr>
-                            <td class="label">@T("PDFInvoice.Order#"):</td>
+                            <th scope="row" class="label">@T("PDFInvoice.Order#"):</th>
                             <td class="value">@order.OrderNumber</td>
                         </tr>
                         <tr sm-if="order.PurchaseOrderNumber.HasValue()">
-                            <td class="label">@T("Order.PurchaseOrderNumber"):</td>
+                            <th scope="row" class="label">@T("Order.PurchaseOrderNumber"):</th>
                             <td class="value">@order.PurchaseOrderNumber</td>
                         </tr>
                         <tr>
-                            <td class="label">@T("Common.Date"):</td>
+                            <th scope="row" class="label">@T("Common.Date"):</th>
                             <td class="value">@order.CreatedOn.ToShortDateString().ReplaceNativeDigits()</td>
                         </tr>
                         <tr sm-if="order.ShippingMethod.HasValue()">
-                            <td class="label">@T("Order.ShippingMethod"):</td>
+                            <th scope="row" class="label">@T("Order.ShippingMethod"):</th>
                             <td class="value">@order.ShippingMethod</td>
                         </tr>
                         <tr sm-if="order.PaymentMethod.HasValue()">
-                            <td class="label">@T("Order.PaymentMethod"):</td>
+                            <th scope="row" class="label">@T("Order.PaymentMethod"):</th>
                             <td class="value">@order.PaymentMethod</td>
                         </tr>
 
@@ -154,7 +156,6 @@
                                 <td class="value">@order.DirectDebitBIC</td>
                             </tr>
                         }
-
                     </table>
 
                     <zone name="invoice_orderinfotable_after" model="@order"></zone>
@@ -173,14 +174,14 @@
                 <table class="table order-summary">
                     <thead>
                         <tr>
-                            <th style="width: @(colWidths[0])%">@T("PDFInvoice.ProductName")</th>
+                            <th scope="col" style="width: @(colWidths[0])%">@T("PDFInvoice.ProductName")</th>
                             @if (order.ShowSku)
                             {
                                 <th style="width: @(colWidths[1])%">@T("PDFInvoice.SKU")</th>
                             }
-                            <th class="text-center" style="width: @(colWidths[2])%">@T("PDFInvoice.ProductQuantity")</th>
-                            <th class="text-right" style="width: @(colWidths[3])%">@T("PDFInvoice.ProductPrice")</th>
-                            <th class="text-right" style="width: @(colWidths[4])%">@T("PDFInvoice.ProductTotal")</th>
+                            <th scope="col" class="text-center" style="width: @(colWidths[2])%">@T("PDFInvoice.ProductQuantity")</th>
+                            <th scope="col" class="text-right" style="width: @(colWidths[3])%">@T("PDFInvoice.ProductPrice")</th>
+                            <th scope="col" class="text-right" style="width: @(colWidths[4])%">@T("PDFInvoice.ProductTotal")</th>
                         </tr>
                     </thead>
                     @foreach (var item in order.Items)
@@ -210,19 +211,19 @@
                 <div class="pull-right float-right table-responsive" style="width: 40%; page-break-inside: avoid">
                     <table class="table order-totals">
                         <tr>
-                            <td class="label">@T("Order.SubTotal"):</td>
+                            <th scope="row" class="label">@T("Order.SubTotal"):</th>
                             <td class="value">@order.OrderSubtotal</td>
                         </tr>
                         <tr sm-if="order.OrderSubTotalDiscount != 0">
-                            <td class="label">@T("Order.SubTotalDiscount"):</td>
+                            <th scope="row" class="label">@T("Order.SubTotalDiscount"):</th>
                             <td class="value">@order.OrderSubTotalDiscount</td>
                         </tr>
                         <tr sm-if="order.IsShippable">
-                            <td class="label">@T("Order.Shipping"):</td>
+                            <th scope="row" class="label">@T("Order.Shipping"):</th>
                             <td class="value">@order.OrderShipping</td>
                         </tr>
                         <tr sm-if="order.PaymentMethodAdditionalFee != 0">
-                            <td class="label">@T("Order.PaymentMethodAdditionalFee"):</td>
+                            <th scope="row" class="label">@T("Order.PaymentMethodAdditionalFee"):</th>
                             <td class="value">@order.PaymentMethodAdditionalFee</td>
                         </tr>
 
@@ -231,18 +232,18 @@
                             foreach (var taxRate in order.TaxRates)
                             {
                                 <tr>
-                                    <td class="label">@taxRate.Label:</td>
+                                    <th scope="row" class="label">@taxRate.Label:</th>
                                     <td class="value">@taxRate.Amount.ToString()</td>
                                 </tr>
                             }
                         }
 
                         <tr sm-if="order.DisplayTax">
-                            <td class="label">@T("Order.Tax"):</td>
+                            <th scope="row" class="label">@T("Order.Tax"):</th>
                             <td class="value text-right">@order.Tax</td>
                         </tr>
                         <tr sm-if="order.OrderTotalDiscount != 0">
-                            <td class="label">@T("Order.TotalDiscount"):</td>
+                            <th scope="row" class="label">@T("Order.TotalDiscount"):</th>
                             <td class="value">@order.OrderTotalDiscount</td>
                         </tr>
 
@@ -252,7 +253,7 @@
                             {
                                 var gcAmount = gc.Amount * -1;
                                 <tr>
-                                    <td class="label">@Html.Raw(T("Order.GiftCardInfo", gc.CouponCode)):</td>
+                                    <th scope="row" class="label">@Html.Raw(T("Order.GiftCardInfo", gc.CouponCode)):</th>
                                     <td class="value">
                                         <data asp-for="@gcAmount"></data>
                                     </td>
@@ -261,19 +262,19 @@
                         }
 
                         <tr sm-if="order.RedeemedRewardPoints > 0">
-                            <td class="label">@T("Order.RewardPoints", order.RedeemedRewardPoints):</td>
+                            <th scope="row" class="label">@T("Order.RewardPoints", order.RedeemedRewardPoints):</th>
                             <td class="value">@order.RedeemedRewardPointsAmount</td>
                         </tr>
                         <tr sm-if="order.CreditBalance > 0">
-                            <td class="label">@T("ShoppingCart.Totals.CreditBalance"):</td>
+                            <th scope="row" class="label">@T("ShoppingCart.Totals.CreditBalance"):</th>
                             <td class="value">@order.CreditBalance</td>
                         </tr>
                         <tr sm-if="order.OrderTotalRounding != 0">
-                            <td class="label">@T("ShoppingCart.Totals.Rounding"):</td>
+                            <th scope="row" class="label">@T("ShoppingCart.Totals.Rounding"):</th>
                             <td class="value">@order.OrderTotalRounding</td>
                         </tr>
                         <tr>
-                            <td class="label">@T("Order.OrderTotal"):</td>
+                            <th scope="row" class="label">@T("Order.OrderTotal"):</th>
                             <td class="value"><strong>@order.OrderTotal</strong></td>
                         </tr>
                     </table>
@@ -293,10 +294,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="width: 30%">
+                                <th scope="col" style="width: 30%">
                                     @T("PDFInvoice.OrderNotes.CreatedOn")
                                 </th>
-                                <th style="width: 70%">
+                                <th scope="col" style="width: 70%">
                                     @T("PDFInvoice.OrderNotes.Note")
                                 </th>
                             </tr>
