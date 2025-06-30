@@ -47,7 +47,7 @@
                                     </a>
                                 </th>
                                 <td title="@item.StartDate.ToString()">
-                                    <time datetime="@item.StartDate.ToIso8601String()">@item.StartDate.ToString("d")</time>
+                                    <time asp-for="@item.StartDate" sm-format="d"></time>
                                 </td>
                                 <td class="text-center">
                                     @item.CyclesRemaining

@@ -196,7 +196,7 @@
                 <div class="col-6 col-sm-auto pb-3">
                     <div class="text-muted h5">@T("Order.OrderDate")</div>
                     <div>
-                        <time datetime="@Model.CreatedOn.ToIso8601String()">@Model.CreatedOn.ToShortDateString().ReplaceNativeDigits()</time>
+                        <time asp-for="@Model.CreatedOn" sm-format="d"></time>
                     </div>
                 </div>
                 <div class="col-6 col-sm-auto pb-3">

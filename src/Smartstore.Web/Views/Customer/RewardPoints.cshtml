@@ -50,7 +50,7 @@
                         {
                             <tr>
                                 <td>
-                                    <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
+                                    <time asp-for="@item.CreatedOn"></time>
                                 </td>
                                 <td class="text-center">
                                     @ConvertUtility.ToHtmlDisplayString(item.Points)

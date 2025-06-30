@@ -25,14 +25,14 @@
                 {
                     <dt class="col-sm-3 fwn text-muted">@T("Profile.JoinDate")</dt>
                     <dd class="col-sm-9">
-                        <time datetime="@Model.JoinDate.ToIso8601String()">@Model.JoinDate.ToString("f")</time>
+                        <time asp-for="@Model.JoinDate" sm-format="f"></time>
                     </dd>
                 }
                 @if (Model.DateOfBirthEnabled)
                 {
                     <dt class="col-sm-3 fwn text-muted">@T("Profile.DateOfBirth")</dt>
                     <dd class="col-sm-9">
-                        <time datetime="@Model.DateOfBirth.ToIso8601String()">@Model.DateOfBirth.ToString("D")</time>
+                        <time asp-for="@Model.DateOfBirth" sm-format="D"></time>
                     </dd>
                 }
                 <zone name="profile_page_info_userstats"></zone>

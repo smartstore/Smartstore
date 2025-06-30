@@ -33,7 +33,7 @@
                         <dd class="col-sm-8">@item.ReturnAction</dd>
                         <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
                         <dd class="col-sm-8">
-                            <time datetime="@item.CreatedOn.ToIso8601String()">@item.CreatedOn.ToNativeString()</time>
+                            <time asp-for="@item.CreatedOn"></time>
                         </dd>
                         @if (item.Comments.HasValue())
                         {

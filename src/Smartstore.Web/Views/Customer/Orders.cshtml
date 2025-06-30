@@ -37,7 +37,7 @@
                         <dd class="col-sm-9">@order.OrderStatus</dd>
                         <dt class="col-sm-3 fwn text-muted">@T("Order.OrderDate")</dt>
                         <dd class="col-sm-9">
-                            <time datetime="@order.CreatedOn.ToIso8601String()">@order.CreatedOn.ToNativeString()</time>
+                            <time asp-for="@order.CreatedOn"></time>
                         </dd>
                         <dt class="col-sm-3 fwn text-muted">@T("Order.OrderTotal")</dt>
                         <dd class="col-sm-9 price">

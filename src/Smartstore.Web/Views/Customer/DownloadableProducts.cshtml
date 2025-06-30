@@ -24,8 +24,7 @@
 <ul class="esd-list list-unstyled" aria-labelledby="myaccount-header">
     @foreach (var item in Model.Items)
     {
-        var createdOnStr = item.CreatedOn.ToNativeString("d");
-        <li class="esd-item mb-3" aria-label="@T("Aria.Label.ProductOfOrderPlacedOn", item.OrderId, createdOnStr, item.ProductName)">
+        <li class="esd-item mb-3" aria-label="@T("Aria.Label.ProductOfOrderPlacedOn", item.OrderId, item.CreatedOn.ToNativeString("d"), item.ProductName)">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="card-title h4 mb-4" sm-language-attributes-for="item.ProductName" title="@item.ProductName">
@@ -43,7 +42,7 @@
                         </dd>
                         <dt class="col-sm-3 fwn text-muted">@T("Common.CreatedOn")</dt>
                         <dd class="col-sm-9">
-                            <time datetime="@item.CreatedOn.ToIso8601String()">@createdOnStr</time>
+                            <time asp-for="@item.CreatedOn" sm-format="d"></time>
                         </dd>
                         <dt class="col-sm-3 fwn text-muted">@T("DownloadableProducts.Fields.Product")</dt>
                         <dd class="col-sm-9">
