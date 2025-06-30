@@ -343,7 +343,7 @@
     width: 100%;
     line-height: 1.3;
 
-    td, th {
+    :is(td, th) {
         padding: 0.4rem 0;
         vertical-align: top;
     }
@@ -373,9 +373,8 @@
     }
 
     .cart-summary-total {
-        td, th { padding-top: 0.75rem; }
-
-        > .cart-summary-label, > .cart-summary-value {
+        > :is(td, th) {
+            padding-top: 0.75rem;
             font-size: $font-size-lg;
             font-weight: $font-weight-medium;
         }
@@ -406,9 +405,7 @@
 	}
 }
 
-.table-order-products .productpicture,
-.table-order-products .remove,
-.table-order-products .addtocart {
+.table-order-products :is(.productpicture, .remove, .addtocart) {
     text-align: center;
 }
 
