@@ -523,8 +523,8 @@
         _.$slider.addClass('slick-slider');
 
         _.$slideTrack = (_.slideCount === 0) ?
-            $('<div class="slick-track" role="list"/>').appendTo(_.$slider) :
-            _.$slides.wrapAll('<div class="slick-track" role="list"/>').parent();
+            $('<div class="slick-track"/>').appendTo(_.$slider) :
+            _.$slides.wrapAll('<div class="slick-track"/>').parent();
 
         _.$list = _.$slideTrack.wrap(
             '<div class="slick-list"/>').parent();

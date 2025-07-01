@@ -123,12 +123,12 @@
                 const labelPrev = list.data("label-prev") || '';
                 const labelNext = list.data("label-next") || '';
 
-                // Slick adds role="list" in one of its wrappers. Keeping root role ist invalid.
-                list.removeAttr('role');
-
                 if (list.hasClass('slick-initialized')) {
                     list.slick('destroy');
                 }
+
+                // Slick adds role="list" in one of its wrappers. Keeping root role ist invalid.
+                list.removeAttr('role');
 
                 list.slick({
                     rtl: $("html").attr("dir") == "rtl",
@@ -183,6 +183,9 @@
                         },
                     ]
                 });
+
+                // Add role=list to the slick track element to comply with WCAG.
+                list.find('.slick-track').attr('role', 'list');
             });
         }
     ];
