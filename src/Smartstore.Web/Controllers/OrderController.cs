@@ -271,7 +271,8 @@ namespace Smartstore.Web.Controllers
                 Id = shipment.Id,
                 Carrier = shipment.GenericAttributes.Get<string>("Carrier"),
                 TrackingNumber = shipment.TrackingNumber,
-                TrackingUrl = shipment.TrackingUrl
+                TrackingUrl = shipment.TrackingUrl,
+                ShowSku = catalogSettings.ShowProductSku
             };
 
             if (shipment.ShippedDateUtc.HasValue)
@@ -285,7 +286,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var srcm = _providerManager.GetProvider<IShippingRateComputationMethod>(order.ShippingRateComputationMethodSystemName, store.Id);
-
             if (srcm != null && srcm.IsShippingProviderEnabled(shippingSettings))
             {
                 var shipmentTracker = srcm.Value.ShipmentTracker;
@@ -309,31 +309,30 @@ namespace Smartstore.Web.Controllers
                                     .ApplyIsoCodeFilter(shipmentEvent.CountryCode)
                                     .FirstOrDefaultAsync();
 
-                                var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel
+                                model.ShipmentStatusEvents.Add(new()
                                 {
                                     Country = shipmentEventCountry != null ? shipmentEventCountry.GetLocalized(x => x.Name) : shipmentEvent.CountryCode,
                                     Date = shipmentEvent.Date,
                                     EventName = shipmentEvent.EventName,
                                     Location = shipmentEvent.Location
-                                };
-
-                                model.ShipmentStatusEvents.Add(shipmentStatusEventModel);
+                                });
                             }
                         }
                     }
                 }
             }
 
-            // Products in this shipment.
-            model.ShowSku = catalogSettings.ShowProductSku;
+            var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);
+            var orderItems = await _db.OrderItems
+                .Include(x => x.Product)
+                .AsNoTracking()
+                .Where(x => orderItemIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id);
 
             foreach (var shipmentItem in shipment.ShipmentItems)
             {
-                var orderItem = await _db.OrderItems
-                    .Include(x => x.Product)
-                    .FindByIdAsync(shipmentItem.OrderItemId, false);
-
-                if (orderItem == null || orderItem.Product == null)
+                var orderItem = orderItems.Get(shipmentItem.OrderItemId);
+                if (orderItem?.Product == null)
                     continue;
 
                 var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(orderItem.Product.Id, orderItem.AttributeSelection);
