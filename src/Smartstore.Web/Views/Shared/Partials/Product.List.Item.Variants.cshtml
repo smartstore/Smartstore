@@ -4,17 +4,21 @@
 
 @{
     var list = Model.Parent;
+    var numColorAttributes = Model.ColorAttributes?.Count ?? 0;
 }
 
 <div class="art-variant-info">
-    <div sm-if="Model.ColorAttributes != null && Model.ColorAttributes.Any()" class="art-color-opts" role="listbox" aria-orientation="horizontal">
-        @foreach (var clr in Model.ColorAttributes)
-        {
-            var title = T("Products.ChooseColorX", clr.FriendlyName, clr.AttributeName);
-            <a href="@clr.ProductUrl" class="art-color-opt" style="background-color: @clr.Color" role="option" aria-label="@title" title="@title"></a>
-        }
-    </div>
-    <div sm-if="Model.Attributes.Any()" class="art-more-opts">
+    @if (numColorAttributes > 0)
+    {
+        <div class="art-color-opts" role="listbox" aria-orientation="horizontal" aria-label="@Model.ColorAttributes[0].AttributeName">
+            @foreach (var clr in Model.ColorAttributes)
+            {
+                var title = T("Products.ChooseColorX", clr.FriendlyName, clr.AttributeName);
+                <a href="@clr.ProductUrl" class="art-color-opt" style="background-color: @clr.Color" role="option" aria-label="@title" title="@title"></a>
+            }
+        </div>
+    }
+    <div sm-if="Model.Attributes.Count > 0" class="art-more-opts">
         <span class="bidi-embed@(list.ViewMode == ProductSummaryViewMode.List ? "" : " d-block")">
             @T(Model.Attributes.Count == 1 ? "Products.PlusOption" : "Products.PlusOptions"):
         </span>
