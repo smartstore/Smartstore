@@ -228,9 +228,7 @@ $(function () {
                     EventBroker.publish("ajaxcart.updated", data);
                 }
                 else {
-                    $(data.message).each(function (index, value) {
-                        displayNotification(value, "error", false);
-                    });
+                    displayNotification(data.message, "error", false);
                 }
             },
             complete: function () {

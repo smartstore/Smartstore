@@ -97,6 +97,7 @@
 - Added missing xml declaration to sitemap index file.
 - Do not create database tables for `NamedEntity` and `VariantValueMetadata`.
 - Customer profile did not display the private message button or the forum statistics.
+- Fixed display of error notification in OffCanvasCart
 
 
 ## Smartstore 6.1.0
