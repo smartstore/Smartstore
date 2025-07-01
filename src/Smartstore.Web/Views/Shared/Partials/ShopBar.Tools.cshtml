@@ -3,16 +3,19 @@
 @{
     string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"].ToString() });
     var labelStyle = Display.GetThemeVariable<string>("shopbar-label", "warning");
+    var numTools = 2 + (Model.CompareProductsEnabled ? 1 : 0) + (Model.WishlistEnabled ? 1 : 0) + (Model.ShoppingCartEnabled ? 1 : 0);
 }
 
-<div class="shopbar-col shopbar-tools" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = Model.ShoppingCartEnabled, wishlist = Model.WishlistEnabled, compare = Model.CompareProductsEnabled })">
+<div class="shopbar-col shopbar-tools"
+     attr-style='(numTools == 5, "--sb-tool-padding-x: 0.25rem")'
+     data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = Model.ShoppingCartEnabled, wishlist = Model.WishlistEnabled, compare = Model.CompareProductsEnabled })">
 
     @*Hamburger Menu*@
     <div class="shopbar-tool d-lg-none" id="shopbar-menu">
         <a id="offcanvas-menu-opener" class="shopbar-button" href="#" 
            data-toggle="offcanvas" data-autohide="true" data-placement="start" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-menu"
            aria-controls="offcanvas-menu" aria-expanded="false">
-            <span class="shopbar-button-icon">
+            <span class="shopbar-button-icon" aria-hidden="true">
                 <i class="icm icm-menu"></i>
             </span>
             <span class="shopbar-button-label-sm">
@@ -26,7 +29,7 @@
     @*User*@
     <div class="shopbar-tool d-lg-none" id="shopbar-user">
         <a class="shopbar-button" href="@accountUrl">
-            <span class="shopbar-button-icon">
+            <span class="shopbar-button-icon" aria-hidden="true">
                 <i class="icm icm-user"></i>
             </span>
             <span class="shopbar-button-label-sm">
@@ -39,13 +42,13 @@
         <a asp-action="CompareProducts" asp-controller="Catalog" asp-area="" class="shopbar-button navbar-toggler"
            data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { compare = true })"
            data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
-            <span class="shopbar-button-icon">
+            <span class="shopbar-button-icon" aria-hidden="true">
                 <i class="icm icm-repeat"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
                     @Model.CompareItemsCount
                 </span>
             </span>
-            <span class="shopbar-button-label">
+            <span class="shopbar-button-label" aria-label="@T("Common.Shopbar.Compare")">
                 <span>@T("Common.Shopbar.CompareProductsPartOne")</span><br />
                 <strong>@T("Common.Shopbar.CompareProductsPartTwo")</strong>
             </span>
@@ -58,13 +61,13 @@
     <div sm-if="Model.WishlistEnabled" class="shopbar-tool" id="shopbar-wishlist" data-target="#wishlist-tab">
         <a asp-route="Wishlist" class="shopbar-button navbar-toggler" data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { wishlist = true })"
            data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
-            <span class="shopbar-button-icon">
+            <span class="shopbar-button-icon" aria-hidden="true">
                 <i class="icm icm-heart"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@labelStyle' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
                     @Model.WishlistItemsCount
                 </span>
             </span>
-            <span class="shopbar-button-label">
+            <span class="shopbar-button-label" aria-label="@T("Wishlist")">
                 <span>@T("Common.Shopbar.WishlistPartOne")</span><br />
                 <strong>@T("Common.Shopbar.WishlistPartTwo")</strong>
             </span>
@@ -77,13 +80,13 @@
     <div sm-if="Model.ShoppingCartEnabled" class="shopbar-tool" id="shopbar-cart" data-target="#cart-tab">
         <a asp-route="ShoppingCart" class="shopbar-button navbar-toggler" data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { cart = true })"
            data-autohide="true" data-placement="end" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
-            <span class="shopbar-button-icon">
+            <span class="shopbar-button-icon" aria-hidden="true">
                 <i class="icm icm-bag"></i>
                 <span class='badge badge-pill badge-counter badge-counter-ring label-cart-amount badge-@(labelStyle)' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
                     @Model.CartItemsCount
                 </span>
             </span>
-            <span class="shopbar-button-label">
+            <span class="shopbar-button-label" aria-label="@T("Common.Shopbar.Basket")">
                 <span>@T("Common.Shopbar.BasketPartOne")</span><br />
                 <strong>@T("Common.Shopbar.BasketPartTwo")</strong>
             </span>
