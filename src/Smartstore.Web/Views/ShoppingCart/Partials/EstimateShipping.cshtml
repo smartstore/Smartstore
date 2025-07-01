@@ -13,20 +13,24 @@
 }
 
 <div class="cart-action cart-action-shipping">
-	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse"
-        data-target="#cart-action-shipping-body" 
-        aria-controls="cart-action-shipping-body" 
-        aria-expanded="@isExpanded.ToString().ToLower()">
-		@T("ShoppingCart.EstimateShipping")
-	</h5>
+	<div class="cart-action-title h5" 
+         attr-class='(!isExpanded, "collapsed")' 
+         data-toggle="collapse"
+         data-target="#cart-action-shipping-body" 
+         aria-controls="cart-action-shipping-body" 
+         aria-expanded="@isExpanded.ToString().ToLower()"
+         tabindex="0"
+         role="button">
+		 @T("ShoppingCart.EstimateShipping")
+	</div>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body">
         @if (isExpanded)
         {
             <div class="alert @(Model.Warnings.Count > 0 ? "alert-danger" : "alert-success")">
                 @foreach (var warning in Model.Warnings)
                 {
-                    <p>@warning</p>
+                    <p role="alert">@warning</p>
                 }
                 @foreach (var shippingOption in Model.ShippingOptions)
                 {

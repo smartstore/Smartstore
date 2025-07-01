@@ -38,7 +38,7 @@
     </div>
 
     <div class="cart-item-title">
-        <a class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
+        <a id="cart-item-link-@(Model.Id)" class="cart-item-link" href="@Model.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="Model.ProductName">@Model.ProductName</a>
     </div>
 
     @if (Model.ShowShortDesc)

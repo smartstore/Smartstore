@@ -34,18 +34,18 @@
             <div class="row cart-container">
                 @* Cart Items *@
                 <div class="col-lg-7 col-xl-8">
-                    <div id="cart-items" class="cart" attr-class='(Model.IsEditable, "cart-editable")'>
-                        <div class="cart-body">
+                    <div id="cart-items" class="cart" attr-class='(Model.IsEditable, "cart-editable")' role="table">
+                        <div class="cart-body" role="rowgroup">
                             <partial name="CartItems" model="Model" />
                         </div>
                     </div>
                 </div>
                 @* Cart Summary *@
                 <div class="col-lg-5 col-xl-4">
-                    <div id="cart-select-products-warning" class="alert alert-warning@(checkoutAllowed ? " d-none" : string.Empty)">
+                    <div id="cart-select-products-warning" class="alert alert-warning" attr-class='(checkoutAllowed, "d-none")' role="alert">
                         @Html.Raw(Model.CheckoutNotAllowedWarning)
                     </div>
-                    <div id="cart-summary-container" class="cart-footer@(checkoutAllowed ? string.Empty : " d-none")">
+                    <div id="cart-summary-container" class="cart-footer" attr-class='(!checkoutAllowed, "d-none")'>
                         <div class="row">
                             <div class="col-12 cart-footer-group">
                                 @if (Model.IsEditable)
@@ -64,14 +64,16 @@
                             <div class="col-12 cart-footer-group" sm-suppress-if-empty>
                                 @if (Model.IsEditable)
                                 {
-                                    <zone name="order_summary_actions_before" />
+                                    <div data-ak-accordion>
+                                        <zone name="order_summary_actions_before" />
 
-                                    <partial name="_DiscountBox" model="Model.DiscountBox" />
-                                    <partial name="_GiftCardBox" model="Model.GiftCardBox" />
-                                    <partial name="_RewardPointsBox" model="Model.RewardPoints" />
-                                    <partial name="EstimateShipping" model="Model.EstimateShipping" />
+                                        <partial name="_DiscountBox" model="Model.DiscountBox" />
+                                        <partial name="_GiftCardBox" model="Model.GiftCardBox" />
+                                        <partial name="_RewardPointsBox" model="Model.RewardPoints" />
+                                        <partial name="EstimateShipping" model="Model.EstimateShipping" />
 
-                                    <zone name="order_summary_actions_after" />
+                                        <zone name="order_summary_actions_after" />
+                                    </div>
                                 }
                                 else
                                 {
@@ -91,7 +93,7 @@
                                                 <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
                                                 <button type="button" id="checkout" name="checkout" class="btn btn-primary btn-lg btn-block btn-checkout">
                                                     <span>@T("Checkout.Button")</span>
-                                                    <i class="fa fa-angle-right"></i>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                             <div sm-if="!Model.HasItemsWithRecurringPayment" id="cart-payment-buttons">
