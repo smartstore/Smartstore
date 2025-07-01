@@ -4,6 +4,10 @@ using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    /// <summary>
+    /// Outputs a &lt;data&gt; tag for a <see cref="Money"/> value, 
+    /// formatted and rounded according to the currency's properties.
+    /// </summary>
     [HtmlTargetElement("data", Attributes = ForAttributeName)]
     public class DataTagHelper(IRoundingHelper roundingHelper) : BaseFormTagHelper
     {
