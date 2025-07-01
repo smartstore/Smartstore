@@ -7,99 +7,104 @@
 
     async Task RenderAddress(AddressModel address)
     {
-        <div class="mb-2">
-            @Html.Raw(address.FormattedAddress)
-        </div>
-        <div class="email">
-            <span class="pr-1">@T("Order.Email"):</span>
-            <span>@address.Email</span>
-        </div>
-        <div sm-if="address.PhoneEnabled && address.PhoneNumber.HasValue()" class="phone">
-            <span class="pr-1">@T("Order.Phone"):</span>
-            <span>@address.PhoneNumber</span>
-        </div>
-        <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
-            <span class="pr-1">@T("Order.Fax"):</span>
-            <span>@address.FaxNumber</span>
-        </div>
+        <address>
+            <div class="mb-2">
+                @Html.Raw(address.FormattedAddress)
+            </div>
+            <div class="email">
+                <span class="pr-1">@T("Order.Email"):</span>
+                <span>@address.Email</span>
+            </div>
+            <div sm-if="address.PhoneEnabled && address.PhoneNumber.HasValue()" class="phone">
+                <span class="pr-1">@T("Order.Phone"):</span>
+                <span>@address.PhoneNumber</span>
+            </div>
+            <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
+                <span class="pr-1">@T("Order.Fax"):</span>
+                <span>@address.FaxNumber</span>
+            </div>
+        </address>
     }
 }
 
 <div class="page shipment-details">
     <div class="page-title">
-        <h1 class="h2">
+        <h1 id="shipment-details-title" class="h2">
             @T("Order.Shipments.Information", Model.Id)
         </h1>
     </div>
 
     <div class="page-body">
-        <div class="card card-body shipment-box mb-4">
-            <div class="row">
-                <div class="col-6 col-md-4">
-                    <h5>@T("Order.Shipments.Order#")</h5>
-                    <p>
-                        <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.Order.Id">@Model.Order.Id</a>
-                    </p>
-
-                    <h5>@T("Order.Shipments.ShippedDate")</h5>
-                    <p>
-                        @if (Model.ShippedDate.HasValue)
-                        {
-                            @Model.ShippedDate.Value.ToNativeString("D")
-                        }
-                        else
-                        {
-                            <span class="text-muted">@T("Order.Shipments.ShippedDate.NotYet")</span>
-                        }
-                    </p>
-
-                    <h5>@T("Order.Shipments.DeliveryDate")</h5>
-                    <p>
-                        @if (Model.DeliveryDate.HasValue)
-                        {
-                            @Model.DeliveryDate.Value.ToNativeString("D")
-                        }
-                        else
-                        {
-                            <span class="text-muted">@T("Order.Shipments.DeliveryDate.NotYet")</span>
-                        }
-                    </p>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div>
-                        <h5>@T("Order.Shipments.ShippingMethod")</h5>
-                        <p>@Model.Order.ShippingMethod</p>
-                    </div>
-                    <div sm-if="Model.Carrier.HasValue() && !Model.Carrier.EqualsNoCase(Model.Order.ShippingMethod)">
-                        <h5>@T("Admin.Orders.Shipments.Carrier")</h5>
-                        <p>@Model.Carrier</p>
-                    </div>
-                    <div sm-if="Model.TrackingNumber.HasValue()">
-                        <h5>@T("Order.Shipments.TrackingNumber")</h5>
+        <section aria-labelledby="shipment-details-title">
+            <div class="card card-body shipment-box mb-4">
+                <div class="row">
+                    <div class="col-6 col-md-4">
+                        <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.Order#")</div>
                         <p>
-                            @if (Model.TrackingUrl.HasValue())
+                            <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.Order.Id">@Model.Order.Id</a>
+                        </p>
+
+                        <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.ShippedDate")</div>
+                        <p>
+                            @if (Model.ShippedDate.HasValue)
                             {
-                                <a href="@Model.TrackingUrl" target="_blank" class="tracking-url" rel="nofollow">@Model.TrackingNumber</a>
+                                <time asp-for="@Model.ShippedDate" sm-format="D"></time>
                             }
                             else
                             {
-                                @Model.TrackingNumber
+                                <span class="text-muted">@T("Order.Shipments.ShippedDate.NotYet")</span>
+                            }
+                        </p>
+
+                        <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.DeliveryDate")</div>
+                        <p>
+                            @if (Model.DeliveryDate.HasValue)
+                            {
+                                <time asp-for="@Model.DeliveryDate" sm-format="D"></time>
+                            }
+                            else
+                            {
+                                <span class="text-muted">@T("Order.Shipments.DeliveryDate.NotYet")</span>
                             }
                         </p>
                     </div>
-                </div>
-                <div sm-if="Model.Order.ShippingAddress != null" class="col-12 col-md-4">
-                    <h5>@T("Order.Shipments.ShippingAddress")</h5>
-                    @{ await RenderAddress(Model.Order.ShippingAddress); }
+                    <div class="col-6 col-md-4">
+                        <div>
+                            <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.ShippingMethod")</div>
+                            <p>@Model.Order.ShippingMethod</p>
+                        </div>
+                        <div sm-if="Model.Carrier.HasValue() && !Model.Carrier.EqualsNoCase(Model.Order.ShippingMethod)">
+                            <div class="h5" role="heading" aria-level="3">@T("Admin.Orders.Shipments.Carrier")</div>
+                            <p>@Model.Carrier</p>
+                        </div>
+                        <div sm-if="Model.TrackingNumber.HasValue()">
+                            <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.TrackingNumber")</div>
+                            <p>
+                                @if (Model.TrackingUrl.HasValue())
+                                {
+                                    <a href="@Model.TrackingUrl" target="_blank" class="tracking-url" rel="nofollow">@Model.TrackingNumber</a>
+                                }
+                                else
+                                {
+                                    @Model.TrackingNumber
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div sm-if="Model.Order.ShippingAddress != null" class="col-12 col-md-4">
+                        <div class="h5" role="heading" aria-level="3">@T("Order.Shipments.ShippingAddress")</div>
+                        @{ await RenderAddress(Model.Order.ShippingAddress); }
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <fieldset sm-if="Model.Items.Any()" class="content-group">
-            <h4 class="mb-3">@T("Order.Shipments.Product(s)")</h4>
+        <section sm-if="Model.Items.Count > 0" class="mb-4" aria-labelledby="shipment-products-title">
+            <div id="shipment-products-title" class="mb-3 h4">@T("Order.Shipments.Product(s)")</div>
 
             <div class="products-box table-responsive">
                 <table class="table table-hover">
+                    <caption class="sr-only">@T("Order.Shipments.Product(s)")</caption>
                     <colgroup>
                         <col sm-if="Model.ShowSku" width="1" />
                         <col />
@@ -107,16 +112,16 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th sm-if="Model.ShowSku">@T("Order.Shipments.Product(s).SKU")</th>
-                            <th>@T("Order.Shipments.Product(s).Name")</th>
-                            <th class="text-center">@T("Order.Shipments.Product(s).Quantity")</th>
+                            <th sm-if="Model.ShowSku" scope="col">@T("Order.Shipments.Product(s).SKU")</th>
+                            <th scope="col">@T("Order.Shipments.Product(s).Name")</th>
+                            <th scope="col" class="text-center">@T("Order.Shipments.Product(s).Quantity")</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td sm-if="Model.ShowSku">@item.Sku</td>
+                                <td sm-if="Model.ShowSku" class="text-nowrap">@item.Sku</td>
                                 <td>
                                     <div><a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a></div>
                                     <div sm-if="item.AttributeInfo.HasValue()" class="attributes text-muted mt-1">
@@ -131,19 +136,20 @@
                     </tbody>
                 </table>
             </div>
-        </fieldset>
+        </section>
 
-        <div sm-if="Model.ShipmentStatusEvents.Any()" class="shipment-status-events">
-            <h4 class="mb-3">@T("Order.ShipmentStatusEvents")</h4>
+        <section sm-if="Model.ShipmentStatusEvents.Count > 0" class="shipment-status-events mb-4" aria-labelledby="shipment-events-title">
+            <div id="shipment-events-title" class="mb-3 h4">@T("Order.ShipmentStatusEvents")</div>
 
             <div class="shipment-status-events-box table-responsive">
                 <table class="table table-hover">
+                    <caption class="sr-only">@T("Order.ShipmentStatusEvents")</caption>
                     <thead>
                         <tr>
-                            <th>@T("Order.ShipmentStatusEvents.Event")</th>
-                            <th>@T("Order.ShipmentStatusEvents.Location")</th>
-                            <th>@T("Order.ShipmentStatusEvents.Country")</th>
-                            <th>@T("Common.Date")</th>
+                            <th scope="col">@T("Order.ShipmentStatusEvents.Event")</th>
+                            <th scope="col">@T("Order.ShipmentStatusEvents.Location")</th>
+                            <th scope="col">@T("Order.ShipmentStatusEvents.Country")</th>
+                            <th scope="col">@T("Common.Date")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -154,16 +160,13 @@
                                 <td>@item.Location</td>
                                 <td>@item.Country</td>
                                 <td>
-                                    @if (item.Date.HasValue)
-                                    {
-                                        @item.Date.Value.ToNativeString("D")
-                                    }
+                                    <time asp-for="@item.Date" sm-format="D"></time>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </div>

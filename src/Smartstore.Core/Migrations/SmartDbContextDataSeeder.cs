@@ -126,6 +126,8 @@ namespace Smartstore.Core.Data.Migrations
             // Typo
             builder.AddOrUpdate("Common.FormFields.Required.Hint")
                 .Value("de", "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
+
+            builder.AddOrUpdate("Order.ShipmentStatusEvents", "Status of your shipment", "Status Ihrer Sendung");
         }
     }
 }
