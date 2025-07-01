@@ -15,16 +15,17 @@
 @for (var i = 0; i < bundleItems.Length; i++)
 {
     var item = bundleItems[i];
-    <div class="cart-row cart-row-child@(!item.Active ? " cart-item-inactive" : string.Empty)"
+    <div class="cart-row cart-row-child"
+         attr-class='(!item.Active, "cart-item-inactive")'
          data-key="@item.Id" 
          data-parent-key="@item.BundleItem.ParentItemId">
-        <div class="row">
-            <div sm-if="parentModel.AllowActivatableCartItems && parentModel.IsEditable" class="select-cart-item col-auto invisible">
+        <div class="row" role="row">
+            <div sm-if="parentModel.AllowActivatableCartItems && parentModel.IsEditable" class="select-cart-item col-auto invisible" role="cell">
                 <input type="checkbox" class="form-check-input select-cart-item-checkbox" />
             </div>
 
             @* Spacer for image *@
-            <div class="cart-item-img col-3 d-md-flex d-lg-none d-xl-flex text-start">
+            <div class="cart-item-img col-3 d-md-flex d-lg-none d-xl-flex text-start" role="cell">
                 @if (i == 0 && item.BundleItem.Title.HasValue())
                 {
                     <span class="fwm pt-1">@(item.BundleItem.Title):</span>
@@ -34,7 +35,7 @@
                     <span>&nbsp;</span>
                 }
             </div>
-            <div class="cart-item-data col">
+            <div class="cart-item-data col" role="cell">
                 @* Title & Description *@
                 <div class="cart-item-group">
                     <div class="cart-item-title">
@@ -82,7 +83,7 @@
                     @Html.Raw(item.AttributeInfo)
                 </div>
 
-                <div sm-if="item.Warnings.Count > 0" class="alert alert-danger cart-item-group cart-item-group">
+                <div sm-if="item.Warnings.Count > 0" class="alert alert-danger cart-item-group cart-item-group" role="alert">
                     @foreach (var warning in item.Warnings)
                     {
                         <p>@Html.Raw(warning)</p>
