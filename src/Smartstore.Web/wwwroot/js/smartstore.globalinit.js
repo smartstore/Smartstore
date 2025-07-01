@@ -164,7 +164,7 @@ jQuery(function () {
 
     // .mf-dropdown (mobile friendly dropdown)
     (function () {
-        $('.mf-dropdown').each(function (i, el) {
+        $('.mf-dropdown').each((_, el) => {
             var elLabel = $('> .btn [data-bind]', el);
             if (elLabel.length == 0 || elLabel.text().length > 0)
                 return;
@@ -180,8 +180,8 @@ jQuery(function () {
             }
             else if (e.type == "mousedown") {
                 btn.addClass('active focus').removeClass('hover');
-                _.delay(function () {
-                    body.one('mousedown touch', function (e) { btn.removeClass('active focus'); });
+                _.delay(() => {
+                    body.one('mousedown touch', () => { btn.removeClass('active focus'); });
                 }, 50);
             }
             else if (e.type == "mouseleave") {

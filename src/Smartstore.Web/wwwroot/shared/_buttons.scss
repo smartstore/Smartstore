@@ -530,8 +530,24 @@ button:where(.reset) {
     display: inline-block;
     position: relative;
 
+    > select {
+        position: absolute;
+        opacity: 0;
+        inset-inline-start: 0;
+        width: 100%;
+        top: 0;
+        bottom: 0;
+        cursor: pointer;
+        z-index: 1;
+
+        &:focus-visible + .btn:not(.focus) {
+            box-shadow: $focus-ring-box-shadow;
+        }
+    }
+
     .btn {
         position: relative;
+        z-index: 0;
     }
 
     .btn > em {
@@ -584,15 +600,5 @@ button:where(.reset) {
 
     .btn-lg.has-caret:after {
         inset-inline-end: $input-btn-padding-x-lg;
-    }
-
-    select {
-        position: absolute;
-        opacity: 0;
-        inset-inline-start: 0;
-        width: 100%;
-        top: 0;
-        bottom: 0;
-        cursor: pointer;
     }
 }
