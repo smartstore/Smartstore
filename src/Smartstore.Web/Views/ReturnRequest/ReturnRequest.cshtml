@@ -23,9 +23,7 @@
             <form asp-action="ReturnRequest">
                 <input type="hidden" asp-for="OrderId" />
 
-                <div class="h4 fwn text-muted mb-4" role="heading" aria-level="2">
-                    @T("ReturnRequests.SelectProduct(s)")
-                </div>
+                <h2 class="h4 fwn text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
 
                 <zone name="returnrequest_wish_before" />
 
