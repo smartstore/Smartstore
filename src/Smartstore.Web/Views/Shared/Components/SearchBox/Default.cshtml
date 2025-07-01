@@ -2,8 +2,12 @@
 
 @model SearchBoxModel
 
+@{
+    var idFriendlyOrigin = Model.Origin.Replace('/', '-').ToLowerInvariant();
+}
+
 <form action="@Model.SearchUrl" class="instasearch-form has-icon" method="get" role="search">
-    <span id="instasearch-desc" class="sr-only">
+    <span id="instasearch-desc-@idFriendlyOrigin" class="sr-only">
         @T(Model.InstantSearchEnabled ? "Aria.Description.InstantSearch" : "Aria.Description.SearchBox")
     </span>
     <input type="search"
@@ -12,7 +16,7 @@
            value="@Model.CurrentQuery"
            placeholder="@Model.InputPlaceholder"
            aria-label="@Model.InputPlaceholder"
-           aria-describedby="instasearch-desc"
+           aria-describedby="instasearch-desc-@idFriendlyOrigin"
            data-instasearch="@(Model.InstantSearchEnabled ? "true" : "false")"
            data-minlength="@(Model.SearchTermMinimumLength.ToString())"
            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
