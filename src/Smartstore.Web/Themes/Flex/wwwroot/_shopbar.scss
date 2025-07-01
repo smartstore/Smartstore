@@ -76,6 +76,7 @@
     justify-content: space-around;
     flex-wrap: nowrap;
     width: 100%;
+    overflow-y: hidden;
 }
 
 .shopbar-button {
@@ -152,13 +153,17 @@
     transition: all 0.12s ease;
     cursor: pointer;
 
+    @media (max-width: 412px) {
+        // Prevents toolbar overflow on very small screens
+        padding-inline: var(--sb-tool-padding-x, 0.5rem);
+    }
+
     &:active, .open &, .show & {
         background-image: none;
         outline: 0;
     }
 
-    .shopbar-button-icon,
-    .shopbar-button-label {
+    :is(.shopbar-button-icon, .shopbar-button-label) {
         display: inline-block;
         vertical-align: middle;
         position: relative;
@@ -177,15 +182,15 @@
         color: $shopbar-color !important; 
 
         &:hover {
-            border-color: rgba(#000, 0.12) rgba(#000, 0.12) rgba(#000, 0.12);
-            box-shadow: 0 1px 0 rgba(#fff, 0.15) inset, 
-                        0 1px 1px rgba(#000, 0.075);
+            border-color: rgba($black, 0.12) rgba($black, 0.12) rgba($black, 0.12);
+            box-shadow: 0 1px 0 rgba($white, 0.15) inset, 
+                        0 1px 1px rgba($black, 0.075);
         }
 
         &:active, .open &, .show & {
             border-color: #adadad;
             background-color: #e6e6e6;
-            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+            box-shadow: inset 0 3px 5px rgba($black, 0.125);
         }
 
         .shopbar-button-label span { color: $shopbar-color-muted;  }
@@ -197,17 +202,16 @@
         color: $shopbar-inverse-color !important;
 
         &:hover {
-            border-color: rgba(#fff, 0.2) rgba(#fff, 0.2) rgba(#fff, 0.2);
+            border-color: rgba($white, 0.2) rgba($white, 0.2) rgba($white, 0.2);
         }
 
         &:active, .open &, .show & {
-            border-color: rgba(#fff, 0.2);
+            border-color: rgba($white, 0.2);
             background-color: $header-inverse-hover-bg;
-            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 3px 5px rgba($black, 0.3);
         }
 
-        .shopbar-button-label span,
-        .shopbar-button-label-sm {
+        :is(.shopbar-button-label span, .shopbar-button-label-sm){
             color: $shopbar-inverse-color-muted;
         }
     }
@@ -260,8 +264,7 @@
 }
 
 .menubar-light {
-    &.menubar-section 
-    { 
+    &.menubar-section { 
         border-bottom: 1px solid $header-border-color; 
     }
 
