@@ -5,13 +5,13 @@
     return;
 }
 
-<div id="customer-comment-list" class="block comment-list mb-5" role="list" aria-labelledby="customer-comment-list-title">
+<div id="customer-comment-list" class="block comment-list mb-5">
     <h4 id="customer-comment-list-title" class="block-title comment-list-title">
         <span>@T("News.Comments")</span>
         <small class="text-muted lrm">(@Model.NumberOfComments)</small>
     </h4>
 
-    <div class="block-body p-0">
+    <div class="block-body p-0" role="list" aria-labelledby="customer-comment-list-title">
         @foreach (var comment in Model.Comments)
         {
             <partial name="Comment.Item" model="comment" />
