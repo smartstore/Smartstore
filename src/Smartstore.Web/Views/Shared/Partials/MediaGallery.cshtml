@@ -14,10 +14,10 @@
 
 <div class="gal-box">
     <!-- Thumbnail navigation -->
-    <div class="gal-nav-cell@(Model.Files.Count <= 1 ? " gal-nav-hidden" : "")">
-        <div class="gal-nav" role="region" aria-label="@T("Aria.Label.MediaGallery")">
+    <div class="gal-nav-cell" attr-class='(Model.Files.Count <= 1, "gal-nav-hidden")'>
+        <div class="gal-nav">
             <div class="gal-list">
-                <div class="gal-track" role="listbox" aria-orientation="vertical" itemscope itemtype="http://schema.org/ImageGallery">
+                <div class="gal-track" role="listbox" aria-orientation="vertical" itemscope itemtype="http://schema.org/ImageGallery" aria-label="@T("Aria.Label.MediaGallery")">
                     @for (int i = 0; i < Model.Files.Count; i++)
                     {
                         var file = Model.Files[i];
@@ -36,7 +36,7 @@
                             picTitle = file.TitleAttribute;
                         }
 
-                        <div class="gal-item" role="option" tabindex="@(i == 0 ? "0" : "-1")" aria-selected="@(i == 0 ? "true" : "false")" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
+                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
                             <a class="gal-item-viewport"
                                itemprop="contentUrl"
                                href="@file.GetUrl()"
@@ -45,7 +45,11 @@
                                data-height="@file.Size.Height"
                                data-medium-image="@file.GetUrl(Model.ImageSize)"
                                title="@linkTitle"
-                               data-picture-id="@file.Id">
+                               aria-label="@linkTitle"
+                               data-picture-id="@file.Id"
+                               role="option" 
+                               tabindex="@(i == 0 ? "0" : "-1")" 
+                               aria-selected="@(i == 0 ? "true" : "false")">
                                 @if (isVideo)
                                 {
                                     <meta itemprop="thumbnailURL" content="@file.GetUrl(MediaSettings.ThumbnailSizeMd)" />
@@ -126,5 +130,6 @@
 </div>
 
 <widget sm-if="Model.BoxEnabled" target-zone="aftercontent" key="pswp">
+    @*TODO: (wcag) (mh) Focustrap is needed here *@
     <partial name="PhotoSwipe" />
 </widget>

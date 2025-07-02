@@ -262,9 +262,9 @@
             if (curIdx === idx)
                 return;
 
-            curItem.removeClass('gal-current').aria('selected', false);
+            curItem.removeClass('gal-current').find("> a").aria('selected', false);
             curItem = self.nav.find('[data-gal-index=' + idx + ']');
-            curItem.addClass('gal-current').aria('selected', true);
+            curItem.addClass('gal-current').find("> a").aria('selected', true);
 
             let page = Math.floor(idx / self.options.thumbsToShow);
             self._slideToNavPage(page);
