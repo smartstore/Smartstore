@@ -174,22 +174,27 @@ jQuery(function () {
         });
 
         body.on('mouseenter mouseleave mousedown change', '.mf-dropdown > select', function (e) {
-            var btn = $(this).parent().find('> .btn');
+            let $btn = $(this).parent().find('> .btn');
+
+            const blurButton = (e) => {
+                $btn.removeClass('active focus');
+            }
+
             if (e.type == "mouseenter") {
-                btn.addClass('hover');
+                $btn.addClass('hover');
             }
             else if (e.type == "mousedown") {
-                btn.addClass('active focus').removeClass('hover');
+                $btn.addClass('active focus').removeClass('hover');
                 _.delay(() => {
-                    body.one('mousedown touch', () => { btn.removeClass('active focus'); });
+                    body.one('mousedown.mfdropdown touch.mfdropdown', blurButton);
                 }, 50);
             }
             else if (e.type == "mouseleave") {
-                btn.removeClass('hover');
+                $btn.removeClass('hover');
             }
             else if (e.type == "change") {
-                btn.removeClass('hover active focus');
-                var elLabel = btn.find('[data-bind]');
+                $btn.removeClass('hover active focus');
+                var elLabel = $btn.find('[data-bind]');
                 elLabel.text(elLabel.data('bind') == 'value' ? $(this).val() : $('option:selected', this).text());
             }
         });

@@ -532,7 +532,7 @@ button:where(.reset) {
 
     > select {
         position: absolute;
-        opacity: 0;
+        opacity: 0.01;
         inset-inline-start: 0;
         width: 100%;
         top: 0;
@@ -540,8 +540,9 @@ button:where(.reset) {
         cursor: pointer;
         z-index: 1;
 
-        &:focus-visible + .btn:not(.focus) {
-            box-shadow: $focus-ring-box-shadow;
+        &:focus-visible + .btn:not(:is(.focus)) {
+            // Make subtle focus ring
+            outline: 1px solid $focus-ring-color;
         }
     }
 
@@ -567,6 +568,7 @@ button:where(.reset) {
 
     .btn.has-caret {
         text-align: start;
+        justify-content: start;
         padding-inline-end: $input-btn-padding-x * 2;
 
         &.btn-sm {
