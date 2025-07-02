@@ -24,9 +24,9 @@
 <form asp-action="BackInStockSubscribePopup" asp-route-id="@Model.ProductId" id="back-in-stock-subscription-form" method="post">
     <div class="page back-in-stock-subscription-page">
         <div class="page-title">
-            <h4>
+            <h1 class="h4">
                 @T(isSubscribed ? "BackInStockSubscriptions.Unsubscribe" : "BackInStockSubscriptions.PopupTitle")
-            </h4>
+            </h1>
         </div>
         <div class="page-body">
             <div sm-if="isSubscribed" class="alert alert-warning" role="alert">
