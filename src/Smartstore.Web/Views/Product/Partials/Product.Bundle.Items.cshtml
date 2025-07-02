@@ -14,7 +14,7 @@
                 <div sm-if="img != null && !item.BundleItem.HideThumbnail" 
                         class="pd-bundle-item-image col" 
                         style="min-width: @(item.ThumbDimensions)px; max-width: @(item.ThumbDimensions)px;">
-                    <img sm-file="img" sm-size="gallery.ThumbSize" class="img-fluid pd-dyn-thumb" attr-alt='(img.Alt.IsEmpty(), item.Name)' />
+                    <img sm-file="img" sm-size="gallery.ThumbSize" class="img-fluid pd-dyn-thumb" alt='@img.Alt' />
                 </div>
                 <div class="pd-bundle-item-body col pl-3">
                     <div class="pd-bundle-item-name">
