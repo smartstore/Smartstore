@@ -471,24 +471,27 @@
                 sel.data("select2").$container.addClass("autowidth");
             }
 
-            // WCAG: Consider aria-labelledby attribute of the native select control for select2 selection element.
-            const labelledBy = sel.aria("labelledby");
-            if (!_.isEmpty(labelledBy)) {
-                const $sel = sel.data("select2").$container.find('.select2-selection');
-
-                if (applyLabelledBy($sel, labelledBy)) {
-                    const $textbox = $sel.find('[role=textbox]')
-                    applyLabelledBy($textbox, labelledBy);
+            // WCAG.
+            const $sel = sel.data("select2").$container.find('.select2-selection');
+            if ($sel.length) {
+                const labelledBy = sel.aria("labelledby");
+                if (!_.isEmpty(labelledBy)) {
+                    // Apply aria-labelledby attribute of the native select.
+                    $sel.aria('labelledby', labelledBy);
                 }
-            }
-
-            function applyLabelledBy($el, idToApply) {
-                if ($el.length) {
-                    const existingId = $el.aria('labelledby');
-                    $el.aria('labelledby', _.isEmpty(existingId) ? idToApply : `${idToApply} ${existingId}`);
-                    return true;
+                else {
+                    // Apply label text of native select (if any).
+                    const id = sel.attr('id') || sel.attr('name');
+                    const $elLabel = $('label[for="' + id + '"]');
+                    if ($elLabel) {
+                        $sel.aria('label', $elLabel.text())
+                            .removeAttr('aria-labelledby');
+                    }
                 }
-                return false;
+
+                // Remove role from rendered selection element. It is not editable.
+                $sel.find('.select2-selection__rendered[role="textbox"]')
+                    .removeAttr('role aria-readonly');
             }
 
             function getPlaceholder() {
