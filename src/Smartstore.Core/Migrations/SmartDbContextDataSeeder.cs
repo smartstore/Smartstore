@@ -132,6 +132,7 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("de", "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
 
             builder.AddOrUpdate("Order.ShipmentStatusEvents", "Status of your shipment", "Status Ihrer Sendung");
+            builder.AddOrUpdate("BackInStockSubscriptions.PopupTitle", "Email when available", "E-Mail bei Verfügbarkeit");
         }
     }
 }
