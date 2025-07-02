@@ -5,7 +5,7 @@ namespace Smartstore.Web.Models.Media
 {
     public partial class MediaGalleryModel : ModelBase
     {
-        public IList<MediaFileInfo> Files { get; set; } = new List<MediaFileInfo>();
+        public IList<MediaFileInfo> Files { get; set; } = [];
         public int GalleryStartIndex { get; set; }
         public int ThumbSize { get; set; } = MediaSettings.ThumbnailSizeXs;
         public int ImageSize { get; set; } = MediaSettings.ThumbnailSizeXl;

@@ -54,7 +54,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var img = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
             img.Attributes["class"] = "file-img";
             img.Attributes["data-src"] = Src;
-            img.MergeAttribute("alt", () => Model?.Alt ?? File?.File?.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
+            img.MergeAttribute("alt", () => Model?.Alt ?? File?.Alt ?? File?.File?.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
 
             // picture > img
             picture.InnerHtml.SetHtmlContent(img);
