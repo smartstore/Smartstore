@@ -143,7 +143,6 @@ class AccessKit {
                     el.removeAttribute('aria-controls');
                 }
                 else {
-                    el.setAttribute('role', 'button');
                     el.setAttribute('aria-expanded', !el.matches('.collapsed'));
                     el.setAttribute('aria-controls', el.getAttribute('data-aria-controls'));
                     el.removeAttribute('data-aria-controls');
@@ -428,6 +427,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
 
         // Wait for transition end to set focus
         async function waitForTransitions(el) {
+            if (!el) return;
             const trans = el.getAnimations().filter(a => a instanceof CSSTransition);
             if (trans.length === 0) return;
 

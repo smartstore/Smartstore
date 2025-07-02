@@ -400,6 +400,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                 collapseHeader.Attributes.Add("data-toggle", "collapse");
                 collapseHeader.Attributes.Add("data-target", $"#{collapsePaneId}");
                 collapseHeader.Attributes.Add("aria-expanded", tab.Selected.ToString().ToLower());
+                collapseHeader.Attributes.Add("data-aria-controls", collapsePaneId);
+                collapseHeader.Attributes.Add("tabindex", "0");
 
                 if (!tab.Selected)
                 {
