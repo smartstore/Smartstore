@@ -151,27 +151,27 @@
             // the slick dots were not aligned correctly before. If there is a layout problem, 
             // maybe uncomment again.
             //gal.height(gal.width());
-            EventBroker.subscribe("page.resized", function (msg, viewport) {
+            EventBroker.subscribe("page.resized", (msg, viewport) => {
                 //gal.height(gal.width());
                 self.initNav();
             });
 
-            gal.on('beforeChange', function (e, slick, curIdx, nextIdx) {
+            gal.on('beforeChange', (e, slick, curIdx, nextIdx) => {
                 if (!self.nav.data('glimpse')) {
                     // Sync with thumb nav
                     self._selectNavItem(nextIdx, false);
                 }
             });
 
-            gal.on('afterChange', function (e, slick, currentSlide) {
+            gal.on('afterChange', (e, slick, currentSlide) => {
                 self.currentIndex = currentSlide;
                 self.currentImage = gal.find('.gal-item.slick-current img').first();
             });
 
             if (!isTouch) {
                 gal
-                    .on('mouseenter.gal', function (e) { gal.slick("slickSetOption", "speed", 250); })
-                    .on('mouseleave.gal', function (e) { gal.slick("slickSetOption", "speed", 0); });
+                    .on('mouseenter.gal', () => { gal.slick("slickSetOption", "speed", 250); })
+                    .on('mouseleave.gal', () => { gal.slick("slickSetOption", "speed", 0); });
             }
         },
 
@@ -315,13 +315,13 @@
 
             var self = this;
 
-            self.gallery.on('beforeChange.gal', function (e, slick, curIdx, nextIdx) {
+            self.gallery.on('beforeChange.gal', (e, slick, curIdx, nextIdx) => {
                 // destroy zoom
                 if (self.nav.data('glimpse')) return;
                 self.destroyZoom(curIdx);
             });
 
-            self.gallery.on('afterChange.gal', function (e, slick, idx) {
+            self.gallery.on('afterChange.gal', (e, slick, idx) => {
                 // apply zoom
                 if (self.nav.data('glimpse')) return;
                 applyZoom(self.gallery.find('.gal-item').eq(idx));
@@ -460,23 +460,23 @@
             }
 
             function pauseVideos() {
-                pswpContainer.find('.video-item').each(function (i, el) {
+                pswpContainer.find('.video-item').each((_, el) => {
                     el.pause();
                 });
             }
 
-            $(pswpEl).on('keydown.gal', function (e) {
+            $(pswpEl).on('keydown.gal', (e) => {
                 // Handle arrow left/right press
                 setTransition(e);
             });
 
-            $(pswpEl).on('mousedown.gal', '.pswp-arrow', function (e) {
+            $(pswpEl).on('mousedown.gal', '.pswp-arrow', (e) => {
                 // Handle arrow left/right click
                 e.stopPropagation();
                 setTransition(e);
             });
 
-            $(pswpEl).on('mousedown.gal', '.pswp__scroll-wrap', function (e) {
+            $(pswpEl).on('mousedown.gal', '.pswp__scroll-wrap', (e) => {
                 pswpContainer.removeClass('sliding');
             });
 
@@ -528,9 +528,9 @@
                             showHideOpacity: true,
                             captionEl: false,
                             shareEl: false,
-                            getThumbBoundsFn: function (index) {
+                            getThumbBoundsFn: (index) => {
                                 var img = self.currentImage[0],
-                                    pageYScroll = window.pageYOffset || document.documentElement.scrollTop,
+                                    pageYScroll = window.scrollY || document.documentElement.scrollTop,
                                     rect = img.getBoundingClientRect();
 
                                 return { x: rect.left, y: rect.top + pageYScroll, w: rect.width };
@@ -539,13 +539,13 @@
 
                         var pswp = new PhotoSwipe(pswpEl, PhotoSwipeUI_Default, items, options);
 
-                        pswp.listen('destroy', function () {
+                        pswp.listen('destroy', () => {
                             AccessKitFocusTrap.deactivate();
                             pauseVideos();
                         });
                         pswp.listen('beforeChange', pauseVideos);
-                        pswp.listen('afterChange', function () {
-                            pswpContainer.one('transitionend', function (e) {
+                        pswp.listen('afterChange', () => {
+                            pswpContainer.one('transitionend', () => {
                                 pswpContainer.removeClass('sliding');
                             });
                             var idx = pswp.getCurrentIndex();
@@ -579,7 +579,7 @@
         },
 
         fireCallback: function (fn) {
-            if ($.isFunction(fn)) {
+            if (_.isFunction(fn)) {
                 return fn.call(this);
             };
         }
