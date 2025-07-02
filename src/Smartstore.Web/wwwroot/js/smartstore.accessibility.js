@@ -350,7 +350,12 @@ const KEY = AK.KEY;
         *
         * @returns {boolean}   true → Event processed, false → delegate to browser
         */
-        handleRovingKeys(e, items, {orientation = 'vertical', activateFn = null, extraKeysFn = null} = {}) {
+        handleRovingKeys(e, items, { orientation = 'vertical', activateFn = null, extraKeysFn = null } = {}) {
+            // TODO: (wcag) (mh) Research why items are of type NodeList after AJAX-Updates (e.g. in product detail variant update)
+            if (items instanceof NodeList) {
+                items = [...items];
+            }
+
             const idx = items.indexOf(e.target);
             if (idx === -1) return false;
 
@@ -932,6 +937,7 @@ AK.RadioGroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
         if (!options.length)
             return false;
 
+        // TODO: (wcag) (mh) Research why orientation vertical isn't working
         const orientation = group.getAttribute('aria-orientation') ?? 'vertical';
 
         return this.handleRovingKeys(e, options, {

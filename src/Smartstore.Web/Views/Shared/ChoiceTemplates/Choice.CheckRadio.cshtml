@@ -13,7 +13,7 @@
 {
     var checkId = controlId + "_" + item.Id;
     var hasColor = item.Color.HasValue() && item.Color != "transparent";
-    <div class="form-check" title="@item.Title.NullEmpty()">
+    <div class="form-check" title="@item.Title.NullEmpty()" attr-role='(type == "radio", "radiogroup")' attr-aria-orientation='(type == "radio", "vertical")'>
         <input class="form-check-input" type="@type" id="@checkId" name="@controlId" value="@item.Id" 
                attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
 
