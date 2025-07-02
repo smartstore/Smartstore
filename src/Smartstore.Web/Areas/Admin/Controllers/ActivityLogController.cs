@@ -33,17 +33,21 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ActivityLogTypesList(GridCommand command)
         {
             var mapper = MapperFactory.GetMapper<ActivityLogType, ActivityLogTypeModel>();
-            var activityLogTypeModels = await _db.ActivityLogTypes
+            var models = await _db.ActivityLogTypes
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
+            models = [.. models
+                .GroupBy(x => new { x.SystemKeyword, x.Enabled })
+                .Select(g => g.First())];
+
             var gridModel = new GridModel<ActivityLogTypeModel>
             {
-                Rows = activityLogTypeModels,
-                Total = activityLogTypeModels.Count
+                Rows = models,
+                Total = models.Count
             };
 
             return Json(gridModel);
@@ -76,17 +80,23 @@ namespace Smartstore.Admin.Controllers
             var activityLogTypes = await _db.ActivityLogTypes
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
-                .Select(x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Name
-                })
                 .ToListAsync();
 
-            return View(new ActivityLogListModel
+            activityLogTypes = [.. activityLogTypes
+                .GroupBy(x => new { x.SystemKeyword, x.Enabled })
+                .Select(g => g.First())];
+
+            var model = new ActivityLogListModel
             {
-                ActivityLogTypes = activityLogTypes
-            });
+                ActivityLogTypes = [.. activityLogTypes
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Name
+                    })]
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -122,6 +132,13 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.IsSystemAccount)
                 .ToDictionaryAsync(x => x.Id);
 
+            var resMap = new Dictionary<string, string>
+            {
+                { "SearchEngine", T("Admin.System.SystemCustomerNames.SearchEngine") },
+                { "BackgroundTask", T("Admin.System.SystemCustomerNames.BackgroundTask") },
+                { "PdfConverter", T("Admin.System.SystemCustomerNames.PdfConverter") }
+            };
+
             var mapper = MapperFactory.GetMapper<ActivityLog, ActivityLogModel>();
             var activityLogModels = await activityLogs.SelectAwait(async x =>
             {
@@ -129,23 +146,23 @@ namespace Smartstore.Admin.Controllers
                 var systemCustomer = systemAccountCustomers.Get(x.CustomerId);
 
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                model.IsSystemAccount = systemCustomer != null;
 
                 if (systemCustomer != null)
                 {
+                    model.IsSystemAccount = true;
                     model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin" });
 
                     if (systemCustomer.IsBot())
                     {
-                        model.SystemAccountName = T("Admin.System.SystemCustomerNames.SearchEngine");
+                        model.SystemAccountName = resMap["SearchEngine"];
                     }
                     else if (systemCustomer.IsBackgroundTaskAccount())
                     {
-                        model.SystemAccountName = T("Admin.System.SystemCustomerNames.BackgroundTask");
+                        model.SystemAccountName = resMap["BackgroundTask"];
                     }
                     else if (systemCustomer.IsPdfConverter())
                     {
-                        model.SystemAccountName = T("Admin.System.SystemCustomerNames.PdfConverter");
+                        model.SystemAccountName = resMap["PdfConverter"];
                     }
                     else
                     {

@@ -3,6 +3,8 @@
     [LocalizedDisplay("Admin.Configuration.ActivityLog.ActivityLogType.Fields.")]
     public class ActivityLogTypeModel : EntityModelBase
     {
+        public string SystemKeyword { get; set; }
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
