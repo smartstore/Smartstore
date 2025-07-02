@@ -62,6 +62,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CheckoutStep.Current", "Current step", "Aktueller Schritt");
             builder.AddOrUpdate("Aria.Label.CheckoutStep.Pending", "Not visited", "Noch nicht besucht");
             builder.AddOrUpdate("Aria.Label.SearchHitCount", "Search results", "Suchergebnisse");
+            // INFO: Must be generic for Cart, Compare & Wishlist
+            builder.AddOrUpdate("Aria.Label.OffCanvasCartTab", "My articles", "Meine Artikel");
+            
 
             builder.AddOrUpdate("Search.SearchBox.Clear", "Clear search term", "Suchbegriff löschen");
             builder.AddOrUpdate("Common.ScrollUp", "Scroll up", "Nach oben scrollen");
