@@ -33,6 +33,7 @@
 }
 
 <div class="qty-input qty-input-@Model.QuantityControlType.ToString().ToLower()">
+    <label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>
     @if (Model.QuantityControlType == QuantityControlType.Spinner || Model.AllowedQuantities.IsNullOrEmpty())
     {
         <input asp-for="EnteredQuantity" 
@@ -59,7 +60,8 @@
                 asp-items="Model.AllowedQuantities" 
                 class="form-control qty-dropdown noskin">
             </select>
-                        <button class="btn btn-secondary btn-block justify-content-start gap-1" attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
+                <button class="btn btn-secondary btn-block justify-content-start gap-1" 
+                        attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
                 <span class="fwn text-truncate">@T("ShoppingCart.Quantity"):</span>
                 <span data-bind="value">@Model.EnteredQuantity</span>
                 <i class="fas fa-xs fa-angle-down btn-icon-fix ml-auto"></i>
