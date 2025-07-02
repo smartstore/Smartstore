@@ -406,6 +406,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 }
 
 .megamenu-subitem {
+    display: block;
     font-size: $font-size-sm;
     text-decoration: none;
     color: $megamenu-subitem-color;
