@@ -33,34 +33,39 @@
 }
 
 <div class="qty-input qty-input-@Model.QuantityControlType.ToString().ToLower()">
-    <label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>
+    @*TODO: (wcag) (mh) 
+        This might be the better way. 
+        Currently I've passed the label via attibutes everywhere where I found it.  
+        > Evaluate & comment this code back in and fix the attribute label transmission by removing every single one of it.
+    *@
+    @*<label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>*@
     @if (Model.QuantityControlType == QuantityControlType.Spinner || Model.AllowedQuantities.IsNullOrEmpty())
     {
         <input asp-for="EnteredQuantity" 
-            type="number" 
-            attrs="@attributes"
-            sm-control-size="@controlSize"
-            sm-postfix="@(Model.EnteredQuantity > 1 ? Model.QuantityUnitNamePlural : Model.QuantityUnitName)"
-            sm-numberinput-style="Centered"
-            data-step-interval="150"
-            data-auto-select="false"
-            data-auto-focus="false"
-            data-qtyunit-singular="@Model.QuantityUnitName"
-            data-qtyunit-plural="@Model.QuantityUnitNamePlural"
-            min="@Model.MinOrderAmount"
-            max="@Model.MaxOrderAmount"
-            step="@Model.QuantityStep" />
+               type="number" 
+               attrs="@attributes"
+               sm-control-size="@controlSize"
+               sm-postfix="@(Model.EnteredQuantity > 1 ? Model.QuantityUnitNamePlural : Model.QuantityUnitName)"
+               sm-numberinput-style="Centered"
+               data-step-interval="150"
+               data-auto-select="false"
+               data-auto-focus="false"
+               data-qtyunit-singular="@Model.QuantityUnitName"
+               data-qtyunit-plural="@Model.QuantityUnitNamePlural"
+               min="@Model.MinOrderAmount"
+               max="@Model.MaxOrderAmount"
+               step="@Model.QuantityStep" />
     }
     else // Dropdown
     {
         <div class="mf-dropdown d-block">
             <select asp-for="EnteredQuantity"
-                attrs="@attributes"
-                attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
-                asp-items="Model.AllowedQuantities" 
-                class="form-control qty-dropdown noskin">
+                    attrs="@attributes"
+                    attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
+                    asp-items="Model.AllowedQuantities" 
+                    class="form-control qty-dropdown noskin">
             </select>
-                <button class="btn btn-secondary btn-block justify-content-start gap-1" 
+            <button class="btn btn-secondary btn-block justify-content-start gap-1" 
                         attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
                 <span class="fwn text-truncate">@T("ShoppingCart.Quantity"):</span>
                 <span data-bind="value">@Model.EnteredQuantity</span>
