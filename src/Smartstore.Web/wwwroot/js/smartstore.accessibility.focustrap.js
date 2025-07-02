@@ -2,7 +2,6 @@
  * * TODO: (wcag) (mh) 
         - Docs  
         - alert2
-        - MediaGallery
         - What else must be trapped?
     */
 (() => {

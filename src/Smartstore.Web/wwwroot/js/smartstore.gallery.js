@@ -539,7 +539,10 @@
 
                         var pswp = new PhotoSwipe(pswpEl, PhotoSwipeUI_Default, items, options);
 
-                        pswp.listen('destroy', pauseVideos);
+                        pswp.listen('destroy', function () {
+                            AccessKitFocusTrap.deactivate();
+                            pauseVideos();
+                        });
                         pswp.listen('beforeChange', pauseVideos);
                         pswp.listen('afterChange', function () {
                             pswpContainer.one('transitionend', function (e) {
@@ -554,6 +557,8 @@
                         $(pswpEl).data('pswp', pswp);
 
                         pswp.init();
+
+                        AccessKitFocusTrap.activate(pswpEl);
                     }
 
                     return false;
