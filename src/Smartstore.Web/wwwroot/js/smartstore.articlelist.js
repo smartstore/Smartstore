@@ -13,6 +13,7 @@
         var list = art.closest('.artlist');
 
         if (list.parent().hasClass('artlist-carousel')) {
+            art.find('.sr-toggle').remove();
             return;
         }
 
