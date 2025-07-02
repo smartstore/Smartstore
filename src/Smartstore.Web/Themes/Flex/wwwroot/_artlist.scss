@@ -175,6 +175,8 @@
 .art-picture-block {
     position: relative;
     margin-bottom: 0.8rem;
+    // --art-picture-width is set via Product.List view
+    width: var(--art-picture-width, initial);
 }
 
 .art-picture.no-picture {
