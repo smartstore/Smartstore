@@ -44,3 +44,18 @@
     clip: auto;
     overflow: visible;
 }
+
+#skip-to-content {
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    transform: scale(0);
+    opacity: 0;
+    margin: .5rem;
+    z-index: 10000;
+
+    &:focus-visible {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
