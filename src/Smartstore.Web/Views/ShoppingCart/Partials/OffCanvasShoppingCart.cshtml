@@ -14,12 +14,12 @@
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="!hasItems" class="no-items">
+    <div sm-if="!hasItems" class="no-items" role="status">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-shopping-basket fa-4x"></i>
+            <i class="fa fa-shopping-basket fa-4x" aria-hidden="true"></i>
         </p>
         <p class="no-item-info text-muted">
             @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down"))
@@ -32,7 +32,7 @@
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
 
         <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
-            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="@T("Common.Close")"></button>
             <span sm-language-attributes-for="currentItem.ProductName">
                 @Html.Raw(T("ShoppingCart.Mini.AddedItemToCart", $"<strong>{currentItem.ProductName.Value.Truncate(50, "…")}</strong>"))
             </span>
@@ -45,7 +45,7 @@
                     .Where(x => x.ImageModel?.HasImage() == true)
                     .ToArray();
 
-                <div class="offcanvas-cart-item@(!item.Active ? " offcanvas-cart-item-inactive" : string.Empty)">
+                <div class="offcanvas-cart-item" attr-class='(!item.Active, "offcanvas-cart-item-inactive")'>
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-image col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
@@ -53,7 +53,13 @@
                             </a>
                         </div>
                         <div class="col col-data">
-                            <a class="name fwm link-body link-dnu" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            <a id="cart-item-link-@(item.Id)"
+                               class="name fwm link-body link-dnu" 
+                               href="@item.ProductUrl" 
+                               title="@item.ProductName" 
+                               sm-language-attributes-for="item.ProductName">
+                                @item.ProductName
+                            </a>
 
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "…"))
@@ -65,9 +71,9 @@
                             <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
                                 @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
                                 {
-                                    var item = bundleItemsWithImages[i];
-                                    <a href="@item.ProductUrl" title="@item.ProductName" class="link-dnn">
-                                        <img sm-model="item.ImageModel" attr-alt='(item.ImageModel.Alt.IsEmpty(), item.ProductName)' />
+                                    var bundelItem = bundleItemsWithImages[i];
+                                    <a href="@bundelItem.ProductUrl" title="@bundelItem.ProductName" class="link-dnn">
+                                        <img sm-model="bundelItem.ImageModel" attr-alt='(bundelItem.ImageModel.Alt.IsEmpty(), bundelItem.ProductName)' />
                                     </a>
                                     <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
                                 }
@@ -87,6 +93,8 @@
                                     data_update_url = Url.Action("UpdateCartItem", "ShoppingCart"),
                                     data_type = "cart",
                                     data_sci_id = item.Id,
+                                    id = $"o-cart-item-quantity-{item.Id}",
+                                    aria_labelledby = $"cart-item-link-{item.Id}"
                                 }
                             })
                         </div>
@@ -106,26 +114,28 @@
                         <div class="col-auto text-nowrap">
                             @if (Model.DisplayMoveToWishlistButton)
                             {
-                                <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title="@T("ShoppingCart.MoveToWishlist")"
-                                   href="#"
-                                   rel="nofollow"
-                                   data-href="@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart })"
-                                   data-name="@item.ProductName"
-                                   data-type="cart"
-                                   data-action="addfromcart">
-                                    <i class="fal fa-heart"></i>
-                                </a>
+                                <button class="btn btn-secondary btn-sm btn-icon ajax-cart-link" 
+                                        title="@T("ShoppingCart.MoveToWishlist")"
+                                        aria-label="@T("ShoppingCart.MoveToWishlist")"
+                                        type="button"
+                                        data-href="@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart })"
+                                        data-name="@item.ProductName"
+                                        data-type="cart"
+                                        data-action="addfromcart">
+                                    <i class="fal fa-heart" aria-hidden="true"></i>
+                                </button>
                             }
 
-                            <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
-                               href="#"
-                               rel="nofollow"
-                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                               data-name="@item.ProductName"
-                               data-type="cart"
-                               data-action="remove">
-                                <i class="fal fa-trash-can"></i>
-                            </a>
+                            <button class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" 
+                                    title="@T("Common.Remove")"
+                                    aria-label="@T("Common.Remove")"
+                                    type="button"
+                                    data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                                    data-name="@item.ProductName"
+                                    data-type="cart"
+                                    data-action="remove">
+                                <i class="fal fa-trash-can" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -160,7 +170,7 @@
                     </div>
                     <div class="col">
                         <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl">
-                            <i class="fa fa-check"></i>
+                            <i class="fa fa-check" aria-hidden="true"></i>
                             <span>@T("Checkout.Button")</span>
                         </a>
                     </div>
@@ -169,7 +179,7 @@
                 {
                     <div class="col">
                         <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                            <i class="fa fa-check"></i>
+                            <i class="fa fa-check" aria-hidden="true"></i>
                             <span>@T("ShoppingCart.Mini.ViewCart")</span>
                         </a>
                     </div>
@@ -179,7 +189,7 @@
         else if (Model.DisplayShoppingCartButton)
         {
             <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
-                <i class="fa fa-check"></i>
+                <i class="fa fa-check" aria-hidden="true"></i>
                 <span>@T("ShoppingCart.Mini.ViewCart")</span>
             </a>
         }

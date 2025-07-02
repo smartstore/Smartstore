@@ -3,12 +3,12 @@
 @model ProductSummaryModel
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="!Model.Items.Any()" class="no-items">
+    <div sm-if="!Model.Items.Any()" class="no-items" role="status">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyCompare.Title")
         </h4>
         <p class="no-item-icon">
-            <i class="fa fa-retweet fa-4x"></i>
+            <i class="fa fa-retweet fa-4x" aria-hidden="true"></i>
         </p>
         <p class="no-item-info text-muted">
             @Html.Raw(T("ShoppingCart.Mini.EmptyCompare.Info", "fa fa-lg fa-retweet"))
@@ -47,15 +47,14 @@
                                 </span>
                             </div>
                             <div class="col-auto text-nowrap">
-                                <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link"
-                                   href="#"
-                                   rel="nofollow"
-                                   data-href='@Url.Action("RemoveProductFromCompare", "Catalog", new { id = item.Id })'
-                                   data-type="compare"
-                                   data-action="remove"
-                                   title='@T("Common.Remove")'>
-                                    <i class="far fa-trash-can"></i>
-                                </a>
+                                <button class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link"
+                                        type="button"
+                                        data-href='@Url.Action("RemoveProductFromCompare", "Catalog", new { id = item.Id })'
+                                        data-type="compare"
+                                        data-action="remove"
+                                        title='@T("Common.Remove")'>
+                                    <i class="far fa-trash-can" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -71,13 +70,13 @@
     <div class="offcanvas-cart-footer-row no-gutters">
         <div class="col pr-2">
             <a class="btn btn-clear btn-block btn-action" asp-route="CompareProducts">
-                <i class="fa fa-check"></i>
+                <i class="fa fa-check" aria-hidden="true"></i>
                 <span>@T("Products.Compare.CompareNow")</span>
             </a>
         </div>
         <div class="col pl-2">
             <a class="btn btn-clear btn-block btn-action ajax-cart-link" href="#" data-href="@Url.Action("ClearCompareList")" rel="nofollow" data-type="compare" data-action="remove">
-                <i class="fal fa-trash-can"></i>
+                <i class="fal fa-trash-can" aria-hidden="true"></i>
                 <span>@T("Products.Compare.Clear")</span>
             </a>
         </div>

@@ -9,23 +9,65 @@
 <zone name="offcanvas_cart_before"></zone>
 
 <div class="offcanvas-cart-header offcanvas-tabs">
-    <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist">
+    <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist" aria-label="@T("Aria.Label.OffCanvasCartTab")">
         <li sm-if="Model.ShoppingCartEnabled" class="nav-item col">
-            <a id="cart-tab" class="nav-link focus-inset" data-toggle="tab" href="#occ-cart" role="tab" data-url="@Url.Action("OffCanvasShoppingCart", "ShoppingCart")">
+            <a id="cart-tab" 
+               class="nav-link focus-inset" 
+               data-toggle="tab" 
+               href="#occ-cart" 
+               data-url="@Url.Action("OffCanvasShoppingCart", "ShoppingCart")"
+               role="tab" 
+               aria-controls="ocm-cart" 
+               aria-selected="true" 
+               tabindex="0">
                 <span class="title">@T("PageTitle.ShoppingCart")</span>
-                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" data-bind-to="CartItemsCount" attr-style='(Model.CartItemsCount == 0, "display:none")'>@Model.CartItemsCount</span>
+                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" 
+                      data-bind-to="CartItemsCount" 
+                      attr-style='(Model.CartItemsCount == 0, "display:none")'
+                      aria-live="polite"
+                      aria-atomic="true">
+                        @Model.CartItemsCount
+                </span>
             </a>
         </li>
         <li sm-if="Model.WishlistEnabled" class="nav-item col">
-            <a id="wishlist-tab" class="nav-link focus-inset" data-toggle="tab" href="#occ-wishlist" role="tab" data-url="@Url.Action("OffCanvasWishlist", "ShoppingCart")">
+            <a id="wishlist-tab" 
+               class="nav-link focus-inset" 
+               data-toggle="tab" 
+               href="#occ-wishlist" 
+               data-url="@Url.Action("OffCanvasWishlist", "ShoppingCart")"
+               role="tab"
+               aria-controls="ocm-wishlist" 
+               aria-selected="false" 
+               tabindex="-1">
                 <span class="title">@T("Wishlist")</span>
-                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" data-bind-to="WishlistItemsCount" attr-style='(Model.WishlistItemsCount == 0, "display:none")'>@Model.WishlistItemsCount</span>
+                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" 
+                      data-bind-to="WishlistItemsCount" 
+                      attr-style='(Model.WishlistItemsCount == 0, "display:none")'
+                      aria-live="polite"
+                      aria-atomic="true">
+                        @Model.WishlistItemsCount
+                </span>
             </a>
         </li>
         <li sm-if="Model.CompareProductsEnabled" class="nav-item col">
-            <a id="compare-tab" class="nav-link focus-inset" data-toggle="tab" href="#occ-compare" role="tab" data-url="@Url.Action("OffCanvasCompare", "Catalog")">
+            <a id="compare-tab" 
+               class="nav-link focus-inset" 
+               data-toggle="tab" 
+               href="#occ-compare" 
+               data-url="@Url.Action("OffCanvasCompare", "Catalog")"
+               role="tab" 
+               aria-controls="ocm-compare" 
+               aria-selected="false" 
+               tabindex="-1">
                 <span class="title">@T("Common.Shopbar.Compare")</span>
-                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" data-bind-to="CompareItemsCount" attr-style='(Model.CompareItemsCount == 0, "display:none")'>@Model.CompareItemsCount</span>
+                <span class="badge badge-pill badge-counter label-cart-amount badge-@labelStyle" 
+                      data-bind-to="CompareItemsCount" 
+                      attr-style='(Model.CompareItemsCount == 0, "display:none")'
+                      aria-live="polite"
+                      aria-atomic="true">
+                        @Model.CompareItemsCount
+                </span>
             </a>
         </li>
     </ul>
@@ -34,9 +76,9 @@
 <div class="offcanvas-cart-content">
     <form id="offcanvas-cart-form">
         <div class="tab-content">
-            <div sm-if="Model.ShoppingCartEnabled" class="tab-pane fade" id="occ-cart" role="tabpanel"></div>
-            <div sm-if="Model.WishlistEnabled" class="tab-pane fade" id="occ-wishlist" role="tabpanel"></div>
-            <div sm-if="Model.CompareProductsEnabled" class="tab-pane fade" id="occ-compare" role="tabpanel"></div>
+            <div sm-if="Model.ShoppingCartEnabled" class="tab-pane fade" id="occ-cart" role="tabpanel" aria-labelledby="cart-tab"></div>
+            <div sm-if="Model.WishlistEnabled" class="tab-pane fade" id="occ-wishlist" role="tabpanel" aria-labelledby="wishlist-tab"></div>
+            <div sm-if="Model.CompareProductsEnabled" class="tab-pane fade" id="occ-compare" role="tabpanel" aria-labelledby="compare-tab"></div>
         </div>
         @*TODO: (wcag) (mh) Remove sr-only Button. Set feedback panel to role=status instead and leave code comment to refer to SC 3.2.2 / 4.1.3 in case of negative audits *@
         @* INFO: Avoid submit button failure in WCAG checkers. *@
