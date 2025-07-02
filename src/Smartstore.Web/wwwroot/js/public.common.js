@@ -127,9 +127,6 @@
                     list.slick('destroy');
                 }
 
-                // Slick adds role="list" in one of its wrappers. Keeping root role ist invalid.
-                list.removeAttr('role');
-
                 list.slick({
                     rtl: $("html").attr("dir") == "rtl",
                     dots: true,
@@ -145,6 +142,7 @@
                     slidesToScroll: slidesToScroll || 6,
                     autoplay: list.data("autoplay"),
                     infinite: list.data("infinite"),
+                    accessibility: false,
                     responsive: [
                         {
                             breakpoint: 280,
@@ -183,9 +181,13 @@
                         },
                     ]
                 });
-
-                // Add role=list to the slick track element to comply with WCAG.
-                list.find('.slick-track').attr('role', 'list');
+   
+                list
+                    // Move role=list from .artlist to the slick track element to comply with WCAG.
+                    .removeAttr('role')
+                    .find('.slick-track').attr('role', 'list')
+                    // Remove any .sr-toggle in .art
+                    .find('> .sr-toggle').remove();
             });
         }
     ];
