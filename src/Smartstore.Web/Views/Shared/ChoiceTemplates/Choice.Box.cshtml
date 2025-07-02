@@ -5,12 +5,13 @@
     var items = Model.Values ?? new List<ChoiceItemModel>();
 }
 
-<div class="choice-boxes" id="choice-boxes-@Model.Id">
-    <ul class="choice-box-group" 
-        role="radiogroup"      
-        data-manualselect="true"
-        aria-orientation="horizontal"  
-        attr-aria-required='(Model.IsRequired, "true")'>
+<div class="choice-boxes" 
+     id="choice-boxes-@Model.Id" 
+     role="radiogroup"      
+     data-manualselect="true"
+     aria-orientation="horizontal"  
+     attr-aria-required='(Model.IsRequired, "true")'>
+    <ul class="choice-box-group">
         @foreach (var item in items)
         {
             string css = null;

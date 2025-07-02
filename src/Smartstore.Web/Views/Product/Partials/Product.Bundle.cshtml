@@ -15,7 +15,7 @@
 }
 
 <div class="card-body">
-    <h4 sm-if="items.Any() && Model.BundleTitleText.HasValue()" class="h5 pd-bundle-title">@Model.BundleTitleText</h4>
+    <h2 sm-if="items.Any() && Model.BundleTitleText.HasValue()" class="h5 pd-bundle-title">@Model.BundleTitleText</h2>
 
     <ul class="pd-bundle-summary list-unstyled mb-3">
         @foreach (var item in items)

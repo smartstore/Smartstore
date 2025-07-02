@@ -30,7 +30,7 @@
         else
         {
             <div sm-if="!toCart.HideQuantityControl && !toCart.CollapsibleAssociatedProduct" class="col-auto pd-offer-action-qty">
-                @Html.EditorFor(model => model.AddToCart, "QtyInput", new { large = true })
+                @Html.EditorFor(model => model.AddToCart, "QtyInput", new { large = true, htmlAttributes = new { aria_label = T("Products.Qty") }})
             </div>
         
             <div sm-if="!toCart.CollapsibleAssociatedProduct" class="col">

@@ -13,16 +13,17 @@
         <div sm-if="priceModel != null" class="pd-promoprice-line">
             <span class="pd-promoprice-label">@(priceModel.Label):</span>
             <span class="pd-promoprice pl-1">@Html.Raw(priceModel.Price)</span>
-            <a sm-if="priceModel.Description.HasValue()" href="javascript:;" 
-               role="button" 
-               class="pd-promoprice-tip popover-trigger" 
-               data-toggle="popover"
-               data-container="body"
-               data-placement="top"
-               data-trigger="focus"
-               data-content="@priceModel.Description">
-                <i class="fa fa-circle-info"></i>
-            </a>
+            <button sm-if="priceModel.Description.HasValue()"
+                    type="button" 
+                    class="pd-promoprice-tip popover-trigger reset" 
+                    data-toggle="popover"
+                    data-container="body"
+                    data-placement="top"
+                    data-trigger="focus"
+                    data-content="@priceModel.Description"
+                    aria-label="@priceModel.Description">
+                <i class="fa fa-circle-info" aria-hidden="true"></i>
+            </button>
         </div>
     }
 }
