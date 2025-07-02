@@ -76,19 +76,15 @@
                             @Html.Raw(Model.ProductShareCode)
                         </div>
 
-                        @if (Model.DisplayAdminLink)
-                        {
-                            <div class="admin-actions">
-                                <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
-                                   class="btn btn-secondary rounded-pill btn-sm"
-                                   target="admin-product"
-                                   rel="nofollow">
-                                    <i class="fa fa-cog"></i>
-                                    <span>@T("Common.Catalog.EditProduct")</span>
-                                </a>
-                            </div>
-                        }
-
+                        <div sm-if="Model.DisplayAdminLink" class="admin-actions">
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id"
+                                class="btn btn-secondary rounded-pill btn-sm"
+                                target="admin-product"
+                                rel="nofollow">
+                                <i class="fa fa-cog"></i>
+                                <span>@T("Common.Catalog.EditProduct")</span>
+                            </a>
+                        </div>
                     </aside>
                 </section>
 

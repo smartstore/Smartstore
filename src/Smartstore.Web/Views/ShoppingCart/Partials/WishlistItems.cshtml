@@ -37,9 +37,9 @@
                             data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id, isWishlist = true })'
                             data-name="@item.ProductName"
                             data-type="wishlist"
-                            data-action="remove">
+                            data-action="remove"
+                            aria-label="@T("Common.Remove")">
                         <i class="far fa-trash-can" aria-hidden="true"></i>
-                        <span class="sr-only">@T("Common.Remove")</span>
                     </button>
 
                     <div class="cart-item-qty">
