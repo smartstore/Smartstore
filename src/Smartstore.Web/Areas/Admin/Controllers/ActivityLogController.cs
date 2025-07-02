@@ -33,10 +33,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ActivityLogTypesList(GridCommand command)
         {
             var mapper = MapperFactory.GetMapper<ActivityLogType, ActivityLogTypeModel>();
-            var models = await _db.ActivityLogTypes
+
+            var entities = await _db.ActivityLogTypes
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
+                .ToListAsync();
+
+            // INFO: Will fail if DbCache is disabled and entities are not materialized beforehand.
+            var models = await entities
                 .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 

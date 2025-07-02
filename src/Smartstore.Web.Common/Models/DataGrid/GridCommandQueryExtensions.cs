@@ -23,8 +23,8 @@ namespace Smartstore.Web.Models.DataGrid
         /// <param name="applyPaging">Whether to apply the paging part also.</param>
         public static IQueryable<T> ApplyGridCommand<T>(this IQueryable<T> query, GridCommand command, bool applyPaging = false)
         {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotNull(command, nameof(command));
+            Guard.NotNull(query);
+            Guard.NotNull(command);
 
             IOrderedQueryable<T> orderedQuery = null;
             bool hasSorting = false;
