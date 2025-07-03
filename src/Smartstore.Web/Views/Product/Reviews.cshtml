@@ -38,7 +38,7 @@
                 <h2 class="d-none h4">@T("Reviews.Overview.AddNew")</h2>
                 <form asp-action="Reviews" class="form-horizontal" method="post">
                     <div class="form-group row">
-                        <label id="product-review-rating" asp-for="Rating" class="form-control-label col-form-label col-md-3"></label>
+                        <label id="product-review-rating" for="@(srName)5" class="form-control-label col-form-label col-md-3">@Html.DisplayNameFor(x => x.Rating)</label>
                         <div class="col-md-9 star-rating-parent">
                             <div class="review-rating star-rating star-rating-large" role="radiogroup" aria-labelledby="product-review-rating">
                                 <input type="radio" id="@(srName)5" name="@srName" value="5" checked="@(5 == Model.Rating)" required aria-required="true" />
