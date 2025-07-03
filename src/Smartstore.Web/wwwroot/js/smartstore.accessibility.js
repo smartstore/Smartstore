@@ -937,12 +937,20 @@ AK.RadioGroupPlugin = class RadiogroupPlugin extends AK.AccessKitPluginBase {
         if (!options.length)
             return false;
 
-        // TODO: (wcag) (mh) Research why orientation vertical isn't working
         const orientation = group.getAttribute('aria-orientation') ?? 'vertical';
 
         return this.handleRovingKeys(e, options, {
             orientation,
-            activateFn: (el, _idx, _opts) => el.click()
+            activateFn: (el, _idx, _opts) => el.click(),
+            extraKeysFn: (ev, idx, opts) => {
+                // INFO: This prevents default browser navigation
+                // which is possible for radiogroups via ↑ & ← for backward and ↓ & → for forward navigation with no regard of orientation
+                const navKeys = this._getNavKeys(orientation);
+                if (!navKeys.includes(ev.key)) {
+                    return true;
+                }
+                return false;
+            }
         });
     }
 
