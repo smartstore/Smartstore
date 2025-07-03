@@ -1392,7 +1392,7 @@ namespace Smartstore.Web.Controllers
             model.ProductId = product.Id;
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
-            model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
+            model.CanReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
             model.ShowVerfiedPurchaseBadge = _catalogSettings.ShowVerfiedPurchaseBadge;
 

@@ -6,6 +6,8 @@
     Assets.AppendTitleParts(Model.ProductName);
     Assets.AppendMetaDescriptionParts(T("PageTitle.ProductReviews"));
     Assets.AddMetaRobots();
+
+    var srName = Html.NameFor(x => x.Rating);
 }
 
 <div class="page product-reviews-page">
@@ -23,44 +25,67 @@
 
         @if (Model.SuccessfullyAdded && Model.Result.HasValue())
         {
-            <div class="alert alert-success alert-dismissible">
+            <div class="alert alert-success alert-dismissible" role="alert">
                 <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 @Model.Result
             </div>
         }
         else
         {
-            <div asp-validation-summary="ModelOnly" class="m-b-0"></div>
+            <div asp-validation-summary="ModelOnly"></div>
 
-            <div class="write-review mb-4 rounded" id="review-form">
-                <h4 class="d-none">@T("Reviews.Overview.AddNew")</h4>
+            <section id="review-form" class="write-review mb-4 rounded" aria-label="@T("Reviews.Overview.AddNew")">
+                <h2 class="d-none h4">@T("Reviews.Overview.AddNew")</h2>
                 <form asp-action="Reviews" class="form-horizontal" method="post">
                     <div class="form-group row">
-                        <label asp-for="Rating" class="form-control-label col-form-label col-md-3"></label>
+                        <label id="product-review-rating" asp-for="Rating" class="form-control-label col-form-label col-md-3"></label>
                         <div class="col-md-9 star-rating-parent">
-                            <div class="review-rating star-rating star-rating-large">
-                                @{
-                                    var srName = Html.NameFor(x => x.Rating);
-                                }
-                                <input type="radio" id="@(srName)5" name="@srName" value="5" checked="@(5 == Model.Rating)" /><label for="@(srName)5" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Excellent")"></label>
-                                <input type="radio" id="@(srName)4" name="@srName" value="4" checked="@(4 == Model.Rating)" /><label for="@(srName)4"></label>
-                                <input type="radio" id="@(srName)3" name="@srName" value="3" checked="@(3 == Model.Rating)" /><label for="@(srName)3"></label>
-                                <input type="radio" id="@(srName)2" name="@srName" value="2" checked="@(2 == Model.Rating)" /><label for="@(srName)2"></label>
-                                <input type="radio" id="@(srName)1" name="@srName" value="1" checked="@(1 == Model.Rating)" /><label for="@(srName)1" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Bad")"></label>
+                            <div class="review-rating star-rating star-rating-large" role="radiogroup" aria-labelledby="product-review-rating">
+                                <input type="radio" id="@(srName)5" name="@srName" value="5" checked="@(5 == Model.Rating)" required aria-required="true" />
+                                <label for="@(srName)5" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Excellent")">
+                                    <span class="sr-only">@T("Aria.Label.Rating", 5, T("Reviews.Fields.Rating.Excellent"))</span>
+                                </label>
+
+                                <input type="radio" id="@(srName)4" name="@srName" value="4" checked="@(4 == Model.Rating)" />
+                                <label for="@(srName)4">
+                                    <span class="sr-only">@T("Aria.Label.Rating", 4, string.Empty)</span>
+                                </label>
+
+                                <input type="radio" id="@(srName)3" name="@srName" value="3" checked="@(3 == Model.Rating)" />
+                                <label for="@(srName)3">
+                                    <span class="sr-only">@T("Aria.Label.Rating", 3, string.Empty)</span>
+                                </label>
+
+                                <input type="radio" id="@(srName)2" name="@srName" value="2" checked="@(2 == Model.Rating)" />
+                                <label for="@(srName)2">
+                                    <span class="sr-only">@T("Aria.Label.Rating", 2, string.Empty)</span>
+                                </label>
+
+                                <input type="radio" id="@(srName)1" name="@srName" value="1" checked="@(1 == Model.Rating)" />
+                                <label for="@(srName)1" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Bad")">
+                                    <span class="sr-only">@T("Aria.Label.Rating", 1, T("Reviews.Fields.Rating.Bad"))</span>
+                                </label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label asp-for="Title" class="form-control-label col-form-label col-md-3 required"></label>
                         <div class="col-md-9">
-                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' />
+                            <input asp-for="Title" 
+                                   type="text" 
+                                   sm-required="true" 
+                                   attr-disabled='(!Model.CanReview, "disabled")' />
                             <span asp-validation-for="Title"></span>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label asp-for="ReviewText" class="form-control-label col-form-label col-md-3 required"></label>
                         <div class="col-md-9">
-                            <textarea asp-for="ReviewText" cols="1" rows="4" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")'></textarea>
+                            <textarea asp-for="ReviewText" 
+                                      cols="1" 
+                                      rows="4" 
+                                      sm-required="true" 
+                                      attr-disabled='(!Model.CanReview, "disabled")'></textarea>
                             <span asp-validation-for="ReviewText"></span>
                         </div>
                     </div>
@@ -85,26 +110,32 @@
 
                     <div class="form-group row m-b-0 justify-content-end">
                         <div class="col-md-9">
-                            <button type="submit" name="add-review" value="add-review" class="btn btn-primary write-product-review-button">
+                            <button type="submit" 
+                                    name="add-review" 
+                                    value="add-review" 
+                                    class="btn btn-primary write-product-review-button"
+                                    attr-disabled='(!Model.CanReview, "disabled")'>
                                 <span>@T("Reviews.SubmitButton")</span>
                             </button>
                         </div>
                     </div>
                 </form>
-            </div>
+            </section>
         }
 
-        <div sm-if="Model.Items.Count > 0" class="block">
-            <div class="block-title">
-                <h3 class="d-flex align-items-center">
-                    <span>@T("Reviews.ExistingReviews")</span>
-                    <small class="text-muted pl-2 lrm">(@Model.Items.Count)</small>
-                </h3>
+        <section sm-if="Model.Items.Count > 0" aria-labelledby="existing-reviews-title">
+            <div class="block">
+                <div class="block-title">
+                    <h2 id="existing-reviews-title" class="d-flex align-items-center h3">
+                        <span>@T("Reviews.ExistingReviews")</span>
+                        <small class="text-muted pl-2 lrm">(@Model.Items.Count)</small>
+                    </h2>
+                </div>
+                <div class="block-body pt-3">
+                    <partial name="Product.Reviews" model="Model" />
+                </div>
             </div>
-            <div class="block-body pt-3">
-                <partial name="Product.Reviews" model="Model" />
-            </div>
-        </div>
+        </section>
 
         <zone name="productreviews_page_bottom" />
     </div>

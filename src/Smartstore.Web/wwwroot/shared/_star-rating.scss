@@ -8,12 +8,13 @@
     display: inline-block;
 }
 
-.star-rating > label {
-    margin: 0;
+.star-rating input[type="radio"] {
+    position: absolute;
+    left: -9999px;
 }
 
-.star-rating:not(:checked) > input {
-    display: none;
+.star-rating > label {
+    margin: 0;
 }
 	
 .star-rating:not(:checked) > label {
