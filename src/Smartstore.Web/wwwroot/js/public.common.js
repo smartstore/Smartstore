@@ -187,7 +187,7 @@
                     .removeAttr('role')
                     .find('.slick-track').attr('role', 'list')
                     // Remove any .sr-toggle in .art
-                    .find('> .sr-toggle').remove();
+                    .find('> .art > .sr-toggle').remove();
             });
         }
     ];

@@ -543,6 +543,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         text-align: center;
         border-inline-end: 1px solid rgba(#000, 0.15);
         padding-top: 6px; // for the transform
+        padding-bottom: $focus-ring-width; // For visual focus
         &:last-child { border-color: transparent; }
 
         // When more than 4 action items are available,
