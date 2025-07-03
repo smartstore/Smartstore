@@ -528,6 +528,7 @@
                             showHideOpacity: true,
                             captionEl: false,
                             shareEl: false,
+                            barsSize: { top: 48, bottom: 'auto' },
                             getThumbBoundsFn: (index) => {
                                 var img = self.currentImage[0],
                                     pageYScroll = window.scrollY || document.documentElement.scrollTop,
