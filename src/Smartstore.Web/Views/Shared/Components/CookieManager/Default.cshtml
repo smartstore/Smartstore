@@ -27,7 +27,7 @@
        sm-close-on-escape-press="!Model.ModalCookieConsent"
        sm-render-at-page-end="false">
     <modal-header>
-        <h4 class="modal-title">@T("CookieManager.Dialog.Heading")</h4>
+        <h4 id="cookie-manager-windowLabel" class="modal-title">@T("CookieManager.Dialog.Heading")</h4>
         <button sm-if="!Model.ModalCookieConsent" type="button" class="btn-close" data-dismiss="modal"></button>
     </modal-header>
     <modal-body>
