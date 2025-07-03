@@ -2,6 +2,7 @@
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Models.Catalog
 {
@@ -11,11 +12,17 @@ namespace Smartstore.Web.Models.Catalog
 
         public ProductSummaryModel(IPagedList<Product> products, CatalogSearchResult sourceResult = null)
         {
-            Guard.NotNull(products, nameof(products));
+            Guard.NotNull(products);
 
             PagedList = products;
             SourceResult = sourceResult;
+            Id = CommonHelper.GenerateRandomInteger();
         }
+
+        /// <summary>
+        /// A random unique identifier for this model instance to create unique item IDs.
+        /// </summary>
+        public int Id { get; }
 
         public CatalogSearchResult SourceResult { get; init; }
         public int? ThumbSize { get; set; }
@@ -39,7 +46,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool ForceRedirectionAfterAddingToCart { get; set; }
         public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }
 
-        public List<ProductSummaryItemModel> Items { get; set; } = new();
+        public List<ProductSummaryItemModel> Items { get; set; } = [];
 
         public ProductSummaryViewMode ViewMode { get; set; }
         public GridColumnSpan GridColumnSpan { get; set; }
@@ -51,17 +58,14 @@ namespace Smartstore.Web.Models.Catalog
         public int? CurrentSortOrder { get; set; }
         public string CurrentSortOrderName { get; set; }
         public string RelevanceSortOrderName { get; set; }
-        public Dictionary<int, string> AvailableSortOptions { get; set; } = new();
+        public Dictionary<int, string> AvailableSortOptions { get; set; } = [];
 
         public IPageable PagedList { get; }
-        public IEnumerable<int> AvailablePageSizes { get; set; } = Array.Empty<int>();
+        public IEnumerable<int> AvailablePageSizes { get; set; } = [];
 
         public void Dispose()
         {
-            if (Items != null)
-            {
-                Items.Clear();
-            }
+            Items?.Clear();
         }
     }
 }
