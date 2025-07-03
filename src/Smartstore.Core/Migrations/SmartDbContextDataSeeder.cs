@@ -24,11 +24,11 @@ namespace Smartstore.Core.Data.Migrations
         {
             builder.AddOrUpdate("Aria.Label.MainNavigation", "Main navigation", "Hauptnavigation");
             builder.AddOrUpdate("Aria.Label.PageNavigation", "Page navigation", "Seitennavigation");
-            builder.AddOrUpdate("Aria.Label.OffCanvasMenuTab", "Shop sections", "Shop-Bereiche");
+            builder.AddOrUpdate("Aria.Label.OffCanvasMenuTab", "Shop sections", "Shopbereiche");
             builder.AddOrUpdate("Aria.Label.ShowPreviousProducts", "Show previous product group", "Vorherige Produktgruppe anzeigen");
             builder.AddOrUpdate("Aria.Label.ShowNextProducts", "Show next product group", "Nächste Produktgruppe anzeigen");
             builder.AddOrUpdate("Aria.Label.CommentForm", "Comment form", "Kommentarformular");
-            builder.AddOrUpdate("Aria.Label.Breadcrumb", "Breadcrumb", "Brotkrumen-Navigation");
+            builder.AddOrUpdate("Aria.Label.Breadcrumb", "Breadcrumb", "Breadcrumb-Navigation");
             builder.AddOrUpdate("Aria.Label.MediaGallery", "Media gallery", "Mediengalerie");
 
             builder.AddOrUpdate("Aria.Label.SearchFilters", "Search filters", "Suchfilter");
@@ -47,14 +47,14 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Aria.Label.CurrencySelector", "Current currency {0} - Change currency", "Aktuelle Währung {0} – Währung wechseln");
             builder.AddOrUpdate("Aria.Label.LanguageSelector", "Current language {0} - Change language", "Aktuelle Sprache {0} – Sprache wechseln");
-            builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social Media Kanäle");
+            builder.AddOrUpdate("Aria.Label.SocialMediaLinks", "Our social media channels", "Unsere Social-Media-Kanäle");
             builder.AddOrUpdate("Aria.Label.Rating", "Rating: {0} out of 5 stars. {1}", "Bewertung: {0} von 5 Sternen. {1}");
             builder.AddOrUpdate("Aria.Label.ExpandItem", "Press ENTER for more options to {0}", "Drücken Sie ENTER für mehr Optionen zu {0}");
             builder.AddOrUpdate("Aria.Label.ProductOfOrderPlacedOn", "Order {0} from {1}, {2}", "Auftrag {0} vom {1}, {2}");
             builder.AddOrUpdate("Aria.Label.PaginatorItemsPerPage", "Results per page:", "Ergebnisse pro Seite:");
             builder.AddOrUpdate("Aria.Label.ApplyPriceRange", "Apply price range", "Preisbereich anwenden");
             builder.AddOrUpdate("Aria.Label.PriceRange", "Price range", "Preisspanne");
-            builder.AddOrUpdate("Aria.Label.UploaderProgressBar", "{0} fileupload", "{0} Datei-Upload");
+            builder.AddOrUpdate("Aria.Label.UploaderProgressBar", "{0} fileupload", "{0} Dateiupload");
             builder.AddOrUpdate("Aria.Label.ShowPassword", "Show password", "Passwort anzeigen");
             builder.AddOrUpdate("Aria.Label.HidePassword", "Hide password", "Passwort verbergen");
             builder.AddOrUpdate("Aria.Label.CheckoutProcess", "Checkout process", "Bestellprozess");
@@ -84,7 +84,7 @@ namespace Smartstore.Core.Data.Migrations
                 + " filled out by humans and not robots (bots), which are often misused for this purpose. reCAPTCHA accounts are created at <a"
                 + " class=\"alert-link\" href=\"https://cloud.google.com/security/products/recaptcha?hl=en\" target=\"_blank\">Google</a>. Select <b>Task (v2)</b> as the reCAPTCHA type.",
                 "CAPTCHAs dienen der Sicherheit, indem sie dabei helfen, zu unterscheiden, ob ein Nutzer ein Mensch oder eine Maschine ist. In der Regel wird diese Funktion genutzt,"
-                + " um zu überprüfen, ob Internetformulare von Menschen oder Roboter (Bots) ausgefüllt werden, da Bots hier oft missbräuchlich eingesetzt werden."
+                + " um zu überprüfen, ob Internetformulare von Menschen oder Robotern (Bots) ausgefüllt werden, da Bots hier oft missbräuchlich eingesetzt werden."
                 + " reCAPTCHA-Konten werden bei <a class=\"alert-link\" href=\"https://cloud.google.com/security/products/recaptcha?hl=de\" target=\"_blank\">Google</a>"
                 + " angelegt. Wählen Sie als reCAPTCHA-Typ <b>Aufgabe (v2)</b> aus.");
 
@@ -104,20 +104,20 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.Cancel",
                 "Cancel repeat delivery for order {0}",
-                "Regelmäßige Lieferung zu Auftrag {0} abbrechen");
+                "Regelmäßige Lieferung für Auftrag {0} abbrechen");
 
             builder.AddOrUpdate("Account.Avatar.AvatarChanged", "The avatar has been changed.", "Der Avatar wurde geändert.");
             builder.AddOrUpdate("Account.Avatar.AvatarRemoved", "The avatar has been removed.", "Der Avatar wurde entfernt.");
 
-            builder.AddOrUpdate("RewardPoints.History", "History of your reward points", "Verlauf Ihrer Bonuspunkte");
+            builder.AddOrUpdate("RewardPoints.History", "History of your reward points", "Ihr Bonuspunkteverlauf");
 
             builder.AddOrUpdate("Reviews.Overview.NoReviews", 
                 "There are no reviews for this product yet.", 
                 "Zu diesem Produkt liegen noch keine Bewertungen vor.");
 
             builder.AddOrUpdate("DownloadableProducts.IAgree", 
-                "I have read and agree to the user agreement.", 
-                "Ich habe die Nutzungs­vereinbarung gelesen und bin einverstanden.");
+                "I have read and agree to the user agreement.",
+                "Ich habe die Nutzungsvereinbarung gelesen und bin einverstanden.");
 
             builder.AddOrUpdate("Common.FormFields.Required.Hint",
                 "* Input fields with an asterisk are mandatory and must be filled in.",
@@ -125,10 +125,6 @@ namespace Smartstore.Core.Data.Migrations
             
 
             builder.Delete("Categories.Breadcrumb.Top");
-
-            // Typo
-            builder.AddOrUpdate("Common.FormFields.Required.Hint")
-                .Value("de", "* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.");
 
             builder.AddOrUpdate("Order.ShipmentStatusEvents", "Status of your shipment", "Status Ihrer Sendung");
             builder.AddOrUpdate("BackInStockSubscriptions.PopupTitle", "Email when available", "E-Mail bei Verfügbarkeit");
