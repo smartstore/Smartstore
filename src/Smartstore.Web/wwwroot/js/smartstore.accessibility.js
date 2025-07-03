@@ -993,11 +993,6 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         if (!list || list.getAttribute('role') !== 'listbox') return;
 
         /* --- Pointer interactions --------------------------------------- */
-        this.on(cb, 'click', () => {
-            const open = cb.getAttribute('aria-expanded') === 'true';
-            this.toggleExpanded(cb, !open, { focusTarget: open ? 'trigger' : this._firstOption(list) });
-        });
-
         this.on(list, 'click', (e) => {
             const opt = e.target.closest('[role="option"]');
             if (!opt || !list.contains(opt)) return;
@@ -1005,7 +1000,8 @@ AK.ComboboxPlugin = class ComboboxPlugin extends AK.AccessKitExpandablePluginBas
         });
 
         const outsideClick = (e) => {
-            if (!cb.contains(e.target) && !list.contains(e.target)) {
+            if (!cb.contains(e.target) && cb.getAttribute('aria-expanded') === 'true' && !list.contains(e.target)) {
+                e.preventDefault();
                 this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
             }
         };
