@@ -30,19 +30,20 @@
     //var itemId = ViewData["itemId"].Convert<string>();
 
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    var hasAriaLabelInfo = attributes.Any(a => a.Key == "aria-labelledby" || a.Key == "aria-label");
 }
 
 <div class="qty-input qty-input-@Model.QuantityControlType.ToString().ToLower()">
-    @*TODO: (wcag) (mh) 
-        This might be the better way. 
-        Currently I've passed the label via attibutes everywhere where I found it.  
-        > Evaluate & comment this code back in and fix the attribute label transmission by removing every single one of it.
-    *@
-    @*<label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>*@
+    @if (!hasAriaLabelInfo)
+    {
+        <label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>
+    }
+
     @if (Model.QuantityControlType == QuantityControlType.Spinner || Model.AllowedQuantities.IsNullOrEmpty())
     {
-        <input asp-for="EnteredQuantity" 
-               type="number" 
+        <input asp-for="EnteredQuantity"
+               type="number"
                attrs="@attributes"
                sm-control-size="@controlSize"
                sm-postfix="@(Model.EnteredQuantity > 1 ? Model.QuantityUnitNamePlural : Model.QuantityUnitName)"
@@ -62,14 +63,17 @@
             <select asp-for="EnteredQuantity"
                     attrs="@attributes"
                     attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "form-control-lg" : "form-control-sm")'
-                    asp-items="Model.AllowedQuantities" 
+                    asp-items="Model.AllowedQuantities"
                     class="form-control qty-dropdown noskin">
             </select>
-            <button class="btn btn-secondary btn-block justify-content-start gap-1" 
-                        attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'>
+            <button class="btn btn-secondary btn-block justify-content-start gap-1"
+                    type="button"
+                    attr-class='(controlSize != ControlSize.Medium, controlSize == ControlSize.Large ? "btn-lg" : "btn-sm")'
+                    aria-hidden="true"
+                    tabindex="-1">
                 <span class="fwn text-truncate">@T("ShoppingCart.Quantity"):</span>
                 <span data-bind="value">@Model.EnteredQuantity</span>
-                <i class="fas fa-xs fa-angle-down btn-icon-fix ml-auto"></i>
+                <i class="fas fa-xs fa-angle-down btn-icon-fix ml-auto" aria-hidden="true"></i>
             </button>
         </div>
     }
