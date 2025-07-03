@@ -28,13 +28,24 @@
 
                 <div class="form-group">
                     <label asp-for="FriendEmail" class="col-form-label required"></label>
-                    <input asp-for="FriendEmail" type="email" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" class="fullname" />
+                    <input asp-for="FriendEmail" 
+                           type="email" 
+                           sm-required="true" 
+                           autocomplete="email"
+                           placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" 
+                           class="fullname" />
                     <span asp-validation-for="FriendEmail"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="YourEmailAddress" class="col-form-label required"></label>
-                    <input asp-for="YourEmailAddress" type="email" attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" class="fullname" />
+                    <input asp-for="YourEmailAddress" 
+                           type="email" 
+                           sm-required="true" 
+                           autocomplete="email"
+                           attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' 
+                           placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" 
+                           class="fullname" />
                     <span asp-validation-for="YourEmailAddress"></span>
                 </div>
 
@@ -56,7 +67,7 @@
 
                 <div class="form-group">
                     <button type="submit" name="send-email" class="btn btn-primary send-email-a-friend-button">
-                        <i class="fa fa-envelope"></i>
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
                         <span>@T("Products.EmailAFriend.Button")</span>
                     </button>
                 </div>

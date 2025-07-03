@@ -3,7 +3,7 @@
 @model ProductAskQuestionModel
 
 @{
-    var title = T("Products.AskQuestion." + (Model.IsQuoteRequest ? "TitleQuoteRequest" : "Title"));
+    var title = T(Model.IsQuoteRequest ? "Products.AskQuestion.TitleQuoteRequest" : "Products.AskQuestion.Title");
 
     Assets.AppendTitleParts(Model.ProductName);
     Assets.AppendMetaDescriptionParts(title);
