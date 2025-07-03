@@ -60,7 +60,7 @@
 
             if (numericList.Any())
             {
-                <h4 id="number" class="manufacturer-list-title">@T("Catalog.ManufacturerAll.Numbers")</h4>
+                <h2 id="number" class="manufacturer-list-title h4">@T("Catalog.ManufacturerAll.Numbers")</h2>
                 <div class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid">
                     @foreach (var item in numericList)
                     {
@@ -71,7 +71,7 @@
 
             foreach (var manu in groupedManus)
             {
-                <h4 id="@manu.Key" class="manufacturer-list-title">@manu.Key</h4>
+                <h2 id="@manu.Key" class="manufacturer-list-title h4">@manu.Key</h2>
                 <div class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid">
                     @foreach (var item in manu)
                     {
