@@ -40,7 +40,6 @@
 
   @at-root a#{&} {
     &:hover,
-    &:focus,
     &:active {
         text-decoration: none;
         color: var(--badge-hover-color, var(--badge-color));
