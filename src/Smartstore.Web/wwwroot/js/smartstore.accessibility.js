@@ -474,7 +474,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
                 let focusEl = null;
                 if (opt.focusTarget === 'first') {
                     // TODO: (wcag) (mh) This smells :-)
-                    focusEl = target.querySelector(':is([tabindex="0"], button, a, input, select, textarea):not([tabindex="-1"])');
+                    focusEl = target.querySelector(':is([tabindex], button, a, input, select, textarea):not([tabindex="-1"])');
                 } else if (opt.focusTarget instanceof HTMLElement) {
                     focusEl = opt.focusTarget;
                 } else if (opt.focusTarget === 'trigger') {
@@ -855,6 +855,7 @@ AK.ListboxPlugin = class ListboxPlugin extends AK.AccessKitPluginBase {
                     this._typeahead(ev.key, idx, opts, list);
                     return true;
                 }
+
                 return false;
             }
         });

@@ -19,11 +19,11 @@
                    rel="nofollow"
                    data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
                    data-form-selector="#pd-form">
-                    <i class="fa fa-envelope"></i>
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
                     <span>@T("Products.CallForPrice.GoToForm")</span>
                 </a>
                 <div sm-if="Model.HotlineTelephoneNumber.HasValue()" class="quote-request-hotline">
-                    <div>@T("Products.AskQuestion.CallHotline")<i class="fas fa-phone-flip px-1"></i><span class="fwm">@Model.HotlineTelephoneNumber</span></div>
+                    <div>@T("Products.AskQuestion.CallHotline")<i class="fas fa-phone-flip px-1" aria-hidden="true"></i><span class="fwm">@Model.HotlineTelephoneNumber</span></div>
                 </div>
             </div>
         }
@@ -43,7 +43,7 @@
                    data-action="add"
                    data-toggle="offcanvas" 
                    data-target="#offcanvas-cart">
-                    <i class="fa fa-cart-arrow-down d-none d-sm-inline-block d-md-none d-xl-inline-block"></i>
+                    <i class="fa fa-cart-arrow-down d-none d-sm-inline-block d-md-none d-xl-inline-block" aria-hidden="true"></i>
                     <span>@T(toCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")</span>
                 </a>
             </div>
