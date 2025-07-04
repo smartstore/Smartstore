@@ -141,11 +141,13 @@ class AccessKit {
                     el.removeAttribute('aria-expanded');
                     el.setAttribute('data-aria-controls', el.getAttribute('aria-controls'));
                     el.removeAttribute('aria-controls');
+                    el.removeAttribute('tabindex');
                 }
                 else {
                     el.setAttribute('aria-expanded', !el.matches('.collapsed'));
                     el.setAttribute('aria-controls', el.getAttribute('data-aria-controls'));
                     el.removeAttribute('data-aria-controls');
+                    el.setAttribute('tabindex', '0');
                 }
             });
         };
