@@ -17,6 +17,10 @@
   - CookieManager dialog. It also traps the focus until it's closed.
   - Catalog facets
   - Contact us
+  - Checkout process
+  - Product detail pages
+  - Offcanvas Menu 
+  - Offcanvas Cart
   
 - The following plugins have been updated to provide better accessibility for screen readers:
   - Blog
@@ -55,7 +59,8 @@
 	
 - A script has been implemented to handle focus trapping for modal components. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
 - Nested nav elements were removed from the top bar.
-- Removed zooming constrictions from viewport meta property
+- Removed zooming constrictions from viewport meta property.
+- The 'Skip to main content' button has been implemented.
 
 	​	
 
