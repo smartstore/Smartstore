@@ -6,7 +6,6 @@
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
     var type = Model.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio";
-    // TODO: (mc) Replace .checkbox with .form-check
 }
 
 <div attr-role='(type == "radio", "radiogroup")' attr-aria-orientation='(type == "radio", "vertical")'>
@@ -18,7 +17,7 @@
             <input class="form-check-input" type="@type" id="@checkId" name="@controlId" value="@item.Id"
                    attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
 
-            <label class="form-check-label choice-item@(item.IsUnavailable ? " choice-item-unavailable" : "")" for="@checkId">
+            <label class="form-check-label choice-item" attr-class='(item.IsUnavailable, "choice-item-unavailable")' for="@checkId">
                 @if (item.ImageUrl.HasValue())
                 {
                     if (item.SeName.HasValue())
