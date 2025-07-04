@@ -143,12 +143,15 @@
                 }
 
                 list.on('init.slick', (e, slick) => {
-                    slick.$slider
-                        // Move role=list from .artlist to the slick track element to comply with WCAG.
-                        .removeAttr('role')
-                        .find('.slick-track').attr('role', 'list')
-                        // Remove any .sr-toggle in .art
-                        .find('> .art > .sr-toggle').remove();
+                    const $elTrack = slick.$slider.find('.slick-track');
+
+                    // INFO: Roles such as "list" and "listItem" are problematic. Conflicts with aria-hidden=true of slides for instance.
+                    // Better/simpler: Fallback to a minimum context by using role=group plus aria-label on a parent element.
+                    slick.$slider.removeAttr('role');
+                    $elTrack.find('.slick-slide').removeAttr('role');
+
+                    // Remove any .sr-toggle in .art
+                    $elTrack.find('> .art > .sr-toggle').remove();
                 });
 
                 list.slick({
