@@ -189,13 +189,23 @@
 
     }());
 
-    Slick.prototype.activateADA = function() {
+    Slick.prototype.activateADA = function () {
         var _ = this;
-
+        
         _.$slideTrack.find('.slick-active').attr({
             'aria-hidden': 'false'
-        }).find('a, input, button, select').attr({
+        })
+        /*.find('a, input, button, select').attr({
             'tabindex': '0'
+        })*/
+        .find('a, input, button, select').each((_, el) => {
+            // mc WCAG: Fix insufficient tabindex handling
+            const $el = $(el);
+            $el.removeAttr('tabindex');
+            // mc WCAG: Restore original tabindex
+            if (el.hasAttribute('data-tabindex')) {
+                $el.attr('tabindex', $el.attr('data-tabindex'));
+            }
         });
 
     };
@@ -1286,7 +1296,7 @@
         }
 
         if (_.options.accessibility === true) {
-            _.initADA();
+            _.initADA(true);
         }
 
         if ( _.options.autoplay ) {
@@ -1298,7 +1308,8 @@
 
     };
 
-    Slick.prototype.initADA = function() {
+    // mc WCAG: Added "first" param to initADA method
+    Slick.prototype.initADA = function(first) {
         var _ = this,
                 numDotGroups = Math.ceil(_.slideCount / _.options.slidesToShow),
                 tabControlIndexes = _.getNavigableIndexes().filter(function(val) {
@@ -1308,8 +1319,19 @@
         _.$slides.add(_.$slideTrack.find('.slick-cloned')).attr({
             'aria-hidden': 'true',
             'tabindex': '-1'
-        }).find('a, input, button, select').attr({
-            'tabindex': '-1'
+        })/*.find('a, input, button, select').attr({
+                'tabindex': '-1'
+            })*/
+        .find('a, input, button, select').each((_, el) => {
+            // mc WCAG: Fix insufficient tabindex handling
+            const $el = $(el);
+
+            if (first && el.hasAttribute('tabindex')) {
+                // mc WCAG: Remember original tabindex
+                $el.attr('data-tabindex', $el.attr('tabindex'));
+            }
+
+            $el.attr('tabindex', '-1');
         });
 
         if (_.$dots !== null) {
@@ -1358,11 +1380,16 @@
             }).end();
         }
 
-        for (var i=_.currentSlide, max=i+_.options.slidesToShow; i < max; i++) {
-            _.$slides.eq(i).attr('tabindex', 0);
+        // mc WCAG: atomicTabbing
+        var noItemTab = _.options.atomicTabbing === false;
+        if (!noItemTab) {
+            for (var i = _.currentSlide, max = i + _.options.slidesToShow; i < max; i++) {
+                _.$slides.eq(i).attr('tabindex', 0);
+            }
         }
 
-        _.activateADA();
+        // mc WCAG: Pass "first" var to activateADA method
+        _.activateADA(first);
 
     };
 
@@ -1688,7 +1715,7 @@
         var _ = this;
 
         if( !_.unslicked ) {
-
+            
             _.$slider.trigger('afterChange', [_, index]);
 
             _.animating = false;

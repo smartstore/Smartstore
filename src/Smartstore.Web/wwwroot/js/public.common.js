@@ -116,6 +116,20 @@
             if ($.fn.slick === undefined)
                 return;
 
+            const slide = (slick) => {
+                //// Handle accessibility attributes
+                //slick.$slides.each((_, el) => {
+                //    const art = $(el);
+                //    const accessibles = art.find('a, button');
+                //    if (art.hasClass('slick-active')) {
+                //        art.removeAttr('tabindex');
+                //    }
+                //    else {
+                //        art.attr('tabindex', '-1');
+                //    }
+                //});
+            };
+
             ctx.find('.artlist-carousel > .artlist-grid').each(function (i, el) {
                 const list = $(this);
                 const slidesToShow = list.data("slides-to-show");
@@ -125,7 +139,17 @@
 
                 if (list.hasClass('slick-initialized')) {
                     list.slick('destroy');
+                    list.off('.slick');
                 }
+
+                list.on('init.slick', (e, slick) => {
+                    slick.$slider
+                        // Move role=list from .artlist to the slick track element to comply with WCAG.
+                        .removeAttr('role')
+                        .find('.slick-track').attr('role', 'list')
+                        // Remove any .sr-toggle in .art
+                        .find('> .art > .sr-toggle').remove();
+                });
 
                 list.slick({
                     rtl: $("html").attr("dir") == "rtl",
@@ -142,7 +166,8 @@
                     slidesToScroll: slidesToScroll || 6,
                     autoplay: list.data("autoplay"),
                     infinite: list.data("infinite"),
-                    accessibility: false,
+                    accessibility: true,
+                    atomicTabbing: false,
                     responsive: [
                         {
                             breakpoint: 280,
@@ -181,13 +206,6 @@
                         },
                     ]
                 });
-   
-                list
-                    // Move role=list from .artlist to the slick track element to comply with WCAG.
-                    .removeAttr('role')
-                    .find('.slick-track').attr('role', 'list')
-                    // Remove any .sr-toggle in .art
-                    .find('> .art > .sr-toggle').remove();
             });
         }
     ];

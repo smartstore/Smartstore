@@ -62,6 +62,11 @@ img.slick-loading {
         opacity: 0;
     }
 
+    .slick-arrow:focus-visible {
+        opacity: 1;
+        outline: $focus-ring-width solid $focus-ring-color;
+    }
+
     .slick-slider:hover .slick-arrow {
         opacity: 1;
     }
