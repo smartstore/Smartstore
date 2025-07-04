@@ -38,14 +38,14 @@
 
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible" aria-labelledby="footer-info-heading">
-                        <h4 id="footer-info-heading" 
-                            class="footer-title nav-toggler collapsed" 
+                        <h3 id="footer-info-heading" 
+                            class="footer-title nav-toggler collapsed h4" 
                             data-toggle="collapse" 
                             data-target="#footer-info" 
                             aria-controls="footer-info" 
                             aria-expanded="false" >
                             @Html.Raw(T("Footer.Info"))
-                        </h4>
+                        </h3>
                         <div class="collapse nav-collapse" id="footer-info" role="region" aria-labelledby="footer-info-heading">
                             <menu name="FooterInformation" template="LinkList" />
                         </div>
@@ -54,15 +54,15 @@
 
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible" aria-labelledby="footer-service-heading">
-                        <h4 id="footer-service-heading" 
-                            class="footer-title nav-toggler collapsed" 
+                        <h3 id="footer-service-heading" 
+                            class="footer-title nav-toggler collapsed h4" 
                             data-toggle="collapse" 
                             data-target="#footer-service" 
                             aria-controls="footer-service" 
                             aria-expanded="false">
                             <span class="d-none d-md-block">@Html.Raw(T("Footer.Service"))</span>
                             <span class="d-md-none">@Html.Raw(T("Footer.Service.Mobile"))</span>
-                        </h4>
+                        </h3>
                         <div class="collapse nav-collapse" id="footer-service" role="region" aria-labelledby="footer-service-heading">
                             <menu name="FooterService" template="LinkList" />
                         </div>
@@ -71,15 +71,15 @@
 
                 <div class="col-md-4 col-lg-3">
                     <nav class="footer-links nav-collapsible" aria-labelledby="footer-company-heading">
-                        <h4 id="footer-company-heading" 
-                            class="footer-title nav-toggler collapsed" 
+                        <h3 id="footer-company-heading" 
+                            class="footer-title nav-toggler collapsed h4" 
                             data-toggle="collapse" 
                             data-target="#footer-company" 
                             aria-controls="footer-company" 
                             aria-expanded="false">
                             <span class="d-none d-md-block">@Html.Raw(T("Footer.Company"))</span>
                             <span class="d-md-none">@Html.Raw(T("Footer.Company.Mobile"))</span>
-                        </h4>
+                        </h3>
                         <div class="collapse nav-collapse" id="footer-company" role="region" aria-labelledby="footer-company-heading">
                             <menu name="FooterCompany" template="LinkList" />
                         </div>
@@ -95,14 +95,14 @@
                                   data-subscription-failure="@T("Newsletter.SubscriptionFailed")"
                                   aria-labelledby="newsletter-subscribe-heading">
                                 <div class="footer-newsletter nav-collapsible">
-                                    <h4 id="newsletter-subscribe-heading" 
-                                        class="footer-title nav-toggler collapsed"
+                                    <h3 id="newsletter-subscribe-heading" 
+                                        class="footer-title nav-toggler collapsed h4"
                                         data-toggle="collapse" 
                                         data-target="#newsletter-body"
                                         aria-controls="newsletter-body" 
                                         aria-expanded="false">
                                         @Html.Raw(T("Newsletter.Title"))
-                                    </h4>
+                                    </h3>
                                     <div id="newsletter-body" class="collapse nav-collapse" role="region" aria-labelledby="newsletter-subscribe-heading">
                                         <div id="newsletter-subscribe-block" class="mt-2">
                                             <div class="input-group has-icon shadow-xs rounded-pill mb-2">
@@ -154,14 +154,14 @@
 
                         <div sm-if="Model.ShowThemeSelector" class="col-12 col-md col-lg-12">
                             <div class="theme-selector nav-collapsible">
-                                <h4 id="theme-selector-heading" 
-                                    class="footer-title nav-toggler collapsed"
+                                <h3 id="theme-selector-heading" 
+                                    class="footer-title nav-toggler collapsed h4"
                                     data-toggle="collapse" 
                                     data-target="#footer-themes" 
                                     aria-controls="footer-themes" 
                                     aria-expanded="false">
                                     @Html.Raw(T("Footer.Themes"))
-                                </h4>
+                                </h3>
                                 <div id="footer-themes" class="content collapse nav-collapse" role="region" aria-labelledby="theme-selector-heading">
                                     <div class="mb-3 mb-md-0">
                                         @{
