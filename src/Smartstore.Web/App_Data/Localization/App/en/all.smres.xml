@@ -33,6 +33,12 @@
 	<LocaleResource Name="Account.Avatar">
 		<Value>Avatar</Value>
 	</LocaleResource>
+	<LocaleResource Name="Account.Avatar.AvatarChanged">
+		<Value>The avatar has been changed.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Account.Avatar.AvatarRemoved">
+		<Value>The avatar has been removed.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Account.Avatar.MaximumUploadedFileSize">
 		<Value>Maximum avatar size is {0}</Value>
 	</LocaleResource>
@@ -44,9 +50,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Account.BackInStockSubscriptions">
 		<Value>Back in stock subscriptions</Value>
-	</LocaleResource>
-	<LocaleResource Name="Account.BackInStockSubscriptions.DeleteSelected">
-		<Value>Delete selected</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.BackInStockSubscriptions.Description">
 		<Value>You will receive an e-mail when a particular product is back in stock.</Value>
@@ -136,7 +139,7 @@
 		<Value>Repeat deliveries</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.Cancel">
-		<Value>Cancel repeat delivery</Value>
+		<Value>Cancel repeat delivery for order {0}</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.CancelDelivery">
 		<Value>Would you like to cancel the repeat delivery?</Value>
@@ -6336,7 +6339,7 @@
 		<Value>A CAPTCHA is a program that can tell whether its user is a human or a computer. You've probably seen them — colorful images with distorted text at the bottom of Web registration forms. CAPTCHAs are used by many websites to prevent abuse from "bots," or automated programs usually written to generate spam. No computer program can read distorted text as well as humans can, so bots cannot navigate sites protected by CAPTCHAs. SmartStore.NET uses reCAPTCHA.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.General.Common.Captcha.Hint">
-		<Value>A CAPTCHA is a program that can tell whether its user is a human or a computer. You've probably seen them — colorful images with distorted text at the bottom of Web registration forms. CAPTCHAs are used by many websites to prevent abuse from "bots," or automated programs usually written to generate spam. No computer program can read distorted text as well as humans can, so bots cannot navigate sites protected by CAPTCHAs. SmartStore.NET uses reCAPTCHA.</Value>
+		<Value>CAPTCHAs are used for security purposes to help distinguish between human and machine users. They are typically used to verify that internet forms are being filled out by humans and not robots (bots), which are often misused for this purpose. reCAPTCHA accounts are created at &lt;a class="alert-link" href="https://cloud.google.com/security/products/recaptcha?hl=en" target="_blank"&gt;Google&lt;/a&gt;. Select &lt;b&gt;Task (v2)&lt;/b&gt; as the reCAPTCHA type.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon">
 		<Value>General settings</Value>
@@ -14750,6 +14753,102 @@ within the observation window, additional requests may be denied, even if type-s
 	<LocaleResource Name="Admin.WidgetZones.UserDefined">
 		<Value>User-defined</Value>
 	</LocaleResource>
+	<LocaleResource Name="Aria.Description.AutoSearchBox">
+		<Value>Enter a search term. Results will appear automatically as you type.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Description.InstantSearch">
+		<Value>Enter a search term. Results will appear automatically as you type. Press the Enter key to view all the results.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Description.SearchBox">
+		<Value>Enter a search term. Press the Enter key to view all the results.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ApplyPriceRange">
+		<Value>Apply price range</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.Breadcrumb">
+		<Value>Breadcrumb</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutProcess">
+		<Value>Checkout process</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Current">
+		<Value>Current step</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Pending">
+		<Value>Not visited</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Visited">
+		<Value>Completed</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CommentForm">
+		<Value>Comment form</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CurrencySelector">
+		<Value>Current currency {0} - Change currency</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ExpandItem">
+		<Value>Press ENTER for more options to {0}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.HidePassword">
+		<Value>Hide password</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.LanguageSelector">
+		<Value>Current language {0} - Change language</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.MainNavigation">
+		<Value>Main navigation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.MediaGallery">
+		<Value>Media gallery</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.OffCanvasCartTab">
+		<Value>My articles</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.OffCanvasMenuTab">
+		<Value>Shop sections</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PageNavigation">
+		<Value>Page navigation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PaginatorItemsPerPage">
+		<Value>Results per page:</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PriceRange">
+		<Value>Price range</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ProductOfOrderPlacedOn">
+		<Value>Order {0} from {1}, {2}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.Rating">
+		<Value>Rating: {0} out of 5 stars. {1}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SearchFilters">
+		<Value>Search filters</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SearchHitCount">
+		<Value>Search results</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SelectDeselectEntries">
+		<Value>Select or deselect all entries in the list</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SelectDeselectEntry">
+		<Value>Select or deselect entry</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowNextProducts">
+		<Value>Show next product group</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowPassword">
+		<Value>Show password</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowPreviousProducts">
+		<Value>Show previous product group</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SocialMediaLinks">
+		<Value>Our social media channels</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.UploaderProgressBar">
+		<Value>{0} fileupload</Value>
+	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.AlreadySubscribed">
 		<Value>You're already subscribed for this product back in stock notification</Value>
 	</LocaleResource>
@@ -14769,7 +14868,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>Only registered customers can used this feature</Value>
 	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.PopupTitle">
-		<Value>Receive an email when this arrives in stock</Value>
+		<Value>Email when available</Value>
 	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.Subscribed">
 		<Value>You will be notified when this product is available again.</Value>
@@ -14826,7 +14925,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>RSS</Value>
 	</LocaleResource>
 	<LocaleResource Name="Blog.RSS.Hint">
-		<Value>Click here to be informed automatically when we add new items to our site</Value>
+		<Value>Opens the RSS feed with the latest blog posts. Subscribe with an RSS reader to stay informed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Blog.TagCloud">
 		<Value>Popular blog tags</Value>
@@ -14845,9 +14944,6 @@ within the observation window, additional requests may be denied, even if type-s
 	</LocaleResource>
 	<LocaleResource Name="Categories">
 		<Value>Categories</Value>
-	</LocaleResource>
-	<LocaleResource Name="Categories.Breadcrumb.Top">
-		<Value>Top</Value>
 	</LocaleResource>
 	<LocaleResource Name="Categories.Compare">
 		<Value>Compare</Value>
@@ -15191,6 +15287,9 @@ within the observation window, additional requests may be denied, even if type-s
 	<LocaleResource Name="Common.Confirm">
 		<Value>Confirm</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.Consent">
+		<Value>Consent</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Continue">
 		<Value>Continue</Value>
 	</LocaleResource>
@@ -15262,6 +15361,9 @@ within the observation window, additional requests may be denied, even if type-s
 	</LocaleResource>
 	<LocaleResource Name="Common.DeletePermanent">
 		<Value>Delete permanently</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.DeleteSelected">
+		<Value>Delete selected</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.DelKey">
 		<Value>Del</Value>
@@ -15476,6 +15578,9 @@ within the observation window, additional requests may be denied, even if type-s
 	<LocaleResource Name="Common.Exit">
 		<Value>Exit</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.ExpandCollapse">
+		<Value>Expand/collapse</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.ExpandCollapseAll">
 		<Value>Expand\collapse all</Value>
 	</LocaleResource>
@@ -15534,7 +15639,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>For: {0}</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.FormFields.Required.Hint">
-		<Value>* Input elements with asterisk are required and have to be filled out.</Value>
+		<Value>* Input fields with an asterisk are mandatory and must be filled in.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.FreeShipping">
 		<Value>Free shipping</Value>
@@ -15860,14 +15965,26 @@ within the observation window, additional requests may be denied, even if type-s
 	<LocaleResource Name="Common.Scheduled">
 		<Value>Scheduled</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.ScrollUp">
+		<Value>Scroll up</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Search">
 		<Value>Search</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.SearchProducts">
 		<Value>Search products</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.SecurityPrompt">
+		<Value>Security prompt</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SelectAction">
+		<Value>Select action</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.SelectAll">
 		<Value>Select all</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SelectView">
+		<Value>Select view</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Send">
 		<Value>Send</Value>
@@ -15928,6 +16045,9 @@ within the observation window, additional requests may be denied, even if type-s
 	</LocaleResource>
 	<LocaleResource Name="Common.Size">
 		<Value>Size</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SkipToMainContent">
+		<Value>Skip to main content</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Status">
 		<Value>Status</Value>
@@ -16179,7 +16299,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>The product has no user agreement.</Value>
 	</LocaleResource>
 	<LocaleResource Name="DownloadableProducts.IAgree">
-		<Value>I agree</Value>
+		<Value>I have read and agree to the user agreement.</Value>
 	</LocaleResource>
 	<LocaleResource Name="DownloadableProducts.NoItems">
 		<Value>There are no downloadable products</Value>
@@ -17699,7 +17819,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>RSS</Value>
 	</LocaleResource>
 	<LocaleResource Name="News.RSS.Hint">
-		<Value>Click here to be informed automatically when we add new items to our site</Value>
+		<Value>Opens the RSS feed with the latest news. Subscribe with an RSS reader to stay informed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="News.ViewAll">
 		<Value>[View News Archive]</Value>
@@ -17774,7 +17894,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>The payment of the order could not be captured.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotCompleteUnpaidOrder">
-		<Value>An unpaid order cannot be completed.</Value>
+		<Value>An order with a payment status of "{0}" cannot be completed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotMarkCompleted">
 		<Value>Cannot mark order as completed.</Value>
@@ -17960,7 +18080,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>View details</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.ShipmentStatusEvents">
-		<Value>Shipment status events</Value>
+		<Value>Status of your shipment</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.ShipmentStatusEvents.Country">
 		<Value>Country</Value>
@@ -18500,7 +18620,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>Community poll</Value>
 	</LocaleResource>
 	<LocaleResource Name="Polls.TotalVotes">
-		<Value>{0} vote(s)...</Value>
+		<Value>{0} votes cast.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Polls.Vote">
 		<Value>Vote</Value>
@@ -18516,9 +18636,6 @@ within the observation window, additional requests may be denied, even if type-s
 	</LocaleResource>
 	<LocaleResource Name="PrivateMessages.Inbox">
 		<Value>Inbox</Value>
-	</LocaleResource>
-	<LocaleResource Name="PrivateMessages.Inbox.DeleteSelected">
-		<Value>Delete selected</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateMessages.Inbox.FromColumn">
 		<Value>From</Value>
@@ -19150,6 +19267,9 @@ within the observation window, additional requests may be denied, even if type-s
 	<LocaleResource Name="Reviews.Overview.First">
 		<Value>Be the first to review this item</Value>
 	</LocaleResource>
+	<LocaleResource Name="Reviews.Overview.NoReviews">
+		<Value>There are no reviews for this product yet.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Reviews.Overview.ReadAll">
 		<Value>Read all reviews</Value>
 	</LocaleResource>
@@ -19193,7 +19313,7 @@ within the observation window, additional requests may be denied, even if type-s
 		<Value>Points balance</Value>
 	</LocaleResource>
 	<LocaleResource Name="RewardPoints.History">
-		<Value>History</Value>
+		<Value>History of your reward points</Value>
 	</LocaleResource>
 	<LocaleResource Name="RewardPoints.Message.EarnedForOrder">
 		<Value>Earned promotion for order #{0}</Value>
@@ -19386,6 +19506,9 @@ within the observation window, additional requests may be denied, even if type-s
 	</LocaleResource>
 	<LocaleResource Name="Search.ResultFiltering">
 		<Value>Result filtering</Value>
+	</LocaleResource>
+	<LocaleResource Name="Search.SearchBox.Clear">
+		<Value>Clear search term</Value>
 	</LocaleResource>
 	<LocaleResource Name="Search.SearchBox.Tooltip">
 		<Value>What are you looking for?</Value>

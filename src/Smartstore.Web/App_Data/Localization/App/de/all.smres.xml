@@ -33,6 +33,12 @@
 	<LocaleResource Name="Account.Avatar">
 		<Value>Avatar</Value>
 	</LocaleResource>
+	<LocaleResource Name="Account.Avatar.AvatarChanged">
+		<Value>Der Avatar wurde geändert.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Account.Avatar.AvatarRemoved">
+		<Value>Der Avatar wurde entfernt.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Account.Avatar.MaximumUploadedFileSize">
 		<Value>Die maximale Größe des Avatars beträgt {0}</Value>
 	</LocaleResource>
@@ -44,9 +50,6 @@
 	</LocaleResource>
 	<LocaleResource Name="Account.BackInStockSubscriptions">
 		<Value>Benachrichtigung bei Lieferfähigkeit</Value>
-	</LocaleResource>
-	<LocaleResource Name="Account.BackInStockSubscriptions.DeleteSelected">
-		<Value>Ausgewählte löschen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.BackInStockSubscriptions.Description">
 		<Value>Sie erhalten eine E-Mail, wenn das Produkt wieder lieferbar ist.</Value>
@@ -136,7 +139,7 @@
 		<Value>Regelmäßige Lieferungen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.Cancel">
-		<Value>Regelmäßige Lieferung abbrechen</Value>
+		<Value>Regelmäßige Lieferung für Auftrag {0} abbrechen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Account.CustomerOrders.RecurringOrders.CancelDelivery">
 		<Value>Möchten Sie die regelmäßige Lieferung abbrechen?</Value>
@@ -6171,7 +6174,7 @@
 		<Value>Legt die Seitengröße für Themen im Forum fest.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.General.Common.Captcha.Hint">
-		<Value>CAPTCHAs werden verwendet, damit man entscheiden kann, ob das Gegenüber ein Mensch oder eine Maschine ist. In der Regel macht man dies, um zu prüfen, ob Eingaben in Internetformulare über Menschen oder Maschinen (Roboter, kurz Bot) erfolgt sind, weil Roboter hier oft missbräuchlich eingesetzt werden. CAPTCHAs dienen also der Sicherheit. reCaptcha Konten können über http://www.google.com/recaptcha angelegt werden.</Value>
+		<Value>CAPTCHAs dienen der Sicherheit, indem sie dabei helfen, zu unterscheiden, ob ein Nutzer ein Mensch oder eine Maschine ist. In der Regel wird diese Funktion genutzt, um zu überprüfen, ob Internetformulare von Menschen oder Robotern (Bots) ausgefüllt werden, da Bots hier oft missbräuchlich eingesetzt werden. reCAPTCHA-Konten werden bei &lt;a class="alert-link" href="https://cloud.google.com/security/products/recaptcha?hl=de" target="_blank"&gt;Google&lt;/a&gt; angelegt. Wählen Sie als reCAPTCHA-Typ &lt;b&gt;Aufgabe (v2)&lt;/b&gt; aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon">
 		<Value>Allgemeine Einstellungen</Value>
@@ -14401,6 +14404,102 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	<LocaleResource Name="Admin.WidgetZones.UserDefined">
 		<Value>Benutzerdefiniert</Value>
 	</LocaleResource>
+	<LocaleResource Name="Aria.Description.AutoSearchBox">
+		<Value>Geben Sie einen Suchbegriff ein. Die Ergebnisse erscheinen automatisch, während Sie tippen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Description.InstantSearch">
+		<Value>Geben Sie einen Suchbegriff ein. Während Sie tippen, erscheinen automatisch erste Ergebnisse. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Description.SearchBox">
+		<Value>Geben Sie einen Suchbegriff ein. Drücken Sie die Eingabetaste, um alle Ergebnisse aufzurufen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ApplyPriceRange">
+		<Value>Preisbereich anwenden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.Breadcrumb">
+		<Value>Breadcrumb-Navigation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutProcess">
+		<Value>Bestellprozess</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Current">
+		<Value>Aktueller Schritt</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Pending">
+		<Value>Noch nicht besucht</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CheckoutStep.Visited">
+		<Value>Abgeschlossen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CommentForm">
+		<Value>Kommentarformular</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.CurrencySelector">
+		<Value>Aktuelle Währung {0} – Währung wechseln</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ExpandItem">
+		<Value>Drücken Sie ENTER für mehr Optionen zu {0}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.HidePassword">
+		<Value>Passwort verbergen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.LanguageSelector">
+		<Value>Aktuelle Sprache {0} – Sprache wechseln</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.MainNavigation">
+		<Value>Hauptnavigation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.MediaGallery">
+		<Value>Mediengalerie</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.OffCanvasCartTab">
+		<Value>Meine Artikel</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.OffCanvasMenuTab">
+		<Value>Shopbereiche</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PageNavigation">
+		<Value>Seitennavigation</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PaginatorItemsPerPage">
+		<Value>Ergebnisse pro Seite:</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.PriceRange">
+		<Value>Preisspanne</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ProductOfOrderPlacedOn">
+		<Value>Auftrag {0} vom {1}, {2}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.Rating">
+		<Value>Bewertung: {0} von 5 Sternen. {1}</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SearchFilters">
+		<Value>Suchfilter</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SearchHitCount">
+		<Value>Suchergebnisse</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SelectDeselectEntries">
+		<Value>Alle Einträge der Liste aus- oder abwählen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SelectDeselectEntry">
+		<Value>Eintrag aus- oder abwählen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowNextProducts">
+		<Value>Nächste Produktgruppe anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowPassword">
+		<Value>Passwort anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.ShowPreviousProducts">
+		<Value>Vorherige Produktgruppe anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.SocialMediaLinks">
+		<Value>Unsere Social-Media-Kanäle</Value>
+	</LocaleResource>
+	<LocaleResource Name="Aria.Label.UploaderProgressBar">
+		<Value>{0} Dateiupload</Value>
+	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.AlreadySubscribed">
 		<Value>Sie erhalten bereits Benachrichtigungen, falls dieses Produkt wieder lieferbar ist.</Value>
 	</LocaleResource>
@@ -14420,7 +14519,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Nur registrierte Benutzer können diese Funktion nutzen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.PopupTitle">
-		<Value>E-Mail erhalten, wenn dieser Artikel wieder auf Lager ist.</Value>
+		<Value>E-Mail bei Verfügbarkeit</Value>
 	</LocaleResource>
 	<LocaleResource Name="BackInStockSubscriptions.Subscribed">
 		<Value>Sie erhalten eine Benachrichtigung, wenn dieses Produkt wieder lieferbar ist.</Value>
@@ -14477,7 +14576,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>RSS</Value>
 	</LocaleResource>
 	<LocaleResource Name="Blog.RSS.Hint">
-		<Value>Klicken Sie hier, wenn Sie automatisch informiert werden wollen, sobald wir neue Produkte im Shop haben.</Value>
+		<Value>Öffnet den RSS-Feed mit aktuellen Blogbeiträgen. Mit einem RSS-Reader abonnieren und informiert bleiben.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Blog.TagCloud">
 		<Value>Populäre Blog Tags</Value>
@@ -14496,9 +14595,6 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	</LocaleResource>
 	<LocaleResource Name="Categories">
 		<Value>Kategorien</Value>
-	</LocaleResource>
-	<LocaleResource Name="Categories.Breadcrumb.Top">
-		<Value>Home</Value>
 	</LocaleResource>
 	<LocaleResource Name="Categories.Compare">
 		<Value>Vergleichen</Value>
@@ -14842,6 +14938,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	<LocaleResource Name="Common.Confirm">
 		<Value>Bestätigen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.Consent">
+		<Value>Zustimmung</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Continue">
 		<Value>Fortsetzen</Value>
 	</LocaleResource>
@@ -14913,6 +15012,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	</LocaleResource>
 	<LocaleResource Name="Common.DeletePermanent">
 		<Value>Endgültig löschen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.DeleteSelected">
+		<Value>Ausgewählte löschen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.DelKey">
 		<Value>Entf</Value>
@@ -15127,6 +15229,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	<LocaleResource Name="Common.Exit">
 		<Value>Beenden</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.ExpandCollapse">
+		<Value>Auf-/zuklappen</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.ExpandCollapseAll">
 		<Value>Alle auf-\zuklappen</Value>
 	</LocaleResource>
@@ -15185,7 +15290,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Für: {0}</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.FormFields.Required.Hint">
-		<Value>* Eingabefelder mit Sternchen sind Pflichfelder und müssen ausgefüllt werden.</Value>
+		<Value>* Eingabefelder mit Sternchen sind Pflichtfelder und müssen ausgefüllt werden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.FreeShipping">
 		<Value>Versandkostenfrei</Value>
@@ -15511,14 +15616,26 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	<LocaleResource Name="Common.Scheduled">
 		<Value>Geplant</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.ScrollUp">
+		<Value>Nach oben scrollen</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.Search">
 		<Value>Suchen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.SearchProducts">
 		<Value>Produkte durchsuchen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Common.SecurityPrompt">
+		<Value>Sicherheitsabfrage</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SelectAction">
+		<Value>Aktion wählen</Value>
+	</LocaleResource>
 	<LocaleResource Name="Common.SelectAll">
 		<Value>Alles auswählen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SelectView">
+		<Value>Ansicht wählen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Send">
 		<Value>Senden</Value>
@@ -15579,6 +15696,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	</LocaleResource>
 	<LocaleResource Name="Common.Size">
 		<Value>Größe</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.SkipToMainContent">
+		<Value>Zum Hauptinhalt springen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Common.Status">
 		<Value>Status</Value>
@@ -15830,7 +15950,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Das Produkt besitzt keine Nutzungsvereinbarung.</Value>
 	</LocaleResource>
 	<LocaleResource Name="DownloadableProducts.IAgree">
-		<Value>Ich bin einverstanden.</Value>
+		<Value>Ich habe die Nutzungsvereinbarung gelesen und bin einverstanden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="DownloadableProducts.NoItems">
 		<Value>Es gibt keine Produkte, die heruntergeladen werden können.</Value>
@@ -17349,7 +17469,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>RSS</Value>
 	</LocaleResource>
 	<LocaleResource Name="News.RSS.Hint">
-		<Value>Klicken Sie hier, wenn Sie automatisch über neue Artikel in unserem Shop informiert werden wollen</Value>
+		<Value>Öffnet den RSS-Feed mit aktuellen News. Mit einem RSS-Reader abonnieren und informiert bleiben.</Value>
 	</LocaleResource>
 	<LocaleResource Name="News.ViewAll">
 		<Value>Alle News</Value>
@@ -17424,7 +17544,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Die Zahlung der Bestellung konnte nicht gebucht werden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotCompleteUnpaidOrder">
-		<Value>Ein unbezahlter Auftrag kann nicht abgeschlossen werden.</Value>
+		<Value>Ein Auftrag mit dem Zahlungsstatus "{0}" kann nicht abgeschlossen werden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.CannotMarkCompleted">
 		<Value>Die Bestellung kann nicht abgeschlossen werden.</Value>
@@ -17610,7 +17730,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Details anzeigen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.ShipmentStatusEvents">
-		<Value>Sendungsstatus Ereignisse</Value>
+		<Value>Status Ihrer Sendung</Value>
 	</LocaleResource>
 	<LocaleResource Name="Order.ShipmentStatusEvents.Country">
 		<Value>Land</Value>
@@ -18150,7 +18270,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Umfragen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Polls.TotalVotes">
-		<Value>{0} Stimmen…</Value>
+		<Value>{0} abgegebene Stimmen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Polls.Vote">
 		<Value>Abstimmen</Value>
@@ -18166,9 +18286,6 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	</LocaleResource>
 	<LocaleResource Name="PrivateMessages.Inbox">
 		<Value>Posteingang</Value>
-	</LocaleResource>
-	<LocaleResource Name="PrivateMessages.Inbox.DeleteSelected">
-		<Value>Ausgewählte löschen</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateMessages.Inbox.FromColumn">
 		<Value>Von</Value>
@@ -18800,6 +18917,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	<LocaleResource Name="Reviews.Overview.First">
 		<Value>Geben Sie die erste Bewertung ab</Value>
 	</LocaleResource>
+	<LocaleResource Name="Reviews.Overview.NoReviews">
+		<Value>Zu diesem Produkt liegen noch keine Bewertungen vor.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Reviews.Overview.ReadAll">
 		<Value>Alle Bewertungen lesen</Value>
 	</LocaleResource>
@@ -18843,7 +18963,7 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 		<Value>Punktestand</Value>
 	</LocaleResource>
 	<LocaleResource Name="RewardPoints.History">
-		<Value>Verlauf</Value>
+		<Value>Ihr Bonuspunkteverlauf</Value>
 	</LocaleResource>
 	<LocaleResource Name="RewardPoints.Message.EarnedForOrder">
 		<Value>Erhaltene Bonuspunkte für Auftrag #{0}.</Value>
@@ -19036,6 +19156,9 @@ auch wenn die typspezifischen Limits nicht erreicht wurden. Ein leerer Wert bede
 	</LocaleResource>
 	<LocaleResource Name="Search.ResultFiltering">
 		<Value>Ergebnisfilterung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Search.SearchBox.Clear">
+		<Value>Suchbegriff löschen</Value>
 	</LocaleResource>
 	<LocaleResource Name="Search.SearchBox.Tooltip">
 		<Value>Wonach suchen Sie?</Value>
