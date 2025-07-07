@@ -45,10 +45,6 @@ namespace Smartstore.Admin.Controllers
                 .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
-            models = [.. models
-                .GroupBy(x => new { x.SystemKeyword, x.Enabled })
-                .Select(g => g.First())];
-
             var gridModel = new GridModel<ActivityLogTypeModel>
             {
                 Rows = models,
@@ -86,10 +82,6 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ToListAsync();
-
-            activityLogTypes = [.. activityLogTypes
-                .GroupBy(x => new { x.SystemKeyword, x.Enabled })
-                .Select(g => g.First())];
 
             var model = new ActivityLogListModel
             {

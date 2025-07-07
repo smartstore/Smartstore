@@ -3,13 +3,69 @@ using Smartstore.Core.Logging;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    internal class ActivityLogTypeMigrator
+    internal class ActivityLogTypeMigrator(SmartDbContext db)
     {
-        private readonly SmartDbContext _db;
+        const int BatchSize = 1000;
 
-        public ActivityLogTypeMigrator(SmartDbContext db)
+        private readonly SmartDbContext _db = Guard.NotNull(db);
+
+        /// <summary>
+        /// Consolidates and deletes duplicate activity log types.
+        /// </summary>
+        /// <returns>Number of deleted activity log types.</returns>
+        public async Task<int> DeleteDuplicateActivityLogTypeAsync(CancellationToken cancelToken = default)
         {
-            _db = Guard.NotNull(db, nameof(db));
+            var numDeleted = 0;
+            var duplicateGroups = await _db.ActivityLogTypes
+                .AsNoTracking()
+                .GroupBy(t => new { t.SystemKeyword, t.Enabled })
+                .Where(g => g.Count() > 1)
+                .Select(g => new
+                {
+                    g.Key.SystemKeyword,
+                    g.Key.Enabled,
+                    KeepId = g.OrderBy(t => t.Id)
+                        .Select(t => t.Id)
+                        .First(),
+                    DuplicateIds = g.OrderBy(t => t.Id)
+                        .Select(t => t.Id)
+                        .Skip(1)
+                        .ToList()
+                })
+                .ToListAsync(cancelToken);
+
+            if (duplicateGroups.Count == 0)
+            {
+                return 0;
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
+
+            try
+            {
+                foreach (var group in duplicateGroups)
+                {
+                    foreach (var chunk in group.DuplicateIds.Chunk(BatchSize))
+                    {
+                        await _db.ActivityLogs
+                            .Where(x => chunk.Contains(x.ActivityLogTypeId))
+                            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.ActivityLogTypeId, group.KeepId), cancelToken);
+
+                        numDeleted += await _db.ActivityLogTypes
+                            .Where(x => chunk.Contains(x.Id))
+                            .ExecuteDeleteAsync(cancelToken);
+                    }
+                }
+
+                await tx.CommitAsync(cancelToken);
+            }
+            catch
+            {
+                await tx.RollbackAsync(cancelToken);
+                throw;
+            }
+
+            return numDeleted;
         }
 
         public async Task InsertActivityLogTypeAsync(string systemKeyword, string enName, string deName)
