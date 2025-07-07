@@ -13,8 +13,7 @@
     async Task RenderManufacturer(BrandModel item)
     {
         var url = Url.RouteUrl("Manufacturer", new { SeName = item.SeName });
-
-        <article class="art" data-id="@item.Id">
+        <div class="art" data-id="@item.Id" role="listitem">
             @if (item.Image != null && item.Image.HasImage())
             {
                 var image = item.Image;
@@ -29,13 +28,13 @@
                     <span sm-language-attributes-for="item.Name">@item.Name</span>
                 </a>
             </div>
-        </article>
+        </div>
     }
 }
 
 <div class="page manufacturer-list-page">
     <div class="page-title">
-        <h1 class="h2">@T("Manufacturers.List")</h1>
+        <h1 id="all-manus-title" class="h2">@T("Manufacturers.List")</h1>
     </div>
     <div class="page-body">
         <zone name="manufacturers_all_top" />
@@ -44,7 +43,7 @@
         {
             var groupedManus = alphabeticalList.GroupBy(x => char.ToUpper(x.Name.Value[0]));
 
-            <div class="manufacturer-nav">
+            <nav class="manufacturer-nav" aria-label="@T("Aria.Label.AlphabeticallySortedLinks")">
                 <ul class="navbar justify-content-start list-unstyled">
                     @if (numericList.Any())
                     {
@@ -56,12 +55,12 @@
                         <li class="nav-item"><a class="nav-link" href="#@manu.Key">@manu.Key</a></li>
                     }
                 </ul>
-            </div>
+            </nav>
 
             if (numericList.Any())
             {
                 <h2 id="number" class="manufacturer-list-title h4">@T("Catalog.ManufacturerAll.Numbers")</h2>
-                <div class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid">
+                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title number">
                     @foreach (var item in numericList)
                     {
                         await RenderManufacturer(item);
@@ -72,7 +71,7 @@
             foreach (var manu in groupedManus)
             {
                 <h2 id="@manu.Key" class="manufacturer-list-title h4">@manu.Key</h2>
-                <div class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid">
+                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title @manu.Key">
                     @foreach (var item in manu)
                     {
                         await RenderManufacturer(item);
@@ -82,7 +81,7 @@
         }
         else
         {
-            <div class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid">
+            <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title">
                 @foreach (var item in Model)
                 {
                     await RenderManufacturer(item);

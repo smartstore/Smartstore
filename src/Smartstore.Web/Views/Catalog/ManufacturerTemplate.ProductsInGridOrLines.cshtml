@@ -50,9 +50,9 @@
         {
             <zone name="manufacturerdetails_before_featured_products" />
 
-            <div class="product-grid featured-product-grid block">
+            <div role="region" aria-labelledby="featured-products-title" class="product-grid featured-product-grid block">
                 <div class="heading heading-center">
-                    <h3 class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
+                    <h3 id="featured-products-title" class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
                 </div>
                 <div class="block-body pt-3 artlist-no-separators">
                     <partial name="Product.List" model="Model.FeaturedProducts" />
