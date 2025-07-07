@@ -116,20 +116,6 @@
             if ($.fn.slick === undefined)
                 return;
 
-            const slide = (slick) => {
-                //// Handle accessibility attributes
-                //slick.$slides.each((_, el) => {
-                //    const art = $(el);
-                //    const accessibles = art.find('a, button');
-                //    if (art.hasClass('slick-active')) {
-                //        art.removeAttr('tabindex');
-                //    }
-                //    else {
-                //        art.attr('tabindex', '-1');
-                //    }
-                //});
-            };
-
             ctx.find('.artlist-carousel > .artlist-grid').each(function (i, el) {
                 const list = $(this);
                 const slidesToShow = list.data("slides-to-show");
@@ -142,16 +128,16 @@
                     list.off('.slick');
                 }
 
-                list.on('init.slick', (e, slick) => {
-                    const $elTrack = slick.$slider.find('.slick-track');
+                list.on('init.slick', (_, slick) => {
+                    const $track = slick.$slideTrack;
 
                     // INFO: Roles such as "list" and "listItem" are problematic. Conflicts with aria-hidden=true of slides for instance.
                     // Better/simpler: Fallback to a minimum context by using role=group plus aria-label on a parent element.
                     slick.$slider.removeAttr('role');
-                    $elTrack.find('.slick-slide').removeAttr('role');
+                    $track.find('.slick-slide').removeAttr('role');
 
                     // Remove any .sr-toggle in .art
-                    $elTrack.find('> .art > .sr-toggle').remove();
+                    $track.find('> .art > .sr-toggle').remove();
                 });
 
                 list.slick({
