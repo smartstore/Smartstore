@@ -1,5 +1,12 @@
 # Release Notes
 
+## Smartstore 6.2.1
+
+### Bugfixes
+
+- #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
+
+
 ## Smartstore 6.2.0
 
 ### Breaking Changes
