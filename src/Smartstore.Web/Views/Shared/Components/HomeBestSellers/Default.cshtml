@@ -2,16 +2,9 @@
 
 @model ProductSummaryModel
 
-@{ 
-	if (Model.Items.Count == 0)
-	{
-		return;
-	}
-}
-
-<div class="product-grid bestsellers block">
+<div sm-if="Model.Items.Count > 0" role="region" aria-labelledby="homepage-bestsellers-title" class="product-grid bestsellers block">
     <div class="heading heading-center">
-        <h3 class="heading-title fs-h1">@T("Bestsellers")</h3>
+        <h3 id="homepage-bestsellers-title" class="heading-title fs-h1">@T("Bestsellers")</h3>
     </div>
     <div class="block-body pt-3 artlist-no-separators">
         <partial name="Product.List" model="Model" />

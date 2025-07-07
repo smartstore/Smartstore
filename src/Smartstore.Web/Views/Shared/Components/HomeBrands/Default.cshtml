@@ -2,16 +2,16 @@
 
 @model BrandNavigationModel
 
-<div class="manufacturer-grid block">
+<div role="region" aria-labelledby="top-brands-title" class="manufacturer-grid block">
     <div class="heading heading-center">
-        <h3 class="heading-title fs-h1">@T("Homepage.TopBrands")</h3>
+        <h3 id="top-brands-title" class="heading-title fs-h1">@T("Homepage.TopBrands")</h3>
     </div>
 
-    <div class="artlist artlist-grid artlist-6-cols artlist-boxed block-body pt-3">
+    <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed block-body pt-3">
         @foreach (var item in Model.Brands)
         {
             var url = Url.RouteUrl("Manufacturer", new { SeName = item.SeName });
-            <article class="art" data-id="@item.Id">
+            <div role="listitem" class="art" data-id="@item.Id">
                 <div sm-if="Model.DisplayImages && item.Image != null && item.Image.HasImage()" class="art-picture-block">
                     <a href="@url" class="art-picture img-center-container" aria-hidden="true" tabindex="-1">
                         <img sm-model="item.Image" loading="lazy" attr-alt='(item.Image.Alt.IsEmpty(), item.Name)' />
@@ -22,12 +22,12 @@
                         <span sm-language-attributes-for="item.Name">@item.Name</span>
                     </a>
                 </div>
-            </article>
+            </div>
         }
 
-        <div sm-if="Model.DisplayAllBrandsLink" class="art show-all-items d-flex p-0">
+        <div sm-if="Model.DisplayAllBrandsLink" role="listitem" class="art show-all-items d-flex p-0">
             <a asp-route="ManufacturerList" class="show-all-items-link">
-                <i class="fa fa-ellipsis-h fa-lg"></i>
+                <i class="fa fa-ellipsis-h fa-lg" aria-hidden="true"></i>
                 <span>@T("Homepage.Brands.ShowAll")</span>
             </a>
         </div>

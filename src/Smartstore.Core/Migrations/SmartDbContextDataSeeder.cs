@@ -22,7 +22,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            
+            builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
         }
     }
 }

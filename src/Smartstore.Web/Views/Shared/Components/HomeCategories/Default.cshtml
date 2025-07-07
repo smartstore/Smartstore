@@ -2,34 +2,34 @@
 
 @model List<CategorySummaryModel>
 
-@{
-    if (Model.Count == 0)
-    {
-        return; 
-    }
-}
+<div sm-if="Model.Count > 0" role="region" aria-labelledby="top-categories-title">
+    @* INFO: For some reason, unlike Top Brands, this list does not have a visible heading. *@
+    <div class="heading heading-center sr-only">
+        <h3 id="top-categories-title" class="heading-title fs-h1">@T("Homepage.TopCategories")</h3>
+    </div>
 
-<div class="artlist artlist-grid artlist-6-cols artlist-boxed artlist-homepage-categories" role="list">
-    @foreach (var item in Model)
-    {
-        var image = item.Image;
-        var hasImage = image != null && image.HasImage();
-        var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
+    <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed artlist-homepage-categories">
+        @foreach (var item in Model)
+        {
+            var image = item.Image;
+            var hasImage = image != null && image.HasImage();
+            var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
 
-        <div class="art" data-id="@item.Id" role="listitem">
-            <div class="art-picture-block">
-                @if (hasImage)
-                {
-                    <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle" tabindex="-1" aria-hidden="true">
-                        <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' role="presentation" />
+            <div role="listitem" class="art" data-id="@item.Id">
+                <div class="art-picture-block">
+                    @if (hasImage)
+                    {
+                        <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle" tabindex="-1" aria-hidden="true">
+                            <img sm-model="image" loading="lazy" attr-alt='(image.Alt.IsEmpty(), item.Name)' role="presentation" />
+                        </a>
+                    }
+                </div>
+                <div class="art-genericname">
+                    <a class="art-name-link" href="@item.Url" title="@linkTitle">
+                        <span sm-language-attributes-for="item.Name">@item.Name</span>
                     </a>
-                }
+                </div>
             </div>
-            <div class="art-genericname">
-                <a class="art-name-link" href="@item.Url" title="@linkTitle">
-                    <span sm-language-attributes-for="item.Name">@item.Name</span>
-                </a>
-            </div>
-        </div>
-    }
+        }
+    </div>
 </div>

@@ -2,16 +2,11 @@
 
 @model PopularProductTagsModel
 
-@if (Model.Tags.Count == 0)
-{
-    return;
-}
-
-<div class="block block-popular-tags mb-5">
+<div sm-if="Model.Tags.Count > 0" role="region" aria-labelledby="popular-tags-title" class="block block-popular-tags mb-5">
     <div class="row">
         <div class="col">
             <div class="heading">
-                <h3 class="heading-title fs-h1">
+                <h3 id="popular-tags-title" class="heading-title fs-h1">
                     @T("Products.Tags.Popular")
                 </h3>
             </div>
@@ -19,10 +14,9 @@
         <div sm-if="Model.TotalTags > Model.Tags.Count" class="col col-auto">
             <a asp-route="ProductTagsAll" class="btn btn-outline-info btn-flat">
                 <span>@T("Products.Tags.Popular.ViewAll")</span>
-                <i class="fa fa-angle-right"></i>
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
             </a>
         </div>
-
     </div>
 
     <div class="listbox block-body">
