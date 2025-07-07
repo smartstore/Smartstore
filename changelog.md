@@ -2,6 +2,12 @@
 
 ## Smartstore 6.2.1
 
+### WCAG (Web Content Accessibility Guidelines)
+
+- The following frontend sections have been updated to improve accessibility for screen readers:
+  - All manufacturers page.
+  - Homepage products, categories, brands and product tags.
+
 ### Bugfixes
 
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
