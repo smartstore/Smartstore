@@ -28,8 +28,6 @@
     var hasWeight = Model.Items.Any(x => x.Weight.HasValue());
 }
 
-<span id="sr-desc-empty" class="sr-only"></span>
-
 <div class="page compare-products-page">
     <div class="row mb-4 align-items-center">
         <div class="col">
@@ -41,9 +39,7 @@
             <button data-href="@Url.Action("ClearCompareList", "Catalog", new { redirect = true })"
                     type="button"
                     class="btn btn-danger mb-2 ajax-cart-link"
-                    title="@T("Products.Compare.Clear")"
                     aria-label="@T("Products.Compare.Clear")"
-                    aria-describedby="sr-desc-empty"
                     data-type="compare"
                     data-action="remove">
                 <i class="far fa-trash-can" aria-hidden="true"></i>

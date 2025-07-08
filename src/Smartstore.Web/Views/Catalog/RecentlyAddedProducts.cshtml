@@ -5,6 +5,8 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.RecentlyAddedProducts"));
     Assets.AppendMetaDescriptionParts(T("PageDescription.RecentlyAddedProducts", CommonServices.StoreContext.CurrentStore.Name));
+
+    var rssLinkTitle = T("Products.NewProducts.RSS.Hint");
 }
 
 <div class="page recently-added-products-page">
@@ -18,7 +20,7 @@
         <zone name="recently_added_products_top" />
         
         <div class="col col-auto">
-            <a asp-route="RecentlyAddedProductsRSS" class="btn btn-warning" title="@T("Products.NewProducts.RSS.Hint")">
+            <a asp-route="RecentlyAddedProductsRSS" class="btn btn-warning" title="@rssLinkTitle" aria-label="@rssLinkTitle">
                 <i class="fa fa-rss" aria-hidden="true"></i>
                 <span>@T("Products.NewProducts.RSS")</span>
             </a>
