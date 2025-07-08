@@ -28,7 +28,7 @@
     var hasWeight = Model.Items.Any(x => x.Weight.HasValue());
 }
 
-<span id="sr-desc-empty" aria-hidden="true" class="sr-only"></span>
+<span id="sr-desc-empty" class="sr-only"></span>
 
 <div class="page compare-products-page">
     <div class="row mb-4 align-items-center">
@@ -58,15 +58,16 @@
         </div>
         <div sm-if="Model.Items.Count > 0" class="table-responsive">
             <table class="table table-bordered table-striped table-compare artlist" style="width: @(tableWidth)%">
+                <caption class="sr-only">@T("Products.Compare.Title"): @(string.Join(", ", Model.Items.Select(x => x.Name)))</caption>
                 <thead>
                     <tr>
-                        <th class="border-bottom-0 p-0">&nbsp;</th>
+                        <th class="border-bottom-0 p-0" scope="col">&nbsp;</th>
                         @foreach (var product in Model.Items)
                         {
                             var showAddToCart = !product.Price.DisableBuyButton && !product.Price.CallForPrice && product.Parent.BuyEnabled;
                             var showWishlist = !product.Price.DisableWishlistButton && product.Parent.WishlistEnabled;
 
-                            <th class="border-bottom-0 p-1">
+                            <th class="border-bottom-0 p-1" scope="col">
                                 <div class="row xs-gutters flex-nowrap">
                                     <div sm-if="showAddToCart || showWishlist" class="col-auto">
                                         @if (showAddToCart)
@@ -75,7 +76,7 @@
                                                     type="button"
                                                     class="btn btn-primary btn-icon btn-flat btn-sm ajax-cart-link"
                                                     title="@T("ShoppingCart.AddToCart")"
-                                                    aria-label="@product.Name @T("ShoppingCart.AddToCart")"
+                                                    aria-label="@T("ShoppingCart.AddToCart") @product.Name"
                                                     aria-describedby="sr-desc-empty"
                                                     data-type="cart"
                                                     data-action="add">
@@ -88,7 +89,7 @@
                                                     type="button"
                                                     class="btn btn-secondary btn-icon btn-flat btn-sm ajax-cart-link"
                                                     title="@T("ShoppingCart.AddToWishlist")"
-                                                    aria-label="@product.Name @T("ShoppingCart.AddToWishlist")"
+                                                    aria-label="@T("ShoppingCart.AddToWishlist") @product.Name"
                                                     aria-describedby="sr-desc-empty"
                                                     data-type="wishlist"
                                                     data-action="add">
@@ -101,7 +102,7 @@
                                                 type="button"
                                                 class="btn btn-secondary btn-to-danger btn-flat btn-sm btn-icon ajax-cart-link"
                                                 title="@T("Common.Remove")"
-                                                aria-label="@product.Name @T("Common.Remove")"
+                                                aria-label="@T("Common.Remove") @product.Name"
                                                 aria-describedby="sr-desc-empty"
                                                 data-type="compare"
                                                 data-action="remove">
@@ -113,10 +114,10 @@
                         }
                     </tr>
                     <tr>
-                        <th class="border-top-0 border-bottom-0 pb-1">&nbsp;</th>
+                        <th class="border-top-0 border-bottom-0 pb-1" scope="col">&nbsp;</th>
                         @foreach (var product in Model.Items)
                         {
-                            <th class="border-top-0 border-bottom-0 pb-1">
+                            <th class="border-top-0 border-bottom-0 pb-1" scope="col">
                                 <div class="position-relative">
                                     <div sm-if="product.Badges.Count > 0" class="art-badges">
                                         @foreach (var badge in product.Badges.OrderBy(x => x.DisplayOrder))
@@ -132,27 +133,27 @@
                         }
                     </tr>
                     <tr sm-if="hasRatings">
-                        <th class="border-top-0 border-bottom-0 py-1">&nbsp;</th>
+                        <th class="border-top-0 border-bottom-0 py-1" scope="col">&nbsp;</th>
                         @foreach (var product in Model.Items)
                         {
-                            <th class="border-top-0 border-bottom-0 py-1">
+                            <th class="border-top-0 border-bottom-0 py-1" scope="col">
                                 <partial name="Product.List.Item.Rating" model="product" />
                             </th>
                         }
                     </tr>
                     <tr>
-                        <th class="border-top-0 pt-1">&nbsp;</th>
+                        <th class="border-top-0 pt-1" scope="col">&nbsp;</th>
                         @foreach (var product in Model.Items)
                         {
                             <td class="border-top-0 pt-1">
-                                <a sm-language-attributes-for="product.Name" class="font-weight-medium" href="@product.DetailUrl">@product.Name</a>
+                                <a sm-language-attributes-for="product.Name" class="fwm" href="@product.DetailUrl">@product.Name</a>
                             </td>
                         }
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th class="caption">&nbsp;</th>
+                        <th class="caption" scope="row">&nbsp;</th>
                         @foreach (var product in Model.Items)
                         {
                             <td>
@@ -162,7 +163,7 @@
                         }
                     </tr>
                     <tr sm-if="hasBrands">
-                        <th class="caption">@T("Products.Manufacturer")</th>
+                        <th class="caption" scope="row">@T("Products.Manufacturer")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td>
@@ -174,28 +175,28 @@
                         }
                     </tr>
                     <tr sm-if="hasSkus">
-                        <th class="caption">@T("Products.Sku")</th>
+                        <th class="caption" scope="row">@T("Products.Sku")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td>@product.Sku</td>
                         }
                     </tr>
                     <tr sm-if="hasWeight">
-                        <th class="caption">@T("Products.Weight")</th>
+                        <th class="caption" scope="row">@T("Products.Weight")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td><span class="lrm">@product.Weight</span></td>
                         }
                     </tr>
                     <tr sm-if="hasDimensions">
-                        <th class="caption">@T("Products.Dimensions")</th>
+                        <th class="caption" scope="row">@T("Products.Dimensions")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td><span class="lrm">@Html.Raw(product.Dimensions)</span></td>
                         }
                     </tr>
                     <tr sm-if="hasDescriptions">
-                        <th class="caption">@T("Products.Compare.ShortDescription")</th>
+                        <th class="caption" scope="row">@T("Products.Compare.ShortDescription")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td>@Html.Raw(product.ShortDescription)</td>
@@ -205,7 +206,7 @@
                     @foreach (var attribute in specificationAttributes)
                     {
                         <tr attr-class='(attribute.Essential, "pd-spec-essential")'>
-                            <th class="caption">
+                            <th class="caption" scope="row">
                                 <span sm-language-attributes-for="attribute.SpecificationAttributeName">
                                     @(attribute.SpecificationAttributeName)
                                 </span>
@@ -231,7 +232,7 @@
                     }
 
                     <tr sm-if="Model.ShowFullDescription">
-                        <th class="caption">@T("Products.Compare.FullDescription")</th>
+                        <th class="caption" scope="row">@T("Products.Compare.FullDescription")</th>
                         @foreach (var product in Model.Items)
                         {
                             <td sm-language-attributes-for="product.FullDescription" class="html-editor-content">
