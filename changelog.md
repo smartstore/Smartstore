@@ -5,7 +5,7 @@
 ### WCAG (Web Content Accessibility Guidelines)
 
 - The following frontend sections have been updated to improve accessibility for screen readers:
-  - All manufacturers page.
+  - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
 
 ### Bugfixes
@@ -13,69 +13,81 @@
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 
 
+
+
 ## Smartstore 6.2.0
 
 ### Breaking Changes
-- Web API: The `PaymentMethods/GetAllPaymentMethods` endpoint has been enhanced to return all information about a payment provider.
+* **Web API:** The `PaymentMethods/GetAllPaymentMethods` endpoint has been enhanced to return all information about a payment provider.
 
 ### WCAG (Web Content Accessibility Guidelines)
 
-- The following frontend sections have been made accessible to screen readers:
-  - Laguage and currency selectors
-  - Customer's "My account", order and shipment details, and return requests.
-  - Customer identity features such as login and registration.
-  - Catalog and associated products search boxes
-  - All elements in the footer
-  - Article list actions
-  - CookieManager dialog. It also traps the focus until it's closed.
-  - Catalog facets
-  - Contact us
-  - Checkout process
-  - Product detail pages
-  - Offcanvas Menu 
-  - Offcanvas Cart
-  
-- The following plugins have been updated to provide better accessibility for screen readers:
-  - Blog
-  - Direct Order
-  - Email Reminder
-  - File Manager
-  - Forums
-  - GDPR
-  - MegaSearchPlus (extended facet templates)
-  - News
-  - Offline Payment
-  - Polls
-  - Wallet
+* The following frontend sections have been made accessible to screen readers:
 
-- A script to handle **key navigation** has been implemented. It identifies the role of several components and determines their navigatable child elements.
-	- `MenuPlugin` handles all items of `role="menubar"` based on subitems of `role="menu"` & `role="menuitem"`. It is used in ...
-		- the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version.
-	- `TablistPlugin` handles all items of `role="tablist"` based on subitems `role="tab"`. It is used in ...
-		- the Offcanvas Menu 
-		- the Offcanvas Cart
-	- `TreePlugin` handles all items of `role="tree"` based on subitems of `role="treeitem"`. It is used in ...
-		- the catalog navigation in the Offcanvas Menu
-	- `ListboxPlugin` handles widgets using `role="listbox"` based on subitems of `role="option"`. It is used in ...
-		- language and currency select lists
-		- all dropdown menus rendered by `MenuTagHelper`
-		- Variant color square boxes in product listings
-	- `DisclosurePlugin` handles standalone disclosures & accordions. It is used in ...
-		- CookieManager dialog
-		- Article list dropdowns (.art-drop is the element which contains article actions e.g. add to cart, add to wishlist)
-		- Product list filter button for mobile devices
-		- Footer (on mobile displays)
-		- MyAccount toggler (on mobile displays)
-	- `ComboboxPlugin` integrates `ListboxPlugin` navigation, opens/closes the dropdown, and supports both single- and multi-select via `data-ak-multiselect=true`. It is used in ...
-		- Article list sorting dropdown
-		- Language and currency selector
-	
-- A script has been implemented to handle `focus trapping for modal components`. While a modal is open, Tab cycles from the last to the first focusable element (and Shift + Tab the reverse), so keyboard focus cannot leave the modal until it is closed.  
-- Nested nav elements were removed from the top bar.
-- Removed zooming constrictions from `viewport` meta property.
-- A 'Skip to main content' button has been implemented.
+  * **Language** and **Currency** selectors
+  * Customers’ **“My Account”** area, order and shipment details, and return requests
+  * Customer‑identity features such as login and registration
+  * Catalog and associated products search boxes
+  * All elements in the footer
+  * Article list actions
+  * **CookieManager** dialog, which also traps focus until it is closed
+  * Catalog facets
+  * Contact Us
+  * Checkout process
+  * Product detail pages
+  * Off‑canvas Menu
+  * Off‑canvas Cart
 
-	​	
+* The following plugins have been updated to provide better accessibility for screen readers:
+
+  * Blog
+  * Direct Order
+  * Email Reminder
+  * File Manager
+  * Forums
+  * GDPR
+  * MegaSearchPlus (extended facet templates)
+  * News
+  * Offline Payment
+  * Polls
+  * Wallet
+
+* A script to handle **key navigation** has been implemented. It identifies the roles of several components and determines their **navigable** child elements.
+
+  * `MenuPlugin` handles all items with `role="menubar"` based on sub‑items with `role="menu"` and `role="menuitem"`. It is used in …
+
+    * the main catalog navigation in the simple version, without the MegaMenu plugin, and in the MegaMenu version
+  * `TablistPlugin` handles all items with `role="tablist"` based on sub‑items with `role="tab"`. It is used in …
+
+    * the Off‑canvas Menu
+    * the Off‑canvas Cart
+  * `TreePlugin` handles all items with `role="tree"` based on sub‑items with `role="treeitem"`. It is used in …
+
+    * the catalog navigation in the Off‑canvas Menu
+  * `ListboxPlugin` handles widgets using `role="listbox"` based on sub‑items with `role="option"`. It is used in …
+
+    * language and currency select lists
+    * all dropdown menus rendered by `MenuTagHelper`
+    * variant‑color square boxes in product listings
+  * `DisclosurePlugin` handles standalone disclosures and accordions. It is used in …
+
+    * **CookieManager** dialog
+    * article‑list dropdowns (`.art-drop`, which contains article actions such as Add to Cart and Add to Wishlist)
+    * product‑list filter button (mobile)
+    * footer (mobile)
+    * **My Account** toggler (mobile)
+  * `ComboboxPlugin` integrates `ListboxPlugin` navigation, opens **and** closes the dropdown, and supports both single‑ and multi‑select via `data-ak-multiselect=true`. It is used in …
+
+    * article‑list sorting dropdown
+    * language and currency selector
+
+* A script has been implemented to handle **focus trapping for modal components**. While a modal is open, **Tab** cycles from the last to the first focusable element (and **Shift + Tab** does the reverse), so keyboard focus cannot leave the modal until it is closed.
+
+* Nested `<nav>` elements have been removed from the top bar.
+
+* Removed zooming **constraints** from the `viewport` meta property.
+
+* A **Skip to main content** button has been implemented.
 
 ### New Features
 
@@ -83,40 +95,44 @@
 
 ### Improvements
 
-- Allow an order to be completed if its payment has been refunded.
-- The author of a blog or news post has been added to the Open Graph metadata.
-- Stripe: 
-	- Void the order if a message about a failed payment has been sent to the webhook. 
-	- Payment status (Paid & Authorized) was set too early in the checkout process. 
+* Allow an order to be completed if its payment has been refunded.
+* The author of a blog or news post has been added to the Open Graph metadata.
+* **Stripe:**
+
+  * Void the order if the webhook receives a message about a failed payment.
+  * Payment status (Paid & Authorized) was set too early in the checkout process.
 
 ### Bugfixes
 
-- The order of products in lists was reversed for featured sorting.
-- Fixed a `NullReferenceException` on the cart page when shopping cart items are activated or deactivated.
-- Fixed `ArgumentNullException` when adding a product to a category if `SearchSettings.UseCatalogSearchInBackend` is enabled.
-- #1360 Deleting a product review that includes helpfulness entries results in a `SqlException`.
-- Fixed `Failed to read NuGet.config due to unauthorized access` exception.
-- **Summernote**
-  - Browsing and selecting files in the link or image dialog also closes the opener dialog.
-  - Fixed list/paragraph toggle conflict when `li` contains `p`
-- Forum: Avoid 404 when viewing deleted customer profile.
-- My-account header only shows uploaded avatar after page reload.
-- **PageBuilder**
-  - Slick slider cuts off the edit toolbar.
-  - Some widget zone names appeared twice when editing a story.
-  - Fixed: Product details were not updating when a story with a slick slider was placed in the widget zone `productdetail_offer_after`.
-- The "Latest Orders" dashboard does not display the full name of guests.
-- A bug that caused an old script to be loaded from the browser cache, resulting in an endless minibasket loading process, has been fixed.
-- The handling of multi-store settings for the AI modules and performance settings has been corrected.
-- Added route attribute to the actions Patch and PatchLocalized of the EntityController to avoid a 404 error which occurred under certain undetermined conditions.
-- Use a relative product URL instead of an absolute one to avoid the JS error "Failed to execute replaceState on History".
-- PayPal: If Google Pay was initially selected on the payment selection page, a script error occurred which prevented all PayPal buttons from loading.
-- AmazonPay: Fixed issue of the private key being unintentionally deleted when saving a multistore configuration.
-- Added missing xml declaration to sitemap index file.
-- Do not create database tables for `NamedEntity` and `VariantValueMetadata`.
-- Customer profile did not display the private message button or the forum statistics.
-- Fixed display of error notification in OffCanvasCart.
-- Do not display `ActivityLogType` with the same system keyword multiple times.
+* The order of products in lists was reversed for featured sorting.
+* Fixed a `NullReferenceException` on the cart page when shopping‑cart items were activated or deactivated.
+* Fixed an `ArgumentNullException` when adding a product to a category if `SearchSettings.UseCatalogSearchInBackend` is enabled.
+* **#1360:** Deleting a product review that included helpfulness entries resulted in a `SqlException`.
+* Fixed the `Failed to read NuGet.config due to unauthorized access` exception.
+* **Summernote**
+
+  * Browsing and selecting files in the link or image dialog now also closes the opener dialog.
+  * Fixed the list/paragraph toggle conflict when an `li` contains a `p`.
+* **Forum:** Avoided a 404 when viewing a deleted customer profile.
+* The **MyAccount** header only showed the uploaded avatar after a page reload.
+* **PageBuilder**
+* The *Slick* slider cut off the edit toolbar.
+  * Some widget‑zone names appeared twice when editing a story.
+  * **Fixed:** Product details were not updating when a story with a *Slick* slider was placed in the widget zone `productdetail_offer_after`.
+* The **Latest Orders** dashboard did not display guests’ full names.
+* Fixed a bug that caused an old script to be loaded from the browser cache, resulting in endless minibasket loading.
+* Corrected handling of multi‑store settings for AI modules and performance settings.
+* Added a **Route** attribute to the `Patch` and `PatchLocalized` actions of `EntityController` to avoid a 404 error that occurred under certain conditions.
+* Use a relative product URL instead of an absolute one to avoid the JS error `Failed to execute replaceState on History`.
+* **PayPal:** If Google Pay was initially selected on the payment selection page, a script error prevented all PayPal buttons from loading.
+* **Amazon Pay:** Fixed an issue where the private key was unintentionally deleted when saving a multistore configuration.
+* Added a missing XML declaration to the sitemap index file.
+* Do not create database tables for `NamedEntity` and `VariantValueMetadata`.
+* The customer profile did not display the Private Message button or forum statistics.
+* Fixed display of error notifications in **Off‑canvas Cart**.
+* Do not display `ActivityLogType` entries with the same system keyword multiple times.
+
+
 
 
 ## Smartstore 6.1.0
