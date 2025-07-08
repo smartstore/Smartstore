@@ -207,6 +207,31 @@
 
                 list.height(itemHeight * self.options.thumbsToShow);
 
+                list.on('scroll', function (e) {
+                    const isSliding = list.data('sliding');
+                    if (isSliding) return;
+
+                    e.preventDefault();
+                    const prevScrollTop = list.data('prev-scroll-top') || 0;
+                    const curScrollTop = list[0].scrollTop;
+                    const forward = curScrollTop > prevScrollTop;
+
+                    list.data('prev-scroll-top', curScrollTop);
+
+                    if (curScrollTop < 10) {
+                        // Most likely the first thumb after continous tab
+                        self._slideToNavPage(0);
+                    }
+                    else if (forward) {
+                        self._slideToNextNavPage();
+                    }
+                    else {
+                        self._slideToPrevNavPage();
+                    }
+
+                    return false;
+                });
+
                 nav.on('click.gal', '.gal-arrow', function (e) {
                     e.preventDefault();
                     const btn = $(this);
@@ -303,9 +328,16 @@
                 const navListHeight = this.navList.height();
                 const maxOffsetY = (this.navTrack.height() - navListHeight);
                 const offsetY = navListHeight * page;
-                const translateY = (Math.min(offsetY, maxOffsetY) * -1) + 'px';
 
-                this.navTrack.css('transform', `translate3d(0, ${translateY}, 0)`);
+                //const translateY = (Math.min(offsetY, maxOffsetY) * -1) + 'px';
+                //this.navTrack.css('transform', `translate3d(0, ${translateY}, 0)`);
+
+                const scrollTop = Math.min(offsetY, maxOffsetY);
+                this.navList.data('sliding', true);
+                this.navList[0].scrollTo({ top: scrollTop, behavior: 'smooth' });
+                setTimeout(() => this.navList.data('sliding', false), 1000);
+
+                
             }
         },
 
