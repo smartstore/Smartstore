@@ -589,25 +589,19 @@ namespace Smartstore.Web.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> AddProductToCompareListAjax(int id)
         {
-            var failed = Json(new
-            {
-                success = false,
-                message = T("AddProductToCompareList.CouldNotBeAdded")
-            });
-
             if (!_catalogSettings.CompareProductsEnabled)
-                return failed;
+            {
+                return Failed();
+            }
 
             var product = await _db.Products.FindByIdAsync(id, false);
-
             if (product == null || product.IsSystemProduct || !product.Published)
             {
-                return failed;
+                return Failed();
             }
 
             _productCompareService.AddToList(id);
 
-            //activity log
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddToCompareList, T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
 
             return Json(new
@@ -615,40 +609,30 @@ namespace Smartstore.Web.Controllers
                 success = true,
                 message = T("AddProductToCompareList.ProductWasAdded", product.Name).Value
             });
+
+            JsonResult Failed()
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = T("AddProductToCompareList.CouldNotBeAdded")
+                });
+            }
         }
 
-        [ActionName("RemoveProductFromCompare")]
-        public async Task<IActionResult> RemoveProductFromCompareList(int id)
-        {
-            if (!_catalogSettings.CompareProductsEnabled)
-                return NotFound();
-
-            var product = await _db.Products.FindByIdAsync(id, false);
-            if (product == null)
-                return NotFound();
-
-            _productCompareService.RemoveFromList(id);
-
-            return RedirectToRoute("CompareProducts");
-        }
-
+        // AJAX.
         [HttpPost]
-        [ActionName("RemoveProductFromCompare")]
-        public async Task<IActionResult> RemoveProductFromCompareListAjax(int id)
+        public async Task<IActionResult> RemoveProductFromCompare(int id, bool redirect = false)
         {
-            var failed = Json(new
-            {
-                success = false,
-                message = T("AddProductToCompareList.CouldNotBeRemoved")
-            });
-
             if (!_catalogSettings.CompareProductsEnabled)
-                return failed;
+            {
+                return Failed();
+            }
 
             var product = await _db.Products.FindByIdAsync(id, false);
             if (product == null)
             {
-                return failed;
+                return Failed();
             }
 
             _productCompareService.RemoveFromList(id);
@@ -656,27 +640,23 @@ namespace Smartstore.Web.Controllers
             return Json(new
             {
                 success = true,
+                redirect = redirect ? Url.Referrer() : null,
                 message = string.Format(T("AddProductToCompareList.ProductWasDeleted"), product.Name)
             });
-        }
 
-        [DisallowRobot]
-        public IActionResult ClearCompareList()
-        {
-            if (!_catalogSettings.CompareProductsEnabled)
+            JsonResult Failed()
             {
-                return RedirectToRoute("Homepage");
+                return Json(new
+                {
+                    success = false,
+                    message = T("AddProductToCompareList.CouldNotBeRemoved")
+                });
             }
-
-            _productCompareService.ClearCompareList();
-
-            return RedirectToRoute("CompareProducts");
         }
 
         // AJAX.
         [HttpPost]
-        [ActionName("ClearCompareList")]
-        public IActionResult ClearCompareListAjax()
+        public IActionResult ClearCompareList(bool redirect = false)
         {
             if (_catalogSettings.CompareProductsEnabled)
             {
@@ -685,7 +665,8 @@ namespace Smartstore.Web.Controllers
 
             return Json(new
             {
-                success = true
+                success = true,
+                redirect = redirect ? Url.Referrer() : null,
             });
         }
 

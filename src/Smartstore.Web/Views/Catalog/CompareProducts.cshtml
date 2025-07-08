@@ -28,6 +28,8 @@
     var hasWeight = Model.Items.Any(x => x.Weight.HasValue());
 }
 
+<span id="sr-desc-empty" aria-hidden="true" class="sr-only"></span>
+
 <div class="page compare-products-page">
     <div class="row mb-4 align-items-center">
         <div class="col">
@@ -35,16 +37,23 @@
                 <h1 class="heading-title fs-h1">@T("Products.Compare.Title")</h1>
             </div>
         </div>
-        <div sm-if="Model.Items.Any()" class="col col-auto">
-            <a asp-action="ClearCompareList" asp-controller="Catalog" asp-area="" class="btn btn-danger mb-2" rel="nofollow">
-                <i class="far fa-trash-can"></i>
+        <div sm-if="Model.Items.Count > 0" class="col col-auto">
+            <button data-href="@Url.Action("ClearCompareList", "Catalog", new { redirect = true })"
+                    type="button"
+                    class="btn btn-danger mb-2 ajax-cart-link"
+                    title="@T("Products.Compare.Clear")"
+                    aria-label="@T("Products.Compare.Clear")"
+                    aria-describedby="sr-desc-empty"
+                    data-type="compare"
+                    data-action="remove">
+                <i class="far fa-trash-can" aria-hidden="true"></i>
                 <span>@T("Products.Compare.Clear")</span>
-            </a>
+            </button>
         </div>
     </div>
 
     <div class="page-body">
-        <div sm-if="Model.Items.Count == 0" class="alert alert-warning fade show">
+        <div sm-if="Model.Items.Count == 0" class="alert alert-warning fade show" role="alert">
             @T("Products.Compare.ListIsEmpty")
         </div>
         <div sm-if="Model.Items.Count > 0" class="table-responsive">
@@ -62,34 +71,42 @@
                                     <div sm-if="showAddToCart || showWishlist" class="col-auto">
                                         @if (showAddToCart)
                                         {
-                                            <a data-href='@Url.Action("AddProductSimple", "ShoppingCart", new { productId = product.Id, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })'
-                                                href="#"
-                                                class="btn btn-primary btn-icon btn-flat btn-sm ajax-cart-link"
-                                                title="@T("ShoppingCart.AddToCart")"
-                                                rel="nofollow"
-                                                data-type="cart"
-                                                data-action="add">
-                                                <i class="fa fa-cart-arrow-down"></i>
-                                            </a>
+                                            <button data-href='@Url.Action("AddProductSimple", "ShoppingCart", new { productId = product.Id, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })'
+                                                    type="button"
+                                                    class="btn btn-primary btn-icon btn-flat btn-sm ajax-cart-link"
+                                                    title="@T("ShoppingCart.AddToCart")"
+                                                    aria-label="@product.Name @T("ShoppingCart.AddToCart")"
+                                                    aria-describedby="sr-desc-empty"
+                                                    data-type="cart"
+                                                    data-action="add">
+                                                <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+                                            </button>
                                         }
                                         @if (showWishlist)
                                         {
-                                            <a data-href='@Url.Action("AddProductSimple", "ShoppingCart", new { productId = product.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })'
-                                                href="#"
-                                                class="btn btn-secondary btn-icon btn-flat btn-sm ajax-cart-link"
-                                                title="@T("ShoppingCart.AddToWishlist")"
-                                                rel="nofollow"
-                                                data-type="wishlist"
-                                                data-action="add">
-                                                <i class="fal fa-heart"></i>
-                                            </a>
+                                            <button data-href='@Url.Action("AddProductSimple", "ShoppingCart", new { productId = product.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })'
+                                                    type="button"
+                                                    class="btn btn-secondary btn-icon btn-flat btn-sm ajax-cart-link"
+                                                    title="@T("ShoppingCart.AddToWishlist")"
+                                                    aria-label="@product.Name @T("ShoppingCart.AddToWishlist")"
+                                                    aria-describedby="sr-desc-empty"
+                                                    data-type="wishlist"
+                                                    data-action="add">
+                                                <i class="fal fa-heart" aria-hidden="true"></i>
+                                            </button>
                                         }
                                     </div>
                                     <div class="col text-right">
-                                        <a asp-action="RemoveProductFromCompare" asp-controller="Catalog" asp-route-id="@product.Id"
-                                            class="btn btn-secondary btn-to-danger btn-flat btn-sm btn-icon" rel="nofollow" title="@T("Common.Remove")">
-                                            <i class="fa fa-trash-can"></i>
-                                        </a>
+                                        <button data-href="@Url.Action("RemoveProductFromCompare", "Catalog", new { id = product.Id, redirect = true })"
+                                                type="button"
+                                                class="btn btn-secondary btn-to-danger btn-flat btn-sm btn-icon ajax-cart-link"
+                                                title="@T("Common.Remove")"
+                                                aria-label="@product.Name @T("Common.Remove")"
+                                                aria-describedby="sr-desc-empty"
+                                                data-type="compare"
+                                                data-action="remove">
+                                            <i class="far fa-trash-can" aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </th>
