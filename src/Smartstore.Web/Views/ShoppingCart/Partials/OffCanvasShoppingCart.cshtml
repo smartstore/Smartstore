@@ -48,7 +48,7 @@
                 <div class="offcanvas-cart-item" attr-class='(!item.Active, "offcanvas-cart-item-inactive")'>
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-image col-alpha">
-                            <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                            <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" aria-hidden="true" tabindex="-1">
                                 <img sm-model="item.Image" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
                             </a>
                         </div>
