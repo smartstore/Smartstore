@@ -214,7 +214,6 @@ namespace Smartstore.Web.Controllers
                 {
                     { "Products.PriceRangeFrom", T("Products.PriceRangeFrom") },
                     { "Media.Product.ImageLinkTitleFormat", T("Media.Product.ImageLinkTitleFormat") },
-                    { "Media.Product.ImageAlternateTextFormat", T("Media.Product.ImageAlternateTextFormat") },
                     { "Products.DimensionsValue", T("Products.DimensionsValue") },
                     { "Common.AdditionalShippingSurcharge", T("Common.AdditionalShippingSurcharge") }
                 };
@@ -483,7 +482,7 @@ namespace Smartstore.Web.Controllers
                 item.Image = new ImageModel(file, thumbSize)
                 {
                     Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageLinkTitleFormat"], item.Name),
-                    Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name),
+                    Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? item.Name,
                     NoFallback = _catalogSettings.HideProductDefaultPictures
                 };
 

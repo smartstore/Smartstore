@@ -1244,7 +1244,7 @@ namespace Smartstore.Web.Controllers
             var model = new MediaGalleryModel
             {
                 ModelName = productName,
-                DefaultAlt = T("Media.Product.ImageAlternateTextFormat", productName),
+                DefaultAlt = productName,
                 BoxEnabled = true, // TODO: make a setting for this in the future
                 ImageZoomEnabled = _mediaSettings.DefaultPictureZoomEnabled,
                 ImageZoomType = _mediaSettings.PictureZoomType,

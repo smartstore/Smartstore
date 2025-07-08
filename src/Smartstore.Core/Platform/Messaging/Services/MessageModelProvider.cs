@@ -537,7 +537,6 @@ namespace Smartstore.Core.Messaging
             var url = _helper.BuildUrl(productUrl, messageContext);
             var file = await _helper.GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
-            var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).ToString();
 
             var m = new Dictionary<string, object>
             {
@@ -548,8 +547,8 @@ namespace Smartstore.Core.Messaging
                 { "StockQuantity", part.StockQuantity },
                 { "AdditionalShippingCharge", additionalShippingCharge },
                 { "Url", url },
-                { "Thumbnail", await CreateModelPartAsync(file, messageContext, url, mediaSettings.MessageProductThumbPictureSize, new Size(50, 50), alt) },
-                { "ThumbnailLg", await CreateModelPartAsync (file, messageContext, url, mediaSettings.ProductThumbPictureSize, new Size(120, 120), alt) },
+                { "Thumbnail", await CreateModelPartAsync(file, messageContext, url, mediaSettings.MessageProductThumbPictureSize, new Size(50, 50), name) },
+                { "ThumbnailLg", await CreateModelPartAsync (file, messageContext, url, mediaSettings.ProductThumbPictureSize, new Size(120, 120), name) },
                 { "DeliveryTime", null },
                 { "QtyUnit", null }
             };

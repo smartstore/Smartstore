@@ -268,7 +268,7 @@ namespace Smartstore.Web.Controllers
             var model = new ImageModel(file, _mediaSettings.ManufacturerThumbPictureSize)
             {
                 Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageLinkTitleFormat", localizedName),
-                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageAlternateTextFormat", localizedName),
+                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? localizedName,
                 NoFallback = _catalogSettings.HideManufacturerDefaultPictures
             };
 
@@ -429,8 +429,8 @@ namespace Smartstore.Web.Controllers
 
                     model.Image = new ImageModel(file, thumbSize)
                     {
-                        Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageLinkTitleFormat"), name),
-                        Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageAlternateTextFormat"), name),
+                        Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? name,
+                        Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? name,
                         NoFallback = _catalogSettings.HideCategoryDefaultPictures
                     };
 
@@ -522,7 +522,7 @@ namespace Smartstore.Web.Controllers
             var model = new ImageModel(file, _mediaSettings.CategoryThumbPictureSize)
             {
                 Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageLinkTitleFormat"), localizedName),
-                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageAlternateTextFormat"), localizedName),
+                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? localizedName,
                 NoFallback = _catalogSettings.HideCategoryDefaultPictures
             };
 

@@ -25,6 +25,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.AlphabeticallySortedLinks", "Alphabetically sorted links", "Alphabetisch sortierte Links");
 
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
+
+            builder.Delete(
+                "Media.Category.ImageAlternateTextFormat",
+                "Media.Manufacturer.ImageAlternateTextFormat",
+                "Media.Product.ImageAlternateTextFormat");
         }
     }
 }

@@ -139,7 +139,7 @@ namespace Smartstore.Web.Controllers
             return new ImageModel(file, pictureSize)
             {
                 Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Product.ImageLinkTitleFormat", productName),
-                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Product.ImageAlternateTextFormat", productName),
+                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? productName,
                 NoFallback = catalogSettings.HideProductDefaultPictures
             };
         }
