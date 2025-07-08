@@ -208,26 +208,22 @@
                 list.height(itemHeight * self.options.thumbsToShow);
 
                 list.on('scroll', function (e) {
-                    const isSliding = list.data('sliding');
-                    if (isSliding) return;
+                    // We only handle native tab key scrolling here
+                    if (list.data('sliding')) return;
 
                     e.preventDefault();
-                    const prevScrollTop = list.data('prev-scroll-top') || 0;
-                    const curScrollTop = list[0].scrollTop;
-                    const forward = curScrollTop > prevScrollTop;
 
-                    list.data('prev-scroll-top', curScrollTop);
+                    // Get the index of the currently focused thumb item
+                    const activeItemIndex = parseInt($(document.activeElement).parent().data('gal-index'));
+                    if (isNaN(activeItemIndex)) {
+                        return;
+                    }
 
-                    if (curScrollTop < 10) {
-                        // Most likely the first thumb after continous tab
-                        self._slideToNavPage(0);
-                    }
-                    else if (forward) {
-                        self._slideToNextNavPage();
-                    }
-                    else {
-                        self._slideToPrevNavPage();
-                    }
+                    // Find the page of the focused item...
+                    let attemptedPage = self._findPageByItemIndex(activeItemIndex);
+
+                    // ...and slide to target page to stay in sync
+                    self._slideToNavPage(attemptedPage);
 
                     return false;
                 });
@@ -280,6 +276,10 @@
             nav.addClass("gal-initialized");
         },
 
+        _findPageByItemIndex: function (idx) {
+            return Math.floor(idx / this.options.thumbsToShow);
+        },
+
         _selectNavItem: function (idx, sync) {
             let self = this;
             let curItem = self.nav.find('.gal-current');
@@ -291,7 +291,7 @@
             curItem = self.nav.find('[data-gal-index=' + idx + ']');
             curItem.addClass('gal-current').find("> a").aria('selected', true);
 
-            let page = Math.floor(idx / self.options.thumbsToShow);
+            let page = self._findPageByItemIndex(idx);
             self._slideToNavPage(page);
 
             if (sync) {
