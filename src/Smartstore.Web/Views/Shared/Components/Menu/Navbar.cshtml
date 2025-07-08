@@ -129,14 +129,18 @@
             isFirst = false;
         }
 
-        @if (renderMoreItem)
-        {
-            <li class="nav-item dropdown" data-id="-1">
-                <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" data-target="#dropdown-menu--1">
-                    @T("CatalogMenu.MoreLink")
-                </a>
-            </li>
-        }
+        <li sm-if="renderMoreItem" class="nav-item dropdown" data-id="-1" role="none">
+            <a href="#" 
+               class="nav-link dropdown-toggle" 
+               data-target="#dropdown-menu--1"
+               aria-expanded="false" 
+               aria-controls="dropdown-menu--1"
+               aria-haspopup="menu"
+               role="menuitem"
+               tabindex="-1">
+                @T("CatalogMenu.MoreLink")
+            </a>
+        </li>
     </ul>
 
     <div class="megamenu-nav megamenu-nav--next @(rtl ? "alpha" : "omega")">
