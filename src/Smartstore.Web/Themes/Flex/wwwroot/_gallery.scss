@@ -78,12 +78,11 @@
 
 .gal-nav .gal-list {
     position: relative;
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 .gal-nav .gal-track {
     position: relative;
-    transition: transform 0.25s ease-in-out;
 }
 
 .gal-nav .gal-item {

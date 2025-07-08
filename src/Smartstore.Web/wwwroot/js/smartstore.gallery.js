@@ -252,14 +252,14 @@
 
             self._selectNavItem(self.options.startIndex, isInitialized);
 
-            nav.on('mouseenter.gal click.gal', '.gal-item', function (e) {
+            nav.on('mouseenter.gal click.gal', '.gal-item-viewport', function (e) {
                 e.preventDefault();
 
                 if (e.type === "mouseenter") {
                     nav.data("glimpse", true);
                 }
 
-                var toIdx = $(this).data('gal-index');
+                var toIdx = $(this.parentElement).data('gal-index');
                 self.goTo(toIdx);
 
                 if (e.type === "click") {
@@ -270,12 +270,12 @@
 
                 return false;
             })
-                .on('mouseleave.gal', function (e) {
-                    // Restore actual selected image
-                    var actualIdx = nav.find('.gal-current').data('gal-index');
-                    self.goTo(actualIdx);
-                    nav.data("glimpse", false);
-                });
+            .on('mouseleave.gal', function () {
+                // Restore actual selected image
+                var actualIdx = nav.find('.gal-current').data('gal-index');
+                self.goTo(actualIdx);
+                nav.data("glimpse", false);
+            });
 
             nav.addClass("gal-initialized");
         },
@@ -300,12 +300,12 @@
         },
 
         _slideToPrevNavPage: function () {
-            let curPage = this.nav.data('current-page');
+            const curPage = this.nav.data('current-page');
             this._slideToNavPage(curPage - 1);
         },
 
         _slideToNextNavPage: function () {
-            let curPage = this.nav.data('current-page');
+            const curPage = this.nav.data('current-page');
             this._slideToNavPage(curPage + 1);
         },
 
@@ -329,15 +329,10 @@
                 const maxOffsetY = (this.navTrack.height() - navListHeight);
                 const offsetY = navListHeight * page;
 
-                //const translateY = (Math.min(offsetY, maxOffsetY) * -1) + 'px';
-                //this.navTrack.css('transform', `translate3d(0, ${translateY}, 0)`);
-
                 const scrollTop = Math.min(offsetY, maxOffsetY);
                 this.navList.data('sliding', true);
                 this.navList[0].scrollTo({ top: scrollTop, behavior: 'smooth' });
                 setTimeout(() => this.navList.data('sliding', false), 1000);
-
-                
             }
         },
 
