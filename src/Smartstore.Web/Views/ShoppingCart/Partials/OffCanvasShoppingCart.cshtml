@@ -71,9 +71,13 @@
                             <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
                                 @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
                                 {
-                                    var bundelItem = bundleItemsWithImages[i];
-                                    <a href="@bundelItem.ProductUrl" title="@bundelItem.ProductName" class="link-dnn">
-                                        <img sm-model="bundelItem.ImageModel" attr-alt='(bundelItem.ImageModel.Alt.IsEmpty(), bundelItem.ProductName)' />
+                                    var bundleItem = bundleItemsWithImages[i];
+                                    <a href="@bundleItem.ProductUrl" 
+                                       class="link-dnn"
+                                       title="@bundleItem.ProductName" 
+                                       aria-label="@T("Aria.Label.BundleContains", bundleItem.ProductName)"
+                                       aria-describedby="sr-desc-empty">
+                                        <img sm-model="bundleItem.ImageModel" alt="" />
                                     </a>
                                     <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus"></i>
                                 }
@@ -94,14 +98,14 @@
                                     data_type = "cart",
                                     data_sci_id = item.Id,
                                     id = $"o-cart-item-quantity-{item.Id}",
-                                    aria_labelledby = $"cart-item-link-{item.Id}"
+                                    aria_label = $"{T("ShoppingCart.Quantity")} {item.ProductName}"
                                 }
                             })
                         </div>
                         <div class="col">
-                            <span class="price unit-price">
+                            <data asp-for="@item.UnitPrice" class="price unit-price">
                                 @item.UnitPrice
-                            </span>
+                            </data>
 
                             @if (Model.ShowBasePrice && item.BasePriceInfo.HasValue())
                             {
@@ -155,9 +159,9 @@
                     <div class="sub-total-caption">
                         @T("ShoppingCart.Totals.SubTotal"):
                     </div>
-                    <div class="sub-total price">
+                    <data asp-for="@Model.SubTotal" class="sub-total price">
                         @Model.SubTotal
-                    </div>
+                    </data>
                 </div>
             </div>
             <div class="offcanvas-cart-footer-col row gy-1 gx-2 flex-wrap">

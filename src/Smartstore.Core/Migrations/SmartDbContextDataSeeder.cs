@@ -23,6 +23,7 @@ namespace Smartstore.Core.Data.Migrations
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             builder.AddOrUpdate("Aria.Label.AlphabeticallySortedLinks", "Alphabetically sorted links", "Alphabetisch sortierte Links");
+            builder.AddOrUpdate("Aria.Label.BundleContains", "The product set contains {0}", "Das Produktset enthält {0}");
 
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
 

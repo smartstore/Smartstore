@@ -66,9 +66,13 @@
                             <div sm-if="bundleItemsWithImages.Length > 0" class="mb-bundle-pictures mt-3">
                                 @for (var i = 0; i < bundleItemsWithImages.Length; ++i)
                                 {
-                                    var bundelItem = bundleItemsWithImages[i];
-                                    <a href="@bundelItem.ProductUrl" title="@bundelItem.ProductName" class="link-dnn">
-                                        <img sm-model="bundelItem.Image" attr-alt='(bundelItem.Image.Alt.IsEmpty(), bundelItem.ProductName)' />
+                                    var bundleItem = bundleItemsWithImages[i];
+                                    <a href="@bundleItem.ProductUrl" 
+                                       class="link-dnn"
+                                       title="@bundleItem.ProductName" 
+                                       aria-label="@T("Aria.Label.BundleContains", bundleItem.ProductName)"
+                                       aria-describedby="sr-desc-empty">
+                                        <img sm-model="bundleItem.Image" alt="" />
                                     </a>
                                     <i sm-if="(i + 1) < bundleItemsWithImages.Length" class="fa fa-plus" aria-hidden="true"></i>
                                 }
@@ -87,14 +91,14 @@
                                     data_type = "wishlist", 
                                     data_sci_id = item.Id,
                                     id = $"o-wishlist-item-quantity-{item.Id}",
-                                    aria_labelledby = $"wishlist-item-link-{item.Id}"
+                                    aria_label = $"{T("ShoppingCart.Quantity")} {item.ProductName}"
                                 }
                             })
                         </div>
                         <div class="col">
-                            <span class="price unit-price">
+                            <data asp-for="@item.Price.UnitPrice" class="price unit-price">
                                 @item.Price.UnitPrice
-                            </span>
+                            </data>
                         </div>
 
                         <div class="col-auto ml-auto text-nowrap">
