@@ -21,9 +21,9 @@
                     @for (int i = 0; i < Model.Files.Count; i++)
                     {
                         var file = Model.Files[i];
-                        var linkTitle = T("Product.ThumbTitle", Model.ModelName, (i + 1).ToString());
+                        var linkTitle = T("Product.ThumbTitle", Model.ModelName, (i + 1).ToString()).ToString().TrimStart(',').Trim();
                         var picTitle = linkTitle;
-                        var picAlt = T("Product.ThumbAlternateText", Model.ModelName, (i + 1).ToString());
+                        var picAlt = T("Product.ThumbAlternateText", Model.ModelName, (i + 1).ToString()).ToString().TrimStart(',').Trim();
                         var isVideo = file.MediaType == MediaType.Video;
 
                         if (file.Alt != null && file.Alt != Model.ModelName)
