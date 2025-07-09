@@ -730,15 +730,22 @@ namespace Smartstore.Web.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             var pageCart = await _shoppingCartService.GetCartAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
 
+            var numAdded = 0;
             var allWarnings = new List<string>();
-            var numberOfAddedItems = 0;
             var form = HttpContext.Request.Form;
 
             var allIdsToAdd = form["addtocart"].FirstOrDefault() != null
-                ? form["addtocart"].Select(int.Parse).ToList()
+                ? form["addtocart"].Select(int.Parse).Distinct().ToList()
                 : [];
 
-            foreach (var cartItem in pageCart.Items.Where(x => allIdsToAdd.Contains(x.Item.Id)))
+            var cartItems = pageCart.Items.Where(x => allIdsToAdd.Contains(x.Item.Id)).ToArray();
+            if (cartItems.Length == 0)
+            {
+                NotifyError(T("Products.SelectProducts"));
+                return RedirectToRoute("Wishlist", new { customerGuid });
+            }
+
+            foreach (var cartItem in cartItems)
             {
                 var addToCartContext = new AddToCartContext
                 {
@@ -754,7 +761,7 @@ namespace Smartstore.Web.Controllers
 
                 if (await _shoppingCartService.CopyAsync(addToCartContext))
                 {
-                    numberOfAddedItems++;
+                    numAdded++;
                 }
 
                 if (_shoppingCartSettings.MoveItemsFromWishlistToCart && !customerGuid.HasValue && addToCartContext.Warnings.Count == 0)
@@ -765,18 +772,14 @@ namespace Smartstore.Web.Controllers
                 allWarnings.AddRange(addToCartContext.Warnings);
             }
 
-            if (numberOfAddedItems > 0)
-            {
-                return RedirectToRoute("ShoppingCart");
-            }
+            var notifyType = numAdded == 0 
+                ? NotifyType.Error
+                : (numAdded == cartItems.Length ? NotifyType.Success : NotifyType.Warning);
+            Services.Notifier.Add(notifyType, T("Products.ProductsHaveBeenAddedToTheCart", numAdded, cartItems.Length));
 
-            var wishlist = await _shoppingCartService.GetCartAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
-            var model = new WishlistModel();
-            await wishlist.MapAsync(model, !customerGuid.HasValue);
-
-            NotifyInfo(T("Products.SelectProducts"), true);
-
-            return View(model);
+            return numAdded > 0 
+                ? RedirectToRoute("ShoppingCart") 
+                : RedirectToRoute("Wishlist", new { customerGuid });
         }
 
         #endregion
