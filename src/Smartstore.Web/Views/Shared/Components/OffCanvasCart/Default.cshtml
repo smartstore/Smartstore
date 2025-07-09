@@ -10,7 +10,7 @@
 
 <div class="offcanvas-cart-header offcanvas-tabs">
     <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist" aria-label="@T("Aria.Label.OffCanvasCartTab")">
-        <li sm-if="Model.ShoppingCartEnabled" class="nav-item col">
+        <li sm-if="Model.ShoppingCartEnabled" class="nav-item col" role="none">
             <a id="cart-tab" 
                class="nav-link focus-inset" 
                data-toggle="tab" 
@@ -30,7 +30,7 @@
                 </span>
             </a>
         </li>
-        <li sm-if="Model.WishlistEnabled" class="nav-item col">
+        <li sm-if="Model.WishlistEnabled" class="nav-item col" role="none">
             <a id="wishlist-tab" 
                class="nav-link focus-inset" 
                data-toggle="tab" 
@@ -50,7 +50,7 @@
                 </span>
             </a>
         </li>
-        <li sm-if="Model.CompareProductsEnabled" class="nav-item col">
+        <li sm-if="Model.CompareProductsEnabled" class="nav-item col" role="none">
             <a id="compare-tab" 
                class="nav-link focus-inset" 
                data-toggle="tab" 
