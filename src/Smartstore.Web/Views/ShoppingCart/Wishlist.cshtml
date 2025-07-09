@@ -7,12 +7,12 @@
     Assets.AppendTitleParts(T("PageTitle.Wishlist").Value);
     Assets.AddMetaRobots();
 
-    var modelHasItems = Model.Items.Any();
+    var hasItems = Model.Items.Any();
 }
 
 <div class="page wishlist-page">
     <div class="page-title">
-        <h1 class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
+        <h1 id="wishlist-title" class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
     </div>
     <div class="page-body">
         <div class="wishlist-content cart-content" 
@@ -21,16 +21,16 @@
              data-empty-text=@T("Wishlist.CartIsEmpty").JsValue>
             <zone name="wishlist_items_top" />
 
-            @if (modelHasItems)
+            @if (hasItems)
             {
-                <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
+                <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger" role="alert">
                     @foreach (var warning in Model.Warnings)
                     {
                         <p>@Html.Raw(warning)</p>
                     }
                 </div>
 
-                <form asp-route="Wishlist" method="post">
+                <form asp-route="Wishlist" method="post" aria-labelledby="wishlist-title">
                     <div class="cart-container mb-3" role="grid">
                         @* Cart Items *@
                         <div id="cart-items" class="cart cart-editable">
@@ -60,17 +60,17 @@
             }
             else
             {
-                <div class="alert alert-warning fade show">
+                <div class="alert alert-warning fade show" role="alert">
                     @T("Wishlist.CartIsEmpty")
                 </div>
             }
         </div>
 
-        <div sm-if="Model.IsEditable && modelHasItems" class="share-info my-4">
-            <h5 class="share-label mb-1">
-                <i class="far fa-share-square"></i>
-                @T("Wishlist.YourWishlistURL")
-            </h5>
+        <div sm-if="Model.IsEditable && hasItems" class="share-info my-4">
+            <div class="share-label mb-1 h5">
+                <i class="far fa-share-square" aria-hidden="true"></i>
+                <span>@T("Wishlist.YourWishlistURL")</span>
+            </div>
             <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link">
                 @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, Context.Request.IsHttps ? "https" : "http", Context.Request.Host.Value)
             </a>

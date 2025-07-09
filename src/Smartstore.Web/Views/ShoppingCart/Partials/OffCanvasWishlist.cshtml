@@ -33,12 +33,12 @@
             </span>
         </div>
 
-        <div class="offcanvas-cart-items">
+        <div class="offcanvas-cart-items" role="list">
             @foreach (var item in Model.Items)
             {
                 var bundleItemsWithImages = item.ChildItems.Where(x => x.Image.HasImage()).ToArray();
 
-                <div class="offcanvas-cart-item">
+                <div class="offcanvas-cart-item" role="listitem">
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" aria-hidden="true" tabindex="-1">
