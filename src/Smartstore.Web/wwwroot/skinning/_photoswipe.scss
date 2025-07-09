@@ -60,14 +60,15 @@ $pswp__background-color: #fff;
     box-shadow: none;
     color: inherit;
     border-radius: 50%;
+    background: rgba($white, 0.6);
 
     &:hover {
-        background: rgba($black, 0.08);
+        background: rgba($white, 0.8);
         opacity: 0.85 !important;
     }
 
     &:active {
-        background: rgba($black, 0.12);
+        background: #fff;
         outline: none;
         opacity: 1 !important;
     }
@@ -174,19 +175,10 @@ $pswp__background-color: #fff;
 
 .pswp__counter {
     position: relative;
-    width: 80px;
-    height: 40px;
-    font-size: inherit;
-    font-weight: $font-weight-medium;
-    line-height: 40px;
-    color: rgba($black, 0.6);
-    //opacity: 0.75;
-    padding-left: 20px;
 }
 
 .pswp__zoom-controls {
     position: relative;
-    //height: 40px;
 }
 
 
@@ -380,18 +372,6 @@ $pswp__background-color: #fff;
 /* pswp--has_mouse class is added only when two subsequent mousemove events occur */
 .pswp--has_mouse .pswp-arrow { 
     visibility: visible;
-}
-
-.pswp__top-bar,
-.pswp__caption {
-    background-color: rgba($white, 0.5);
-}
-
-/* pswp__ui--fit class is added when main image "fits" between top bar and bottom bar (caption) */
-.pswp__ui--fit {
-    :is(.pswp__top-bar, .pswp__caption) {
-        background-color: rgba($white, 0.3);
-    }
 }
 
 /* pswp__ui--idle class is added when mouse isn't moving for several seconds (JS option timeToIdle) */
