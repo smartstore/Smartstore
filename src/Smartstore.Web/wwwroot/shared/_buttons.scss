@@ -12,10 +12,12 @@ button:where(.reset) {
     // Use with non-.btn buttons. :where(.reset) (instead of .reset) for lower specificity.
     user-select: none;
     background-color: transparent;
-    border: none;
     text-align: center;
+    vertical-align: middle;
     padding: 0;
     margin: 0;
+    border: none;
+    color: inherit;
 }
 
 
