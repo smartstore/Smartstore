@@ -29,7 +29,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",
                 "{0} of {1} products have been added to the shopping cart.",
-                "Es wurden {0} von {1} Produkten in den Warenkorb gelegt.");
+                "{0} von {1} Produkten wurden in den Warenkorb gelegt.");
 
             builder.Delete(
                 "Media.Category.ImageAlternateTextFormat",
