@@ -565,7 +565,7 @@
                             }
                         });
 
-                        var pswp = new PhotoSwipe(pswpEl, PhotoSwipeUI_Default, items, options);
+                        const pswp = new PhotoSwipe(pswpEl, PhotoSwipeUI_Default, items, options);
 
                         pswp.listen('destroy', () => {
                             AccessKitFocusTrap.deactivate();
@@ -576,10 +576,15 @@
                             pswpContainer.one('transitionend', () => {
                                 pswpContainer.removeClass('sliding');
                             });
-                            var idx = pswp.getCurrentIndex();
+
+                            const idx = pswp.getCurrentIndex();
                             if (idx !== self.currentIndex) {
                                 self.goTo(idx);
                             }
+
+                            // WCAG
+                            $(pswp.container).children().aria('hidden', true);
+                            $(pswp.currItem.container).closest('.pswp__item').aria('hidden', false);
                         });
 
                         $(pswpEl).data('pswp', pswp);
