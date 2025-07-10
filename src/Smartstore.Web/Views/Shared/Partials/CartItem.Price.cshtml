@@ -11,7 +11,7 @@
     {
         <div sm-if="priceModel != null" class="pd-promoprice-line">
             <span class="pd-promoprice-label">@(priceModel.Label):</span>
-            <span class="pd-promoprice pl-1">@Html.Raw(priceModel.Price)</span>
+            <data asp-for="@priceModel.Price" class="pd-promoprice pl-1">@Html.Raw(priceModel.Price)</data>
             <button sm-if="priceModel.Description.HasValue()"
                     type="button"
                     class="pd-promoprice-tip popover-trigger reset"
@@ -37,9 +37,9 @@
 
 @* Final single unit price *@
 <div sm-if="showPrice" class="pd-finalprice" attr-class='(Model.Saving.HasSaving, "pd-finalprice-offer")'>
-    <span class="pd-finalprice-amount">
+    <data asp-for="@Model.UnitPrice" class="pd-finalprice-amount">
         @Html.Raw(Model.UnitPrice)
-    </span>
+    </data>
     <span sm-if="Model.CountdownText != null" class="pd-offer-countdown">
         @Html.Raw(Model.CountdownText)
     </span>
@@ -56,23 +56,26 @@
     <div sm-if="showPriceSaving" class="pd-promoprice-line">
         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
         <span class="pd-promosaving pl-1 d-flex">
-            <span>@Model.Saving.SavingAmount.Value</span>
+            <data asp-for="@Model.Saving.SavingAmount.Value">@Model.Saving.SavingAmount.Value</data>
             <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", Model.Saving.SavingPercent.ToString("N0"))</span>
         </span>
     </div>
 </div>
 
-<div sm-if="Model.ShippingSurcharge.HasValue" class="pd-legalinfo">
-    @Html.Raw(Model.ShippingSurcharge.Value)
-</div>
+@if (Model.ShippingSurcharge.HasValue)
+{
+    <data asp-for="@Model.ShippingSurcharge.Value" class="pd-legalinfo">
+        @Html.Raw(Model.ShippingSurcharge.Value)
+    </data>
+}
 
 <div class="pt-2 fs-sm" sm-suppress-if-empty>
     @* Subtotal *@
     <div sm-if="!Model.IsBundlePart && showPrice && Model.UnitPrice != Model.SubTotal" class="pd-subtotal fs-sm">
         <span class="pd-subtotal-label">@T("ShoppingCart.ItemTotal"):</span>
-        <span class="pd-subtotal-amount fwm">
+        <data asp-for="@Model.SubTotal" class="pd-subtotal-amount fwm">
             @Html.Raw(Model.SubTotal)
-        </span>
+        </data>
     </div>
     @* Pangv *@
     <div sm-if="Model.BasePriceInfo.HasValue()" class="pd-pangv lrm">

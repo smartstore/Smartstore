@@ -26,20 +26,16 @@
 
     // V5.1.0+
     var controlSize = GetMetadata<ControlSize?>("size") ?? (large ? ControlSize.Large : ControlSize.Medium);
-
     //var itemId = ViewData["itemId"].Convert<string>();
 
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-
-    var hasAriaLabelInfo = attributes.Any(a => a.Key == "aria-labelledby" || a.Key == "aria-label");
+    if (!attributes.Any(a => a.Key == "aria-labelledby" || a.Key == "aria-label"))
+    {
+        attributes["aria-label"] = T("ShoppingCart.Quantity");
+    }
 }
 
 <div class="qty-input qty-input-@Model.QuantityControlType.ToString().ToLower()">
-    @if (!hasAriaLabelInfo)
-    {
-        <label asp-for="EnteredQuantity" class="sr-only">@T("ShoppingCart.Quantity")</label>
-    }
-
     @if (Model.QuantityControlType == QuantityControlType.Spinner || Model.AllowedQuantities.IsNullOrEmpty())
     {
         <input asp-for="EnteredQuantity"
