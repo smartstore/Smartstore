@@ -227,7 +227,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 }
 
 
-.navbar:is(:hover, :focus-within) > .megamenu-container.show-scroll-buttons .megamenu-nav-btn {
+.navbar:is(#{unquote(":hover, :focus-within")}) > .megamenu-container.show-scroll-buttons .megamenu-nav-btn {
     opacity: 1;
 }
 

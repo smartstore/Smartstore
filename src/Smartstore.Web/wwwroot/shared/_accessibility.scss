@@ -1,6 +1,6 @@
 /// <reference path="references.scss" />
 
-:is(a, button, .form-check-input, [tabindex="0"]):is(:focus-visible) {
+:is(#{unquote("a, button, .form-check-input, [tabindex=0]")}):is(#{unquote(":focus-visible")}) {
     outline: 0;
     box-shadow: $focus-ring-box-shadow;
 }
