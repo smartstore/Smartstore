@@ -497,7 +497,7 @@
                 setTransition(e);
             });
 
-            $(pswpEl).on('mousedown.gal', '.pswp-arrow', (e) => {
+            $(pswpEl).on('mousedown.gal', '.pswp__arrow', (e) => {
                 // Handle arrow left/right click
                 e.stopPropagation();
                 setTransition(e);
@@ -507,7 +507,7 @@
                 pswpContainer.removeClass('sliding');
             });
 
-            $(pswpEl).on('dblclick.gal', '.pswp-arrow', function (e) {
+            $(pswpEl).on('dblclick.gal', '.pswp__arrow', function (e) {
                 // Suppress annoying script exceptions in console 
                 e.stopPropagation();
                 e.preventDefault();
@@ -553,7 +553,7 @@
                         var options = $.extend({}, self.options.zoom, {
                             index: self.currentIndex,
                             showHideOpacity: true,
-                            captionEl: false,
+                            //captionEl: false,
                             shareEl: false,
                             barsSize: { top: 0, bottom: 'auto' },
                             getThumbBoundsFn: (index) => {

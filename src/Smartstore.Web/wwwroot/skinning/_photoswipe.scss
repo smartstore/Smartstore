@@ -4,8 +4,6 @@
 // Photoswipe Theme
 // ------------------------------------------------------
 
-/*! PhotoSwipe Default UI CSS by Dmitry Semenov | photoswipe.com | MIT license */
-
 /*
 
 	Contents:
@@ -37,54 +35,40 @@ $pswp__background-color: #fff;
 
 /* <button> css reset */
 .pswp__button {
+    position: relative;
     display: inline-block;
     @include fontawesome-font("", regular);
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
-    vertical-align: middle;
-    text-align: center;
     line-height: 1;
-    position: relative;
     width: 40px;
     height: 40px;
     font-size: 1rem;
-    background: transparent;
     cursor: pointer;
     overflow: visible;
     appearance: none;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    opacity: 0.75;
     transition: opacity 0.1s ease-in-out, background-color 0.1s ease-in-out;
     box-shadow: none;
-    color: inherit;
     border-radius: 50%;
-    background: rgba($white, 0.6);
+    opacity: 0.8;
+    background: rgba($white, 0.7);
 
     &:hover {
-        background: rgba($white, 0.8);
-        opacity: 0.85 !important;
+        background: var(--gray-200);
+        opacity: 1;
     }
 
     &:active {
-        background: #fff;
+        background: var(--gray-300);
         outline: none;
-        opacity: 1 !important;
+        opacity: 1;
     }
 }
 
-/* pswp__ui--over-close class it added when mouse is over element that should close gallery */
-.pswp__ui--over-close .pswp__button--close {
-    //opacity: 1;
-}
-
 .pswp__button--close {
-    font-family: inherit;
-    font-size: 26px;
-    padding-bottom: 7px;
+    font-size: 20px;
     font-weight: $font-weight-medium;
-    margin-left: 2rem;
+    margin-left: auto;
 }
 
 .pswp__button--fs {
@@ -120,7 +104,7 @@ $pswp__background-color: #fff;
 }
 
 /* no arrows on touch screens */
-.pswp--touch .pswp-arrow {
+.pswp--touch .pswp__arrow {
     visibility: hidden;
 }
 
@@ -129,15 +113,15 @@ $pswp__background-color: #fff;
 	(icon is added to :before pseudo-element)
 */
 
-.pswp-arrow {
+.pswp__arrow {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
     width: 60px;
     height: 60px;
+    margin-top: -30px;
     font-size: 30px;
-    padding: 0;
-    margin-inline: 0.375rem;
+    margin-inline: .5rem;
+    will-change: transform;
 }
 
 .pswp__button--arrow--left {
@@ -159,22 +143,13 @@ $pswp__background-color: #fff;
 
 /*
 
-	2. Share modal/popup and links
-
- */
-
-.pswp__counter {
-    user-select: none;
-}
-
-/*
-
-	3. Index indicator ("1 of X" counter)
+	Index indicator ("1 of X" counter)
 
  */
 
 .pswp__counter {
     position: relative;
+    user-select: none;
 }
 
 .pswp__zoom-controls {
@@ -196,19 +171,17 @@ $pswp__background-color: #fff;
     min-height: 40px;
 
     small {
-        font-size: 11px;
-        color: #bbb;
+        //font-size: 11px;
+        color: var(--gray-600);
     }
 }
 
 .pswp__caption__center {
-    text-align: left;
+    text-align: center;
     max-width: 420px;
     margin: 0 auto;
-    font-size: 13px;
     padding: 10px;
-    line-height: 20px;
-    color: #ccc;
+    color: var(--gray-600);
 }
 
 .pswp__caption--empty {
@@ -240,6 +213,7 @@ $pswp__background-color: #fff;
     transition: opacity 0.25s ease-out;
     will-change: opacity;
     direction: ltr;
+    opacity: 1;
 }
 
 .pswp__preloader__icn {
@@ -292,7 +266,7 @@ $pswp__background-color: #fff;
         box-sizing: border-box;
         width: 14px;
         height: 14px;
-        border: 2px solid #FFF;
+        border: 3px solid #fff;
         border-radius: 50%;
         border-left-color: transparent;
         border-bottom-color: transparent;
@@ -310,6 +284,11 @@ $pswp__background-color: #fff;
         left: auto;
         top: auto;
         margin: 0;
+        margin-left: auto;
+    }
+
+    .pswp__button--close {
+        margin-left: initial;
     }
 }
 
@@ -359,18 +338,22 @@ $pswp__background-color: #fff;
     top: 0;
     //height: 40px;
     width: 100%;
-    padding: .25rem;
+    padding: .375rem .625rem;
+    padding-bottom: 0;
 }
 
 .pswp__caption,
-.pswp__top-bar {
+.pswp__top-bar,
+.pswp__arrow {
     backface-visibility: hidden;
-    will-change: opacity;
-    transition: opacity $pswp__controls-transition-duration cubic-bezier(.4,0,.22,1);
+    will-change: transform;
+    transition-property: transform, opacity;
+    transition-duration: $pswp__controls-transition-duration;
+    transition-timing-function: cubic-bezier(.4,0,.22,1);
 }
 
 /* pswp--has_mouse class is added only when two subsequent mousemove events occur */
-.pswp--has_mouse .pswp-arrow { 
+.pswp--has_mouse .pswp__arrow { 
     visibility: visible;
 }
 
@@ -378,8 +361,20 @@ $pswp__background-color: #fff;
 
 .pswp__ui--idle {
     .pswp__top-bar:not(:focus-within),
-    .pswp-arrow:not(:focus-visible) {
+    .pswp__arrow:not(:focus-visible) {
         opacity: 0;
+    }
+
+    .pswp__top-bar:not(:focus-within) {
+        transform: translateY(-100%);
+    }
+
+    .pswp__button--arrow--left:not(:focus-visible) {
+        transform: translateX(-100%);
+    }
+
+    .pswp__button--arrow--right:not(:focus-visible) {
+        transform: translateX(100%);
     }
 }
 
@@ -388,7 +383,7 @@ $pswp__background-color: #fff;
 	e.g. when user taps to toggle visibility of controls
 */
 .pswp__ui--hidden {
-    :is(.pswp__top-bar, .pswp__caption, .pswp-arrow) {
+    :is(.pswp__top-bar, .pswp__caption, .pswp__arrow) {
         /* Force paint & create composition layer for controls. */
         opacity: 0.001;
     }
@@ -396,7 +391,7 @@ $pswp__background-color: #fff;
 
 /* pswp__ui--one-slide class is added when there is just one item in gallery */
 .pswp__ui--one-slide {
-    :is(.pswp__counter, .pswp-arrow) {
+    :is(.pswp__counter, .pswp__arrow) {
         display: none;
     }
 }

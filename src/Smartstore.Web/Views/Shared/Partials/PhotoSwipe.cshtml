@@ -8,13 +8,12 @@
             <div class="pswp__item"></div>
         </div>
         <div class="pswp__ui pswp__ui--hidden">
-            <div class="pswp__top-bar px-2 hstack">
-                <div class="pswp__counter badge badge-dark mr-2"></div>
-                <div class="pswp__zoom-controls hstack">
-                    <button class="pswp__button pswp-action pswp__button--fs mr-1" title="Toggle fullscreen"></button>
-                    <button class="pswp__button pswp-action pswp__button--zoom" title="Zoom in/out"></button>
+            <div class="pswp__top-bar hstack">
+                <div class="pswp__counter badge badge-dark badge-pill mr-2"></div>
+                <div class="pswp__zoom-controls hstack gap-1">
+                    <button type="button" class="reset pswp__button pswp-action pswp__button--fs" title="Toggle fullscreen"></button>
+                    <button type="button" class="reset pswp__button pswp-action pswp__button--zoom" title="Zoom in/out"></button>
                 </div>
-                <button class="pswp__button pswp__button--close ml-auto" title="Close (Esc)">&#215;</button>
                 <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
                 <!-- element will get class pswp__preloader--active when preloader is running -->
                 <div class="pswp__preloader">
@@ -24,12 +23,14 @@
                         </div>
                     </div>
                 </div>
+                <!-- Close button -->
+                <button type="button" class="reset pswp__button pswp__button--close" title="Close (Esc)">&#215;</button>
             </div>
             @*<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
                     <div class="pswp__share-tooltip"></div>
                 </div>*@
-            <button class="pswp__button pswp-arrow pswp__button--arrow--left" title="Previous (arrow left)"></button>
-            <button class="pswp__button pswp-arrow pswp__button--arrow--right" title="Next (arrow right)"></button>
+            <button type="button" class="reset pswp__button pswp__arrow pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button type="button" class="reset pswp__button pswp__arrow pswp__button--arrow--right" title="Next (arrow right)"></button>
             <div class="pswp__caption">
                 <div class="pswp__caption__center"></div>
             </div>
