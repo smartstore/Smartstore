@@ -35,8 +35,8 @@
             <div class="row cart-container">
                 @* Cart Items *@
                 <div class="col-lg-7 col-xl-8">
-                    <div id="cart-items" class="cart" attr-class='(Model.IsEditable, "cart-editable")' role="table">
-                        <div class="cart-body" role="rowgroup">
+                    <div id="cart-items" class="cart" attr-class='(Model.IsEditable, "cart-editable")'>
+                        <div role="list" class="cart-body">
                             <partial name="CartItems" model="Model" />
                         </div>
                     </div>

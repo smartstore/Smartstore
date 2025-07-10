@@ -15,17 +15,19 @@
 @for (var i = 0; i < bundleItems.Length; i++)
 {
     var item = bundleItems[i];
-    <div class="cart-row cart-row-child"
+    <div role="listitem"
+         aria-label="@T("Aria.Label.BundleContains", item.ProductName)"
+         class="cart-row cart-row-child"
          attr-class='(!item.Active, "cart-item-inactive")'
          data-key="@item.Id" 
          data-parent-key="@item.BundleItem.ParentItemId">
-        <div class="row" role="row">
-            <div sm-if="parentModel.AllowActivatableCartItems && parentModel.IsEditable" class="select-cart-item col-auto invisible" role="cell">
+        <div class="row">
+            <div sm-if="parentModel.AllowActivatableCartItems && parentModel.IsEditable" class="select-cart-item col-auto invisible">
                 <input type="checkbox" class="form-check-input select-cart-item-checkbox" />
             </div>
 
             @* Spacer for image *@
-            <div class="cart-item-img col-3 d-md-flex d-lg-none d-xl-flex text-start" role="cell">
+            <div class="cart-item-img col-3 d-md-flex d-lg-none d-xl-flex text-start">
                 @if (i == 0 && item.BundleItem.Title.HasValue())
                 {
                     <span class="fwm pt-1">@(item.BundleItem.Title):</span>
@@ -35,7 +37,7 @@
                     <span>&nbsp;</span>
                 }
             </div>
-            <div class="cart-item-data col" role="cell">
+            <div class="cart-item-data col">
                 @* Title & Description *@
                 <div class="cart-item-group">
                     <div class="cart-item-title">

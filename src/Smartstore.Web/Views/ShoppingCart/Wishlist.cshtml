@@ -31,10 +31,10 @@
                 </div>
 
                 <form asp-route="Wishlist" method="post" aria-labelledby="wishlist-title">
-                    <div class="cart-container mb-3" role="grid">
+                    <div class="cart-container mb-3">
                         @* Cart Items *@
                         <div id="cart-items" class="cart cart-editable">
-                            <div class="cart-body">
+                            <div role="list" class="cart-body">
                                 <partial name="WishlistItems" model="Model" />
                             </div>
                         </div>
