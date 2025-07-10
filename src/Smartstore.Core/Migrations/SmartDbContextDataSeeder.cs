@@ -34,7 +34,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete(
                 "Media.Category.ImageAlternateTextFormat",
                 "Media.Manufacturer.ImageAlternateTextFormat",
-                "Media.Product.ImageAlternateTextFormat");
+                "Media.Product.ImageAlternateTextFormat",
+                "Common.DecreaseValue",
+                "Common.IncreaseValue");
         }
     }
 }
