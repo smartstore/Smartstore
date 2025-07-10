@@ -8,6 +8,7 @@
   - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
   - Compare products
+  - PhotoSwipe
 
 ### Bugfixes
 
