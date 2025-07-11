@@ -7,10 +7,10 @@
     var returnUrl = Context.Request.Query["returnUrl"].ToString();
 }
 
-<form asp-route="Register" asp-route-returnUrl="@returnUrl" id="register-form" method="post" class="form-horizontal" role="form">
-    <div class="page registration-page">
+<form asp-route="Register" asp-route-returnUrl="@returnUrl" id="register-form" method="post" class="form-horizontal">
+    <div class="page registration-page" role="main" aria-labelledby="page-title">
         <div class="page-title">
-            <h1 class="h3">@T("Account.Register")</h1>
+            <h1 id="page-title" class="h3">@T("Account.Register")</h1>
         </div>
         <div class="page-body row">
             <div class="col-12 col-lg-9 col-xl-8">

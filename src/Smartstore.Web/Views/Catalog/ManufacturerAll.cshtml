@@ -32,9 +32,9 @@
     }
 }
 
-<div class="page manufacturer-list-page">
+<div class="page manufacturer-list-page" role="main" aria-labelledby="page-title">
     <div class="page-title">
-        <h1 id="all-manus-title" class="h2">@T("Manufacturers.List")</h1>
+        <h1 id="page-title" class="h2">@T("Manufacturers.List")</h1>
     </div>
     <div class="page-body">
         <zone name="manufacturers_all_top" />
@@ -60,7 +60,7 @@
             if (numericList.Any())
             {
                 <h2 id="number" class="manufacturer-list-title h4">@T("Catalog.ManufacturerAll.Numbers")</h2>
-                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title number">
+                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="page-title number">
                     @foreach (var item in numericList)
                     {
                         await RenderManufacturer(item);
@@ -71,7 +71,7 @@
             foreach (var manu in groupedManus)
             {
                 <h2 id="@manu.Key" class="manufacturer-list-title h4">@manu.Key</h2>
-                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title @manu.Key">
+                <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="page-title @manu.Key">
                     @foreach (var item in manu)
                     {
                         await RenderManufacturer(item);
@@ -81,7 +81,7 @@
         }
         else
         {
-            <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="all-manus-title">
+            <div role="list" class="artlist artlist-grid artlist-6-cols artlist-boxed manufacturer-grid" aria-labelledby="page-title">
                 @foreach (var item in Model)
                 {
                     await RenderManufacturer(item);

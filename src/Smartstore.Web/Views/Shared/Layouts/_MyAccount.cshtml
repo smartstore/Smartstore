@@ -3,7 +3,7 @@
     Assets.BodyAttributes.AppendCssClass("myaccount-page");
 }
 
-<div class="page page-myaccount page-myaccount-@ViewBag.PageClassToken">
+<div class="page page-myaccount page-myaccount-@ViewBag.PageClassToken" role="main" aria-label="@T("Account.MyAccount")">
     <div class="page-body">
         <div class="row">
             <div class="col-md-4 col-lg-3 d-print-none">
@@ -27,14 +27,12 @@
                     <zone name="myaccount_menu_after" />
                 </div>
             </div>
-            <div class="col-md-8 col-lg-9">
-                <section aria-labelledby="myaccount-header">
-                    <div class="page-title pt-4 pt-md-0">
-                        <h1 id="myaccount-header" class="h3">@ViewBag.PageTitle</h1>
-                    </div>
+            <div class="col-md-8 col-lg-9" role="region" aria-labelledby="myaccount-header">
+                <div class="page-title pt-4 pt-md-0">
+                    <h1 id="myaccount-header" class="h3">@ViewBag.PageTitle</h1>
+                </div>
 
-                    @RenderBody()
-                </section>
+                @RenderBody()
             </div>
         </div>
     </div>

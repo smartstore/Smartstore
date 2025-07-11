@@ -6,14 +6,14 @@
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
 }
 
-<div class="page contact-page">
+<div class="page contact-page" role="main" aria-labelledby="page-title">
     <div class="page-body">
         <zone name="contactus_top"></zone>
 
         <div class="row">
             <div class="col-md-6">
                 <div class="page-title">
-                    <h1 class="h2">@T("PageTitle.ContactUs")</h1>
+                    <h1 id="page-title" class="h2">@T("PageTitle.ContactUs")</h1>
                 </div>
                 @await Component.InvokeAsync("TopicBlock", new { systemName = "ContactUs", isLead = true, bodyOnly = true })
             </div>

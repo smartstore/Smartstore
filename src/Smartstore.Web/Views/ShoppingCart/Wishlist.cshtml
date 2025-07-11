@@ -10,9 +10,9 @@
     var hasItems = Model.Items.Any();
 }
 
-<div class="page wishlist-page">
+<div class="page wishlist-page" role="main" aria-labelledby="page-title">
     <div class="page-title">
-        <h1 id="wishlist-title" class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
+        <h1 id="page-title" class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
     </div>
     <div class="page-body">
         <div class="wishlist-content cart-content" 
@@ -29,11 +29,11 @@
                     }
                 </div>
 
-                <form asp-route="Wishlist" method="post" aria-labelledby="wishlist-title">
+                <form asp-route="Wishlist" method="post" aria-labelledby="page-title">
                     <div class="cart-container mb-3">
                         @* Cart Items *@
                         <div id="cart-items" class="cart cart-editable">
-                            <div role="list" class="cart-body" aria-labelledby="wishlist-title">
+                            <div role="list" class="cart-body" aria-labelledby="page-title">
                                 <partial name="WishlistItems" model="Model" />
                             </div>
                         </div>

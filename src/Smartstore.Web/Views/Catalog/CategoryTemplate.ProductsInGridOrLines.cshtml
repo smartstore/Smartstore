@@ -52,9 +52,9 @@
     <partial name="Search.Filters" model="Model.Products" />
 </widget>
 
-<div class="page category-page">
+<div class="page category-page" role="main" aria-labelledby="page-title">
     <div class="page-title">
-        <h1 sm-language-attributes-for="categoryName" class="h3">
+        <h1 id="page-title" sm-language-attributes-for="categoryName" class="h3">
             @Html.Raw(categoryName)
         </h1>
         @if (Model.SearchResult.TotalHitsCount > 0)
