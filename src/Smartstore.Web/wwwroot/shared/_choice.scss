@@ -209,7 +209,8 @@ label.required,
     }
 }
 
-.choice-box-control-native:checked + .choice-box-label {
+.choice-box-control-native:checked + .choice-box-label,
+.choice-box-control-native:checked + .choice-box-content {
     .choice-box-element {
         border-color: $gray-700;
         box-shadow: inset 0 0 0 2px rgba($white, 1);
