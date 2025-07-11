@@ -12,6 +12,7 @@
 
 ### Bugfixes
 
+- Attribute combination image could not be selected on product edit page.
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
 
