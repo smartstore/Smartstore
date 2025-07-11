@@ -14,9 +14,9 @@ namespace Smartstore.Web.Bundling.Processors
             KnownGlobalNamesList = "$,jQuery,_,Smartstore"
         };
 
-        protected override UglifyResult MinifyCore(AssetContent asset, BundleContext context)
+        protected internal override UglifyResult MinifyCore(string source)
         {
-            return Uglify.Js(asset.Content, Settings);
+            return Uglify.Js(source, Settings);
         }
     }
 }

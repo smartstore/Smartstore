@@ -1,7 +1,6 @@
-﻿using DouglasCrockford.JsMin;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Caching;
-using Smartstore.Utilities;
+using Smartstore.Web.Bundling.Processors;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -62,7 +61,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                 try
                 {
                     // Return the minified JavaScript code
-                    return new JsMinifier().Minify(originalContent);
+                    var minContent = NUglifyJsMinProcessor.Instance.MinifyCore(originalContent);
+                    return minContent.Code;
                 }
                 catch
                 {

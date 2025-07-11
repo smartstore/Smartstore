@@ -14,9 +14,9 @@ namespace Smartstore.Web.Bundling.Processors
             ColorNames = CssColor.Strict
         };
 
-        protected override UglifyResult MinifyCore(AssetContent asset, BundleContext context)
+        protected internal override UglifyResult MinifyCore(string source)
         {
-            return Uglify.Css(asset.Content, Settings);
+            return Uglify.Css(source, Settings);
         }
     }
 }

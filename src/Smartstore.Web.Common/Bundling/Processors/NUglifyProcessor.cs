@@ -22,7 +22,7 @@ namespace Smartstore.Web.Bundling.Processors
 
                 try
                 {
-                    var result = MinifyCore(asset, context);
+                    var result = MinifyCore(asset.Content);
                     var minCode = result.Code;
 
                     if (result.HasErrors)
@@ -45,7 +45,7 @@ namespace Smartstore.Web.Bundling.Processors
             return Task.CompletedTask;
         }
 
-        protected abstract UglifyResult MinifyCore(AssetContent asset, BundleContext context);
+        protected internal abstract UglifyResult MinifyCore(string source);
 
         protected virtual void HandleError(AssetContent asset, string message)
         {
