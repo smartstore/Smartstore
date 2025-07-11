@@ -12,7 +12,7 @@
 @foreach (var item in Model.Items)
 {
     <div role="listitem"
-         aria-labelledby="cart-item-link-@item.Id"
+         aria-label="@item.ItemSummaryLabel"
          class="cart-row" 
          attr-class='(!item.Active, "cart-item-inactive")' 
          data-key="@item.Id" 

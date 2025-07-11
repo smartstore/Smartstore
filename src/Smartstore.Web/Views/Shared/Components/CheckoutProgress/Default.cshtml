@@ -5,28 +5,32 @@
 @{
     // 2:16.6% 3:25% 4:33.3%
     var cols = Model.Count == 4 ? 3 : (Model.Count >= 5 ? 2 : 4);
+    var listLabel = T("Aria.Label.CheckoutProcess");
+    var visitedLabel = T("Aria.Label.CheckoutStep.Visited");
+    var currentStepLabel = T("Aria.Label.CheckoutStep.Current");
+    var pendingStepLabel = T("Aria.Label.CheckoutStep.Pending");
 }
 
 <zone name="checkout_steps_before" />
 
-<nav aria-label="@T("Aria.Label.CheckoutProcess")">
-    <div class="costeps row g-0 mx-auto" role="list">
+<nav aria-label="@listLabel">
+    <div class="costeps row g-0 mx-auto" role="list" aria-label="@listLabel">
         @foreach (var step in Model)
         {
             var isNavigatable = step.Visited || step.Active;
-            var stateLabel = step.Visited ? T("Aria.Label.CheckoutStep.Visited").Value : step.Active 
-                ? T("Aria.Label.CheckoutStep.Current").Value : T("Aria.Label.CheckoutStep.Pending").Value;
+            var stateLabel = step.Visited ? visitedLabel : (step.Active ? currentStepLabel : pendingStepLabel);
+            var itemLabel = $"{step.Label} {stateLabel}";
 
-            <div class="costep col-@cols @step.StateClass" data-step="@step.Name" role="listitem">
+            <div class="costep col-@cols @step.StateClass" data-step="@step.Name" role="listitem" aria-label="@itemLabel">
                 <a class="costep-link"
                    attr-class='(!isNavigatable, "disabled")'
                    attr-aria-disabled='(!isNavigatable, "true")'
                    attr-tabindex='(!isNavigatable, "-1")'
                    attr-aria-current='(step.Active, "step")'
-                   href="@(step.Visited || step.Active ? step.Url : "#")">
+                   href="@(step.Visited || step.Active ? step.Url : "#")"
+                   aria-label="@itemLabel">
                     <i class="costep-icon" aria-hidden="true"></i>
                     <span class="costep-label">@step.Label</span>
-                    <span class="sr-only">@stateLabel</span>
                 </a>
             </div>
         }

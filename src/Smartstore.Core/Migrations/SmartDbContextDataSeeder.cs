@@ -25,6 +25,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.AlphabeticallySortedLinks", "Alphabetically sorted links", "Alphabetisch sortierte Links");
             builder.AddOrUpdate("Aria.Label.BundleContains", "The product set contains {0}", "Das Produktset enthält {0}");
 
+            builder.AddOrUpdate("Aria.Label.CartItemSummary", 
+                "{0} at {1}.",
+                "{0} zu {1}.");
+            builder.AddOrUpdate("Aria.Label.CartItemSummaryWithTotal",
+                "{0} at {1} each. Quantity: {2}. Total: {3}.",
+                "{0} zu je {1}. Menge: {2}. Gesamt: {3}.");
+
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",

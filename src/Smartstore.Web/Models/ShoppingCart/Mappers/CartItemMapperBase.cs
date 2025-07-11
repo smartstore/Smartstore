@@ -190,6 +190,10 @@ namespace Smartstore.Web.Models.Cart
             }
 
             to.Warnings.AddRange(itemWarnings);
+
+            to.ItemSummaryLabel = item.Quantity > 1
+                ? T("Aria.Label.CartItemSummaryWithTotal", to.ProductName, to.Price.UnitPrice.ToString(), item.Quantity, to.Price.SubTotal.ToString())
+                : T("Aria.Label.CartItemSummary", to.ProductName, to.Price.UnitPrice.ToString());
         }
 
         protected async Task MapPriceAsync(OrganizedShoppingCartItem from, TModel to, dynamic parameters = null)

@@ -33,7 +33,7 @@
                     <div class="cart-container mb-3">
                         @* Cart Items *@
                         <div id="cart-items" class="cart cart-editable">
-                            <div role="list" class="cart-body">
+                            <div role="list" class="cart-body" aria-labelledby="wishlist-title">
                                 <partial name="WishlistItems" model="Model" />
                             </div>
                         </div>
@@ -66,11 +66,11 @@
         </div>
 
         <div sm-if="Model.IsEditable && hasItems" class="share-info my-4">
-            <div class="share-label mb-1 h5">
+            <div id="your-wishlist-url" class="share-label mb-1 h5">
                 <i class="far fa-share-square" aria-hidden="true"></i>
                 <span>@T("Wishlist.YourWishlistURL")</span>
             </div>
-            <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link">
+            <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link" aria-labelledby="your-wishlist-url">
                 @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, Context.Request.IsHttps ? "https" : "http", Context.Request.Host.Value)
             </a>
         </div>

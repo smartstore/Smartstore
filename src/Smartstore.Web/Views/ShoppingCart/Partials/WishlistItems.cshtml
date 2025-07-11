@@ -11,7 +11,7 @@
 
 @foreach (var item in Model.Items)
 {
-    <div role="listitem" aria-labelledby="cart-item-link-@item.Id" class="cart-row">
+    <div role="listitem" aria-label="@item.ItemSummaryLabel" class="cart-row">
         <div sm-if="Model.DisplayAddToCart && !Model.IsEditable" class="position-absolute">
             <input type="checkbox" name="addtocart" class="form-check-input" value="@item.Id" aria-labelledby="cart-item-link-@item.Id" />
         </div>

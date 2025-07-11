@@ -67,6 +67,8 @@ namespace Smartstore.Web.Models.Cart
         public BundleItemModel BundleItem { get; set; }
         public bool IsBundleItem
             => BundleItem != null;
+
+        public string ItemSummaryLabel { get; set; }
     }
 
     public partial class BundleItemModel : EntityModelBase

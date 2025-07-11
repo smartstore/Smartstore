@@ -4,12 +4,13 @@
 @model WishlistModel
 
 @{
-    int descMaxLength = Model.ShowProductImages ? 120 : 140;
-    int attrMaxLength = Model.ShowProductImages ? 50 : 70;
+    var descMaxLength = Model.ShowProductImages ? 120 : 140;
+    var attrMaxLength = Model.ShowProductImages ? 50 : 70;
+    var hasItems = Model.Items.Any();
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="!Model.Items.Any()" class="no-items" role="status">
+    <div sm-if="!hasItems" class="no-items" role="status">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyWishlist.Title")
         </h4>
@@ -21,7 +22,7 @@
         </p>
     </div>
 
-    @if (Model.Items.Any())
+    @if (hasItems)
     {
         // Items added in the last 2 seconds are considered to be current
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
@@ -33,12 +34,12 @@
             </span>
         </div>
 
-        <div class="offcanvas-cart-items" role="list">
+        <div class="offcanvas-cart-items" role="list" aria-labelledby="wishlist-tab">
             @foreach (var item in Model.Items)
             {
                 var bundleItemsWithImages = item.ChildItems.Where(x => x.Image.HasImage()).ToArray();
 
-                <div class="offcanvas-cart-item" role="listitem">
+                <div class="offcanvas-cart-item" role="listitem" aria-labelledby="wishlist-item-link-@(item.Id)">
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" aria-hidden="true" tabindex="-1">
@@ -47,8 +48,8 @@
                         </div>
 
                         <div class="col col-data">
-                            <a sm-language-attributes-for="item.ProductName" 
-                               id="wishlist-item-link-@(item.Id)"
+                            <a id="wishlist-item-link-@(item.Id)"
+                               sm-language-attributes-for="item.ProductName" 
                                class="name fwm link-body link-dnu" 
                                href="@item.ProductUrl" 
                                title="@item.ProductName">
@@ -137,7 +138,7 @@
     }    
 </div>
 
-<div sm-if="Model.Items.Any()" class="offcanvas-cart-footer">
+<div sm-if="hasItems" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
         <a class="btn btn-clear btn-block btn-action" asp-route="Wishlist">
             <i class="fa fa-check" aria-hidden="true"></i>

@@ -15,10 +15,10 @@
         </p>
     </div>
 
-    <div sm-if="Model.Items.Count > 0" class="offcanvas-cart-items" role="list">
+    <div sm-if="Model.Items.Count > 0" class="offcanvas-cart-items" role="list" aria-labelledby="compare-tab">
         @foreach (var item in Model.Items)
         {
-            <div class="offcanvas-cart-item" role="listitem">
+            <div class="offcanvas-cart-item" role="listitem" aria-labelledby="cart-item-link-@(item.Id)">
                 <div class="row sm-gutters">
                     <div class="col col-alpha">
                         @if (item.Image != null && item.Image.HasImage())
@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="col col-data">
-                        <a class="name fwm link-body link-dnu" asp-route="Product" asp-route-SeName="@item.SeName" title="@item.Name">
+                        <a id="cart-item-link-@(item.Id)" class="name fwm link-body link-dnu" asp-route="Product" asp-route-SeName="@item.SeName" title="@item.Name">
                             <span sm-language-attributes-for="item.Name">@item.Name</span>
                         </a>
                         @if (item.ShortDescription.HasValue() == true)
