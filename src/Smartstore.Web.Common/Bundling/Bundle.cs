@@ -25,7 +25,7 @@ namespace Smartstore.Web.Bundling
     public class ScriptBundle : Bundle
     {
         public ScriptBundle(string route)
-            : base(route, "application/javascript", ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance)
+            : base(route, "application/javascript", DefaultScriptProcessors)
         {
             ConcatenationToken = ";" + Environment.NewLine;
         }
@@ -38,7 +38,7 @@ namespace Smartstore.Web.Bundling
     public class StyleBundle : Bundle
     {
         public StyleBundle(string route)
-            : base(route, "text/css", SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance)
+            : base(route, "text/css", DefaultStyleProcessors)
         {
         }
     }
@@ -79,8 +79,8 @@ namespace Smartstore.Web.Bundling
 
         public Bundle(string route, string contentType, IFileProvider fileProvider, params IBundleProcessor[] processors)
         {
-            Guard.NotEmpty(route, nameof(route));
-            Guard.NotEmpty(contentType, nameof(contentType));
+            Guard.NotEmpty(route);
+            Guard.NotEmpty(contentType);
 
             Route = ValidateRoute(NormalizeRoute(route));
             ContentType = contentType;
@@ -115,6 +115,16 @@ namespace Smartstore.Web.Bundling
             }
 
             return normalizedRoute;
+        }
+
+        internal static IBundleProcessor[] DefaultScriptProcessors
+        {
+            get => [ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance];
+        }
+
+        internal static IBundleProcessor[] DefaultStyleProcessors
+        {
+            get => [SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance];
         }
 
         #endregion
@@ -342,7 +352,7 @@ namespace Smartstore.Web.Bundling
                 Content = combined?.Content,
                 ContentType = ContentType,
                 FileProvider = context.Files.FirstOrDefault().FileProvider,
-                ProcessorCodes = context.ProcessorCodes.Distinct().ToArray(),
+                ProcessorCodes = [.. context.ProcessorCodes.Distinct()],
                 IncludedFiles = context.IncludedFiles
             };
 
