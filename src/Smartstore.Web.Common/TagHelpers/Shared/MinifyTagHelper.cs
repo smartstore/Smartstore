@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Caching;
+using Smartstore.Utilities;
 using Smartstore.Web.Bundling.Processors;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -29,7 +30,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (!Minify /*|| CommonHelper.IsDevEnvironment*/)
+            if (!Minify || CommonHelper.IsDevEnvironment)
             {
                 // Proceed only if enabled or in release mode
                 return;
