@@ -10,6 +10,10 @@
   - Compare products
   - PhotoSwipe
 
+### Improvements
+
+* Asset Bundling: Replaced `DouglasCrockford.JsMin` with `NUglify`.
+
 ### Bugfixes
 
 - Attribute combination image could not be selected on product edit page.
