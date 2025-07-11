@@ -2,10 +2,10 @@
 
 namespace Smartstore.Web.Bundling.Processors
 {
-    public class JsMinifyProcessor : BundleProcessor
+    public class JsMinProcessor : BundleProcessor
     {
         internal static string JsContentType = "application/javascript";
-        internal static readonly JsMinifyProcessor Instance = new();
+        internal static readonly JsMinProcessor Instance = new();
         private static readonly JsMinifier Minifier = new();
 
         public override string Code => BundleProcessorCodes.Minify;
@@ -26,14 +26,12 @@ namespace Smartstore.Web.Bundling.Processors
 
                 try
                 {
-                    var minResult = MinifyCore(asset, context);
-                    asset.Content = minResult;
+                    asset.Content = MinifyCore(asset, context);
                     context.ProcessorCodes.Add(Code);
                 }
                 catch (Exception ex)
                 {
-                    var nl = Environment.NewLine;
-                    asset.Content = "/* " + nl + ex.ToAllMessages() + " */" + nl + asset.Content;
+                    HandleError(asset, ex.ToAllMessages());
                 }
             }
 
@@ -43,6 +41,11 @@ namespace Smartstore.Web.Bundling.Processors
         protected virtual string MinifyCore(AssetContent asset, BundleContext context)
         {
             return Minifier.Minify(asset.Content);
+        }
+
+        private static void HandleError(AssetContent asset, string message)
+        {
+            asset.Content = "/* JSMIN ERRORS: " + Environment.NewLine + message + " */" + Environment.NewLine + asset.Content;
         }
     }
 }

@@ -9,7 +9,7 @@
             let form = $(this),
                 box = form.find('.instasearch-term'),
                 addon = form.find('.instasearch-addon'),
-                spinner = form.find('.instasearch-progress'),
+                spinner = form.find('.instasearch-progress'), 
                 clearer = form.find('.instasearch-clear');
 
             if (box.length == 0 || box.data('instasearch') === false)
@@ -19,7 +19,7 @@
             // and the 'content' property contains the HTML (convention).
             const target = $(box.data('target'));
 
-            let drop = form.find('.instasearch-drop'),
+            var drop = form.find('.instasearch-drop'),
                 logo = $('.shop-logo'),
                 dropBody = drop.find('.instasearch-drop-body'),
                 minLength = box.data("minlength"),

@@ -61,7 +61,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 try
                 {
-                    // Return the minified the JavaScript code
+                    // Return the minified JavaScript code
                     return new JsMinifier().Minify(originalContent);
                 }
                 catch

@@ -45,7 +45,7 @@ namespace Smartstore.Web.Bundling
     public class DynamicScriptBundle : DynamicBundle
     {
         public DynamicScriptBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "application/javascript", null, JsMinifyProcessor.Instance, ConcatProcessor.Instance)
+            : base(routeTemplate, defaults, "application/javascript", null, ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance)
         {
             ConcatenationToken = ";" + Environment.NewLine;
         }
@@ -57,7 +57,7 @@ namespace Smartstore.Web.Bundling
     public class DynamicStyleBundle : DynamicBundle
     {
         public DynamicStyleBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "text/css", null, SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, AutoprefixerProcessor.Instance)
+            : base(routeTemplate, defaults, "text/css", null, SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance)
         {
         }
     }

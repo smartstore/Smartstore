@@ -25,7 +25,7 @@ namespace Smartstore.Web.Bundling
     public class ScriptBundle : Bundle
     {
         public ScriptBundle(string route)
-            : base(route, "application/javascript", JsMinifyProcessor.Instance, ConcatProcessor.Instance)
+            : base(route, "application/javascript", ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance)
         {
             ConcatenationToken = ";" + Environment.NewLine;
         }
@@ -38,7 +38,7 @@ namespace Smartstore.Web.Bundling
     public class StyleBundle : Bundle
     {
         public StyleBundle(string route)
-            : base(route, "text/css", SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, AutoprefixerProcessor.Instance)
+            : base(route, "text/css", SassProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, NUglifyCssMinProcessor.Instance, AutoprefixerProcessor.Instance)
         {
         }
     }
@@ -304,7 +304,7 @@ namespace Smartstore.Web.Bundling
         /// <returns>The loaded bundle file content.</returns>
         public virtual async Task<AssetContent> LoadContentAsync(BundleFile bundleFile)
         {
-            Guard.NotNull(bundleFile, nameof(bundleFile));
+            Guard.NotNull(bundleFile);
 
             using var stream = bundleFile.File.CreateReadStream();
             var content = await stream.AsStringAsync();
@@ -321,7 +321,7 @@ namespace Smartstore.Web.Bundling
 
         public virtual async Task<BundleResponse> GenerateBundleResponseAsync(BundleContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             foreach (var processor in Processors)
             {
