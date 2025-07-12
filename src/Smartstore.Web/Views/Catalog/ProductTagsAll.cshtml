@@ -7,9 +7,9 @@
     Assets.AppendMetaDescriptionParts(T("PageDescription.AllProductTags", CommonServices.StoreContext.CurrentStore.Name));
 }
 
-<div class="page product-tags-all-page" role="main" aria-labelledby="page-title">
+<div class="page product-tags-all-page">
     <div class="page-title">
-        <h1 id="page-title" class="h2">@T("Products.Tags.All")</h1>
+        <h1 class="h2">@T("Products.Tags.All")</h1>
     </div>
     <div class="page-body">
         <div sm-if="Model.Tags.Count > 0" class="listbox block-body">

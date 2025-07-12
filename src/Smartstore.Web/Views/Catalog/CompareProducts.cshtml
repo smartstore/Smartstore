@@ -28,11 +28,11 @@
     var hasWeight = Model.Items.Any(x => x.Weight.HasValue());
 }
 
-<div class="page compare-products-page" role="main" aria-labelledby="page-title">
+<div class="page compare-products-page">
     <div class="row mb-4 align-items-center">
         <div class="col">
             <div class="heading">
-                <h1 id="page-title" class="heading-title fs-h1">@T("Products.Compare.Title")</h1>
+                <h1 class="heading-title fs-h1">@T("Products.Compare.Title")</h1>
             </div>
         </div>
         <div sm-if="Model.Items.Count > 0" class="col col-auto">

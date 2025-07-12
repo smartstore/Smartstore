@@ -6,11 +6,11 @@
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AppendTitleParts(T("PageTitle.Wishlist").Value);
     Assets.AddMetaRobots();
-
+    
     var hasItems = Model.Items.Any();
 }
 
-<div class="page wishlist-page" role="main" aria-labelledby="page-title">
+<div class="page wishlist-page">
     <div class="page-title">
         <h1 id="page-title" class="mb-0">@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
     </div>
