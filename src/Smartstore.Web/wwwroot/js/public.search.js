@@ -17,7 +17,7 @@
 
             // INFO: if 'data-target' is specified, then JSON response is expected
             // and the 'content' property contains the HTML (convention).
-            const target = $(box.data('target'));
+            var target = $(box.data('target'));
 
             var drop = form.find('.instasearch-drop'),
                 logo = $('.shop-logo'),
