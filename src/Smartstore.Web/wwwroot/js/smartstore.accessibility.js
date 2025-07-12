@@ -44,6 +44,9 @@ class AccessKit {
         // Handle .nav-collapsible aria-expanded attribute on page resize
         this._initCollapsibles();
 
+        // Handle .btn-skip-content button click
+        this._initContentSkipper();
+
         // Generic event handler for collapsibles
         ['expand.ak', 'collapse.ak'].forEach(eventName => {
             document.addEventListener(eventName, (e) => {
@@ -194,6 +197,42 @@ class AccessKit {
 
         $(document).on('hidden.bs.modal', () => {
             AccessKitFocusTrap.deactivate();
+        });
+    }
+
+    _initContentSkipper() {
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('.btn-skip-content');
+            if (!trigger) return;
+
+            e.preventDefault();
+
+            const href = trigger.getAttribute('href') ?? '';
+            let target = null;
+
+            if (href.startsWith('#')) {
+                // Classic Skip‑Link: #id
+                target = document.getElementById(href.slice(1));
+            }
+            else {
+                // Find next element sibling of container
+                let pointer = trigger.parentElement;
+                while (pointer && !pointer.nextElementSibling) {
+                    pointer = pointer.parentElement;
+                }
+                target = pointer?.nextElementSibling ?? null;
+            }
+
+            if (target) {
+                // Remove visual focus
+                trigger.blur();
+                // Make target element focusable
+                //target.setAttribute('tabindex', '-1');
+                // For screenreader
+                target.focus({ preventScroll: true });
+                // Scroll smoothly
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
     }
 }
@@ -418,7 +457,7 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
         if (!trigger) return;
 
         // Determine targets
-        let target = null;
+        var target = null;
         if (trigger.hasAttribute('aria-controls')) {
             target = document.getElementById(trigger.getAttribute('aria-controls'));
         } else if (trigger.nextElementSibling) {
@@ -426,8 +465,8 @@ AK.AccessKitExpandablePluginBase = class AccessKitExpandablePluginBase extends A
             target = trigger.nextElementSibling;
         }
 
-        const isOpen = trigger.getAttribute('aria-expanded') === 'true' || trigger.open === true;
-        const shouldOpen = expand === null ? !isOpen : Boolean(expand);
+        var isOpen = trigger.getAttribute('aria-expanded') === 'true' || trigger.open === true;
+        var shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
         // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
         this.trigger(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
