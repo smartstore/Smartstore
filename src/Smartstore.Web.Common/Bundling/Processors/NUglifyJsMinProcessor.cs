@@ -11,7 +11,8 @@ namespace Smartstore.Web.Bundling.Processors
         {
             MinifyCode = true,
             AmdSupport = true,
-            KnownGlobalNamesList = "$,jQuery,_,Smartstore"
+            ConstStatementsMozilla = true,
+            KnownGlobalNamesList = "$,jQuery,_,Smartstore,Res"
         };
 
         protected internal override UglifyResult MinifyCore(string source)
