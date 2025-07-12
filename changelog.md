@@ -4,6 +4,7 @@
 
 ### WCAG (Web Content Accessibility Guidelines)
 
+- Added **Skip list** button for all product, category, tag, blog and news listings.
 - The following frontend sections have been updated to improve accessibility for screen readers:
   - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
