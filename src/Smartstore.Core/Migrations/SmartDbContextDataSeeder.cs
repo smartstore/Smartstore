@@ -33,6 +33,7 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} zu je {1}. Menge: {2}. Gesamt: {3}.");
 
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
+            builder.AddOrUpdate("Common.SkipList", "Skip list", "Liste überspringen");
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",
                 "{0} of {1} products have been added to the shopping cart.",
