@@ -31,13 +31,13 @@
 
             <section id="content" class="container">
                 <div id="content-body" class="row">
-                    <div id="content-center" class="col-12 text-center">
+                    <main id="content-center" class="col-12 text-center">
                         @{
                             <zone name="main_column_before"></zone>
                             @RenderBody();
                             <zone name="main_column_after"></zone>
                         }
-                    </div>
+                    </main>
                     <zone name="content_after"></zone>
                 </div>
             </section>
