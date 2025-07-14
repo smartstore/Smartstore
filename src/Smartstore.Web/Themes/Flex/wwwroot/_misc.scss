@@ -215,6 +215,8 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 4px;
+    border-width: 0;
+    background-color: transparent;
 
     &:hover {
         background-color: rgba($danger, .2);

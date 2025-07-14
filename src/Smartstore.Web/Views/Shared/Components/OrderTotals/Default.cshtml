@@ -3,13 +3,15 @@
 @model OrderTotalsModel
 
 @{
+    var removeStr = T("Common.Remove");
+    var showLegalHint = Model.ShowConfirmOrderLegalHint && !Model.IsEditable;
     var shippingInfoUrl = Model.RequiresShipping ? await Url.TopicAsync("ShippingInfo", true) : string.Empty;
     var shippingLabelHtml = shippingInfoUrl.HasValue()
         ? $"<a href='javascript:;' data-toggle='modal' data-target='#shipping-info-modal'>{T("ShoppingCart.Totals.Shipping")}</a>:"
         : $"{T("ShoppingCart.Totals.Shipping")}:";
 }
 
-<div sm-if="Model.ShowConfirmOrderLegalHint && !Model.IsEditable" class="alert alert-warning confirm-order-legal-hint">
+<div sm-if="showLegalHint" id="order-legal-hint" class="alert alert-warning confirm-order-legal-hint">
     @T("OrderSummary.ConfirmOrderLegalHint")
 </div>
 
@@ -18,7 +20,9 @@
         data-subtotal-converted="@RoundingHelper.Round(Model.SubTotal).ToStringInvariant()"
         data-subtotal="@(Model.CartSubtotal != null ? RoundingHelper.Round(Model.CartSubtotal.SubtotalWithoutDiscount).ToStringInvariant() : string.Empty)">
         <td class="cart-summary-label">@Html.Raw(Model.SubtotalLabel ?? T("ShoppingCart.Totals.SubTotal")):</td>
-        <td class="cart-summary-value">@Model.SubTotal</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.SubTotal">@Model.SubTotal</data>
+        </td>
     </tr>
     <tr sm-if="Model.DisplayWeight" class="cart-summary-weight">
         <td class="cart-summary-label">@T("ShoppingCart.Weight"):</td>
@@ -29,19 +33,22 @@
     </tr>
     <tr sm-if="Model.SubTotalDiscount != null" class="cart-summary-subtotaldiscount cart-summary-pos">
         <td class="cart-summary-label">
-            @if (Model.AllowRemovingSubTotalDiscount)
-            {
-                <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-                   title="@T("Common.Remove")">
-                    <i class="fa">&times;</i>
-                </a>
-            }
+            <button sm-if="Model.AllowRemovingSubTotalDiscount"
+                    type="button"
+                    data-href="@Url.Action("RemoveDiscountCoupon", "ShoppingCart")"
+                    class="btn-remove remove-discount-button mr-1 ajax-action-link"
+                    title="@removeStr"
+                    aria-label="@removeStr @T("ShoppingCart.Totals.SubTotalDiscount")"
+                    aria-describedby="sr-desc-empty">
+                <i class="fa" aria-hidden="true">&times;</i>
+            </button>
             <span class="text-nowrap">
                 @T("ShoppingCart.Totals.SubTotalDiscount"):
             </span>
         </td>
-        <td class="cart-summary-value">@Model.SubTotalDiscount</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.SubTotalDiscount">@Model.SubTotalDiscount</data>
+        </td>
     </tr>
     <tr class="cart-summary-shipping">
         <td class="cart-summary-label">
@@ -60,9 +67,9 @@
         <td class="cart-summary-value">
             @if (Model.RequiresShipping)
             {
-                if (Model.ShippingTotal.HasValue())
+                if (Model.ShippingTotal != null)
                 {
-                    <span class="cart-summary-neg">@Model.ShippingTotal</span>
+                    <data asp-for="@Model.ShippingTotal" class="cart-summary-neg">@Model.ShippingTotal</data>
                 }
                 else
                 {
@@ -77,7 +84,9 @@
     </tr>
     <tr sm-if="Model.PaymentMethodAdditionalFee != null" class="cart-summary-payfee cart-summary-neg">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.PaymentMethodAdditionalFee"):</td>
-        <td class="cart-summary-value">@Model.PaymentMethodAdditionalFee</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.PaymentMethodAdditionalFee">@Model.PaymentMethodAdditionalFee</data>
+        </td>
     </tr>
     @if (Model.DisplayTaxRates)
     {
@@ -85,76 +94,94 @@
         {
             <tr class="cart-summary-tax">
                 <td class="cart-summary-label">@taxRate.Label:</td>
-                <td class="cart-summary-value">@taxRate.Value</td>
+                <td class="cart-summary-value">
+                    <data asp-for="@taxRate.Value">@taxRate.Value</data>
+                </td>
             </tr>
         }
     }
     <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Tax"):</td>
-        <td class="cart-summary-value">@Model.Tax.ToString(true)</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.Tax">@Model.Tax.ToString(true)</data>
+        </td>
     </tr>
     <tr sm-if="Model.OrderTotalDiscount != decimal.Zero" class="cart-summary-totaldiscount cart-summary-pos">
         <td class="cart-summary-label">
-            @if (Model.AllowRemovingOrderTotalDiscount)
-            {
-                <a href="#" data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-                   title="@T("Common.Remove")">
-                    <i class="fa">&times;</i>
-                </a>
-            }
+            <button sm-if="Model.AllowRemovingOrderTotalDiscount"
+                    type="button"
+                    data-href="@Url.Action("RemoveDiscountCoupon", "ShoppingCart")"
+                    class="btn-remove remove-discount-button mr-1 ajax-action-link"
+                    title="@removeStr"
+                    aria-label="@removeStr @T("ShoppingCart.Totals.OrderTotalDiscount")"
+                    aria-describedby="sr-desc-empty">
+                <i class="fa" aria-hidden="true">&times;</i>
+            </button>
             <span class="text-nowrap">
                 @T("ShoppingCart.Totals.OrderTotalDiscount"):
             </span>
         </td>
-        <td class="cart-summary-value">@Model.OrderTotalDiscount</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.OrderTotalDiscount">@Model.OrderTotalDiscount</data>
+        </td>
     </tr>
     @foreach (var gc in Model.GiftCards)
     {
+        var gcInfo = T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode);
+        var gcRemaining = $"<data value=\"{RoundingHelper.Round(gc.Remaining).ToStringInvariant()}\">{gc.Remaining}</data>";
         <tr class="cart-summary-giftcard">
             <td class="cart-summary-label">
                 <div class="row xs-gutters">
-
                     <div sm-if="Model.IsEditable" class="col col-auto">
-                        <a href="#"
-                           data-href='@Url.Action("RemoveGiftCardCoupon", "ShoppingCart", new { giftCardId = gc.Id })'
-                           class="btn-remove remove-discount-button pretty-link ajax-action-link"
-                           title="@T("Common.Remove")">
-                            <i class="fa">&times;</i>
-                        </a>
+                        <button type="button"
+                                data-href="@Url.Action("RemoveGiftCardCoupon", "ShoppingCart", new { giftCardId = gc.Id })"
+                                class="btn-remove remove-discount-button ajax-action-link"
+                                title="@removeStr"
+                                aria-label="@removeStr @gcInfo"
+                                aria-describedby="sr-desc-empty">
+                            <i class="fa" aria-hidden="true">&times;</i>
+                        </button>
                     </div>
-
                     <div class="col cart-summary-pos">
-                        @Html.Raw(T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode))
-                        <span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
+                        @Html.Raw(gcInfo)
+                        <span class="text-muted text-nowrap small">
+                            @Html.Raw(T("ShoppingCart.Totals.GiftCardInfo.Remaining", gcRemaining))
+                        </span>
                     </div>
                 </div>
             </td>
-            <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
+            <td class="cart-summary-value cart-summary-pos">
+                <data asp-for="@gc.Amount">@gc.Amount</data>
+            </td>
         </tr>
     }
     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.RewardPoints", Model.RedeemedRewardPoints):</td>
-        <td class="cart-summary-value">@Model.RedeemedRewardPointsAmount</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.RedeemedRewardPointsAmount">@Model.RedeemedRewardPointsAmount?.ToString(true)</data>
+        </td>
     </tr>
-    <tr sm-if="Model.CreditBalance.HasValue()" class="cart-summary-credit-balance cart-summary-pos">
+    <tr sm-if="Model.CreditBalance != null" class="cart-summary-credit-balance cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
-        <td class="cart-summary-value">@Model.CreditBalance</td>
+        <td class="cart-summary-value">
+            <data asp-for="@Model.CreditBalance">@Model.CreditBalance?.ToString(true)</data>
+        </td>
     </tr>
-    <tr sm-if="Model.OrderTotalRounding.HasValue" class="cart-summary-totalrounding cart-summary-pos">
+    <tr sm-if="Model.OrderTotalRounding != null" class="cart-summary-totalrounding cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
         <td class="cart-summary-value">
-            <span>@Model.OrderTotalRounding</span>
+            <data asp-for="@Model.OrderTotalRounding">@Model.OrderTotalRounding</data>
         </td>
     </tr>
     <tr id="CartSummaryTotal" class="cart-summary-total"
         data-total-converted="@RoundingHelper.Round(Model.OrderTotal ?? Money.Zero).ToStringInvariant()"
-        data-total="@RoundingHelper.Round(Model.CartTotal?.Total ?? Money.Zero).ToStringInvariant()">
+        data-total="@RoundingHelper.Round(Model.CartTotal?.Total ?? Money.Zero).ToStringInvariant()"
+        attr-aria-describedby='(showLegalHint, "order-legal-hint")'>
         <td class="cart-summary-label">@T("ShoppingCart.Totals.OrderTotal"):</td>
         <td class="cart-summary-value">
             @if (Model.OrderTotal != null)
             {
-                <span>@Model.OrderTotal</span>
+                <data asp-for="@Model.OrderTotal">@Model.OrderTotal</data>
             }
             else
             {

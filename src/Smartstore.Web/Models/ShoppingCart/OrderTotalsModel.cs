@@ -21,8 +21,8 @@ namespace Smartstore.Web.Models.Cart
         public Money OrderTotalDiscount { get; set; }
         public bool AllowRemovingOrderTotalDiscount { get; set; }
         public int RedeemedRewardPoints { get; set; }
-        public string RedeemedRewardPointsAmount { get; set; }
-        public string CreditBalance { get; set; }
+        public Money? RedeemedRewardPointsAmount { get; set; }
+        public Money? CreditBalance { get; set; }
         public Money? OrderTotalRounding { get; set; }
         public Money? OrderTotal { get; set; }
         public decimal Weight { get; set; }
@@ -30,7 +30,7 @@ namespace Smartstore.Web.Models.Cart
         public bool ShowConfirmOrderLegalHint { get; set; }
 
         public bool RequiresShipping { get; set; }
-        public string ShippingTotal { get; set; }
+        public Money? ShippingTotal { get; set; }
         public string SelectedShippingMethod { get; set; }
         public string ShippingCountry { get; set; }
 

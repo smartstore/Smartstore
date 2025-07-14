@@ -75,7 +75,8 @@ namespace Smartstore.Web.Components
             var model = new OrderTotalsModel
             {
                 IsEditable = isEditable,
-                TotalQuantity = cart.GetTotalQuantity()
+                ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint,
+                TotalQuantity = cart.GetTotalQuantity(),
             };
 
             if (!cart.HasItems)
@@ -129,8 +130,7 @@ namespace Smartstore.Web.Components
                 var shipping = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
                 if (shipping.ShippingTotal != null)
                 {
-                    var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shipping.ShippingTotal.Value.Amount, currency);
-                    model.ShippingTotal = shippingTotalConverted.ToString();
+                    model.ShippingTotal = _currencyService.ConvertFromPrimaryCurrency(shipping.ShippingTotal.Value.Amount, currency);
                     model.SelectedShippingMethod = shipping.Option?.Name;
                     model.ShippingCountry = customer.ShippingAddress?.Country?.GetLocalized(x => x.Name);
                 }
@@ -187,7 +187,6 @@ namespace Smartstore.Web.Components
 
             model.Weight = await _shippingService.GetCartTotalWeightAsync(cart);
             model.DisplayWeight = _shoppingCartSettings.ShowWeight;
-            model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (measureWeight != null)
@@ -235,16 +234,14 @@ namespace Smartstore.Web.Components
             // Reward points
             if (cartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
-                var redeemedRewardPointsAmountInCustomerCurrency = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency);
                 model.RedeemedRewardPoints = cartTotal.RedeemedRewardPoints;
-                model.RedeemedRewardPointsAmount = (redeemedRewardPointsAmountInCustomerCurrency * -1).ToString(true);
+                model.RedeemedRewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency) * -1;
             }
 
             // Credit balance.
             if (cartTotal.CreditBalance > decimal.Zero)
             {
-                var convertedCreditBalance = _currencyService.ConvertFromPrimaryCurrency(cartTotal.CreditBalance.Amount, currency);
-                model.CreditBalance = (convertedCreditBalance * -1).ToString(true);
+                model.CreditBalance = _currencyService.ConvertFromPrimaryCurrency(cartTotal.CreditBalance.Amount, currency) * -1;
             }
 
             return View(viewName, model);

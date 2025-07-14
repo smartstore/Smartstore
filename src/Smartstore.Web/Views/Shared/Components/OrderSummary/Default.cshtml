@@ -112,7 +112,7 @@
                 @* Back Button *@
                 <div sm-if="Model.IsEditable" class="col-12 col-md-6 col-lg-7 col-xl-4 col-xxl-3 my-3">
                     <button class="btn btn-secondary btn-lg btn-block btn-continue-shopping" type="submit" name="continueshopping" value="continueshopping">
-                        <i class="fa fa-angle-left mr-3"></i>
+                        <i class="fa fa-angle-left mr-3" aria-hidden="true"></i>
                         <span>@T("ShoppingCart.ContinueShopping")</span>
                     </button>
                 </div>
@@ -129,7 +129,7 @@
     }
     else
     {
-        <div class="alert alert-warning fade show">
+        <div class="alert alert-warning fade show" role="alert">
             @T("ShoppingCart.CartIsEmpty")
         </div>
     }

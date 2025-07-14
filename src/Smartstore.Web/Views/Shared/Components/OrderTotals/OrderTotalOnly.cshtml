@@ -2,13 +2,17 @@
 
 @model OrderTotalsModel
 
-<div class="bottom-order-total">
+@{
+    var showLegalHint = Model.ShowConfirmOrderLegalHint && !Model.IsEditable;
+}
+
+<div class="bottom-order-total" attr-aria-describedby='(showLegalHint, "order-legal-hint")'>
     <zone name="order_totals_before" />
 
     <span class="total-item fs-h5 fwm">@T("ShoppingCart.Totals.OrderTotal"):</span>
     @if (Model.OrderTotal != null)
     {
-        <span class="total-item fs-h5 fwm">@Model.OrderTotal</span>
+        <data asp-for="@Model.OrderTotal" class="total-item fs-h5 fwm">@Model.OrderTotal</data>
     }
     else
     {

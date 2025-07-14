@@ -1016,7 +1016,8 @@ namespace Smartstore.Web.Controllers
                 success = true,
                 cartHtml,
                 totalsHtml,
-                discountHtml
+                discountHtml,
+                message = T("ShoppingCart.DiscountCouponCode.Removed").Value
             });
         }
 
@@ -1117,7 +1118,8 @@ namespace Smartstore.Web.Controllers
             {
                 success = true,
                 totalsHtml,
-                giftCardHtml
+                giftCardHtml,
+                message = T("ShoppingCart.GiftCardCouponCode.Removed").Value
             });
         }
 
