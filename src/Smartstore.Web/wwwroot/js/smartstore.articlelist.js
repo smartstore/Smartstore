@@ -14,7 +14,10 @@
         const numItems = isCarousel ? $list.find('.art').length : list.children.length;
         if (numItems > 3) {
             const $container = isCarousel ? $list.parent() : $list;
-            $container.prepend($(`<a href="javascript:;" class="btn-skip-content btn btn-primary btn-lg rounded-pill">${Res['Common.SkipList']}</a>`));
+            const $btn = $(`<a href="javascript:;" class="btn-skip-content btn btn-primary rounded-pill">${Res['Common.SkipList']}</a>`).prependTo($container);
+            if (!isCarousel) {
+                $btn.wrap('<div class="skip-content-container" role="listitem"></div>');
+            }
         }
 
         if (isGrid) {

@@ -45,7 +45,20 @@
     overflow: visible;
 }
 
+.skip-content-container {
+    position: relative;
+    transform: scale(0);
+    opacity: 0;
+
+    &:focus-within {
+        transform: scale(1);
+        opacity: 1;
+        z-index: 999;
+    }
+}
+
 .btn-skip-content {
+    --btn-padding-x: 1.25rem;
     position: absolute;
     top: 0;
     inset-inline-start: 0;
