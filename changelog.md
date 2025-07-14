@@ -8,7 +8,7 @@
 - The following frontend sections have been updated to improve accessibility for screen readers:
   - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
-  - Compare products
+  - Compare products and wishlist.
   - PhotoSwipe
 
 ### Improvements
