@@ -2,65 +2,71 @@
 
 @model ShoppingCartModel.DiscountBoxModel
 
-@{ 
-	if (!Model.Display)
-	{
-		return;
-	}
+@{
+    if (!Model.Display)
+    {
+        return;
+    }
 
-	var isExpanded = Model.Message.HasValue() || Model.CurrentCode.HasValue();
+    var isExpanded = Model.Message.HasValue() || Model.CurrentCode.HasValue();
+    var discountCodeLabel = T("ShoppingCart.DiscountCouponCode.Tooltip");
 }
 
-<div class="cart-action cart-action-coupon">
-    <div class="cart-action-title h5" 
-         attr-class='(!isExpanded, "collapsed")' 
-         data-toggle="collapse" 
-         data-target="#cart-action-coupon-body" 
-         aria-controls="cart-action-coupon-body" 
-         aria-expanded="@isExpanded.ToString().ToLower()"
-         tabindex="0"
-         role="button">
-		@T("ShoppingCart.DiscountCouponCode")
-	</div>
+<fieldset>
+    <legend class="sr-only">@T("ShoppingCart.DiscountCouponCode")</legend>
+    <div class="cart-action cart-action-coupon">
+        <div class="cart-action-title h5" 
+             attr-class='(!isExpanded, "collapsed")' 
+             data-toggle="collapse" 
+             data-target="#cart-action-coupon-body" 
+             aria-controls="cart-action-coupon-body" 
+             aria-expanded="@isExpanded.ToString().ToLower()"
+             tabindex="0"
+             role="button">
+		    @T("ShoppingCart.DiscountCouponCode")
+	    </div>
         
-    <div class="cart-action-body collapse" id="cart-action-coupon-body" attr-class='(isExpanded, "show")'>
-        @if (Model.Message.HasValue())
-        {
-            <div class="alert d-flex justify-content-between alert-@(Model.IsWarning ? "danger" : "success") fade show">
+        <div id="cart-action-coupon-body" class="cart-action-body collapse" attr-class='(isExpanded, "show")'>
+            <div sm-if="Model.Message.HasValue()" 
+                 class="alert d-flex justify-content-between alert-@(Model.IsWarning ? "danger" : "success") fade show" 
+                 role="alert">
                 <span>@Model.Message</span>
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
             </div>
-        }
 
-        <div class="coupon-code form-group">
-            <div class="input-group">
-                <input name="discountcouponcode"
-                       class="form-control discount-coupon-code"
-                       attr-class='(Model.CurrentCode.HasValue(), "is-valid")'
-                       type="text" 
-                       value="@Model.CurrentCode" 
-                       placeholder="@T("ShoppingCart.DiscountCouponCode.Tooltip")" />
-                <span class="input-group-append">
-                    @if (Model.CurrentCode.IsEmpty())
-                    {
-                        <a href="#"
-                           data-href='@Url.Action("ApplyDiscountCoupon", "ShoppingCart")'
-                           data-post-form="true"
-                           class="btn btn-primary apply-discount-coupon-code-button ajax-action-link">
-                            <i class="fa fa-check"></i>
-                            <span>@T("ShoppingCart.DiscountCouponCode.Button")</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a href="#"
-                           data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-                           class="btn btn-danger remove-discount-button ajax-action-link">
-                            <span>@T("Common.Remove")</span>
-                        </a>
-                    }
-                </span>
+            <div class="coupon-code form-group">
+                <div class="input-group">
+                    <input name="discountcouponcode"
+                           class="form-control discount-coupon-code"
+                           attr-class='(Model.CurrentCode.HasValue(), "is-valid")'
+                           type="text" 
+                           value="@Model.CurrentCode" 
+                           placeholder="@discountCodeLabel"
+                           aria-label="@discountCodeLabel" />
+                    <span class="input-group-append">
+                        @if (Model.CurrentCode.IsEmpty())
+                        {
+                            <button type="button"
+                                    data-href="@Url.Action("ApplyDiscountCoupon", "ShoppingCart")"
+                                    data-post-form="true"
+                                    class="btn btn-primary apply-discount-coupon-code-button ajax-action-link"
+                                    aria-label="@T("ShoppingCart.DiscountCouponCode.Button") @discountCodeLabel">
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                                <span>@T("ShoppingCart.DiscountCouponCode.Button")</span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    data-href="@Url.Action("RemoveDiscountCoupon", "ShoppingCart")"
+                                    class="btn btn-danger remove-discount-button ajax-action-link"
+                                    aria-label="@T("Common.Remove") @discountCodeLabel">
+                                <span>@T("Common.Remove")</span>
+                            </button>
+                        }
+                    </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</fieldset>

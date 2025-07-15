@@ -11,37 +11,41 @@
     var isExpanded = Model.UseRewardPoints;
 }
 
-<div class="cart-action cart-action-rewardpoints">
-    <div class="cart-action-title h5" 
-         attr-class='(!isExpanded, "collapsed")' 
-         data-toggle="collapse" 
-         data-target="#cart-action-rewardpoints-body" 
-         aria-controls="cart-action-rewardpoints-body" 
-         aria-expanded="@isExpanded.ToString().ToLower()"
-         tabindex="0"
-         role="button">
-        @T("ShoppingCart.RewardPoints")
-        <span sm-if="Model.RewardPointsBalance > 0" class="badge badge-pill badge-counter badge-success">@Model.RewardPointsBalance</span>
-    </div>
+<fieldset>
+    <legend class="sr-only">@T("ShoppingCart.RewardPoints")</legend>
+    <div class="cart-action cart-action-rewardpoints">
+        <div class="cart-action-title h5" 
+             attr-class='(!isExpanded, "collapsed")' 
+             data-toggle="collapse" 
+             data-target="#cart-action-rewardpoints-body" 
+             aria-controls="cart-action-rewardpoints-body" 
+             aria-expanded="@isExpanded.ToString().ToLower()"
+             tabindex="0"
+             role="button">
+            @T("ShoppingCart.RewardPoints")
+            <span sm-if="Model.RewardPointsBalance > 0" class="badge badge-pill badge-counter badge-success">@Model.RewardPointsBalance</span>
+        </div>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body">
-        <div class="reward-points alert alert-info">
-            <div class="form-check">
-                <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>                
-                <label asp-for="UseRewardPoints" class="form-check-label"> 
-                    @Html.Raw(T("Checkout.UseRewardPoints", $"<strong>{Model.RewardPointsBalance}</strong>", $"<strong>{Model.RewardPointsAmount}</strong>"))
-                </label>
+        <div id="cart-action-rewardpoints-body" class="cart-action-body collapse" attr-class='(isExpanded, "show")'>
+            <div class="reward-points alert alert-info">
+                <div class="form-check">
+                    <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>                
+                    <label asp-for="UseRewardPoints" class="form-check-label"> 
+                        @Html.Raw(T("Checkout.UseRewardPoints", $"<strong>{Model.RewardPointsBalance}</strong>", $"<strong>{Model.RewardPointsAmount}</strong>"))
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="button"
+                        data-href="@Url.Action("ApplyRewardPoints", "ShoppingCart")"
+                        data-post-form="true"
+                        class="btn btn-primary apply-reward-points-button ajax-action-link"
+                        aria-label="@T("ShoppingCart.RewardPoints.Button") @T("ShoppingCart.RewardPoints")">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                    <span>@T("ShoppingCart.RewardPoints.Button")</span>
+                </button>
             </div>
         </div>
-
-        <div class="form-group">
-            <a href="#"
-               data-href='@Url.Action("ApplyRewardPoints", "ShoppingCart")'
-               data-post-form="true"
-               class="btn btn-primary apply-reward-points-button ajax-action-link">
-                <i class="fa fa-check"></i>
-                <span>@T("ShoppingCart.RewardPoints.Button")</span>
-            </a>
-        </div>
     </div>
-</div>
+</fieldset>

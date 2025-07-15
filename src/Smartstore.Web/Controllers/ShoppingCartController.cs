@@ -1139,12 +1139,14 @@ namespace Smartstore.Web.Controllers
 
             var rewardPointsHtml = await InvokePartialViewAsync("_RewardPointsBox", model.RewardPoints);
             var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+            var message = T(useRewardPoints ? "ShoppingCart.RewardPoints.Applied" : "ShoppingCart.RewardPoints.Removed").Value;
 
             return Json(new
             {
                 success = true,
                 totalsHtml,
-                rewardPointsHtml
+                rewardPointsHtml,
+                message
             });
         }
 

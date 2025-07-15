@@ -9,42 +9,50 @@
 	}
 
 	var isExpanded = Model.Message.HasValue();
+    var gcCodeLabel = T("ShoppingCart.GiftCardCouponCode.Tooltip");
 }
 
-<div class="cart-action cart-action-giftcard">
-	<div class="cart-action-title h5" 
-         attr-class='(!isExpanded, "collapsed")' 
-         data-toggle="collapse" 
-         data-target="#cart-action-giftcard-body" 
-         aria-controls="cart-action-giftcard-body" 
-         aria-expanded="@isExpanded.ToString().ToLower()"
-         tabindex="0"
-         role="button">
-		@T("ShoppingCart.GiftCardCouponCode")
-	</div>
+<fieldset>
+    <legend class="sr-only">@T("ShoppingCart.GiftCardCouponCode")</legend>
+    <div class="cart-action cart-action-giftcard">
+	    <div class="cart-action-title h5" 
+             attr-class='(!isExpanded, "collapsed")' 
+             data-toggle="collapse" 
+             data-target="#cart-action-giftcard-body" 
+             aria-controls="cart-action-giftcard-body" 
+             aria-expanded="@isExpanded.ToString().ToLower()"
+             tabindex="0"
+             role="button">
+		    @T("ShoppingCart.GiftCardCouponCode")
+	    </div>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-giftcard-body">
-        @if (Model.Message.HasValue())
-        {
-            <div class="alert d-flex justify-content-between alert-@(Model.IsWarning ? "danger" : "success") fade show">
+        <div id="cart-action-giftcard-body" class="cart-action-body collapse" attr-class='(isExpanded, "show")'>
+            <div sm-if="Model.Message.HasValue()" 
+                 class="alert d-flex justify-content-between alert-@(Model.IsWarning ? "danger" : "success") fade show"
+                 role="alert">
                 <span>@Model.Message</span>
                 <button type="button" class="btn-close" data-dismiss="alert"></button>
             </div>
-        }
 
-        <div class="coupon-code form-group">
-            <div class="input-group">
-                <input name="giftcardcouponcode" type="text" class="form-control gift-card-coupon-code" placeholder="@T("ShoppingCart.GiftCardCouponCode.Tooltip")" />
-                <span class="input-group-append">
-                    <a href="#"
-                       data-href='@Url.Action("ApplyGiftCardCoupon", "ShoppingCart")'
-                       data-post-form="true"
-                       class="btn btn-primary apply-gift-card-coupon-code-button ajax-action-link">
-                        <i class="fa fa-check"></i>
-                        <span>@T("ShoppingCart.GiftCardCouponCode.Button")</span>
-                    </a>
-                </span>
+            <div class="coupon-code form-group">
+                <div class="input-group">
+                    <input name="giftcardcouponcode" 
+                           type="text" 
+                           class="form-control gift-card-coupon-code"
+                           placeholder="@gcCodeLabel"
+                           aria-label="@gcCodeLabel" />
+                    <span class="input-group-append">
+                        <button type="button"
+                                data-href="@Url.Action("ApplyGiftCardCoupon", "ShoppingCart")"
+                                data-post-form="true"
+                                class="btn btn-primary apply-gift-card-coupon-code-button ajax-action-link"
+                                aria-label="@T("ShoppingCart.GiftCardCouponCode.Button") @gcCodeLabel">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                            <span>@T("ShoppingCart.GiftCardCouponCode.Button")</span>
+                        </button>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</fieldset>
