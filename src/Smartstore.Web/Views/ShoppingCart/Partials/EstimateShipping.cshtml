@@ -1,5 +1,5 @@
-﻿@using Smartstore.Web.Models.Cart;
-@using System.Web;
+﻿@using Smartstore.Web.Models.Cart
+@using System.Web
 
 @model EstimateShippingModel
 
@@ -10,81 +10,85 @@
 	}
 
 	var isExpanded = Model.ShippingOptions.Count > 0 || Model.Warnings.Count > 0;
+    var estimateShippingStr = T("ShoppingCart.EstimateShipping");
 }
 
-<div class="cart-action cart-action-shipping">
-	<div class="cart-action-title h5" 
-         attr-class='(!isExpanded, "collapsed")' 
-         data-toggle="collapse"
-         data-target="#cart-action-shipping-body" 
-         aria-controls="cart-action-shipping-body" 
-         aria-expanded="@isExpanded.ToString().ToLower()"
-         tabindex="0"
-         role="button">
-		 @T("ShoppingCart.EstimateShipping")
-	</div>
+<fieldset aria-describedby="estimate-shipping-info">
+    <legend class="sr-only">@estimateShippingStr</legend>
+    <div class="cart-action cart-action-shipping">
+	    <div class="cart-action-title h5"
+             data-ak-accordion-trigger
+             attr-class='(!isExpanded, "collapsed")' 
+             data-toggle="collapse"
+             data-target="#cart-action-shipping-body" 
+             aria-controls="cart-action-shipping-body" 
+             aria-expanded="@isExpanded.ToString().ToLower()"
+             tabindex="0"
+             role="button">
+            @estimateShippingStr
+	    </div>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body">
-        @if (isExpanded)
-        {
-            <div class="alert @(Model.Warnings.Count > 0 ? "alert-danger" : "alert-success")">
-                @foreach (var warning in Model.Warnings)
-                {
-                    <p role="alert">@warning</p>
-                }
-                @foreach (var shippingOption in Model.ShippingOptions)
-                {
-                    <div class="shipping-option-item mb-1">
-                        <div class="option-name font-weight-medium">
-                            <span class="bidi-embed">@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))</span>
-                            <span class="bidi-embed">(@shippingOption.Price)</span>
+        <div id="cart-action-shipping-body" class="cart-action-body collapse" attr-class='(isExpanded, "show")'>
+            @if (isExpanded)
+            {
+                <div class="alert @(Model.Warnings.Count > 0 ? "alert-danger" : "alert-success")" role="status" aria-live="polite">
+                    @foreach (var warning in Model.Warnings)
+                    {
+                        <p>@warning</p>
+                    }
+                    @foreach (var shippingOption in Model.ShippingOptions)
+                    {
+                        <div class="shipping-option-item mb-1">
+                            <div class="option-name font-weight-medium">
+                                <span class="bidi-embed">@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))</span>
+                                <span class="bidi-embed">(@shippingOption.Price)</span>
+                            </div>
+                            <div class="option-description">
+                                @Html.Raw(shippingOption.Description)
+                            </div>
                         </div>
-                        <div class="option-description">
-                            @Html.Raw(shippingOption.Description)
-                        </div>
+                    }
+
+                    <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted mt-1">
+                        @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
                     </div>
-                }
-
-                <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted mt-1">
-                    @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
                 </div>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-info">
+            }
+            <div id="estimate-shipping-info" class="alert alert-info" attr-class='(isExpanded, "sr-only")'>
                 @T("ShoppingCart.EstimateShipping.Tooltip")
             </div>
-        }
 
-        <div class="shipping-options">
-            <div class="form-group">
-                <label asp-for="CountryId"></label>
-                <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                        class="noskin country-input country-selector"
-                        data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
-                        data-addEmptyStateIfRequired="true"></select>
-                <span asp-validation-for="CountryId"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StateProvinceId"></label>
-                <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="noskin state-input"></select>
-                <span asp-validation-for="StateProvinceId"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ZipPostalCode"></label>
-                <input type="text" asp-for="ZipPostalCode" class="zip-input" />
-                <span asp-validation-for="ZipPostalCode"></span>
-            </div>
-            <div class="form-group">
-                <a href="#"
-                   data-href='@Url.Action("EstimateShipping", "ShoppingCart")'
-                   data-post-form="true"
-                   class="btn btn-warning estimate-shipping-button ajax-action-link">
-                    <span>@T("ShoppingCart.RewardPoints.Button")</span>
-                </a>
+            <div class="shipping-options">
+                <div class="form-group">
+                    <label asp-for="CountryId"></label>
+                    <select asp-for="CountryId" 
+                            asp-items="Model.AvailableCountries"
+                            class="noskin country-input country-selector"
+                            data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                            data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
+                            data-addEmptyStateIfRequired="true"></select>
+                    <span asp-validation-for="CountryId"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StateProvinceId"></label>
+                    <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="noskin state-input"></select>
+                    <span asp-validation-for="StateProvinceId"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ZipPostalCode"></label>
+                    <input type="text" asp-for="ZipPostalCode" class="zip-input" />
+                    <span asp-validation-for="ZipPostalCode"></span>
+                </div>
+                <div class="form-group">
+                    <button type="button"
+                            data-href='@Url.Action("EstimateShipping", "ShoppingCart")'
+                            data-post-form="true"
+                            class="btn btn-warning estimate-shipping-button ajax-action-link"
+                            aria-label="@estimateShippingStr">
+                        <span>@T("ShoppingCart.EstimateShipping.Button")</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</fieldset>

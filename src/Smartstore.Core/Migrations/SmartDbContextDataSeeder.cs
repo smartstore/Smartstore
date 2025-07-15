@@ -29,8 +29,8 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} at {1}.",
                 "{0} zu {1}.");
             builder.AddOrUpdate("Aria.Label.CartItemSummaryWithTotal",
-                "{0} at {1} each. Quantity: {2}. Total: {3}.",
-                "{0} zu je {1}. Menge: {2}. Gesamt: {3}.");
+                "{0} at {1} each, quantity {2}, total {3}.",
+                "{0} zu je {1}, Menge {2}, Gesamt {3}.");
 
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
             builder.AddOrUpdate("Common.SkipList", "Skip list", "Liste überspringen");
