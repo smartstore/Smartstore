@@ -36,7 +36,7 @@
 <div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")">
     @if (canViewProfile)
     {
-        <a class="avatar-link avatar-outer" asp-route="CustomerProfile" asp-route-id="@Model.Id" title="@Model.UserName" aria-label="@Model.UserName">
+        <a class="avatar-link avatar-outer focus-inset" asp-route="CustomerProfile" asp-route-id="@Model.Id" title="@Model.UserName" aria-label="@Model.UserName">
             @{ await Avatar(); }
         </a>
     }
