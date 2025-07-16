@@ -16,6 +16,11 @@
             processBuyButtonClick(e.customerAgreed, e.showThrobber);
         });
 
+        // Let SR initially read the order total summary.
+        $(window).on('load', function () {
+            refreshLiveRegion('sr-order-total-summary');
+        });
+
         // Report error.
         $(document).on('reportError', function (e) {
             if (!_.isEmpty(e.message)) {

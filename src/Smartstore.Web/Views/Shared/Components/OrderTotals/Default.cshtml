@@ -11,11 +11,18 @@
         : $"{T("ShoppingCart.Totals.Shipping")}:";
 }
 
+<div id="sr-order-total-summary" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+    @T("Aria.Label.CartTotalSummary",
+        T(Model.OrderTotal != null ? "ShoppingCart.Totals.OrderTotal" : "ShoppingCart.Totals.SubTotal"),
+        Model.OrderTotal ?? Model.SubTotal,
+        Model.TotalQuantity)
+</div>
+
 <div sm-if="showLegalHint" id="order-legal-hint" class="alert alert-warning confirm-order-legal-hint">
     @T("OrderSummary.ConfirmOrderLegalHint")
 </div>
 
-<table class="cart-summary">
+<table class="cart-summary" aria-labelledby="@(Model.OrderTotal != null ? "CartSummaryTotal" : "CartSummarySubtotal")">
     <tr id="CartSummarySubtotal" class="cart-summary-subtotal"
         data-subtotal-converted="@RoundingHelper.Round(Model.SubTotal).ToStringInvariant()"
         data-subtotal="@(Model.CartSubtotal != null ? RoundingHelper.Round(Model.CartSubtotal.SubtotalWithoutDiscount).ToStringInvariant() : string.Empty)">

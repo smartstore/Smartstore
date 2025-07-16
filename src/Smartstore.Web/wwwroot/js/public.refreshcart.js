@@ -67,6 +67,11 @@ $(function () {
 
     orderSummary.on('change', '.qty-input .form-control', debouncedUpdate);
 
+    // Let SR initially read the order total summary.
+    $(window).on('load', function () {
+        refreshLiveRegion('sr-order-total-summary');
+    });
+
     function updateShoppingCartItems(url, data) {
         if (updatingCart)
             return;
@@ -86,7 +91,7 @@ $(function () {
                 }
 
                 if (response.cartItemCount == 0) {
-                    orderSummary.html('<div class="alert alert-warning fade show">' + orderSummary.data('empty-text') + '</div>');
+                    orderSummary.html('<div class="alert alert-warning fade show" role="alert">' + orderSummary.data('empty-text') + '</div>');
                 }
 
                 var cartBody = $(".cart-body");
@@ -137,6 +142,10 @@ $(function () {
                 var cartRefreshEvent = jQuery.Event('shoppingCartRefresh');
                 cartRefreshEvent.success = response.success;
                 $(document).trigger(cartRefreshEvent);
+
+                if (response.success && response.cartItemCount > 0) {
+                    refreshLiveRegion('sr-order-total-summary');
+                }
             },
             complete: function () {
                 updatingCart = false;
