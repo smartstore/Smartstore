@@ -17,8 +17,8 @@
         });
 
         // Let SR initially read the order total summary.
-        $(window).on('load', function () {
-            refreshLiveRegion('sr-order-total-summary');
+        $(window).on('load', () => {
+            AccessKit.refreshLiveRegion('sr-order-total-summary');
         });
 
         // Report error.

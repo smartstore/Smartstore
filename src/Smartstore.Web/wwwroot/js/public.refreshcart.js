@@ -68,8 +68,8 @@ $(function () {
     orderSummary.on('change', '.qty-input .form-control', debouncedUpdate);
 
     // Let SR initially read the order total summary.
-    $(window).on('load', function () {
-        refreshLiveRegion('sr-order-total-summary');
+    $(window).on('load', () => {
+        AccessKit.refreshLiveRegion('sr-order-total-summary');
     });
 
     function updateShoppingCartItems(url, data) {
@@ -144,7 +144,7 @@ $(function () {
                 $(document).trigger(cartRefreshEvent);
 
                 if (response.success && response.cartItemCount > 0) {
-                    refreshLiveRegion('sr-order-total-summary');
+                    AccessKit.refreshLiveRegion('sr-order-total-summary');
                 }
             },
             complete: function () {

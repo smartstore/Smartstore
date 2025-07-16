@@ -235,6 +235,24 @@ class AccessKit {
             }
         });
     }
+
+    /**
+    * Refreshes the content of a live region to ensure that a screen reader does not skip it.
+    * Required if the live region is updated via AJAX or if its content should be initially read after a page load.
+    * 
+    * @param {string} id  ID of element to update (has role="status" or role="alert")
+    */
+    static refreshLiveRegion(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            const content = el.textContent;
+            if (content.length) {
+                //el.textContent += '\u2060';
+                el.textContent = '';
+                setTimeout(() => { el.textContent = content; }, 50);
+            }
+        }
+    }
 }
 
 // Global namespace
