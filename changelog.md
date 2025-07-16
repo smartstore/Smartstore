@@ -8,7 +8,7 @@
 - The following frontend sections have been updated to improve accessibility for screen readers:
   - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
-  - Compare products and wishlist.
+  - Compare products, wishlist and cart page.
   - PhotoSwipe
 
 ### Improvements
@@ -21,6 +21,7 @@
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
 - MegaMenu: The background image should not overlap the menu item content.
+- After applying a discount code or moving a product to the wish list, deactivated shopping cart products were not displayed.
 
 
 
