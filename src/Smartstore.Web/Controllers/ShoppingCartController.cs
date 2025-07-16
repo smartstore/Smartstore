@@ -676,7 +676,7 @@ namespace Smartstore.Web.Controllers
             if (isCartPage)
             {
                 // Get updated cart
-                cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
+                cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId, null);
                 cartItemCount = cart.Items.Length;
 
                 if (cartType == ShoppingCartType.Wishlist)
@@ -970,13 +970,14 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ApplyDiscountCoupon(ProductVariantQuery query, string discountCouponCode)
         {
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var fullCart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
+            var cart = fullCart.WithActiveItemsOnly();
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
             var (applied, discount) = await _orderCalculationService.ApplyDiscountCouponAsync(cart, discountCouponCode);
             await _db.SaveChangesAsync();
 
-            var model = await cart.MapAsync();
+            var model = await fullCart.MapAsync();
             model.DiscountBox.IsWarning = !applied;
             model.DiscountBox.Message = applied
                 ? T("ShoppingCart.DiscountCouponCode.Applied")
@@ -1004,7 +1005,7 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.DiscountCouponCode = null;
             await _db.SaveChangesAsync();
 
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
             var model = await cart.MapAsync();
 
             var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
