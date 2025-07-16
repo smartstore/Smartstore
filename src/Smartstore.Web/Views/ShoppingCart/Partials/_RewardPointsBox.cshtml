@@ -9,6 +9,7 @@
     }
 
     var isExpanded = Model.UseRewardPoints;
+    var pointsAmountHtml = $"<strong><data value=\"{RoundingHelper.Round(Model.RewardPointsAmount).ToStringInvariant()}\">{Model.RewardPointsAmount.ToString(true)}</data></strong>";
 }
 
 <fieldset>
@@ -30,9 +31,9 @@
         <div id="cart-action-rewardpoints-body" class="cart-action-body collapse" attr-class='(isExpanded, "show")'>
             <div class="reward-points alert alert-info">
                 <div class="form-check">
-                    <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>                
+                    <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>
                     <label asp-for="UseRewardPoints" class="form-check-label"> 
-                        @Html.Raw(T("Checkout.UseRewardPoints", $"<strong>{Model.RewardPointsBalance}</strong>", $"<strong>{Model.RewardPointsAmount}</strong>"))
+                        @Html.Raw(T("Checkout.UseRewardPoints", $"<strong>{Model.RewardPointsBalance}</strong>", pointsAmountHtml))
                     </label>
                 </div>
             </div>

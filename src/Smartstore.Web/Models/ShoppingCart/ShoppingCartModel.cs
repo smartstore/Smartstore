@@ -94,7 +94,7 @@ namespace Smartstore.Web.Models.Cart
         {
             public bool DisplayRewardPoints { get; set; }
             public int RewardPointsBalance { get; set; }
-            public string RewardPointsAmount { get; set; }
+            public Money RewardPointsAmount { get; set; }
             public bool UseRewardPoints { get; set; }
         }
     }
