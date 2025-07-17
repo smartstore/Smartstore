@@ -34,9 +34,9 @@
                 <div class="row card-grid g-3 row-cols-1 row-cols-md-2 row-cols-lg-3 address-list" role="list">
                     @foreach (var item in Model.ExistingAddresses)
                     {
-                        <div class="col">
+                        <div class="col" role="listitem">
                             <div class="card card-body address-list-item">
-                                <div class="address-item" role="listitem">
+                                <div class="address-item">
                                     <button class="btn btn-warning btn-block select-shipping-address-button"
                                             data-url="@Url.Action("SelectShippingAddress", new { addressId = item.Id })"
                                             aria-label="@T("Checkout.ShipToThisAddress"): @(item.FormattedAddress.Replace("<br>", ", ").RemoveHtml())">
@@ -81,7 +81,10 @@
 
             <zone name="checkout_shipping_address_middle" />
 
-            <fieldset id="cnt-add-new-address" class="content-group" attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'>
+            <fieldset id="cnt-add-new-address" 
+                      class="content-group" 
+                      attr-style='(Model.HasAddresses && ViewData.ModelState.IsValid, "display:none")'
+                      aria-labelledby="add-address-button">
                 <legend><span>@T(Model.HasAddresses ? "Checkout.OrEnterNewAddress" : "Checkout.EnterShippingAddress")</span></legend>
                 <div class="enter-address">
                     <div class="enter-address-body">
@@ -90,13 +93,13 @@
 
                     <div class="buttons">
                         <a href="@Model.PreviousStepUrl" class="btn btn-secondary btn-lg">
-                            <i class="fa fa-angle-left"></i>
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
                             <span>@T("Common.Back")</span>
                         </a>
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
                         <button type="button" class="btn btn-primary btn-lg new-address-next-step-button">
                             <span>@T("Checkout.NextButton")</span>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
