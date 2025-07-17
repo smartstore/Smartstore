@@ -1,4 +1,4 @@
-///// <reference path="../lib/bootstrap/scss/bootstrap-reboot.scss" />
+/// <reference path="references.scss" />
 
 // Functions
 // ===============================================
@@ -26,32 +26,37 @@ $scrim-gradient-coords: (
     $stops: ();
 
     @each $colorstop, $alpha in $scrim-gradient-coords {
-        $stop: hsla($hue, $saturation, $lightness, $alpha) calc(#{$colorstop / 100} * var(--cendpos,100%));
+        $stop: hsla(
+                $hue, 
+                $saturation, 
+                $lightness, 
+                $alpha
+            ) 
+            calc(var(--cstartpos, 0%) + (#{$colorstop / 100} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
         $stops: append($stops, $stop, comma);
     }
 
-    @if $radial == true {
-        @return radial-gradient(unquote(#{ $direction }), #{ $stops });
-    }
-    @else {
-        @return linear-gradient(unquote(#{ $direction }), #{ $stops });
-    }   
+    @return if(
+        $radial,
+        radial-gradient(unquote(#{$direction}), #{$stops}),
+        linear-gradient(unquote(#{$direction}), #{$stops})
+    );
 }
 
 @function scrim-gradient-generic($direction: 'to bottom', $radial: false) {
     $stops: ();
 
     @each $colorstop, $alpha in $scrim-gradient-coords {
-        $stop: rgba(var(--cstart-rgb), $alpha) calc(#{$colorstop / 100} * var(--cendpos,100%));
+        $stop: rgba(var(--cstart-rgb), $alpha) 
+            calc(var(--cstartpos, 0%) + (#{$colorstop / 100} * (var(--cendpos, 100%) - var(--cstartpos, 0%))));
         $stops: append($stops, $stop, comma);
     }
 
-    @if $radial == true {
-        @return radial-gradient(unquote(#{ $direction }), #{ $stops });
-    }
-    @else {
-        @return linear-gradient(unquote(#{ $direction }), #{ $stops });
-    }   
+    @return if(
+        $radial,
+        radial-gradient(unquote(#{$direction}), #{$stops}),
+        linear-gradient(unquote(#{$direction}), #{$stops})
+    );
 }
 
 @function color-yiq-ex($color, $text-dark: $yiq-text-dark, $text-light: $yiq-text-light) {
