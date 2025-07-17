@@ -165,6 +165,8 @@
         background: var(--art-active-bg-color);
         border-color: var(--art-active-border-color) !important;
         box-shadow: var(--art-box-shadow);
+        border-end-start-radius: 0 !important;
+        border-end-end-radius: 0 !important;
 
         .sr-toggle-info {
             display: none !important;
@@ -333,6 +335,8 @@
     padding-top: 1px;
     clip-path: inset(0 -20px -20px -20px);
     border-radius: 0 0 var(--art-border-radius) var(--art-border-radius);
+    border: 1px solid transparent;
+    border-top-width: 0;
     opacity: 0;
     visibility: hidden;
     z-index: -1;
@@ -340,6 +344,7 @@
     .art.active & { 
         opacity: 1;
         visibility: visible;
+        border-color: var(--art-active-border-color);
         z-index: $zindex-popover - 1;
     }
 
