@@ -91,7 +91,7 @@
                     tabindex="0"
                     attr-aria-expanded='(widgetInvoker != null, paymentMethod.Selected ? "true" : "false")' 
                     attr-aria-controls='(widgetInvoker != null, "pw-" + paymentMethod.PaymentMethodSystemName)'
-                    aria-describedby="@(paymentMethod.Fee !=  decimal.Zero ? ("payment-fee" + i + " ") : "")shipping-desc-@i">
+                    aria-describedby="@(paymentMethod.Fee !=  decimal.Zero ? ("payment-fee" + i + " ") : "")payment-desc-@i">
                     @if (Model.DisplayPaymentMethodIcons)
                     {
                         <div class="row no-gutters">

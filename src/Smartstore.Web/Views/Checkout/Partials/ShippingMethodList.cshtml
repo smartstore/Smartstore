@@ -7,68 +7,63 @@
 @if (Model.Warnings.Count > 0)
 {
     <div class="alert alert-danger" role="alert">
+        <span class="sr-only">@T("Common.Error"): </span>
         <ul>
             @foreach (var warning in Model.Warnings)
             {
-                <li>
-                    <span class="sr-only">@T("Admin.Common.Errors"): </span>
-                    @warning
-                </li>
+                <li>@warning</li>
             }
         </ul>
     </div>
 }
 else
 {
-    <fieldset role="radiogroup">
+    <fieldset>
         <legend class="sr-only">
             @T("Checkout.SelectShippingMethod")
         </legend>
         <ul class="list-group opt-list shipping-options">
             @for (int i = 0; i < Model.ShippingMethods.Count; i++)
             {
-                var shippingMethod = Model.ShippingMethods[i];
-
-                <li class="list-group-item opt-list-item shipping-option-item" attr-class='(shippingMethod.Selected, "active")'>
+                var shipTo = Model.ShippingMethods[i];
+                var hasFee = shipTo.Fee != decimal.Zero;
+                <li class="list-group-item opt-list-item shipping-option-item" attr-class='(shipTo.Selected, "active")'>
                     <div class="opt-data">
                         <div class="form-check opt-control option-name radio">
                             <input id="shippingoption_@(i)"
                                    type="radio"
                                    name="shippingoption"
                                    class="opt-radio form-check-input"
-                                   attr-checked='(shippingMethod.Selected, "checked")'
-                                   value="@(shippingMethod.ShippingMethodId)___@(shippingMethod.ShippingRateComputationMethodSystemName)"
-                                   aria-describedby="@(shippingMethod.Fee > decimal.Zero ? ("shipping-fee" + shippingMethod.ShippingMethodId + " ") : "")shipping-desc-@shippingMethod.ShippingMethodId" />
+                                   attr-checked='(shipTo.Selected, "checked")'
+                                   value="@(shipTo.ShippingMethodId)___@(shipTo.ShippingRateComputationMethodSystemName)"
+                                   attr-aria-describedby='(hasFee, $"ship-to-fee-{i}")' />
                             <label class="form-check-label" for="shippingoption_@(i)">
-                                <span class="opt-name">@Html.Raw(shippingMethod.Name.HtmlDecode())</span>
+                                <span class="opt-name">@Html.Raw(shipTo.Name.HtmlDecode())</span>
                             </label>
                         </div>
-
-                        <div sm-if="shippingMethod.Fee > decimal.Zero"
-                             id="shipping-fee@(shippingMethod.ShippingMethodId)"
+                        <div sm-if="hasFee"
+                             id="ship-to-fee-@i"
                              class="opt-fee shipping-fee badge badge-danger ml-auto"
                              aria-describedby="footer-legal-info">
-                            @shippingMethod.Fee
+                            <data asp-for="@shipTo.Fee">@shipTo.Fee</data>
                         </div>
                     </div>
 
-                    <div sm-if="shippingMethod.Description.HasValue()"
-                         id="shipping-desc-@shippingMethod.ShippingMethodId"
-                         class="opt-info text-muted shipping-option-description">
-                        @if (shippingMethod.BrandUrl.HasValue())
+                    <div sm-if="shipTo.Description.HasValue()" class="opt-info text-muted shipping-option-description">
+                        @if (shipTo.BrandUrl.HasValue())
                         {
                             <div class="media">
                                 <span class="float-left">
-                                    <img class="media-object img-fluid" src="@Url.Content(shippingMethod.BrandUrl)" alt="@shippingMethod.Name" />
+                                    <img class="media-object img-fluid" src="@Url.Content(shipTo.BrandUrl)" alt="@shipTo.Name" />
                                 </span>
                                 <div class="media-body">
-                                    @Html.Raw(shippingMethod.Description)
+                                    @Html.Raw(shipTo.Description)
                                 </div>
                             </div>
                         }
                         else
                         {
-                            @Html.Raw(shippingMethod.Description);
+                            @Html.Raw(shipTo.Description);
                         }
                     </div>
                 </li>
