@@ -11,7 +11,7 @@
 @Html.HiddenFor(x => x.AcceptThirdPartyEmailHandOver)
 
 <div id="confirm-warnings" class="confirm-order">
-    <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger mb-3">
+    <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger mb-3" role="alert">
         <ul>
             @foreach (var warning in Model.Warnings)
             {
@@ -32,16 +32,16 @@
 
 @if (cart.Items.Any())
 {
-    <div>
+    <section aria-labelledby="confirm-products">
         <div class="row align-items-end mb-2">
             <div class="col">
-                <span class="h5">
+                <span id="confirm-products" class="h5">
                     @Html.Raw(T("ShoppingCart.Products"))
                 </span>
             </div>
             <div class="col col-auto">
                 <a href="@Url.RouteUrl("ShoppingCart")" class="btn btn-secondary btn-sm">
-                    <i class="fa fa-angle-left"></i>
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
                     <span>@T("ShoppingCart.EditCart")</span>
                 </a>
             </div>
@@ -50,15 +50,15 @@
             <partial name="CartWarnings" model="cart.Warnings" />
         </div>
         <div id="cart-items" class="cart">
-            <div role="list" class="cart-body" aria-label="@T("ShoppingCart")" aria-describedby="footer-legal-info">
+            <div role="list" class="cart-body" aria-labelledby="confirm-products" aria-describedby="footer-legal-info">
                 <partial name="CartItems" model="cart" />
             </div>
         </div>
-    </div>
+    </section>
 }
 else
 {
-    <div class="alert alert-warning fade show">
+    <div class="alert alert-warning fade show" role="alert">
         @T("ShoppingCart.CartIsEmpty")
     </div>
 }
@@ -68,7 +68,7 @@ else
         <div class="col col-auto cart-buttons">
             <button type="button" class="btn btn-danger btn-lg @Model.NextStepClass" onclick="return false;">
                 <span>@T("Checkout.ConfirmButton")</span>
-                <i class="fa fa-angle-right"></i>
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
             </button>
         </div>
         <div class="col col-auto">

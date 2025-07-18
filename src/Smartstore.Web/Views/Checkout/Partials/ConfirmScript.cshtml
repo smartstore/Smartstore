@@ -74,6 +74,9 @@
             buyButton.find('.fa')
                 .removeClass('fa-angle-right fa-spinner fa-spin')
                 .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+
+            const busyText = @T("Common.PleaseWait").JsValue;
+            AccessKit.notifyStatus(disable ? busyText : null);
         }
 
         function processBuyButtonClick(customerAgreed, showThrobber) {

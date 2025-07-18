@@ -253,6 +253,25 @@ class AccessKit {
             }
         }
     }
+
+    /**
+    * Informs screen readers of a status, such as "Please wait...".
+    * 
+    * @param {string} message  The message to set.
+    * @param {string} busyId   Optional ID of an element to set "aria-busy=true". Removes "aria-busy" if the message is empty.
+    */
+    static notifyStatus(message, busyId) {
+        const el = document.getElementById('sr-status');
+        if (el) {
+            el.textContent = message || '';
+            if (busyId) {
+                const elBusy = document.getElementById(busyId);
+                if (elBusy) {
+                    message?.length ? elBusy.setAttribute('aria-busy', 'true') : elBusy.removeAttribute('aria-busy');
+                }
+            }
+        }
+    }
 }
 
 // Global namespace

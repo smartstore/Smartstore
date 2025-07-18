@@ -34,9 +34,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Aria.Label.CartTotalSummary",
                 "Your order: {0} {1}, {2} products.",
                 "Ihre Bestellung: {0} {1}, {2} Artikel.");
+            builder.AddOrUpdate("Aria.Label.BuyHint",
+                "By clicking on \"Buy,\" I accept the terms and conditions.",
+                "Mit Klick auf \"Kaufen\" akzeptiere ich die Bedingungen.");
 
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
             builder.AddOrUpdate("Common.SkipList", "Skip list", "Liste überspringen");
+            builder.AddOrUpdate("Common.PleaseWait", "Please wait…", "Bitte warten …");
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",
                 "{0} of {1} products have been added to the shopping cart.",

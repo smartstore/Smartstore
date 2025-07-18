@@ -5,10 +5,11 @@
 
 @{
     var confirmModel = Model as CheckoutConfirmModel;
+    var isConfirm = Model.IsConfirmPage;
     var cart = confirmModel?.ShoppingCart;
 }
 
-<div class="cart-footer@(Model.IsConfirmPage ? string.Empty : " cart-footer-panel")">
+<div class="cart-footer@(isConfirm ? string.Empty : " cart-footer-panel")">
     <div class="row">
         <div class="col-12 cart-footer-group">
             <zone name="order_summary_totals_before" />
@@ -28,16 +29,20 @@
 
         <zone name="order_summary_actions" remove-if-empty="true" replace-content="true">
             <div class="col-12 mt-2 cart-footer-actions">
-                <div sm-if="Model.IsConfirmPage && confirmModel.TermsOfService.HasValue()" class="terms-of-service">@Html.Raw(confirmModel.TermsOfService)</div>
+                <div sm-if="isConfirm && confirmModel.TermsOfService.HasValue()" class="terms-of-service">@Html.Raw(confirmModel.TermsOfService)</div>
 
                 <zone name="order_summary_buttons_before" />
 
                 <div class="cart-buttons">
-                    @if (Model.IsConfirmPage)
+                    @if (isConfirm)
                     {
-                        <button type="button" class="btn btn-danger btn-lg btn-block @Model.NextStepClass" onclick="return false;">
+                        <div id="sr-buy-hint" class="sr-only">@Html.Raw(T("Aria.Label.BuyHint"))</div>
+                        <button type="button" 
+                                class="btn btn-danger btn-lg btn-block @Model.NextStepClass" 
+                                onclick="return false;"
+                                aria-describedby="sr-buy-hint">
                             <span>@T("Checkout.ConfirmButton")</span>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
                         </button>
                     }
                     else
@@ -45,7 +50,7 @@
                         <input type="submit" id="nextstep" name="nextstep" class="d-none" />
                         <button type="button" class="btn btn-primary btn-lg btn-block @Model.NextStepClass" onclick="return false;">
                             <span>@T("Checkout.NextButton")</span>
-                            <i class="fa fa-angle-right"></i>
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
                         </button>
 
                         if (Model.ActionName == CheckoutActionNames.PaymentMethod)
