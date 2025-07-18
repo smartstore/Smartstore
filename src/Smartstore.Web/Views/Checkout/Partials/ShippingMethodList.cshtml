@@ -26,7 +26,7 @@ else
             @for (int i = 0; i < Model.ShippingMethods.Count; i++)
             {
                 var shipTo = Model.ShippingMethods[i];
-                var hasFee = shipTo.Fee != decimal.Zero;
+                var describedBy = (shipTo.Fee != 0 ? $"ship-to-fee-{i}" : null).Grow(shipTo.Description.HasValue() ? $"ship-to-desc-{i}" : null);
                 <li class="list-group-item opt-list-item shipping-option-item" attr-class='(shipTo.Selected, "active")'>
                     <div class="opt-data">
                         <div class="form-check opt-control option-name radio">
@@ -36,12 +36,12 @@ else
                                    class="opt-radio form-check-input"
                                    attr-checked='(shipTo.Selected, "checked")'
                                    value="@(shipTo.ShippingMethodId)___@(shipTo.ShippingRateComputationMethodSystemName)"
-                                   attr-aria-describedby='(hasFee, $"ship-to-fee-{i}")' />
+                                   attr-aria-describedby='(describedBy.HasValue(), describedBy)' />
                             <label class="form-check-label" for="shippingoption_@(i)">
                                 <span class="opt-name">@Html.Raw(shipTo.Name.HtmlDecode())</span>
                             </label>
                         </div>
-                        <div sm-if="hasFee"
+                        <div sm-if="shipTo.Fee != 0"
                              id="ship-to-fee-@i"
                              class="opt-fee shipping-fee badge badge-danger ml-auto"
                              aria-describedby="footer-legal-info">
@@ -54,16 +54,18 @@ else
                         {
                             <div class="media">
                                 <span class="float-left">
-                                    <img class="media-object img-fluid" src="@Url.Content(shipTo.BrandUrl)" alt="@shipTo.Name" />
+                                    <img class="media-object img-fluid" src="@Url.Content(shipTo.BrandUrl)" alt="" />
                                 </span>
-                                <div class="media-body">
+                                <div id="ship-to-desc-@i" class="media-body">
                                     @Html.Raw(shipTo.Description)
                                 </div>
                             </div>
                         }
                         else
                         {
-                            @Html.Raw(shipTo.Description);
+                            <div id="ship-to-desc-@i">
+                                @Html.Raw(shipTo.Description)
+                            </div>
                         }
                     </div>
                 </li>
