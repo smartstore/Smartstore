@@ -1,12 +1,19 @@
-﻿class AccessKit {
-    static #key = null;
-    static #strategies = null;
-    static #plugins = null;
+﻿/**
+* WCAG‑2.2 keyboard navigation framework
+*/
+'use strict';
 
-    #strategies = [];
-    #plugins = new Map();
-    #rtl = document.documentElement.dir === 'rtl';
-    #key = {
+/* --------------------------------------------------
+*  AccessKit core – plugin host + key dispatcher
+* -------------------------------------------------- */
+
+class AccessKit {
+    // Constants
+    static RTL = document.documentElement.dir === 'rtl';
+    static TEXT_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
+    static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
+    static ACTIVE_RADIO_SELECTOR = 'input[type="radio"]:not([disabled])';
+    static KEY = {
         LEFT: 'ArrowLeft',
         UP: 'ArrowUp',
         RIGHT: 'ArrowRight',
@@ -19,50 +26,103 @@
         ENTER: 'Enter'
     };
 
+    // Static fields
+    static #instance = null;
+    static #strategies = [];
+    static #navKeys = null;
+
+    // Instance fields
+    #listening = false;
+
+    static get instance() {
+        if (!this.#instance) throw new Error('AccessKit instance not created yet. Call AccessKit.create() first.');
+        return this.#instance;
+    }
+
+    static get isReady() {
+        return this.#instance !== null;
+    }
+
     static register(strategy) {
-        this.#strategies.push(strategy);
+        if (strategy) this.#strategies.push(strategy);
     }
 
-    constructor() {
-        document.addEventListener('keydown', e => this.onKeyDown(e), true);
-        document.addEventListener('keyup', e => this.onKeyUp(e), true);
+    static create(options) {
+        if (this.#instance) return this.#instance;
+        this.#instance = new this(options);
+
+        const k = AccessKit.KEY;
+        this.#navKeys = new Set([k.TAB,k.UP, k.DOWN, k.LEFT, k.RIGHT, k.HOME, k.END, k.ENTER, k.SPACE, k.ESC]);
+
+        // Add more strategies as needed...
+        return this.#instance;
     }
 
-    isCandidateElement(el) {
-        // ...
-        return false;
+    constructor(options) {
+        this.options = options;
+        this.plugins = new Map();
+
+        document.addEventListener('keydown', this.#onKeyDown, true);
+        document.addEventListener('keyup', this.#onKeyUp, true);
+
+        // Start listening to key events
+        this.startListen();
+    }
+
+    startListen() {
+        this.#listening = true;
+    }
+
+    stopListen() {
+        this.#listening = false;
+    }
+
+    get isListening() {
+        return this.#listening;
+    }
+
+    #isCandidateElement(el) {
+        if (el.tagName == 'TEXTAREA' || el.isContentEditable) {
+            return false;
+        }
+        if (el.tagName == 'INPUT') {
+            return !AccessKit.TEXT_INPUT_TYPES.has(el.type);
+        }
+
+        return el.matches('a,button,[role],[tabindex]');
     };
 
-    isNavKey(key) {
-        //// Exit if no navigational key is pressed.
-        //// TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
-        //if (![AK.KEY.TAB, AK.KEY.UP, AK.KEY.DOWN, AK.KEY.LEFT, AK.KEY.RIGHT, AK.KEY.HOME, AK.KEY.END, AK.KEY.ENTER, AK.KEY.SPACE, AK.KEY.ESC].includes(e.key))
-        //    return;
-
-        return false;
+    static #isNavKey(key) {
+        // Exit if no navigational key is pressed.
+        return this.#navKeys.has(e.key);
     }
 
-    onKeyDown(e) {
+    #onKeyDown(e) {
+        if (!this.#listening) return;
+
         // Skip irrelevant targets immediately.
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
         if (e.key != KEY.ESC) {
-            if (!this.isCandidateElement(t)) return;
+            if (!this.#isCandidateElement(t)) return;
         }
 
-        if (!this.isNavKey(e.key)) return;
+        if (!AccessKit.#isNavKey(e.key)) return;
 
         // Init plugin instance if needed.
-        this.tryCreateInstance(t);
+        this.#tryCreateInstance(t);
 
         // Dispatch event to all already active plugins.
-        this.dispatchKey(e);
+        this.#dispatchKey(e);
     }
 
-    onKeyUp(e) {
+    #onKeyUp(e) {
+        if (!this.#listening) return;
+
+        // ...
     }
 
-    matchStrategy(strategy, target) {
+    #matchStrategy(strategy, target) {
         if (strategy.itemSelector && !target.matches(strategy.itemSelector)) {
             return null;
         }
@@ -70,30 +130,30 @@
         return target.closest(strategy.rootSelector);
     }
 
-    tryCreateInstance(target) {
+    #tryCreateInstance(target) {
         for (const strategy of this.#strategies) {
-            let root = matchStrategy(strategy, target);
+            let root = this.#matchStrategy(strategy, target);
 
             if (!root)
                 continue;
 
-            if (!this.#plugins.has(strategy.name)) {
+            if (!this.plugins.has(strategy.name)) {
                 const instance = new strategy.ctor(strategy);
 
                 // Add the first widget to the instance here already
                 instance.addWidget(root);
 
-                this.#plugins.set(strategy.name, instance);
+                this.plugins.set(strategy.name, instance);
             }
 
             return;
         }
     }
 
-    dispatchKey(e) {
+    #dispatchKey(e) {
         const hook = e.type === 'keydown' ? 'handleKey' : 'handleKeyUp';
 
-        for (const plugin of this.#plugins.values()) {
+        for (const plugin of this.plugins.values()) {
             const handler = plugin[hook];
             // Check whether plugin implements the handler method & if it returns true (handled).
             if (typeof handler === 'function' && handler.call(plugin, e)) {
@@ -214,10 +274,18 @@ class TestRadioGroupPlugin extends TestPluginBase {
     }
 }
 
-AccessKit.register({
-    ctor: TestRadioGroupPlugin.ctor,
-    name: 'radiogroup',
-    rootSelector: '[role="radiogroup"]',
-    itemSelector: 'input[type="radio"]:not([disabled])',
-    // More stuff, e.g. match() ??
-});
+// Boot
+(function () {
+    // Register default strategies
+    AccessKit.register({
+        ctor: TestRadioGroupPlugin.ctor,
+        name: 'radiogroup',
+        rootSelector: '[role="radiogroup"]',
+        itemSelector: 'input[type="radio"]:not([disabled])',
+        // More stuff, e.g. match() ??
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        window.AK = AccessKit.create(window.AccessKitOptions || {});
+    });
+})();
