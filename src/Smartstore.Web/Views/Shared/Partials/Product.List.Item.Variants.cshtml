@@ -10,18 +10,15 @@
 <div class="art-variant-info">
     @if (numColorAttributes > 0)
     {
-        <nav aria-orientation="horizontal" aria-label="@Model.ColorAttributes[0].AttributeName">
-            <ul class="art-color-opts list-unstyled d-flex m-0 p-0">
-            @foreach (var clr in Model.ColorAttributes)
-            {
-                var title = T("Products.ChooseColorX", clr.FriendlyName, clr.AttributeName);
-                <li>
-                    <a href="@clr.ProductUrl" class="art-color-opt" style="background-color: @clr.Color" aria-label="@title" title="@title">
-                        <span class="sr-only">@clr.FriendlyName</span>
-                    </a>
-                </li>
-            }
-            </ul>
+        @* INFO: (mg) Without proper roles, AccessKit won't kick in to enable arrow key navigation *@
+        <nav class="art-color-opts" role="listbox" aria-orientation="horizontal" aria-label="@Model.ColorAttributes[0].AttributeName">
+        @foreach (var clr in Model.ColorAttributes)
+        {
+            var title = T("Products.ChooseColorX", clr.FriendlyName, clr.AttributeName);
+            <a href="@clr.ProductUrl" class="art-color-opt" style="background-color: @clr.Color" role="option" aria-label="@title" title="@title">
+                <span class="sr-only">@clr.FriendlyName</span>
+            </a>
+        }
         </nav>
     }
     <div sm-if="Model.Attributes.Count > 0" class="art-more-opts">

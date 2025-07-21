@@ -13,7 +13,7 @@
         {
             if (_catalogSettings.LinkManufacturerLogoInLists)
             {
-                <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" aria-label="@image.Title">
+                <a asp-route="Manufacturer" asp-route-SeName="@Model.Brand.SeName" class="art-brand-link d-inline-block" aria-label="@image.Title">
                     <img sm-model="image" class="art-brand-picture" />
                 </a>
             }
