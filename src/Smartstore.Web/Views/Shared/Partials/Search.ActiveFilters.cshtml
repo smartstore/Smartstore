@@ -37,28 +37,34 @@
 {
     Assets.BodyAttributes.AppendCssClass("has-active-filter");
 
-    <div class="active-filters-container">
-        <div class="list-unstyled active-filters hstack flex-wrap gap-1 small">
+    <nav class="active-filters-container" aria-label="@T("Aria.Label.ActiveFilters")">
+        <ul class="list-unstyled active-filters hstack flex-wrap gap-1 small">
             @foreach (var filter in activeFilters)
             {
-                <div class="active-filter-item" data-key="@filter.Key" data-group="@filter.FacetGroup.Key">
-                    <a class="badge badge-light badge-lg active-filter-link" href='@Url.FacetRemove(filter)' title="@T("Search.Facet.RemoveFilter", filter.FacetGroup.Label, filter.Value.Label)">
-                        <span class="active-filter-label">@(filter.Value.Label ?? filter.Value.ToString())</span>
+                var label = T("Search.Facet.RemoveFilter", filter.FacetGroup.Label, filter.Value.Label);
+                <li class="active-filter-item" data-key="@filter.Key" data-group="@filter.FacetGroup.Key">
+                    <a class="badge badge-light badge-lg active-filter-link" 
+                       href="@Url.FacetRemove(filter)" 
+                       title="@label"
+                       aria-label="@label">
+                        <span class="active-filter-label" aria-hidden="true">@(filter.Value.Label ?? filter.Value.ToString())</span>
                     </a>
-                </div>
+                </li>
             }
-            <div class="vr text-body-tertiary"></div>
-            <div class="active-filter-item active-filter-item-clear">
-                <a class="badge badge-danger badge-lg active-filter-link" href='@Url.FacetRemove(activeFilters)'>
-                    <span class="active-filter-label fwm">@T("Search.Facet.RemoveAllFilters")</span>
+            <li class="vr text-body-tertiary" aria-hidden="true" role="none"></li>
+            <li class="active-filter-item active-filter-item-clear">
+                @* INFO: Explicit aria-label let SR ignore the CSS content "x". *@
+                <a class="badge badge-danger badge-lg active-filter-link" 
+                   href="@Url.FacetRemove(activeFilters)"
+                   aria-label="@T("Search.Facet.RemoveAllFilters")">
+                    <span class="active-filter-label fwm" aria-hidden="true">@T("Search.Facet.RemoveAllFilters")</span>
                 </a>
-            </div>
-        </div>
+            </li>
+        </ul>
+    </nav>
+    <div sm-if="Model.TotalHitsCount == 0" class="alert alert-warning" role="alert">
+        @T("Search.FilterNoResultsText")
     </div>
 }
-
-<div sm-if="activeFilters.Length > 0 && Model.TotalHitsCount == 0" class="alert alert-warning">
-    @T("Search.FilterNoResultsText")
-</div>
 
 <zone name="active_filters_after" />

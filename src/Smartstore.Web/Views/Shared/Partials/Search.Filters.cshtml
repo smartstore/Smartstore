@@ -86,7 +86,10 @@
                     }
                     @if (selectedCount > 0)
                     {
-                        <a href="@Url.FacetRemove(selectedFilters)" class="btn-remove-group-filters">
+                        <a id="facet-group-remove-@key"
+                           href="@Url.FacetRemove(selectedFilters)" 
+                           class="btn-remove-group-filters"
+                           aria-labelledby="facet-group-remove-@key facet-group-header-@key">
                             @T("Search.Facet.RemoveGroupFilters")
                         </a>
                     }

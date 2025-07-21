@@ -24,6 +24,7 @@ namespace Smartstore.Core.Data.Migrations
         {
             builder.AddOrUpdate("Aria.Label.AlphabeticallySortedLinks", "Alphabetically sorted links", "Alphabetisch sortierte Links");
             builder.AddOrUpdate("Aria.Label.BundleContains", "The product set contains {0}", "Das Produktset enthält {0}");
+            builder.AddOrUpdate("Aria.Label.ActiveFilters", "Active filters", "Aktive Filter");
 
             builder.AddOrUpdate("Aria.Label.CartItemSummary", 
                 "{0} at {1}.",
@@ -70,6 +71,9 @@ namespace Smartstore.Core.Data.Migrations
 
             // Resource value was a bit off.
             builder.AddOrUpdate("ShoppingCart.DiscountCouponCode.Tooltip", "Your discount code", "Ihr Rabattcode");
+
+            // Replace problematic "&amp;gt;".
+            builder.AddOrUpdate("Search.Facet.RemoveFilter", "Remove filter: {0} \"{1}\"", "Filter aufheben: {0} \"{1}\"");
         }
     }
 }
