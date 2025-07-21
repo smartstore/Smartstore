@@ -3,30 +3,23 @@
 @model ProductSummaryItemModel
 
 @{
-    var list = Model.Parent;
-    string reviewTitle = string.Empty;
-    string srText = string.Empty;
-    int ratingPercent = 0;
-    int rating = 0;
+    var ratingPercent = 0;
+    LocalizedString label;
 
     if (Model.TotalReviews != 0)
     {
         ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
-        rating = Model.RatingSum / Model.TotalReviews;
-        reviewTitle = $"{Model.TotalReviews} {(Model.TotalReviews == 1 ? T("Reviews.Overview.Review") : T("Reviews.Overview.Reviews"))}";
-        srText = T("Aria.Label.Rating", rating, reviewTitle);
+        label = T(Model.TotalReviews == 1 ? "Reviews.Overview.Review" : "Reviews.Overview.Reviews", Model.RatingSum / Model.TotalReviews, Model.TotalReviews);
     }
     else
     {
-        reviewTitle = T("Reviews.Overview.NoReviews");
-        srText = reviewTitle;
+        label = T("Reviews.Overview.NoReviews");
     }
 }
 
-<p class="sr-only">@srText</p>
-
-<div class="art-rating" title="@reviewTitle" aria-hidden="true">
-    <div class="rating">
+<div class="art-rating" role="img" title="@label" aria-label="@label">
+    <div class="rating" aria-hidden="true">
         <div style="width: @(ratingPercent)%"></div>
     </div>
+    <span class="sr-only">@label</span>
 </div>

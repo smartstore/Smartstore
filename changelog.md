@@ -6,9 +6,11 @@
 
 - Added **Skip list** button for all product, category, tag, blog and news listings.
 - The following frontend sections have been updated to improve accessibility for screen readers:
-  - "All manufacturers" page.
   - Homepage products, categories, brands and product tags.
   - Compare products, wishlist and cart page.
+  - Checkout process.
+  - Product lists.
+  - "All manufacturers" page.
   - PhotoSwipe
 
 ### Improvements

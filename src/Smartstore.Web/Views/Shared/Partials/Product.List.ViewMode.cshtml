@@ -17,6 +17,7 @@
            data-toggle="tooltip"
            role="radio" 
            aria-checked="@(isGrid ? "true" : "false")" 
+           attr-aria-current='(isGrid, "page")'
            aria-label="@resSwitchToGrid">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-grid" attr-checked='(isGrid, "checked")' aria-hidden="true" tabindex="-1" />
             <i class="fa fa-grip" aria-hidden="true"></i>
@@ -28,6 +29,7 @@
            title="@resSwitchToList" data-toggle="tooltip"
            role="radio" 
            aria-checked="@(!isGrid ? "true" : "false")" 
+           attr-aria-current='(!isGrid, "page")'
            aria-label="@resSwitchToList">
             <input type="radio" name="artlist-viewmode" id="artlist-viewmode-list" attr-checked='(!isGrid, "checked")' aria-hidden="true" tabindex="-1" />
             <i class="fa fa-list" aria-hidden="true"></i>

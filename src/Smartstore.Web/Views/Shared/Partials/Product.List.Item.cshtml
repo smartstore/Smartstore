@@ -90,15 +90,15 @@
 
     <table sm-if="showAttrs" class="art-attrs">
         <tr sm-if="list.ShowSku && Model.Sku.HasValue()">
-            <td>@T("Products.Sku")</td>
+            <th scope="row">@T("Products.Sku")</th>
             <td>@Model.Sku</td>
         </tr>
         <tr sm-if="list.ShowWeight && Model.Weight.HasValue()">
-            <td>@T("Products.Weight")</td>
+            <th scope="row">@T("Products.Weight")</th>
             <td>@Model.Weight</td>
         </tr>
         <tr sm-if="list.ShowDimensions && Model.Dimensions.HasValue()">
-            <td>@T("Products.Dimensions") <span class="lrm">(@Model.DimensionMeasureUnit)</span></td>
+            <th scope="row">@T("Products.Dimensions") <span class="lrm">(@Model.DimensionMeasureUnit)</span></th>
             <td>@Model.Dimensions</td>
         </tr>
     </table>

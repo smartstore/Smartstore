@@ -27,7 +27,6 @@ namespace Smartstore.Web.Models.Common
         public string CommentTitle { get; set; }
         public string CommentText { get; set; }
         public DateTime CreatedOn { get; set; }
-        public string CreatedOnPretty { get; set; }
         public bool AllowViewingProfiles { get; set; }
         public CustomerAvatarModel Avatar { get; set; } = new();
 

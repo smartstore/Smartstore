@@ -33,7 +33,7 @@
             {
                 <span class="art-compareprice-label">@(priceModel.Label):</span>
             }
-            <span class="art-compareprice-value">@priceModel.Price</span>
+            <data asp-for="@priceModel.Price" class="art-compareprice-value">@priceModel.Price</data>
         </span>
     }
 }
@@ -41,9 +41,12 @@
 <div class="art-price-block">
     <span class="@artPriceClass">
         <span class="art-finalprice">
-            <span sm-if="price.HasCalculation" class="art-price-value">
-                @Html.Raw(price.FinalPrice)
-            </span>
+            @if (price.HasCalculation)
+            {
+                <data asp-for="@price.FinalPrice" class="art-price-value">
+                    @Html.Raw(price.FinalPrice)
+                </data>
+            }
         </span>
 
         @* Compare prices *@
@@ -63,21 +66,17 @@
             @* You save *@
             <span sm-if="showPriceSaving" class="art-compareprice">
                 <span class="art-compareprice-label">@T("ShoppingCart.ItemYouSave"):</span>
-                <span class="art-saving">@price.Saving.SavingAmount.Value</span>
+                <data asp-for="@price.Saving.SavingAmount" class="art-saving">@price.Saving.SavingAmount.Value</data>
             </span>
         </span>
     </span>
 
     <div sm-if="list.ShowShippingSurcharge && price.ShippingSurcharge.HasValue" class="art-shipsurcharge">
-        @price.ShippingSurcharge.Value
+        <data asp-for="@price.ShippingSurcharge">@price.ShippingSurcharge.Value</data>
     </div>
-
-    @if (list.ShowBasePrice && price.BasePriceInfo.HasValue())
-    {
-        <div class="art-pangv" title="@price.BasePriceInfo">
-            @Html.Raw(LocalizedValue.FixBrackets(price.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
-        </div>
-    }
+    <div sm-if="list.ShowBasePrice && price.BasePriceInfo.HasValue()" class="art-pangv" title="@price.BasePriceInfo">
+        @Html.Raw(LocalizedValue.FixBrackets(price.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
+    </div>
 </div>
 
 <zone name="productbox_add_info" />

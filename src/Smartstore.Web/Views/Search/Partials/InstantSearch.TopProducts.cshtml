@@ -13,7 +13,7 @@
             <a class="instasearch-hit" asp-route="Product" asp-route-SeName="@hit.SeName" asp-area="">
                 <span class="instasearch-hit-wrapper">
                     <span sm-if="hasThumbs && hit.Image?.File != null" class="instasearch-hit-thumb d-block">
-                        <img sm-model="@hit.Image" class="img-fluid" alt="" role="presentation" />
+                        <img sm-model="@hit.Image" class="img-fluid" alt="" role="none" />
                     </span>
                     <span class="d-block text-truncate">
                         <span class="d-block text-truncate" sm-language-attributes-for="hit.Name">

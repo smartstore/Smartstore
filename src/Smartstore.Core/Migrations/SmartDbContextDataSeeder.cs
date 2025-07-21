@@ -38,9 +38,18 @@ namespace Smartstore.Core.Data.Migrations
                 "By clicking on \"Buy,\" I accept the terms and conditions.",
                 "Mit Klick auf \"Kaufen\" akzeptiere ich die Bedingungen.");
 
+            builder.AddOrUpdate("Reviews.Overview.Review",
+                "Rating: {0} out of 5 stars. {1} review.", 
+                "Bewertung: {0} von 5 Sternen. {1} Bewertung.");
+            builder.AddOrUpdate("Reviews.Overview.Reviews",
+                "Rating: {0} out of 5 stars. {1} reviews.",
+                "Bewertung: {0} von 5 Sternen. {1} Bewertungen.");
+
+            builder.AddOrUpdate("Aria.Label.PaginatorItemsPerPage", "Results per page", "Ergebnisse pro Seite");
+
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
             builder.AddOrUpdate("Common.SkipList", "Skip list", "Liste überspringen");
-            builder.AddOrUpdate("Common.PleaseWait", "Please wait…", "Bitte warten …");
+            builder.AddOrUpdate("Common.PleaseWait", "Please wait…", "Bitte warten…");
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",
                 "{0} of {1} products have been added to the shopping cart.",
@@ -51,7 +60,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Media.Manufacturer.ImageAlternateTextFormat",
                 "Media.Product.ImageAlternateTextFormat",
                 "Common.DecreaseValue",
-                "Common.IncreaseValue");
+                "Common.IncreaseValue",
+                "Aria.Label.Rating");
 
             builder.AddOrUpdate("ShoppingCart.DiscountCouponCode.Removed", "The discount code has been removed", "Der Rabattcode wurde entfernt");
             builder.AddOrUpdate("ShoppingCart.GiftCardCouponCode.Removed", "The gift card code has been removed", "Der Geschenkgutschein wurde entfernt");

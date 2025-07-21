@@ -44,19 +44,19 @@
     </div>
 
     <div class="page-body">
-        <div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning">
+        <div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning" role="alert">
             @Html.Raw(T("Search.TermCorrectedHint", $"<strong>{encodedTerm}</strong>", $"<strong>{encodedAttemptedTerm}</strong>"))
         </div>
 
         @if (Model.Error.HasValue())
         {
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert">
                 @Model.Error
             </div>
         }
         else if (Model.TotalProductsCount == 0)
         {
-            <div class="alert alert-warning">
+            <div class="alert alert-warning" role="alert">
                 @T("Search.NoResultsText")
             </div>
         }

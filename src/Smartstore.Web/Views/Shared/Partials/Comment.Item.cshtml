@@ -16,9 +16,7 @@
                     <span class="comment-user font-weight-medium">@(Model.CustomerName)</span>
                 }
                 <span class="px-2 text-muted">|</span>
-                <span class="comment-time text-muted">
-                    @Model.CreatedOnPretty
-                </span>
+                <time asp-for="@Model.CreatedOn" sm-humanize="true" class=" comment-time text-muted"></time>
             </div>
             <h5 id="comment-title-@Model.Id" sm-if="Model.CommentTitle.HasValue()" class="comment-title fs-h6 font-weight-bold mt-2" dir="auto">
                 @Html.Raw(Model.CommentTitle)
