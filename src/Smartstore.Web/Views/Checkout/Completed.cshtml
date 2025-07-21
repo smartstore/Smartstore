@@ -18,10 +18,12 @@
     <div class="heading mt-3">
         <h1 class="heading-title font-weight-light">@Html.Raw(T("Checkout.OrderHasBeenReceived"))</h1>
     </div>
+    @* INFO: role=alert cannot be set on a h1 tag. *@
+    <div class="sr-only" role="alert">@T("Checkout.OrderHasBeenReceived")</div>
 
-    <h3 class="text-muted font-weight-light">
+    <h2 class="text-muted font-weight-light h3">
         @Html.Raw(T("Checkout.ThankYou"))
-    </h3>
+    </h2>
 
     <div class="page-body checkout-data pt-4">
         <div class="order-completed">
@@ -35,11 +37,11 @@
             </div>
             <p class="pt-3 mb-5">
                 <a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" class="btn btn-warning" rel="nofollow">
-                    @*<i class="far fa-rectangle-list"></i>*@
+                    @*<i class="far fa-rectangle-list" aria-hidden="true"></i>*@
                     <span>@T("Checkout.PlacedOrderDetails")</span>
                 </a>
                 <a asp-route="Homepage" class="btn btn-secondary order-completed-continue-button">
-                    @*<i class="fa fa-home"></i>*@
+                    @*<i class="fa fa-home" aria-hidden="true"></i>*@
                     <span>@T("Checkout.Continue")</span>
                 </a>
             </p>
