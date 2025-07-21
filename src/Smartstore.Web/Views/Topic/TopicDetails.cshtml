@@ -45,10 +45,10 @@
 </div>
 
 <div id="password-container" class="row">
-    <form id="topic-password-form" method="post" asp-action="Authenticate">
+    <form id="topic-password-form" method="post" asp-action="Authenticate" aria-labelledby="topic-enter-password">
         <input type="hidden" asp-for="Id" />
         <div class="col-md-6">
-            <div class="enter-password-title mb-2">
+            <div id="topic-enter-password" class="enter-password-title mb-2">
                 @T("Topic.EnterPassword")
             </div>
             <div>
@@ -56,7 +56,7 @@
                     <input type="password" sm-enable-visibility-toggle="false" id="password" name="password" class="form-control" autocomplete="current-password" />
                     <div class="input-group-append">
                         <button id="password-button" type="submit" class="btn btn-primary topic-password-button">
-                            <i class="fa fa-check"></i>
+                            <i class="fa fa-check" aria-hidden="true"></i>
                             <span>@T("Common.OK")</span>
                         </button>
                     </div>

@@ -52,7 +52,7 @@
                     <smart-label asp-for="Password" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
+                    <input asp-for="Password" type="password" autocomplete="current-password" class="password" attr-value='(Model.Password.HasValue(), Model.Password)' />
                     <span asp-validation-for="Password"></span>
                 </div>
             </div>
