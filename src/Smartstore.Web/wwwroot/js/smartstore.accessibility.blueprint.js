@@ -10,9 +10,11 @@
 class AccessKit {
     // Constants
     static RTL = document.documentElement.dir === 'rtl';
+    static CANDIDATE_SELECTOR = 'a, button, [role], [tabindex]';
     static TEXT_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
     static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
     static ACTIVE_RADIO_SELECTOR = 'input[type="radio"]:not([disabled])';
+    static EVENT_NAMESPACE = '.ak';
     static KEY = {
         LEFT: 'ArrowLeft',
         UP: 'ArrowUp',
@@ -32,7 +34,7 @@ class AccessKit {
     static #navKeys = null;
 
     // Instance fields
-    #listening = false;
+    _listening = false;
 
     static get instance() {
         if (!this.#instance) throw new Error('AccessKit instance not created yet. Call AccessKit.create() first.');
@@ -44,7 +46,7 @@ class AccessKit {
     }
 
     static register(strategy) {
-        if (strategy) this.#strategies.push(strategy);
+        if (strategy) Array.isArray(strategy) ? this.#strategies.push(...strategy) : this.#strategies.push(strategy);
     }
 
     static create(options) {
@@ -58,30 +60,48 @@ class AccessKit {
         return this.#instance;
     }
 
+    static #isNavKey(key) {
+        return this.#navKeys.has(e.key);
+    }
+
     constructor(options) {
         this.options = options;
         this.plugins = new Map();
 
-        document.addEventListener('keydown', this.#onKeyDown, true);
-        document.addEventListener('keyup', this.#onKeyUp, true);
+        document.addEventListener('keydown', this._onKeyDown, true);
+        document.addEventListener('keyup', this._onKeyUp, true);
+
+        // Generic event handler for collapsibles
+        ['expand.ak', 'collapse.ak'].forEach(eventName => {
+            document.addEventListener(eventName, (e) => {
+                if (!this._listening) return;
+                e.target.click();
+            });
+        });
+
+        // Handle .nav-collapsible aria-expanded attribute on page resize
+        this._initCollapsibles();
+
+        // Handle .btn-skip-content button click
+        this._initContentSkipper();
 
         // Start listening to key events
         this.startListen();
     }
 
     startListen() {
-        this.#listening = true;
+        this._listening = true;
     }
 
     stopListen() {
-        this.#listening = false;
+        this._listening = false;
     }
 
     get isListening() {
-        return this.#listening;
+        return this._listening;
     }
 
-    #isCandidateElement(el) {
+    _isCandidateElement(el) {
         if (el.tagName == 'TEXTAREA' || el.isContentEditable) {
             return false;
         }
@@ -89,40 +109,36 @@ class AccessKit {
             return !AccessKit.TEXT_INPUT_TYPES.has(el.type);
         }
 
-        return el.matches('a,button,[role],[tabindex]');
+        return el.matches(AccessKit.CANDIDATE_SELECTOR);
     };
 
-    static #isNavKey(key) {
-        // Exit if no navigational key is pressed.
-        return this.#navKeys.has(e.key);
-    }
-
-    #onKeyDown(e) {
-        if (!this.#listening) return;
+    _onKeyDown(e) {
+        if (!this._listening) return;
 
         // Skip irrelevant targets immediately.
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
         if (e.key != KEY.ESC) {
-            if (!this.#isCandidateElement(t)) return;
+            if (!this._isCandidateElement(t)) return;
         }
 
+        // Exit if no navigational key is pressed.
         if (!AccessKit.#isNavKey(e.key)) return;
 
         // Init plugin instance if needed.
-        this.#tryCreateInstance(t);
+        this._tryCreateInstance(t);
 
         // Dispatch event to all already active plugins.
-        this.#dispatchKey(e);
+        this._dispatchKey(e);
     }
 
-    #onKeyUp(e) {
-        if (!this.#listening) return;
+    _onKeyUp(e) {
+        if (!this._listening) return;
 
         // ...
     }
 
-    #matchStrategy(strategy, target) {
+    _matchStrategy(strategy, target) {
         if (strategy.itemSelector && !target.matches(strategy.itemSelector)) {
             return null;
         }
@@ -130,9 +146,9 @@ class AccessKit {
         return target.closest(strategy.rootSelector);
     }
 
-    #tryCreateInstance(target) {
-        for (const strategy of this.#strategies) {
-            let root = this.#matchStrategy(strategy, target);
+    _tryCreateInstance(target) {
+        for (const strategy of AccessKit.#strategies) {
+            let root = this._matchStrategy(strategy, target);
 
             if (!root)
                 continue;
@@ -150,7 +166,7 @@ class AccessKit {
         }
     }
 
-    #dispatchKey(e) {
+    _dispatchKey(e) {
         const hook = e.type === 'keydown' ? 'handleKey' : 'handleKeyUp';
 
         for (const plugin of this.plugins.values()) {
@@ -158,7 +174,7 @@ class AccessKit {
             // Check whether plugin implements the handler method & if it returns true (handled).
             if (typeof handler === 'function' && handler.call(plugin, e)) {
                 // Preserve natural Tab behaviour, but prevent default for all other keys.
-                if (e.type === 'keydown' && e.key !== this.#key.TAB) {
+                if (e.type === 'keydown' && e.key !== AccessKit.KEY.TAB) {
                     e.preventDefault();
                 }
 
@@ -167,17 +183,151 @@ class AccessKit {
             }
         }
     }
+
+    _initCollapsibles() {
+        // Handle .nav-collapsible aria-expanded attribute on page resize
+        const setCollapsibleState = (viewport) => {
+            const toggles = document.querySelectorAll('.nav-collapsible > [data-toggle="collapse"]');
+            const isLargeScreen = viewport.is('>=md');
+            toggles.forEach(el => {
+                if (isLargeScreen) {
+                    el.removeAttribute('role');
+                    el.removeAttribute('aria-expanded');
+                    el.setAttribute('data-aria-controls', el.getAttribute('aria-controls'));
+                    el.removeAttribute('aria-controls');
+                    el.removeAttribute('tabindex');
+                }
+                else {
+                    el.setAttribute('aria-expanded', !el.matches('.collapsed'));
+                    el.setAttribute('aria-controls', el.getAttribute('data-aria-controls'));
+                    el.removeAttribute('data-aria-controls');
+                    el.setAttribute('tabindex', '0');
+                }
+            });
+        };
+
+        EventBroker.subscribe("page.resized", function (_, viewport) {
+            setCollapsibleState(viewport);
+        });
+
+        setCollapsibleState(ResponsiveBootstrapToolkit);
+    }
+
+    _initContentSkipper() {
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('.btn-skip-content');
+            if (!trigger) return;
+
+            e.preventDefault();
+
+            const href = trigger.getAttribute('href') ?? '';
+            let target = null;
+
+            if (href.startsWith('#')) {
+                // Classic Skip‑Link: #id
+                target = document.getElementById(href.slice(1));
+            }
+            else {
+                // Find next element sibling of container
+                let pointer = trigger.parentElement;
+                while (pointer && !pointer.nextElementSibling) {
+                    pointer = pointer.parentElement;
+                }
+                target = pointer?.nextElementSibling ?? null;
+            }
+
+            if (target) {
+                // Remove visual focus
+                trigger.blur();
+                // Make target element focusable
+                //target.setAttribute('tabindex', '-1');
+                // For screenreader
+                target.focus({ preventScroll: true });
+                // Scroll smoothly
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
 }
 
-class TestPluginBase {
+class AccessKitEvents {
+    constructor() {
+        this._handles = [];
+    }
+
+    /**
+     * Add event listener to element and store the handle for later removal.
+     * @param {Element} element
+     * @param {Event} evt
+     * @param {Function} fn
+     * @param {EventListenerOptions} opts
+     */
+    on(element, evt, fn, opts) {
+        element.addEventListener(evt, fn, opts);
+        this._handles.push(() => element.removeEventListener(evt, fn, opts));
+    }
+
+    /**
+     * Event publisher that is compatible with both vanilla JS and jQuery event handling mechanism.
+     * @param {String} name
+     * @param {Element} element
+     * @param {Object} args
+     * @returns {CustomEvent}
+     */
+    trigger(name, element, args = {}) {
+        // TODO: (wcag) (mc) Move trigger method to a common place/script.
+        if (!name.endsWith(AccessKit.EVENT_NAMESPACE)) {
+            name += AccessKit.EVENT_NAMESPACE;
+        }
+
+        const jEvent = $.Event(name, { detail: args });
+        $(element).trigger(jEvent);
+
+        const bubbles = !jEvent.isPropagationStopped();
+        const nativeDispatch = !jEvent.isImmediatePropagationStopped();
+        const defaultPrevented = jEvent.isDefaultPrevented();
+
+        const event = new CustomEvent(name, { bubbles, detail: args, cancelable: true });
+
+        if (defaultPrevented) {
+            event.preventDefault();
+        }
+
+        if (nativeDispatch) {
+            element.dispatchEvent(event);
+        }
+
+        if (event.defaultPrevented) {
+            jEvent.preventDefault();
+        }
+
+        return event;
+    }
+
+    /**
+     * Remove all event listeners.
+    */
+    destroy() {
+        this._handles.forEach(off => off());
+    }
+}
+
+/*
+* Plugin base class for AccessKit plugins.
+*/
+class AccessKitPluginBase {
     constructor(strategy) {
         this.strategy = strategy;
         this._widgets = new WeakMap();
-        this._handles = [];
+        this._events = new AccessKitEvents();
     }
 
     get widgets() {
         return this._widgets;
+    }
+
+    get events() {
+        return this._events;
     }
 
     hasWidget(root) {
@@ -206,7 +356,8 @@ class TestPluginBase {
                 orientation: root.getAttribute('aria-orientation') || 'vertical',
                 multiselect: root.getAttribute('aria-multiselectable') === 'true',
                 manualselect: root.dataset.manualselect === 'true',
-                items: this.getRovingItems(root)
+                items: this.getRovingItems(root),
+                rtl: AccessKit.RTL
             };
 
             this.initWidget(widget);
@@ -235,9 +386,32 @@ class TestPluginBase {
         // Overwrite this to do something with widget.root
     }
 
+    /**
+     * Apply roving tabindex to all elements matching the selector within the root element.
+     * 
+     * @param {Object} widget
+     * 
+     * @returns {Array<Element>} items - The roving focusable items.
+     */
     applyRoving(widget) {
+        /* Build a safe scope for roving-focus:
+           1. If the container has a role ⇒ use [role="…"].
+           2. Else if it has an id        ⇒ use #id.
+           3. Otherwise no selector, fall back to root.contains().
+           Keep only items whose closest() match equals the container. */
+
+        //// TODO: (wcag) Remove this legacy code? Or apply to relevant class(es) only.
+        //const root = widget.root;
+        //const role = root.getAttribute('role');
+        //const scopeSelector = role ? `[role="${CSS.escape(role)}"]` : root.id ? `#${CSS.escape(root.id)}` : null;
+        //const items = [...root.querySelectorAll(selector)].filter(el => {
+        //    return scopeSelector ? el.closest(scopeSelector) === root : root.contains(el);
+        //});
+
         const items = widget.items;
-        // ...
+        items.forEach((el, i) => el.tabIndex = i === start ? 0 : -1);
+
+        return items;
     }
 
     handleKey(e) {
@@ -251,12 +425,68 @@ class TestPluginBase {
         this.handleKeyCore(e, widget);
     }
 
+    /**
+     * Handle 'keydown' or 'keyup' event.
+     * Must return `true` if the event has been processed (AccessKit then calls preventDefault / stopPropagation).
+     * 
+     * @param {KeyboardEvent} e
+     * @param {Object} widget
+     * 
+     * @returns {Boolean} handled?
+     */
     handleKeyCore(e, widget) {
         // Overwrite to do something special
     }
+
+    /**
+     * Overridable move base implementation.
+     * @param {Element} target
+     * @param {Object} widget
+     */
+    move(target, widget) {
+        this.moveFocus(target, widget);
+    }
+
+    /**
+     * Move focus to the target element and set roving tabindex.
+     * @param {Element} target
+     * @param {Object} widget
+     */
+    moveFocus(target, widget) {
+        if (!target) return;
+        widget.items.forEach(i => i.tabIndex = -1);
+        target.tabIndex = 0;
+        target.focus();
+    }
+
+    removeFocus(el) { }
+
+    /**
+     * Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
+     * @param {String} orientation
+     * @param {Boolean} rtl
+     */
+    getNavKeys(widget) {
+        const k = AccessKit.KEY;
+        return widget.orientation === 'horizontal'
+            ? (widget.rtl ? [k.RIGHT, k.LEFT] : [k.LEFT, k.RIGHT])
+            : [k.UP, k.DOWN];
+    }
+
+    // Returns the next index in a circular manner.
+    _nextIdx(cur, delta, len) {
+        return (cur + delta + len) % len;
+    }
+
+    /**
+     * Remove all event listeners that were registered by this plugin.
+    */ 
+    destroy() {
+        this.events.destroy();
+    }
 }
 
-class TestRadioGroupPlugin extends TestPluginBase {
+class TestRadioGroupPlugin extends AccessKitPluginBase {
     constructor(strategy) {
         // { name: 'radiogroup', rootSelector: '[role="radiogroup"]', itemSelector: 'input[type="radio"]:not([disabled])' }
         super(strategy);
@@ -277,13 +507,15 @@ class TestRadioGroupPlugin extends TestPluginBase {
 // Boot
 (function () {
     // Register default strategies
-    AccessKit.register({
-        ctor: TestRadioGroupPlugin.ctor,
-        name: 'radiogroup',
-        rootSelector: '[role="radiogroup"]',
-        itemSelector: 'input[type="radio"]:not([disabled])',
-        // More stuff, e.g. match() ??
-    });
+    AccessKit.register([
+        {
+            ctor: TestRadioGroupPlugin.ctor,
+            name: 'radiogroup',
+            rootSelector: '[role="radiogroup"]',
+            itemSelector: 'input[type="radio"]:not([disabled])',
+            // More stuff, e.g. match() ??
+        }
+    ]);
     
     document.addEventListener('DOMContentLoaded', () => {
         window.AK = AccessKit.create(window.AccessKitOptions || {});
