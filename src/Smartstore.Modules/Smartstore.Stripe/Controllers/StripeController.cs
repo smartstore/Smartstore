@@ -499,11 +499,17 @@ namespace Smartstore.StripeElements.Controllers
         }
 
         // INFO: We leave this method in case we want to log further infos in future.
-        private static void WriteOrderNotes(Order order, Charge charge)
+        private void WriteOrderNotes(Order order, Charge charge)
         {
             if (charge != null)
             {
-                order.AddOrderNote($"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}", true);
+                _db.OrderNotes.Add(new()
+                {
+                    OrderId = order.Id,
+                    Note = $"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}",
+                    CreatedOnUtc = DateTime.UtcNow,
+                    DisplayToCustomer = true
+                });
             }
         }
     }

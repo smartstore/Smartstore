@@ -133,7 +133,12 @@ namespace Smartstore.PayPal
             shipment.GenericAttributes.Set("PayPalTrackingId", trackingId);
 
             // Add order note.
-            shipment.Order.AddOrderNote($"Tracking number {shipment.TrackingNumber} has been transmitted to PayPal. Tracking ID: {trackingId}");
+            _db.OrderNotes.Add(new()
+            {
+                OrderId = shipment.OrderId,
+                Note = $"Tracking number {shipment.TrackingNumber} has been transmitted to PayPal. Tracking ID: {trackingId}",
+                CreatedOnUtc = DateTime.UtcNow
+            });
 
             await _db.SaveChangesAsync();
         }

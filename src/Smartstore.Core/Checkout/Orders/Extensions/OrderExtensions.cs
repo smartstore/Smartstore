@@ -40,12 +40,7 @@ namespace Smartstore
             return order.OrderStatus != OrderStatus.Cancelled;
         }
 
-        /// <summary>
-        /// Adds an order note. The caller is responsible for database commit.
-        /// </summary>
-		/// <param name="order">Order entity.</param>
-        /// <param name="note">Note to add.</param>
-        /// <param name="displayToCustomer">A value indicating whether to display the note to the customer.</param>
+        [Obsolete("Use 'SmartDbContext.OrderNotes.Add' to add order notes natively.")]
         public static void AddOrderNote(this Order order, string note, bool displayToCustomer = false)
         {
             if (order != null && note.HasValue())
