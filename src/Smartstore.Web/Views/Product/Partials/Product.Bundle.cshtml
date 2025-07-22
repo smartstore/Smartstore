@@ -8,22 +8,24 @@
 
 @if (items.Count == 0)
 {
-    <div class="alert alert-warning">
+    <div class="alert alert-warning" role="alert">
         @T("Products.NoBundledItems")
     </div>
     return;
 }
 
 <div class="card-body">
-    <h2 sm-if="items.Any() && Model.BundleTitleText.HasValue()" class="h5 pd-bundle-title">@Model.BundleTitleText</h2>
+    <h2 sm-if="items.Count > 0 && Model.BundleTitleText.HasValue()" class="h5 pd-bundle-title">@Model.BundleTitleText</h2>
+    <span id="pd-bundle-list-title" class="sr-only">@(Model.BundleTitleText.NullEmpty() ?? T("Aria.Label.BundleContains", string.Empty))</span>
 
-    <ul class="pd-bundle-summary list-unstyled mb-3">
+    <ul class="pd-bundle-summary list-unstyled mb-3" aria-labelledby="pd-bundle-list-title">
         @foreach (var item in items)
         {
             var gallery = item.MediaGalleryModel;
             var img = gallery.Files?.FirstOrDefault();
+            var itemLabel = T("Aria.Label.BundleContains", item.Name);
 
-            <li class="pd-bundle-summary-item">
+            <li class="pd-bundle-summary-item" aria-label="@itemLabel">
                 @if (item.BundleItem.Quantity > 1)
                 {
                     if (img != null)
@@ -39,8 +41,8 @@
                 {
                     if (img != null)
                     {
-                        <a class="link-dnn d-inline-block" asp-route="Product" asp-route-SeName="@item.SeName" title="@item.Name">
-                            <img sm-file="img" sm-size="gallery.ThumbSize" alt="@(img.Alt.IsEmpty() ? item.Name : img.Alt)" />
+                        <a class="link-dnn d-inline-block" asp-route="Product" asp-route-SeName="@item.SeName" aria-label="@item.Name">
+                            <img sm-file="img" sm-size="gallery.ThumbSize" alt="@img.Alt" />
                         </a>
                     }
                     else

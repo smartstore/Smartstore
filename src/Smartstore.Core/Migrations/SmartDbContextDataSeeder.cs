@@ -61,8 +61,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Media.Manufacturer.ImageAlternateTextFormat",
                 "Media.Product.ImageAlternateTextFormat",
                 "Common.DecreaseValue",
-                "Common.IncreaseValue",
-                "Aria.Label.Rating");
+                "Common.IncreaseValue");
 
             builder.AddOrUpdate("ShoppingCart.DiscountCouponCode.Removed", "The discount code has been removed", "Der Rabattcode wurde entfernt");
             builder.AddOrUpdate("ShoppingCart.GiftCardCouponCode.Removed", "The gift card code has been removed", "Der Geschenkgutschein wurde entfernt");

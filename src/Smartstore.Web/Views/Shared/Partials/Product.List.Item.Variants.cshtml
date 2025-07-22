@@ -10,7 +10,6 @@
 <div class="art-variant-info">
     @if (numColorAttributes > 0)
     {
-        @* INFO: (mg) Without proper roles, AccessKit won't kick in to enable arrow key navigation *@
         <nav class="art-color-opts" role="listbox" aria-orientation="horizontal" aria-label="@Model.ColorAttributes[0].AttributeName">
         @foreach (var clr in Model.ColorAttributes)
         {

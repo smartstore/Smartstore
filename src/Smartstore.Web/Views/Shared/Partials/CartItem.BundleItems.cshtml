@@ -44,7 +44,7 @@
                     <div class="cart-item-title">
                         @if (parentModel.ShowProductBundleImages)
                         {
-                            <span class="cart-item-bundle-img mr-1" style="width: @thumbSize; height: @thumbSize;">
+                            <span class="cart-item-bundle-img mr-1" style="width: @thumbSize; height: @thumbSize;" aria-hidden="true">
                                 @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
                                 {
                                     <img sm-model="item.Image" class="img-fluid" attr-alt='(item.Image.Alt.IsEmpty(), item.ProductName)' />
@@ -61,7 +61,6 @@
                             <a class="cart-item-link" 
                                href="@item.ProductUrl" 
                                title="@T("Products.Details")"
-                               aria-label="@itemLabel"
                                sm-language-attributes-for="item.ProductName">
                                 @item.ProductName
                             </a>

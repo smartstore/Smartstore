@@ -2,14 +2,12 @@
 
 @model IList<ProductTagModel>
 
-@{
-    if (Model == null || Model.Count == 0)
-    {
-        return;
-    }
+@if (Model == null || Model.Count == 0)
+{
+    return;
 }
 
-<div class="pd-tags block">
+<div class="pd-tags block" role="region" aria-labelledby="pd-tags-title">
     <div class="block-title">
         <h4 id="pd-tags-title">@T("Products.Tags")</h4>
     </div>

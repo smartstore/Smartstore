@@ -13,6 +13,7 @@
     var gallery = Model.MediaGalleryModel;
     var img = gallery?.Files?.FirstOrDefault();
     var imgClass = "img-fluid rounded-sm border border-translucent shadow-xs";
+    var addToCartLabel = T(Model.AddToCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart");
 
     var hasImageHeader = HasHeader(AssociatedProductHeader.Image);
     var hasSkuHeader = HasHeader(AssociatedProductHeader.Sku);
@@ -156,18 +157,20 @@
                 <div sm-if="!Model.AddToCart.HideQuantityControl" class="pd-qty-input-container pd-interaction">
                     @Html.EditorFor(x => Model.AddToCart, "QtyInput", new { size = ControlSize.Medium })
                 </div>
-                <a class="pd-interaction btn btn-primary btn-icon btn-add-to-cart ajax-cart-link ml-1"
-                   href="javascript:;"
-                   rel="nofollow"
-                   data-href="@Url.Action("AddProduct", "ShoppingCart", new { productId = Model.AddToCart.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })"
-                   data-form-selector="#pd-form"
-                   data-type="cart"
-                   data-action="add"
-                   data-toggle="offcanvas"
-                   data-target="#offcanvas-cart"
-                   title="@T(Model.AddToCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")">
-                    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
-                </a>
+                <button type="button"
+                        class="pd-interaction btn btn-primary btn-icon btn-add-to-cart ajax-cart-link ml-1"
+                        rel="nofollow"
+                        data-href="@Url.Action("AddProduct", "ShoppingCart", new { productId = Model.AddToCart.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })"
+                        data-form-selector="#pd-form"
+                        data-type="cart"
+                        data-action="add"
+                        data-toggle="offcanvas"
+                        data-target="#offcanvas-cart"
+                        title="@addToCartLabel"
+                        aria-label="@addToCartLabel - @Model.Name"
+                        aria-describedby="sr-desc-empty">
+                        <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+                </button>
             </div>
             <i class="fas fa-angle-up collapse-chevron m-0 ml-2" aria-hidden="true"></i>
         </div>

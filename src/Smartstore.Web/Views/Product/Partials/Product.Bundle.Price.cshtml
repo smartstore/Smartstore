@@ -2,15 +2,20 @@
 
 @model ProductDetailsModel
 
+@{
+    var pm = Model.Price;
+}
+
 <div class="pd-bundle-price alert alert-success m-b-0">
     @if (Model.Price.RegularPrice != null)
     {
         @Html.Raw(T("Products.Bundle.YouSave",
-            $"<span class='pd-bundle-price-offer lrm'>{Model.Price.FinalPrice}</span>",
-            $"<span class='pd-bundle-price-regular lrm'>{Model.Price.RegularPrice.Price}</span>"));
+            $"<data value=\"{RoundingHelper.Round(pm.FinalPrice).ToStringInvariant()}\" class='pd-bundle-price-offer lrm'>{pm.FinalPrice}</data>",
+            $"<data value=\"{RoundingHelper.Round(pm.RegularPrice.Price).ToStringInvariant()}\" class='pd-bundle-price-regular lrm'>{pm.RegularPrice.Price}</data>"))
     }
     else
     {
-        @Html.Raw(T("Products.Bundle.YouSaveWithoutDiscount", $"<span class='pd-bundle-price-offer'>{Model.Price.FinalPrice}</span>"));
+        @Html.Raw(T("Products.Bundle.YouSaveWithoutDiscount", 
+            $"<data value=\"{RoundingHelper.Round(pm.FinalPrice).ToStringInvariant()}\" class='pd-bundle-price-offer'>{pm.FinalPrice}</data>"))
     }
 </div>

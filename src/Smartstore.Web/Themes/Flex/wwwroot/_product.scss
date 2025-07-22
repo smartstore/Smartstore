@@ -123,14 +123,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 .pd-attrs {
-    td { 
-        padding: 0.2rem 0; 
-        vertical-align: middle; 
+    :is(td, th[scope=row]) {
+        padding: 0.2rem 0;
+        vertical-align: middle;
         line-height: $pd-line-height;
-    }
-    td:first-child { 
-        padding-inline-end: 1rem; 
-        font-weight: $font-weight-medium; 
+
+        &:first-child {
+            padding-inline-end: 1rem;
+            font-weight: $font-weight-medium;
+        }
     }
 }
 

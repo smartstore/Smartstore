@@ -2,18 +2,20 @@
 
 @model IList<ProductDetailsModel>
 
-<div class="pd-bundle-items">
+<div class="pd-bundle-items" role="list" aria-labelledby="pd-bundle-list-title">
     @foreach (var item in Model)
     {
         var gallery = item.MediaGalleryModel;
         var img = gallery.Files?.FirstOrDefault();
         var isBundleItemPricing = item.BundlePerItemPricing;
+        var itemLabel = T("Aria.Label.BundleContains", item.Name);
 
-        <div class="pd-bundle-item card-body update-container" data-url="@item.UpdateUrl">
+        <div class="pd-bundle-item card-body update-container" data-url="@item.UpdateUrl" role="listitem" aria-label="@itemLabel">
             <div class="pd-bundle-item-top row no-gutters">
                 <div sm-if="img != null && !item.BundleItem.HideThumbnail" 
                         class="pd-bundle-item-image col" 
-                        style="min-width: @(item.ThumbDimensions)px; max-width: @(item.ThumbDimensions)px;">
+                        style="min-width: @(item.ThumbDimensions)px; max-width: @(item.ThumbDimensions)px;"
+                        aria-hidden="true">
                     <img sm-file="img" sm-size="gallery.ThumbSize" class="img-fluid pd-dyn-thumb" alt='@img.Alt' />
                 </div>
                 <div class="pd-bundle-item-body col pl-3">
@@ -32,7 +34,7 @@
 
                     @if (item.ShortDescription.HasValue())
                     {
-                        var shortDescription = item.ShortDescription.Value.Truncate(120, "...");
+                        var shortDescription = item.ShortDescription.Value.Truncate(120, "…");
                         <div class="pd-bundle-item-description mt-1" sm-language-attributes-for="item.ShortDescription" attr-title="(item.ShortDescription != shortDescription, item.ShortDescription)">
                             @Html.Raw(shortDescription)
                         </div>

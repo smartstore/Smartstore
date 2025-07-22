@@ -19,38 +19,38 @@
 
 <table class="pd-attrs pd-group">
     <tr sm-if="Model.ShowCondition && Model.LocalizedCondition.HasValue()" class="pd-attr-condition">
-        <td>@T("Products.Condition")</td>
+        <th scope="row">@T("Products.Condition")</th>
         <td>@Model.LocalizedCondition</td>
     </tr>
     <tr sm-if="Model.ShowSku && Model.Sku.HasValue()" class="pd-attr-sku">
-        <td>@T("Products.Sku")</td>
+        <th scope="row">@T("Products.Sku")</th>
         <td itemprop="sku">@Model.Sku</td>
     </tr>
     <tr sm-if="Model.ShowGtin && Model.Gtin.HasValue()" class="pd-attr-gtin">
-        <td>@T("Products.GTIN")</td>
+        <th scope="row">@T("Products.GTIN")</th>
         <td itemprop="gtin13">@Model.Gtin</td>
     </tr>
     <tr sm-if="Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue()" class="pd-attr-mpn">
-        <td>@T("Products.ManufacturerPartNumber")</td>
+        <th scope="row">@T("Products.ManufacturerPartNumber")</th>
         <td itemprop="mpn">@Model.ManufacturerPartNumber</td>
     </tr>
     <tr sm-if="Model.ShowWeight && Model.Weight.HasValue()" class="pd-attr-weight">
-        <td>@T("Products.Weight")</td>
+        <th scope="row">@T("Products.Weight")</th>
         <td itemprop="weight">@Model.Weight</td>
     </tr>
     
     @if (showDimensions)
     {
         <tr sm-if="Model.Width.HasValue()" class="pd-attr-width">
-            <td>@T("Products.Width")</td>
+            <th scope="row">@T("Products.Width")</th>
             <td itemprop="width">@Model.Width</td>
         </tr>
         <tr sm-if="Model.Length.HasValue()" class="pd-attr-length">
-            <td>@T("Products.Length")</td>
+            <th scope="row">@T("Products.Length")</th>
             <td itemprop="depth">@Model.Length</td>
         </tr>
         <tr sm-if="Model.Height.HasValue()" class="pd-attr-height">
-            <td>@T("Products.Height")</td>
+            <th scope="row">@T("Products.Height")</th>
             <td itemprop="height">@Model.Height</td>
         </tr>
     }

@@ -108,7 +108,7 @@
             var header = [
                 '<div class="modal-header">',
                 '<h5 class="modal-title">' + opts.title + '</h5>',
-                '<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>',
+                '<button type="button" class="btn-close" data-dismiss="modal" aria-label="' + window.Res['Common.Close'] + '"></button>',
                 '</div>'
             ].join("");
             $(header).prependTo(modal.find('.modal-content'));
