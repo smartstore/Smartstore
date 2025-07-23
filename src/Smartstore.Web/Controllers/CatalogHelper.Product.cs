@@ -1134,8 +1134,9 @@ namespace Smartstore.Web.Controllers
                     _currencyService.ConvertToWorkingCurrency(maxCustomerEnteredPrice));
             }
 
-            if (!toCart.DisableBuyButton && !toCart.AvailableForPreOrder)
+            if (!toCart.DisableBuyButton && !toCart.AvailableForPreOrder && ctx.SelectedAttributes != null)
             {
+                // TODO: (wcag) (mg) Double check this. In my case this threw because ctx.SelectedAttributes was null.
                 var attributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                     ctx.SelectedAttributes,
                     product,
