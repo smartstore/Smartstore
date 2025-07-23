@@ -3,57 +3,54 @@
 @model ProductDetailsModel
 
 @{
-    var showDimensions = Model.ShowDimensions && (Model.Length.HasValue() || Model.Width.HasValue() || Model.Height.HasValue());
-    var showAttrs = (Model.ShowCondition && Model.LocalizedCondition.HasValue())
-        || (Model.ShowSku && Model.Sku.HasValue())
-        || (Model.ShowWeight && Model.Weight.HasValue())
-        || showDimensions
-        || (Model.ShowGtin && Model.Gtin.HasValue())
-        || (Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue());
+    var showCondition = Model.ShowCondition && Model.LocalizedCondition.HasValue();
+    var showSku = Model.ShowSku && Model.Sku.HasValue();
+    var showGtin = Model.ShowGtin && Model.Gtin.HasValue();
+    var showMpn = Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue();
+    var showWeight = Model.ShowWeight && Model.Weight.HasValue();
+    var showWidth = Model.ShowDimensions && Model.Width.HasValue();
+    var showLength = Model.ShowDimensions && Model.Length.HasValue();
+    var showHeight = Model.ShowDimensions && Model.Height.HasValue();
 
-    if (!showAttrs)
+    if (!showCondition && !showSku && !showGtin && !showMpn && !showWeight && !showWidth && !showLength && !showHeight)
     {
         return;
     }
 }
 
 <table class="pd-attrs pd-group">
-    <tr sm-if="Model.ShowCondition && Model.LocalizedCondition.HasValue()" class="pd-attr-condition">
+    <tr sm-if="showCondition" class="pd-attr-condition">
         <th scope="row">@T("Products.Condition")</th>
         <td>@Model.LocalizedCondition</td>
     </tr>
-    <tr sm-if="Model.ShowSku && Model.Sku.HasValue()" class="pd-attr-sku">
+    <tr sm-if="showSku" class="pd-attr-sku">
         <th scope="row">@T("Products.Sku")</th>
         <td itemprop="sku">@Model.Sku</td>
     </tr>
-    <tr sm-if="Model.ShowGtin && Model.Gtin.HasValue()" class="pd-attr-gtin">
+    <tr sm-if="showGtin" class="pd-attr-gtin">
         <th scope="row">@T("Products.GTIN")</th>
         <td itemprop="gtin13">@Model.Gtin</td>
     </tr>
-    <tr sm-if="Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue()" class="pd-attr-mpn">
+    <tr sm-if="showMpn" class="pd-attr-mpn">
         <th scope="row">@T("Products.ManufacturerPartNumber")</th>
         <td itemprop="mpn">@Model.ManufacturerPartNumber</td>
     </tr>
-    <tr sm-if="Model.ShowWeight && Model.Weight.HasValue()" class="pd-attr-weight">
+    <tr sm-if="showWeight" class="pd-attr-weight">
         <th scope="row">@T("Products.Weight")</th>
         <td itemprop="weight">@Model.Weight</td>
     </tr>
-    
-    @if (showDimensions)
-    {
-        <tr sm-if="Model.Width.HasValue()" class="pd-attr-width">
-            <th scope="row">@T("Products.Width")</th>
-            <td itemprop="width">@Model.Width</td>
-        </tr>
-        <tr sm-if="Model.Length.HasValue()" class="pd-attr-length">
-            <th scope="row">@T("Products.Length")</th>
-            <td itemprop="depth">@Model.Length</td>
-        </tr>
-        <tr sm-if="Model.Height.HasValue()" class="pd-attr-height">
-            <th scope="row">@T("Products.Height")</th>
-            <td itemprop="height">@Model.Height</td>
-        </tr>
-    }
+    <tr sm-if="showWidth" class="pd-attr-width">
+        <th scope="row">@T("Products.Width")</th>
+        <td itemprop="width">@Model.Width</td>
+    </tr>
+    <tr sm-if="showLength" class="pd-attr-length">
+        <th scope="row">@T("Products.Length")</th>
+        <td itemprop="depth">@Model.Length</td>
+    </tr>
+    <tr sm-if="showHeight" class="pd-attr-height">
+        <th scope="row">@T("Products.Height")</th>
+        <td itemprop="height">@Model.Height</td>
+    </tr>
 
     <zone name="productdetails_attrs_bottom" />
 </table>

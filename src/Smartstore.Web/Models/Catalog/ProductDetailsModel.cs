@@ -225,6 +225,7 @@ namespace Smartstore.Web.Models.Catalog
             public bool DisableWishlistButton { get; set; }
             public List<SelectListItem> AllowedQuantities { get; set; } = [];
             public bool AvailableForPreOrder { get; set; }
+            public string AddToCartDescription { get; set; }
         }
 
         [LocalizedDisplay("Products.GiftCard.")]

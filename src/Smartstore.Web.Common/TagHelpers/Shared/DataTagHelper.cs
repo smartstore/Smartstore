@@ -24,6 +24,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             output.Attributes.SetAttribute("value", _roundingHelper.Round(money).ToStringInvariant());
+            output.Attributes.SetAttribute("data-currency", money.Currency?.CurrencyCode);
             output.AppendCssClass("text-nowrap");
             output.Content.SetContent(money.ToString());
         }

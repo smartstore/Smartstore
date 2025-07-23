@@ -31,7 +31,7 @@
 <div sm-if="Model.Badges.Count > 0" class="pd-promobadges">
     @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
     {
-        <span class="badge badge-@badge.Style">@badge.Label</span>
+        <span class="badge badge-@badge.Style">@Html.Raw(badge.Label)</span>
     }
 </div>
 
@@ -57,7 +57,9 @@
         <span class="pd-promoprice-label">@T("ShoppingCart.ItemYouSave"):</span>
         <span class="pd-promosaving pl-1 d-flex">
             <data asp-for="@Model.Saving.SavingAmount.Value">@Model.Saving.SavingAmount.Value</data>
-            <span class="badge badge-danger pd-saving-badge">@T("Products.SavingBadgeLabel", Model.Saving.SavingPercent.ToString("N0"))</span>
+            <span class="badge badge-danger pd-saving-badge">
+                @Html.Raw(T("Products.SavingBadgeLabel", Model.Saving.SavingPercent.ToString("N0")))
+            </span>
         </span>
     </div>
 </div>

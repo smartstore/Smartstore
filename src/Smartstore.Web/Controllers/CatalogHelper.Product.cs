@@ -1133,6 +1133,17 @@ namespace Smartstore.Web.Controllers
                     _currencyService.ConvertToWorkingCurrency(minCustomerEnteredPrice),
                     _currencyService.ConvertToWorkingCurrency(maxCustomerEnteredPrice));
             }
+
+            if (!toCart.DisableBuyButton && !toCart.AvailableForPreOrder)
+            {
+                var attributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                    ctx.SelectedAttributes,
+                    product,
+                    ProductAttributeFormatOptions.PlainText,
+                    ctx.Customer);
+
+                toCart.AddToCartDescription = T("Aria.Description.AddToCart", model.Name, model.Price.FinalPrice.ToString(), selectedQuantity, attributeInfo);
+            }
         }
 
         protected void PrepareProductGiftCardsModel(ProductDetailsModel model, ProductDetailsModelContext ctx)

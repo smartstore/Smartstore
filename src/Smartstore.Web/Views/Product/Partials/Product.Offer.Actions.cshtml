@@ -32,6 +32,7 @@
                 @Html.EditorFor(model => model.AddToCart, "QtyInput", new { large = true, htmlAttributes = new { aria_label = T("Products.Qty") }})
             </div>        
             <div sm-if="!toCart.CollapsibleAssociatedProduct" class="col">
+                <span sm-if="toCart.AddToCartDescription.HasValue()" id="pd-addtocart-desc" class="sr-only">@toCart.AddToCartDescription</span>
                 <button type="button"
                         class="btn btn-primary btn-lg btn-block btn-add-to-cart ajax-cart-link"
                         data-href='@Url.Action("AddProduct", "ShoppingCart", new { productId = toCart.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })'
@@ -39,7 +40,8 @@
                         data-type="cart"
                         data-action="add"
                         data-toggle="offcanvas" 
-                        data-target="#offcanvas-cart">
+                        data-target="#offcanvas-cart"
+                        attr-aria-describedby='(toCart.AddToCartDescription.HasValue(), "pd-addtocart-desc")'>
                     <i class="fa fa-cart-arrow-down d-none d-sm-inline-block d-md-none d-xl-inline-block" aria-hidden="true"></i>
                     <span>@T(toCart.AvailableForPreOrder ? "ShoppingCart.PreOrder" : "ShoppingCart.AddToCart")</span>
                 </button>

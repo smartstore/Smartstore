@@ -17,7 +17,7 @@
         @foreach (var action in primaryActions)
         {
             <a href="@action.Href" class="btn btn-@action.PrimaryActionColor btn-block @action.CssClass">
-                <i class="@action.IconCssClass"></i>
+                <i class="@action.IconCssClass" aria-hidden="true"></i>
                 <span>@action.Title</span>
             </a>
         }
@@ -31,7 +31,7 @@
             colClass += "-" + 12 / actions.Count;
         }
 
-        <div class="row sm-gutters pd-actions@(actions.Count > 6 ? " pd-actions-xl": "")">
+        <div class="row sm-gutters pd-actions@(actions.Count > 6 ? " pd-actions-xl": string.Empty)">
             @foreach (var action in actions)
             {
                 var key = action.Key;
@@ -39,34 +39,42 @@
                 <div class="@colClass pd-action-item" attr-style='(actions.Count == 5, "width: 20%; min-width: 20%")'>
                     @if (isSpecial)
                     {
-                        <a data-href='@action.Href' 
-                           attr-data-form-selector='(key == "wishlist", "#pd-form")'
-                           title="@action.Tooltip"
-                           href="#"
-                           class="pd-action-link@(isSpecial ? " pd-action-link-special" : "") @action.CssClass"
-                           rel="nofollow"
-                           data-type="@key"
-                           data-action="add">
-                           <i class="pd-action-icon @action.IconCssClass"></i> 
-                           <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
-                        </a>
+                        <button type="button" 
+                                data-href="@action.Href" 
+                                attr-data-form-selector='(key == "wishlist", "#pd-form")'
+                                title="@action.Tooltip"
+                                aria-label="@action.Tooltip"
+                                href="#"
+                                class="pd-action-link@(isSpecial ? " pd-action-link-special" : string.Empty) @action.CssClass"
+                                data-type="@key"
+                                data-action="add">
+                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
+                        </button>
                     }
                     else if (key == "ask")
                     {
-                        <a class="pd-action-link @(action.CssClass) action-ask-question" href="javascript:void(0)"
-                           data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
-                           data-form-selector="#pd-form" rel="nofollow" title="@action.Tooltip">
-                           <i class="pd-action-icon @action.IconCssClass"></i> 
-                           <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
-                        </a>
+                        <button type="button"
+                                class="pd-action-link @(action.CssClass) action-ask-question" 
+                                data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
+                                data-form-selector="#pd-form" 
+                                title="@action.Tooltip"
+                                aria-label="@action.Tooltip">
+                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
+                        </button>
                     }
                     else
                     {
-                        <a class="pd-action-link @action.CssClass" href="@action.Href" rel="nofollow" title="@action.Tooltip"
-                            attr-class='(isSpecial, "pd-action-link-special")'
-                            attr-target="(action.Target.HasValue(), action.Target)">
-                            <i class="pd-action-icon @action.IconCssClass"></i>
-                            <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
+                        <a href="@action.Href" 
+                           class="pd-action-link @action.CssClass"
+                           rel="nofollow" 
+                           title="@action.Tooltip"
+                           aria-label="@action.Tooltip"
+                           attr-class='(isSpecial, "pd-action-link-special")'
+                           attr-target="(action.Target.HasValue(), action.Target)">
+                            <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
+                            <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : string.Empty)">@action.Title</span>
                         </a>
                     }
                 </div>

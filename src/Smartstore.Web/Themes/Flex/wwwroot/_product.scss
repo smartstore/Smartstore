@@ -545,24 +545,35 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         border-inline-end: 1px solid rgba(#000, 0.15);
         padding-top: 6px; // for the transform
         padding-bottom: $focus-ring-width; // For visual focus
-        &:last-child { border-color: transparent; }
-
+        &:last-child {
+            border-color: transparent;
+        }
         // When more than 4 action items are available,
         // .col is used instead of .col-(x). These need special care
         // concerning responsiveness.
         &.col .pd-action-label, &.col-2 .pd-action-label {
             display: none !important;
-            @include media-breakpoint-only(sm) { display: block !important;  }
-            @include media-breakpoint-up(xl) { display: block !important;  }
+
+            @include media-breakpoint-only(sm) {
+                display: block !important;
+            }
+
+            @include media-breakpoint-up(xl) {
+                display: block !important;
+            }
         }
     }
 
     .pd-action-link {
-        display: flex;
+        display: inline-flex;
         flex-direction: column;
         text-decoration: none;
         color: inherit;
         height: 100%;
+        width: 100%;
+        border: 0;
+        background-color: transparent;
+        padding-top: 0;
 
         .pd-action-icon {
             display: block;
@@ -581,7 +592,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
             text-overflow: ellipsis;
         }
 
-        &:hover .pd-action-icon { 
+        &:hover .pd-action-icon {
             color: inherit;
             transform: scale(1.14);
         }
