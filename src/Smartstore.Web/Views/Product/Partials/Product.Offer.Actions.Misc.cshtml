@@ -45,7 +45,7 @@
                                 title="@action.Tooltip"
                                 aria-label="@action.Tooltip"
                                 href="#"
-                                class="pd-action-link@(isSpecial ? " pd-action-link-special" : string.Empty) @action.CssClass"
+                                class="reset pd-action-link@(isSpecial ? " pd-action-link-special" : string.Empty) @action.CssClass"
                                 data-type="@key"
                                 data-action="add">
                             <i class="pd-action-icon @action.IconCssClass" aria-hidden="true"></i>
@@ -55,7 +55,7 @@
                     else if (key == "ask")
                     {
                         <button type="button"
-                                class="pd-action-link @(action.CssClass) action-ask-question" 
+                                class="reset pd-action-link @(action.CssClass) action-ask-question" 
                                 data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
                                 data-form-selector="#pd-form" 
                                 title="@action.Tooltip"
