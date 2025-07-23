@@ -12,7 +12,7 @@ namespace Smartstore
         /// <returns>Formatted text.</returns>
         public static string FormatOrderNoteText(this OrderNote orderNote)
         {
-            Guard.NotNull(orderNote, nameof(orderNote));
+            Guard.NotNull(orderNote);
 
             if (orderNote.Note.IsEmpty())
             {

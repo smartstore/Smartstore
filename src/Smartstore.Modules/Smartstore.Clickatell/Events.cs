@@ -31,12 +31,7 @@ namespace Smartstore.Clickatell
                 clickatellSettings,
                 cancelToken);
 
-            services.DbContext.OrderNotes.Add(new()
-            {
-                OrderId = message.Order.Id,
-                Note = T("Plugins.Sms.Clickatell.SmsSentNote"),
-                CreatedOnUtc = DateTime.UtcNow
-            });
+            services.DbContext.OrderNotes.Add(message.Order, T("Plugins.Sms.Clickatell.SmsSentNote"));
 
             await services.DbContext.SaveChangesAsync(cancelToken);
         }

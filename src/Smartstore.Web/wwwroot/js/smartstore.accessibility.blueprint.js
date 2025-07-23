@@ -369,6 +369,10 @@ class AccessKitPluginBase {
         return false;
     }
 
+    refreshWidget() {
+        // TODO: (wcag) (mc) Implement refreshWidget() to update the widget items.
+    }
+
     getRootElement(element) {
         return element.closest(this.strategy.rootSelector);
     }
@@ -463,7 +467,6 @@ class AccessKitPluginBase {
 
     /**
      * Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
-     * @param {String} orientation
      * @param {Boolean} rtl
      */
     getNavKeys(widget) {

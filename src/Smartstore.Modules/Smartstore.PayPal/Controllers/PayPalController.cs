@@ -714,12 +714,7 @@ namespace Smartstore.PayPal.Controllers
                     }
 
                     // Add order note.
-                    _db.OrderNotes.Add(new()
-                    {
-                        OrderId = order.Id,
-                        Note = $"Webhook: {Environment.NewLine}{rawRequest}",
-                        CreatedOnUtc = DateTime.UtcNow
-                    });
+                    _db.OrderNotes.Add(order, $"Webhook: {Environment.NewLine}{rawRequest}");
 
                     // Handle transactions.
                     switch (webhookResourceType)

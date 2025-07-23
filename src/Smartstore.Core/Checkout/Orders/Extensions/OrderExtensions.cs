@@ -40,7 +40,7 @@ namespace Smartstore
             return order.OrderStatus != OrderStatus.Cancelled;
         }
 
-        [Obsolete("Use 'SmartDbContext.OrderNotes.Add' to add order notes natively.")]
+        [Obsolete("Use 'SmartDbContext.OrderNotes.Add' to add order notes.")]
         public static void AddOrderNote(this Order order, string note, bool displayToCustomer = false)
         {
             if (order != null && note.HasValue())

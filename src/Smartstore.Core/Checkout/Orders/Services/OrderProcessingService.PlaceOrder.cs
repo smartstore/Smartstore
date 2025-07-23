@@ -1013,12 +1013,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         private async Task FinalizeOrderPlacement(PlaceOrderContext ctx)
         {
-            _db.OrderNotes.Add(new()
-            {
-                OrderId = ctx.Order.Id,
-                Note = T("Admin.OrderNotice.OrderPlaced"),
-                CreatedOnUtc = DateTime.UtcNow
-            });
+            _db.OrderNotes.Add(ctx.Order, T("Admin.OrderNotice.OrderPlaced"));
 
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)
