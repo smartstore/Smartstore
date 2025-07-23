@@ -56,6 +56,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Homepage.TopCategories", "Top categories", "Top-Warengruppen");
             builder.AddOrUpdate("Common.SkipList", "Skip list", "Liste überspringen");
             builder.AddOrUpdate("Common.PleaseWait", "Please wait…", "Bitte warten…");
+            builder.AddOrUpdate("Common.Helpful", "Helpful", "Hilfreich");
+            builder.AddOrUpdate("Common.NotHelpful", "Not helpful", "Nicht hilfreich");
 
             builder.AddOrUpdate("Products.ProductsHaveBeenAddedToTheCart",
                 "{0} of {1} products have been added to the shopping cart.",

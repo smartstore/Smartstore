@@ -4,11 +4,29 @@
 
 <script src="~/js/public.reviews.js" sm-target-zone="scripts"></script>
 
-@if (Model.Items.Count == 0)
-{
-    <p class="text-muted">@T("Reviews.Empty")</p>
-    return;
+@{
+    if (Model.Items.Count == 0)
+    {
+        <p class="text-muted">@T("Reviews.Empty")</p>
+        return;
+    }
+
+    var res = new Dictionary<string, LocalizedString>
+    {
+        ["WasHelpful"] = T("Reviews.Helpfulness.WasHelpful?"),
+        ["Helpful"] = T("Common.Helpful"),
+        ["NotHelpful"] = T("Common.NotHelpful"),
+        ["Yes"] = T("Common.Yes"),
+        ["No"] = T("Common.No"),
+        ["Date"] = T("Common.Date"),
+        ["Count"] = T("Common.Count"),
+        ["Verified"] = T("Reviews.Verified"),
+        ["Unverified"] = T("Reviews.Unverified"),
+        ["From"] = T("Reviews.From")
+    };
 }
+
+<span id="sr-review-washelpful" class="sr-only">@res["WasHelpful"]</span>
 
 <div class="review-list fs-h6" id="review-list">
     @for (var i = 0; i < Model.Items.Count; i++)
@@ -16,8 +34,9 @@
         var review = Model.Items[i];
         int ratingPercent = review.Rating * 20;
         var helpfulness = review.Helpfulness;
+        var id = i + 1;
 
-        <div class="review-item" id="review-item-@(i + 1)" itemscope
+        <div class="review-item" id="review-item-@id" itemscope
              attr-itemprop='(!Model.IsReviewsDetailPage, "review")'
              attr-itemtype='(!Model.IsReviewsDetailPage, "http://schema.org/Review")'>
             <div class="review-title">
@@ -30,7 +49,7 @@
 
             <div class="review-meta">
                 <span sm-if="review.CustomerName.HasValue()" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                    <span class="review-meta-label">@T("Reviews.From"):</span>
+                    <span class="review-meta-label">@res["From"]:</span>
                     @if (review.AllowViewingProfiles)
                     {
                         <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto" itemprop="name">
@@ -43,13 +62,15 @@
                     }
                 </span>
 
-                <span class="review-meta-label d-flex align-self-start">@T("Common.Date"):</span>
-                <span class="review-meta-value d-flex align-self-start text-nowrap" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
+                <span class="review-meta-label d-flex align-self-start">@res["Date"]:</span>
+                <time class="review-meta-value d-flex align-self-start text-nowrap" itemprop="datePublished" datetime="@review.WrittenOn.ToIso8601String()">
+                    @review.WrittenOnStr
+                </time>
             </div>
 
             <div sm-if="Model.ShowVerfiedPurchaseBadge" class="review-verify">
                 <span class="small badge badge-@(review.IsVerifiedPurchase ? "success" : "secondary")">
-                    @T("Reviews." + (review.IsVerifiedPurchase ? "Verified" : "Unverified"))
+                    @res[review.IsVerifiedPurchase ? "Verified" : "Unverified"]
                 </span>
             </div>
 
@@ -57,16 +78,22 @@
                 @Html.Raw(review.ReviewText)
             </p>
 
-            <div class="review-vote d-flex" data-review-id="@(helpfulness.ProductReviewId)" data-href='@(Url.Action("SetReviewHelpfulness"))'>
-                <span class="review-vote-label pr-2">@T("Reviews.Helpfulness.WasHelpful?")</span>
-                <a class="review-vote-link review-vote-link-yes mr-1" href="#" title="@T("Common.Yes")" data-toggle="tooltip" rel="nofollow">
-                    <i class="fa fa-thumbs-up"></i>
-                    <span class="review-vote-count" data-bind-to="TotalYes">@(helpfulness.HelpfulYesTotal)</span>
-                </a>
-                <a class="review-vote-link review-vote-link-no mr-1" href="#" title="@T("Common.No")" data-toggle="tooltip" rel="nofollow">
-                    <i class="fa fa-thumbs-down"></i>
-                    <span class="review-vote-count" data-bind-to="TotalNo">@(helpfulness.HelpfulNoTotal)</span>
-                </a>
+            <div class="review-vote d-flex" 
+                 data-review-id="@(helpfulness.ProductReviewId)" 
+                 data-href="@(Url.Action("SetReviewHelpfulness"))"
+                 role="group"
+                 aria-labelledby="sr-review-washelpful">
+                <span class="review-vote-label pr-2">@res["WasHelpful"]</span>
+                <button type="button" class="reset review-vote-link review-vote-link-yes mr-1" title="@res["Yes"]" data-toggle="tooltip" aria-describedby="review-yes-count-@id">
+                    <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    <span class="sr-only">@res["Yes"] - @res["Helpful"] - @res["Count"]</span>
+                    <span id="review-yes-count-@id" class="review-vote-count" data-bind-to="TotalYes" aria-label="@res["Count"]">@(helpfulness.HelpfulYesTotal)</span>
+                </button>
+                <button type="button" class="reset review-vote-link review-vote-link-no mr-1" title="@res["No"]" data-toggle="tooltip" aria-describedby="review-no-count-@id">
+                    <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    <span class="sr-only">@res["No"] - @res["NotHelpful"] - @res["Count"]</span>
+                    <span id="review-no-count-@id" class="review-vote-count" data-bind-to="TotalNo">@(helpfulness.HelpfulNoTotal)</span>
+                </button>
             </div>
 
             <zone name="productreviews_page_inside_review" />
