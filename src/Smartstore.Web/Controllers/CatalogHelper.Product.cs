@@ -1134,16 +1134,26 @@ namespace Smartstore.Web.Controllers
                     _currencyService.ConvertToWorkingCurrency(maxCustomerEnteredPrice));
             }
 
-            if (!toCart.DisableBuyButton && !toCart.AvailableForPreOrder && ctx.SelectedAttributes != null)
+            // Add-to-Cart button summary for screen readers.
+            if (!toCart.DisableBuyButton 
+                && !toCart.AvailableForPreOrder 
+                && !ctx.IsAssociatedProduct
+                && product.ProductType != ProductType.GroupedProduct
+                && ctx.ProductBundleItem == null)
             {
-                // TODO: (wcag) (mg) Double check this. In my case this threw because ctx.SelectedAttributes was null.
-                var attributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                    ctx.SelectedAttributes,
-                    product,
-                    ProductAttributeFormatOptions.PlainText,
-                    ctx.Customer);
+                if (product.ProductType == ProductType.SimpleProduct)
+                {
+                    var attributeInfo = ctx.SelectedAttributes != null
+                        ? await _productAttributeFormatter.FormatAttributesAsync(ctx.SelectedAttributes, product, ProductAttributeFormatOptions.PlainText, ctx.Customer)
+                        : string.Empty;
 
-                toCart.AddToCartDescription = T("Aria.Description.AddToCart", model.Name, model.Price.FinalPrice.ToString(), selectedQuantity, attributeInfo);
+                    toCart.AddToCartSummary = T("Aria.Label.CartItemSummaryWithAttributes", model.Name, model.Price.FinalPrice.ToString(), selectedQuantity, attributeInfo);
+                }
+                else
+                {
+                    // The cart button is not updated after quantity changes, so quantity cannot be included.
+                    toCart.AddToCartSummary = T("Aria.Label.CartItemSummary", model.Name, model.Price.FinalPrice.ToString());
+                }
             }
         }
 
