@@ -26,8 +26,6 @@
     };
 }
 
-<span id="sr-review-washelpful" class="sr-only">@res["WasHelpful"]</span>
-
 <div class="review-list fs-h6" id="review-list">
     @for (var i = 0; i < Model.Items.Count; i++)
     {
@@ -36,15 +34,24 @@
         var helpfulness = review.Helpfulness;
         var id = i + 1;
 
-        <div class="review-item" id="review-item-@id" itemscope
+        <div id="review-item-@id"
+             class="review-item"
+             role="article"
+             aria-labelledby="review-title-@id"
+             itemscope
              attr-itemprop='(!Model.IsReviewsDetailPage, "review")'
              attr-itemtype='(!Model.IsReviewsDetailPage, "http://schema.org/Review")'>
             <div class="review-title">
-                <div class="rating" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+                <div role="img" 
+                     class="rating" 
+                     itemprop="reviewRating" 
+                     itemscope 
+                     itemtype="https://schema.org/Rating" 
+                     aria-label="@T("Aria.Label.Rating", @review.Rating, string.Empty)">
                     <div style="width: @(ratingPercent)%"></div>
                     <meta itemprop="ratingValue" content="@review.Rating" />
                 </div>
-                <h4 itemprop="name">@review.Title</h4>
+                <h4 id="review-title-@id" itemprop="name">@review.Title</h4>
             </div>
 
             <div class="review-meta">
@@ -53,7 +60,8 @@
                     @if (review.AllowViewingProfiles)
                     {
                         <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto" itemprop="name">
-                            @(review.CustomerName)
+                            <span class="sr-only">@(res["From"])&nbsp;</span>
+                            <span>@review.CustomerName</span>
                         </a>
                     }
                     else
@@ -82,16 +90,16 @@
                  data-review-id="@(helpfulness.ProductReviewId)" 
                  data-href="@(Url.Action("SetReviewHelpfulness"))"
                  role="group"
-                 aria-labelledby="sr-review-washelpful">
-                <span class="review-vote-label pr-2">@res["WasHelpful"]</span>
+                 aria-labelledby="sr-review-washelpful-@id">
+                <span id="sr-review-washelpful-@id" class="review-vote-label pr-2">@res["WasHelpful"]</span>
                 <button type="button" class="reset review-vote-link review-vote-link-yes mr-1" title="@res["Yes"]" data-toggle="tooltip" aria-describedby="review-yes-count-@id">
                     <i class="fa fa-thumbs-up" aria-hidden="true"></i>
-                    <span class="sr-only">@res["Yes"] - @res["Helpful"] - @res["Count"]</span>
+                    <span class="sr-only">@res["Yes"] - @res["Helpful"]</span>
                     <span id="review-yes-count-@id" class="review-vote-count" data-bind-to="TotalYes" aria-label="@res["Count"]">@(helpfulness.HelpfulYesTotal)</span>
                 </button>
                 <button type="button" class="reset review-vote-link review-vote-link-no mr-1" title="@res["No"]" data-toggle="tooltip" aria-describedby="review-no-count-@id">
                     <i class="fa fa-thumbs-down" aria-hidden="true"></i>
-                    <span class="sr-only">@res["No"] - @res["NotHelpful"] - @res["Count"]</span>
+                    <span class="sr-only">@res["No"] - @res["NotHelpful"]</span>
                     <span id="review-no-count-@id" class="review-vote-count" data-bind-to="TotalNo">@(helpfulness.HelpfulNoTotal)</span>
                 </button>
             </div>

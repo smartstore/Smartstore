@@ -9,7 +9,10 @@
             <div class="comment-meta">
                 @if (Model.AllowViewingProfiles)
                 {
-                    <a class="comment-user" asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" rel="nofollow">@(Model.CustomerName)</a>
+                    <a class="comment-user" asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" rel="nofollow">
+                        <span class="sr-only">@(T("Common.From"))&nbsp;</span>
+                        <span>@Model.CustomerName</span>
+                    </a>
                 }
                 else
                 {
