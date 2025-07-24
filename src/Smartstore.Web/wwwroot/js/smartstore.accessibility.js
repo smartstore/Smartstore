@@ -374,7 +374,7 @@ const KEY = AK.KEY;
             return event;
         }
 
-        /*
+        /**
         * Key handler for plugins using a roving tabindex list 
         * @param {KeyboardEvent}  e        – Original event
         * @param {HTMLElement[]}  items    – Currently visible/focusable list elements

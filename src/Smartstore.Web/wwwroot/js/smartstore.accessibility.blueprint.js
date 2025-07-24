@@ -14,7 +14,6 @@ class AccessKit {
     static TEXT_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
     static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
     static ACTIVE_RADIO_SELECTOR = 'input[type="radio"]:not([disabled])';
-    static EVENT_NAMESPACE = '.ak';
     static KEY = {
         LEFT: 'ArrowLeft',
         UP: 'ArrowUp',
@@ -251,6 +250,8 @@ class AccessKit {
 }
 
 class AccessKitEvents {
+    EVENT_NAMESPACE = '.ak';
+
     constructor() {
         this._handles = [];
     }
@@ -276,8 +277,8 @@ class AccessKitEvents {
      */
     trigger(name, element, args = {}) {
         // TODO: (wcag) (mc) Move trigger method to a common place/script.
-        if (!name.endsWith(AccessKit.EVENT_NAMESPACE)) {
-            name += AccessKit.EVENT_NAMESPACE;
+        if (!name.endsWith(EVENT_NAMESPACE)) {
+            name += EVENT_NAMESPACE;
         }
 
         const jEvent = $.Event(name, { detail: args });
@@ -311,6 +312,7 @@ class AccessKitEvents {
         this._handles.forEach(off => off());
     }
 }
+
 
 /*
 * Plugin base class for AccessKit plugins.
@@ -418,6 +420,59 @@ class AccessKitPluginBase {
         return items;
     }
 
+    /**
+    * Key handler for plugins using a roving tabindex list 
+    * @param {KeyboardEvent}  e        – Original event
+    * @param {Object}  widget          – Currently active widget
+    * @param {Object} [options]        – Optional configuration
+    *        onActivate    function(el, idx, widget)    Handler for ENTER/SPACE
+    *        onKey         function(e, idx, widget)     Extra key handler for plugins
+    *
+    * @returns {boolean}   true → Event processed, false → delegate to browser
+    */
+    handleRovingKeys(e, widget, { onActivate = null, onKey = null } = {}) {
+        // TODO: (wcag) (mh) Research why items are of type NodeList after AJAX-Updates (e.g. in product detail variant update)
+        var items = widget.items;
+        if (items instanceof NodeList) {
+            items = [...items];
+        }
+
+        const idx = items.indexOf(e.target);
+        if (idx === -1) return false;
+
+        // Determine navigation keys depending on orientation & rtl
+        const k = AccessKit.KEY;
+        const [PREV_KEY, NEXT_KEY] = this._getNavKeys(widget);
+
+        switch (e.key) {
+            /* Navigate ------------------------------------------------------- */
+            case PREV_KEY:
+                return this.move(items[this._nextIdx(idx, -1, items.length)], widget);
+            case NEXT_KEY:
+                return this.move(items[this._nextIdx(idx, +1, items.length)], widget);
+            case k.HOME:
+                return this.move(items[0], widget);
+            case k.END:
+                return this.move(items[items.length - 1], widget);
+
+            /* Activate (ENTER / SPACE) -------------------------------------- */
+            case k.ENTER:
+            case k.SPACE:
+                if (typeof onActivate === 'function') {
+                    onActivate(e.target, idx, widget);
+                    return true;
+                }
+                break;
+        }
+
+        // Plugin specific extra keys
+        if (typeof onKey === 'function') {
+            return onKey(e, idx, widget) === true;
+        }
+
+        return false;
+    }
+
     handleKey(e) {
         const item = e.target;
         const root = this.getRootElement(item);
@@ -448,7 +503,7 @@ class AccessKitPluginBase {
      * @param {Object} widget
      */
     move(target, widget) {
-        this.moveFocus(target, widget);
+        return this.moveFocus(target, widget);
     }
 
     /**
@@ -457,10 +512,11 @@ class AccessKitPluginBase {
      * @param {Object} widget
      */
     moveFocus(target, widget) {
-        if (!target) return;
+        if (!target) return false;
         widget.items.forEach(i => i.tabIndex = -1);
         target.tabIndex = 0;
         target.focus();
+        return true;
     }
 
     removeFocus(el) { }
@@ -469,7 +525,7 @@ class AccessKitPluginBase {
      * Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
      * @param {Boolean} rtl
      */
-    getNavKeys(widget) {
+    _getNavKeys(widget) {
         const k = AccessKit.KEY;
         return widget.orientation === 'horizontal'
             ? (widget.rtl ? [k.RIGHT, k.LEFT] : [k.LEFT, k.RIGHT])
@@ -489,7 +545,150 @@ class AccessKitPluginBase {
     }
 }
 
-class TestRadioGroupPlugin extends AccessKitPluginBase {
+
+/**
+ * Base plugin for accessible expandable elements (tree, menubar, combobox, disclosure, accordion).
+ */
+class AccessKitExpandablePluginBase extends AccessKitPluginBase {
+    /**
+    * Opens, closes or toggles an expand/collapse trigger.
+    * @param {HTMLElement} trigger   Element with aria-expanded
+    * @param {boolean|null} expand   true = open, false = close, null = Toggle state (default)
+    * @param {Object} [opt]
+    *        focusTarget      'first' | 'trigger' | HTMLElement | null
+    *        collapseSiblings boolean – Close all siblings on opening */
+    toggleExpanded(trigger, expand = null, opt = {}) {
+        if (!trigger) return;
+
+        // Determine targets
+        let target;
+        if (trigger.hasAttribute('aria-controls')) {
+            target = document.getElementById(trigger.getAttribute('aria-controls'));
+        }
+        else {
+            // Fallback: <button> … <div class="panel">
+            target = trigger.nextElementSibling;
+        }
+        if (!target) return;
+
+        var isOpen = trigger.getAttribute('aria-expanded') === 'true' || trigger.open === true;
+        var shouldOpen = expand === null ? !isOpen : Boolean(expand);
+
+        // Dispatch event so consumers can execute their special open/close mechanisms if they have to.
+        this.events.trigger(shouldOpen ? 'expand' : 'collapse', trigger, { trigger, target });
+
+        // Wait for transition end to set focus
+        async function waitForTransitions(el) {
+            if (!el) return;
+            const trans = el.getAnimations().filter(a => a instanceof CSSTransition);
+            if (trans.length === 0) return;
+
+            await Promise.all(
+                trans.map(a => a.finished.catch(() => { }))
+            );
+        }
+
+        if (shouldOpen) {
+            waitForTransitions(target).then(setAttrsAndFocus);
+        }
+        else {
+            setAttrsAndFocus();
+        }
+
+        function setAttrsAndFocus() {
+            // Set attributes & visibilty
+            if (trigger.hasAttribute('aria-expanded')) {
+                trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+            } else if ('open' in trigger) {
+                trigger.open = shouldOpen;
+            }
+
+            // TODO: (wcag) (mh) Don't do this! This should be handled by the event consumer. Remove after testing in all expandable plugins.
+            //if (target) target.hidden = !shouldOpen;
+
+            // Accordeon mode > toggle siblings
+            if (shouldOpen && opt.collapseSiblings && trigger.parentElement) {
+                const peers = trigger.parentElement.querySelectorAll('[aria-expanded="true"],[open]');
+                peers.forEach((p) => {
+                    if (p !== trigger) this.toggleExpanded(p, false);
+                });
+            }
+
+            // Focus
+            if (target) {
+                let focusEl = null;
+                if (opt.focusTarget === 'first') {
+                    // TODO: (wcag) (mh) This smells :-)
+                    focusEl = target.querySelector(':is([tabindex], button, a, input, select, textarea):not([tabindex="-1"])');
+                } else if (opt.focusTarget instanceof HTMLElement) {
+                    focusEl = opt.focusTarget;
+                } else if (opt.focusTarget === 'trigger') {
+                    focusEl = trigger;
+                }
+
+                focusEl?.focus();
+            }
+
+            // Set attributes
+            trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+
+            if (target) {
+                target.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+            }
+        }
+    }
+}
+
+
+/* --------------------------------------------------
+*  TablistPlugin – Roving‑Tabindex & Panel Switching
+*  Handles all items of [role="tablist"] + [role="tab"] + [role="tabpanel"]
+* -------------------------------------------------- */
+class TablistPlugin extends AccessKitPluginBase {
+    initWidgetCore(widget) {
+        const selectedTab = widget.items.find(t => t.getAttribute('aria-selected') === 'true') || widget.items[0];
+        this.select(selectedTab, widget, false);
+    }
+
+    handleKeyCore(e, widget) {
+        return this.handleRovingKeys(e, widget, {
+            onActivate: (el) => this.select(el),
+        });
+    }
+
+    // Shift roving focus to the next tab.
+    move(tab, widget) {
+        if (!tab) return;
+        super.move(tab, widget);
+        this.select(tab, widget, false); // Do not display tabpanel on move.
+    }
+
+    // Update aria attributes & optionally select/display tab panel.
+    select(tab, widget, displayPanel = true) {
+        if (!tab) return;
+
+        // Update tab attributes.
+        widget.items.forEach(t => {
+            const selected = t === tab;
+            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+            t.setAttribute('tabindex', selected ? 0 : -1);
+        });
+
+        // Shift focus and display tabpanel by dispatching the click event on tab.
+        if (displayPanel) {
+            tab.dispatchEvent(new Event('click', { bubbles: true, cancelable: true }));
+            document.getElementById(tab.getAttribute('aria-controls'))?.focus();
+        }
+    }
+}
+
+
+/* --------------------------------------------------
+ *  RadiogroupPlugin – Roving‑Tabindex & Selection.
+ *  Handles widgets using [role="radiogroup"] and input[type="radio"] children.
+ *  Supports only single‑‑select.
+ * -------------------------------------------------- */
+class RadioGroupPlugin extends AccessKitPluginBase {
     constructor(strategy) {
         // { name: 'radiogroup', rootSelector: '[role="radiogroup"]', itemSelector: 'input[type="radio"]:not([disabled])' }
         super(strategy);
@@ -502,8 +701,25 @@ class TestRadioGroupPlugin extends AccessKitPluginBase {
         }
     }
 
-    handleKeyCore(e) {
-        // Do something special for radio group
+    handleKeyCore(e, widget) {
+        if (!widget.items?.length) return false;
+
+        return this.handleRovingKeys(e, widget, {
+            onActivate: (el) => el.click(),
+            onKey: (ev) => {
+                // INFO: This prevents default browser navigation
+                // which is possible for radiogroups via ↑ & ← for backward and ↓ & → for forward navigation with no regard of orientation
+                return !this._getNavKeys(widget).includes(ev.key);
+            }
+        });
+    }
+
+    move(target, widget) {
+        super.move(target, widget);
+
+        // TODO: (wcag) (mh) Evaluate if this is needed
+        // In radiogroups, moving also selects (if manualselect is not true)
+        if (!widget?.manualselect) target.click();
     }
 }
 
@@ -512,12 +728,17 @@ class TestRadioGroupPlugin extends AccessKitPluginBase {
     // Register default strategies
     AccessKit.register([
         {
-            ctor: TestRadioGroupPlugin.ctor,
+            ctor: RadioGroupPlugin.ctor,
             name: 'radiogroup',
             rootSelector: '[role="radiogroup"]',
-            itemSelector: 'input[type="radio"]:not([disabled])',
-            // More stuff, e.g. match() ??
-        }
+            itemSelector: 'input[type="radio"]:not([disabled])'
+        },
+        {
+            ctor: TablistPlugin.ctor,
+            name: 'tablist',
+            rootSelector: '[role="tablist"]',
+            itemSelector: '[role="tab"]'
+        },
     ]);
     
     document.addEventListener('DOMContentLoaded', () => {
