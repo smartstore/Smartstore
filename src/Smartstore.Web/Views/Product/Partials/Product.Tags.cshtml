@@ -7,19 +7,19 @@
     return;
 }
 
-<div class="pd-tags block" role="region" aria-labelledby="pd-tags-title">
+<nav class="pd-tags block" aria-labelledby="pd-tags-title">
     <div class="block-title">
         <h4 id="pd-tags-title">@T("Products.Tags")</h4>
     </div>
-    <div class="block-body pt-3 hstack flex-wrap gap-1" role="listbox" aria-orientation="horizontal" aria-labelledby="pd-tags-title">
-        @for (int i = 0; i < Model.Count; i++)
+    <ul class="block-body pt-3 hstack flex-wrap gap-1 list-unstyled" aria-labelledby="pd-tags-title">
+        @foreach (var tag in Model)
         {
-            var tag = Model[i];
-
-            <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag badge badge-lg badge-pill badge-light" role="option">
-                <span sm-language-attributes-for="tag.Name">@tag.Name</span>
-                <span class="pd-tag-count pl-1 fwn text-muted">@tag.ProductCount</span>
-            </a>
+            <li>
+                <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag badge badge-lg badge-pill badge-light">
+                    <span sm-language-attributes-for="tag.Name">@tag.Name</span>
+                    <span class="pd-tag-count pl-1 fwn text-muted">@tag.ProductCount</span>
+                </a>
+            </li>
         }
-    </div>
-</div>
+    </ul>
+</nav>

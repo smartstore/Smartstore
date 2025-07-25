@@ -16,30 +16,31 @@
     }
 }
 
-<div class="pd-tierprices pd-group">
-    <h6 class="font-weight-medium mb-2">
+<div class="pd-tierprices pd-group" role="region" aria-labelledby="pd-tierprices-title">
+    <h6 id="pd-tierprices-title" class="font-weight-medium mb-2">
         @Html.Raw(T("Products.TierPrices"))
     </h6>
     <div class="table-responsive">
         <table class="table table-bordered table-sm table-tierprices@(Model.Count > 5 ? " d-block" : "")">
+            <caption class="sr-only">@Html.Raw(T("Products.TierPrices"))</caption>
             <thead>
                 <tr>
-                    <th>@T("Products.TierPrices.Quantity")</th>
+                    <th scope="col">@T("Products.TierPrices.Quantity")</th>
                     @foreach (var tierPrice in Model.Take(200))
                     {
-                        <th class="pd-tierprice-qty text-center">
-                            @(tierPrice.Quantity)+
+                        <th id="pd-tierprice-qty-@tierPrice.Quantity" scope="col" class="pd-tierprice-qty text-center">
+                            <data value="@tierPrice.Quantity">@(tierPrice.Quantity)+</data>
                         </th>
                     }
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <th>@T("Products.TierPrices.Price")</th>
+                    <td>@T("Products.TierPrices.Price")</td>
                     @foreach (var tierPrice in Model.Take(200))
                     {
-                        <td class="pd-tierprice-price text-nowrap text-center">
-                            @tierPrice.Price
+                        <td headers="pd-tierprice-qty-@tierPrice.Quantity" class="pd-tierprice-price text-nowrap text-center">
+                            <data asp-for="@tierPrice.Price">@tierPrice.Price</data>
                         </td>
                     }
                 </tr>

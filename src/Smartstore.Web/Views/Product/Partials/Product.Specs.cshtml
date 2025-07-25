@@ -13,12 +13,13 @@
 
 <div class="pd-specs table-responsive">
     <table class="table pd-specs-table">
+        <caption class="sr-only">@T("Products.Specs")</caption>
         <tbody>
             @foreach (var grp in grouped)
             {
                 var count = grp.Count();
                 <tr attr-class='(grp.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
-                    <td class="pd-spec-name" sm-language-attributes-for="grp.Key">@grp.Key</td>
+                    <th scope="row" class="pd-spec-name" sm-language-attributes-for="grp.Key">@grp.Key</th>
                     <td class="pd-spec-value">
                         @if (count == 1)
                         {
