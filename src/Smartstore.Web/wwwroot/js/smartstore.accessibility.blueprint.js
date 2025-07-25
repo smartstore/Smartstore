@@ -314,7 +314,7 @@ class AccessKitEvents {
 }
 
 
-/*
+/**
 * Plugin base class for AccessKit plugins.
 */
 class AccessKitPluginBase {
@@ -356,7 +356,7 @@ class AccessKitPluginBase {
                 strategy: this.strategy,
                 root: root,
                 orientation: root.getAttribute('aria-orientation') || 'vertical',
-                multiselect: root.getAttribute('aria-multiselectable') === 'true',
+                multiselect: root.getAttribute('aria-multiselectable') === 'true' || root.dataset.akMultiselect === 'true',
                 manualselect: root.dataset.manualselect === 'true',
                 items: this.getRovingItems(root),
                 rtl: AccessKit.RTL
@@ -420,17 +420,39 @@ class AccessKitPluginBase {
         return items;
     }
 
+    handleKey(e) {
+        const item = e.target;
+        const root = this.getRootElement(item);
+        if (!root) return false;
+
+        const widget = this.getWidget(root, true); // add if not present
+        if (!widget || !widget.items.length) return false;
+
+        this.handleKeyCore(e, widget);
+    }
+
+    /**
+     * Handle 'keydown' or 'keyup' event.
+     * Must return `true` if the event has been processed (AccessKit then calls preventDefault / stopPropagation).
+     * 
+     * @param {KeyboardEvent} e
+     * @param {Object} widget
+     * 
+     * @returns {Boolean} handled?
+     */
+    handleKeyCore(e, widget) {
+        if (!widget.items?.length) return false;
+        return this.handleRovingKeys(e, widget);
+    }
+
     /**
     * Key handler for plugins using a roving tabindex list 
     * @param {KeyboardEvent}  e        – Original event
     * @param {Object}  widget          – Currently active widget
-    * @param {Object} [options]        – Optional configuration
-    *        onActivate    function(el, idx, widget)    Handler for ENTER/SPACE
-    *        onKey         function(e, idx, widget)     Extra key handler for plugins
     *
     * @returns {boolean}   true → Event processed, false → delegate to browser
     */
-    handleRovingKeys(e, widget, { onActivate = null, onKey = null } = {}) {
+    handleRovingKeys(e, widget) {
         // TODO: (wcag) (mh) Research why items are of type NodeList after AJAX-Updates (e.g. in product detail variant update)
         var items = widget.items;
         if (items instanceof NodeList) {
@@ -458,43 +480,26 @@ class AccessKitPluginBase {
             /* Activate (ENTER / SPACE) -------------------------------------- */
             case k.ENTER:
             case k.SPACE:
-                if (typeof onActivate === 'function') {
-                    onActivate(e.target, idx, widget);
-                    return true;
-                }
-                break;
+                this.onActivateItem(e.target, idx, widget);
+                return true;
         }
 
         // Plugin specific extra keys
-        if (typeof onKey === 'function') {
-            return onKey(e, idx, widget) === true;
-        }
-
-        return false;
-    }
-
-    handleKey(e) {
-        const item = e.target;
-        const root = this.getRootElement(item);
-        if (!root) return false;
-
-        const widget = this.getWidget(root, true); // add if not present
-        if (!widget || !widget.items.length) return false;
-
-        this.handleKeyCore(e, widget);
+        return this.onItemKeyPress(e, idx, widget);
     }
 
     /**
-     * Handle 'keydown' or 'keyup' event.
-     * Must return `true` if the event has been processed (AccessKit then calls preventDefault / stopPropagation).
-     * 
-     * @param {KeyboardEvent} e
-     * @param {Object} widget
-     * 
-     * @returns {Boolean} handled?
+    * Handler for ENTER/SPACE
+    */
+    onActivateItem(element, index, widget) {
+        return false;
+    }
+
+    /**
+     * Generic extra key handler
      */
-    handleKeyCore(e, widget) {
-        // Overwrite to do something special
+    onItemKeyPress(event, index, widget) {
+        return false;
     }
 
     /**
@@ -539,7 +544,7 @@ class AccessKitPluginBase {
 
     /**
      * Remove all event listeners that were registered by this plugin.
-    */ 
+    */
     destroy() {
         this.events.destroy();
     }
@@ -638,110 +643,3 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
         }
     }
 }
-
-
-/* --------------------------------------------------
-*  TablistPlugin – Roving‑Tabindex & Panel Switching
-*  Handles all items of [role="tablist"] + [role="tab"] + [role="tabpanel"]
-* -------------------------------------------------- */
-class TablistPlugin extends AccessKitPluginBase {
-    initWidgetCore(widget) {
-        const selectedTab = widget.items.find(t => t.getAttribute('aria-selected') === 'true') || widget.items[0];
-        this.select(selectedTab, widget, false);
-    }
-
-    handleKeyCore(e, widget) {
-        return this.handleRovingKeys(e, widget, {
-            onActivate: (el) => this.select(el),
-        });
-    }
-
-    // Shift roving focus to the next tab.
-    move(tab, widget) {
-        if (!tab) return;
-        super.move(tab, widget);
-        this.select(tab, widget, false); // Do not display tabpanel on move.
-    }
-
-    // Update aria attributes & optionally select/display tab panel.
-    select(tab, widget, displayPanel = true) {
-        if (!tab) return;
-
-        // Update tab attributes.
-        widget.items.forEach(t => {
-            const selected = t === tab;
-            t.setAttribute('aria-selected', selected ? 'true' : 'false');
-            t.setAttribute('tabindex', selected ? 0 : -1);
-        });
-
-        // Shift focus and display tabpanel by dispatching the click event on tab.
-        if (displayPanel) {
-            tab.dispatchEvent(new Event('click', { bubbles: true, cancelable: true }));
-            document.getElementById(tab.getAttribute('aria-controls'))?.focus();
-        }
-    }
-}
-
-
-/* --------------------------------------------------
- *  RadiogroupPlugin – Roving‑Tabindex & Selection.
- *  Handles widgets using [role="radiogroup"] and input[type="radio"] children.
- *  Supports only single‑‑select.
- * -------------------------------------------------- */
-class RadioGroupPlugin extends AccessKitPluginBase {
-    constructor(strategy) {
-        // { name: 'radiogroup', rootSelector: '[role="radiogroup"]', itemSelector: 'input[type="radio"]:not([disabled])' }
-        super(strategy);
-    }
-
-    initWidgetCore(widget) {
-        // Make radiogroup focusable itself (fallback if options are removed dynamically)
-        if (!widget.root.hasAttribute('tabindex')) {
-            widget.root.tabIndex = -1;
-        }
-    }
-
-    handleKeyCore(e, widget) {
-        if (!widget.items?.length) return false;
-
-        return this.handleRovingKeys(e, widget, {
-            onActivate: (el) => el.click(),
-            onKey: (ev) => {
-                // INFO: This prevents default browser navigation
-                // which is possible for radiogroups via ↑ & ← for backward and ↓ & → for forward navigation with no regard of orientation
-                return !this._getNavKeys(widget).includes(ev.key);
-            }
-        });
-    }
-
-    move(target, widget) {
-        super.move(target, widget);
-
-        // TODO: (wcag) (mh) Evaluate if this is needed
-        // In radiogroups, moving also selects (if manualselect is not true)
-        if (!widget?.manualselect) target.click();
-    }
-}
-
-// Boot
-(function () {
-    // Register default strategies
-    AccessKit.register([
-        {
-            ctor: RadioGroupPlugin.ctor,
-            name: 'radiogroup',
-            rootSelector: '[role="radiogroup"]',
-            itemSelector: 'input[type="radio"]:not([disabled])'
-        },
-        {
-            ctor: TablistPlugin.ctor,
-            name: 'tablist',
-            rootSelector: '[role="tablist"]',
-            itemSelector: '[role="tab"]'
-        },
-    ]);
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        window.AK = AccessKit.create(window.AccessKitOptions || {});
-    });
-})();
