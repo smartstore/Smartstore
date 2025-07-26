@@ -156,7 +156,7 @@ class TreePlugin extends AccessKitExpandablePluginBase {
     //    });
     //}
 
-    //handleKey(e) {
+    //handleKeyCore(e, widget) {
     //    const item = e.target;
     //    if (!item || item.getAttribute('role') !== 'treeitem')
     //        return false;
@@ -170,6 +170,8 @@ class TreePlugin extends AccessKitExpandablePluginBase {
     //        return false;
 
     //    const orientation = tree.getAttribute('aria-orientation') ?? 'vertical';
+
+    //    return super.handleKeyCore(e, widget);
 
     //    return this.handleRovingKeys(e, items, {
     //        orientation,
@@ -277,11 +279,23 @@ class RadioGroupPlugin extends AccessKitPluginBase {
 (function () {
     // Register default strategies
     AccessKit.register([
+        //{
+        //    ctor: MenuPlugin.ctor,
+        //    name: 'menu',
+        //    rootSelector: '[role="menu"], [role="menubar"]',
+        //    itemSelector: '[role="menuitem"]'
+        //},
+        //{
+        //    ctor: ComboboxPlugin.ctor,
+        //    name: 'combobox',
+        //    rootSelector: '[role="combobox"]',
+        //    itemSelector: AccessKit.ACTIVE_OPTION_SELECTOR
+        //},
         {
             ctor: ListboxPlugin.ctor,
             name: 'listbox',
             rootSelector: '[role="listbox"]',
-            itemSelector: '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))'
+            itemSelector: AccessKit.ACTIVE_OPTION_SELECTOR
         },
         {
             ctor: RadioGroupPlugin.ctor,
@@ -292,7 +306,7 @@ class RadioGroupPlugin extends AccessKitPluginBase {
         {
             ctor: TreePlugin.ctor,
             name: 'tree',
-            rootSelector: '[role="tree"]',
+            rootSelector: '[role="tree"], [role="group"]',
             itemSelector: '[role="treeitem"]'
         },
         {

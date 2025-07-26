@@ -355,7 +355,7 @@ class AccessKitPluginBase {
             const widget = {
                 strategy: this.strategy,
                 root: root,
-                orientation: root.getAttribute('aria-orientation') || 'vertical',
+                orientation: root.getAttribute('aria-orientation') || this.strategy.defaultOrientation || 'vertical',
                 multiselect: root.getAttribute('aria-multiselectable') === 'true' || root.dataset.akMultiselect === 'true',
                 manualselect: root.dataset.manualselect === 'true',
                 items: this.getRovingItems(root),
