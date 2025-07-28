@@ -46,6 +46,17 @@
             // Init dropzone.
             elDropzone.addClass("dropzone");
 
+            // Make dropzone accessible by keyboard.
+            elDropzone.on('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const $dzClickable = elDropzone.find('.dz-clickable:first')
+                    if ($dzClickable.length) {
+                        $dzClickable.trigger('click');
+                    }
+                }
+            });
+
             // Dropzone init params.
             var opts = {
                 url: $el.data('upload-url'),
@@ -974,7 +985,7 @@
 
         icon = icon || Smartstore.media.getIconHint({});
 
-        var html = '<i class="file-icon show fa-2x ' + icon.name + '"></i>';
+        var html = '<i class="file-icon show fa-2x ' + icon.name + '" aria-hidden="true"></i>';
         fuContainer.find('.fu-thumb').addClass("empty").html(html);
         fuContainer.find('.fu-message').addClass("empty");
     }

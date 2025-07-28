@@ -3,6 +3,7 @@
 @{
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
+    var srLabelTemplate = T("Aria.Label.Choice");
 }
 
 <div class="choice-boxes" 
@@ -70,7 +71,7 @@
                        id="@(controlId)_@(item.Id)"
                        name="@(controlId)"
                        value="@item.Id"
-                       aria-label="@label"
+                       aria-label="@srLabelTemplate.Value.FormatInvariant(Model.Name, label)"
                        attr-checked='(item.IsPreSelected, "checked")'
                        attr-disabled='(item.IsDisabled, "disabled")' />
 

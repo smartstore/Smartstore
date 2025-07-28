@@ -54,13 +54,16 @@
         <partial name="Product.GiftCard" model="Model.GiftCard" view-data="dataDictGiftCard" />
     }
 
-    <div sm-if="Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.Any(x => x.ShouldBeRendered)" class="pd-variants-container" data-partial="Variants">
-        @{
-            var dataDictVariants = new ViewDataDictionary(ViewData);
-            dataDictVariants.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
-            <partial name="Product.Variants" model="Model.ProductVariantAttributes" view-data="dataDictVariants" />
-        }
-    </div>
+    @if (Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.Any(x => x.ShouldBeRendered))
+    {
+        <div class="pd-variants-container" data-partial="Variants" role="group" aria-label="@T("Aria.Label.ProductVariants")">
+            @{
+                var dataDictVariants = new ViewDataDictionary(ViewData);
+                dataDictVariants.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
+                <partial name="Product.Variants" model="Model.ProductVariantAttributes" view-data="dataDictVariants" />
+            }
+        </div>
+    }
 
     <div class="pd-offer-actions-container" data-partial="OfferActions">
         @{

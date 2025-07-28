@@ -12,9 +12,9 @@
 }
 
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
-    <div class="dropzone-target">
+    <div class="dropzone-target" role="button" tabindex="0" aria-labelledby="@(Model.Name)-msg">
         <div class="dropzone-file-info d-flex align-items-center">
-            <div class="fu-message text-truncate empty" title="@Model.UploadText">
+            <div id="@(Model.Name)-msg" class="fu-message text-truncate empty" title="@Model.UploadText">
                 @if (Model.UploadText.HasValue())
                 {
                     @Model.UploadText
@@ -25,8 +25,12 @@
                 }
             </div>
 
-            <a sm-if="!Model.MultiFile" href="#" class="fu-remove remove btn btn-clear-dark btn-sm btn-no-border btn-icon rounded-circle" title="@T("FileUploader.Dropzone.DictRemoveFile")">
-                <i class="fu-remove-icon fs-h6 p-0 text-danger">&times;</i>
+            <a sm-if="!Model.MultiFile" 
+               href="#" 
+               class="fu-remove remove btn btn-clear-dark btn-sm btn-no-border btn-icon rounded-circle" 
+               title="@T("FileUploader.Dropzone.DictRemoveFile")"
+               aria-label="@T("FileUploader.Dropzone.DictRemoveFile")">
+                <i class="fu-remove-icon fs-h6 p-0 text-danger" aria-hidden="true">&times;</i>
             </a>
         </div>
 

@@ -3,7 +3,7 @@
 @{
     var controlId = Model.BuildControlId();
     var items = Model.Values ?? new List<ChoiceItemModel>();
-
+    var srLabelTemplate = T("Aria.Label.Choice");
     // TODO: (mc) Replace .radio with .form-radio
 }
 
@@ -11,10 +11,17 @@
 {
     var checkId = controlId + "_" + item.Id;
     var hasColor = item.Color.HasValue() && item.Color != "transparent";
+    string label = item.GetItemLabel();
     <div class="radio" title="@item.Title.NullEmpty()">
         <label class="form-radio-label choice-item@(item.IsUnavailable ? " choice-item-unavailable" : "")">
-            <input class="form-radio-input" type="radio" id="@checkId" name="@controlId" value="@item.Id" 
-                   attr-checked='(item.IsPreSelected, "checked")' attr-disabled='(item.IsDisabled, "disabled")' />
+            <input class="form-radio-input" 
+                   type="radio" 
+                   id="@checkId" 
+                   name="@controlId" 
+                   value="@item.Id"
+                   aria-label="@srLabelTemplate.Value.FormatInvariant(Model.Name, label)"
+                   attr-checked='(item.IsPreSelected, "checked")' 
+                   attr-disabled='(item.IsDisabled, "disabled")' />
 
             @if (item.ImageUrl.HasValue())
             {
@@ -34,7 +41,7 @@
                 <span class="choice-item-color" style="background-color: @item.Color"></span>
             }
 
-            @item.GetItemLabel()
+            @label
         </label>
     </div>
 }
