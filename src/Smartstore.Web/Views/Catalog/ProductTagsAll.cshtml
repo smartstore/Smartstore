@@ -9,16 +9,24 @@
 
 <div class="page product-tags-all-page">
     <div class="page-title">
-        <h1 class="h2">@T("Products.Tags.All")</h1>
+        <h1 id="product-tags-all-title" class="h2">@T("Products.Tags.All")</h1>
     </div>
     <div class="page-body">
-        <div sm-if="Model.Tags.Count > 0" class="listbox block-body">
+        <div sm-if="Model.Tags.Count > 0" class="listbox block-body position-relative">
+            <a href="javascript;:" class="btn-skip-content btn btn-primary rounded-pill">
+                @T("Common.SkipList")
+            </a>
             <div class="tags fs-h4">
-                <ul class="list-inline">
+                <ul class="list-inline" aria-labelledby="product-tags-all-title" role="menu" aria-orientation="horizontal">
                     @foreach (var item in Model.Tags)
                     {
-                        <li class="list-inline-item">
-                            <a class="fwn link-dnu link-body" asp-route="ProductsByTag" asp-route-productTagId="@item.Id" asp-route-path="@item.Slug" style="font-size:@(Model.GetFontSize(item))%;">
+                        <li class="list-inline-item" role="none">
+                            <a class="fwn link-dnu link-body" 
+                               asp-route="ProductsByTag" 
+                               asp-route-productTagId="@item.Id" 
+                               asp-route-path="@item.Slug"
+                               role="menuitem"
+                               style="font-size:@(Model.GetFontSize(item))%;">
                                 <span sm-language-attributes-for="item.Name">@item.Name</span>
                             </a>
                         </li>

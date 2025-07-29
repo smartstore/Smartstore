@@ -7,16 +7,18 @@
     return;
 }
 
-<nav class="pd-tags block" aria-labelledby="pd-tags-title">
+<nav class="pd-tags block position-relative" aria-labelledby="pd-tags-title">
+    <a sm-if="Model.Count > 1" href="javascript;:" class="btn-skip-content btn btn-primary rounded-pill">
+        @T("Common.SkipList")
+    </a>
     <div class="block-title">
         <h4 id="pd-tags-title">@T("Products.Tags")</h4>
     </div>
-    @* TODO: (wcag) (mg) And once again you removed arrow navigation via AccessKit! Why? *@
-    <ul class="block-body pt-3 hstack flex-wrap gap-1 list-unstyled" aria-labelledby="pd-tags-title">
+    <ul class="block-body pt-3 hstack flex-wrap gap-1 list-unstyled" aria-labelledby="pd-tags-title" role="menu" aria-orientation="horizontal">
         @foreach (var tag in Model)
         {
-            <li>
-                <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag badge badge-lg badge-pill badge-light">
+            <li role="none">
+                <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag badge badge-lg badge-pill badge-light" role="menuitem">
                     <span sm-language-attributes-for="tag.Name">@tag.Name</span>
                     <span class="pd-tag-count pl-1 fwn text-muted">@tag.ProductCount</span>
                 </a>
