@@ -50,10 +50,7 @@
             elDropzone.on('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    const $dzClickable = elDropzone.find('.dz-clickable:first')
-                    if ($dzClickable.length) {
-                        $dzClickable.trigger('click');
-                    }
+                    elDropzone.find('.dz-clickable:first').trigger('click');
                 }
             });
 
