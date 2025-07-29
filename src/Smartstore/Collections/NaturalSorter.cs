@@ -120,11 +120,14 @@ namespace Smartstore.Collections
             int startIndex1 = 0;
             int startIndex2 = 0;
 
+            var span1 = str1.AsSpan();
+            var span2 = str2.AsSpan();
+
             while (true)
             {
                 // Get next token for both strings
-                int endIndex1 = GetNextTokenEndIndex(str1, startIndex1, strLength1, out byte token1);
-                int endIndex2 = GetNextTokenEndIndex(str2, startIndex2, strLength2, out byte token2);
+                int endIndex1 = GetNextTokenEndIndex(span1, startIndex1, strLength1, out byte token1);
+                int endIndex2 = GetNextTokenEndIndex(span2, startIndex2, strLength2, out byte token2);
 
                 // Different token kinds decide immediately
                 int tokenCompare = token1.CompareTo(token2);
@@ -139,20 +142,20 @@ namespace Smartstore.Collections
                 if (token1 == TokenDigits)
                 {
                     // Optionally extend across ".###" thousand groups ONLY for "number + unit" shapes
-                    int extEnd1 = TryExtendThousandsForUnits(str1, startIndex1, endIndex1, strLength1);
-                    int extEnd2 = TryExtendThousandsForUnits(str2, startIndex2, endIndex2, strLength2);
+                    int extEnd1 = TryExtendThousandsForUnits(span1, startIndex1, endIndex1, strLength1);
+                    int extEnd2 = TryExtendThousandsForUnits(span2, startIndex2, endIndex2, strLength2);
 
-                    var span1 = str1.AsSpan(startIndex1, extEnd1 - startIndex1);
-                    var span2 = str2.AsSpan(startIndex2, extEnd2 - startIndex2);
+                    var slice1 = span1[startIndex1..extEnd1];
+                    var slice2 = span2[startIndex2..extEnd2];
 
-                    bool hasSeparator1 = ContainsSeparator(span1);
-                    bool hasSeparator2 = ContainsSeparator(span2);
+                    bool hasSeparator1 = ContainsSeparator(slice1);
+                    bool hasSeparator2 = ContainsSeparator(slice2);
 
                     if (hasSeparator1 || hasSeparator2)
                     {
                         // Extract only digits; return pooled arrays ONLY if they were rented
-                        ReadOnlySpan<char> digits1 = ExtractDigits(span1, out char[] buf1, out bool rented1);
-                        ReadOnlySpan<char> digits2 = ExtractDigits(span2, out char[] buf2, out bool rented2);
+                        ReadOnlySpan<char> digits1 = ExtractDigits(slice1, out char[] buf1, out bool rented1);
+                        ReadOnlySpan<char> digits2 = ExtractDigits(slice2, out char[] buf2, out bool rented2);
                         try
                         {
                             int digitCompare = CompareDigitSpans(digits1, digits2);
@@ -166,7 +169,7 @@ namespace Smartstore.Collections
                     }
                     else
                     {
-                        int digitCompare = CompareDigitSpans(span1, span2);
+                        int digitCompare = CompareDigitSpans(slice1, slice2);
                         if (digitCompare != 0) return digitCompare;
                     }
 
@@ -176,10 +179,11 @@ namespace Smartstore.Collections
                 }
                 else if (_stringComparer is not null)
                 {
-                    // Compare non-digit tokens using provided comparer
-                    string tokenString1 = str1.Substring(startIndex1, rangeLength1);
-                    string tokenString2 = str2.Substring(startIndex2, rangeLength2);
-                    int stringCompare = _stringComparer.Compare(tokenString1, tokenString2);
+                    //// Compare non-digit tokens using provided comparer
+                    var comp1 = span1.Slice(startIndex1, rangeLength1);
+                    var comp2 = span2.Slice(startIndex2, rangeLength2);
+                    int stringCompare = _stringComparer.Compare(comp1.ToString(), comp2.ToString());
+                    
                     if (stringCompare != 0) return stringCompare;
                 }
                 else
@@ -200,7 +204,7 @@ namespace Smartstore.Collections
             }
         }
 
-        private static int GetNextTokenEndIndex(string str, int startIndex, int strLength, out byte token)
+        private static int GetNextTokenEndIndex(ReadOnlySpan<char> str, int startIndex, int strLength, out byte token)
         {
             token = TokenNone;
             if (startIndex >= strLength) return startIndex;
@@ -229,7 +233,7 @@ namespace Smartstore.Collections
         /// IP addresses, and decimals.
         /// Returns the new end index if accepted; otherwise the original end index.
         /// </summary>
-        private static int TryExtendThousandsForUnits(string s, int start, int currentEnd, int len)
+        private static int TryExtendThousandsForUnits(ReadOnlySpan<char> str, int start, int currentEnd, int len)
         {
             int i = currentEnd;
             int last = currentEnd;
@@ -238,18 +242,18 @@ namespace Smartstore.Collections
             while (i < len)
             {
                 int j = i;
-                if (s[j] != '.') break;
+                if (str[j] != '.') break;
                 j++; // skip '.'
 
                 // Require exactly three digits after the dot
-                if (j + 2 >= len) 
+                if (j + 2 >= len)
                 {
-                    sawGroup = false; 
+                    sawGroup = false;
                     break;
                 }
-                if (!char.IsDigit(s[j]) || !char.IsDigit(s[j + 1]) || !char.IsDigit(s[j + 2]))
+                if (!char.IsDigit(str[j]) || !char.IsDigit(str[j + 1]) || !char.IsDigit(str[j + 2]))
                 {
-                    sawGroup = false; 
+                    sawGroup = false;
                     break;
                 }
 
@@ -264,8 +268,8 @@ namespace Smartstore.Collections
             // Accept only if followed by (one or more) spaces and then a letter (unit)
             int k = last;
             bool sawWs = false;
-            while (k < len && IsSpaceGroupSep(s[k])) { k++; sawWs = true; }
-            if (sawWs && k < len && char.IsLetter(s[k]))
+            while (k < len && IsSpaceGroupSep(str[k])) { k++; sawWs = true; }
+            if (sawWs && k < len && char.IsLetter(str[k]))
                 return last; // do not include trailing whitespace/letters
 
             // Otherwise reject (e.g., "v1.100", "192.168.0.1", "1.23")
