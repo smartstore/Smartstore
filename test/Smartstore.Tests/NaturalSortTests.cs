@@ -49,6 +49,7 @@ namespace Smartstore.Tests
         [TestCase(
             new[] {"z1.doc","z10.doc","z100.doc","z101.doc","z102.doc","z11.doc","z12.doc","z13.doc","z14.doc","z15.doc","z16.doc","z17.doc","z18.doc","z19.doc","z2.doc","z20.doc","z3.doc","z4.doc","z5.doc","z6.doc","z7.doc","z8.doc","z9.doc"},
             new[] {"z1.doc","z2.doc","z3.doc","z4.doc","z5.doc","z6.doc","z7.doc","z8.doc","z9.doc","z10.doc","z11.doc","z12.doc","z13.doc","z14.doc","z15.doc","z16.doc","z17.doc","z18.doc","z19.doc","z20.doc","z100.doc","z101.doc","z102.doc"})]
+        [TestCase(new[] { "300 mm", "600 mm", "1.000 mm", "1.100 mm", "1.300 mm" }, new[] { "300 mm", "600 mm", "1.000 mm", "1.100 mm", "1.300 mm" })]
         public void Can_sort_natural(string[] actual, string[] expected)
         {
             var result = actual.OrderNaturalBy(x => x).ToArray();
