@@ -12,6 +12,10 @@
   - Product lists.
   - "All manufacturers" page.
   - PhotoSwipe
+  
+### New Features
+
+- #1372 Rule Builder: Add a cart rule for the total cart weight.
 
 ### Improvements
 
