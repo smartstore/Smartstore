@@ -2208,7 +2208,7 @@ namespace Smartstore.Admin.Controllers
                     attributeModel.Values = [.. valueModels
                         .Select(x => (ChoiceItemModel)x)
                         .OrderBy(x => x.DisplayOrder)
-                        .ThenNaturalBy(x => x.Name)];
+                        .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
                 }
 
                 model.ProductVariantAttributes.Add(attributeModel);

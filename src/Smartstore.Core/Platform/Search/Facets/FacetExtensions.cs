@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Search.Facets
+﻿using Smartstore.Collections;
+
+namespace Smartstore.Core.Search.Facets
 {
     public static class FacetExtensions
     {
@@ -7,12 +9,15 @@
         /// </summary>
         /// <param name="source">Facets</param>
         /// <param name="descriptor">Facet descriptor</param>
+        /// <param name="sortNaturally">A value indicating whether to sort naturally.</param>
         /// <returns>Ordered facets</returns>
-        public static IOrderedEnumerable<Facet> OrderBy(this IEnumerable<Facet> source, FacetDescriptor descriptor)
+        public static IOrderedEnumerable<Facet> OrderBy(this IEnumerable<Facet> source, 
+            FacetDescriptor descriptor,
+            bool sortNaturally = true)
         {
-            Guard.NotNull(descriptor, nameof(descriptor));
+            Guard.NotNull(descriptor);
 
-            return source.OrderBy(descriptor.OrderBy, descriptor.IsMultiSelect);
+            return source.OrderBy(descriptor.OrderBy, descriptor.IsMultiSelect, sortNaturally);
         }
 
         /// <summary>
@@ -21,10 +26,14 @@
         /// <param name="source">Facets</param>
         /// <param name="sorting">Type of sorting</param>
         /// <param name="selectedFirst">Whether to display selected facets first</param>
+        /// <param name="sortNaturally">A value indicating whether to sort naturally.</param>
         /// <returns>Ordered facets</returns>
-        public static IOrderedEnumerable<Facet> OrderBy(this IEnumerable<Facet> source, FacetSorting sorting, bool selectedFirst = true)
+        public static IOrderedEnumerable<Facet> OrderBy(this IEnumerable<Facet> source, 
+            FacetSorting sorting, 
+            bool selectedFirst = true,
+            bool sortNaturally = true)
         {
-            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source);
 
             switch (sorting)
             {
@@ -40,9 +49,9 @@
                     if (selectedFirst)
                         return source
                             .OrderByDescending(x => x.Value.IsSelected)
-                            .ThenNaturalBy(x => x.Value.Label);
+                            .ThenBy(x => x.Value.Label, sortNaturally);
                     else
-                        return source.OrderNaturalBy(x => x.Value.Label);
+                        return source.OrderBy(x => x.Value.Label, sortNaturally);
 
                 case FacetSorting.DisplayOrder:
                     if (selectedFirst)
@@ -57,11 +66,11 @@
                         return source
                             .OrderByDescending(x => x.Value.IsSelected)
                             .ThenByDescending(x => x.HitCount)
-                            .ThenNaturalBy(x => x.Value.Label);
+                            .ThenBy(x => x.Value.Label, sortNaturally);
                     else
                         return source
                             .OrderByDescending(x => x.HitCount)
-                            .ThenNaturalBy(x => x.Value.Label);
+                            .ThenBy(x => x.Value.Label, sortNaturally);
             }
         }
 

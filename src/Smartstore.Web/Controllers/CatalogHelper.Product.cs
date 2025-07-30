@@ -720,7 +720,7 @@ namespace Smartstore.Web.Controllers
                     attributeModel.Values = [.. valuesModels
                         .Select(x => (ChoiceItemModel)x)
                         .OrderBy(x => x.DisplayOrder)
-                        .ThenNaturalBy(x => x.Name)];
+                        .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
                 }
 
                 // Add selected attributes for initially displayed combination images and multiple selected checkbox values.

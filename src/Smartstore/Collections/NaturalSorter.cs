@@ -5,6 +5,31 @@ namespace Smartstore
 {
     public static partial class NaturalSortExtensions
     {
+        public static IOrderedEnumerable<TSource> OrderBy<TSource>(this IEnumerable<TSource> source,
+            Func<TSource, string> keySelector,
+            bool sortNaturally,
+            StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+            => sortNaturally ? source.OrderNaturalBy(keySelector, comparison) : source.OrderBy(keySelector);
+
+        public static IOrderedEnumerable<TSource> OrderByDescending<TSource>(this IEnumerable<TSource> source,
+            Func<TSource, string> keySelector,
+            bool sortNaturally,
+            StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+            => sortNaturally ? source.OrderNaturalByDescending(keySelector, comparison) : source.OrderByDescending(keySelector);
+
+        public static IOrderedEnumerable<TSource> ThenBy<TSource>(this IOrderedEnumerable<TSource> source,
+            Func<TSource, string> keySelector,
+            bool sortNaturally,
+            StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+            => sortNaturally ? source.ThenNaturalBy(keySelector, comparison) : source.ThenBy(keySelector);
+
+        public static IOrderedEnumerable<TSource> ThenByDescending<TSource>(this IOrderedEnumerable<TSource> source,
+            Func<TSource, string> keySelector,
+            bool sortNaturally,
+            StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+            => sortNaturally ? source.ThenNaturalByDescending(keySelector, comparison) : source.ThenByDescending(keySelector);
+
+
         /// <summary>
         /// Sorts the strings of a sequence in a natural, human-friendly, ascending order.
         /// </summary>

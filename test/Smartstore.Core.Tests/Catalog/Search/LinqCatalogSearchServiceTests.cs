@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Moq;
 using NUnit.Framework;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -78,7 +79,8 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 [new CatalogSearchQueryVisitor()],
                 _services, 
                 It.IsAny<ICategoryService>(),
-                new SearchSettings());
+                new SearchSettings(),
+                new CatalogSettings());
         }
 
         [Test]

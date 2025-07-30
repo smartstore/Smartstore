@@ -18,19 +18,22 @@ namespace Smartstore.Core.Catalog.Search
         private readonly ICommonServices _services;
         private readonly ICategoryService _categoryService;
         private readonly SearchSettings _searchSettings;
+        private readonly CatalogSettings _catalogSettings;
 
         public LinqCatalogSearchService(
             SmartDbContext db,
             IEnumerable<LinqSearchQueryVisitor<Product, CatalogSearchQuery, CatalogSearchQueryContext>> queryVisitors,
             ICommonServices services,
             ICategoryService categoryService,
-            SearchSettings searchSettings)
+            SearchSettings searchSettings,
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _queryVisitors = [.. queryVisitors.OrderBy(x => x.Order)];
             _services = services;
             _categoryService = categoryService;
             _searchSettings = searchSettings;
+            _catalogSettings = catalogSettings;
         }
 
         public IQueryable<Product> PrepareQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery = null)
@@ -303,7 +306,7 @@ namespace Smartstore.Core.Catalog.Search
                         descriptor.IsMultiSelect,
                         false,
                         descriptor.DisplayOrder,
-                        facets.OrderBy(descriptor)));
+                        facets.OrderBy(descriptor, _catalogSettings.SortAttributesNaturally)));
                 }
             }
 

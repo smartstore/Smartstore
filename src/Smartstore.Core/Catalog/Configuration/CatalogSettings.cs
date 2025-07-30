@@ -269,6 +269,11 @@ namespace Smartstore.Core.Catalog
 		public bool SortManufacturersAlphabetically { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to sort attributes naturally. Default is <c>true</c>.
+        /// </summary>
+        public bool SortAttributesNaturally { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to hide category default pictures
         /// </summary>
         public bool HideCategoryDefaultPictures { get; set; }

@@ -265,7 +265,7 @@ namespace Smartstore.Web.Models.Cart
                     caModel.Values = [.. valuesModels
                         .Select(x => (ChoiceItemModel)x)
                         .OrderBy(x => x.DisplayOrder)
-                        .ThenNaturalBy(x => x.Name)];
+                        .ThenNaturalBy(_catalogSettings.SortAttributesNaturally ? x => x.Name : null)];
                 }
 
                 // Set already selected attributes.
