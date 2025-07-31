@@ -132,6 +132,15 @@
     </div>
     <div class="adminRow pricing-discounts">
         <div class="adminTitle">
+            <smart-label asp-for="PriceSettings.ApplyDiscountsOfLinkedProducts" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="PriceSettings.ApplyDiscountsOfLinkedProducts"></setting-editor>
+            <span asp-validation-for="PriceSettings.ApplyDiscountsOfLinkedProducts"></span>
+        </div>
+    </div>
+    <div class="adminRow pricing-discounts">
+        <div class="adminTitle">
             <smart-label asp-for="PriceSettings.ApplyPercentageDiscountOnTierPrice" />
         </div>
         <div class="adminData">

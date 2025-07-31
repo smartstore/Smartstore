@@ -13,11 +13,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     public class AttributePriceCalculator : PriceCalculator
     {
         private readonly SmartDbContext _db;
+        private readonly PriceSettings _priceSettings;
 
-        public AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db)
+        public AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db, PriceSettings priceSettings)
             : base(calculatorFactory)
         {
             _db = db;
+            _priceSettings = priceSettings;
         }
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
@@ -25,7 +27,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var options = context.Options;
             var product = context.Product;
 
-            if (!context.SelectedAttributes.Any() && !options.ApplyPreselectedAttributes && !options.DeterminePriceAdjustments)
+            if (context.SelectedAttributes.Count == 0 && !options.ApplyPreselectedAttributes && !options.DeterminePriceAdjustments)
             {
                 // No selected attributes provided and no preselected attributes should be applied and no price adjustments should be determined,
                 // then proceed with pipeline and omit this calculator.
@@ -42,31 +44,27 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
             var attributeValues = await GetSelectedAttributeValuesAsync(context, attributes);
-            var hasSelectedValues = attributeValues.Any();
+            var hasSelectedValues = attributeValues.Count > 0;
 
             if (!hasSelectedValues && options.DeterminePriceAdjustments)
             {
                 // Get price adjustments of ALL attribute values. Do not apply anything to FinalPrice, just return them via context.AttributePriceAdjustments.
-                attributeValues = attributes.SelectMany(x => x.ProductVariantAttributeValues).ToList();
+                attributeValues = [.. attributes.SelectMany(x => x.ProductVariantAttributeValues)];
             }
 
             // Ignore attributes that have no relevance for pricing.
-            attributeValues = attributeValues
-                .Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                .ToList();
+            attributeValues = [.. attributeValues.Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage)];
 
             var linkedProductIds = attributeValues
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
-                .Select(x => x.LinkedProductId)
-                .Distinct()
-                .ToArray();
+                .ToDistinctArray(x => x.LinkedProductId);
 
-            var linkedProducts = linkedProductIds.Any()
+            var linkedProducts = linkedProductIds.Length > 0
                 ? await _db.Products.AsNoTracking()
                     .Where(x => linkedProductIds.Contains(x.Id))
                     .SelectSummary()
                     .ToDictionaryAsync(x => x.Id)
-                : new Dictionary<int, Product>();
+                : [];
 
             foreach (var value in attributeValues)
             {
@@ -91,7 +89,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     var childCalculation = await CalculateChildPriceAsync(linkedProduct, context, c =>
                     {
                         c.Quantity = 1;
-                        c.Options.IgnoreDiscounts = true;
+
+                        // Note the logic here!
+                        var applyLinkedDiscounts = !context.Options.IgnoreDiscounts && _priceSettings.ApplyDiscountsOfLinkedProducts;
+                        c.Options.IgnoreDiscounts = !applyLinkedDiscounts;
                     });
 
                     // Add price of linked product to root final price (unit price * linked product quantity).
@@ -110,7 +111,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     if (options.DeterminePriceAdjustments)
                     {
-                        context.AttributePriceAdjustments.Add(new CalculatedPriceAdjustment
+                        context.AttributePriceAdjustments.Add(new()
                         {
                             RawPriceAdjustment = adjustment,
                             AttributeValue = value,

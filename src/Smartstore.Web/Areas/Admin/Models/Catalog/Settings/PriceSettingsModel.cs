@@ -98,6 +98,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*IgnoreProductDiscountsForSpecialPrices")]
         public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
 
+        [LocalizedDisplay("*ApplyDiscountsOfLinkedProducts")]
+        public bool ApplyDiscountsOfLinkedProducts { get; set; }
+
         #endregion
     }
 

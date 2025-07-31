@@ -209,7 +209,7 @@ namespace Smartstore.Core.Tests
             var productMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 10 };
 
             var attributePriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new AttributePriceCalculator(priceCalculatorFactory, DbContext), productMetadata);
+                new AttributePriceCalculator(priceCalculatorFactory, DbContext, priceSettings), productMetadata);
 
             var bundlePriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>

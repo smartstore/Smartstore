@@ -7,8 +7,6 @@ namespace Smartstore
 {
     public static partial class NaturalSortExtensions
     {
-        // TODO: (mg) Natural sorting should be specified on option list level, not just globally. Every list is different. Create an issue for a future release, we will leave it as it is for now.
-
         public static IOrderedEnumerable<TSource> OrderBy<TSource>(this IEnumerable<TSource> source,
             Func<TSource, string> keySelector,
             bool sortNaturally,

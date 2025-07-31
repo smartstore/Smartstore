@@ -162,6 +162,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public bool IgnoreProductDiscountsForSpecialPrices { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether discounts (e.g. tier prices) of linked products are taken into account when calculating attribute price surcharges.
+        /// </summary>
+        public bool ApplyDiscountsOfLinkedProducts { get; set; }
+
         #endregion
     }
 }
