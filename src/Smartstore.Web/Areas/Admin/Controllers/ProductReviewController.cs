@@ -75,7 +75,12 @@ namespace Smartstore.Admin.Controllers
                 query = query.ApplySearchFilterFor(x => x.Product.Name, model.ProductName);
             }
 
-            if (model.Ratings?.Any() ?? false)
+            if (model.SearchEmail.HasValue())
+            {
+                query = query.Where(x => x.Customer.Email.Contains(model.SearchEmail));
+            }
+
+            if (!model.Ratings.IsNullOrEmpty())
             {
                 query = query.Where(x => model.Ratings.Contains(x.Rating));
             }
@@ -96,13 +101,14 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = productReviews.Select(x =>
-            {
-                var m = new ProductReviewModel();
-                PrepareProductReviewModel(m, x, false, true);
-                return m;
-            })
-            .ToList();
+            var rows = productReviews
+                .Select(x =>
+                {
+                    var m = new ProductReviewModel();
+                    PrepareProductReviewModel(m, x, false, true);
+                    return m;
+                })
+                .ToList();
 
             return Json(new GridModel<ProductReviewModel>
             {

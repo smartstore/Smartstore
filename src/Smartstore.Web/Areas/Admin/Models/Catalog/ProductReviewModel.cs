@@ -9,6 +9,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ProductName")]
         public string ProductName { get; set; }
 
+        [LocalizedDisplay("Admin.Orders.List.CustomerEmail")]
+        public string SearchEmail { get; set; }
+
         [LocalizedDisplay("*CreatedOnFrom")]
         public DateTime? CreatedOnFrom { get; set; }
 
