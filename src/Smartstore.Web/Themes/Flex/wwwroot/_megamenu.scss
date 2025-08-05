@@ -411,6 +411,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     text-decoration: none;
     color: $megamenu-subitem-color;
     transition: color 0.1s ease;
+    margin-bottom: 1px;
 
     &:hover {
         color: inherit;
