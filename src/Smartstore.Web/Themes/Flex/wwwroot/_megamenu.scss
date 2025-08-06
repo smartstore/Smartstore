@@ -396,6 +396,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
     &.block {
         flex-flow: column;
         flex-wrap: nowrap;
+        gap: 1px;
     }
 }
 
@@ -411,7 +412,6 @@ $mixed-megamenu-bg:             $megamenu-bg;
     text-decoration: none;
     color: $megamenu-subitem-color;
     transition: color 0.1s ease;
-    margin-bottom: 1px;
 
     &:hover {
         color: inherit;
