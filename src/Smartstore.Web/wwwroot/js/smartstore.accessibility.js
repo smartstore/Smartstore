@@ -70,8 +70,7 @@ class AccessKit {
         }
 
         // Exit if no navigational key is pressed.
-        // TODO: (wcag) (mh) Use a static Set for key codes instead of an array, or find another faster way to lookup.
-        if (![AK.KEY.TAB, AK.KEY.UP, AK.KEY.DOWN, AK.KEY.LEFT, AK.KEY.RIGHT, AK.KEY.HOME, AK.KEY.END, AK.KEY.ENTER, AK.KEY.SPACE, AK.KEY.ESC].includes(e.key))
+        if (!AK._navKeys.has(e.key))
             return;
 
         // Init plugin if needed.
@@ -247,6 +246,19 @@ AK.KEY = {
     TAB: 'Tab',
     ENTER: 'Enter'
 };
+
+AK._navKeys = new Set([
+    AK.KEY.LEFT,
+    AK.KEY.UP,
+    AK.KEY.RIGHT,
+    AK.KEY.DOWN,
+    AK.KEY.HOME,
+    AK.KEY.END,
+    AK.KEY.ESC,
+    AK.KEY.SPACE,
+    AK.KEY.TAB,
+    AK.KEY.ENTER
+]);
 
 // TODO: (wcag) (mh) Replace every KEY in this script with AK.KEY > Then remove the shortcut KEY
 const KEY = AK.KEY;
