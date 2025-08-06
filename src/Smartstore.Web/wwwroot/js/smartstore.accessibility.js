@@ -117,7 +117,7 @@ class AccessKit {
             // Check whether plugin implements the handler method & if it returns true (handled).
             if (typeof handler === 'function' && handler.call(plugin, e)) {
                 // Preserve natural Tab behaviour, but prevent default for all other keys.
-                if (e.type === 'keydown' && e.key !== KEY.TAB) {
+                if (e.type === 'keydown' && e.key !== AK.KEY.TAB) {
                     e.preventDefault();
                 }
 
@@ -260,9 +260,6 @@ AK._navKeys = new Set([
     AK.KEY.ENTER
 ]);
 
-// TODO: (wcag) (mh) Replace every KEY in this script with AK.KEY > Then remove the shortcut KEY
-const KEY = AK.KEY;
-
 // Plugin base class for AccessKit plugins.
 // TODO: (wcag) (mh) Create a separate file for every base class and every plugin.
 // TODO: (wcag) (mh) Use this closure for every modular scripts when you place them in separate files.
@@ -339,8 +336,8 @@ const KEY = AK.KEY;
         // Gets directional keys based on menubar or menu  aria-orientation attribute & rtl
         _getNavKeys(orientation, rtl = false) {
             return orientation === 'horizontal'
-                ? (rtl ? [KEY.RIGHT, KEY.LEFT] : [KEY.LEFT, KEY.RIGHT])
-                : [KEY.UP, KEY.DOWN];
+                ? (rtl ? [AK.KEY.RIGHT, AK.KEY.LEFT] : [AK.KEY.LEFT, AK.KEY.RIGHT])
+                : [AK.KEY.UP, AK.KEY.DOWN];
         }
 
         // Returns the next index in a circular manner.
@@ -418,16 +415,16 @@ const KEY = AK.KEY;
                 case NEXT_KEY:
                     this._move(items[this._nextIdx(idx, +1, items.length)], null, items);
                     return true;
-                case KEY.HOME:
+                case AK.KEY.HOME:
                     this._move(items[0], null, items);
                     return true;
-                case KEY.END:
+                case AK.KEY.END:
                     this._move(items[items.length - 1], null, items);
                     return true;
 
                 /* Activate (ENTER / SPACE) -------------------------------------- */
-                case KEY.ENTER:
-                case KEY.SPACE:
+                case AK.KEY.ENTER:
+                case AK.KEY.SPACE:
                     if (typeof activateFn === 'function') {
                         activateFn(e.target, idx, items);
                         return true;
@@ -610,11 +607,11 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
             /** Menu specific keys (Open, close, TAB) */
             extraKeysFn: (ev) => {
                 const isVertical = orientation === 'vertical';
-                const dirOpen = isMenubar ? null : isVertical ? this.ak.rtl ? KEY.LEFT : KEY.RIGHT : KEY.DOWN;
-                const dirClose = isMenubar ? null : isVertical ? this.ak.rtl ? KEY.RIGHT : KEY.LEFT : KEY.UP;
+                const dirOpen = isMenubar ? null : isVertical ? this.ak.rtl ? AK.KEY.LEFT : AK.KEY.RIGHT : AK.KEY.DOWN;
+                const dirClose = isMenubar ? null : isVertical ? this.ak.rtl ? AK.KEY.RIGHT : AK.KEY.LEFT : AK.KEY.UP;
 
                 /* Open sub menu -------------------------------------- */
-                if ((isMenubar && [KEY.DOWN, KEY.SPACE, KEY.ENTER].includes(ev.key)) || (!isMenubar && ev.key === dirOpen)) {
+                if ((isMenubar && [AK.KEY.DOWN, AK.KEY.SPACE, AK.KEY.ENTER].includes(ev.key)) || (!isMenubar && ev.key === dirOpen)) {
                     if (ev.target.getAttribute('aria-haspopup') === 'menu') {
                         this._open(ev.target);
                         return true;
@@ -622,7 +619,7 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
                 }
 
                 /* Close ---------------------------------------------- */
-                if (ev.key === KEY.ESC || ev.key === dirClose) {
+                if (ev.key === AK.KEY.ESC || ev.key === dirClose) {
                     if (isMenubar) {
                         this._closeAll();
                     } else {
@@ -634,7 +631,7 @@ AK.MenuPlugin = class MenuPlugin extends AK.AccessKitExpandablePluginBase {
                 }
 
                 /* TAB leaves the component --------------------------- */
-                if (ev.key === KEY.TAB) {
+                if (ev.key === AK.KEY.TAB) {
                     if (isMenubar) {
                         // Reset focus & tabIndex
                         items.forEach((it, i) => (it.tabIndex = i === 0 ? 0 : -1));
@@ -798,17 +795,17 @@ AK.TreePlugin = class TreePlugin extends AK.AccessKitExpandablePluginBase {
             orientation,
             activateFn: (el) => (el.trigger ? el.trigger('click') : el.click()),
             extraKeysFn: (ev, _idx, list) => {
-                if (ev.key === KEY.RIGHT) {
+                if (ev.key === AK.KEY.RIGHT) {
                     this.toggleExpanded(item, true, { focusTarget: 'first' });
                     return true;
                 }
 
-                if (ev.key === KEY.LEFT || ev.key === KEY.ESC) {
+                if (ev.key === AK.KEY.LEFT || ev.key === AK.KEY.ESC) {
                     this.toggleExpanded(item, false);
                     return true;
                 }
 
-                if (ev.key === KEY.TAB) {
+                if (ev.key === AK.KEY.TAB) {
                     this.applyRoving(tree, '[role="treeitem"]');
                     return false;
                 }
