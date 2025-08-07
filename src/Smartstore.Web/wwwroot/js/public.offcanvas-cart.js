@@ -278,6 +278,14 @@ var ShopBar = (function ($) {
 
         ShopBar.loadHtml(tool, function () {
             ShopBar.hideThrobber();
+            _.delay(function () {
+                var cnt = $(".tab-content " + tool.attr("href"), offcanvasCart);
+                let scrollable = cnt.find('.offcanvas-scrollable');
+                //scrollable.scrollTop(scrollable[0].scrollHeight);
+                scrollable.scrollTo(cnt.find(".offcanvas-cart-item:last"), {
+                    behavior: 'smooth'
+                });
+            }, 400);
         });
 
         ShopBar.loadSummary(data.type, true /*fade*/, function (resultData) { });
