@@ -17,6 +17,7 @@
 
 - #1372 Rule Builder: Add a cart rule for the total cart weight.
 - #1357 Pricing: Add a setting that takes tiered prices of products into account, that are assigned by an attribute of type "linked product".
+- #690 Integrate Apple Sign-In 
 
 ### Improvements
 
