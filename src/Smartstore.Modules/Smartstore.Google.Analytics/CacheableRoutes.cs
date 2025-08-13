@@ -6,12 +6,6 @@ namespace Smartstore.Google.Analytics
     {
         public int Order => 0;
 
-        public IEnumerable<string> GetCacheableRoutes()
-        {
-            return new string[]
-            {
-                "vc:Smartstore.Google.Analytics/GoogleAnalytics"
-            };
-        }
+        public IEnumerable<string> GetCacheableRoutes() => ["vc:Smartstore.Google.Analytics/GoogleAnalytics"];
     }
 }

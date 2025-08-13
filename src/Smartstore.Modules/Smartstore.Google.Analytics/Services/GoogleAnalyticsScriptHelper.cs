@@ -99,7 +99,7 @@ namespace Smartstore.Google.Analytics.Services
         public async Task<string> GetViewItemScriptAsync(ProductDetailsModel model)
         {
             var brand = model.Brands.FirstOrDefault();
-            var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { model.Id })).FirstOrDefault();
+            var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync([model.Id])).FirstOrDefault();
             var categoryId = defaultProductCategory != null ? defaultProductCategory.Category.Id : 0;
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
             var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();

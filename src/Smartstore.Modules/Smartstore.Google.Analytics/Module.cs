@@ -79,8 +79,7 @@ namespace Smartstore.Google.Analytics
         public Widget GetDisplayWidget(string widgetZone, object model, int storeId)
             => new ComponentWidget(typeof(GoogleAnalyticsViewComponent), model);
 
-        public string[] GetWidgetZones()
-            => new[] { "head" };
+        public string[] GetWidgetZones() => ["head"];
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
