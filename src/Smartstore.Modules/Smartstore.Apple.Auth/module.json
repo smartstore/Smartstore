@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Security",
+  "SystemName": "Smartstore.Apple.Auth",
+  "FriendlyName": "Apple Authentication",
+  "Description": "Enables login with Apple account.",
+  "Version": "6.2.0",
+  "MinAppVersion": "6.2.0",
+  "Author": "SmartStore AG",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.Apple.Auth",
+  "PrivateReferences": [
+    "AspNet.Security.OAuth.Apple"
+  ]
+}

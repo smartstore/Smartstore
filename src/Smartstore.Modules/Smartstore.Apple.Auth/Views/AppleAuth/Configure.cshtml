@@ -1,0 +1,80 @@
+@using Smartstore.Apple.Auth.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureProvider";
+}
+
+<div class="alert alert-info alert-dismissible">
+    @Html.Raw(T("Plugins.Smartstore.Apple.Auth.AdminInstruction"))
+    <button class="btn-close" data-dismiss="alert"></button>
+    </div>
+
+@await Component.InvokeAsync("StoreScope")
+
+<form asp-action="Configure">
+    <widget target-zone="admin_button_toolbar_before">
+        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+            <i class="fa fa-check"></i>
+            <span>@T("Admin.Common.Save")</span>
+        </button>
+    </widget>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ClientId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ClientId"></setting-editor>
+                <span asp-validation-for="ClientId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TeamId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="TeamId"></setting-editor>
+                <span asp-validation-for="TeamId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="KeyId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="KeyId"></setting-editor>
+                <span asp-validation-for="KeyId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PrivateKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PrivateKey"></setting-editor>
+                <span asp-validation-for="PrivateKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RedirectUrl" />
+            </div>
+            <div class="adminData">
+                <div class="input-group">
+                    <input asp-for="RedirectUrl" readonly />
+                    <div class="input-group-append">
+                        <button class="btn btn-light btn-icon btn-clipboard" data-copy-from="#@(Html.IdFor(x => x.RedirectUrl))">
+                            <bootstrap-icon name="clipboard" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

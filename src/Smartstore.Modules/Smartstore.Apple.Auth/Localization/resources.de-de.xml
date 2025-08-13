@@ -1,0 +1,52 @@
+<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Apple.Auth" AppendRootKey="false">
+        <Value>Apple Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Apple.Auth" AppendRootKey="false">
+        <Value>Ermöglicht die Anmeldung mit Apple.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value><![CDATA[
+                <p>So richten Sie die Apple Authentifizierung ein:</p>
+                <ul>
+                    <li>Erstellen Sie im <a href="https://developer.apple.com/account/">Apple Developer Portal</a> eine neue Service-ID und einen privaten Schlüssel.</li>
+                    <li>Tragen Sie unten Team-ID, Key-ID, Client-ID und den privaten Schlüssel ein.</li>
+                    <li>Die unten aufgeführte URL muss als Rückleitungs-URL bei Apple registriert werden.</li>
+                </ul>
+            ]]></Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Mit Apple anmelden</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientId">
+        <Value>Client-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientId.Hint">
+        <Value>Geben Sie hier Ihre Service-ID ein.</Value>
+    </LocaleResource>
+    <LocaleResource Name="TeamId">
+        <Value>Team-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="TeamId.Hint">
+        <Value>Ihre Apple-Entwickler Team-ID.</Value>
+    </LocaleResource>
+    <LocaleResource Name="KeyId">
+        <Value>Schlüssel-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="KeyId.Hint">
+        <Value>ID des privaten Schlüssels.</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrivateKey">
+        <Value>Privater Schlüssel</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrivateKey.Hint">
+        <Value>Der Inhalt Ihres privaten Schlüssels (PEM-Format).</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>OAuth Redirect URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>Die bei Apple einzutragende Weiterleitungs-URL.</Value>
+    </LocaleResource>
+</Language>
+
