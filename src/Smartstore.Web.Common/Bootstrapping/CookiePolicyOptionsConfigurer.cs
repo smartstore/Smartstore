@@ -24,11 +24,11 @@ namespace Smartstore.Web.Bootstrapping
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
             options.Secure = CookieSecurePolicy.SameAsRequest;
 
-            options.OnAppendCookie = cookieContext => ApplyCookiePolicy(cookieContext.Context, cookieContext.CookieOptions);
+            options.OnAppendCookie = cookieContext => ApplyCookiePolicy(cookieContext.Context, cookieContext.CookieOptions, cookieContext.CookieName);
             options.OnDeleteCookie = cookieContext => ApplyCookiePolicy(cookieContext.Context, cookieContext.CookieOptions);
         }
 
-        private static void ApplyCookiePolicy(HttpContext httpContext, CookieOptions options)
+        private static void ApplyCookiePolicy(HttpContext httpContext, CookieOptions options, string cookieName = "")
         {
             if (httpContext.Request.PathBase.HasValue)
             {
@@ -82,6 +82,11 @@ namespace Smartstore.Web.Bootstrapping
                 {
                     options.SameSite = SameSiteMode.Unspecified;
                 }
+            }
+
+            if (cookieName.HasValue() && cookieName.StartsWith(".AspNetCore.Correlation"))
+            {
+                options.SameSite = SameSiteMode.Unspecified;
             }
         }
     }
