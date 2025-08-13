@@ -46,8 +46,15 @@
             <div class="adminTitle">
                 <smart-label asp-for="RedirectUrl" />
             </div>
-            <div class="adminData wide">
-                <input asp-for="RedirectUrl" class="form-control-plaintext" readonly />
+            <div class="adminData">
+                <div class="input-group">
+                    <input asp-for="RedirectUrl" readonly />
+                    <div class="input-group-append">
+                        <button class="btn btn-light btn-icon btn-clipboard" data-copy-from="#@(Html.IdFor(x => x.RedirectUrl))">
+                            <bootstrap-icon name="clipboard" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
