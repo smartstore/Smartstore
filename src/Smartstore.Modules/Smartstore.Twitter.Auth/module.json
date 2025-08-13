@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "Group": "Security",
   "SystemName": "Smartstore.Twitter.Auth",
-  "FriendlyName": "Twitter Authentication",
+  "FriendlyName": "X Authentication",
   "Description": "Enables login with X account.",
   "Version": "6.2.0",
   "MinAppVersion": "6.2.0",
