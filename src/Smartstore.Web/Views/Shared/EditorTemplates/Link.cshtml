@@ -13,20 +13,24 @@
     var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
+    var linkTarget = GetMetadata<string>("linkTarget");
     var hideQueryString = GetMetadata<bool>("hideQueryString");
     var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
     var allowedSchemas = arr.Any() ? arr : metadata.Keys;
     var size = GetMetadata<string>("size");
     var gutterSize = size == "sm" ? 1 : 2;
+    var targetFieldId = id + "_Target";
 }
 
 <div id="link-builder-@rnd" class="link-builder edit-control"
      data-field-id="@id"
+     data-target-field-id="@targetFieldId"
      data-editor="link"
      data-current-type="@(Value != null ? expression.Schema : string.Empty)">
 
     @* Template control that receives the link expression. *@
     <input asp-for="@Model" type="hidden" value="@Value" attr-class='(size.HasValue(), "form-control-" + size)' />
+    <input type="hidden" id="@targetFieldId" name="@(Html.NameForModel() + "Target")" value="@linkTarget" />
 
     <div class="row flex-nowrap g-@gutterSize">
 
@@ -118,7 +122,18 @@
             </div>
         }
 
-        @* 4. append additional buttons. *@
+        @* 4. link target selector *@
+        <div class="col-auto">
+            <select class="form-control link-target resettable" attr-class='(size.HasValue(), "form-control-" + size)'>
+                <option value="" @(linkTarget.IsNullOrEmpty() ? "selected" : null)>@T("Common.Unspecified")</option>
+                <option value="_self" @(linkTarget == "_self" ? "selected" : null)>_self</option>
+                <option value="_blank" @(linkTarget == "_blank" ? "selected" : null)>_blank</option>
+                <option value="_parent" @(linkTarget == "_parent" ? "selected" : null)>_parent</option>
+                <option value="_top" @(linkTarget == "_top" ? "selected" : null)>_top</option>
+            </select>
+        </div>
+
+        @* 5. append additional buttons. *@
         <div class="col-auto">
             <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
                 <i class="fa fa-unlink"></i>
@@ -131,10 +146,10 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <div class="px-2">
-                        <input type="text" 
+                        <input type="text"
                             class="form-control transferable resettable query-string"
                             attr-class='(size.HasValue(), "form-control-" + size)'
-                            value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" 
+                            value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")"
                             style="width: 350px;" />
                     </div>
                 </div>

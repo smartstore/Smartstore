@@ -16,6 +16,8 @@
             self.controls = $el.find(".link-control");
             self.templateValueField = $el.find("#" + $el.data("field-id"));
             self.queryStringCtrl = $el.find(".query-string");
+            self.linkTargetCtrl = $el.find('.link-target');
+            self.targetField = $el.find('#' + $el.data('target-field-id'));
             self.typeContainer = $el.find(".link-type-container");
 
             _.delay(function () {
@@ -35,6 +37,13 @@
             self.controls.find('select').selectWrapper();
             self.controls.find('.select2-container').addClass('w-100');
 
+            if (self.linkTargetCtrl.length) {
+                self.linkTargetCtrl.selectWrapper();
+                if (self.targetField.length) {
+                    self.linkTargetCtrl.val(self.targetField.val());
+                }
+            }
+
             self.initControl();
         };
 
@@ -46,6 +55,8 @@
         currentType: null,
         templateValueField: null,
         queryStringCtrl: null,
+        linkTargetCtrl: null,
+        targetField: null,
 
         initControl: function () {
 
@@ -100,11 +111,25 @@
                 //console.log('change ' + self.templateValueField.val());
             });
 
+            // link target change
+            $el.on('change', '.link-target', function () {
+                var val = $(this).val();
+                if (self.targetField.length) {
+                    self.targetField.val(val);
+                }
+                else {
+                    self.templateValueField.data('link-target', val);
+                }
+            });
+
             // reset control
             $el.on("click", ".btn-reset", function () {
                 self.templateValueField.val('');
                 self.queryStringCtrl.val('');
                 self.controls.find('.resettable:visible').val('').trigger('change');
+                if (self.linkTargetCtrl.length) {
+                    self.linkTargetCtrl.val('').trigger('change');
+                }
                 self._updateQueryStringIcon(false);
 
                 // Really reset select2 completely.
