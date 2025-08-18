@@ -3,22 +3,19 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    internal class ProductFromCategoryInCartRule : IRule<CartRuleContext>
+    /// <summary>
+    /// Checks whether at least one product in the shopping cart comes from the specified categories.
+    /// </summary>
+    internal class ProductFromCategoryInCartRule(SmartDbContext db) : IRule<CartRuleContext>
     {
-        private readonly SmartDbContext _db;
-
-        public ProductFromCategoryInCartRule(SmartDbContext db)
-        {
-            _db = db;
-        }
+        private readonly SmartDbContext _db = db;
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var categoryIds = Enumerable.Empty<int>();
-            var cart = context.ShoppingCart;
-            var productIds = cart.Items.Select(x => x.Item.ProductId).ToArray();
+            var productIds = context.ShoppingCart.Items.ToDistinctArray(x => x.Item.ProductId);
 
-            if (productIds.Any())
+            if (productIds.Length > 0)
             {
                 // It's unnecessary to check things like ACL, limited-to-stores, published, deleted etc. here
                 // because the products are from shopping cart and it cannot contain hidden products.

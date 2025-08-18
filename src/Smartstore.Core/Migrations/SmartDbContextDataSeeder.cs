@@ -92,6 +92,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Rabatte von verknüpften Produkten anwenden",
                 "Specifies whether discounts (e.g. tier prices) of linked products are taken into account when calculating attribute price surcharges.",
                 "Legt fest, ob bei der Berechnung von Attributpreisaufschlägen die Rabatte (z.B. Staffelpreise) von verknüpften Produkten berücksichtigt werden.");
+
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AllProductsFromCategoryInCart",
+                "All products from category in cart",
+                "Alle Produkte aus Kategorie im Warenkorb");
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AllProductsFromManufacturerInCart",
+                "All products from manufacturer in cart",
+                "Alle Produkte von Hersteller im Warenkorb");
         }
     }
 }

@@ -371,10 +371,28 @@ namespace Smartstore.Core.Checkout.Rules
                 },
                 new()
                 {
+                    Name = "AllProductsFromCategoryInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromCategoryInCart"),
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(AllProductsFromCategoryInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
                     Name = "ProductFromManufacturerInCart",
                     DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromManufacturerInCart"),
                     RuleType = RuleType.IntArray,
                     ProcessorType = typeof(ProductFromManufacturerInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "AllProductsFromManufacturerInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromManufacturerInCart"),
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(AllProductsFromManufacturerInCartRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
                     IsComparingSequences = true
                 },

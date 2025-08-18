@@ -47,6 +47,7 @@ namespace Smartstore.Core.Checkout.Rules
             {
                 return true;
             }
+            //$"- {expression.Operator} {string.Join(",", values)} {string.Join(",", right)}".Dump();
 
             if (expression.Operator == RuleOperator.IsEqualTo || expression.Operator == RuleOperator.IsNotEqualTo)
             {
@@ -69,28 +70,32 @@ namespace Smartstore.Core.Checkout.Rules
             }
             else if (expression.Operator == RuleOperator.Contains)
             {
-                // FALSE for left { 3,2,1 } and right { 0,1,2,3 }.
+                // Left contains ALL values of right.
                 return right.All(x => values.Contains(x, comparer));
             }
             else if (expression.Operator == RuleOperator.NotContains)
             {
+                // Left contains NO value of right.
                 return right.All(x => !values.Contains(x, comparer));
             }
             else if (expression.Operator == RuleOperator.In)
             {
+                // At least one value left is included right.
                 return values.Any(x => right.Contains(x, comparer));
             }
             else if (expression.Operator == RuleOperator.NotIn)
             {
+                // At least one value left is missing right.
                 return values.Any(x => !right.Contains(x, comparer));
             }
             else if (expression.Operator == RuleOperator.AllIn)
             {
-                // TRUE for left { 3,2,1 } and right { 0,1,2,3 }.
+                // Right contains ALL values of left.
                 return values.All(x => right.Contains(x, comparer));
             }
             else if (expression.Operator == RuleOperator.NotAllIn)
             {
+                // Right contains NO value of left.
                 return values.All(x => !right.Contains(x, comparer));
             }
 
