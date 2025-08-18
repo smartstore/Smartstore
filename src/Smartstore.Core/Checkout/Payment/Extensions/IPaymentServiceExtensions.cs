@@ -61,21 +61,6 @@ namespace Smartstore.Core.Checkout.Payment
         }
 
         /// <summary>
-        /// Checks whether a payment provider is enabled for a shop.
-        /// Note that this method does not check whether the payment provider is filtered out or matches applied rule sets.
-        /// </summary>
-        /// <param name="systemName">System name of the payment provider.</param>
-        /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
-        /// <returns><c>True</c> payment provider is active, otherwise <c>false</c>.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<bool> IsPaymentProviderEnabledAsync(this IPaymentService paymentService, string systemName, int storeId = 0)
-        {
-            Guard.NotNull(paymentService);
-
-            return await paymentService.LoadPaymentProviderBySystemNameAsync(systemName, true, storeId) != null;
-        }
-
-        /// <summary>
         /// Gets a payment method type.
         /// </summary>
         /// <param name="systemName">Payment provider system name.</param>
