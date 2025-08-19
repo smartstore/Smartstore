@@ -16,6 +16,7 @@
             self.controls = $el.find(".link-control");
             self.templateValueField = $el.find("#" + $el.data("field-id"));
             self.queryStringCtrl = $el.find(".query-string");
+            self.linkTargetCtrl = $el.find('.link-target');
             self.typeContainer = $el.find(".link-type-container");
 
             _.delay(function () {
@@ -46,6 +47,7 @@
         currentType: null,
         templateValueField: null,
         queryStringCtrl: null,
+        linkTargetCtrl: null,
 
         initControl: function () {
 
@@ -89,6 +91,24 @@
                     }
                 }
 
+                if (!_.isEmpty(val)) {
+                    var linkTargetCtrl = self.linkTargetCtrl.val();
+                    if (linkTargetCtrl) {
+                        var pipeIndex = val.indexOf('|');
+                        if (pipeIndex !== -1) {
+                            val = val.substring(0, pipeIndex);
+                        }
+
+                        var queryStringIndex = val.indexOf('?');
+                        if (queryStringIndex !== -1) {
+                            val = val.substring(0, queryStringIndex) + '|' + linkTargetCtrl + val.substring(queryStringIndex);
+                        }
+                        else {
+                            val = val + '|' + linkTargetCtrl;
+                        }
+                    }
+                }
+
                 // append query string
                 if (type !== 'url' && !_.isEmpty(val) && !_.isEmpty(qs)) {
                     val = (val || '') + '?' + qs;
@@ -100,11 +120,42 @@
                 //console.log('change ' + self.templateValueField.val());
             });
 
+            $el.on('click', '.dropdown-link-target .dropdown-item', function () {
+                var target = $(this).attr("data-value");
+                var val = self.templateValueField.val() || '';
+                if (!val) {
+                    return;
+                }
+
+                var queryStringIndex = val.indexOf('?');
+                var queryString = '';
+                if (queryStringIndex !== -1) {
+                    queryString = val.substring(queryStringIndex);
+                    val = val.substring(0, queryStringIndex);
+                }
+
+                var pipe = val.indexOf('|');
+                if (pipe !== -1) {
+                    val = val.substring(0, pipe);
+                }
+
+                if (target) {
+                    val = val + '|' + target;
+                }
+
+                self._updateLinkTargetCtrl(target);
+
+                self.templateValueField.val(val + queryString).trigger('change');
+            });
+
             // reset control
             $el.on("click", ".btn-reset", function () {
                 self.templateValueField.val('');
                 self.queryStringCtrl.val('');
                 self.controls.find('.resettable:visible').val('').trigger('change');
+                if (self.linkTargetCtrl.length) {
+                    self.linkTargetCtrl.val('').trigger('change');
+                }
                 self._updateQueryStringIcon(false);
 
                 // Really reset select2 completely.
@@ -115,6 +166,10 @@
                         label.removeAttr('title').html('');
                     }
                 }
+
+                // Reset link target control
+                self.controls.find('.dropdown-link-target[data-value=""]').trigger('click');
+                self._updateLinkTargetCtrl("");
             });
 
             // browse files
@@ -171,6 +226,17 @@
             $(this.element).find('.btn-query-string > i')
                 .removeClass('text-muted text-success')
                 .addClass(hasQueryString ? 'text-success' : 'text-muted');
+        },
+
+        _updateLinkTargetCtrl: function (target) {
+            var hasLinkTarget = !_.isEmpty(target);
+
+            $(this.element).find('.btn-link-target > i')
+                .removeClass('text-muted text-success')
+                .addClass(hasLinkTarget ? 'text-success' : 'text-muted');
+
+            $(this.element).find('.dropdown-item').removeClass('active');
+            $(this.element).find('.dropdown-item[data-value="' + target + '"]').addClass("active");
         },
 
         _getQueryString: function () {

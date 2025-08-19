@@ -8,12 +8,13 @@ namespace Smartstore.Core.Content.Menus
     [DebuggerDisplay("LinkExpression: {RawExpression}")]
     public class LinkExpression : ICloneable<LinkExpression>
     {
-        private static readonly string[] _knownSchemas = new[] { "http", "https", "mailto", "javascript" };
+        private static readonly string[] _knownSchemas = ["http", "https", "mailto", "javascript"];
 
         public string RawExpression { get; private set; }
 
         public string Schema { get; private set; }
         public string Target { get; private set; }
+        public string LinkTarget { get; private set; }
         public string Query { get; private set; }
 
         public string SchemaAndTarget
@@ -27,7 +28,7 @@ namespace Smartstore.Core.Content.Menus
         }
 
         public LinkExpression ChangeTarget(string target)
-            => Parse(Schema + target.EmptyNull().LeftPad(null, ':') + Query);
+            => Parse(Schema + target.EmptyNull().LeftPad(null, ':') + (LinkTarget.HasValue() ? "|" + LinkTarget : string.Empty) + Query);
 
         public static LinkExpression Parse(string expression)
         {
@@ -46,6 +47,7 @@ namespace Smartstore.Core.Content.Menus
             Schema = "url";
             Target = RawExpression.EmptyNull();
             Query = string.Empty;
+            LinkTarget = string.Empty;
 
             return this;
         }
@@ -72,17 +74,31 @@ namespace Smartstore.Core.Content.Menus
                 expression.Schema = string.Empty;
             }
 
-            expression.Target = expression.RawExpression[(colonIndex + 1)..];
+            var afterColon = expression.RawExpression[(colonIndex + 1)..];
+            var qmIndex = afterColon.IndexOf('?');
+            var preQueryPart = string.Empty;
 
-            var qmIndex = expression.Target.IndexOf('?');
             if (qmIndex > -1)
             {
-                expression.Query = expression.Target[qmIndex..];
-                expression.Target = expression.Target[..qmIndex];
+                expression.Query = afterColon[qmIndex..];
+                preQueryPart = afterColon[..qmIndex];
             }
             else
             {
                 expression.Query = string.Empty;
+                preQueryPart = afterColon;
+            }
+
+            var pipeIndex = preQueryPart.IndexOf('|');
+            if (pipeIndex > -1)
+            {
+                expression.Target = preQueryPart[..pipeIndex];
+                expression.LinkTarget = preQueryPart[(pipeIndex + 1)..];
+            }
+            else
+            {
+                expression.Target = preQueryPart;
+                expression.LinkTarget = string.Empty;
             }
 
             return true;
@@ -98,6 +114,7 @@ namespace Smartstore.Core.Content.Menus
                 RawExpression = RawExpression,
                 Schema = Schema,
                 Target = Target,
+                LinkTarget = LinkTarget,
                 Query = Query
             };
         }

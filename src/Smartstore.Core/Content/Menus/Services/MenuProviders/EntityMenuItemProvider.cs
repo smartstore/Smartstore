@@ -23,7 +23,7 @@ namespace Smartstore.Core.Content.Menus
 
             item.Url = result.Link;
             item.ImageId = result.PictureId;
-
+            
             if (item.Text.IsEmpty())
             {
                 item.Text = result.Label;
@@ -33,6 +33,11 @@ namespace Smartstore.Core.Content.Menus
             {
                 item.EntityId = result.EntityId.Value;
                 item.EntityName = result.EntityName;
+            }
+
+            if (result.Expression.LinkTarget.HasValue())
+            {
+                item.LinkHtmlAttributes.Add("target", result.Expression.LinkTarget);
             }
 
             if (request.IsEditMode)

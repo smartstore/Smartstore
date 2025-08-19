@@ -98,6 +98,11 @@ namespace Smartstore.Core.Content.Menus
                 if (link.Status == LinkStatus.Ok)
                 {
                     menuItem.Url = link.Link;
+
+                    if (link.Expression.LinkTarget.HasValue())
+                    {
+                        menuItem.LinkHtmlAttributes.Add("target", link.Expression.LinkTarget);
+                    }
                 }
             }
 

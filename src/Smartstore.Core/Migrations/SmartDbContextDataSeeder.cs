@@ -99,6 +99,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.AllProductsFromManufacturerInCart",
                 "All products from manufacturer in cart",
                 "Alle Produkte von Hersteller im Warenkorb");
+
+            builder.AddOrUpdate("LinkBuilder.LinkTarget", 
+                "Define the target attribute for the link.", 
+                "Definieren Sie das Attribut target für den Link.");
         }
     }
 }

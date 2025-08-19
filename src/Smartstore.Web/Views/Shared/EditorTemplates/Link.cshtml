@@ -13,7 +13,9 @@
     var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
+    var linkTarget = expression.LinkTarget;
     var hideQueryString = GetMetadata<bool>("hideQueryString");
+    var hideLinkTarget = GetMetadata<bool>("hideLinkTarget");
     var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
     var allowedSchemas = arr.Any() ? arr : metadata.Keys;
     var size = GetMetadata<string>("size");
@@ -122,32 +124,54 @@
             </div>
         }
 
-        @* 4. append additional buttons. *@
+        @* 3. append additional buttons. *@
         <div class="col-auto">
             <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
                 <i class="fa fa-unlink"></i>
             </button>
-            @if (!hideQueryString)
-            {
+            
+            <div sm-if="!hideLinkTarget" class="btn-group">
                 <button type="button" 
-                        class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")" 
-                        attr-class='(expression.Schema == "url", "hide")'
-                        title="@T("Common.QueryString")" 
+                        class="btn btn-secondary btn-icon btn-link-target dropdown-toggle"
+                        attr-class='(size.HasValue(), "btn-" + size)'
+                        title="@T("LinkBuilder.LinkTarget")" 
                         data-toggle="dropdown" 
                         aria-haspopup="true" 
                         aria-expanded="false">
+                    <i class="fa fa-arrow-up-right-from-square @(linkTarget.HasValue() ? "text-success" : "text-muted")"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right dropdown-link-target">
+                    <div class="px-2">
+                        <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "active")'>@T("Common.Unspecified")</a>
+                        <a class="dropdown-item" href="#" data-value="_self" attr-class='(linkTarget == "_self", "active")'>_self</a>
+                        <a class="dropdown-item" href="#" data-value="_blank" attr-class='(linkTarget == "_blank", "active")'>_blank</a>
+                        <a class="dropdown-item" href="#" data-value="_parent" attr-class='(linkTarget == "_parent", "active")'>_parent</a>
+                        <a class="dropdown-item" href="#" data-value="_top" attr-class='(linkTarget == "_top", "active")'>_top</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div sm-if="!hideQueryString" class="btn-group">
+                <button type="button"
+                        class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
+                        attr-class='(expression.Schema == "url", "hide")'
+                        title="@T("Common.QueryString")"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        data-boundary="window">
                     <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <div class="px-2">
-                        <input type="text" 
-                            class="form-control transferable resettable query-string"
-                            attr-class='(size.HasValue(), "form-control-" + size)'
-                            value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" 
-                            style="width: 350px;" />
+                        <input type="text"
+                                class="form-control transferable resettable query-string"
+                                attr-class='(size.HasValue(), "form-control-" + size)'
+                                value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")"
+                                style="width: 350px;" />
                     </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
