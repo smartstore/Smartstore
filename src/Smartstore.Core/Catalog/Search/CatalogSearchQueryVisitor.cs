@@ -586,11 +586,11 @@ namespace Smartstore.Core.Catalog.Search
                 // Sort by relevance.
                 if (context.CategoryId > 0)
                 {
-                    return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
+                    return ApplyFeaturedSorting(context, query, true);
                 }
                 else if (context.ManufacturerId > 0)
                 {
-                    return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
+                    return ApplyFeaturedSorting(context, query, false);
                 }
                 else
                 {
@@ -627,11 +627,11 @@ namespace Smartstore.Core.Catalog.Search
 
             if (context.CategoryId > 0 && sq.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Category))
             {
-                return ApplyFeaturedSorting(query, context.CategoryId.Value, true);
+                return ApplyFeaturedSorting(context, query, true);
             }
             else if (context.ManufacturerId > 0 && sq.Origin.EqualsNoCase(CatalogSearchQuery.KnownOrigins.Manufacturer))
             {
-                return ApplyFeaturedSorting(query, context.ManufacturerId.Value, false);
+                return ApplyFeaturedSorting(context, query, false);
             }
             else if (sq.Filters.FindFilter(CatalogSearchQuery.KnownFilters.ParentId) != null ||
                 (context.SearchSettings.UseFeaturedSorting && (sq.IsSearchPage() || sq.IsInstantSearch())))
@@ -674,15 +674,15 @@ namespace Smartstore.Core.Catalog.Search
             }
         }
 
-        protected virtual IQueryable<Product> ApplyFeaturedSorting(IQueryable<Product> query, int entityId, bool byCategory)
+        protected virtual IQueryable<Product> ApplyFeaturedSorting(CatalogSearchQueryContext context, IQueryable<Product> query, bool byCategory)
         {
             if (byCategory)
             {
                 return query
                     .Select(x => new
                     {
-                        ProductCategory = x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == entityId),
-                        Product = x
+                        Product = x,
+                        ProductCategory = x.ProductCategories.FirstOrDefault(pc => pc.CategoryId == context.CategoryId)
                     })
                     .OrderBy(x => x.ProductCategory.DisplayOrder)
                     .ThenBy(x => x.ProductCategory.Id)
@@ -693,8 +693,8 @@ namespace Smartstore.Core.Catalog.Search
                 return query
                     .Select(x => new
                     {
-                        ProductManufacturer = x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == entityId),
-                        Product = x
+                        Product = x,
+                        ProductManufacturer = x.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == context.ManufacturerId)
                     })
                     .OrderBy(x => x.ProductManufacturer.DisplayOrder)
                     .ThenBy(x => x.ProductManufacturer.Id)
