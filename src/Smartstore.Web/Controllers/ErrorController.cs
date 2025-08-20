@@ -58,7 +58,7 @@ namespace Smartstore.Web.Controllers
                 return View("AccessDenied", model);
             }
 
-            if (httpStatusCode == HttpStatusCode.NotFound && model.Path.HasValue() && MimeTypes.TryMapNameToMimeType(model.Path, out var mime))
+            if (IsPathError(httpStatusCode, model) && MimeTypes.TryMapNameToMimeType(model.Path, out var mime))
             {
                 HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 
@@ -72,6 +72,21 @@ namespace Smartstore.Web.Controllers
                 default:
                     return View("Error", model);
             }
+        }
+
+        private static bool IsPathError(HttpStatusCode status, ErrorModel model)
+        {
+            if (model.Path.IsEmpty())
+            {
+                return false;
+            }
+
+            return status == HttpStatusCode.NotFound
+                || model.Exception is FileNotFoundException
+                || model.Exception is DirectoryNotFoundException
+                || model.Exception is PathTooLongException
+                || model.Exception is NotSupportedException
+                || (status == HttpStatusCode.InternalServerError && model.Exception is IOException && PathUtility.HasInvalidFileNameChars(model.Path));
         }
     }
 }
