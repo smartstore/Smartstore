@@ -36,12 +36,17 @@ namespace Smartstore.Admin.Controllers
 
         public async Task<IActionResult> ChangeStoreScopeConfiguration(int storeid, string returnUrl = "")
         {
-            var store = Services.StoreContext.GetStoreById(storeid);
-            if (store != null || storeid == 0)
+            if (storeid != 0)
             {
-                Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
-                await _db.SaveChangesAsync();
+                var stores = Services.StoreContext.GetAllStores();
+                if (stores.Count < 2 || !stores.Any(x => x.Id == storeid))
+                {
+                    storeid = 0;
+                }
             }
+
+            Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = storeid;
+            await _db.SaveChangesAsync();
 
             return RedirectToReferrer(returnUrl, () => RedirectToAction("Index", "Home", new { area = "Admin" }));
         }
