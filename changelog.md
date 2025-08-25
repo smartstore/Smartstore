@@ -27,7 +27,8 @@
 * Theming: `.art-drop` should adopt `$art-active-border-color`
 - #1327 Product rules/MegaSearch: Consider start and end dates of a discount when applying the "HasDiscount" rule.
 - EasyCredit: Do not hide the installment calculator if EasyCredit is not offered at checkout due to cart rules.
-- etracker: Updated module to use latest script & added event submission for product view and order
+- etracker: Updated module to use latest script & added event submission for product view, list view and orders. 
+- Added option for queued email grid to filter for subject
 
 ### Bugfixes
 
