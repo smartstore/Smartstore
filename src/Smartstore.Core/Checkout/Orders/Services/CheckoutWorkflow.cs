@@ -336,7 +336,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             CheckoutResult PaymentFailure(PaymentException ex)
             {
-                if (ex.RedirectRoute is RouteInfo or RouteValueDictionary)
+                if (ex.RedirectRoute is not string)
                 {
                     _logger.Error(ex);
                     _notifier.Error(ex.Message);

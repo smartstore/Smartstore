@@ -124,14 +124,14 @@ namespace Smartstore.Core.Checkout.Orders
                         await _eventPublisher.PublishOrderPaidAsync(ctx.Order);
                     }
                 }
-
-                return ctx.Result;
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancelToken);
-                throw;
+                ex.ReThrow();
             }
+
+            return ctx.Result;
         }
 
         public virtual Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(
