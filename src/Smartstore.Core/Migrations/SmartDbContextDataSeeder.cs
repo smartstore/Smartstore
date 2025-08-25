@@ -103,6 +103,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("LinkBuilder.LinkTarget", 
                 "Define the target attribute for the link.", 
                 "Definieren Sie das Attribut target für den Link.");
+
+            builder.AddOrUpdate("PrivateMessages.Inbox", "Private messages", "Private Nachrichten");
         }
     }
 }
