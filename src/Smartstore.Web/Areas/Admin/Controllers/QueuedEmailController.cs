@@ -4,6 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Http;
 using Smartstore.Threading;
@@ -61,6 +62,7 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Attachments)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)
+                .ApplySearchFilterFor(x => x.Subject, model.SearchSubject)
                 .Where(x => x.SentTries < model.SearchMaxSentTries);
 
             if (model.SearchSendManually.HasValue)

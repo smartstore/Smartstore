@@ -12,6 +12,9 @@
         [LocalizedDisplay("*ToEmail")]
         public string SearchToEmail { get; set; }
 
+        [LocalizedDisplay("Admin.System.QueuedEmails.Fields.Subject")]
+        public string SearchSubject { get; set; }
+
         [LocalizedDisplay("*LoadNotSent")]
         public bool SearchLoadNotSent { get; set; } = true;
 
