@@ -39,7 +39,7 @@
             {
                 var bundleItemsWithImages = item.ChildItems.Where(x => x.Image.HasImage()).ToArray();
 
-                <div class="offcanvas-cart-item" role="listitem" aria-labelledby="wishlist-item-link-@(item.Id)">
+                <div class="offcanvas-cart-item" data-sku="@item.Sku" role="listitem" aria-labelledby="wishlist-item-link-@(item.Id)">
                     <div class="row sm-gutters">
                         <div sm-if="Model.ShowProductImages" class="col col-alpha">
                             <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" aria-hidden="true" tabindex="-1">

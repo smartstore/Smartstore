@@ -28,6 +28,7 @@ namespace Smartstore.Web.Models.Cart
             public LocalizedValue<string> ProductName { get; set; }
             public LocalizedValue<string> ShortDesc { get; set; }
 
+            public string ProductSku { get; set; }
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
 

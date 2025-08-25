@@ -155,6 +155,7 @@ namespace Smartstore.Web.Models.Cart
                     Active = cartItem.Active,
                     ProductId = product.Id,
                     ProductName = product.GetLocalized(x => x.Name),
+                    ProductSku = product.Sku,
                     ShortDesc = product.GetLocalized(x => x.ShortDescription),
                     ProductSeName = productSeName,
                     CreatedOnUtc = item.UpdatedOnUtc,
