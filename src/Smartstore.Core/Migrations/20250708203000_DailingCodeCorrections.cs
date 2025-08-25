@@ -27,7 +27,7 @@ namespace Smartstore.Core.Migrations
         public bool AbortOnFailure => false;
 
         // Must be updated (dial code and/or modernized name)
-        private static readonly (string Iso2, int DialCode, string? NewName)[] ToUpdate =
+        private static readonly (string Iso2, int DialCode, string NewName)[] ToUpdate =
         [
             ("CU", 53,  null),                       // Cuba
             ("AW", 297, null),                       // Aruba
