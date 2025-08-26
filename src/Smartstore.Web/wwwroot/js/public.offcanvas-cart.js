@@ -268,18 +268,18 @@ var ShopBar = (function ($) {
     });
 
     EventBroker.subscribe("ajaxcart.item.added", function (msg, data) {
-        var tool = tools[data.type];
-        var button = buttons[data.type];
-        var badge = $("span.label", button);
+        let tool = tools[data.type];
+        let button = buttons[data.type];
+        let badge = $("span.label", button);
 
         if (badge.hasClass("d-none")) {
             badge.removeClass("d-none");
         }
 
-        ShopBar.loadHtml(tool, function () {
+        ShopBar.loadHtml(tool, () => {
             ShopBar.hideThrobber();
-            _.delay(function () {
-                var cnt = $(".tab-content " + tool.attr("href"), offcanvasCart);
+            _.delay(() => {
+                let cnt = $(".tab-content " + tool.attr("href"), offcanvasCart);
                 let scrollable = cnt.find('.offcanvas-scrollable');
                 //scrollable.scrollTop(scrollable[0].scrollHeight);
                 scrollable.scrollTo(cnt.find(".offcanvas-cart-item:last"), {
@@ -290,7 +290,7 @@ var ShopBar = (function ($) {
 
         ShopBar.loadSummary(data.type, true /*fade*/, function (resultData) { });
 
-        var action = data.action;
+        let action = data.action;
 
         if (action == "addfromwishlist" || action == "addfromcart") {
             $('.nav-tabs ' + (action == "addfromcart" ? "#wishlist-tab" : "#cart-tab")).tab('show');
@@ -305,16 +305,16 @@ var ShopBar = (function ($) {
     });
 
     EventBroker.subscribe("ajaxcart.item.removed", function (msg, data) {
-        var tool = tools[data.type];
+        let tool = tools[data.type];
 
-        ShopBar.loadHtml(tool, function () {
+        ShopBar.loadHtml(tool, () => {
             ShopBar.hideThrobber();
         });
 
-        ShopBar.loadSummary(data.type, true /*fade*/, function (resultData) { });
+        ShopBar.loadSummary(data.type, true /*fade*/, (_resultData) => { });
     });
 
-    EventBroker.subscribe("ajaxcart.error", function (msg, data) {
+    EventBroker.subscribe("ajaxcart.error", function (_msg, data) {
         notify(data.response);
         ShopBar.hideThrobber();
     });
