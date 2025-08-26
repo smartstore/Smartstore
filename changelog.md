@@ -12,10 +12,10 @@
   - Product lists.
   - "All manufacturers" page.
   - PhotoSwipe
-  
+
 ### New Features
 
-- Added payment provider for **easyCredit purchase on account**.
+- #1370 Add a payment provider for **easyCredit purchase on account**.
 - New Rule Builder rules:
   - #1372 Cart rule for the total cart weight.
   - Cart rule to check that all products in the cart are from the specified categories.
