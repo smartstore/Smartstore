@@ -36,6 +36,7 @@
 
 - ChatGPT: Fixed image creation errors "Invalid value".
 - Attribute combination image could not be selected on product edit page.
+- PostFinance: Fixed the issue where the amount paid sometimes differs from the order total.
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
 - **MegaMenu** 
