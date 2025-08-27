@@ -235,8 +235,8 @@
                 .removeClass('text-muted text-success')
                 .addClass(hasLinkTarget ? 'text-success' : 'text-muted');
 
-            $(this.element).find('.dropdown-item').removeClass('active');
-            $(this.element).find('.dropdown-item[data-value="' + target + '"]').addClass("active");
+            $(this.element).find('.dropdown-item').removeClass('checked');
+            $(this.element).find('.dropdown-item[data-value="' + target + '"]').addClass("checked");
         },
 
         _getQueryString: function () {

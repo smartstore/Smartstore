@@ -1,4 +1,6 @@
-﻿@using Smartstore.Utilities
+﻿@addTagHelper Smartstore.Web.TagHelpers.Admin.BootstrapIconTagHelper, Smartstore.Web.Common
+
+@using Smartstore.Utilities
 
 @functions
 {
@@ -54,10 +56,11 @@
         {
             var info = metadata[schema];
             var label = expression.Schema == schema ? link.Label : string.Empty;
-            var value = expression.Schema == schema && expression.Target != null 
-                ? (link.EntityId.HasValue ? link.EntityId.Value.ToStringInvariant() : expression.Target.EmptyNull()) 
+            var value = expression.Schema == schema && expression.Target != null
+                ? (link.EntityId.HasValue ? link.EntityId.Value.ToStringInvariant() : expression.Target.EmptyNull())
                 : string.Empty;
 
+            @* TODO: (mg) select2 width must not exceed the remaining space (it does when the label is too wide). Find a way to fix it. *@
             <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
                 @if (info.Widget != null)
                 {
@@ -110,9 +113,9 @@
                     <div class="input-group" attr-class='(size.HasValue(), "input-group-" + size)'>
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
                         <div class="input-group-append">
-                            <a href="javascript:;" 
-                               class="btn btn-secondary browse-files" 
-                               data-file-manager-url="@Display.GetFileManagerUrl()" 
+                            <a href="javascript:;"
+                               class="btn btn-secondary browse-files"
+                               data-file-manager-url="@Display.GetFileManagerUrl()"
                                data-field-id="lb-file-url-@rnd"
                                title="@(T("Common.BrowseFiles"))&hellip;">
                                 <i class="fa fa-upload"></i>
@@ -126,49 +129,49 @@
 
         @* 3. append additional buttons. *@
         <div class="col-auto">
-            <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
-                <i class="fa fa-unlink"></i>
-            </button>
-            
-            <div sm-if="!hideLinkTarget" class="btn-group">
-                <button type="button" 
-                        class="btn btn-secondary btn-icon btn-link-target dropdown-toggle"
-                        attr-class='(size.HasValue(), "btn-" + size)'
-                        title="@T("LinkBuilder.LinkTarget")" 
-                        data-toggle="dropdown" 
-                        aria-haspopup="true" 
-                        aria-expanded="false">
-                    <i class="fa fa-arrow-up-right-from-square @(linkTarget.HasValue() ? "text-success" : "text-muted")"></i>
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" attr-class='(size.HasValue(), "btn-" + size)' title="@T("Common.Remove")">
+                    <i class="fa fa-unlink"></i>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right dropdown-link-target">
-                    <div class="px-2">
-                        <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "active")'>@T("Common.Unspecified")</a>
-                        <a class="dropdown-item" href="#" data-value="_self" attr-class='(linkTarget == "_self", "active")'>_self</a>
-                        <a class="dropdown-item" href="#" data-value="_blank" attr-class='(linkTarget == "_blank", "active")'>_blank</a>
-                        <a class="dropdown-item" href="#" data-value="_parent" attr-class='(linkTarget == "_parent", "active")'>_parent</a>
-                        <a class="dropdown-item" href="#" data-value="_top" attr-class='(linkTarget == "_top", "active")'>_top</a>
+                <div sm-if="!hideLinkTarget" class="btn-group">
+                    <button type="button"
+                            class="btn btn-secondary btn-icon btn-link-target dropdown-toggle"
+                            attr-class='(size.HasValue(), "btn-" + size)'
+                            title="@T("LinkBuilder.LinkTarget")"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <i class="far fa-window-restore @(linkTarget.HasValue() ? "text-success" : "text-muted")"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-check dropdown-menu-right dropdown-link-target">
+                        <a class="dropdown-item" href="#" data-value="" attr-class='(linkTarget.IsNullOrEmpty(), "checked")'>@T("Common.Unspecified")</a>
+                        <a class="dropdown-item" href="#" data-value="_self" attr-class='(linkTarget == "_self", "checked")'>_self</a>
+                        <a class="dropdown-item" href="#" data-value="_blank" attr-class='(linkTarget == "_blank", "checked")'>_blank</a>
+                        <a class="dropdown-item" href="#" data-value="_parent" attr-class='(linkTarget == "_parent", "checked")'>_parent</a>
+                        <a class="dropdown-item" href="#" data-value="_top" attr-class='(linkTarget == "_top", "checked")'>_top</a>
                     </div>
                 </div>
-            </div>
-            
-            <div sm-if="!hideQueryString" class="btn-group">
-                <button type="button"
-                        class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
-                        attr-class='(expression.Schema == "url", "hide")'
-                        title="@T("Common.QueryString")"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        data-boundary="window">
-                    <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <div class="px-2">
-                        <input type="text"
-                                class="form-control transferable resettable query-string"
-                                attr-class='(size.HasValue(), "form-control-" + size)'
-                                value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")"
-                                style="width: 350px;" />
+
+                @* TODO: (mg) Focus the text input on dropdown shown *@
+                <div sm-if="!hideQueryString" class="btn-group">
+                    <button type="button"
+                            class="btn btn-secondary btn-icon btn-query-string dropdown-toggle@(size.HasValue() ? " btn-" + size : "")"
+                            attr-class='(expression.Schema == "url", "hide")'
+                            title="@T("Common.QueryString")"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            data-boundary="window">
+                        <i class="far fa-circle-question @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="px-2">
+                            <input type="text"
+                                   class="form-control transferable resettable query-string"
+                                   attr-class='(size.HasValue(), "form-control-" + size)'
+                                   value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")"
+                                   style="width: 350px;" />
+                        </div>
                     </div>
                 </div>
             </div>
