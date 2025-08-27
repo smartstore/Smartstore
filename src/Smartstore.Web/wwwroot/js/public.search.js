@@ -55,9 +55,9 @@
                 }
             });
 
-            $(document).on('mousedown', function (e) {
+            box.on('focusout', function (e) {
                 // Close drop on outside click
-                if ($(e.target).closest('.instasearch-form').length > 0)
+                if ($(e.relatedTarget).closest('.instasearch-form').length > 0)
                     return;
 
                 shrinkBox();
