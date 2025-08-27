@@ -39,7 +39,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
         <PackageReference Include="NCrontab.Signed" Version="3.3.3" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
-        <PackageReference Include="NuGet.Protocol" Version="6.13.2" />
+        <PackageReference Include="NuGet.Protocol" Version="6.14.0" />
         <PackageReference Include="PreMailer.Net" Version="2.7.2" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
