@@ -22,18 +22,18 @@
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.5.0" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.5.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.13.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.13.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Razor" Version="6.0.36" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.13.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.13.0">
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.14.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0">
             <!-- Prevents BuildHost folders from being copied into the project -->
             <ExcludeAssets>contentFiles</ExcludeAssets>
         </PackageReference>
