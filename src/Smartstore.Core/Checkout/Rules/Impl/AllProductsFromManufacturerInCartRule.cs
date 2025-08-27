@@ -20,6 +20,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                     .Select(x => new { x.ProductId, x.ManufacturerId })
                     .ToListAsync())
                     .ToMultimap(x => x.ProductId, x => x.ManufacturerId);
+
                 if (manufacturerIds.Count == 0)
                 {
                     return false;

@@ -20,7 +20,7 @@
   - #1372 Cart rule for the total cart weight.
   - Cart rule to check that all products in the cart are from the specified categories.
 - #1357 Pricing: Add a setting that takes tiered prices of products into account, that are assigned by an attribute of type "linked product".
-- #690 Integrate Apple Sign-In 
+- #690 Apple Sign-In support
 - FileManager: Enabled language dependent tabs
 
 ### Improvements

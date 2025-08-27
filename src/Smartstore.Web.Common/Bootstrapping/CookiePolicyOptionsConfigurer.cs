@@ -45,7 +45,7 @@ namespace Smartstore.Web.Bootstrapping
             // Check SameSite backwards compatiblity
             if (options.SameSite == SameSiteMode.None)
             {
-                var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+                var userAgent = httpContext.Request.Headers.UserAgent.ToString();
                 if (userAgent.IsEmpty())
                 {
                     return;
