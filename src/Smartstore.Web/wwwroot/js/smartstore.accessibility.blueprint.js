@@ -60,15 +60,15 @@ class AccessKit {
     }
 
     static #isNavKey(key) {
-        return this.#navKeys.has(e.key);
+        return this.#navKeys.has(key);
     }
 
     constructor(options) {
         this.options = options;
         this.plugins = new Map();
 
-        document.addEventListener('keydown', this._onKeyDown, true);
-        document.addEventListener('keyup', this._onKeyUp, true);
+        document.addEventListener('keydown', e => this._onKeyDown(e), true);
+        document.addEventListener('keyup', e => this._onKeyUp(e), true);
 
         // Generic event handler for collapsibles
         ['expand.ak', 'collapse.ak'].forEach(eventName => {
@@ -117,7 +117,7 @@ class AccessKit {
         // Skip irrelevant targets immediately.
         const t = e.target;
         if (!t || !(t instanceof Element)) return;
-        if (e.key != KEY.ESC) {
+        if (e.key != AccessKit.KEY.ESC) {
             if (!this._isCandidateElement(t)) return;
         }
 
@@ -277,8 +277,8 @@ class AccessKitEvents {
      */
     trigger(name, element, args = {}) {
         // TODO: (wcag) (mc) Move trigger method to a common place/script.
-        if (!name.endsWith(EVENT_NAMESPACE)) {
-            name += EVENT_NAMESPACE;
+        if (!name.endsWith(this.EVENT_NAMESPACE)) {
+            name += this.EVENT_NAMESPACE;
         }
 
         const jEvent = $.Event(name, { detail: args });
@@ -399,7 +399,7 @@ class AccessKitPluginBase {
      * 
      * @returns {Array<Element>} items - The roving focusable items.
      */
-    applyRoving(widget) {
+    applyRoving(widget, start = 0) {
         /* Build a safe scope for roving-focus:
            1. If the container has a role ⇒ use [role="…"].
            2. Else if it has an id        ⇒ use #id.
@@ -428,7 +428,7 @@ class AccessKitPluginBase {
         const widget = this.getWidget(root, true); // add if not present
         if (!widget || !widget.items.length) return false;
 
-        this.handleKeyCore(e, widget);
+        return this.handleKeyCore(e, widget);
     }
 
     /**
@@ -574,8 +574,7 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
             // Fallback: <button> … <div class="panel">
             target = trigger.nextElementSibling;
         }
-        if (!target) return;
-
+        
         var isOpen = trigger.getAttribute('aria-expanded') === 'true' || trigger.open === true;
         var shouldOpen = expand === null ? !isOpen : Boolean(expand);
 
