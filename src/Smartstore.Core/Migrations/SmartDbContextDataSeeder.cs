@@ -105,6 +105,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Definieren Sie das Attribut target für den Link.");
 
             builder.AddOrUpdate("PrivateMessages.Inbox", "Private messages", "Private Nachrichten");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.EditAttributeDetails", 
+                "Edit specification attribute", 
+                "Spezifikationsattribut bearbeiten");
         }
     }
 }

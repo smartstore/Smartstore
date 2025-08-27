@@ -39,30 +39,6 @@
             if (!$el.data("lazy")) {
                 $el.find("> .summernote-editor").summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
             }
-        },
-
-        // RuleSets
-        "rule-sets": function (el) {
-            $(el)
-                .selectWrapper()
-                .on('select2:selecting select2:unselecting', function (e) {
-                    try {
-                        // Prevent selection when a link has been clicked.
-                        if ($(e.params.args.originalEvent.target).hasClass('prevent-selection')) {
-                            var data = e.params.args.data;
-
-                            if (data.id === '-1' && !_.isEmpty(data.url)) {
-                                window.location = data.url;
-                            }
-
-                            e.preventDefault();
-                            return false;
-                        }
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                });
         }
     };
     editorMap["time"] = editorMap["date-time"];

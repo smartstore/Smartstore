@@ -56,7 +56,9 @@ namespace Smartstore.Admin.Controllers
                 {
                     Id = x.Id.ToString(),
                     Text = x.Name,
-                    Selected = ids.Contains(x.Id)
+                    Selected = ids.Contains(x.Id),
+                    UrlTitle = T("Admin.Catalog.Attributes.SpecificationAttributes.EditAttributeDetails"),
+                    Url = Url.Action(nameof(Edit), "SpecificationAttribute", new { id = x.Id, area = "Admin" })
                 })
                 .ToList();
 

@@ -11,7 +11,27 @@
         },
         // select2 (generic)
         function (ctx) {
-            ctx.find("select:not(.noskin)").selectWrapper();
+            ctx.find("select:not(.noskin)")
+                .selectWrapper()
+                .on('select2:selecting select2:unselecting', (e) => {
+                    try {
+                        // Prevent selection when a link has been clicked.
+                        const target = e.params?.args?.originalEvent?.target;
+                        if (target && $(target).hasClass('prevent-selection')) {
+                            const data = e.params.args.data;
+
+                            if (data.id === '-1' && !_.isEmpty(data.url)) {
+                                window.location = data.url;
+                            }
+
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                });
         },
         // tooltips
         function (ctx) {

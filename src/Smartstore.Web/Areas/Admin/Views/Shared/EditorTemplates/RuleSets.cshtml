@@ -26,8 +26,6 @@
     var id = Html.IdForModel();
     var strValue = string.Join(',', Value);
     var ruleScope = TryGetMetadata<RuleScope>("scope", out var scope) ? scope : (RuleScope?)null;
-    var url = Url.Action("Edit", "Rule", new { id = "__id__", area = "Admin" });
-
     var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
