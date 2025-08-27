@@ -19,7 +19,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.3.0" />
-		<PackageReference Include="NUglify" Version="1.21.15" />
+		<PackageReference Include="NUglify" Version="1.21.17" />
 		<PackageReference Include="SharpScss" Version="3.0.0" />
 		<PackageReference Include="Smartstore.Licensing" Version="6.1.0" />
 	</ItemGroup>
