@@ -67,7 +67,8 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditAttribute)]
         public async Task<IActionResult> ProductSpecificationAttributeAdd(
-            int specificationAttributeOptionId,
+            int attributeId,
+            string attributeOption /*ID or name of new option*/,
             bool? allowFiltering,
             bool? showOnProductPage,
             int displayOrder,
@@ -76,20 +77,39 @@ namespace Smartstore.Admin.Controllers
             var success = false;
             var message = string.Empty;
 
-            if (specificationAttributeOptionId != 0)
+            if (attributeId != 0 && attributeOption.HasValue())
             {
-                var psa = new ProductSpecificationAttribute
-                {
-                    SpecificationAttributeOptionId = specificationAttributeOptionId,
-                    ProductId = productId,
-                    AllowFiltering = allowFiltering,
-                    ShowOnProductPage = showOnProductPage,
-                    DisplayOrder = displayOrder,
-                };
-
                 try
                 {
-                    _db.ProductSpecificationAttributes.Add(psa);
+                    var optionId = attributeOption.ToInt();
+                    if (optionId == 0 && await _db.SpecificationAttributes.AnyAsync(x => x.Id == attributeId))
+                    {
+                        var maxDisplayOrder = (await _db.SpecificationAttributeOptions
+                            .Where(x => x.SpecificationAttributeId == attributeId)
+                            .MaxAsync(x => (int?)x.DisplayOrder)) ?? 0;
+
+                        var newOption = new SpecificationAttributeOption
+                        {
+                            SpecificationAttributeId = attributeId,
+                            Name = attributeOption,
+                            DisplayOrder = ++maxDisplayOrder
+                        };
+
+                        _db.SpecificationAttributeOptions.Add(newOption);
+                        await _db.SaveChangesAsync();
+
+                        optionId = newOption.Id;
+                    }
+
+                    _db.ProductSpecificationAttributes.Add(new()
+                    {
+                        SpecificationAttributeOptionId = optionId,
+                        ProductId = productId,
+                        AllowFiltering = allowFiltering,
+                        ShowOnProductPage = showOnProductPage,
+                        DisplayOrder = displayOrder,
+                    });
+
                     await _db.SaveChangesAsync();
                     success = true;
                 }

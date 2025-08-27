@@ -35,11 +35,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId" />
+            <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeOption" />
         </div>
         <div class="adminData">
-            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId"></select>
-            <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId"></span>
+            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeOption" data-tags="true"></select>
+            <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeOption"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -84,34 +84,36 @@
 
 <script>
     $(function () {
-        $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeId)").on('change', function() {
-            var attributeId = $(this).val();
-            var options = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)")
+        $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeId))").on('change', function() {
+            const attributeId = $(this).val();
+            let options = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeOption))");
+
             $.ajax({
                 cache: false,
                 type: "GET",
                 url: "@Url.Action("GetOptionsByAttributeId", "SpecificationAttribute")",
                 data: { "attributeId": attributeId },
-                success: function (data) {
+                success: (response) => {
                     options.html('');
-                    $.each(data, function(id, option) {
+                    $.each(response, (id, option) => {
                         options.append($('<option></option>').val(option.id).html(option.name));
                     });
                     options.trigger("change");
                 },
-                error: function (xhr, ajaxOptions, thrownError) {
+                error: () => {
                     alert('Failed to retrieve specification options.')
                 }
             });
         }).trigger('change');
 
-        $(document).on("click", "#addProductSpec", (function () {
-            var specificationAttributeOptionId = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)").val();
-            var allowFiltering = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.AllowFiltering)").val();
-            var showOnProductPage = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.ShowOnProductPage)").val();
-
-            var elDisplayOrder = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.DisplayOrder)");
-            var displayOrder = elDisplayOrder.val();
+        $(document).on("click", "#addProductSpec", () => {
+            const attributeId = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeId))").val();
+            let elOption = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.SpecificationAttributeOption))");
+            const option = elOption.val();
+            const allowFiltering = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.AllowFiltering))").val();
+            const showOnProductPage = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.ShowOnProductPage))").val();
+            let elDisplayOrder = $("#@(Html.IdFor(x => x.AddSpecificationAttributeModel.DisplayOrder))");
+            const displayOrder = elDisplayOrder.val();
 
             $('#addProductSpec').attr('disabled', true);
 
@@ -120,29 +122,30 @@
                 type: "POST",
                 url: "@(Url.Action("ProductSpecificationAttributeAdd", "Product"))",
                 data: {
-                    "specificationAttributeOptionId": specificationAttributeOptionId,
+                    "attributeId": attributeId,
+                    "attributeOption": option,
                     "allowFiltering": allowFiltering,
                     "showOnProductPage": showOnProductPage,
                     "displayOrder": displayOrder,
                     "productId": @Model.Id
                 },
-                success: function (data) {
+                success: (response) => {
                     $('#addProductSpec').attr('disabled', false);
-                    if (data.success) {
+                    if (response.success) {
                         window["specificationattributes-grid"].$children[0].read();
                     }
                     else {
-                        displayNotification(data.message, 'warning');
+                        displayNotification(response.message, 'warning');
                     }
 
                     elDisplayOrder.val(1 + (parseInt(displayOrder) || 0)).trigger('change');
                 },
-                error: function (xhr, ajaxOptions, thrownError) {
+                error: () => {
                     alert('Failed to add specification attribute.')
                     $('#addProductSpec').attr('disabled', false);
                 }
             });
-        }));
+        });
     });
 </script>
 

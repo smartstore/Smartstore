@@ -312,7 +312,7 @@ namespace Smartstore.Admin.Models.Catalog
             public int? SpecificationAttributeId { get; set; }
 
             [LocalizedDisplay("*SpecificationAttributeOption")]
-            public int? SpecificationAttributeOptionId { get; set; }
+            public string SpecificationAttributeOption { get; set; }
 
             [LocalizedDisplay("*AllowFiltering")]
             public bool? AllowFiltering { get; set; }
