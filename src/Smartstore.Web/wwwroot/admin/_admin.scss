@@ -957,7 +957,7 @@ legend {
         background-color: $gray-100;
         @include border-top-radius(var(--border-radius-md));
         flex-wrap: nowrap;
-        overflow-x: auto;
+        overflow-x: hidden;
 
         .nav-item {
             position: relative;
