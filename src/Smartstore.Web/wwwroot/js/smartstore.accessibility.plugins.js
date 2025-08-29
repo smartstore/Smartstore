@@ -11,6 +11,7 @@
  * -------------------------------------------------- */
 class MenuPlugin extends AccessKitExpandablePluginBase {
     getRovingItems(root) {
+        // TODO: (mh) This is the anti-pattern I wanted to avoid with the refactoring! TBD with MC.
         return Array.from(root.querySelectorAll('[role="menuitem"]'))
             .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === root);
     }
