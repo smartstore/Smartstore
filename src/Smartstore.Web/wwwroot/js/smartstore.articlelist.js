@@ -11,12 +11,15 @@
         const isGrid = $list.is('.artlist-grid');
 
         // Add "Skip list" button to list
-        const numItems = isCarousel ? $list.find('.art').length : list.children.length;
-        if (numItems > 3) {
-            const $container = isCarousel ? $list.parent() : $list;
-            const $btn = $(`<a href="javascript:;" class="btn-skip-content btn btn-primary rounded-pill">${Res['Common.SkipList']}</a>`).prependTo($container);
-            if (!isCarousel) {
-                $btn.wrap('<div class="skip-content-container" role="listitem"></div>');
+        const isInDropdown = $list.closest('.dropdown-menu').length;
+        if (!isInDropdown) {
+            const numItems = isCarousel ? $list.find('.art').length : list.children.length;
+            if (numItems > 3) {
+                const $container = isCarousel ? $list.parent() : $list;
+                const $btn = $(`<a href="javascript:;" class="btn-skip-content btn btn-primary rounded-pill">${Res['Common.SkipList']}</a>`).prependTo($container);
+                if (!isCarousel) {
+                    $btn.wrap('<div class="skip-content-container" role="listitem"></div>');
+                }
             }
         }
 
