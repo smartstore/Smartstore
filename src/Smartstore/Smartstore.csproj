@@ -37,6 +37,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.8" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.14.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.3.3" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
         <PackageReference Include="NuGet.Protocol" Version="6.14.0" />
