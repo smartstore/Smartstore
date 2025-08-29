@@ -14,12 +14,12 @@
 .fa-solid,
 .far,
 .fa-regular,
-.fal,
-.fa-light,
-.fat,
-.fa-thin,
-.fad,
-.fa-duotone,
+.fal, /*!*/
+.fa-light, /*!*/
+.fat, /*!*/
+.fa-thin, /*!*/
+.fad, /*!*/
+.fa-duotone, /*!*/
 .fab,
 .fa-brands {
     -moz-osx-font-smoothing: grayscale;
