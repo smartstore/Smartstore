@@ -173,7 +173,7 @@ class AccessKit {
             else {
                 // Find next element sibling of container
                 let pointer = trigger.parentElement;
-                while (pointer && !pointer.nextElementSibling) {
+                while (pointer && (!pointer.nextElementSibling || pointer.matches('.skip-content-container'))) {
                     pointer = pointer.parentElement;
                 }
                 target = pointer?.nextElementSibling ?? null;
