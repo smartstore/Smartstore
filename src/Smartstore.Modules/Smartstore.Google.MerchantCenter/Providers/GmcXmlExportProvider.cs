@@ -347,16 +347,17 @@ namespace Smartstore.Google.MerchantCenter.Providers
             // TODO: Product.BasePriceMeasureUnit should be localized
             return val.ToLowerInvariant() switch
             {
-                "mg" or "milligramm" or "milligram" => "mg",
+                "kg" or "kilogramm" or "kilogram" => "kg",
                 "g" or "gramm" or "gram" => "g",
+                "mg" or "milligramm" or "milligram" => "mg",
                 "ml" or "milliliter" or "millilitre" => "ml",
-                "cl" or "zentiliter" or "centilitre" => "cl",
                 "l" or "liter" or "litre" => "l",
+                "cl" or "zentiliter" or "centilitre" => "cl",
                 "cbm" or "kubikmeter" or "cubic metre" => "cbm",
                 "cm" or "zentimeter" or "centimetre" => "cm",
                 "m" or "meter" => "m",
                 "qm²" or "quadratmeter" or "square metre" => "sqm",
-                "kg" or "kilogramm" or "kilogram" or _ => "kg",
+                _ => "kg",
             };
         }
 
