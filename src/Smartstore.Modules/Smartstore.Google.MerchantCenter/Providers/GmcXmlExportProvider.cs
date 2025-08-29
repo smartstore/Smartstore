@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Xml;
 using AngleSharp.Dom;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
@@ -35,10 +34,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
+        const string _googleNamespace = "http://base.google.com/ns/1.0";
+
         public const string SystemName = "Feeds.GoogleMerchantCenterProductXml";
         public const string Unspecified = "__nospec__";
-
-        private const string _googleNamespace = "http://base.google.com/ns/1.0";
 
         private readonly SmartDbContext _db;
         private readonly IProductAttributeService _productAttributeService;
@@ -61,107 +60,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        private static string BasePriceUnits(string value)
-        {
-            const string defaultValue = "kg";
-
-            if (value.IsEmpty())
-                return defaultValue;
-
-            // TODO: Product.BasePriceMeasureUnit should be localized
-            return value.ToLowerInvariant() switch
-            {
-                "mg" or "milligramm" or "milligram" => "mg",
-                "g" or "gramm" or "gram" => "g",
-                "kg" or "kilogramm" or "kilogram" => "kg",
-                "ml" or "milliliter" or "millilitre" => "ml",
-                "cl" or "zentiliter" or "centilitre" => "cl",
-                "l" or "liter" or "litre" => "l",
-                "cbm" or "kubikmeter" or "cubic metre" => "cbm",
-                "cm" or "zentimeter" or "centimetre" => "cm",
-                "m" or "meter" => "m",
-                "qm²" or "quadratmeter" or "square metre" => "sqm",
-                _ => defaultValue,
-            };
-        }
-
-        private static bool BasePriceSupported(int baseAmount, string unit)
-        {
-            if (baseAmount == 1 || baseAmount == 10 || baseAmount == 100)
-                return true;
-
-            if (baseAmount == 75 && unit == "cl")
-                return true;
-
-            if ((baseAmount == 50 || baseAmount == 1000) && unit == "kg")
-                return true;
-
-            return false;
-        }
-
-        private static void WriteString(XmlWriter writer, string fieldName, string value)
-        {
-            if (value != null)
-            {
-                writer.WriteElementString("g", fieldName, _googleNamespace, value);
-            }
-        }
-
-        private string GetAttribute(
-            Multimap<int, ProductVariantAttributeValue> attributeValues,
-            string fieldName,
-            int languageId,
-            string productEditTabValue,
-            string defaultValue)
-        {
-            // 1. attribute export mapping.
-            if (attributeValues != null && _attributeMappings.ContainsKey(fieldName))
-            {
-                foreach (var attributeId in _attributeMappings[fieldName])
-                {
-                    if (attributeValues.ContainsKey(attributeId))
-                    {
-                        var attributeValue = attributeValues[attributeId].FirstOrDefault(x => x.ProductVariantAttribute.ProductAttributeId == attributeId);
-                        if (attributeValue != null)
-                        {
-                            return attributeValue.GetLocalized(x => x.Name, languageId, true, false).Value.EmptyNull();
-                        }
-                    }
-                }
-            }
-
-            // 2. explicit set to unspecified.
-            if (defaultValue.EqualsNoCase(Unspecified))
-            {
-                return string.Empty;
-            }
-
-            // 3. product edit tab value.
-            if (productEditTabValue.HasValue())
-            {
-                return productEditTabValue;
-            }
-
-            return defaultValue.EmptyNull();
-        }
-
-        private async Task<string> GetBaseMeasureWeightAsync()
-        {
-            var measureWeightEntity = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-            var measureWeight = measureWeightEntity != null
-                ? measureWeightEntity.SystemKeyword.EmptyNull().ToLower()
-                : string.Empty;
-
-            return measureWeight switch
-            {
-                "gram" or "gramme" => "g",
-                "mg" or "milligramme" or "milligram" => "mg",
-                "lb" => "lb",
-                "ounce" or "oz" => "oz",
-                _ => "kg",
-            };
-        }
-
         public override ExportConfigurationInfo ConfigurationInfo => new()
         {
             ConfigurationWidget = new ComponentWidget(typeof(GmcConfigurationViewComponent)),
@@ -173,14 +71,13 @@ namespace Smartstore.Google.MerchantCenter.Providers
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
             Currency currency = context.Currency.Entity;
+            var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
             var now = DateTime.UtcNow;
             var languageId = context.Projection.LanguageId ?? 0;
             var dateFormat = "yyyy-MM-ddTHH:mmZ";
             var defaultAvailability = "in stock";
             var measureWeight = await GetBaseMeasureWeightAsync();
             _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
-
-            var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
 
             if (config.Availability.EqualsNoCase(Unspecified))
             {
@@ -204,10 +101,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
             while (context.Abort == DataExchangeAbortion.None && await context.DataSegmenter.ReadNextSegmentAsync())
             {
                 var segment = await context.DataSegmenter.GetCurrentSegmentAsync();
-
-                int[] productIds = segment.Select(x => (int)((dynamic)x).Id).ToArray();
-
+                int[] productIds = [.. segment.Select(x => (int)x.Id)];
                 var googleProducts = (await _db.GoogleProducts()
+                    .AsNoTracking()
                     .Where(x => productIds.Contains(x.ProductId))
                     .ToListAsync(cancelToken))
                     .ToDictionarySafe(x => x.ProductId);
@@ -234,7 +130,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         string mpn = product.ManufacturerPartNumber;
                         var availability = defaultAvailability;
                         List<dynamic> productFiles = product.ProductMediaFiles;
-                        List<string> imageUrls = new List<string>();
+                        List<string> imageUrls = [];
 
                         // Get all files which are images.
                         foreach (var file in productFiles)
@@ -250,7 +146,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                         var attributeValues = !isParent && product._AttributeCombinationValues != null
                             ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
-                            : new Multimap<int, ProductVariantAttributeValue>();
+                            : [];
 
                         var category = gmc?.Taxonomy?.NullEmpty() ?? config.DefaultGoogleCategory;
                         if (category.IsEmpty())
@@ -281,7 +177,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         writer.WriteCData("product_type", productType.NullEmpty(), "g", _googleNamespace);
                         writer.WriteElementString("link", (string)product._DetailUrl);
 
-                        if (imageUrls.Any())
+                        if (imageUrls.Count > 0)
                         {
                             WriteString(writer, "image_link", imageUrls.First());
 
@@ -442,6 +338,103 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 // INFO: GMC does not support more than 2 decimal places.
                 return _roundingHelper.Round(amount, 2, currency.MidpointRounding);
             }
+        }
+
+        private static string BasePriceUnits(string value)
+        {
+            var val = value.NullEmpty() ?? "kg";
+
+            // TODO: Product.BasePriceMeasureUnit should be localized
+            return val.ToLowerInvariant() switch
+            {
+                "mg" or "milligramm" or "milligram" => "mg",
+                "g" or "gramm" or "gram" => "g",
+                "ml" or "milliliter" or "millilitre" => "ml",
+                "cl" or "zentiliter" or "centilitre" => "cl",
+                "l" or "liter" or "litre" => "l",
+                "cbm" or "kubikmeter" or "cubic metre" => "cbm",
+                "cm" or "zentimeter" or "centimetre" => "cm",
+                "m" or "meter" => "m",
+                "qm²" or "quadratmeter" or "square metre" => "sqm",
+                "kg" or "kilogramm" or "kilogram" or _ => "kg",
+            };
+        }
+
+        private static bool BasePriceSupported(int baseAmount, string unit)
+        {
+            if (baseAmount == 1 || baseAmount == 10 || baseAmount == 100)
+                return true;
+
+            if (baseAmount == 75 && unit == "cl")
+                return true;
+
+            if ((baseAmount == 50 || baseAmount == 1000) && unit == "kg")
+                return true;
+
+            return false;
+        }
+
+        private static void WriteString(XmlWriter writer, string fieldName, string value)
+        {
+            if (value != null)
+            {
+                writer.WriteElementString("g", fieldName, _googleNamespace, value);
+            }
+        }
+
+        private string GetAttribute(
+            Multimap<int, ProductVariantAttributeValue> attributeValues,
+            string fieldName,
+            int languageId,
+            string productEditTabValue,
+            string defaultValue)
+        {
+            // 1. attribute export mapping.
+            if (attributeValues != null && _attributeMappings.ContainsKey(fieldName))
+            {
+                foreach (var attributeId in _attributeMappings[fieldName])
+                {
+                    if (attributeValues.ContainsKey(attributeId))
+                    {
+                        var attributeValue = attributeValues[attributeId].FirstOrDefault(x => x.ProductVariantAttribute.ProductAttributeId == attributeId);
+                        if (attributeValue != null)
+                        {
+                            return attributeValue.GetLocalized(x => x.Name, languageId, true, false).Value.EmptyNull();
+                        }
+                    }
+                }
+            }
+
+            // 2. explicit set to unspecified.
+            if (defaultValue.EqualsNoCase(Unspecified))
+            {
+                return string.Empty;
+            }
+
+            // 3. product edit tab value.
+            if (productEditTabValue.HasValue())
+            {
+                return productEditTabValue;
+            }
+
+            return defaultValue.EmptyNull();
+        }
+
+        private async Task<string> GetBaseMeasureWeightAsync()
+        {
+            var measureWeightEntity = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+            var measureWeight = measureWeightEntity != null
+                ? measureWeightEntity.SystemKeyword.EmptyNull().ToLower()
+                : string.Empty;
+
+            return measureWeight switch
+            {
+                "gram" or "gramme" => "g",
+                "mg" or "milligramme" or "milligram" => "mg",
+                "lb" => "lb",
+                "ounce" or "oz" => "oz",
+                _ => "kg",
+            };
         }
     }
 }

@@ -82,9 +82,8 @@ namespace Smartstore.Google.MerchantCenter
         public async Task HandleEventAsync(ProductClonedEvent message)
         {
             var originalGoogleProduct = await _db.GoogleProducts()
-                .Where(x => x.ProductId == message.Source.Id)
-                .FirstOrDefaultAsync();
-
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.ProductId == message.Source.Id);
             if (originalGoogleProduct == null)
             {
                 return;

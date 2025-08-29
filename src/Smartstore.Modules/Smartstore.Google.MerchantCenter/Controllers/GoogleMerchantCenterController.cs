@@ -67,7 +67,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
             if (profile != null)
             {
-                if (XmlHelper.Deserialize(profile.ProviderConfigData, typeof(ProfileConfigurationModel)) is ProfileConfigurationModel config)
+                if (XmlHelper.Deserialize<ProfileConfigurationModel>(profile.ProviderConfigData) is ProfileConfigurationModel config)
                 {
                     ViewBag.DefaultCategory = config.DefaultGoogleCategory;
                     ViewBag.DefaultColor = config.Color;
@@ -108,18 +108,19 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             var yes = T("Admin.Common.Yes").Value;
             var no = T("Admin.Common.No").Value;
 
-            var query = from p in _db.Products
-                        join gp in _db.GoogleProducts() on p.Id equals gp.ProductId into Products
-                        from gp in Products.DefaultIfEmpty()
-                        where !p.IsSystemProduct
-                        select new
-                        {
-                            GoogleProduct = gp,
-                            ProductId = p.Id,
-                            p.Name,
-                            p.Sku,
-                            p.ProductTypeId
-                        };
+            var query = 
+                from p in _db.Products
+                join gp in _db.GoogleProducts().AsNoTracking() on p.Id equals gp.ProductId into Products
+                from gp in Products.DefaultIfEmpty()
+                where !p.IsSystemProduct
+                select new
+                {
+                    GoogleProduct = gp,
+                    ProductId = p.Id,
+                    p.Name,
+                    p.Sku,
+                    p.ProductTypeId
+                };
 
             if (model.SearchProductName.HasValue())
             {
