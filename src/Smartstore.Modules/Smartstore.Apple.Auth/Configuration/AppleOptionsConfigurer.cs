@@ -40,6 +40,11 @@ namespace Smartstore.Apple
             }
 
             var settings = _appContext.Services.Resolve<AppleExternalAuthSettings>();
+            if (!settings.ClientId.HasValue() || !settings.KeyId.HasValue() || !settings.TeamId.HasValue() || !settings.PrivateKey.HasValue())
+            {
+                // Not configured.
+                return; 
+            }
 
             options.ClientId = settings.ClientId;
             options.KeyId = settings.KeyId;
@@ -50,7 +55,9 @@ namespace Smartstore.Apple
 
             if (!_precomputedSecret.HasValue())
             {
-                _precomputedSecret = CreateAppleClientSecret(settings.TeamId, settings.ClientId, settings.KeyId, settings.PrivateKey, daysValid: 30);
+                // TODO: (mh) Proper error handling is missing. This can fail on multiple occasions: When input is missing or is malformed etc.
+                // In an error case, AppleAuthenticationOptions must not be in a "volatile" state.
+                _precomputedSecret = CreateAppleClientSecret(settings, daysValid: 30);
             }
             
             options.GenerateClientSecret = false;                               // Important to supress the default client secret generation.
@@ -74,10 +81,10 @@ namespace Smartstore.Apple
         public void Configure(AppleAuthenticationOptions options)
             => Debug.Fail("This infrastructure method shouldn't be called.");
 
-        private static string CreateAppleClientSecret(string teamId, string clientId, string keyId, string privateKeyPem, int daysValid = 30)
+        private static string CreateAppleClientSecret(AppleExternalAuthSettings settings, int daysValid = 30)
         {
             // Normalize PEM: turn literal \n into real newlines, strip CR, trim
-            var pem = privateKeyPem.Replace("\r", "").Replace("\\n", "\n").Trim();
+            var pem = settings.PrivateKey.Replace("\r", "").Replace("\\n", "\n").Trim();
             var base64 = ExtractPkcs8Base64(pem);
             var keyBytes = Convert.FromBase64String(base64);
 
@@ -86,13 +93,13 @@ namespace Smartstore.Apple
             var parameters = ecdsaImport.ExportParameters(includePrivateParameters: true);
             using var ecdsa = ECDsa.Create(parameters);
 
-            var credentials = new SigningCredentials(new ECDsaSecurityKey(ecdsa) { KeyId = keyId }, SecurityAlgorithms.EcdsaSha256);
+            var credentials = new SigningCredentials(new ECDsaSecurityKey(ecdsa) { KeyId = settings.KeyId }, SecurityAlgorithms.EcdsaSha256);
 
             var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
-                issuer: teamId,                          
+                issuer: settings.TeamId,                          
                 audience: "https://appleid.apple.com",   
-                claims: [new Claim("sub", clientId)],
+                claims: [new Claim("sub", settings.ClientId)],
                 notBefore: now,
                 expires: now.AddDays(daysValid),
                 signingCredentials: credentials
@@ -113,7 +120,7 @@ namespace Smartstore.Apple
 
             if (pem.Contains(header) && pem.Contains(footer))
             {
-                var body = pem.Replace(header, "").Replace(footer, "");
+                var body = pem.Replace(header, string.Empty).Replace(footer, string.Empty);
                 return new string([.. body.Where(c => !char.IsWhiteSpace(c))]);
             }
 
