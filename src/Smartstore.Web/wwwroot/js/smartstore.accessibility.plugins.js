@@ -5,6 +5,216 @@
 */
 'use strict';
 
+/* --------------------------------------------------
+ *  MenuPlugin – Roving‑Tabindex & Sub‑menu handling
+ *  Handles [role="menubar"] with nested [role="menu"] and [role="menuitem"].
+ * -------------------------------------------------- */
+class MenuPlugin extends AccessKitExpandablePluginBase {
+    getRovingItems(root) {
+        return Array.from(root.querySelectorAll('[role="menuitem"]'))
+            .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === root);
+    }
+
+    initWidgetCore(widget) {
+        if (widget.root.getAttribute('role') === 'menubar') {
+            widget.orientation = 'horizontal';
+        }
+    }
+
+    handleKeyCore(e, widget) {
+        widget.items = this.getRovingItems(widget.root);
+        return super.handleKeyCore(e, widget);
+    }
+
+    onActivateItem(element, index, widget) {
+        if (element.getAttribute('aria-haspopup') === 'menu') {
+            this._open(element);
+        } else {
+            element.click();
+        }
+        return true;
+    }
+
+    onItemKeyPress(event, index, widget) {
+        const k = AccessKit.KEY;
+        const isMenubar = widget.root.getAttribute('role') === 'menubar';
+        const isVertical = widget.orientation === 'vertical';
+        const dirOpen = isMenubar ? null : (isVertical ? (widget.rtl ? k.LEFT : k.RIGHT) : k.DOWN);
+        const dirClose = isMenubar ? null : (isVertical ? (widget.rtl ? k.RIGHT : k.LEFT) : k.UP);
+
+        if (isMenubar && event.key === k.DOWN) {
+            if (event.target.getAttribute('aria-haspopup') === 'menu') {
+                this._open(event.target);
+                return true;
+            }
+        }
+
+        if (!isMenubar && event.key === dirOpen) {
+            if (event.target.getAttribute('aria-haspopup') === 'menu') {
+                this._open(event.target);
+                return true;
+            }
+        }
+
+        if (event.key === k.ESC || event.key === dirClose) {
+            if (isMenubar) {
+                this._closeAll();
+            } else {
+                const trigger = document.querySelector(`[aria-controls="${widget.root.id}"]`);
+                this._close(trigger, widget.root);
+                trigger?.focus();
+            }
+            return true;
+        }
+
+        if (event.key === k.TAB) {
+            if (isMenubar) {
+                this.applyRoving(widget);
+            } else {
+                this._closeAll();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    _open(trigger) {
+        const menu = document.getElementById(trigger.getAttribute('aria-controls'));
+        if (!menu) return;
+
+        this.addWidget(menu, true);
+        const menuWidget = this.getWidget(menu);
+        const items = menuWidget.items;
+        this.toggleExpanded(trigger, true, { focusTarget: items[0] });
+    }
+
+    _close(trigger, menu) {
+        if (!menu) return;
+        this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+    }
+
+    _closeAll() {
+        document.querySelectorAll('[role="menu"][aria-hidden="false"]').forEach(menu => {
+            const trigger = document.querySelector(`[aria-controls="${menu.id}"][aria-expanded="true"]`);
+            this.toggleExpanded(trigger, false, { focusTarget: 'trigger' });
+        });
+    }
+}
+
+
+/* --------------------------------------------------
+* ComboboxPlugin – Expand / Collapse & Option Commit
+* Handles[role = "combobox"] that control a[role = "listbox"]
+* -------------------------------------------------- */
+class ComboboxPlugin extends AccessKitExpandablePluginBase {
+    getRovingItems(root) {
+        return [root];
+    }
+
+    initWidgetCore(widget) {
+        const cb = widget.root;
+        const list = document.getElementById(cb.getAttribute('aria-controls'));
+        if (!list || list.getAttribute('role') !== 'listbox') return;
+
+        // Commit selection on pointer activation
+        list.addEventListener('click', e => {
+            const opt = e.target.closest('[role="option"]');
+            if (opt && list.contains(opt)) {
+                this._commitSelection(opt, cb);
+            }
+        });
+
+        // Close when clicking outside
+        const outsideClick = e => {
+            if (!cb.contains(e.target) && cb.getAttribute('aria-expanded') === 'true' && !list.contains(e.target)) {
+                e.preventDefault();
+                this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+            }
+        };
+
+        cb.addEventListener('expand.ak', e => {
+            e.stopPropagation();
+            if (cb.getAttribute('aria-expanded') !== 'true') {
+                cb.click();
+                document.addEventListener('mousedown', outsideClick, true);
+            }
+        });
+
+        cb.addEventListener('collapse.ak', () => {
+            document.removeEventListener('mousedown', outsideClick, true);
+        });
+
+        // Handle close/commit keys inside listbox
+        list.addEventListener('keydown', e => {
+            const k = AccessKit.KEY;
+            if (e.key === k.ESC || e.key === k.TAB || (e.key === k.UP && e.altKey)) {
+                if (e.key !== k.TAB) e.preventDefault();
+                this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+                return;
+            }
+            if (e.key === k.ENTER) {
+                const sel = list.querySelector('[role="option"][aria-selected="true"]') || e.target.closest('[role="option"]');
+                if (sel) this._commitSelection(sel, cb);
+            }
+        });
+
+        // Sync trigger when ListboxPlugin selects
+        list.addEventListener('select.listbox.ak', e => {
+            const { opt } = e.detail || {};
+            if (opt) this._syncToTrigger(cb, opt);
+        });
+    }
+
+    handleKeyCore(e, widget) {
+        if (e.target !== widget.root) return false;
+
+        const cb = widget.root;
+        const list = document.getElementById(cb.getAttribute('aria-controls'));
+        if (!list) return false;
+
+        const k = AccessKit.KEY;
+        const firstOpt = list.querySelector(AccessKit.ACTIVE_OPTION_SELECTOR);
+        const opts = list.querySelectorAll(AccessKit.ACTIVE_OPTION_SELECTOR);
+        const lastOpt = opts[opts.length - 1] || null;
+        const isOpen = cb.getAttribute('aria-expanded') === 'true';
+
+        switch (e.key) {
+            case k.DOWN:
+                this.toggleExpanded(cb, true, { focusTarget: firstOpt });
+                return true;
+            case k.UP:
+                this.toggleExpanded(cb, true, { focusTarget: lastOpt });
+                return true;
+            case k.ENTER:
+            case k.SPACE:
+                this.toggleExpanded(cb, !isOpen, { focusTarget: isOpen ? 'trigger' : firstOpt });
+                return true;
+            case k.ESC:
+            case k.TAB:
+                if (isOpen) {
+                    this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+                }
+                return e.key !== k.TAB;
+        }
+
+        return false;
+    }
+
+    _commitSelection(opt, cb) {
+        const list = opt.closest('[role="listbox"]');
+        if (list && list.getAttribute('data-ak-multiselect') === 'true') {
+            this._syncToTrigger(cb, opt);
+            this.toggleExpanded(cb, false, { focusTarget: 'trigger' });
+        }
+    }
+
+    _syncToTrigger(cb, opt) {
+        cb.value = (opt.textContent || '').trim();
+        cb.setAttribute('aria-activedescendant', opt.id || (opt.id = `ak-opt-${crypto.randomUUID()}`));
+    }
+}
+
 
 /* --------------------------------------------------
  *  ListboxPlugin – Roving‑Tabindex, Selection & Type‑ahead
@@ -259,18 +469,18 @@ class RadioGroupPlugin extends AccessKitPluginBase {
 (function () {
     // Register default strategies
     AccessKit.register([
-        //{
-        //    ctor: MenuPlugin.ctor,
-        //    name: 'menu',
-        //    rootSelector: '[role="menu"], [role="menubar"]',
-        //    itemSelector: '[role="menuitem"]'
-        //},
-        //{
-        //    ctor: ComboboxPlugin.ctor,
-        //    name: 'combobox',
-        //    rootSelector: '[role="combobox"]',
-        //    itemSelector: AccessKit.ACTIVE_OPTION_SELECTOR
-        //},
+        {
+            ctor: MenuPlugin,
+            name: 'menu',
+            rootSelector: '[role="menu"], [role="menubar"]',
+            itemSelector: '[role="menuitem"]'
+        },
+        {
+            ctor: ComboboxPlugin,
+            name: 'combobox',
+            rootSelector: '[role="combobox"]',
+            itemSelector: AccessKit.ACTIVE_OPTION_SELECTOR
+        },
         {
             ctor: ListboxPlugin,
             name: 'listbox',
