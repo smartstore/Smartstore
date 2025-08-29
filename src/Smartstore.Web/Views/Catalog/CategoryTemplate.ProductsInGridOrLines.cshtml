@@ -19,13 +19,13 @@
 
     async Task SubCategoryList()
     {
-        <div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories@(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList ? " hide-on-active-filter" : "")">
+        <div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories@(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList ? " hide-on-active-filter" : "")" role="list">
             @foreach (var item in Model.SubCategories)
             {
                 var image = item.Image;
                 var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
 
-                <article class="art" data-id="@item.Id">
+                <div class="art" data-id="@item.Id" role="listitem">
                     <div class="art-picture-block">
                         @if (image.HasImage())
                         {
@@ -39,7 +39,7 @@
                             <span sm-language-attributes-for="item.Name">@item.Name</span>
                         </a>
                     </div>
-                </article>
+                </div>
             }
         </div>
     }
