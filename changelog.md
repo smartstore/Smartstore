@@ -16,6 +16,7 @@
 ### New Features
 
 - #1370 Add a payment provider for **easyCredit purchase on account**.
+- #1381 Add a compare price to attribute combinations.
 - New Rule Builder rules:
   - #1372 Cart rule for the total cart weight.
   - Cart rule to check that all products in the cart are from the specified categories.

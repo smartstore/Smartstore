@@ -375,6 +375,7 @@ namespace Smartstore.Core.Catalog.Products
                     Gtin = combination.Gtin,
                     ManufacturerPartNumber = combination.ManufacturerPartNumber,
                     Price = combination.Price,
+                    ComparePrice = combination.ComparePrice,
                     AssignedMediaFileIds = combination.AssignedMediaFileIds,
                     Weight = combination.Weight,
                     Length = combination.Length,

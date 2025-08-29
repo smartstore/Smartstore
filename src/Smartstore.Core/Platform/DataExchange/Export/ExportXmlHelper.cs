@@ -1027,6 +1027,7 @@ namespace Smartstore.Core.DataExchange.Export
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.ManufacturerPartNumber), entityPvac.ManufacturerPartNumber);
 
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Price), entityPvac.Price?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.ComparePrice), entityPvac.ComparePrice?.ToString(_culture) ?? string.Empty);
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Weight), entityPvac.Weight?.ToString(_culture) ?? string.Empty);
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Length), entityPvac.Length?.ToString(_culture) ?? string.Empty);
                     _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Width), entityPvac.Width?.ToString(_culture) ?? string.Empty);

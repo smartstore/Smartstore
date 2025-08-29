@@ -39,6 +39,8 @@ namespace Smartstore.Core.Catalog.Products
 
             if (combination.Price.HasValue)
                 values.Add(nameof(Product.Price), combination.Price.Value);
+            if (combination.ComparePrice.HasValue)
+                values.Add(nameof(Product.ComparePrice), combination.ComparePrice.Value);
 
             if (combination.DeliveryTimeId.HasValue && combination.DeliveryTimeId.Value > 0)
                 values.Add(nameof(Product.DeliveryTimeId), combination.DeliveryTimeId);

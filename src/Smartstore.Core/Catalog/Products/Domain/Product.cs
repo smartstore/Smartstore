@@ -644,11 +644,17 @@ namespace Smartstore.Core.Catalog.Products
             set => _price = value;
         }
 
+        private decimal _comparePrice;
         /// <summary>
         /// Gets or sets the compare price, e.g. the retail price.
         /// </summary>
         [Column("OldPrice")]
-        public decimal ComparePrice { get; set; }
+        public decimal ComparePrice
+        {
+            [DebuggerStepThrough]
+            get => this.GetMergedDataValue(nameof(ComparePrice), _comparePrice);
+            set => _comparePrice = value;
+        }
 
         /// <summary>
         /// Gets or sets the label id for <see cref="ComparePrice"/>. 

@@ -5,6 +5,7 @@
 }
 
 <datagrid id="attributecombinations-grid"
+          version="2"
           allow-edit="true"
           allow-resize="true"
           allow-row-selection="true" 
@@ -62,8 +63,9 @@
         <column for="IsActive" halign="center" />
         <column for="Sku" halign="center" width="1fr" />
         <column for="Price" halign="center" width="1fr" />
+        <column for="ComparePrice" halign="center" />
         <column for="StockQuantity" halign="center" />
-        <column for="AllowOutOfStockOrders" halign="center" />
+        <column for="AllowOutOfStockOrders" halign="center" visible="false" />
         <column for="Weight" halign="center" visible="false" />
         <column for="Length" halign="center" visible="false" />
         <column for="Width" halign="center" visible="false" />

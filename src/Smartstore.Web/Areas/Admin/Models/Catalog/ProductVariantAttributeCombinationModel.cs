@@ -26,6 +26,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Catalog.Products.Fields.Price")]
         public decimal? Price { get; set; }
 
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.ComparePrice")]
+        public decimal? ComparePrice { get; set; }
+
         [UIHint("DeliveryTimes")]
         [LocalizedDisplay("Admin.Catalog.Products.Fields.DeliveryTime")]
         public int? DeliveryTimeId { get; set; }

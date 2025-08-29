@@ -128,6 +128,15 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
+                    <smart-label asp-for="ComparePrice" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ComparePrice" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                    <span asp-validation-for="ComparePrice"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
                     <smart-label asp-for="DeliveryTimeId" />
                 </div>
                 <div class="adminData">
