@@ -26,6 +26,7 @@
 
 ### Improvements
 
+* Bumped all `jquery.validate` libraries
 * Asset Bundling: Replaced `DouglasCrockford.JsMin` with `NUglify`.
 * Theming: `.art-drop` should adopt `$art-active-border-color`
 - #1327 Product rules/MegaSearch: Consider start and end dates of a discount when applying the "HasDiscount" rule.
