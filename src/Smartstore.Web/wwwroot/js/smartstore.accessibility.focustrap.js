@@ -25,7 +25,6 @@
         );
 
     function initOffCanvasTrap() {
-        console.log('initOffCanvasTrap');
         // INFO: Jquery must be used here, because original event is namespaced & triggered via Jquery.
         $(document).on('shown.sm.offcanvas', (e) => {
             const offcanvas = $(e.target).aria("hidden", false);

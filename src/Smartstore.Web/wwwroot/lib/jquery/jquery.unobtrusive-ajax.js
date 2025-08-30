@@ -1,6 +1,7 @@
 // Unobtrusive Ajax support library for jQuery
-// Copyright (C) Microsoft Corporation. All rights reserved.
-// @version v3.2.4
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// @version v3.2.6
 // 
 // Microsoft grants you the right to use these script files for the sole
 // purpose of either: (i) interacting through your browser with the Microsoft
@@ -55,23 +56,18 @@
             var top;
 
             switch (mode) {
-            case "BEFORE":
-                top = update.firstChild;
-                $("<div />").html(data).contents().each(function () {
-                    update.insertBefore(this, top);
-                });
-                break;
-            case "AFTER":
-                $("<div />").html(data).contents().each(function () {
-                    update.appendChild(this);
-                });
-                break;
-            case "REPLACE-WITH":
-                $(update).replaceWith(data);
-                break;
-            default:
-                $(update).html(data);
-                break;
+                case "BEFORE":
+                    $(update).prepend(data);
+                    break;
+                case "AFTER":
+                    $(update).append(data);
+                    break;
+                case "REPLACE-WITH":
+                    $(update).replaceWith(data);
+                    break;
+                default:
+                    $(update).html(data);
+                    break;
             }
         });
     }
@@ -120,6 +116,30 @@
             options.type = "POST";
             options.data.push({ name: "X-HTTP-Method-Override", value: method });
         }
+
+        // change here:
+        // Check for a Form POST with enctype=multipart/form-data
+        // add the input file that were not previously included in the serializeArray()
+        // set processData and contentType to false
+        var $element = $(element);
+        if ($element.is("form") && $element.attr("enctype") == "multipart/form-data") {
+            var formdata = new FormData();
+            $.each(options.data, function (i, v) {
+                formdata.append(v.name, v.value);
+            });
+            $("input[type=file]", $element).each(function () {
+                var file = this;
+                $.each(file.files, function (n, v) {
+                    formdata.append(file.name, v);
+                });
+            });
+            $.extend(options, {
+                processData: false,
+                contentType: false,
+                data: formdata
+            });
+        }
+        // end change
 
         $.ajax(options);
     }
@@ -171,7 +191,7 @@
     $(document).on("submit", "form[data-ajax=true]", function (evt) {
         var clickInfo = $(this).data(data_click) || [],
             clickTarget = $(this).data(data_target),
-            isCancel = clickTarget && clickTarget.hasClass("cancel");
+            isCancel = clickTarget && (clickTarget.hasClass("cancel") || clickTarget.attr('formnovalidate') !== undefined);
         evt.preventDefault();
         if (!isCancel && !validate(this)) {
             return;
