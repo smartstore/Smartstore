@@ -211,7 +211,8 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         [HttpPost]
         public async Task<IActionResult> GoogleProductUpsert(GoogleProductModel model)
         {
-            var googleProduct = await _db.GoogleProducts()
+            var googleProducts = _db.GoogleProducts();
+            var googleProduct = await googleProducts
                 .FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
 
             var success = false;
@@ -227,15 +228,15 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             await MapperFactory.MapAsync(model, googleProduct);
 
             googleProduct.UpdatedOnUtc = utcNow;
-            googleProduct.IsTouched = googleProduct.IsDefault();
+            googleProduct.IsTouched = !googleProduct.IsDefault();
 
             if (insert)
             {
-                _db.GoogleProducts().Add(googleProduct);
+                googleProducts.Add(googleProduct);
             }
             else if (!googleProduct.IsTouched)
             {
-                _db.GoogleProducts().Remove(googleProduct);
+                googleProducts.Remove(googleProduct);
             }
 
             await _db.SaveChangesAsync();
