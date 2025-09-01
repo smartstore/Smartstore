@@ -438,7 +438,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         }
     }
 
-    internal class GmcImage
+    internal record GmcImage
     {
         public int Id { get; set; }
         public string Url { get; set; }
