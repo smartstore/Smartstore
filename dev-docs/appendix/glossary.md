@@ -36,7 +36,7 @@ Dependency Injection
 
 #### Domain
 
-Lorem ipsum
+Logical boundary grouping related functionality and data.
 
 #### EF
 
@@ -44,72 +44,72 @@ Entity Framework
 
 #### Entity
 
-Lorem ipsum
+Persistent domain object stored in the database.
 
 #### Event
 
-Lorem ipsum
+Notification raised when a specific action occurs.
 
 #### Frontend
 
-Lorem ipsum
+Public storefront visible to customers.
 
 #### Mapper
 
-Lorem ipsum
+Property mapping between different object types.
 
 #### Media
 
-Lorem ipsum
+Digital content such as images, videos or documents.
 
 #### Model
 
-Lorem ipsum
+Data structure used for application or view logic.
 
 #### Module
 
-Lorem ipsum
+Installable extension providing optional features.
 
 #### Permission
 
-Lorem ipsum
+Access right that controls user capabilities.
 
 #### Query
 
-Lorem ipsum
+Database request retrieving data.
 
 #### Rule
 
-Lorem ipsum
+Conditional statement evaluated by the rules engine.
 
 #### Service
 
-Lorem ipsum
+Class encapsulating reusable business logic.
 
 #### Store
 
-Lorem ipsum
+Configurable shop instance within the application.
 
 #### Task
 
-Lorem ipsum
+Background job executed by the scheduler.
 
 #### Theme
 
-Lorem ipsum
+Bundle of views and styles defining site appearance.
 
 #### User
 
-Lorem ipsum
+Account that can sign in to the system.
 
 #### View
 
-Lorem ipsum
+Razor template that renders HTML.
 
 #### Widget
 
-Lorem ipsum
+Reusable UI snippet that can be placed in zones.
 
 #### Zone
 
-Lorem ipsum
+Named location in a view where widgets render.
