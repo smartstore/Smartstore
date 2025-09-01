@@ -46,6 +46,9 @@ namespace Smartstore.Google.MerchantCenter.Domain
         [StringLength(50)]
         public string EnergyEfficiencyClass { get; set; }
 
+        [StringLength(1000)]
+        public string MediaFileIds { get; set; }
+
         [StringLength(100)]
         public string CustomLabel0 { get; set; }
 
@@ -60,5 +63,28 @@ namespace Smartstore.Google.MerchantCenter.Domain
 
         [StringLength(100)]
         public string CustomLabel4 { get; set; }
+
+        public bool IsDefault()
+        {
+            return string.IsNullOrEmpty(Taxonomy)
+                && string.IsNullOrEmpty(Gender)
+                && string.IsNullOrEmpty(AgeGroup)
+                && string.IsNullOrEmpty(Color)
+                && string.IsNullOrEmpty(Size)
+                && string.IsNullOrEmpty(Material)
+                && string.IsNullOrEmpty(Pattern)
+                && string.IsNullOrEmpty(ItemGroupId)
+                && Export
+                && Multipack == 0
+                && IsBundle == null
+                && IsAdult == null
+                && string.IsNullOrEmpty(EnergyEfficiencyClass)
+                && string.IsNullOrEmpty(MediaFileIds)
+                && string.IsNullOrEmpty(CustomLabel0)
+                && string.IsNullOrEmpty(CustomLabel1)
+                && string.IsNullOrEmpty(CustomLabel2)
+                && string.IsNullOrEmpty(CustomLabel3)
+                && string.IsNullOrEmpty(CustomLabel4);
+        }
     }
 }

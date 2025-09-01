@@ -203,6 +203,12 @@
     <LocaleResource Name="EnergyEfficiencyClasses">
         <Value>A,B,C,D,E,F,G</Value>
     </LocaleResource>
+    <LocaleResource Name="AssignableFiles">
+        <Value>Pictures</Value>
+    </LocaleResource>
+    <LocaleResource Name="AssignableFiles.Hint">
+        <Value>Specifies the images to be exported. Google supports exporting up to ten images. Depending on the "Additional images" export profile setting, either the first image or up to ten images will be exported unless otherwise specified here.</Value>
+    </LocaleResource>
     <LocaleResource Name="CustomLabel0">
         <Value>Label 0</Value>
     </LocaleResource>

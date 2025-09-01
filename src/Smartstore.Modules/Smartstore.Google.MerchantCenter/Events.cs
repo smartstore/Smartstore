@@ -45,35 +45,35 @@ namespace Smartstore.Google.MerchantCenter
             }
 
             var utcNow = DateTime.UtcNow;
-            var entity = await _db.GoogleProducts()
+            var googleProducts = _db.GoogleProducts();
+            var googleProduct = await googleProducts
                 .Where(x => x.ProductId == model.ProductId)
                 .FirstOrDefaultAsync();
+            var add = googleProduct == null;
 
-            var insert = entity == null;
-
-            if (entity == null)
+            googleProduct ??= new GoogleProduct
             {
-                entity = new GoogleProduct
-                {
-                    ProductId = model.ProductId,
-                    CreatedOnUtc = utcNow
-                };
-            }
+                ProductId = model.ProductId,
+                CreatedOnUtc = utcNow
+            };
 
-            await MapperFactory.MapAsync(model, entity);
-            entity.UpdatedOnUtc = utcNow;
-            entity.IsTouched = entity.IsTouched();
+            await MapperFactory.MapAsync(model, googleProduct);
+            googleProduct.UpdatedOnUtc = utcNow;
+            googleProduct.MediaFileIds = string.Join(',', model.AssignedFileIds ?? []).NullEmpty();
 
-            if (!insert && !entity.IsTouched)
+            // INFO: Must be the last property set.
+            googleProduct.IsTouched = !googleProduct.IsDefault();
+
+            if (!add && !googleProduct.IsTouched)
             {
-                _db.GoogleProducts().Remove(entity);
+                googleProducts.Remove(googleProduct);
                 await _db.SaveChangesAsync();
                 return;
             }
 
-            if (insert)
+            if (add)
             {
-                _db.GoogleProducts().Add(entity);
+                googleProducts.Add(googleProduct);
             }
 
             await _db.SaveChangesAsync();

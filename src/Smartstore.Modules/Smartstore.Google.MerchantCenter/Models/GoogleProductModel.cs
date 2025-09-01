@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Google.MerchantCenter.Models
 {
@@ -78,6 +79,10 @@ namespace Smartstore.Google.MerchantCenter.Models
         [LocalizedDisplay("*EnergyEfficiencyClass")]
         public string EnergyEfficiencyClass { get; set; }
 
+        [LocalizedDisplay("*AssignableFiles")]
+        public int[] AssignedFileIds { get; set; } = [];
+        public List<AssignableFileModel> AssignableFiles { get; set; }
+
         [LocalizedDisplay("*CustomLabel0")]
         public string CustomLabel0 { get; set; }
 
@@ -92,5 +97,11 @@ namespace Smartstore.Google.MerchantCenter.Models
 
         [LocalizedDisplay("*CustomLabel4")]
         public string CustomLabel4 { get; set; }
+
+        public class AssignableFileModel : EntityModelBase
+        {
+            public bool IsAssigned { get; set; }
+            public MediaFileInfo Media { get; set; }
+        }
     }
 }

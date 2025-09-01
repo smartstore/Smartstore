@@ -1,4 +1,5 @@
-﻿@using Smartstore.Google.MerchantCenter.Models;
+﻿@using Smartstore.Core.Content.Media
+@using Smartstore.Google.MerchantCenter.Models
 
 @model GoogleProductModel
 
@@ -29,6 +30,30 @@
         <div class="adminData wide">
             <editor asp-for="Taxonomy" />
             <span asp-validation-for="Taxonomy"></span>
+        </div>
+    </div>
+    <div sm-if="Model.AssignableFiles.Count > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AssignedFileIds" />
+        </div>
+        <div class="adminData">
+            <ul class="choice-box-group choice-box-group-xl mb-1" id="gmc-assigned-files">
+                @foreach (var x in Model.AssignableFiles)
+                {
+                    <li class="choice-box choice-box-mediafile">
+                        <label class="choice-box-label">
+                            <input type="checkbox" 
+                                   class="choice-box-control-native" 
+                                   name="@Html.NameFor(x => x.AssignedFileIds)" 
+                                   value="@x.Id" 
+                                   attr-checked='(x.IsAssigned, "checked")' />
+                            <span class="choice-box-content">
+                                <img sm-file="x.Media" sm-size="MediaSettings.ThumbnailSizeMd" class="choice-box-element" />
+                            </span>
+                        </label>
+                    </li>
+                }
+            </ul>
         </div>
     </div>
     <div class="adminRow">
@@ -170,6 +195,7 @@
 
 <script>
     $(function () {
+        Smartstore.media.lazyLoadThumbnails($('#gmc-assigned-files'));
         window.initGoogleProductTaxonomy($('#@Html.IdFor(model => model.Taxonomy)'));
     });
 </script>

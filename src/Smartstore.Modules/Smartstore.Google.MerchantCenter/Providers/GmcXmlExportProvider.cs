@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Xml;
-using AngleSharp.Dom;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
@@ -34,6 +33,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
+        const int MaxImages = 10;
         const string _googleNamespace = "http://base.google.com/ns/1.0";
 
         public const string SystemName = "Feeds.GoogleMerchantCenterProductXml";
@@ -114,9 +114,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         break;
 
                     Product entity = product.Entity;
-                    var gmc = googleProducts.Get(entity.Id);
+                    var googleProduct = googleProducts.Get(entity.Id);
 
-                    if (gmc != null && !gmc.Export)
+                    if (googleProduct != null && !googleProduct.Export)
                         continue;
 
                     writer.WriteStartElement("item");
@@ -129,26 +129,36 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         string gtin = product.Gtin;
                         string mpn = product.ManufacturerPartNumber;
                         var availability = defaultAvailability;
-                        List<dynamic> productFiles = product.ProductMediaFiles;
-                        List<string> imageUrls = [];
+                        var fileIds = googleProduct?.MediaFileIds?.ToIntArray() ?? [];
 
-                        // Get all files which are images.
-                        foreach (var file in productFiles)
-                        {
-                            ProductMediaFile fileEntity = file.Entity;
-                            string imageUrl = file.File._FullSizeImageUrl;
-
-                            if (fileEntity.MediaFile.MediaType == "image" && imageUrl.HasValue())
+                        var images = ((List<dynamic>)product.ProductMediaFiles)
+                            .Select(x =>
                             {
-                                imageUrls.Add(imageUrl);
-                            }
-                        }   
+                                ProductMediaFile fileEntity = x.Entity;
+                                string imageUrl = x.File._FullSizeImageUrl;
+
+                                if (fileEntity.MediaFile.MediaType != "image"
+                                    || imageUrl.IsEmpty()
+                                    || (fileIds.Length > 0 && !fileIds.Contains(fileEntity.MediaFileId)))
+                                {
+                                    return null;
+                                }
+
+                                return new GmcImage
+                                {
+                                    Id = fileEntity.MediaFileId,
+                                    Url = imageUrl
+                                };
+                            })
+                            .Where(x => x != null)
+                            .Take(config.AdditionalImages ? MaxImages : 1)
+                            .ToList();
 
                         var attributeValues = !isParent && product._AttributeCombinationValues != null
                             ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
                             : [];
 
-                        var category = gmc?.Taxonomy?.NullEmpty() ?? config.DefaultGoogleCategory;
+                        var category = googleProduct?.Taxonomy?.NullEmpty() ?? config.DefaultGoogleCategory;
                         if (category.IsEmpty())
                         {
                             context.Log.Error(T("Plugins.Feed.Froogle.MissingDefaultCategory"));
@@ -177,21 +187,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         writer.WriteCData("product_type", productType.NullEmpty(), "g", _googleNamespace);
                         writer.WriteElementString("link", (string)product._DetailUrl);
 
-                        if (imageUrls.Count > 0)
+                        for (var i = 0; i < images.Count; i++)
                         {
-                            WriteString(writer, "image_link", imageUrls.First());
-
-                            if (config.AdditionalImages)
-                            {
-                                var imageCount = 0;
-                                foreach (var url in imageUrls.Skip(1))
-                                {
-                                    if (++imageCount <= 10)
-                                    {
-                                        WriteString(writer, "additional_image_link", url);
-                                    }
-                                }
-                            }
+                            var image = images[i];
+                            WriteString(writer, i == 0 ? "image_link" : "additional_image_link", image.Url);
                         }
 
                         switch (entity.Condition)
@@ -247,14 +246,14 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         var identifierExists = brand.HasValue() && (gtin.HasValue() || mpn.HasValue());
                         WriteString(writer, "identifier_exists", identifierExists ? "yes" : "no");
 
-                        WriteString(writer, "gender", GetAttribute(attributeValues, "gender", languageId, gmc?.Gender, config.Gender));
-                        WriteString(writer, "age_group", GetAttribute(attributeValues, "age_group", languageId, gmc?.AgeGroup, config.AgeGroup));
-                        WriteString(writer, "color", GetAttribute(attributeValues, "color", languageId, gmc?.Color, config.Color));
-                        WriteString(writer, "size", GetAttribute(attributeValues, "size", languageId, gmc?.Size, config.Size));
-                        WriteString(writer, "material", GetAttribute(attributeValues, "material", languageId, gmc?.Material, config.Material));
-                        WriteString(writer, "pattern", GetAttribute(attributeValues, "pattern", languageId, gmc?.Pattern, config.Pattern));
+                        WriteString(writer, "gender", GetAttribute(attributeValues, "gender", languageId, googleProduct?.Gender, config.Gender));
+                        WriteString(writer, "age_group", GetAttribute(attributeValues, "age_group", languageId, googleProduct?.AgeGroup, config.AgeGroup));
+                        WriteString(writer, "color", GetAttribute(attributeValues, "color", languageId, googleProduct?.Color, config.Color));
+                        WriteString(writer, "size", GetAttribute(attributeValues, "size", languageId, googleProduct?.Size, config.Size));
+                        WriteString(writer, "material", GetAttribute(attributeValues, "material", languageId, googleProduct?.Material, config.Material));
+                        WriteString(writer, "pattern", GetAttribute(attributeValues, "pattern", languageId, googleProduct?.Pattern, config.Pattern));
 
-                        WriteString(writer, "item_group_id", gmc?.ItemGroupId?.NullEmpty());
+                        WriteString(writer, "item_group_id", googleProduct?.ItemGroupId?.NullEmpty());
 
                         if (config.ExpirationDays > 0)
                         {
@@ -289,28 +288,28 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             }
                         }
 
-                        if (gmc != null)
+                        if (googleProduct != null)
                         {
-                            WriteString(writer, "multipack", gmc.Multipack > 1 ? gmc.Multipack.ToString() : null);
-                            WriteString(writer, "is_bundle", gmc.IsBundle.HasValue ? (gmc.IsBundle.Value ? "yes" : "no") : null);
-                            WriteString(writer, "adult", gmc.IsAdult.HasValue ? (gmc.IsAdult.Value ? "yes" : "no") : null);
+                            WriteString(writer, "multipack", googleProduct.Multipack > 1 ? googleProduct.Multipack.ToString() : null);
+                            WriteString(writer, "is_bundle", googleProduct.IsBundle.HasValue ? (googleProduct.IsBundle.Value ? "yes" : "no") : null);
+                            WriteString(writer, "adult", googleProduct.IsAdult.HasValue ? (googleProduct.IsAdult.Value ? "yes" : "no") : null);
 
-                            if (gmc.EnergyEfficiencyClass.HasValue())
+                            if (googleProduct.EnergyEfficiencyClass.HasValue())
                             {
                                 writer.WriteStartElement("g", "certification", _googleNamespace);
                                 WriteString(writer, "certification_authority", "EC");
                                 WriteString(writer, "certification_name", "EPREL");
                                 // EPREL code: A, B, ... G. Rescaled version, no "+" signs anymore (like A+++).
-                                WriteString(writer, "certification_code", gmc.EnergyEfficiencyClass.Trim());
+                                WriteString(writer, "certification_code", googleProduct.EnergyEfficiencyClass.Trim());
                                 writer.WriteEndElement();
                             }
                         }
 
-                        WriteString(writer, "custom_label_0", GetAttribute(attributeValues, "custom_label_0", languageId, gmc?.CustomLabel0, null).NullEmpty());
-                        WriteString(writer, "custom_label_1", GetAttribute(attributeValues, "custom_label_1", languageId, gmc?.CustomLabel1, null).NullEmpty());
-                        WriteString(writer, "custom_label_2", GetAttribute(attributeValues, "custom_label_2", languageId, gmc?.CustomLabel2, null).NullEmpty());
-                        WriteString(writer, "custom_label_3", GetAttribute(attributeValues, "custom_label_3", languageId, gmc?.CustomLabel3, null).NullEmpty());
-                        WriteString(writer, "custom_label_4", GetAttribute(attributeValues, "custom_label_4", languageId, gmc?.CustomLabel4, null).NullEmpty());
+                        WriteString(writer, "custom_label_0", GetAttribute(attributeValues, "custom_label_0", languageId, googleProduct?.CustomLabel0, null).NullEmpty());
+                        WriteString(writer, "custom_label_1", GetAttribute(attributeValues, "custom_label_1", languageId, googleProduct?.CustomLabel1, null).NullEmpty());
+                        WriteString(writer, "custom_label_2", GetAttribute(attributeValues, "custom_label_2", languageId, googleProduct?.CustomLabel2, null).NullEmpty());
+                        WriteString(writer, "custom_label_3", GetAttribute(attributeValues, "custom_label_3", languageId, googleProduct?.CustomLabel3, null).NullEmpty());
+                        WriteString(writer, "custom_label_4", GetAttribute(attributeValues, "custom_label_4", languageId, googleProduct?.CustomLabel4, null).NullEmpty());
 
                         ++context.RecordsSucceeded;
                     }
@@ -437,5 +436,11 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 _ => "kg",
             };
         }
+    }
+
+    internal class GmcImage
+    {
+        public int Id { get; set; }
+        public string Url { get; set; }
     }
 }

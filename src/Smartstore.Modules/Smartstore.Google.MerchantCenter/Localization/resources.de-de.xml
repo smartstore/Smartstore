@@ -204,6 +204,12 @@
     <LocaleResource Name="EnergyEfficiencyClasses">
         <Value>A,B,C,D,E,F,G</Value>
     </LocaleResource>
+    <LocaleResource Name="AssignableFiles">
+        <Value>Bilder</Value>
+    </LocaleResource>
+    <LocaleResource Name="AssignableFiles.Hint">
+        <Value>Legt die zu exportierenden Bilder fest. Google unterstützt den Export von bis zu zehn Bildern. Sofern hier nichts anderes festgelegt ist, werden gemäß der Exportprofileinstellung "Zusätzliche Bilder" entweder das erste Bild oder bis zu zehn Bilder exportiert.</Value>
+    </LocaleResource>
     <LocaleResource Name="CustomLabel0">
         <Value>Label 0</Value>
     </LocaleResource>

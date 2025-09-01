@@ -36,18 +36,34 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         {
             var culture = CultureInfo.InvariantCulture;
             var model = new GoogleProductModel { ProductId = productId };
-            var entity = await _db.GoogleProducts().FirstOrDefaultAsync(x => x.ProductId == productId);
+            var googleProduct = await _db.GoogleProducts().FirstOrDefaultAsync(x => x.ProductId == productId);
             string notSpecified = T("Common.Unspecified");
 
-            if (entity != null)
+            if (googleProduct != null)
             {
-                await MapperFactory.MapAsync(entity, model);
+                await MapperFactory.MapAsync(googleProduct, model);
                 model.ProductId = productId;
+                model.AssignedFileIds = googleProduct.MediaFileIds.ToIntArray();
             }
             else
             {
                 model.Export = true;
             }
+
+            var files = await _db.ProductMediaFiles
+                .AsNoTracking()
+                .Include(x => x.MediaFile)
+                .ApplyProductFilter(productId)
+                .Select(x => x.MediaFile)
+                .ToListAsync();
+
+            model.AssignableFiles = [.. files
+                .Select(x => new GoogleProductModel.AssignableFileModel
+                {
+                    Id = x.Id,
+                    IsAssigned = model.AssignedFileIds?.Contains(x.Id) ?? false,
+                    Media = Services.MediaService.ConvertMediaFile(x)
+                })];
 
             ViewBag.DefaultCategory = string.Empty;
             ViewBag.DefaultColor = string.Empty;
@@ -64,7 +80,6 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
             // We do not have export profile context here, so we simply use the first profile.
             var profile = await _db.ExportProfiles.FirstOrDefaultAsync(x => x.ProviderSystemName == GmcXmlExportProvider.SystemName);
-
             if (profile != null)
             {
                 if (XmlHelper.Deserialize<ProfileConfigurationModel>(profile.ProviderConfigData) is ProfileConfigurationModel config)
@@ -212,7 +227,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             await MapperFactory.MapAsync(model, googleProduct);
 
             googleProduct.UpdatedOnUtc = utcNow;
-            googleProduct.IsTouched = googleProduct.IsTouched();
+            googleProduct.IsTouched = googleProduct.IsDefault();
 
             if (insert)
             {

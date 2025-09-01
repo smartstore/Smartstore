@@ -23,6 +23,7 @@
 - #1357 Pricing: Add a setting that takes tiered prices of products into account, that are assigned by an attribute of type "linked product".
 - #690 Apple Sign-In support
 - FileManager: Enabled language dependent tabs
+- #1341 GMC: Enable the selection of product images to be exported.
 
 ### Improvements
 
