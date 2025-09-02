@@ -150,8 +150,10 @@ namespace Smartstore.StripeElements.Controllers
                         customer.Addresses.Add(address);
                         customer.BillingAddress = address;
                         customer.ShippingAddress = address;
-                        await _db.SaveChangesAsync();
                     }
+
+                    customer.GenericAttributes.SelectedPaymentMethod = StripeElementsProvider.SystemName;
+                    await _db.SaveChangesAsync();
                 }
 
                 var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
@@ -292,12 +294,6 @@ namespace Smartstore.StripeElements.Controllers
                         {
                             redirectUrl = paymentIntent.NextAction.RedirectToUrl.Url;
                         }
-                        //else
-                        //{
-                        //    paymentRequest.NewPaymentStatus = settings.CaptureMethod == "automatic"
-                        //        ? PaymentStatus.Paid
-                        //        : PaymentStatus.Authorized;
-                        //}
 
                         success = true;
                         state.IsConfirmed = true;
@@ -342,7 +338,7 @@ namespace Smartstore.StripeElements.Controllers
             };
         }
 
-        public IActionResult RedirectionResult(string redirect_status)
+        public async Task<IActionResult> RedirectionResult(string redirect_status, string payment_intent)
         {
             var error = false;
             string message = null;
@@ -350,7 +346,12 @@ namespace Smartstore.StripeElements.Controllers
 
             //Logger.LogInformation($"Stripe redirection result: '{redirect_status}'");
 
-            if (success)
+            // INFO: In case of declined payment when checking card data with 3D Secure redirection
+            // we must check the status of the payment intend for 'requires_payment_method' which means the payment was declined.
+            var paymentIntentService = new PaymentIntentService();
+            PaymentIntent paymentIntent = await paymentIntentService.GetAsync(payment_intent);
+
+            if (success && paymentIntent.Status != "requires_payment_method")
             {
                 var state = _checkoutStateAccessor.CheckoutState.GetCustomState<StripeCheckoutState>();
                 if (state.PaymentIntent != null)
