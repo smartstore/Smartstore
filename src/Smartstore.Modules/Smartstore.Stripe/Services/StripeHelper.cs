@@ -26,7 +26,7 @@ namespace Smartstore.StripeElements.Services
 
         // INFO: Update API Version when updating Stripe.net dll
         // Also test webhook endpoint because that's where errors are most likely to occur.
-        public static string ApiVersion => "2025-03-31.basil";
+        public static string ApiVersion => "2025-08-27.basil";
 
         public StripeHelper(
             ICommonServices services,
