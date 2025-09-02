@@ -49,8 +49,10 @@
 - After applying a discount code or moving a product to the wish list, deactivated shopping cart products were not displayed.
 - #1367 PageBuilder: Do not hide the setting that displays the manufacturer's name in slider product lists.
 - Fixed missing log entry and notification for a payment exception.
-
-
+- **Stripe** 
+	- Orders were created after the 3D Secure check, even though the payment was declined.
+	- Set selected payment method on customer level was missing when using *Link* cart button. 
+	- Restored setting of correct payment status.
 
 ## Smartstore 6.2.0
 
