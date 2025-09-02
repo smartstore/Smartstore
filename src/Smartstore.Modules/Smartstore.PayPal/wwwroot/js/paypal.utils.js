@@ -240,7 +240,8 @@
                 if (!buttonContainer.length)
                     return;
 
-                await waitForPaypal();
+                await waitFor('paypal');
+                await waitFor('google');
 
                 const paymentsClient = getGooglePaymentsClient();
                 const { allowedPaymentMethods } = await getGooglePayConfig();
@@ -265,17 +266,16 @@
 
         let paymentsClient = null, allowedPaymentMethods = null, merchantInfo = null;
 
-        // Wait for the PayPal JS SDK to be loaded.
-        function waitForPaypal() {
+        // Function to wait for external scripts to be loaded.
+        function waitFor(name) {
             return new Promise((resolve) => {
-                function checkPaypal() {
-                    if (typeof paypal !== 'undefined') {
-                        resolve();
+                (function check() {
+                    if (typeof window[name] !== 'undefined') {
+                        resolve(window[name]);
                     } else {
-                        setTimeout(checkPaypal, 100);
+                        setTimeout(check, 100);
                     }
-                }
-                checkPaypal();
+                })();
             });
         }
 
