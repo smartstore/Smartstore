@@ -24,6 +24,7 @@
 - #690 Apple Sign-In support
 - FileManager: Enabled language dependent tabs
 - #1341 GMC: Enable the selection of product images to be exported.
+- EmailReminder: Added Google Reviews to the review reminder.
 
 ### Improvements
 
