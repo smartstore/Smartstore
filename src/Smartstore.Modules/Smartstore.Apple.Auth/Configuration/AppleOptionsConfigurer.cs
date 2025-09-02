@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Smartstore.Apple.Auth;
@@ -46,20 +47,27 @@ namespace Smartstore.Apple
                 return; 
             }
 
+            // INFO: If generation of the client secret fails (maybe because of wrong configuration data)
+            // we get out of the Configure method before setting up options so they are not in a volatile state.
+            if (!_precomputedSecret.HasValue())
+            {
+                try
+                {
+                    _precomputedSecret = CreateAppleClientSecret(settings, daysValid: 30);
+                }
+                catch (Exception ex)
+                {
+                    _appContext.Logger.LogError(ex, "Failed to create Apple client secret.");
+                    return;
+                }
+            }
+
             options.ClientId = settings.ClientId;
             options.KeyId = settings.KeyId;
             options.TeamId = settings.TeamId;
             // INFO: This was the proposed way by the library devs. But it's even commented out in their sample code. 
             // So I guess they couldn't get it to work either. 
             //options.PrivateKey = (keyId, cancellationToken) => Task.FromResult(settings.PrivateKey.AsMemory());
-
-            if (!_precomputedSecret.HasValue())
-            {
-                // TODO: (mh) Proper error handling is missing. This can fail on multiple occasions: When input is missing or is malformed etc.
-                // In an error case, AppleAuthenticationOptions must not be in a "volatile" state.
-                _precomputedSecret = CreateAppleClientSecret(settings, daysValid: 30);
-            }
-            
             options.GenerateClientSecret = false;                               // Important to supress the default client secret generation.
             options.ClientSecret = _precomputedSecret;                          // Instead we generate it ourselves :-)
             options.ValidateTokens = false;
