@@ -35,7 +35,9 @@
 - Allow new attribute options to be added when assigning specification attributes to a product.
 - EasyCredit: Do not hide the installment calculator if EasyCredit is not offered at checkout due to cart rules.
 - etracker: Updated module to use latest script & added event submission for product view, list view and orders. 
-- Added option for queued email grid to filter for subject
+- Added option for queued email grid to filter for subject.
+- #1122 AI: Replace the Betalgo library with the official OpenAI .NET library.
+
 
 ### Bugfixes
 
