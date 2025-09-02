@@ -62,8 +62,12 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Attachments)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)
-                .ApplySearchFilterFor(x => x.Subject, model.SearchSubject)
                 .Where(x => x.SentTries < model.SearchMaxSentTries);
+
+            if (model.SearchSubject.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Subject, model.SearchSubject);
+            }
 
             if (model.SearchSendManually.HasValue)
             {
