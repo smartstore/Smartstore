@@ -49,41 +49,41 @@ namespace Smartstore.Apple
 
             // INFO: If generation of the client secret fails (maybe because of wrong configuration data)
             // we get out of the Configure method before setting up options so they are not in a volatile state.
-            if (!_precomputedSecret.HasValue())
+            try
             {
-                try
-                {
-                    _precomputedSecret = CreateAppleClientSecret(settings, daysValid: 30);
-                }
-                catch (Exception ex)
-                {
-                    _appContext.Logger.LogError(ex, "Failed to create Apple client secret.");
-                    return;
-                }
-            }
+                _precomputedSecret = CreateAppleClientSecret(settings, daysValid: 30);
 
-            options.ClientId = settings.ClientId;
-            options.KeyId = settings.KeyId;
-            options.TeamId = settings.TeamId;
-            // INFO: This was the proposed way by the library devs. But it's even commented out in their sample code. 
-            // So I guess they couldn't get it to work either. 
-            //options.PrivateKey = (keyId, cancellationToken) => Task.FromResult(settings.PrivateKey.AsMemory());
-            options.GenerateClientSecret = false;                               // Important to supress the default client secret generation.
-            options.ClientSecret = _precomputedSecret;                          // Instead we generate it ourselves :-)
-            options.ValidateTokens = false;
-            options.SecurityTokenHandler = new JsonWebTokenHandler();
-            options.CorrelationCookie.Expiration = TimeSpan.FromMinutes(15);    // 15 minutes should be enough for the user to enter his Apple creds.
+                // Important to supress the default client secret generation.
+                options.GenerateClientSecret = false;
+                // Instead we generate it ourselves :-)
+                options.ClientSecret = _precomputedSecret;
 
-            options.Events = new AppleAuthenticationEvents
-            {
-                OnRemoteFailure = context =>
+                options.ClientId = settings.ClientId;
+                options.KeyId = settings.KeyId;
+                options.TeamId = settings.TeamId;
+
+                // INFO: This was the proposed way by the library devs. But it's even commented out in their sample code. 
+                // So I guess they couldn't get it to work either. 
+                //options.PrivateKey = (keyId, cancellationToken) => Task.FromResult(settings.PrivateKey.AsMemory());
+
+                // 15 minutes should be enough for the user to enter his Apple creds.
+                options.CorrelationCookie.Expiration = TimeSpan.FromMinutes(15);
+
+                options.ValidateTokens = false;
+                options.SecurityTokenHandler ??= new JsonWebTokenHandler();
+
+                options.Events.OnRemoteFailure ??= context =>
                 {
                     var errorUrl = context.Request.PathBase.Value + $"/identity/externalerrorcallback?provider=apple&errorMessage={context.Failure.Message}";
                     context.Response.Redirect(errorUrl);
                     context.HandleResponse();
                     return Task.CompletedTask;
-                }
-            };
+                };
+            }
+            catch (Exception ex)
+            {
+                _appContext.Logger.LogError(ex, "Failed to create Apple client secret.");
+            }
         }
 
         public void Configure(AppleAuthenticationOptions options)
