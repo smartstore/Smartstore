@@ -295,7 +295,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             ga.SelectedPaymentMethod = AmazonPayProvider.SystemName;
 
-            if (_settings.CanSaveEmailAndPhone(customer.Email))
+            if (_settings.CanSaveEmailAndPhone(customer.Email) && !customer.IsGuest())
             {
                 customer.Email = session.Buyer.Email;
             }

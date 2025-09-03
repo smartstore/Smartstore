@@ -56,6 +56,8 @@
 	- Orders were created after the 3D Secure check, even though the payment was declined.
 	- Set selected payment method on customer level was missing when using *Link* cart button. 
 	- Restored setting of correct payment status.
+- AmazonPay: Do not apply the customer email address for guests.
+
 
 ## Smartstore 6.2.0
 
