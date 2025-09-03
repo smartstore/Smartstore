@@ -72,7 +72,7 @@ $default-state-color: $gray-400;
     display: inline-flex;
 }
 
-.tree-num {
+.tree-num, .tree-state-info {
     display: inline-flex;
     margin-left: 3px;
 }
@@ -261,7 +261,7 @@ $default-state-color: $gray-400;
         margin-left: 5px;
     }
 
-    .tree-num {
+    .tree-num, .tree-state-info {
         margin-right: 3px;
         margin-left: 0;
     }

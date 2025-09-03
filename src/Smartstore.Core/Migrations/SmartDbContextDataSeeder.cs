@@ -113,7 +113,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Smartstore.AI.Prompts.CreateImagesOnlyOnExplicitRequest",
                 "Only add placeholders for images if this is explicitly requested.",
                 "Füge nur dann Platzhalter für Bilder hinzu, wenn dies ausdrücklich gewünscht wird.");
-            
+
+            builder.AddOrUpdate("Admin.Permissions.AllPermissionsGranted", "All {0} permissions granted.", "Alle {0} Rechte gewährt.");
+            builder.AddOrUpdate("Admin.Permissions.NumPermissionsGranted", "{0} of {1} permissions granted.", "{0} von {1} Rechten gewährt.");
+            builder.AddOrUpdate("Admin.Permissions.NoPermissionGranted", "No permissions granted.", "Keine Rechte gewährt.");
         }
     }
 }

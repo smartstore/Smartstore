@@ -23,6 +23,7 @@
         showLines: false,       // true: show helper lines.
         readOnly: false,        // true: no state changes allowed (checkbox disabled).
         dragAndDrop: false,     // true: drag & drop enabled.
+        showStateInfo: false,   // true: show number of 'on'(green) descendents for 'on-off' stateType.
         showNumChildren: true,
         showNumChildrenDeep: false,
         defaultCollapsedIconClass: null,
@@ -33,6 +34,7 @@
         collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
         stateTitles: ['', '', '', ''],
+        stateInfoTitles: ['', '', ''],
         disabledTitle: null,
         noDataNote: null
     };
@@ -267,7 +269,7 @@
             }
 
             if (nodeUrl) {
-                var target = nodeData?.UrlTarget || li.data('url-target');
+                const target = nodeData?.UrlTarget || li.data('url-target');
                 labelHtml = `<a class="tree-link tree-name" href="${nodeUrl}"${target ? ` target="${target}"` : ''}${title ? ` title="${title}"` : ''}>${name}</a>`;
             }
             else {
@@ -281,8 +283,15 @@
                 labelHtml += `<span class="tree-num">(${numChildrenDeep})</span>`;
             }
 
+            if (opt.showStateInfo && opt.stateType === 'on-off') {
+                const si = getStateInfo(li, opt);
+                if (si) {
+                    labelHtml += `<span class="badge ${si.cssClass} badge-subtle badge-ring badge-counter tree-state-info" title="${si.title}">${si.numActive}</span>`;
+                }
+            }
+
             if (badgeText) {
-                var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
+                const badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
                 labelHtml += ` <span class="badge ${badgeStyle}">${badgeText}</span>`;
             }
 
@@ -484,6 +493,32 @@
         }
 
         return result;
+    }
+
+    function getStateInfo(li, opt) {
+        const numActive = parseInt(li.data('state-num-active'));
+        const numTotal = parseInt(li.data('state-num-total'));
+        if (isNaN(numActive) || isNaN(numTotal)) {
+            return null;
+        }
+
+        let cssClass = '';
+        let title = '';
+
+        if (numActive === numTotal) {
+            cssClass = 'badge-success';
+            title = opt.stateInfoTitles[0].replace('{0}', numTotal);
+        }
+        else if (numActive > 0) {
+            cssClass = 'badge-warning';
+            title = opt.stateInfoTitles[1].replace('{0}', numActive).replace('{1}', numTotal);
+        }
+        else {
+            cssClass = 'badge-secondary text-muted';
+            title = opt.stateInfoTitles[2];
+        }
+
+        return { numActive, numTotal, cssClass, title };
     }
 
     function loadData(root, node, opt, callback) {

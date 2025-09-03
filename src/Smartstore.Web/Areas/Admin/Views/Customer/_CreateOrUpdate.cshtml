@@ -41,9 +41,16 @@
                             readOnly: true,
                             stateType: 'on-off',
                             showNumChildren: false,
+                            showStateInfo: true,
                             highlightNodes: false,
                             leafClass: 'tree-leaf tree-leaf-left',
-                            stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
+                            stateTitles: [@T("Common.Allow").JsValue, 
+                                @T("Common.Deny").JsValue, 
+                                @T("Admin.Permissions.AllowInherited").JsValue, 
+                                @T("Admin.Permissions.DenyInherited").JsValue],
+                            stateInfoTitles: [@T("Admin.Permissions.AllPermissionsGranted").JsValue,
+                                @T("Admin.Permissions.NumPermissionsGranted").JsValue,
+                                @T("Admin.Permissions.NoPermissionGranted").JsValue,]
                         });
 
                         // Expand\collapse all.
@@ -196,8 +203,11 @@
         <ul>
             @foreach (var child in node.Children)
             {
+                var (numAllowed, numTotal) = PermissionTree.GetNumAllowedDescendents(child);
                 <li data-state-id="permission-@child.Value.PermissionRecordId"
                     data-state-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
+                    attr-data-state-num-active='(child.HasChildren, numAllowed.ToStringInvariant())'
+                    attr-data-state-num-total='(child.HasChildren, numTotal.ToStringInvariant())'
                     data-name="@(Model.PermissionTree.GetDisplayName(child))"
                     data-title="@child.Value.SystemName">
                     @if (child.HasChildren)
