@@ -504,7 +504,7 @@ namespace Smartstore.StripeElements.Controllers
         {
             if (charge != null)
             {
-                _db.OrderNotes.Add(order, $"Reason for Charge-ID {charge.Id}: {charge.Refunds.FirstOrDefault().Reason} - {charge.Description}", true);
+                _db.OrderNotes.Add(order, $"Reason for Charge-ID {charge.Id}: {charge.Refunds?.FirstOrDefault()?.Reason} - {charge.Description}", true);
             }
         }
     }
