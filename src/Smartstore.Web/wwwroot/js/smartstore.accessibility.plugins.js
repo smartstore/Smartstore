@@ -12,6 +12,12 @@
 class MenuPlugin extends AccessKitExpandablePluginBase {
     getRovingItems(root) {
         // TODO: (mh) This is the anti-pattern I wanted to avoid with the refactoring! TBD with MC.
+        // RE: We must do this here because of the simple menu which can contain menuitems in further dropdowns.
+        // Which is not correct. A menu widget must only hold its own navigatable items.
+        // Maybe I didn't understand what you did mean by anti-pattern as this is the same code as in the base plugin.
+        // It only differs by checking that the menuitems are direct children of the current menu/root.
+        // Hopefully you did refer to the method below, which was obsolete anyway and which I have removed now.
+        // Lets talk :-)
         return Array.from(root.querySelectorAll('[role="menuitem"]'))
             .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === root);
     }
@@ -20,11 +26,6 @@ class MenuPlugin extends AccessKitExpandablePluginBase {
         if (widget.root.getAttribute('role') === 'menubar') {
             widget.orientation = 'horizontal';
         }
-    }
-
-    handleKeyCore(e, widget) {
-        widget.items = this.getRovingItems(widget.root);
-        return super.handleKeyCore(e, widget);
     }
 
     onActivateItem(element, index, widget) {

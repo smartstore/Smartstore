@@ -247,6 +247,42 @@ class AccessKit {
             }
         });
     }
+
+    /**
+    * Refreshes the content of a live region to ensure that a screen reader does not skip it.
+    * Required if the live region is updated via AJAX or if its content should be initially read after a page load.
+    *
+    * @param {string} id  ID of element to update (has role="status" or role="alert")
+    */
+    static refreshLiveRegion(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            const content = el.textContent;
+            if (content.length) {
+                el.textContent = '';
+                setTimeout(() => { el.textContent = content; }, 50);
+            }
+        }
+    }
+
+    /**
+    * Informs screen readers of a status, such as "Please wait...".
+    *
+    * @param {string} message  The message to set.
+    * @param {string} busyId   Optional ID of an element to set "aria-busy=true". Removes "aria-busy" if the message is empty.
+    */
+    static notifyStatus(message, busyId) {
+        const el = document.getElementById('sr-status');
+        if (el) {
+            el.textContent = message || '';
+            if (busyId) {
+                const elBusy = document.getElementById(busyId);
+                if (elBusy) {
+                    message?.length ? elBusy.setAttribute('aria-busy', 'true') : elBusy.removeAttribute('aria-busy');
+                }
+            }
+        }
+    }
 }
 
 class AccessKitEvents {

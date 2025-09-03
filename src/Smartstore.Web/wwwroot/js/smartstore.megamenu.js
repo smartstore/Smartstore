@@ -454,12 +454,12 @@
                     megamenuDropdownContainer.on("expand.ak", '[role="menuitem"]', (e) => {
                         e.stopPropagation();
                         showDrop($(e.detail.trigger).parent());
-                        $(e.detail.menu).find('[role="menuitem"]:visible').first().trigger('focus');
+                        $(e.detail.target).find('[role="menuitem"]:visible').first().trigger('focus');
                     });
 
                     megamenuDropdownContainer.on("collapse.ak", '[role="menuitem"]', (e) => {
                         e.stopPropagation();
-                        if ($(e.detail.menu).length) {
+                        if ($(e.detail.target).length) {
                             const currentItem = $(e.detail.trigger);
                             closeDrop(currentItem.parent());
                             currentItem.trigger('focus');
