@@ -119,7 +119,8 @@ namespace Smartstore.Web.Bundling
 
         internal static IBundleProcessor[] DefaultScriptProcessors
         {
-            get => [ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance];
+            //get => [ConcatProcessor.Instance, NUglifyJsMinProcessor.Instance];
+            get => [JsMinProcessor.Instance, ConcatProcessor.Instance];
         }
 
         internal static IBundleProcessor[] DefaultStyleProcessors

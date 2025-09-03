@@ -6,7 +6,7 @@ namespace Smartstore.Web.Bundling.Processors
     {
         internal static string JsContentType = "application/javascript";
         internal static readonly JsMinProcessor Instance = new();
-        private static readonly JsMinifier Minifier = new();
+        internal static readonly JsMinifier Minifier = new();
 
         public override string Code => BundleProcessorCodes.Minify;
 

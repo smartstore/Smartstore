@@ -62,8 +62,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 try
                 {
                     // Return the minified JavaScript code
-                    var minContent = NUglifyJsMinProcessor.Instance.MinifyCore(originalContent);
-                    return minContent.Code;
+                    //var minContent = NUglifyJsMinProcessor.Instance.MinifyCore(originalContent);
+                    //return minContent.Code;
+                    var minContent = JsMinProcessor.Minifier.Minify(originalContent);
+                    return minContent;
                 }
                 catch
                 {
