@@ -88,7 +88,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool EnableThumbZoomer { get; set; }
 
         /// <summary>
-        /// Whether to highlight search term in serach results. Default = true
+        /// Whether to highlight search term in search results. Default = true
         /// </summary>
         [HtmlAttributeName(HighlightSearchTermAttributeName)]
         public bool HighlightSearchTerm { get; set; } = true;
@@ -106,7 +106,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool AppendMode { get; set; } = true;
 
         /// <summary>
-        /// The delemiter for choosen entity ids. Default = ","
+        /// The delimiter for choosen entity ids. Default = ","
         /// </summary>
         [HtmlAttributeName(DelimiterAttributeName)]
         public string Delimiter { get; set; } = ",";

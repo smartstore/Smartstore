@@ -290,24 +290,25 @@
         // return value(s)
         dialog.find('.modal-footer .btn-primary').on('click', function () {
             var dialog = $(this).closest('.entpicker');
-            var items = dialog.find('.entpicker-list .selected');
             var opts = dialog.data('entitypicker');
             var returnId = opts.returnField.toLowerCase() === 'id';
 
-            var selectedItems = _.map(items, function (val) {
+            var visibleSelectedItems = _.map(dialog.find('.entpicker-list .selected'), (val) => {
                 return {
                     id: $(val).data('returnvalue'),
                     name: $(val).find('.title').attr('title')
                 };
             });
 
-            var selectedValues = _.uniq(_.map(selectedItems, function (x) {
+            var visibleSelectedValues = _.uniq(_.map(visibleSelectedItems, function (x) {
                 return returnId && !_.isNumber(x.id) ? toInt(x.id) : x.id;
             }));
 
-            if (opts.appendMode && _.isArray(opts.selected)) {
-                selectedValues = _.union(opts.selected, selectedValues);
-            }
+            var preSelectedValues = _.isArray(opts.selected) ? opts.selected : [];
+
+            var selectedValues = opts.appendMode
+                ? _.union(preSelectedValues, visibleSelectedValues)
+                : visibleSelectedValues;
 
             var selectedValuesStr = selectedValues.join(opts.delim);
 
@@ -318,7 +319,7 @@
             dialog.find('input[name=Selected]').val(selectedValuesStr);
 
             if (_.isFunction(window[opts.onSelectionCompleted])) {
-                if (window[opts.onSelectionCompleted](selectedValues, selectedItems, dialog)) {
+                if (window[opts.onSelectionCompleted](selectedValues, visibleSelectedItems, dialog)) {
                     dialog.modal('hide');
                 }
             }
