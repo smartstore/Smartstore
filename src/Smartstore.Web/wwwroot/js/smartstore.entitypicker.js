@@ -5,7 +5,7 @@
 
 ; (function ($, window, document, undefined) {
 
-    var methods = {
+    const methods = {
         loadDialog: function (options) {
             options = normalizeOptions(options, this);
 
@@ -197,10 +197,11 @@
     }
 
     function initDialog(context) {
-        var dialog = $(context);
-        var keyUpTimer = null;
-        var currentValue = '';
-
+        let dialog = $(context);
+        let keyUpTimer = null;
+        let currentValue = '';
+        let unselectedItems = [];
+        
         // search entities
         dialog.find('button[name=SearchEntities]').on('click', function (e) {
             e.preventDefault();
@@ -270,10 +271,15 @@
             }
             else if (item.hasClass('selected')) {
                 item.removeClass('selected');
+                if (!item.hasClass('touched')) {
+                    unselectedItems.push(toInt(item.data('returnvalue')));
+                }
             }
             else if (data.maxItems === 0 || list.find('.selected').length < data.maxItems) {
                 item.addClass('selected');
             }
+
+            item.addClass('touched');
 
             dialog.find('.modal-footer .btn-primary').prop('disabled', list.find('.selected').length <= 0);
         }).on({
@@ -286,6 +292,10 @@
                     showStatus($(this).closest('.entpicker'));
             }
         }, '.entpicker-item');
+
+        dialog.on('hidden.bs.modal', () => {
+            unselectedItems = [];
+        });
 
         // return value(s)
         dialog.find('.modal-footer .btn-primary').on('click', function () {
@@ -305,9 +315,8 @@
             }));
 
             var preSelectedValues = _.isArray(opts.selected) ? opts.selected : [];
-
             var selectedValues = opts.appendMode
-                ? _.union(preSelectedValues, visibleSelectedValues)
+                ? _.union(_.difference(preSelectedValues, unselectedItems), visibleSelectedValues)
                 : visibleSelectedValues;
 
             var selectedValuesStr = selectedValues.join(opts.delim);
@@ -329,7 +338,7 @@
         });
 
         // cancel
-        dialog.find('button.entpicker-cancel').on('click', function () {
+        dialog.find('button.entpicker-cancel').on('click', () => {
             dialog.find('.entpicker-list').empty();
             dialog.find('.footer-note span').hide();
             dialog.find('.modal-footer .btn-primary').prop('disabled', true);
