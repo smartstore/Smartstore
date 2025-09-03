@@ -310,7 +310,16 @@ namespace Smartstore.Core.AI.Prompting
         /// </returns>
         public virtual string UseImagePlaceholders()
             => P("UseImagePlaceholders");
-        
+
+        /// <summary>
+        /// Instruction to create images only on explicit request.
+        /// </summary>
+        /// <returns>
+        /// Only add placeholders for images if this is explicitly requested.
+        /// </returns>
+        public virtual string CreateImagesOnlyOnExplicitRequest()
+            => P("CreateImagesOnlyOnExplicitRequest");
+
         /// <summary>
         /// Instruction to write in a specific language.
         /// </summary>

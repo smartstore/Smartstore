@@ -109,6 +109,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.EditAttributeDetails", 
                 "Edit specification attribute", 
                 "Spezifikationsattribut bearbeiten");
+
+            builder.AddOrUpdate("Smartstore.AI.Prompts.CreateImagesOnlyOnExplicitRequest",
+                "Only add placeholders for images if this is explicitly requested.",
+                "Füge nur dann Platzhalter für Bilder hinzu, wenn dies ausdrücklich gewünscht wird.");
+            
         }
     }
 }

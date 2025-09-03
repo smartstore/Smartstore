@@ -341,6 +341,7 @@ namespace Smartstore.Core.AI.Prompting
                 roleInstructions.AddRange(
                     Resources.WriteCompleteParagraphs(), 
                     Resources.UseImagePlaceholders(),
+                    Resources.CreateImagesOnlyOnExplicitRequest(),
                     Resources.CreatHtmlWithoutMarkdown(),
                     Resources.NoFriendlyIntroductions(),
                     Resources.StartWithDivTag()
