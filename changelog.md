@@ -46,6 +46,7 @@
 - PostFinance: Fixed the issue where the amount paid sometimes differs from the order total.
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
+- EntityPicker did not remove unselected items from preselection in append mode.
 - **MegaMenu** 
   - The background image should not overlap the menu item content.
   - The link count in a single column often exceeds the configured setting.
