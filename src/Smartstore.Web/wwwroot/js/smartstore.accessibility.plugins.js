@@ -11,15 +11,8 @@
  * -------------------------------------------------- */
 class MenuPlugin extends AccessKitExpandablePluginBase {
     getRovingItems(root) {
-        // TODO: (mh) This is the anti-pattern I wanted to avoid with the refactoring! TBD with MC.
-        // RE: We must do this here because of the simple menu which can contain menuitems in further dropdowns.
-        // Which is not correct. A menu widget must only hold its own navigatable items.
-        // Maybe I didn't understand what you did mean by anti-pattern as this is the same code as in the base plugin.
-        // It only differs by checking that the menuitems are direct children of the current menu/root.
-        // Hopefully you did refer to the method below, which was obsolete anyway and which I have removed now.
-        // Lets talk :-)
-        return Array.from(root.querySelectorAll('[role="menuitem"]'))
-            .filter(mi => mi.closest('[role="menubar"],[role="menu"]') === root);
+        return Array.from(root.querySelectorAll(this.strategy.itemSelector))
+            .filter(mi => mi.closest(this.strategy.rootSelector) === root);
     }
 
     initWidgetCore(widget) {
@@ -305,8 +298,8 @@ class ListboxPlugin extends AccessKitPluginBase {
         }
     }
 
-    // TODO: (wcag) (mh) This seems to be to expensive. We don't listen for these keys right now.
-    // Either find a way to reigister listing for these keys in a smarter way or throw away. See _onKey in base constructor.
+    // INFO: This seems to be to expensive. We don't listen for these keys right now.
+    // If you want to enable typeahead look for information in _onKeyDown in the class AccessKit
     /* -------- First‑character type‑ahead -------- */
     _typeahead(char, startIdx, widget) {
         char = char.toLowerCase();
@@ -364,19 +357,17 @@ class TablistPlugin extends AccessKitPluginBase {
     }
 }
 
-// TODO: (wcag) (mh) Test with simple menu
 /* --------------------------------------------------
 *  TreePlugin – 
-*  Handles all items of [role="tree"] + [role="treeitem"]
+*  Handles all items of ([role="tree"] || [role="group"]) + [role="treeitem"]
 * -------------------------------------------------- */
 class TreePlugin extends AccessKitExpandablePluginBase {
     _visibleItems(tree) {
-        // TODO: (wcag) (mh) Correct this and use cached items. 
-        return Array.from(tree.querySelectorAll('[role="treeitem"]')).filter(node => {
-            let anc = node.parentElement?.closest('[role="treeitem"]');
+        return Array.from(tree.querySelectorAll(this.strategy.itemSelector)).filter(node => {
+            let anc = node.parentElement?.closest(this.strategy.itemSelector);
             while (anc) {
                 if (anc.getAttribute('aria-expanded') === 'false') return false;
-                anc = anc.parentElement?.closest('[role="treeitem"]');
+                anc = anc.parentElement?.closest(this.strategy.itemSelector);
             }
             return true; // No collapsed ancestor found
         });
@@ -384,11 +375,6 @@ class TreePlugin extends AccessKitExpandablePluginBase {
 
     getRovingItems(root) {
         return this._visibleItems(root);
-    }
-
-    handleKeyCore(e, widget) {
-        widget.items = this.getRovingItems(widget.root);
-        return super.handleKeyCore(e, widget);
     }
 
     onActivateItem(element, index, widget) {

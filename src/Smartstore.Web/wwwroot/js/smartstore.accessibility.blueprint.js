@@ -14,6 +14,7 @@ class AccessKit {
     static TEXT_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'search', 'password', 'date', 'datetime-local', 'datetime', 'month', 'number', 'time', 'week']);
     static ACTIVE_OPTION_SELECTOR = '[role="option"]:not(:is([disabled], .disabled, .hidden, [aria-disabled="true"]))';
     static ACTIVE_RADIO_SELECTOR = 'input[type="radio"]:not([disabled])';
+    static FOCUSABLE_ELEMENTS_SELECTOR = ':is([tabindex], button, a, input, select, textarea):not([tabindex="-1"])';
     static KEY = {
         LEFT: 'ArrowLeft',
         UP: 'ArrowUp',
@@ -123,6 +124,9 @@ class AccessKit {
 
         // Exit if no navigational key is pressed.
         if (!AccessKit.#isNavKey(e.key)) return;
+
+        // INFO: Replace the line above with this to enable typeahead in listboxes.
+        //if (!AccessKit.#isNavKey(e.key) && t.getAttribute('role') != 'option') return;
 
         // Init plugin instance if needed.
         this._tryCreateInstance(t);
@@ -658,8 +662,8 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
             if (target) {
                 let focusEl = null;
                 if (opt.focusTarget === 'first') {
-                    // TODO: (wcag) (mh) This smells :-)
-                    focusEl = target.querySelector(':is([tabindex], button, a, input, select, textarea):not([tabindex="-1"])');
+                    // TODO: (wcag) (mh) Test this after migration of the combobox plugin
+                    focusEl = target.querySelector(this.FOCUSABLE_ELEMENTS_SELECTOR);
                 } else if (opt.focusTarget instanceof HTMLElement) {
                     focusEl = opt.focusTarget;
                 } else if (opt.focusTarget === 'trigger') {
