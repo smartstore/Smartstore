@@ -132,13 +132,18 @@
         });
 
         // Set inherited state.
-        if (opt.stateType === 'on-off' && !opt.readOnly) {
+        if (opt.stateType === 'on-off') {
             // Set indeterminate property.
             //root.find('input[type=checkbox][value=0]').prop('indeterminate', true);
 
-            root.find('ul:first > .tree-node').each(function () {
-                setInheritedState($(this), 0, opt);
-            });
+            let $nodes = root.find('ul:first > .tree-node');
+            if (!opt.readOnly) {
+                $nodes.each((_i, el) => setInheritedState($(el), 0, opt));
+            }
+
+            if (opt.showStateInfo) {
+                $nodes.each((_i, el) => setStateInfo($(el), opt));
+            }
         }
 
         // Expander clicked
@@ -197,6 +202,9 @@
 
                 // Update nodes with inherited state.
                 setInheritedState(node, inheritedState, opt);
+
+                let root = node.parents('.tree-node').last();
+                setStateInfo(root.length ? root : node, opt);
 
                 EventBroker.publishSync('tree.checked', { node, value });
             }
@@ -276,18 +284,21 @@
                 labelHtml = `<span class="tree-name"${title ? ` title="${title}"` : ''}>${name}</span>`;
             }
 
-            if (numChildren > 0 && opt.showNumChildren) {
+            if (opt.showNumChildren && numChildren > 0) {
                 labelHtml += `<span class="tree-num">(${numChildren})</span>`;
             }
-            else if (numChildrenDeep > 0 && opt.showNumChildrenDeep) {
+            else if (opt.showNumChildrenDeep && numChildrenDeep > 0) {
                 labelHtml += `<span class="tree-num">(${numChildrenDeep})</span>`;
             }
 
-            if (opt.showStateInfo && opt.stateType === 'on-off') {
-                const si = getStateInfo(li, opt);
-                if (si) {
-                    labelHtml += `<span class="badge ${si.cssClass} badge-subtle badge-ring badge-counter tree-state-info" title="${si.title}">${si.numActive}</span>`;
-                }
+            if (opt.showStateInfo && opt.stateType === 'on-off' && numChildren > 0) {
+                labelHtml += `<span class="badge badge-secondary text-muted badge-subtle badge-ring badge-counter tree-state-info" title="">0</span>`;
+                //const numOn = parseInt(li.data('state-num-on'));
+                //const numTotal = parseInt(li.data('state-num-total'));
+                //if (!isNaN(numOn) && !isNaN(numTotal)) {
+                //    const sInfo = getStateInfo(numOn, numTotal, opt);
+                //    labelHtml += `<span class="badge ${sInfo.cssClass} badge-subtle badge-ring badge-counter tree-state-info" title="${sInfo.title}">${numOn}</span>`;
+                //}
             }
 
             if (badgeText) {
@@ -459,8 +470,8 @@
     function setInheritedState(node, inheritedState, opt) {
         if (!node) return;
 
-        var childState = inheritedState;
-        var val = parseInt(node.find('> .tree-inner input[type=checkbox]').val()) || 0;
+        let childState = inheritedState;
+        const val = parseInt(node.find('> .tree-inner input[type=checkbox]').val()) || 0;
 
         if (val > 0) {
             // Is directly on.
@@ -475,9 +486,7 @@
                 .attr('title', opt.stateTitles[inheritedState === 2 ? 2 : 3]);
         }
 
-        node.find('> ul > .tree-node').each(function () {
-            setInheritedState($(this), childState, opt);
-        });
+        node.find('> ul > .tree-node').each((_i, el) => setInheritedState($(el), childState, opt));
     }
 
     function getInheritedState(node) {
@@ -495,30 +504,58 @@
         return result;
     }
 
-    function getStateInfo(li, opt) {
-        const numActive = parseInt(li.data('state-num-active'));
-        const numTotal = parseInt(li.data('state-num-total'));
-        if (isNaN(numActive) || isNaN(numTotal)) {
-            return null;
+    function setStateInfo(node, opt) {
+        if (!node) return;
+
+        if (node.hasClass('tree-noleaf')) {
+            const sCount = getStateCount(node);
+            let cssClass = '';
+            let title = '';
+
+            if (sCount.numOn === sCount.numTotal) {
+                cssClass = 'badge-success';
+                title = opt.stateInfoTitles[0].replace('{0}', sCount.numTotal);
+            }
+            else if (sCount.numOn > 0) {
+                cssClass = 'badge-warning';
+                title = opt.stateInfoTitles[1].replace('{0}', sCount.numOn).replace('{1}', sCount.numTotal);
+            }
+            else {
+                cssClass = 'badge-secondary text-muted';
+                title = opt.stateInfoTitles[2];
+            }
+
+            node.find('.tree-state-info')
+                .first()
+                .removeClass('badge-success badge-warning badge-secondary text-muted')
+                .addClass(cssClass)
+                .attr('title', title)
+                .text(sCount.numOn);
         }
 
-        let cssClass = '';
-        let title = '';
+        node.find('> ul > .tree-node').each((_i, el) => setStateInfo($(el), opt));
+    }
 
-        if (numActive === numTotal) {
-            cssClass = 'badge-success';
-            title = opt.stateInfoTitles[0].replace('{0}', numTotal);
-        }
-        else if (numActive > 0) {
-            cssClass = 'badge-warning';
-            title = opt.stateInfoTitles[1].replace('{0}', numActive).replace('{1}', numTotal);
-        }
-        else {
-            cssClass = 'badge-secondary text-muted';
-            title = opt.stateInfoTitles[2];
+    function getStateCount(node) {
+        let numOn = 0;
+        let numTotal = 0;
+
+        if (node) {
+            if (!node.hasClass('tree-noleaf')) {
+                if (node.find('.tree-state-onoff').is('.on, .in-on')) {
+                    numOn++;
+                }
+                numTotal++;
+            }
+
+            node.find('> ul > .tree-node').each((_i, el) => {
+                const tmp = getStateCount($(el));
+                numOn += tmp.numOn;
+                numTotal += tmp.numTotal;
+            });
         }
 
-        return { numActive, numTotal, cssClass, title };
+        return { numOn, numTotal };
     }
 
     function loadData(root, node, opt, callback) {

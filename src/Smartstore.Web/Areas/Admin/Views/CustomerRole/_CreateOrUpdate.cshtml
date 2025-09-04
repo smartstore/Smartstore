@@ -164,9 +164,16 @@
         $('#permission-tree').tree('init', {
             stateType: 'on-off',
             showNumChildren: false,
+            showStateInfo: true,
             highlightNodes: false,
             leafClass: 'tree-leaf tree-leaf-left',
-            stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
+            stateTitles: [@T("Common.Allow").JsValue, 
+                @T("Common.Deny").JsValue, 
+                @T("Admin.Permissions.AllowInherited").JsValue, 
+                @T("Admin.Permissions.DenyInherited").JsValue],
+            stateInfoTitles: [@T("Admin.Permissions.AllPermissionsGranted").JsValue,
+                @T("Admin.Permissions.NumPermissionsGranted").JsValue,
+                @T("Admin.Permissions.NoPermissionGranted").JsValue]
         });
 
         // Expand\collapse all.
