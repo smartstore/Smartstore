@@ -61,7 +61,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IHostApplicationLifetime _appLifetime;
         private readonly AsyncRunner _asyncRunner;
         private readonly IMediaService _mediaService;
-        
+
         public MaintenanceController(
             SmartDbContext db,
             IMemoryCache memCache,
@@ -526,7 +526,7 @@ namespace Smartstore.Admin.Controllers
                 if (_db.DataProvider.CanOptimizeTable)
                 {
                     await _db.DataProvider.OptimizeTableAsync(tableName);
-                    
+
                     var tableInfos = await CommonHelper.TryAction(() => _db.DataProvider.ReadTableInfosAsync(), []);
                     var currentSize = tableInfos.FirstOrDefault(x => x.TableName == tableName)?.TotalSpace;
 
@@ -535,9 +535,9 @@ namespace Smartstore.Admin.Controllers
                         var diffBytes = currentSize.Value - size.Value;
                         var diffPercent = Math.Round(diffBytes / (double)currentSize, 2);
 
-                        NotifySuccess(T("Common.OptimizeTableSuccess", 
-                            tableName, 
-                            Prettifier.HumanizeBytes(size.Value), 
+                        NotifySuccess(T("Common.OptimizeTableSuccess",
+                            tableName,
+                            Prettifier.HumanizeBytes(size.Value),
                             Prettifier.HumanizeBytes(currentSize.Value),
                             Prettifier.HumanizeBytes(diffBytes),
                             "<b>" + diffPercent.ToString("P2") + "</b>"));
@@ -809,6 +809,14 @@ namespace Smartstore.Admin.Controllers
             else
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.AttributeCombinationHashCodes.OK"));
+            }
+
+            // EU-VAT Web service
+            // ====================================
+            var hasIPv4 = IPAddress.TryParse(HttpContext.Connection.LocalIpAddress.ToString(), out IPAddress address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+            if (!hasIPv4)
+            {
+                AddEntry(SystemWarningLevel.Fail, T("Admin.System.Warnings.EuVatWebService.Unstable"));
             }
 
             return View(model);

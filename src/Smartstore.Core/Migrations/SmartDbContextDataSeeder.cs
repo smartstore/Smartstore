@@ -117,6 +117,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Permissions.AllPermissionsGranted", "All {0} permissions granted.", "Alle {0} Rechte gewährt.");
             builder.AddOrUpdate("Admin.Permissions.NumPermissionsGranted", "{0} of {1} permissions granted.", "{0} von {1} Rechten gewährt.");
             builder.AddOrUpdate("Admin.Permissions.NoPermissionGranted", "No permissions granted.", "Keine Rechte gewährt.");
+
+            builder.AddOrUpdate("Admin.System.Warnings.EuVatWebService.Unstable",
+                "Due to the server's IPv6 configuration, the EU web service for validating VAT numbers may not work properly.",
+                "Aufgrund der IPv6-Konfiguration des Servers funktioniert der Web-Service der EU zur Überprüfung von Steuernummern möglicherweise nicht korrekt.");
         }
     }
 }
