@@ -124,6 +124,9 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.System.SystemInfo.IPAddress", "IP address", "IP-Adresse");
             builder.AddOrUpdate("Admin.System.SystemInfo.IPAddress.Hint", "The IP address of the machine.", "Die IP-Adresse der Maschine.");
+
+            // This a workaround/fallback for missing string resources in plugins with duplicate permission names:
+            builder.AddOrUpdate("Plugins.Permissions.DisplayName.Display", "Display", "Anzeigen");
         }
     }
 }
