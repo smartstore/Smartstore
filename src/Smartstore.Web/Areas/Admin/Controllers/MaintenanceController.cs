@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -813,9 +814,9 @@ namespace Smartstore.Admin.Controllers
 
             // EU-VAT Web service
             // ====================================
-            var hasIPv4 = IPAddress.TryParse(HttpContext.Connection.LocalIpAddress.ToString(), out IPAddress address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
-            if (!hasIPv4)
+            if (HttpContext.Connection.LocalIpAddress.AddressFamily != AddressFamily.InterNetwork)
             {
+                // EU-VAT check may fail on non-IPv4 addresses (e.g. IPv6 only)
                 AddEntry(SystemWarningLevel.Fail, T("Admin.System.Warnings.EuVatWebService.Unstable"));
             }
 
