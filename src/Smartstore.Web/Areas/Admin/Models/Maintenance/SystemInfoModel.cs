@@ -25,7 +25,7 @@ namespace Smartstore.Admin.Models.Maintenance
         [LocalizedDisplay("*ServerTimeZone")]
         public string ServerTimeZone { get; set; }
 
-        [LocalizedDisplay("Admin.System.Log.Fields.IPAddress")]
+        [LocalizedDisplay("*IPAddress")]
         public IPAddress IPAddress { get; set; }
 
         [LocalizedDisplay("*UTCTime")]

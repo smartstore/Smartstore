@@ -121,6 +121,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Warnings.EuVatWebService.Unstable",
                 "Due to the server's IPv6 configuration, the EU web service for validating VAT numbers may not work properly.",
                 "Aufgrund der IPv6-Konfiguration des Servers funktioniert der Web-Service der EU zur Überprüfung von Steuernummern möglicherweise nicht korrekt.");
+
+            builder.AddOrUpdate("Admin.System.SystemInfo.IPAddress", "IP address", "IP-Adresse");
+            builder.AddOrUpdate("Admin.System.SystemInfo.IPAddress.Hint", "The IP address of the machine.", "Die IP-Adresse der Maschine.");
         }
     }
 }
