@@ -176,7 +176,7 @@ namespace Smartstore.Web.Rendering
         {
             CheckContextualized();
 
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextCreation);
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextGeneration);
             if (providers.Count == 0)
             {
                 return null;
@@ -280,10 +280,10 @@ namespace Smartstore.Web.Rendering
         }
 
         public virtual TagBuilder GenerateSuggestionTool(AttributeDictionary attributes)
-            => GenerateOutput(attributes, AIProviderFeatures.TextCreation, AIChatTopic.Suggestion);
+            => GenerateOutput(attributes, AIProviderFeatures.TextGeneration, AIChatTopic.Suggestion);
 
         public virtual TagBuilder GenerateImageCreationTool(AttributeDictionary attributes)
-            => GenerateOutput(attributes, AIProviderFeatures.ImageCreation, AIChatTopic.Image);
+            => GenerateOutput(attributes, AIProviderFeatures.ImageGeneration, AIChatTopic.Image);
 
         /// <summary>
         /// Generates the output for the AI dialog openers.

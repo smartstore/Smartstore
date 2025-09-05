@@ -33,22 +33,22 @@ namespace Smartstore.Core.AI
         public abstract bool Supports(AIProviderFeatures feature);
 
         public bool SupportsTextCreation
-            => Supports(AIProviderFeatures.TextCreation);
+            => Supports(AIProviderFeatures.TextGeneration);
 
         public bool SupportsTextTranslation
             => Supports(AIProviderFeatures.TextTranslation);
 
         public bool SupportsImageCreation
-            => Supports(AIProviderFeatures.ImageCreation);
+            => Supports(AIProviderFeatures.ImageGeneration);
 
         public bool SupportsImageAnalysis
             => Supports(AIProviderFeatures.ImageAnalysis);
 
         public bool SuportsThemeVarCreation
-            => Supports(AIProviderFeatures.ThemeVarCreation);
+            => Supports(AIProviderFeatures.ThemeVarGeneration);
 
         public bool SupportsAssistence
-            => Supports(AIProviderFeatures.Assistence);
+            => Supports(AIProviderFeatures.Assistance);
 
         public virtual string[] GetPreferredModelNames(AIChatTopic topic)
             => null;

@@ -4,12 +4,36 @@
     public enum AIProviderFeatures
     {
         None = 0,
-        TextCreation = 1 << 0,
+
+        /// <summary>
+        /// Generate new text content (e.g. product descriptions, articles).
+        /// </summary>
+        TextGeneration = 1 << 0,
+
+        /// <summary>
+        /// Translate text between different languages.
+        /// </summary>
         TextTranslation = 1 << 1,
-        ImageCreation = 1 << 2,
+
+        /// <summary>
+        /// Generate images from text prompts.
+        /// </summary>
+        ImageGeneration = 1 << 2,
+
+        /// <summary>
+        /// Analyze and interpret images (vision capabilities).
+        /// </summary>
         ImageAnalysis = 1 << 3,
-        ThemeVarCreation = 1 << 4,
-        Assistence = 1 << 5
+
+        /// <summary>
+        /// Generate theme variables.
+        /// </summary>
+        ThemeVarGeneration = 1 << 4,
+
+        /// <summary>
+        /// Provide general assistant functionality (QA, reasoning, planning).
+        /// </summary>
+        Assistance = 1 << 5
     }
 
     /// <summary>
