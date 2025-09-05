@@ -293,12 +293,6 @@
 
             if (opt.showStateInfo && opt.stateType === 'on-off' && numChildren > 0) {
                 labelHtml += `<span class="badge badge-secondary text-muted badge-subtle badge-ring badge-counter tree-state-info" title="">0</span>`;
-                //const numOn = parseInt(li.data('state-num-on'));
-                //const numTotal = parseInt(li.data('state-num-total'));
-                //if (!isNaN(numOn) && !isNaN(numTotal)) {
-                //    const sInfo = getStateInfo(numOn, numTotal, opt);
-                //    labelHtml += `<span class="badge ${sInfo.cssClass} badge-subtle badge-ring badge-counter tree-state-info" title="${sInfo.title}">${numOn}</span>`;
-                //}
             }
 
             if (badgeText) {

@@ -58,50 +58,5 @@ namespace Smartstore.Core.Security
 
             return displayName ?? token ?? systemName;
         }
-
-        /// <summary>
-        /// Gets the number of allowed and total descendents of a permission node.
-        /// </summary>
-        /// <param name="node">Permission node.</param>
-        /// <returns>The number of allowed and total descendents of a permission node.</returns>
-        //public static (int NumAllowed, int NumTotal) GetNumAllowedDescendents(TreeNode<IPermissionNode> node)
-        //{
-        //    if (node == null || node.Children.Count == 0)
-        //    {
-        //        return (0, 0);
-        //    }
-
-        //    var numAllowed = 0;
-        //    var numTotal = 0;
-        //    foreach (var c in node.Children)
-        //    {
-        //        // Do not count parent nodes. They do not have any permissions; they only inherit them.
-        //        if (c.Children.Count == 0)
-        //        {
-        //            if (c.Value.Allow == true || (c.Value.Allow == null && IsInheritedAllowed(c)))
-        //            {
-        //                numAllowed++;
-        //            }
-        //            numTotal++;
-        //        }
-
-        //        var (allowed, total) = GetNumAllowedDescendents(c);
-        //        numAllowed += allowed;
-        //        numTotal += total;
-        //    }
-
-        //    return (numAllowed, numTotal);
-
-        //    static bool IsInheritedAllowed(TreeNode<IPermissionNode> n)
-        //    {
-        //        if (n.Parent == null)
-        //            return false;
-
-        //        if (n.Parent.Value.Allow == null)
-        //            return IsInheritedAllowed(n.Parent);
-
-        //        return n.Parent.Value.Allow.Value;
-        //    }
-        //}
     }
 }

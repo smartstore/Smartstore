@@ -203,9 +203,6 @@
         <ul>
             @foreach (var child in node.Children)
             {
-                //var (numAllowed, numTotal) = PermissionTree.GetNumAllowedDescendents(child);
-                    // attr-data-state-num-on='(child.HasChildren, numAllowed.ToStringInvariant())'
-                    // attr-data-state-num-total='(child.HasChildren, numTotal.ToStringInvariant())'
                 <li data-state-id="permission-@child.Value.PermissionRecordId"
                     data-state-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
                     data-name="@(Model.PermissionTree.GetDisplayName(child))"
