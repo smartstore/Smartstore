@@ -440,20 +440,6 @@ class AccessKitPluginBase {
      * @returns {Array<Element>} items - The roving focusable items.
      */
     applyRoving(widget, start = 0) {
-        /* Build a safe scope for roving-focus:
-           1. If the container has a role ⇒ use [role="…"].
-           2. Else if it has an id        ⇒ use #id.
-           3. Otherwise no selector, fall back to root.contains().
-           Keep only items whose closest() match equals the container. */
-
-        //// TODO: (wcag) Remove this legacy code? Or apply to relevant class(es) only.
-        //const root = widget.root;
-        //const role = root.getAttribute('role');
-        //const scopeSelector = role ? `[role="${CSS.escape(role)}"]` : root.id ? `#${CSS.escape(root.id)}` : null;
-        //const items = [...root.querySelectorAll(selector)].filter(el => {
-        //    return scopeSelector ? el.closest(scopeSelector) === root : root.contains(el);
-        //});
-
         const items = widget.items;
         items.forEach((el, i) => el.tabIndex = i === start ? 0 : -1);
 
@@ -662,8 +648,7 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
             if (target) {
                 let focusEl = null;
                 if (opt.focusTarget === 'first') {
-                    // TODO: (wcag) (mh) Test this after migration of the combobox plugin
-                    focusEl = target.querySelector(this.FOCUSABLE_ELEMENTS_SELECTOR);
+                    focusEl = target.querySelector(AccessKit.FOCUSABLE_ELEMENTS_SELECTOR);
                 } else if (opt.focusTarget instanceof HTMLElement) {
                     focusEl = opt.focusTarget;
                 } else if (opt.focusTarget === 'trigger') {

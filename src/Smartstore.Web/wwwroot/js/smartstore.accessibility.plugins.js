@@ -453,6 +453,103 @@ class RadioGroupPlugin extends AccessKitPluginBase {
     }
 }
 
+
+/* --------------------------------------------------
+ *  DisclosurePlugin – Expand/Collapse & Accordions
+ *  Handles stand‑alone disclosures and [data-ak-accordion]
+ * -------------------------------------------------- */
+class DisclosurePlugin extends AccessKitExpandablePluginBase {
+    getRovingItems(root) {
+        if (root.matches('[data-ak-accordion]')) {
+            return Array.from(root.querySelectorAll('[aria-controls][aria-expanded]:not([role="combobox"])'));
+        }
+
+        return [root];
+    }
+
+    initWidgetCore(widget) {
+        const root = widget.root;
+        if (root.matches('[data-ak-accordion]')) {
+            const collapseSiblings = root.getAttribute('data-collapse-siblings') === 'true';
+            root.addEventListener('click', e => {
+                const trig = e.target.closest('[aria-controls][aria-expanded]:not([role="combobox"])');
+                if (trig && root.contains(trig)) {
+                    this.toggleExpanded(trig, null, { collapseSiblings, focusTarget: 'trigger' });
+                }
+            });
+        } else {
+            root.addEventListener('click', () => {
+                this.toggleExpanded(root, null, { focusTarget: 'trigger' });
+            });
+        }
+    }
+
+    handleKey(e) {
+        const k = AccessKit.KEY;
+        if (e.key === k.ESC) {
+            const panelId = e.target.getAttribute("aria-controls");
+            const panel = (panelId && document.getElementById(panelId)) || e.target.closest('[aria-hidden=false]');
+
+            if (panel) {
+                const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
+
+                if (opener) {
+                    this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
+                    return true;
+                }
+            }
+        }
+        return super.handleKey(e);
+    }
+
+    handleKeyCore(e, widget) {
+        if (!widget.root.matches('[data-ak-accordion]')) {
+            const k = AccessKit.KEY;
+            if (e.key === k.ENTER || e.key === k.SPACE) {
+                this.onActivateItem(widget.root, 0, widget);
+                return true;
+            }
+            return false;
+        }
+        return super.handleKeyCore(e, widget);
+    }
+
+    onActivateItem(element, index, widget) {
+        if (widget.root.matches('[data-ak-accordion]')) {
+            const collapseSiblings = widget.root.getAttribute('data-collapse-siblings') === 'true';
+            this.toggleExpanded(element, true, { collapseSiblings, focusTarget: 'first' });
+        } else {
+            this.toggleExpanded(element, true, { focusTarget: 'first' });
+            const panelId = element.getAttribute('aria-controls');
+            const panel = panelId && document.getElementById(panelId);
+            if (panel) {
+                const trig = element;
+                const focusHandler = ev => {
+                    const el = ev.target;
+                    if (!panel.contains(el) && el !== trig && trig.hasAttribute('ak-close-on-leave')) {
+                        this.toggleExpanded(trig, false);
+                        document.removeEventListener('focusin', focusHandler, true);
+                    }
+                };
+                document.addEventListener('focusin', focusHandler, true);
+            }
+        }
+        return true;
+    }
+
+    onItemKeyPress(event, index, widget) {
+        if (widget.root.matches('[data-ak-accordion]')) {
+            const k = AccessKit.KEY;
+            if (event.key === k.ESC) {
+                const collapseSiblings = widget.root.getAttribute('data-collapse-siblings') === 'true';
+                this.toggleExpanded(event.target, false, { collapseSiblings, focusTarget: 'trigger' });
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 // Boot
 (function () {
     // Register default strategies
@@ -466,8 +563,7 @@ class RadioGroupPlugin extends AccessKitPluginBase {
         {
             ctor: ComboboxPlugin,
             name: 'combobox',
-            rootSelector: '[role="combobox"]',
-            itemSelector: AccessKit.ACTIVE_OPTION_SELECTOR
+            rootSelector: '[role="combobox"]'
         },
         {
             ctor: ListboxPlugin,
@@ -494,6 +590,17 @@ class RadioGroupPlugin extends AccessKitPluginBase {
             itemSelector: '[role="tab"]',
             defaultOrientation: 'horizontal' 
         },
+        {
+            ctor: DisclosurePlugin,
+            name: 'accordion',
+            rootSelector: '[data-ak-accordion]',
+            itemSelector: '[aria-controls][aria-expanded]:not([role="combobox"])'
+        },
+        {
+            ctor: DisclosurePlugin,
+            name: 'disclosure',
+            rootSelector: '[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded]):not([role="combobox"])'
+        }
     ]);
     
     document.addEventListener('DOMContentLoaded', () => {
