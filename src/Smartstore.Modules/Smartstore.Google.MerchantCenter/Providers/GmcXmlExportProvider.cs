@@ -33,7 +33,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
-        const int MaxImages = 10;
+        const int MaxImages = 11;   // One "image_link" plus up to ten "additional_image_link".
         const string _googleNamespace = "http://base.google.com/ns/1.0";
 
         public const string SystemName = "Feeds.GoogleMerchantCenterProductXml";
