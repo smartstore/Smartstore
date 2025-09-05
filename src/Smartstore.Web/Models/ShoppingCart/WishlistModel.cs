@@ -20,7 +20,7 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class WishlistItemModel : CartEntityModelBase, IQuantityInput
         {
-            public override IEnumerable<WishlistItemModel> ChildItems { get; } = [];
+            public override IEnumerable<WishlistItemModel> ChildItems { get; } = new List<WishlistItemModel>();
 
             public void AddChildItems(params WishlistItemModel[] models)
             {
