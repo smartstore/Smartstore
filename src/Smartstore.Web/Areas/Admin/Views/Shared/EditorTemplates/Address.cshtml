@@ -28,7 +28,7 @@
 <div class="adminContent">
     <div sm-if="Model.CompanyEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Company" />
+            <smart-label asp-for="Company" sm-hint="@T("Admin.Address.Fields.Company.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="Company" />
@@ -46,7 +46,7 @@
     </div>
     <div sm-if="Model.FirstNameEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="FirstName" />
+            <smart-label asp-for="FirstName" sm-hint="@T("Admin.Address.Fields.FirstName.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="FirstName" />
@@ -55,7 +55,7 @@
     </div>
     <div sm-if="Model.LastNameEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="LastName" />
+            <smart-label asp-for="LastName" sm-hint="@T("Admin.Address.Fields.LastName.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="LastName" />
@@ -64,7 +64,7 @@
     </div>
     <div sm-if="Model.EmailEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Email" />
+            <smart-label asp-for="Email" sm-hint="@T("Admin.Address.Fields.Email.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="Email" />
@@ -82,7 +82,7 @@
     </div>
     <div sm-if="Model.CountryEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="CountryId" />
+            <smart-label asp-for="CountryId" sm-hint="@T("Admin.Address.Fields.Country.Hint")" />
         </div>
         <div class="adminData">
             <editor asp-for="CountryId"
@@ -96,7 +96,7 @@
     </div>
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="StateProvinceId" />
+            <smart-label asp-for="StateProvinceId" sm-hint="@T("Admin.Address.Fields.StateProvince.Hint")" />
         </div>
         <div class="adminData">
             <select asp-for="StateProvinceId"
@@ -108,7 +108,7 @@
     </div>
     <div sm-if="Model.CityEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="City" />
+            <smart-label asp-for="City" sm-hint="@T("Admin.Address.Fields.City.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="City" />
@@ -117,7 +117,7 @@
     </div>
     <div sm-if="Model.StreetAddressEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Address1" />
+            <smart-label asp-for="Address1" sm-hint="@T("Admin.Address.Fields.Address1.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="Address1" />
@@ -126,7 +126,7 @@
     </div>
     <div sm-if="Model.StreetAddress2Enabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Address2" />
+            <smart-label asp-for="Address2" sm-hint="@T("Admin.Address.Fields.Address2.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="Address2" />
@@ -135,7 +135,7 @@
     </div>
     <div sm-if="Model.ZipPostalCodeEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="ZipPostalCode" />
+            <smart-label asp-for="ZipPostalCode" sm-hint="@T("Admin.Address.Fields.ZipPostalCode.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="ZipPostalCode" />
@@ -144,7 +144,7 @@
     </div>
     <div sm-if="Model.PhoneEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="PhoneNumber" />
+            <smart-label asp-for="PhoneNumber" sm-hint="@T("Admin.Address.Fields.PhoneNumber.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="PhoneNumber" />
@@ -153,7 +153,7 @@
     </div>
     <div sm-if="Model.FaxEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="FaxNumber" />
+            <smart-label asp-for="FaxNumber" sm-hint="@T("Admin.Address.Fields.FaxNumber.Hint")" />
         </div>
         <div class="adminData">
             <input asp-for="FaxNumber" />

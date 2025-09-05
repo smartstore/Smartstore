@@ -38,6 +38,7 @@
 - etracker: Updated module to use latest script & added event submission for product view, list view and orders. 
 - Added option for queued email grid to filter for subject.
 - #1122 AI: Replace the Betalgo library with the official OpenAI .NET library.
+- #1393 Missing bubble help hints in the backend address editor template.
 
 
 ### Bugfixes
