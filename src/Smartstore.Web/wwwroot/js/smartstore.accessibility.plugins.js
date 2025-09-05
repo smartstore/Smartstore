@@ -460,6 +460,7 @@ class RadioGroupPlugin extends AccessKitPluginBase {
  * -------------------------------------------------- */
 class DisclosurePlugin extends AccessKitExpandablePluginBase {
     getRovingItems(root) {
+        // TODO: (mh) WTF? TBD with MC.
         if (root.matches('[data-ak-accordion]')) {
             return Array.from(root.querySelectorAll('[aria-controls][aria-expanded]:not([role="combobox"])'));
         }
@@ -472,7 +473,9 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
         if (root.matches('[data-ak-accordion]')) {
             const collapseSiblings = root.getAttribute('data-collapse-siblings') === 'true';
             root.addEventListener('click', e => {
+                // TODO: (mh) Actually selector reflects widget.itemSelector. Refactor?
                 const trig = e.target.closest('[aria-controls][aria-expanded]:not([role="combobox"])');
+                // TODO: (mh) root.contains(trig) --> SLOW!
                 if (trig && root.contains(trig)) {
                     this.toggleExpanded(trig, null, { collapseSiblings, focusTarget: 'trigger' });
                 }
@@ -485,7 +488,9 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
     }
 
     handleKey(e) {
+        // TODO: (mh) handleKey is not meant to be overwritten, but handleKeyCore is.
         const k = AccessKit.KEY;
+
         if (e.key === k.ESC) {
             const panelId = e.target.getAttribute("aria-controls");
             const panel = (panelId && document.getElementById(panelId)) || e.target.closest('[aria-hidden=false]');
@@ -499,6 +504,7 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
                 }
             }
         }
+
         return super.handleKey(e);
     }
 
@@ -511,14 +517,17 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
             }
             return false;
         }
+
         return super.handleKeyCore(e, widget);
     }
 
     onActivateItem(element, index, widget) {
+        // TODO: (mh) widget.root is always [data-ak-accordion], the contract says so. Something's really wrong here!
         if (widget.root.matches('[data-ak-accordion]')) {
             const collapseSiblings = widget.root.getAttribute('data-collapse-siblings') === 'true';
             this.toggleExpanded(element, true, { collapseSiblings, focusTarget: 'first' });
-        } else {
+        }
+        else {
             this.toggleExpanded(element, true, { focusTarget: 'first' });
             const panelId = element.getAttribute('aria-controls');
             const panel = panelId && document.getElementById(panelId);
@@ -591,6 +600,7 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
             defaultOrientation: 'horizontal' 
         },
         {
+            // TODO: (mh) Why not creating AccordionPlugin that extends DisclosurePlugin?
             ctor: DisclosurePlugin,
             name: 'accordion',
             rootSelector: '[data-ak-accordion]',
