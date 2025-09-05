@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Smartstore.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Engine.Modularity;
@@ -37,6 +38,11 @@ namespace Smartstore.Core.AI
         /// </summary>
         /// <returns>An array of default AI model names.</returns>
         string[] GetDefaultModelNames();
+
+        /// <summary>
+        /// Gets the metadata associated with the current AI provider, mapped from metadata.json.
+        /// </summary>
+        AIMetadata Metadata { get; }
 
         /// <summary>
         /// Starts or continues an AI conversation.

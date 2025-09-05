@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.AI.Prompting;
+﻿using Smartstore.AI.Metadata;
+using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
@@ -47,7 +48,7 @@ namespace Smartstore.Core.AI
         public bool SuportsThemeVarCreation
             => Supports(AIProviderFeatures.ThemeVarGeneration);
 
-        public bool SupportsAssistence
+        public bool SupportsAssistance
             => Supports(AIProviderFeatures.Assistance);
 
         public virtual string[] GetPreferredModelNames(AIChatTopic topic)
@@ -55,6 +56,8 @@ namespace Smartstore.Core.AI
 
         public virtual string[] GetDefaultModelNames()
             => ["default"];
+
+        public virtual AIMetadata Metadata { get; protected set; }
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotImplementedException();
