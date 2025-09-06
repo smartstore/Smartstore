@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Smartstore.Core.AI;
+using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Engine.Builders;
 
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(type).As<IAIPromptGenerator>().Keyed<IAIPromptGenerator>(type).InstancePerLifetimeScope();
             }
 
+            builder.RegisterType<AIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
             builder.RegisterType<DefaultAIChatCache>().As<IAIChatCache>().SingleInstance();
             builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();

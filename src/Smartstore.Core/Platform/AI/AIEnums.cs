@@ -13,7 +13,7 @@
         /// <summary>
         /// Translate text between different languages.
         /// </summary>
-        TextTranslation = 1 << 1,
+        Translation = 1 << 1,
 
         /// <summary>
         /// Generate images from text prompts.

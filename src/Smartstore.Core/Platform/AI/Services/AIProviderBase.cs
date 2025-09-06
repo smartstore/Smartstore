@@ -1,4 +1,4 @@
-﻿using Smartstore.AI.Metadata;
+﻿using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
@@ -37,7 +37,7 @@ namespace Smartstore.Core.AI
             => Supports(AIProviderFeatures.TextGeneration);
 
         public bool SupportsTextTranslation
-            => Supports(AIProviderFeatures.TextTranslation);
+            => Supports(AIProviderFeatures.Translation);
 
         public bool SupportsImageCreation
             => Supports(AIProviderFeatures.ImageGeneration);

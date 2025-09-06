@@ -1,7 +1,16 @@
 ﻿#nullable enable
 
-namespace Smartstore.AI.Metadata
+namespace Smartstore.Core.AI.Metadata
 {
+    /// <summary>
+    /// Represents the type of AI output.
+    /// </summary>
+    public enum AIOutputType
+    {
+        Text,
+        Image
+    }
+
     /// <summary>
     /// Represents a single LLM model entry in the catalog.
     /// </summary>
@@ -13,9 +22,9 @@ namespace Smartstore.AI.Metadata
         public string Id { get; set; } = default!;
 
         /// <summary>
-        /// Model type: "text", "image", or "vision".
+        /// Model type: "text" or "image".
         /// </summary>
-        public string Type { get; set; } = default!;
+        public AIOutputType Type { get; set; }
 
         /// <summary>
         /// Human-readable description of the model.
@@ -26,6 +35,11 @@ namespace Smartstore.AI.Metadata
         /// Indicates whether this model should be shown as recommended in the UI.
         /// </summary>
         public bool Preferred { get; set; }
+
+        /// <summary>
+        /// Has vision (image analysis) capabilities.
+        /// </summary>
+        public bool Vision { get; set; }
 
         /// <summary>
         /// Marks outdated models that should not be offered to users.

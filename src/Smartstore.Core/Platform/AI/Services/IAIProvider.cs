@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-using Smartstore.AI.Metadata;
+using Smartstore.Core.AI.Metadata;
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Engine.Modularity;

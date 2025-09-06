@@ -64,7 +64,7 @@ namespace Smartstore.Web.Rendering
 
             CheckContextualized();
 
-            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.TextTranslation);
+            var providers = _aiProviderFactory.GetProviders(AIProviderFeatures.Translation);
             if (providers.Count == 0)
             {
                 return null;
