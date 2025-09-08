@@ -618,6 +618,8 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
             );
         }
 
+        // Make this accessible for usage in function setAttrsAndFocus.
+        const plugin = this; 
         if (shouldOpen) {
             waitForTransitions(target).then(setAttrsAndFocus);
         }
@@ -637,10 +639,12 @@ class AccessKitExpandablePluginBase extends AccessKitPluginBase {
             //if (target) target.hidden = !shouldOpen;
 
             // Accordeon mode > toggle siblings
-            if (shouldOpen && opt.collapseSiblings && trigger.parentElement) {
-                const peers = trigger.parentElement.querySelectorAll('[aria-expanded="true"],[open]');
+            const root = trigger.closest(plugin.strategy.rootSelector);
+            if (shouldOpen && opt.collapseSiblings && root) {
+                const peers = root.querySelectorAll('[aria-expanded="true"]');
+
                 peers.forEach((p) => {
-                    if (p !== trigger) this.toggleExpanded(p, false);
+                    if (p !== trigger) plugin.toggleExpanded(p, false);
                 });
             }
 

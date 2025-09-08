@@ -299,7 +299,7 @@ class ListboxPlugin extends AccessKitPluginBase {
     }
 
     // INFO: This seems to be to expensive. We don't listen for these keys right now.
-    // If you want to enable typeahead look for information in _onKeyDown in the class AccessKit
+    // If you want to enable typeahead look for information in _onKeyDown in the class AccessKit.
     /* -------- First‑character type‑ahead -------- */
     _typeahead(char, startIdx, widget) {
         char = char.toLowerCase();
@@ -455,41 +455,31 @@ class RadioGroupPlugin extends AccessKitPluginBase {
 
 
 /* --------------------------------------------------
- *  DisclosurePlugin – Expand/Collapse & Accordions
- *  Handles stand‑alone disclosures and [data-ak-accordion]
+ *  DisclosurePlugin – Expand/Collapse 
+ *  Handles stand‑alone disclosures
  * -------------------------------------------------- */
 class DisclosurePlugin extends AccessKitExpandablePluginBase {
     getRovingItems(root) {
-        // TODO: (mh) WTF? TBD with MC.
-        if (root.matches('[data-ak-accordion]')) {
-            return Array.from(root.querySelectorAll('[aria-controls][aria-expanded]:not([role="combobox"])'));
-        }
-
         return [root];
     }
 
     initWidgetCore(widget) {
         const root = widget.root;
-        if (root.matches('[data-ak-accordion]')) {
-            const collapseSiblings = root.getAttribute('data-collapse-siblings') === 'true';
-            root.addEventListener('click', e => {
-                // TODO: (mh) Actually selector reflects widget.itemSelector. Refactor?
-                const trig = e.target.closest('[aria-controls][aria-expanded]:not([role="combobox"])');
-                // TODO: (mh) root.contains(trig) --> SLOW!
-                if (trig && root.contains(trig)) {
-                    this.toggleExpanded(trig, null, { collapseSiblings, focusTarget: 'trigger' });
-                }
-            });
-        } else {
-            root.addEventListener('click', () => {
-                this.toggleExpanded(root, null, { focusTarget: 'trigger' });
-            });
-        }
+
+        root.addEventListener('click', () => {
+            this.toggleExpanded(root, null, { focusTarget: 'trigger' });
+        });
     }
 
-    handleKey(e) {
-        // TODO: (mh) handleKey is not meant to be overwritten, but handleKeyCore is.
+    handleKeyCore(e, widget) {
         const k = AccessKit.KEY;
+
+        if (widget.strategy.name == "disclosure") {
+            if (e.key === k.ENTER || e.key === k.SPACE) {
+                this.onActivateItem(widget.root, 0, widget);
+                return true;
+            }
+        }
 
         if (e.key === k.ESC) {
             const panelId = e.target.getAttribute("aria-controls");
@@ -497,64 +487,73 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
 
             if (panel) {
                 const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
-
                 if (opener) {
-                    this.toggleExpanded(opener, false, { focusTarget: 'trigger' });
+                    const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
+                    this.toggleExpanded(opener, false, { collapseSiblings: collapseSiblings, focusTarget: 'trigger' });
                     return true;
                 }
             }
-        }
-
-        return super.handleKey(e);
-    }
-
-    handleKeyCore(e, widget) {
-        if (!widget.root.matches('[data-ak-accordion]')) {
-            const k = AccessKit.KEY;
-            if (e.key === k.ENTER || e.key === k.SPACE) {
-                this.onActivateItem(widget.root, 0, widget);
-                return true;
-            }
-            return false;
         }
 
         return super.handleKeyCore(e, widget);
     }
 
     onActivateItem(element, index, widget) {
-        // TODO: (mh) widget.root is always [data-ak-accordion], the contract says so. Something's really wrong here!
-        if (widget.root.matches('[data-ak-accordion]')) {
-            const collapseSiblings = widget.root.getAttribute('data-collapse-siblings') === 'true';
-            this.toggleExpanded(element, true, { collapseSiblings, focusTarget: 'first' });
+        this.toggleExpanded(element, true, { focusTarget: 'first' });
+        const panelId = element.getAttribute('aria-controls');
+        const panel = panelId && document.getElementById(panelId);
+        if (panel) {
+            const trig = element;
+            const focusHandler = e => {
+                const el = e.target;
+                if (!panel.contains(el) && el !== trig && trig.hasAttribute('ak-close-on-leave')) {
+                    this.toggleExpanded(trig, false);
+                    document.removeEventListener('focusin', focusHandler, true);
+                }
+            };
+            document.addEventListener('focusin', focusHandler, true);
         }
-        else {
-            this.toggleExpanded(element, true, { focusTarget: 'first' });
-            const panelId = element.getAttribute('aria-controls');
-            const panel = panelId && document.getElementById(panelId);
-            if (panel) {
-                const trig = element;
-                const focusHandler = ev => {
-                    const el = ev.target;
-                    if (!panel.contains(el) && el !== trig && trig.hasAttribute('ak-close-on-leave')) {
-                        this.toggleExpanded(trig, false);
-                        document.removeEventListener('focusin', focusHandler, true);
-                    }
-                };
-                document.addEventListener('focusin', focusHandler, true);
+        
+        return true;
+    }
+}
+
+
+/* --------------------------------------------------
+ *  Accordions
+ *  Handles all [data-ak-accordion] elements based on disclosure pattern.
+ * -------------------------------------------------- */
+class AccordionPlugin extends DisclosurePlugin {
+    getRovingItems(root) {
+        return Array.from(root.querySelectorAll(this.strategy.itemSelector));
+    }
+
+    initWidgetCore(widget) {
+        const root = widget.root;
+        const collapseSiblings = root.hasAttribute('data-collapse-siblings');
+        root.addEventListener('click', e => {
+            const trig = e.target.closest(widget.strategy.itemSelector);
+            if (trig && widget.items.includes(trig)) {
+                this.toggleExpanded(trig, null, { collapseSiblings, focusTarget: 'trigger' });
             }
-        }
+        });
+    }
+
+    onActivateItem(element, index, widget) {
+        const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
+        this.toggleExpanded(element, true, { collapseSiblings, focusTarget: 'first' });
+        
         return true;
     }
 
     onItemKeyPress(event, index, widget) {
-        if (widget.root.matches('[data-ak-accordion]')) {
-            const k = AccessKit.KEY;
-            if (event.key === k.ESC) {
-                const collapseSiblings = widget.root.getAttribute('data-collapse-siblings') === 'true';
-                this.toggleExpanded(event.target, false, { collapseSiblings, focusTarget: 'trigger' });
-                return true;
-            }
+        const k = AccessKit.KEY;
+        if (event.key === k.ESC) {
+            const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
+            this.toggleExpanded(event.target, false, { collapseSiblings, focusTarget: 'trigger' });
+            return true;
         }
+        
         return false;
     }
 }
@@ -600,8 +599,7 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
             defaultOrientation: 'horizontal' 
         },
         {
-            // TODO: (mh) Why not creating AccordionPlugin that extends DisclosurePlugin?
-            ctor: DisclosurePlugin,
+            ctor: AccordionPlugin,
             name: 'accordion',
             rootSelector: '[data-ak-accordion]',
             itemSelector: '[aria-controls][aria-expanded]:not([role="combobox"])'
