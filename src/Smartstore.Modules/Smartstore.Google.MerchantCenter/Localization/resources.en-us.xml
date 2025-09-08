@@ -162,7 +162,7 @@
         <Value>Export shipping data</Value>
     </LocaleResource>
     <LocaleResource Name="ExportShipping.Hint">
-        <Value>Activate this option if you want to export the weight, length, width and height of the product.</Value>
+        <Value>Activate this option if you want to export optional shipping data like the weight, length, width and height of a product.</Value>
     </LocaleResource>
     <LocaleResource Name="ExportShippingTime">
         <Value>Export delivery time</Value>

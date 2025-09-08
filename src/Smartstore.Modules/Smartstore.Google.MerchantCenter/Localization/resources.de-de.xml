@@ -163,7 +163,7 @@
         <Value>Versanddaten exportieren</Value>
     </LocaleResource>
     <LocaleResource Name="ExportShipping.Hint">
-        <Value>Legt fest, ob Gewicht, Länge, Breite und Höhe eines Produktes exportiert werden sollen.</Value>
+        <Value>Legt fest, ob optionale Versanddaten wie z.B. Gewicht, Länge, Breite und Höhe eines Produktes exportiert werden sollen.</Value>
     </LocaleResource>
     <LocaleResource Name="ExportShippingTime">
         <Value>Lieferzeit exportieren</Value>

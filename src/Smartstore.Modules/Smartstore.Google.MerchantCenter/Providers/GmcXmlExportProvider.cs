@@ -6,6 +6,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Configuration;
 using Smartstore.Core.Common.Services;
@@ -46,6 +47,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         private readonly IProductAttributeService _productAttributeService;
         private readonly IRoundingHelper _roundingHelper;
         private readonly MeasureSettings _measureSettings;
+        private readonly ShippingSettings _shippingSettings;
 
         private Multimap<string, int> _attributeMappings;
 
@@ -53,12 +55,14 @@ namespace Smartstore.Google.MerchantCenter.Providers
             SmartDbContext db,
             IProductAttributeService productAttributeService,
             IRoundingHelper roundingHelper,
-            MeasureSettings measureSettings)
+            MeasureSettings measureSettings,
+            ShippingSettings shippingSettings)
         {
             _db = db;
             _productAttributeService = productAttributeService;
             _roundingHelper = roundingHelper;
             _measureSettings = measureSettings;
+            _shippingSettings = shippingSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -79,6 +83,15 @@ namespace Smartstore.Google.MerchantCenter.Providers
             var languageId = context.Projection.LanguageId ?? 0;
             var baseMeasureWeight = await GetBaseMeasureWeight();
             var baseMeasureDimension = await GetBaseMeasureDimension();
+            var shippingOriginAddress = await _db.Addresses
+                .Include(x => x.Country)
+                .FindByIdAsync(_shippingSettings.ShippingOriginAddressId, false, cancelToken);
+            var shippingOriginCountryCode = shippingOriginAddress?.Country?.TwoLetterIsoCode.NullEmpty();
+            var deliveryTimes = await _db.DeliveryTimes
+                .AsNoTracking()
+                .Where(x => x.MaxDays != null && x.MaxDays <= 10)
+                .ToDictionaryAsync(x => x.Id, cancelToken);
+
             _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
 
             var defaultAvailability = "in stock";
@@ -184,19 +197,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             WriteString(writer, "expiration_date", now.AddDays(config.ExpirationDays).ToString(DateFormat));
                         }
 
-                        if (entity.IsShippingEnabled)
-                        {
-                            if (config.ExportShipping)
-                            {
-                                ExportShippingCalcData(writer, product, currency, baseMeasureWeight, baseMeasureDimension);
-                            }
-
-                            if (config.ExportShippingTime)
-                            {
-                                // INFO: Marked as deprecated by Google, but still working (as of 2024-06).
-                                WriteString(writer, "transit_time_label", (string)product._ShippingTime);
-                            }
-                        }
+                        ExportShipping(writer, product, currency, config, deliveryTimes, baseMeasureWeight, baseMeasureDimension, shippingOriginCountryCode);
 
                         if (googleProduct != null)
                         {
@@ -359,17 +360,38 @@ namespace Smartstore.Google.MerchantCenter.Providers
             }
         }
 
-        private void ExportShippingCalcData(
+        private void ExportShipping(
             XmlWriter writer,
             dynamic product,
             Currency currency,
+            ProfileConfigurationModel config,
+            Dictionary<int, DeliveryTime> deliveryTimes,
             string baseMeasureWeight,
-            string baseMeasureDimension)
+            string baseMeasureDimension,
+            string shippingOriginCountryCode)
         {
+            Product entity = product.Entity;
+
+            if (!entity.IsShippingEnabled)
+            {
+                return;
+            }
+
+            if (config.ExportShippingTime)
+            {
+                // INFO: Marked as deprecated by Google, but still working (as of 2024-06).
+                WriteString(writer, "transit_time_label", (string)product._ShippingTime);
+            }
+
+            if (!config.ExportShipping)
+            {
+                return;
+            }
+
             if (baseMeasureWeight != null)
             {
                 var weight = Round((decimal)product.Weight, currency);
-                if (weight > 0 && baseMeasureWeight != null)
+                if (weight > 0)
                 {
                     WriteString(writer, "shipping_weight", weight.ToStringInvariant() + " " + baseMeasureWeight);
                 }
@@ -395,11 +417,23 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 }
             }
 
+            if (shippingOriginCountryCode != null)
+            {
+                WriteString(writer, "ships_from_country", shippingOriginCountryCode);
+            }
+
+            if (deliveryTimes.TryGetValue(entity.DeliveryTimeId.GetValueOrDefault(), out var dt))
+            {
+                if (dt.MinDays != null)
+                {
+                    WriteString(writer, "min_handling_time", dt.MinDays.Value.ToStringInvariant());
+                }
+                WriteString(writer, "max_handling_time", dt.MaxDays.ToStringInvariant());
+            }
+
             bool IsDimensionSupported(decimal value)
             {
-                return value >= 1
-                    && baseMeasureDimension != null
-                    && ((baseMeasureDimension == "in" && value <= 150) || (baseMeasureDimension == "cm" && value <= 400));
+                return value >= 1 && ((baseMeasureDimension == "in" && value <= 150) || (baseMeasureDimension == "cm" && value <= 400));
             }
         }
 
@@ -440,7 +474,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         private static void WriteString(XmlWriter writer, string fieldName, string value)
         {
-            if (value != null)
+            if (!string.IsNullOrEmpty(value))
             {
                 writer.WriteElementString("g", fieldName, GoogleNamespace, value);
             }
