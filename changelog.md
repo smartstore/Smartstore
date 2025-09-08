@@ -62,6 +62,7 @@
 	- Set selected payment method on customer level was missing when using *Link* cart button. 
 	- Restored setting of correct payment status.
 - AmazonPay: Do not apply the customer email address for guests.
+- Payment methods with rules are missing on the customer edit page when changing the preferred payment method.
 
 
 ## Smartstore 6.2.0
