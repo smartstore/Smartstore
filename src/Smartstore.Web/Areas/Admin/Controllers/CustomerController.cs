@@ -277,7 +277,7 @@ namespace Smartstore.Admin.Controllers
             if (_shoppingCartSettings.QuickCheckoutEnabled)
             {
                 var shippingMethods = await _shippingService.Value.GetAllShippingMethodsAsync();
-                var paymentProviders = await _paymentService.Value.LoadActivePaymentProvidersAsync();
+                var paymentProviders = await _paymentService.Value.LoadAllPaymentProvidersAsync(true);
                 var preferredShippingMethodId = ga?.PreferredShippingOption?.ShippingMethodId ?? 0;
                 var preferredPaymentMethod = ga?.PreferredPaymentMethod;
 
