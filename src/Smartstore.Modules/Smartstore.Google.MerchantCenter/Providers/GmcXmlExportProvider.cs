@@ -77,6 +77,8 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
+            // TODO: (mg) Spaghetti code! Create a small model class for GMC cargo data (currency, config, language, delivery times, baseMeasure* etc.).
+            // Fill this class once here and add it to context.CustomProperties. Then always pass context param to sub-methods.
             Currency currency = context.Currency.Entity;
             var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
             var now = DateTime.UtcNow;

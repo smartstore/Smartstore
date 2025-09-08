@@ -145,7 +145,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Use this dictionary for any custom data required along the export.
         /// </summary>
-        public Dictionary<string, object> CustomProperties { get; set; } = new();
+        public Dictionary<string, object> CustomProperties { get; set; } = [];
 
         /// <summary>
         /// Number of successful processed records.
