@@ -420,7 +420,9 @@ class AccessKitPluginBase {
     }
 
     getRovingItems(root) {
-        return Array.from(root.querySelectorAll(this.strategy.itemSelector));
+        return this.strategy.itemSelector
+            ? Array.from(root.querySelectorAll(this.strategy.itemSelector))
+            : [root];
     }
 
     initWidget(widget) {

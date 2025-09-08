@@ -103,10 +103,6 @@ class MenuPlugin extends AccessKitExpandablePluginBase {
 * Handles[role = "combobox"] that control a[role = "listbox"]
 * -------------------------------------------------- */
 class ComboboxPlugin extends AccessKitExpandablePluginBase {
-    getRovingItems(root) {
-        return [root];
-    }
-
     initWidgetCore(widget) {
         const cb = widget.root;
         const list = document.getElementById(cb.getAttribute('aria-controls'));
@@ -459,10 +455,6 @@ class RadioGroupPlugin extends AccessKitPluginBase {
  *  Handles stand‑alone disclosures
  * -------------------------------------------------- */
 class DisclosurePlugin extends AccessKitExpandablePluginBase {
-    getRovingItems(root) {
-        return [root];
-    }
-
     initWidgetCore(widget) {
         const root = widget.root;
 
@@ -498,7 +490,7 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
         return super.handleKeyCore(e, widget);
     }
 
-    onActivateItem(element, index, widget) {
+    onActivateItem(element, _index, _widget) {
         this.toggleExpanded(element, true, { focusTarget: 'first' });
         const panelId = element.getAttribute('aria-controls');
         const panel = panelId && document.getElementById(panelId);
@@ -524,10 +516,6 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
  *  Handles all [data-ak-accordion] elements based on disclosure pattern.
  * -------------------------------------------------- */
 class AccordionPlugin extends DisclosurePlugin {
-    getRovingItems(root) {
-        return Array.from(root.querySelectorAll(this.strategy.itemSelector));
-    }
-
     initWidgetCore(widget) {
         const root = widget.root;
         const collapseSiblings = root.hasAttribute('data-collapse-siblings');
@@ -539,14 +527,14 @@ class AccordionPlugin extends DisclosurePlugin {
         });
     }
 
-    onActivateItem(element, index, widget) {
+    onActivateItem(element, _index, widget) {
         const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
         this.toggleExpanded(element, true, { collapseSiblings, focusTarget: 'first' });
         
         return true;
     }
 
-    onItemKeyPress(event, index, widget) {
+    onItemKeyPress(event, _index, widget) {
         const k = AccessKit.KEY;
         if (event.key === k.ESC) {
             const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
@@ -607,6 +595,7 @@ class AccordionPlugin extends DisclosurePlugin {
         {
             ctor: DisclosurePlugin,
             name: 'disclosure',
+            // TODO: (mh) [data-ak-accordion] is excluded because it is handled by AccordionPlugin. Check the :not() selector.
             rootSelector: '[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded]):not([role="combobox"])'
         }
     ]);
