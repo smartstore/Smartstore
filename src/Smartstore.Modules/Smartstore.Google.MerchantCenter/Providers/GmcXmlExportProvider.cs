@@ -37,6 +37,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
     {
         const int MaxImages = 11;   // One "image_link" plus up to ten "additional_image_link".
         const string GoogleNamespace = "http://base.google.com/ns/1.0";
+        const string CargoDataKey = "GmcCargoData";
         const string DateTimeFormat = "yyyy-MM-ddTHH:mmZ";
         const string DateFormat = "yyyy-MM-dd";
 
@@ -77,34 +78,15 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
-            // TODO: (mg) Spaghetti code! Create a small model class for GMC cargo data (currency, config, language, delivery times, baseMeasure* etc.).
-            // Fill this class once here and add it to context.CustomProperties. Then always pass context param to sub-methods.
-            Currency currency = context.Currency.Entity;
-            var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
-            var now = DateTime.UtcNow;
-            var languageId = context.Projection.LanguageId ?? 0;
-            var baseMeasureWeight = await GetBaseMeasureWeight();
-            var baseMeasureDimension = await GetBaseMeasureDimension();
-            var shippingOriginAddress = await _db.Addresses
-                .Include(x => x.Country)
-                .FindByIdAsync(_shippingSettings.ShippingOriginAddressId, false, cancelToken);
-            var shippingOriginCountryCode = shippingOriginAddress?.Country?.TwoLetterIsoCode.NullEmpty();
-            var deliveryTimes = await _db.DeliveryTimes
-                .AsNoTracking()
-                .Where(x => x.MaxDays != null && x.MaxDays <= 10)
-                .ToDictionaryAsync(x => x.Id, cancelToken);
-
             _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
 
-            var defaultAvailability = "in stock";
-            if (config.Availability.EqualsNoCase(Unspecified))
-            {
-                defaultAvailability = string.Empty;
-            }
-            else if (config.Availability.HasValue())
-            {
-                defaultAvailability = config.Availability;
-            }
+            var now = DateTime.UtcNow;
+            var storeName = (string)context.Store.Name;
+            Multimap<int, ProductVariantAttributeValue> attributeValues = null;
+
+            var cargo = await GetCargoData(context, cancelToken);
+            var config = cargo.Config;
+            context.CustomProperties[CargoDataKey] = cargo;
 
             using var writer = XmlWriter.Create(context.DataStream, ExportXmlHelper.DefaultSettings);
             writer.WriteStartDocument();
@@ -112,9 +94,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
             writer.WriteAttributeString("version", "2.0");
             writer.WriteAttributeString("xmlns", "g", null, GoogleNamespace);
             writer.WriteStartElement("channel");
-            writer.WriteElementString("title", $"{(string)context.Store.Name} - Feed for Google Merchant Center");
+            writer.WriteElementString("title", $"{storeName} - Google Merchant Center feed");
             writer.WriteElementString("link", "http://base.google.com/base/");
-            writer.WriteElementString("description", "Information about products");
+            writer.WriteElementString("description", $"Product data from \"{storeName}\" in Google Merchant Center format");
 
             while (context.Abort == DataExchangeAbortion.None && await context.DataSegmenter.ReadNextSegmentAsync())
             {
@@ -146,7 +128,8 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         string gtin = product.Gtin;
                         string mpn = product.ManufacturerPartNumber;
                         var identifierExists = brand.HasValue() && (gtin.HasValue() || mpn.HasValue());
-                        var attributeValues = !isParent && product._AttributeCombinationValues != null
+
+                        attributeValues = !isParent && product._AttributeCombinationValues != null
                             ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
                             : [];
 
@@ -156,7 +139,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             context.Log.Error(T("Plugins.Feed.Froogle.MissingDefaultCategory"));
                         }
 
-                        WriteString(writer, "id", (string)product._UniqueId);
+                        Write(writer, "id", (string)product._UniqueId);
                         writer.WriteCData("title", ((string)product.Name).Truncate(70));
                         writer.WriteCData("description", (string)product.FullDescription);
                         writer.WriteCData("google_product_category", category, "g", GoogleNamespace);
@@ -167,62 +150,63 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         {
                             case ProductCondition.Damaged:
                             case ProductCondition.Used:
-                                WriteString(writer, "condition", "used");
+                                Write(writer, "condition", "used");
                                 break;
                             case ProductCondition.Refurbished:
-                                WriteString(writer, "condition", "refurbished");
+                                Write(writer, "condition", "refurbished");
                                 break;
                             case ProductCondition.New:
                             default:
-                                WriteString(writer, "condition", "new");
+                                Write(writer, "condition", "new");
                                 break;
                         }
 
-                        ExportAvailability(writer, product, defaultAvailability);
-                        ExportImages(writer, product, googleProduct, config);
-                        ExportPrices(writer, product, config, currency);
+                        ExportAvailability(product, writer, cargo);
+                        ExportImages(product, googleProduct, writer, cargo);
+                        ExportPrices(product, writer, cargo);
 
-                        WriteString(writer, "gtin", gtin);
-                        WriteString(writer, "brand", brand);
-                        WriteString(writer, "mpn", mpn);
-                        WriteString(writer, "identifier_exists", identifierExists ? "yes" : "no");
-                        WriteString(writer, "gender", GetAttribute(attributeValues, "gender", languageId, googleProduct?.Gender, config.Gender));
-                        WriteString(writer, "age_group", GetAttribute(attributeValues, "age_group", languageId, googleProduct?.AgeGroup, config.AgeGroup));
-                        WriteString(writer, "color", GetAttribute(attributeValues, "color", languageId, googleProduct?.Color, config.Color));
-                        WriteString(writer, "size", GetAttribute(attributeValues, "size", languageId, googleProduct?.Size, config.Size));
-                        WriteString(writer, "material", GetAttribute(attributeValues, "material", languageId, googleProduct?.Material, config.Material));
-                        WriteString(writer, "pattern", GetAttribute(attributeValues, "pattern", languageId, googleProduct?.Pattern, config.Pattern));   
-                        WriteString(writer, "item_group_id", googleProduct?.ItemGroupId?.NullEmpty());
+                        Write(writer, "gtin", gtin);
+                        Write(writer, "brand", brand);
+                        Write(writer, "mpn", mpn);
+                        Write(writer, "identifier_exists", identifierExists ? "yes" : "no");
+                        Write(writer, "item_group_id", googleProduct?.ItemGroupId?.NullEmpty());
+
+                        ExportAttribute("gender", googleProduct?.Gender, config.Gender);
+                        ExportAttribute("age_group", googleProduct?.AgeGroup, config.AgeGroup);
+                        ExportAttribute("color", googleProduct?.Color, config.Color);
+                        ExportAttribute("size", googleProduct?.Size, config.Size);
+                        ExportAttribute("material", googleProduct?.Material, config.Material);
+                        ExportAttribute("pattern", googleProduct?.Pattern, config.Pattern);
 
                         if (config.ExpirationDays > 0)
                         {
-                            WriteString(writer, "expiration_date", now.AddDays(config.ExpirationDays).ToString(DateFormat));
+                            Write(writer, "expiration_date", now.AddDays(config.ExpirationDays).ToString(DateFormat));
                         }
 
-                        ExportShipping(writer, product, currency, config, deliveryTimes, baseMeasureWeight, baseMeasureDimension, shippingOriginCountryCode);
+                        ExportShipping(product, writer, cargo);
 
                         if (googleProduct != null)
                         {
-                            WriteString(writer, "multipack", googleProduct.Multipack > 1 ? googleProduct.Multipack.ToString() : null);
-                            WriteString(writer, "is_bundle", googleProduct.IsBundle.HasValue ? (googleProduct.IsBundle.Value ? "yes" : "no") : null);
-                            WriteString(writer, "adult", googleProduct.IsAdult.HasValue ? (googleProduct.IsAdult.Value ? "yes" : "no") : null);
+                            Write(writer, "multipack", googleProduct.Multipack > 1 ? googleProduct.Multipack.ToStringInvariant() : null);
+                            Write(writer, "is_bundle", googleProduct.IsBundle.HasValue ? (googleProduct.IsBundle.Value ? "yes" : "no") : null);
+                            Write(writer, "adult", googleProduct.IsAdult.HasValue ? (googleProduct.IsAdult.Value ? "yes" : "no") : null);
 
                             if (googleProduct.EnergyEfficiencyClass.HasValue())
                             {
                                 writer.WriteStartElement("g", "certification", GoogleNamespace);
-                                WriteString(writer, "certification_authority", "EC");
-                                WriteString(writer, "certification_name", "EPREL");
+                                Write(writer, "certification_authority", "EC");
+                                Write(writer, "certification_name", "EPREL");
                                 // EPREL code: A, B, ... G. Rescaled version, no "+" signs anymore (like A+++).
-                                WriteString(writer, "certification_code", googleProduct.EnergyEfficiencyClass.Trim());
+                                Write(writer, "certification_code", googleProduct.EnergyEfficiencyClass.Trim());
                                 writer.WriteEndElement();
                             }
                         }
 
-                        WriteString(writer, "custom_label_0", GetAttribute(attributeValues, "custom_label_0", languageId, googleProduct?.CustomLabel0, null).NullEmpty());
-                        WriteString(writer, "custom_label_1", GetAttribute(attributeValues, "custom_label_1", languageId, googleProduct?.CustomLabel1, null).NullEmpty());
-                        WriteString(writer, "custom_label_2", GetAttribute(attributeValues, "custom_label_2", languageId, googleProduct?.CustomLabel2, null).NullEmpty());
-                        WriteString(writer, "custom_label_3", GetAttribute(attributeValues, "custom_label_3", languageId, googleProduct?.CustomLabel3, null).NullEmpty());
-                        WriteString(writer, "custom_label_4", GetAttribute(attributeValues, "custom_label_4", languageId, googleProduct?.CustomLabel4, null).NullEmpty());
+                        ExportAttribute("custom_label_0", googleProduct?.CustomLabel0, null);
+                        ExportAttribute("custom_label_1", googleProduct?.CustomLabel1, null);
+                        ExportAttribute("custom_label_2", googleProduct?.CustomLabel2, null);
+                        ExportAttribute("custom_label_3", googleProduct?.CustomLabel3, null);
+                        ExportAttribute("custom_label_4", googleProduct?.CustomLabel4, null);
 
                         ++context.RecordsSucceeded;
                     }
@@ -244,12 +228,44 @@ namespace Smartstore.Google.MerchantCenter.Providers
             writer.WriteEndElement(); // channel
             writer.WriteEndElement(); // rss
             writer.WriteEndDocument();
+
+            void ExportAttribute(string fieldName, string googleProductValue, string defaultValue)
+            {
+                string value = null;
+
+                // 1. attribute export mapping.
+                if (attributeValues != null && _attributeMappings.TryGetValues(fieldName, out var attributeIds))
+                {
+                    foreach (var attributeId in attributeIds)
+                    {
+                        if (attributeValues.TryGetValues(attributeId, out var values))
+                        {
+                            var attributeValue = values.FirstOrDefault(x => x.ProductVariantAttribute.ProductAttributeId == attributeId);
+                            if (attributeValue != null)
+                            {
+                                value = attributeValue.GetLocalized(x => x.Name, cargo.LanguageId, true, false).Value.EmptyNull();
+                            }
+                        }
+                    }
+                }
+
+                // 2. explicit set to unspecified.
+                if (value == null && defaultValue.EqualsNoCase(Unspecified))
+                {
+                    value = string.Empty;
+                }
+
+                // 3. product edit tab value.
+                value ??= googleProductValue ?? defaultValue;
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    writer.WriteElementString("g", fieldName, GoogleNamespace, value);
+                }
+            }
         }
 
-        private static void ExportAvailability(
-            XmlWriter writer,
-            dynamic product,
-            string defaultAvailability)
+        private static void ExportAvailability(dynamic product, XmlWriter writer, GmcCargoData cargo)
         {
             Product entity = product.Entity;
             string availability = null;
@@ -270,20 +286,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 availability = "out of stock";
             }
 
-            availability ??= defaultAvailability;
+            availability ??= cargo.DefaultAvailability;
 
-            WriteString(writer, "availability", availability);
+            Write(writer, "availability", availability);
             if (availability == "preorder" && entity.AvailableStartDateTimeUtc.HasValue && entity.AvailableStartDateTimeUtc.Value > DateTime.UtcNow)
             {
-                WriteString(writer, "availability_date", entity.AvailableStartDateTimeUtc.Value.ToString(DateTimeFormat));
+                Write(writer, "availability_date", entity.AvailableStartDateTimeUtc.Value.ToString(DateTimeFormat));
             }
         }
 
-        private static void ExportImages(
-            XmlWriter writer,
-            dynamic product,
-            GoogleProduct googleProduct,
-            ProfileConfigurationModel config)
+        private static void ExportImages(dynamic product, GoogleProduct googleProduct, XmlWriter writer, GmcCargoData cargo)
         {
             var fileIds = googleProduct?.MediaFileIds?.ToIntArray() ?? [];
             var images = ((List<dynamic>)product.ProductMediaFiles)
@@ -306,30 +318,27 @@ namespace Smartstore.Google.MerchantCenter.Providers
                     };
                 })
                 .Where(x => x != null)
-                .Take(config.AdditionalImages ? MaxImages : 1)
+                .Take(cargo.Config.AdditionalImages ? MaxImages : 1)
                 .ToList();
 
             for (var i = 0; i < images.Count; i++)
             {
                 var image = images[i];
-                WriteString(writer, i == 0 ? "image_link" : "additional_image_link", image.Url);
+                Write(writer, i == 0 ? "image_link" : "additional_image_link", image.Url);
             }
         }
 
-        private void ExportPrices(
-            XmlWriter writer,
-            dynamic product,
-            ProfileConfigurationModel config,
-            Currency currency)
+        private void ExportPrices(dynamic product, XmlWriter writer, GmcCargoData cargo)
         {
+            var currency = cargo.Currency;
             Product entity = product.Entity;
             var price = (decimal)product.Price;
             var calculatedPrice = (CalculatedPrice)product._Price;
             var saving = calculatedPrice.Saving;
 
-            if (config.SpecialPrice && saving.HasSaving)
+            if (cargo.Config.SpecialPrice && saving.HasSaving)
             {
-                WriteString(writer, "sale_price", Round(price, currency).ToStringInvariant() + " " + currency.CurrencyCode);
+                Write(writer, "sale_price", Round(price, currency).ToStringInvariant() + " " + currency.CurrencyCode);
                 price = saving.SavingPrice.Amount;
 
                 if (calculatedPrice.ValidUntilUtc.HasValue)
@@ -338,40 +347,50 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         ? entity.SpecialPriceStartDateTimeUtc.Value
                         : DateTime.UtcNow.Date;
 
-                    WriteString(writer, "sale_price_effective_date",
+                    Write(writer, "sale_price_effective_date",
                         from.ToString(DateTimeFormat)
                         + "/"
                         + calculatedPrice.ValidUntilUtc.Value.ToString(DateTimeFormat));
                 }
             }
 
-            WriteString(writer, "price", Round(price, currency).ToStringInvariant() + " " + currency.CurrencyCode);
+            Write(writer, "price", Round(price, currency).ToStringInvariant() + " " + currency.CurrencyCode);
 
-            if (config.ExportBasePrice && entity.BasePriceHasValue)
+            if (cargo.Config.ExportBasePrice && entity.BasePriceHasValue)
             {
-                var measureUnit = BasePriceUnits((string)product.BasePriceMeasureUnit);
-
-                if (IsBasePriceSupported(entity.BasePriceBaseAmount ?? 0, measureUnit))
+                // TODO: Product.BasePriceMeasureUnit should be localized
+                var baseUnit = ((string)product.BasePriceMeasureUnit).NullEmpty() ?? "kg";
+                var unit = baseUnit.ToLowerInvariant() switch
                 {
-                    var basePriceMeasure = Round(entity.BasePriceAmount ?? decimal.Zero, currency).ToStringInvariant() + " " + measureUnit;
-                    var basePriceBaseMeasure = $"{entity.BasePriceBaseAmount ?? 1} {measureUnit}";
+                    "kg" or "kilogramm" or "kilogram" => "kg",
+                    "g" or "gramm" or "gram" => "g",
+                    "mg" or "milligramm" or "milligram" => "mg",
+                    "ml" or "milliliter" or "millilitre" => "ml",
+                    "l" or "liter" or "litre" => "l",
+                    "cl" or "zentiliter" or "centilitre" => "cl",
+                    "cbm" or "kubikmeter" or "cubic metre" => "cbm",
+                    "cm" or "zentimeter" or "centimetre" => "cm",
+                    "m" or "meter" => "m",
+                    "qm²" or "quadratmeter" or "square metre" => "sqm",
+                    _ => "kg",
+                };
 
-                    WriteString(writer, "unit_pricing_measure", basePriceMeasure);
-                    WriteString(writer, "unit_pricing_base_measure", basePriceBaseMeasure);
+                var baseAmount = entity.BasePriceBaseAmount ?? 0;
+                var isBasePriceSupported = baseAmount == 1 || baseAmount == 10 || baseAmount == 100
+                    || (baseAmount == 75 && unit == "cl")
+                    || ((baseAmount == 50 || baseAmount == 1000) && unit == "kg");
+
+                if (isBasePriceSupported)
+                {
+                    Write(writer, "unit_pricing_measure", Round(entity.BasePriceAmount ?? 0, currency).ToStringInvariant() + " " + unit);
+                    Write(writer, "unit_pricing_base_measure", $"{entity.BasePriceBaseAmount ?? 1} {unit}");
                 }
             }
         }
 
-        private void ExportShipping(
-            XmlWriter writer,
-            dynamic product,
-            Currency currency,
-            ProfileConfigurationModel config,
-            Dictionary<int, DeliveryTime> deliveryTimes,
-            string baseMeasureWeight,
-            string baseMeasureDimension,
-            string shippingOriginCountryCode)
+        private void ExportShipping(dynamic product, XmlWriter writer, GmcCargoData cargo)
         {
+            var currency = cargo.Currency;
             Product entity = product.Entity;
 
             if (!entity.IsShippingEnabled)
@@ -379,27 +398,27 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 return;
             }
 
-            if (config.ExportShippingTime)
+            if (cargo.Config.ExportShippingTime)
             {
                 // INFO: Marked as deprecated by Google, but still working (as of 2024-06).
-                WriteString(writer, "transit_time_label", (string)product._ShippingTime);
+                Write(writer, "transit_time_label", (string)product._ShippingTime);
             }
 
-            if (!config.ExportShipping)
+            if (!cargo.Config.ExportShipping)
             {
                 return;
             }
 
-            if (baseMeasureWeight != null)
+            if (cargo.BaseMeasureWeight != null)
             {
                 var weight = Round((decimal)product.Weight, currency);
                 if (weight > 0)
                 {
-                    WriteString(writer, "shipping_weight", weight.ToStringInvariant() + " " + baseMeasureWeight);
+                    Write(writer, "shipping_weight", weight.ToStringInvariant() + " " + cargo.BaseMeasureWeight);
                 }
             }
 
-            if (baseMeasureDimension != null)
+            if (cargo.BaseMeasureDimension != null)
             {
                 var length = Round((decimal)product.Length, currency);
                 var width = Round((decimal)product.Width, currency);
@@ -407,149 +426,103 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                 if (IsDimensionSupported(length))
                 {
-                    WriteString(writer, "shipping_length", length.ToStringInvariant() + " " + baseMeasureDimension);
+                    Write(writer, "shipping_length", length.ToStringInvariant() + " " + cargo.BaseMeasureDimension);
                 }
                 if (IsDimensionSupported(width))
                 {
-                    WriteString(writer, "shipping_width", width.ToStringInvariant() + " " + baseMeasureDimension);
+                    Write(writer, "shipping_width", width.ToStringInvariant() + " " + cargo.BaseMeasureDimension);
                 }
                 if (IsDimensionSupported(height))
                 {
-                    WriteString(writer, "shipping_height", height.ToStringInvariant() + " " + baseMeasureDimension);
+                    Write(writer, "shipping_height", height.ToStringInvariant() + " " + cargo.BaseMeasureDimension);
                 }
             }
 
-            if (shippingOriginCountryCode != null)
+            if (cargo.ShippingOriginCountryCode != null)
             {
-                WriteString(writer, "ships_from_country", shippingOriginCountryCode);
+                Write(writer, "ships_from_country", cargo.ShippingOriginCountryCode);
             }
 
-            if (deliveryTimes.TryGetValue(entity.DeliveryTimeId.GetValueOrDefault(), out var dt))
+            if (cargo.DeliveryTimes.TryGetValue(entity.DeliveryTimeId.GetValueOrDefault(), out var dt))
             {
                 if (dt.MinDays != null)
                 {
-                    WriteString(writer, "min_handling_time", dt.MinDays.Value.ToStringInvariant());
+                    Write(writer, "min_handling_time", dt.MinDays.Value.ToStringInvariant());
                 }
-                WriteString(writer, "max_handling_time", dt.MaxDays.ToStringInvariant());
+                Write(writer, "max_handling_time", dt.MaxDays.ToStringInvariant());
             }
 
             bool IsDimensionSupported(decimal value)
             {
-                return value >= 1 && ((baseMeasureDimension == "in" && value <= 150) || (baseMeasureDimension == "cm" && value <= 400));
+                return value >= 1 && ((cargo.BaseMeasureDimension == "in" && value <= 150) || (cargo.BaseMeasureDimension == "cm" && value <= 400));
             }
         }
 
-        private static string BasePriceUnits(string value)
+        private async Task<GmcCargoData> GetCargoData(ExportExecuteContext context, CancellationToken cancelToken)
         {
-            var val = value.NullEmpty() ?? "kg";
+            if (context.CustomProperties.TryGetValue(CargoDataKey, out object value))
+            {
+                return (GmcCargoData)value;
+            }
 
-            // TODO: Product.BasePriceMeasureUnit should be localized
-            return val.ToLowerInvariant() switch
+            var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new();
+            var shippingOriginAddress = await _db.Addresses
+                .Include(x => x.Country)
+                .FindByIdAsync(_shippingSettings.ShippingOriginAddressId, false, cancelToken);
+
+            string defaultAvailability = null;
+            if (config.Availability.EqualsNoCase(Unspecified))
+                defaultAvailability = string.Empty;
+            else if (config.Availability.HasValue())
+                defaultAvailability = config.Availability;
+            else
+                defaultAvailability = "in stock";
+
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false, cancelToken);
+            var weightKeyword = baseWeight?.SystemKeyword.EmptyNull().ToLower() ?? string.Empty;
+            var baseMeasureWeight = weightKeyword switch
             {
                 "kg" or "kilogramm" or "kilogram" => "kg",
                 "g" or "gramm" or "gram" => "g",
-                "mg" or "milligramm" or "milligram" => "mg",
-                "ml" or "milliliter" or "millilitre" => "ml",
-                "l" or "liter" or "litre" => "l",
-                "cl" or "zentiliter" or "centilitre" => "cl",
-                "cbm" or "kubikmeter" or "cubic metre" => "cbm",
-                "cm" or "zentimeter" or "centimetre" => "cm",
-                "m" or "meter" => "m",
-                "qm²" or "quadratmeter" or "square metre" => "sqm",
-                _ => "kg",
-            };
-        }
-
-        private static bool IsBasePriceSupported(int baseAmount, string unit)
-        {
-            if (baseAmount == 1 || baseAmount == 10 || baseAmount == 100)
-                return true;
-
-            if (baseAmount == 75 && unit == "cl")
-                return true;
-
-            if ((baseAmount == 50 || baseAmount == 1000) && unit == "kg")
-                return true;
-
-            return false;
-        }
-
-        private static void WriteString(XmlWriter writer, string fieldName, string value)
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                writer.WriteElementString("g", fieldName, GoogleNamespace, value);
-            }
-        }
-
-        private string GetAttribute(
-            Multimap<int, ProductVariantAttributeValue> attributeValues,
-            string fieldName,
-            int languageId,
-            string productEditTabValue,
-            string defaultValue)
-        {
-            // 1. attribute export mapping.
-            if (attributeValues != null && _attributeMappings.ContainsKey(fieldName))
-            {
-                foreach (var attributeId in _attributeMappings[fieldName])
-                {
-                    if (attributeValues.ContainsKey(attributeId))
-                    {
-                        var attributeValue = attributeValues[attributeId].FirstOrDefault(x => x.ProductVariantAttribute.ProductAttributeId == attributeId);
-                        if (attributeValue != null)
-                        {
-                            return attributeValue.GetLocalized(x => x.Name, languageId, true, false).Value.EmptyNull();
-                        }
-                    }
-                }
-            }
-
-            // 2. explicit set to unspecified.
-            if (defaultValue.EqualsNoCase(Unspecified))
-            {
-                return string.Empty;
-            }
-
-            // 3. product edit tab value.
-            if (productEditTabValue.HasValue())
-            {
-                return productEditTabValue;
-            }
-
-            return defaultValue.EmptyNull();
-        }
-
-        private async Task<string> GetBaseMeasureWeight()
-        {
-            var baseMeasureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
-            var measureWeight = baseMeasureWeight != null
-                ? baseMeasureWeight.SystemKeyword.EmptyNull().ToLower()
-                : string.Empty;
-
-            return measureWeight switch
-            {
-                "kg" => "kg",
-                "g" or "gram" or "gramme" => "g",
-                "lb" => "lb",
+                "lb" or "pound" => "lb",
                 "ounce" or "oz" => "oz",
                 _ => null
             };
-        }
 
-        private async Task<string> GetBaseMeasureDimension()
-        {
-            var baseMeasureDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
-            var measureDimension = baseMeasureDimension != null
-                ? baseMeasureDimension.SystemKeyword.EmptyNull().ToLower()
-                : string.Empty;
-
-            return measureDimension switch
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false, cancelToken);
+            var measureDimension = baseDimension?.SystemKeyword.EmptyNull().ToLower() ?? string.Empty;
+            var baseMeasureDimension = measureDimension switch
             {
                 "inch" or "in" or "zoll" or "\"" or "″" => "in",
                 "cm" or "centimeter" or "centimetre" => "cm",
                 _ => null
             };
+
+            var cargoData = new GmcCargoData
+            {
+                Config = config,
+                LanguageId = context.Projection.LanguageId ?? 0,
+                Currency = (Currency)context.Currency.Entity,
+                BaseMeasureWeight = baseMeasureWeight,
+                BaseMeasureDimension = baseMeasureDimension,
+                ShippingOriginCountryCode = shippingOriginAddress?.Country?.TwoLetterIsoCode.NullEmpty(),
+                DeliveryTimes = await _db.DeliveryTimes
+                    .AsNoTracking()
+                    .Where(x => x.MaxDays != null && x.MaxDays <= 10)
+                    .ToDictionaryAsync(x => x.Id, cancelToken),
+                DefaultAvailability = defaultAvailability
+            };
+
+            context.CustomProperties[CargoDataKey] = cargoData;
+            return cargoData;
+        }
+
+        private static void Write(XmlWriter writer, string fieldName, string value)
+        {
+            if (value != null)
+            {
+                writer.WriteElementString("g", fieldName, GoogleNamespace, value);
+            }
         }
 
         private decimal Round(decimal value, Currency currency)
@@ -557,11 +530,23 @@ namespace Smartstore.Google.MerchantCenter.Providers
             // INFO: GMC does not support more than 2 decimal places.
             return _roundingHelper.Round(value, 2, currency.MidpointRounding);
         }
-    }
 
-    internal record GmcImage
-    {
-        public int Id { get; set; }
-        public string Url { get; set; }
+        class GmcCargoData
+        {
+            public ProfileConfigurationModel Config { get; init; }
+            public int LanguageId { get; init; }
+            public Currency Currency { get; init; }
+            public string BaseMeasureWeight { get; init; }
+            public string BaseMeasureDimension { get; init; }
+            public string ShippingOriginCountryCode { get; init; }
+            public Dictionary<int, DeliveryTime> DeliveryTimes { get; init; }
+            public string DefaultAvailability { get; init; }
+        }
+
+        record GmcImage
+        {
+            public int Id { get; init; }
+            public string Url { get; init; }
+        }
     }
 }
