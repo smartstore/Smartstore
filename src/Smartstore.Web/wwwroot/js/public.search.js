@@ -26,17 +26,17 @@
                 url = box.data("url"),
                 keyNav = null;
 
-            clearer.on('click', function (e) {
+            clearer.on('click', () => {
                 box[0].value = '';
                 doSearch('');
                 box[0].focus();
             });
 
-            box.parent().on('click', function (e) {
+            box.parent().on('click', (e) => {
                 e.stopPropagation();
             });
 
-            box.on('focus', function (e) {
+            box.on('focus', () => {
                 expandBox();
             });
 
@@ -49,19 +49,35 @@
                 }
             });
 
-            box.on('keyup', function (e) {
-                if (e.which === 27 /* ESC */) {
-                    closeDrop();
-                }
+            box.on('collapse.ak', () => {
+                shrinkBox();
+                closeDrop();
             });
 
-            box.on('focusout', function (e) {
+            /*
+            // TODO: (mc) (wcag) Obsolete throw away after review. 
+            // INFO: This was replaced by event handler below, which is better then mousedown on document & also can handle leaving via navigational key TAB.
+            $(document).on('mousedown', function (e) {
                 // Close drop on outside click
-                if ($(e.relatedTarget).closest('.instasearch-form').length > 0)
+                if ($(e.target).closest('.instasearch-form').length > 0)
                     return;
 
                 shrinkBox();
                 closeDrop();
+            });
+            */
+
+            // Ensure to shrink the box if focus moves outside of the form
+            form.on('focusout', () => {
+                // Wait a moment for the new focus to be set.
+                setTimeout(() => {
+                    const activeElement = document.activeElement;
+                    // Execute code only when focus moves outside of the form container
+                    if (!form[0].contains(activeElement)) {
+                        shrinkBox();
+                        closeDrop();
+                    }
+                }, 0);
             });
 
             var debouncedInput = _.debounce(function (e) {
@@ -136,15 +152,20 @@
             }
 
             function expandBox() {
+                // Close all bootstrap dropdowns which may overlap the search box.
+                $('.dropdown-menu.show').dropdown('hide');
+
                 box.addClass('active');
                 if (box.data('origin') === 'Search/Search') {
                     var logoWidth = logo.width();
                     $('body').addClass('search-focused');
                     logo.css('margin-inline-start', (logoWidth * -1) + 'px');
-
+                    
                     if (dropBody.text().length > 0) {
                         logo.one('transitionend', function () {
-                            openDrop();
+                            if (box.hasClass('active')) {
+                                openDrop();
+                            }
                         });
                     }
                 }
@@ -160,64 +181,23 @@
 
             function openDrop() {
                 form.addClass('open');
-                if (!drop.hasClass('open')) {
-                    drop.addClass('open');
-                    beginKeyEvents();
-                }
+                drop.addClass('open');
+                box.attr("aria-expanded", "true");
             }
 
             function closeDrop() {
                 form.removeClass('open');
                 drop.removeClass('open');
-                endKeyEvents();
-            }
-
-            function beginKeyEvents() {
-                if (keyNav)
-                    return;
-
-                // start listening to Down, Up and Enter keys
-
-                dropBody.keyNav({
-                    exclusiveKeyListener: false,
-                    scrollToKeyHoverItem: false,
-                    selectionItemSelector: ".instasearch-hit",
-                    selectedItemHoverClass: "key-hover",
-                    keyActions: [
-                        { keyCode: 13, action: "select" }, //enter
-                        { keyCode: 38, action: "up" }, //up
-                        { keyCode: 40, action: "down" }, //down
-                    ]
-                });
-
-                keyNav = dropBody.data("keyNav");
-
-                dropBody.on("keyNav.selected", function (e) {
-                    // Triggered when user presses Enter after navigating to a hit with keyboard
-                    var el = $(e.selectedElement);
-                    var href = el.attr('href') || el.data('href');
-                    if (href) {
-                        closeDrop();
-                        location.replace(href);
-                    }
-                });
-            }
-
-            function endKeyEvents() {
-                if (keyNav) {
-                    dropBody.off("keyNav.selected");
-                    keyNav.destroy();
-                    keyNav = null;
-                }
+                box.attr("aria-expanded", "false");
             }
 
             form.on("submit", function (e) {
                 if (!box.val()) {
-                    // Shake the form on submit but no term has been entered
+                    // Shake the form on submit but no term has been entered.
                     var frm = $(this);
                     var shakeOpts = { direction: "right", distance: 4, times: 2 };
                     frm.stop(true, true).effect("shake", shakeOpts, 400, function () {
-                        box.trigger("focus").removeClass("placeholder")
+                        box.trigger("focus").removeClass("placeholder");
                     });
                     return false;
                 }

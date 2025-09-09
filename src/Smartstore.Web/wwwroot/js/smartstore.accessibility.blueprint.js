@@ -105,7 +105,7 @@ class AccessKit {
         if (el.tagName == 'TEXTAREA' || el.isContentEditable) {
             return false;
         }
-        if (el.tagName == 'INPUT') {
+        if (el.tagName == 'INPUT' && !el.hasAttribute("role")) {
             return !AccessKit.TEXT_INPUT_TYPES.has(el.type);
         }
 

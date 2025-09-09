@@ -12,6 +12,10 @@
     </span>
     <input type="search"
            class="instasearch-term form-control text-truncate"
+           role="combobox"
+           aria-autocomplete="list"
+           aria-expanded="false"
+           aria-controls="instasearch-drop-body"
            name="q"
            value="@Model.CurrentQuery"
            placeholder="@Model.InputPlaceholder"
@@ -22,7 +26,7 @@
            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
            data-url="@Model.InstantSearchUrl"
            data-origin="@Model.Origin"
-            attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
+           attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
 
     <div class="instasearch-addon d-flex align-items-center justify-content-center">
         <button type="button" class="instasearch-clear input-clear" aria-label="@T("Search.SearchBox.Clear")">
@@ -35,7 +39,7 @@
         </button>
     </span>
     <div class="instasearch-drop">
-        <div class="instasearch-drop-body clearfix"></div>
+        <div id="instasearch-drop-body" class="instasearch-drop-body clearfix" role="listbox"></div>
     </div>
 
     <zone name="searchbox_addon"></zone>

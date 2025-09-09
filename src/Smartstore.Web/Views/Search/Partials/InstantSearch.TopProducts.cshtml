@@ -10,7 +10,7 @@
     @foreach (var hit in Model.TopProducts.Items)
     {
         <li>
-            <a class="instasearch-hit" asp-route="Product" asp-route-SeName="@hit.SeName" asp-area="">
+            <a class="instasearch-hit" asp-route="Product" asp-route-SeName="@hit.SeName" asp-area="" role="option">
                 <span class="instasearch-hit-wrapper">
                     <span sm-if="hasThumbs && hit.Image?.File != null" class="instasearch-hit-thumb d-block">
                         <img sm-model="@hit.Image" class="img-fluid" alt="" role="none" />

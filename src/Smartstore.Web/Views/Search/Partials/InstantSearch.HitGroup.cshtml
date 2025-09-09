@@ -12,7 +12,7 @@
     @foreach (var hit in Model.Hits)
     {
         <li>
-            <a class="instasearch-hit" href="@hit.Url">
+            <a class="instasearch-hit" href="@hit.Url" role="option">
                 @if (hit.NoHighlight)
                 {
                     @hit.Label

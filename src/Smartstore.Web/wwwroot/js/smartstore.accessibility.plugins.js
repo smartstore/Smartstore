@@ -153,7 +153,7 @@ class ComboboxPlugin extends AccessKitExpandablePluginBase {
         // Sync trigger when ListboxPlugin selects
         list.addEventListener('select.listbox.ak', e => {
             const { opt } = e.detail || {};
-            if (opt) this._syncToTrigger(cb, opt);
+            if (opt && cb.tagName != 'INPUT') this._syncToTrigger(cb, opt);
         });
     }
 
@@ -179,6 +179,7 @@ class ComboboxPlugin extends AccessKitExpandablePluginBase {
                 return true;
             case k.ENTER:
             case k.SPACE:
+                if (cb.tagName == 'INPUT') return false;
                 this.toggleExpanded(cb, !isOpen, { focusTarget: isOpen ? 'trigger' : firstOpt });
                 return true;
             case k.ESC:
@@ -227,6 +228,7 @@ class ListboxPlugin extends AccessKitPluginBase {
         // Pointer interaction mirrors keyboard behaviour
         list.addEventListener('click', e => {
             const opt = e.target.closest(widget.itemSelector);
+
             if (opt) {
                 this.move(opt, widget);
                 this.toggleSelect(opt, widget, false, true);
@@ -237,6 +239,17 @@ class ListboxPlugin extends AccessKitPluginBase {
         if (!list.hasAttribute('tabindex')) {
             list.tabIndex = -1;
         }
+
+        // Remove list box plugin on disclosure collapse if disclosure is autocomplete to enable reinit for altered results.
+        document.addEventListener('collapse.ak', e => {
+            const trigger = e.detail.trigger;
+            if (trigger.getAttribute("role") == "combobox" && trigger.hasAttribute("aria-autocomplete")) {
+                const target = e.detail.target;
+                if (this._widgets.has(target)) {
+                    this._widgets.delete(target);
+                }
+            }
+        });
     }
 
     onActivateItem(element, index, widget) {
