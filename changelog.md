@@ -12,6 +12,7 @@
   - Product lists.
   - "All manufacturers" page.
   - PhotoSwipe
+- Summernote: Allow query string in mp4, webm and ogg urls.
 
 ### New Features
 
