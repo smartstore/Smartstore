@@ -21,6 +21,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Cart;
@@ -1030,51 +1031,15 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ApplyGiftCardCoupon(ProductVariantQuery query, string giftCardCouponCode)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
-            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+            var checkoutAttributeSelection = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
-            string message = null;
-            var success = false;
-
-            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
+            if (cart.Customer.GenericAttributes.CheckoutAttributes != checkoutAttributeSelection)
             {
-                if (giftCardCouponCode.HasValue())
-                {
-                    var giftCard = await _db.GiftCards
-                        .Include(x => x.GiftCardUsageHistory)
-                        .AsNoTracking()
-                        .ApplyCouponFilter([giftCardCouponCode])
-                        .FirstOrDefaultAsync();
-
-                    var isGiftCardValid = giftCard != null && await _giftCardService.ValidateGiftCardAsync(giftCard, cart.StoreId);
-                    if (isGiftCardValid)
-                    {
-                        var couponCodes = new List<GiftCardCouponCode>(cart.Customer.GenericAttributes.GiftCardCouponCodes);
-                        if (!couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
-                        {
-                            couponCodes.Add(new GiftCardCouponCode(giftCardCouponCode));
-
-                            cart.Customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
-                        }
-
-                        success = true;
-                        message = T("ShoppingCart.GiftCardCouponCode.Applied");
-                    }
-                    else
-                    {
-                        message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
-                    }
-                }
-                else
-                {
-                    message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
-                }
-            }
-            else
-            {
-                message = T("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
+                cart.Customer.GenericAttributes.CheckoutAttributes = checkoutAttributeSelection;
+                await _db.SaveChangesAsync();
             }
 
-            await _db.SaveChangesAsync();
+            var (success, message) = await ApplyGiftCardCouponInternal(cart, giftCardCouponCode);
 
             var model = await cart.MapAsync();
             model.GiftCardBox.Message = message;
@@ -1089,6 +1054,54 @@ namespace Smartstore.Web.Controllers
                 totalsHtml,
                 giftCardHtml
             });
+        }
+
+        private async Task<(bool Success, string Message)> ApplyGiftCardCouponInternal(ShoppingCart cart, string giftCardCouponCode)
+        {
+            if (cart.IncludesMatchingItems(x => x.IsRecurring))
+            {
+                return (false, T("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts"));
+            }
+
+            if (giftCardCouponCode.IsEmpty())
+            {
+                return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
+            }
+
+            var lockKey = $"shoppingcart.applygiftcard:{giftCardCouponCode}";
+            if (AsyncLock.IsLockHeld(lockKey))
+            {
+                throw new Exception($"Gift card coupon code {giftCardCouponCode} is currently being processed by another request.");
+            }
+
+            using (await AsyncLock.KeyedAsync(lockKey, null))
+            {
+                var giftCard = await _db.GiftCards
+                    .Include(x => x.GiftCardUsageHistory)
+                    .AsNoTracking()
+                    .ApplyCouponFilter([giftCardCouponCode])
+                    .FirstOrDefaultAsync();
+                
+                if (giftCard == null || !await _giftCardService.ValidateGiftCardAsync(giftCard, cart.StoreId))
+                {
+                    return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
+                }
+
+                if (!await _giftCardService.ValidateGiftCardCouponCodeAsync(giftCardCouponCode, cart.Customer))
+                {
+                    return (false, T("ShoppingCart.GiftCardCouponCode.AlreadyInUse"));
+                }
+
+                var appliedCouponCodes = new List<GiftCardCouponCode>(cart.Customer.GenericAttributes.GiftCardCouponCodes);
+                if (!appliedCouponCodes.Any(x => x.Value.EqualsNoCase(giftCardCouponCode)))
+                {
+                    appliedCouponCodes.Add(new GiftCardCouponCode(giftCardCouponCode));
+                    cart.Customer.GenericAttributes.GiftCardCouponCodes = appliedCouponCodes;
+                    await _db.SaveChangesAsync();
+                }
+
+                return (true, T("ShoppingCart.GiftCardCouponCode.Applied"));
+            }
         }
 
         [HttpPost]

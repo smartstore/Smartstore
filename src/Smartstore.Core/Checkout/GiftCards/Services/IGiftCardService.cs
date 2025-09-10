@@ -36,6 +36,14 @@ namespace Smartstore.Core.Checkout.GiftCards
         Task<bool> ValidateGiftCardAsync(GiftCard giftCard, int storeId = 0);
 
         /// <summary>
+        /// Checks whether a gift card coupon code has already been applied.
+        /// </summary>
+        /// <param name="couponCode">Coupon code to validate.</param>
+        /// <param name="customer">The customer who uses the coupon code.</param>
+        /// <returns><c>false</c> the coupon code has already been applied, otherwise <c>true</c>.</returns>
+        Task<bool> ValidateGiftCardCouponCodeAsync(string couponCode, Customer customer);
+
+        /// <summary>
         /// Gets the gift cards remaining amount in primary currency.
         /// </summary>
         /// <remarks>

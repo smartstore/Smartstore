@@ -127,6 +127,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // This a workaround/fallback for missing string resources in plugins with duplicate permission names:
             builder.AddOrUpdate("Plugins.Permissions.DisplayName.Display", "Display", "Anzeigen");
+
+            builder.AddOrUpdate("ShoppingCart.GiftCardCouponCode.AlreadyInUse",
+                "The entered gift card coupon code is already in use.",
+                "Die eingegebene Nummer des Geschenkgutscheins wird bereits verwendet.");
         }
     }
 }
