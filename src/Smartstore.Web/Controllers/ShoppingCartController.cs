@@ -1068,6 +1068,8 @@ namespace Smartstore.Web.Controllers
                 return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
             }
 
+            // TODO: (mg) Use IDistributedLockProvider to ensure safety in web farms! The default impl delegates to AsyncLock internally.
+
             var lockKey = $"shoppingcart.applygiftcard:{giftCardCouponCode}";
             if (AsyncLock.IsLockHeld(lockKey))
             {
@@ -1089,6 +1091,7 @@ namespace Smartstore.Web.Controllers
 
                 if (!await _giftCardService.ValidateGiftCardCouponCodeAsync(giftCardCouponCode, cart.Customer))
                 {
+                    // TODO: (mg) Obfuscate message ("something went wrong" bla bla...)
                     return (false, T("ShoppingCart.GiftCardCouponCode.AlreadyInUse"));
                 }
 
