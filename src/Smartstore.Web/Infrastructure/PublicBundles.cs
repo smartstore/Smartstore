@@ -103,6 +103,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.media.js",
                 js + "smartstore.cmp.js",
                 //js + "smartstore.accessibility.js",
+                // TODO: (mh) Don't forget to rename the file to smartstore.accessibility.js when all parts are finished.
                 js + "smartstore.accessibility.blueprint.js",
                 js + "smartstore.accessibility.plugins.js",
                 js + "smartstore.accessibility.focustrap.js",
