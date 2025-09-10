@@ -3,47 +3,57 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
+using Smartstore.IO;
 
 namespace Smartstore.Core.AI.Metadata
 {
     public class AIMetadataLoader : IAIMetadataLoader
     {
         private readonly IMemoryCache _cache;
+        private readonly IApplicationContext _appContext;
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters =
             {
-                new JsonStringEnumConverter()
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };
 
-        public AIMetadataLoader(IMemoryCache cache)
+        public AIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
         {
             _cache = cache;
+            _appContext = appContext;
         }
 
         public AIMetadata LoadMetadata(string rootPath)
         {
             Guard.NotEmpty(rootPath);
 
-            var path = Path.GetDirectoryName(rootPath);
-            if (string.IsNullOrEmpty(path))
+            var path = PathUtility.Join(rootPath, "metadata.json");
+            
+            var result = _cache.GetOrCreate(path.ToLower(), entry =>
             {
-                throw new InvalidOperationException("Invalid root path.");
-            }
+                var file = _appContext.ContentRoot.GetFile(path);
+                if (!file.Exists)
+                {
+                    throw new InvalidOperationException("Invalid root path.");
+                }
 
-            var result = _cache.GetOrCreate(path, entry =>
-            {
-                var filePath = Path.Combine(path, "metadata.json");
-                var json = File.ReadAllText(rootPath);
-
+                var json = file.ReadAllText();
                 if (Deserialize(json) is not AIMetadata metadata)
                 {
                     throw new InvalidOperationException("Failed to deserialize AIMetadata.");
                 }
 
-                // TODO: Set file monitoring to invalidate cache if file changes
+                // Obtain a change token from the file provider whose
+                // callback is triggered when the file is modified.
+                var changeToken = _appContext.ContentRoot.Watch(path);
+                if (changeToken != null)
+                {
+                    entry.AddExpirationToken(changeToken);
+                }
 
                 return metadata;
             });
