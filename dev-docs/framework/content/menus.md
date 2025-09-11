@@ -1,7 +1,7 @@
 # Menus
 
 ## Overview
-Smartstore's menu system builds navigation trees for storefront and back office. Menus consist of hierarchical `MenuItem` nodes resolved to final URLs. Items can originate from the database or be generated in code through menu providers.
+Smartstore's menu system builds navigation trees for frontend and backend. Menus consist of hierarchical `MenuItem` nodes resolved to final URLs. Items can originate from the database or be generated in code through menu providers.
 
 ## Loading and rendering
 Use `IMenuService` to retrieve a menu and feed it to the built-in view component or tag helper:

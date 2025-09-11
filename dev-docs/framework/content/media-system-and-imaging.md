@@ -14,8 +14,8 @@ Smartstore ships with a comprehensive media library for images, videos and downl
 
 The physical blob for a `MediaFile` is managed by an `IMediaStorageProvider`. Two providers are included:
 
-- **FileSystemMediaStorageProvider** – stores files under `/Storage` on disk. This is the default provider used in new installations.
-- **DatabaseMediaStorageProvider** – persists binary data in the database for scenarios where a shared file system is not available.
+* **FileSystemMediaStorageProvider** – stores files under `/Storage` on disk. This is the default provider used in new installations.
+* **DatabaseMediaStorageProvider** – persists binary data in the database for scenarios where a shared file system is not available.
 
 Providers implement `IMediaSender`/`IMediaReceiver` so media can be moved between backends. `MediaStorageConfiguration` determines which provider is active and the `MediaMover` service performs migrations.
 
@@ -25,10 +25,10 @@ You can specify which provider to use in the `MediaSettings`.
 
 `IMediaService` offers high level operations for everyday tasks:
 
-- Locate files via `GetFileByIdAsync`, `GetFileByPathAsync` or by running a `MediaSearchQuery`.
-- Create and update files with `SaveFileAsync`.
-- Copy, move or delete files, taking care of duplicate detection and track checks.
-- Generate public URLs through `GetUrl`, which internally cooperates with the imaging subsystem for resizing and caching.
+* Locate files via `GetFileByIdAsync`, `GetFileByPathAsync` or by running a `MediaSearchQuery`.
+* Create and update files with `SaveFileAsync`.
+* Copy, move or delete files, taking care of duplicate detection and track checks.
+* Generate public URLs through `GetUrl`, which internally cooperates with the imaging subsystem for resizing and caching.
 
 ### Upload example
 
@@ -65,3 +65,7 @@ Duplicate files can be detected by the `IMediaDupeDetectorFactory` before saving
 ## URLs and imaging
 
 `IMediaUrlGenerator` creates public URLs under predictable paths such as `/media/123/thumbnail.jpg`. When a `ProcessImageQuery` is supplied to `GetUrl` the imaging pipeline resizes or crops the image and caches the result in `/media/thumbs` as documented in the [Imaging](imaging.md) section.
+
+{% hint style="info" %}
+Some administrative tasks require the Media-Manager plugin.
+{% endhint %}
