@@ -42,17 +42,15 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             if (value is string str)
             {
-                object result = null;
                 if (str.HasValue())
                 {
                     try
                     {
-                        // Convert either from XML or JSON
-                        // Check first letter to determine format
+                        // Convert either from XML or JSON. Check first character to determine format.
                         var firstChar = str.Trim()[0];
                         if (firstChar is '<')
                         {
-                            // It's XML
+                            // XML
                             var attributes = new List<GiftCardCouponCode>();
                             var xel = XElement.Parse(str);
                             var elements = xel.Descendants("CouponCode");
@@ -70,7 +68,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                         }
                         else if (firstChar is '[')
                         {
-                            // It's JSON
+                            // JSON
                             return JsonConvert.DeserializeObject<List<string>>(str)
                                 .Select(x => new GiftCardCouponCode(x))
                                 .ToList();
@@ -89,7 +87,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                     }
                 }
 
-                return result;
+                return null;
             }
 
             return base.ConvertFrom(culture, value);
@@ -104,27 +102,14 @@ namespace Smartstore.Core.Checkout.GiftCards
 
             if (value is not null and IEnumerable<GiftCardCouponCode> attributes)
             {
-                // XML
-                //var root = new XElement("Attributes");
-                //var attributeElement = new XElement("GiftCardCouponCodes");
-                //foreach (var attribute in attributes)
-                //{
-                //    var valueElement = new XElement("CouponCode", new XAttribute("Code", attribute));
-                //    attributeElement.Add(valueElement);
-                //}
-
-                //root.Add(attributeElement);
-
-                //return root.ToString(SaveOptions.DisableFormatting);
-
-                // JSON
-                var converted = attributes.Select(x => x.Value);
-                return JsonConvert.SerializeObject(converted);
+                var couponCodes = attributes.Select(x => x.Value);
+                if (!couponCodes.IsNullOrEmpty())
+                {
+                    return JsonConvert.SerializeObject(couponCodes);
+                }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return null;
         }
     }
 
