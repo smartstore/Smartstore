@@ -12,112 +12,103 @@
     </div>
 
     <div class="page-body">
-        @if (Model.Result.HasValue())
-        {
-            <div class="alert alert-success" role="alert">
-                @Model.Result
-            </div>
-        }
-        else
-        {
-            <form asp-action="ReturnRequest">
-                <input type="hidden" asp-for="OrderId" />
+        <form asp-action="ReturnRequest">
+            <input type="hidden" asp-for="OrderId" />
 
-                <h2 class="h4 fwn text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
+            <h2 class="h4 fwn text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
 
-                <zone name="returnrequest_wish_before" />
+            <zone name="returnrequest_wish_before" />
 
-                <div class="cart-container">
-                    <div id="cart-items" class="cart cart-editable">
-                        <div class="cart-body">
-                            @foreach (var item in Model.Items)
-                            {
-                                <div class="cart-row">
-                                    <div class="cart-item-group">
-                                        <div class="cart-item-title">
-                                            <a class="cart-item-link xfs-h6" href="@item.ProductUrl" sm-language-attributes-for="item.ProductName">
-                                                @item.ProductName
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group fs-sm">
-                                        @Html.Raw(item.AttributeInfo)
-                                    </div>
-
-                                    <div class="cart-item-price-group cart-item-group">
-                                        <div>@T("ReturnRequests.Products.Price"):</div>
-                                        <div class="pd-finalprice">
-                                            <data asp-for="@item.UnitPrice" class="pd-finalprice-amount fs-h5"></data>
-                                        </div>
-                                    </div>
-
-                                    <div class="cart-item-group">
-                                        <div class="mb-1">
-                                            <label for="quantity@(item.Id)" class="mb-0">@T("ReturnRequests.Products.Quantity"):</label>
-                                        </div>
-                                        <div style="max-width: 120px">
-                                            <select id="quantity@(item.Id)" name="quantity@(item.Id)" class="form-control noskin">
-                                                @for (int i = 0; i <= item.Quantity; i++)
-                                                {
-                                                    <option value="@(i)">@(i)</option>
-                                                }
-                                            </select>
-                                        </div>
-
+            <div class="cart-container">
+                <div id="cart-items" class="cart cart-editable">
+                    <div class="cart-body">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="cart-row">
+                                <div class="cart-item-group">
+                                    <div class="cart-item-title">
+                                        <a class="cart-item-link xfs-h6" href="@item.ProductUrl" sm-language-attributes-for="item.ProductName">
+                                            @item.ProductName
+                                        </a>
                                     </div>
                                 </div>
-                            }
-                        </div>
+
+                                <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs cart-item-group fs-sm">
+                                    @Html.Raw(item.AttributeInfo)
+                                </div>
+
+                                <div class="cart-item-price-group cart-item-group">
+                                    <div>@T("ReturnRequests.Products.Price"):</div>
+                                    <div class="pd-finalprice">
+                                        <data asp-for="@item.UnitPrice" class="pd-finalprice-amount fs-h5"></data>
+                                    </div>
+                                </div>
+
+                                <div class="cart-item-group">
+                                    <div class="mb-1">
+                                        <label for="quantity@(item.Id)" class="mb-0">@T("ReturnRequests.Products.Quantity"):</label>
+                                    </div>
+                                    <div style="max-width: 120px">
+                                        <select id="quantity@(item.Id)" name="quantity@(item.Id)" class="form-control noskin">
+                                            @for (int i = 0; i <= item.Quantity; i++)
+                                            {
+                                                <option value="@(i)">@(i)</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
+            </div>
 
-                <div class="mt-5">
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label id="return-reason-label" asp-for="ReturnReason" class="col-form-label"></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select asp-for="ReturnReason" 
-                                    asp-items="ViewBag.AvailableReturnReasons" 
-                                    sm-required="true" 
-                                    class="return-reasons"
-                                    aria-labelledby="return-reason-label"></select>
-                        </div>
+            <div class="mt-5">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label id="return-reason-label" asp-for="ReturnReason" class="col-form-label"></label>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label id="return-action-label" asp-for="ReturnAction" class="col-form-label"></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select asp-for="ReturnAction" 
-                                    asp-items="ViewBag.AvailableReturnActions" 
-                                    sm-required="true" 
-                                    class="return-actions"
-                                    aria-labelledby="return-action-label"></select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label asp-for="Comments" class="col-form-label"></label>
-                        </div>
-                        <div class="col-md-9">
-                            <textarea asp-for="Comments" class="comment"></textarea>
-                            <span asp-validation-for="Comments"></span>
-                        </div>
+                    <div class="col-md-9">
+                        <select asp-for="ReturnReason" 
+                                asp-items="ViewBag.AvailableReturnReasons" 
+                                sm-required="true" 
+                                class="return-reasons"
+                                aria-labelledby="return-reason-label"></select>
                     </div>
                 </div>
-
-                <zone name="returnrequest_wish_after" />
-
-                <div class="buttons row justify-content-end">
-                    <div class="col-md-9 mt-3">
-                        <button type="submit" name="submit-return-request" value="save" class="btn btn-primary btn-lg">
-                            @T("ReturnRequests.Submit")
-                        </button>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label id="return-action-label" asp-for="ReturnAction" class="col-form-label"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <select asp-for="ReturnAction" 
+                                asp-items="ViewBag.AvailableReturnActions" 
+                                sm-required="true" 
+                                class="return-actions"
+                                aria-labelledby="return-action-label"></select>
                     </div>
                 </div>
-            </form>
-        }
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label asp-for="Comments" class="col-form-label"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <textarea asp-for="Comments" class="comment"></textarea>
+                        <span asp-validation-for="Comments"></span>
+                    </div>
+                </div>
+            </div>
+
+            <zone name="returnrequest_wish_after" />
+
+            <div class="buttons row justify-content-end">
+                <div class="col-md-9 mt-3">
+                    <button type="submit" name="submit-return-request" value="save" class="btn btn-primary btn-lg">
+                        @T("ReturnRequests.Submit")
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>

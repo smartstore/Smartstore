@@ -64,7 +64,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new SubmitReturnRequestModel();
-            await PrepareReturnRequestModelAsync(model, order);
+            await PrepareReturnRequestModel(model, order);
 
             return View(model);
         }
@@ -72,8 +72,12 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("ReturnRequest")]
         public async Task<IActionResult> ReturnRequestSubmit(int id /* orderId */, SubmitReturnRequestModel model)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var numAdded = 0;
+            var form = Request.Form;
             var customer = Services.WorkContext.CurrentCustomer;
+            var order = await _db.Orders
+                .IncludeOrderItems()
+                .FindByIdAsync(id);
 
             if (order == null)
             {
@@ -90,62 +94,80 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            foreach (var orderItem in order.OrderItems)
+            if (ModelState.IsValid)
             {
-                var form = Request.Form;
-
-                var quantity = 0;
-                foreach (var formKey in form.Keys)
-                {
-                    if (formKey.EqualsNoCase($"quantity{orderItem.Id}"))
+                var returnRequests = order.OrderItems
+                    .Select(oi =>
                     {
-                        _ = int.TryParse(form[formKey], out quantity);
-                        break;
-                    }
-                }
+                        var quantity = 0;
+                        foreach (var formKey in form.Keys)
+                        {
+                            if (formKey.EqualsNoCase($"quantity{oi.Id}"))
+                            {
+                                _ = int.TryParse(form[formKey], out quantity);
+                                break;
+                            }
+                        }
 
-                if (quantity > 0)
+                        if (quantity == 0)
+                        {
+                            return null;
+                        }
+
+                        return new ReturnRequest
+                        {
+                            StoreId = order.StoreId,
+                            OrderItemId = oi.Id,
+                            Quantity = quantity,
+                            CustomerId = customer.Id,
+                            ReasonForReturn = model.ReturnReason,
+                            RequestedAction = model.ReturnAction,
+                            CustomerComments = model.Comments,
+                            StaffNotes = string.Empty,
+                            ReturnRequestStatus = ReturnRequestStatus.Pending
+                        };
+                    })
+                    .Where(x => x != null)
+                    .ToList();
+
+                if (returnRequests.Count > 0)
                 {
-                    var rr = new ReturnRequest
-                    {
-                        StoreId = Services.StoreContext.CurrentStore.Id,
-                        OrderItemId = orderItem.Id,
-                        Quantity = quantity,
-                        CustomerId = customer.Id,
-                        ReasonForReturn = model.ReturnReason,
-                        RequestedAction = model.ReturnAction,
-                        CustomerComments = model.Comments,
-                        StaffNotes = string.Empty,
-                        ReturnRequestStatus = ReturnRequestStatus.Pending
-                    };
-
-                    customer.ReturnRequests.Add(rr);
-
-                    _db.TryUpdate(customer);
+                    _db.ReturnRequests.AddRange(returnRequests);
                     await _db.SaveChangesAsync();
+                    numAdded = returnRequests.Count;
 
-                    model.AddedReturnRequestIds.Add(rr.Id);
-
-                    // Notify store owner here by sending an email.
-                    await _messageFactory.SendNewReturnRequestStoreOwnerNotificationAsync(rr, orderItem, _localizationSettings.DefaultAdminLanguageId);
+                    var orderItems = order.OrderItems.ToDictionary(oi => oi.Id);
+                    foreach (var rr in returnRequests)
+                    {
+                        if (orderItems.TryGetValue(rr.OrderItemId, out var orderItem))
+                        {
+                            // Notify store owner here by sending an email.
+                            await _messageFactory.SendNewReturnRequestStoreOwnerNotificationAsync(rr, orderItem, _localizationSettings.DefaultAdminLanguageId);
+                        }
+                    }
                 }
             }
 
-            await PrepareReturnRequestModelAsync(model, order);
-
-            if (model.AddedReturnRequestIds.Any())
+            if (numAdded > 0)
             {
-                model.Result = T("ReturnRequests.Submitted");
+                NotifySuccess(T("ReturnRequests.Submitted"));
             }
             else
             {
                 NotifyWarning(T("ReturnRequests.NoItemsSubmitted"));
             }
 
+            if (ModelState.IsValid && numAdded > 0)
+            {
+                return RedirectToAction(nameof(CustomerController.Orders), "Customer");
+            }
+
+            await PrepareReturnRequestModel(model, order);
+
             return View(model);
         }
 
-        protected async Task PrepareReturnRequestModelAsync(SubmitReturnRequestModel model, Order order)
+        private async Task PrepareReturnRequestModel(SubmitReturnRequestModel model, Order order)
         {
             Guard.NotNull(order);
             Guard.NotNull(model);
