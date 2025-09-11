@@ -1,25 +1,27 @@
 ﻿using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests.Domain
+namespace Smartstore.Core.Tests.Checkout.GiftCards
 {
     [TestFixture]
-    public class GiftCardTests : TestsBase
+    public class GiftCardTests : ServiceTestBase
     {
         IGiftCardService _giftCardService;
         ICurrencyService _currencyService;
 
-        [OneTimeSetUp]
-        public override void SetUp()
+        [SetUp]
+        public new void SetUp()
         {
-            base.SetUp();
+            //base.SetUp();
 
             _currencyService = new CurrencyService(
-                null,
+                DbContext,
                 null,
                 null,
                 null,
@@ -30,12 +32,17 @@ namespace Smartstore.Tests.Domain
                 PrimaryCurrency = new()
             };
 
-            _giftCardService = new GiftCardService(null, _currencyService);
+            _giftCardService = new GiftCardService(DbContext, _currencyService);
         }
 
         [Test]
-        public async Task Can_validate_giftCardAsync()
+        public async Task Can_validate_gift_card()
         {
+            var customer = new Customer
+            {
+                Id = 1
+            };
+
             var gc = new GiftCard
             {
                 Amount = 100,
@@ -57,26 +64,26 @@ namespace Smartstore.Tests.Domain
             gc.GiftCardUsageHistory.Add(new() { UsedValue = 5 });
 
             // valid
-            (await _giftCardService.ValidateGiftCardAsync(gc, 1)).ShouldEqual(true);
+            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
 
             // wrong store
-            (await _giftCardService.ValidateGiftCardAsync(gc, 2)).ShouldEqual(false);
+            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 2)).ShouldEqual(false);
 
             // mark as not active
             gc.IsGiftCardActivated = false;
-            (await _giftCardService.ValidateGiftCardAsync(gc, 1)).ShouldEqual(false);
+            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
 
             // again active
             gc.IsGiftCardActivated = true;
-            (await _giftCardService.ValidateGiftCardAsync(gc, 1)).ShouldEqual(true);
+            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(true);
 
             // add usage history record
             gc.GiftCardUsageHistory.Add(new GiftCardUsageHistory { UsedValue = 1000 });
-            (await _giftCardService.ValidateGiftCardAsync(gc, 1)).ShouldEqual(false);
+            (await _giftCardService.ValidateGiftCardAsync(gc, customer, 1)).ShouldEqual(false);
         }
 
         [Test]
-        public async Task Can_calculate_giftCard_remainingAmountAsync()
+        public async Task Can_calculate_gift_card_remaining_amount()
         {
             var gc = new GiftCard
             {
