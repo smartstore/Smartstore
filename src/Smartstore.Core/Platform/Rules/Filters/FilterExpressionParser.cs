@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Text;
 using Parlot;
 using Parlot.Fluent;
 using Smartstore.Core.Rules.Operators;
@@ -131,6 +132,8 @@ namespace Smartstore.Core.Rules.Filters
 
             result = null;
 
+            filter = NormalizeParentheses(filter);
+
             if (!Grammar.TryParse(filter, out var expressions))
             {
                 return false;
@@ -148,11 +151,52 @@ namespace Smartstore.Core.Rules.Filters
             Guard.NotNull(memberExpression);
             Guard.NotEmpty(filter);
 
+            filter = NormalizeParentheses(filter);
+
             var expressions = Grammar.Parse(filter);
             var descriptor = new FilterDescriptor<T, TValue>(memberExpression);
             var result = PostProcessResult(expressions, descriptor, typeof(T));
 
             return result;
+        }
+
+        private static string NormalizeParentheses(string filter)
+        {
+            if (filter.AsSpan().IndexOfAny('(', ')') < 0)
+            {
+                return filter;
+            }
+
+            var sb = new StringBuilder(filter.Length);
+            var stack = new Stack<int>();
+
+            foreach (var ch in filter)
+            {
+                if (ch == '(')
+                {
+                    stack.Push(sb.Length);
+                    sb.Append(ch);
+                }
+                else if (ch == ')')
+                {
+                    if (stack.Count > 0)
+                    {
+                        stack.Pop();
+                        sb.Append(ch);
+                    }
+                }
+                else
+                {
+                    sb.Append(ch);
+                }
+            }
+
+            while (stack.Count > 0)
+            {
+                sb.Remove(stack.Pop(), 1);
+            }
+
+            return sb.ToString();
         }
 
         private static FilterExpression PostProcessResult<T, TValue>(IReadOnlyList<FilterExpression> expressions, FilterDescriptor<T, TValue> descriptor, Type entityType)
