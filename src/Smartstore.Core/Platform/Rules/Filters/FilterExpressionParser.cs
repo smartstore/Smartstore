@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Text;
 using Parlot;
 using Parlot.Fluent;
 using Smartstore.Core.Rules.Operators;
@@ -10,6 +9,7 @@ namespace Smartstore.Core.Rules.Filters
     public static class FilterExpressionParser
     {
         static readonly SearchValues<char> _wildcardChars = SearchValues.Create("*?");
+        static readonly SearchValues<char> _parentheseSearchValues = SearchValues.Create("()");
         static readonly Parser<IReadOnlyList<FilterExpression>> Grammar;
 
         #region Tokens
@@ -162,41 +162,134 @@ namespace Smartstore.Core.Rules.Filters
 
         private static string NormalizeParentheses(string filter)
         {
-            if (filter.AsSpan().IndexOfAny('(', ')') < 0)
+            // Pseudocode plan:
+            // - Early-exit if no parentheses present using IndexOfAny.
+            // - Pre-scan once to detect if normalization is needed (unmatched ')' or leftover '(').
+            // - If not needed, return original string to avoid allocations.
+            // - If needed, allocate pooled char buffer and int stack (ArrayPool) sized to input length.
+            // - Single pass:
+            //   - Copy all chars, push positions of '(' onto stack, skip unmatched ')'.
+            // - If all opens matched (stack empty), return new string from buffer slice.
+            // - If opens unmatched remain, compact buffer by skipping positions recorded in stack,
+            //   preserving order, then return new string from compacted buffer.
+            // - Always return rented arrays in finally. No stackalloc used.
+
+            // Fast path: no parentheses at all
+            if (filter.AsSpan().IndexOfAny(_parentheseSearchValues) < 0)
             {
                 return filter;
             }
 
-            var sb = new StringBuilder(filter.Length);
-            var stack = new Stack<int>();
+            // Pre-scan: check if normalization is required
+            int depth = 0;
+            bool modified = false;
 
             foreach (var ch in filter)
             {
                 if (ch == '(')
                 {
-                    stack.Push(sb.Length);
-                    sb.Append(ch);
+                    depth++;
                 }
                 else if (ch == ')')
                 {
-                    if (stack.Count > 0)
+                    if (depth == 0)
                     {
-                        stack.Pop();
-                        sb.Append(ch);
+                        modified = true; // unmatched closing
+                        // continue scanning to know if leftover opens exist, but result is already "modified"
+                    }
+                    else
+                    {
+                        depth--;
                     }
                 }
-                else
+            }
+
+            if (depth > 0)
+            {
+                modified = true; // leftover unmatched openings
+            }
+
+            if (!modified)
+            {
+                // Parentheses are balanced and no unmatched closers: nothing to normalize
+                return filter;
+            }
+
+            var charPool = ArrayPool<char>.Shared;
+            var intPool = ArrayPool<int>.Shared;
+
+            char[] buffer = null;
+            int[] stack = null;
+
+            try
+            {
+                int n = filter.Length;
+                buffer = charPool.Rent(n);
+                stack = intPool.Rent(n);
+
+                int write = 0;
+                int top = 0;
+
+                // Build output while tracking '(' positions and skipping unmatched ')'
+                for (int i = 0; i < n; i++)
                 {
-                    sb.Append(ch);
+                    char ch = filter[i];
+                    if (ch == '(')
+                    {
+                        stack[top++] = write;
+                        buffer[write++] = ch;
+                    }
+                    else if (ch == ')')
+                    {
+                        if (top > 0)
+                        {
+                            top--;
+                            buffer[write++] = ch;
+                        }
+                        // else: skip unmatched ')'
+                    }
+                    else
+                    {
+                        buffer[write++] = ch;
+                    }
+                }
+
+                if (top == 0)
+                {
+                    // No unmatched '(' to remove
+                    return new string(buffer, 0, write);
+                }
+
+                // Remove unmatched '(' recorded in stack[0..top-1] (ascending positions)
+                int removeIdx = 0;
+                int ri = 0, wi = 0;
+
+                while (ri < write)
+                {
+                    if (removeIdx < top && ri == stack[removeIdx])
+                    {
+                        ri++;
+                        removeIdx++;
+                    }
+                    else
+                    {
+                        buffer[wi++] = buffer[ri++];
+                    }
+                }
+
+                return new string(buffer, 0, wi);
+            }
+            finally
+            {
+                if (buffer is not null)
+                {
+                    charPool.Return(buffer);
+                }
+                if (stack is not null)
+                {
+                    intPool.Return(stack);
                 }
             }
-
-            while (stack.Count > 0)
-            {
-                sb.Remove(stack.Pop(), 1);
-            }
-
-            return sb.ToString();
         }
 
         private static FilterExpression PostProcessResult<T, TValue>(IReadOnlyList<FilterExpression> expressions, FilterDescriptor<T, TValue> descriptor, Type entityType)
