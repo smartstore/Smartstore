@@ -468,6 +468,11 @@ class RadioGroupPlugin extends AccessKitPluginBase {
  *  Handles stand‑alone disclosures
  * -------------------------------------------------- */
 class DisclosurePlugin extends AccessKitExpandablePluginBase {
+    _getPanel(eventTarget) {
+        const panelId = eventTarget.getAttribute("aria-controls");
+        return (panelId && document.getElementById(panelId)) || eventTarget.closest('[aria-hidden=false]');
+    }
+
     initWidgetCore(widget) {
         const root = widget.root;
 
@@ -484,11 +489,19 @@ class DisclosurePlugin extends AccessKitExpandablePluginBase {
                 this.onActivateItem(widget.root, 0, widget);
                 return true;
             }
+        } else if (e.key === k.TAB) {
+            // If TAB is pressed in accordion mode we move to the next activatable panel.
+            const panel = this._getPanel(e.target)
+            const current = panel && widget.items.find(i => i.getAttribute('aria-controls') === panel.id);
+            const next = current && widget.items[widget.items.indexOf(current) + (e.shiftKey ? -1 : 1)];
+            if (next) {
+                e.preventDefault();
+                return super.move(next, widget);
+            }
         }
 
         if (e.key === k.ESC) {
-            const panelId = e.target.getAttribute("aria-controls");
-            const panel = (panelId && document.getElementById(panelId)) || e.target.closest('[aria-hidden=false]');
+            const panel = this._getPanel(e.target)
 
             if (panel) {
                 const opener = document.querySelector(`[aria-expanded="true"][aria-controls="${panel.id}"]`);
@@ -532,6 +545,7 @@ class AccordionPlugin extends DisclosurePlugin {
     initWidgetCore(widget) {
         const root = widget.root;
         const collapseSiblings = root.hasAttribute('data-collapse-siblings');
+
         root.addEventListener('click', e => {
             const trig = e.target.closest(widget.strategy.itemSelector);
             if (trig && widget.items.includes(trig)) {
@@ -548,13 +562,12 @@ class AccordionPlugin extends DisclosurePlugin {
     }
 
     onItemKeyPress(event, _index, widget) {
-        const k = AccessKit.KEY;
-        if (event.key === k.ESC) {
+        if (event.key === AccessKit.KEY.ESC) {
             const collapseSiblings = widget.root.hasAttribute('data-collapse-siblings');
             this.toggleExpanded(event.target, false, { collapseSiblings, focusTarget: 'trigger' });
             return true;
         }
-        
+
         return false;
     }
 }
@@ -608,7 +621,6 @@ class AccordionPlugin extends DisclosurePlugin {
         {
             ctor: DisclosurePlugin,
             name: 'disclosure',
-            // TODO: (mh) [data-ak-accordion] is excluded because it is handled by AccordionPlugin. Check the :not() selector.
             rootSelector: '[aria-controls][aria-expanded]:not([data-ak-accordion] [aria-expanded]):not([role="combobox"])'
         }
     ]);
