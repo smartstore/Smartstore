@@ -49,17 +49,15 @@ namespace Smartstore.Core.Checkout.GiftCards
             return result;
         }
 
-        public virtual async Task<bool> ValidateGiftCardAsync(GiftCard giftCard, int storeId = 0)
+        public virtual async Task<bool> ValidateGiftCardAsync(GiftCard giftCard, Customer customer, int storeId = 0)
         {
             Guard.NotNull(giftCard);
-
-            return await GetRemainingAmountCoreAsync(giftCard, true, storeId) > decimal.Zero;
-        }
-
-        public virtual async Task<bool> ValidateGiftCardCouponCodeAsync(string couponCode, Customer customer)
-        {
-            Guard.NotEmpty(couponCode);
             Guard.NotNull(customer);
+
+            if (await GetRemainingAmountCoreAsync(giftCard, true, storeId) <= decimal.Zero)
+            {
+                return false;
+            }
 
             var couponCodesQuery = _db.GenericAttributes
                 .AsNoTracking()
@@ -72,7 +70,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                     .SelectMany(x => x.Value?.Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>())
                     .Select(x => x.Value);
 
-                if (couponCodes.Any(x => x.EqualsNoCase(couponCode)))
+                if (couponCodes.Any(x => x.EqualsNoCase(giftCard.GiftCardCouponCode)))
                 {
                     // Coupon code must only be applied once.
                     return false;

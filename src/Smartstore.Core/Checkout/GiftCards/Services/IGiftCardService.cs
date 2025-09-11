@@ -23,25 +23,16 @@ namespace Smartstore.Core.Checkout.GiftCards
         Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null);
 
         /// <summary>
-        /// Checks whether the gift card is valid
+        /// Checks whether the gift card amount is sufficient and whether the coupon code has not already been applied.
         /// </summary>
+        /// <param name="giftCard">The gift card to validate.</param>
+        /// <param name="customer">The customer who uses the coupon code.</param>
         /// <remarks>
         /// Access <see cref="GiftCard.PurchasedWithOrderItem"/>, <see cref="OrderItem.Order"/> navigation properties. 
-        /// The caller is responsible for eager loading.
-        /// Calls <see cref="GetRemainingAmountAsync(GiftCard)"/>
+        /// The caller is responsible for eager loading. Calls <see cref="GetRemainingAmountAsync(GiftCard)"/>
         /// </remarks>
-        /// <returns>
-        /// <c>True</c> if gift card is valid, otherwise <c>false</c>
-        /// </returns>
-        Task<bool> ValidateGiftCardAsync(GiftCard giftCard, int storeId = 0);
-
-        /// <summary>
-        /// Checks whether a gift card coupon code has already been applied.
-        /// </summary>
-        /// <param name="couponCode">Coupon code to validate.</param>
-        /// <param name="customer">The customer who uses the coupon code.</param>
-        /// <returns><c>false</c> the coupon code has already been applied, otherwise <c>true</c>.</returns>
-        Task<bool> ValidateGiftCardCouponCodeAsync(string couponCode, Customer customer);
+        /// <returns><c>true</c> if gift card is valid, otherwise <c>false</c>.</returns>
+        Task<bool> ValidateGiftCardAsync(GiftCard giftCard, Customer customer, int storeId = 0);
 
         /// <summary>
         /// Gets the gift cards remaining amount in primary currency.

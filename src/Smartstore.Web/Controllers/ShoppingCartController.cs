@@ -45,6 +45,7 @@ namespace Smartstore.Web.Controllers
         private readonly IProductCompareService _productCompareService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly IDistributedLockProvider _lockProvider;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly OrderSettings _orderSettings;
@@ -68,6 +69,7 @@ namespace Smartstore.Web.Controllers
             IProductCompareService productCompareService,
             IOrderCalculationService orderCalculationService,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            IDistributedLockProvider lockProvider,
             ShoppingCartSettings shoppingCartSettings,
             CaptchaSettings captchaSettings,
             OrderSettings orderSettings,
@@ -90,6 +92,7 @@ namespace Smartstore.Web.Controllers
             _productCompareService = productCompareService;
             _orderCalculationService = orderCalculationService;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _lockProvider = lockProvider;
             _shoppingCartSettings = shoppingCartSettings;
             _captchaSettings = captchaSettings;
             _orderSettings = orderSettings;
@@ -1068,37 +1071,33 @@ namespace Smartstore.Web.Controllers
                 return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
             }
 
-            // TODO: (mg) Use IDistributedLockProvider to ensure safety in web farms! The default impl delegates to AsyncLock internally.
-
-            var lockKey = $"shoppingcart.applygiftcard:{giftCardCouponCode}";
-            if (AsyncLock.IsLockHeld(lockKey))
+            var keyLock = _lockProvider.GetLock($"shoppingcart.applygiftcard:{giftCardCouponCode}");
+            if (await keyLock.IsHeldAsync())
             {
-                throw new Exception($"Gift card coupon code {giftCardCouponCode} is currently being processed by another request.");
+                return (false, $"Gift card coupon code {giftCardCouponCode} is currently being processed by another request.");
             }
 
-            using (await AsyncLock.KeyedAsync(lockKey, null))
+            using (await keyLock.AcquireAsync())
             {
                 var giftCard = await _db.GiftCards
                     .Include(x => x.GiftCardUsageHistory)
+                    .Include(x => x.PurchasedWithOrderItem)
+                    .ThenInclude(x => x.Order)
+                    .AsSplitQuery()
                     .AsNoTracking()
                     .ApplyCouponFilter([giftCardCouponCode])
+                    .ApplyStandardFilter()
                     .FirstOrDefaultAsync();
                 
-                if (giftCard == null || !await _giftCardService.ValidateGiftCardAsync(giftCard, cart.StoreId))
+                if (giftCard == null || !await _giftCardService.ValidateGiftCardAsync(giftCard, cart.Customer, cart.StoreId))
                 {
                     return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
                 }
 
-                if (!await _giftCardService.ValidateGiftCardCouponCodeAsync(giftCardCouponCode, cart.Customer))
-                {
-                    // TODO: (mg) Obfuscate message ("something went wrong" bla bla...)
-                    return (false, T("ShoppingCart.GiftCardCouponCode.AlreadyInUse"));
-                }
-
                 var appliedCouponCodes = new List<GiftCardCouponCode>(cart.Customer.GenericAttributes.GiftCardCouponCodes);
-                if (!appliedCouponCodes.Any(x => x.Value.EqualsNoCase(giftCardCouponCode)))
+                if (!appliedCouponCodes.Any(x => x.Value.EqualsNoCase(giftCard.GiftCardCouponCode)))
                 {
-                    appliedCouponCodes.Add(new GiftCardCouponCode(giftCardCouponCode));
+                    appliedCouponCodes.Add(new GiftCardCouponCode(giftCard.GiftCardCouponCode));
                     cart.Customer.GenericAttributes.GiftCardCouponCodes = appliedCouponCodes;
                     await _db.SaveChangesAsync();
                 }
