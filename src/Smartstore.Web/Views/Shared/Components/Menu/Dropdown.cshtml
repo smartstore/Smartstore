@@ -43,8 +43,7 @@
         var hasIcons = nodes.Any(x => x.Value.Icon.HasValue());
         var hasImages = nodes.Any(x => x.Value.ImageUrl.HasValue());
 
-        // TODO: (wcag) (mh) Maybe listbox wasn't the correct choice here. Evaluate anew.
-        <div class="dropdown-menu" aria-labelledby="@(menuName)-opener" role="listbox" aria-hidden="true">
+        <div class="dropdown-menu" aria-labelledby="@(menuName)-opener" role="listbox">
             @foreach (var node in nodes)
             {
                 var item = node.Value;

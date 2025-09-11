@@ -16,12 +16,13 @@
 }
 
 <form id="store-theme-selector" sm-ajax method="post" asp-action="ChangeTheme" asp-controller="Common" sm-oncomplete="onStoreThemeChangedRequestCompleted">
-    <select id="themeName" 
-            name="themeName" 
+    <select id="themeName"
+            name="themeName"
             asp-items="items"
-            class="store-theme-list noskin form-control rounded-pill shadow-xs" 
+            class="store-theme-list noskin form-control rounded-pill shadow-xs"
             aria-labelledby="theme-selector-heading"></select>
-    @*TODO: (wcag) (mg) Set feedback panel to role=status instead and leave code comment to refer to SC 3.2.2 / 4.1.3 in case of negative audits *@
+    @* INFO: Avoid submit button failure in WCAG checkers. *@
+    <button type="submit" class="sr-only">@T("Common.Submit")</button>
 </form>
 
 <script>

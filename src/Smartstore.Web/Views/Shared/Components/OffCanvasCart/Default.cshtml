@@ -80,8 +80,7 @@
             <div sm-if="Model.WishlistEnabled" class="tab-pane fade" id="occ-wishlist" role="tabpanel" aria-labelledby="wishlist-tab"></div>
             <div sm-if="Model.CompareProductsEnabled" class="tab-pane fade" id="occ-compare" role="tabpanel" aria-labelledby="compare-tab"></div>
         </div>
-        @*TODO: (wcag) (mh) Remove sr-only Button. Set feedback panel to role=status instead and leave code comment to refer to SC 3.2.2 / 4.1.3 in case of negative audits *@
         @* INFO: Avoid submit button failure in WCAG checkers. *@
-        <button type="submit" class="sr-only">Submit</button>
+        <button type="submit" class="sr-only">@T("Common.Submit")</button>
     </form>
 </div>
