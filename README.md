@@ -3,7 +3,6 @@
 		<img src="assets/smartstore-icon-whitebg.png" alt="Smartstore" width="120">
 	</a>
 </p>
-
 <h3 align="center">
 	<img src="assets/smartstore-text.png" alt="Smartstore" width="250">
 </h3>
@@ -12,11 +11,13 @@
     A modular, scalable and ultra-fast open-source all-in-one eCommerce platform built on ASP.NET Core 9.
 </p>
 <p align="center">
-	<a href="#try-it-online">Try Online</a> ∙ 
+	<a href="#try-it-online">Try Online</a> ∙
+    <a href="https://smartstore.gitbook.io/developer-guide">Dev Guide</a> ∙ 
 	<a href="http://community.smartstore.com">Forum</a> ∙ 
 	<a href="http://community.smartstore.com/marketplace">Marketplace</a> ∙ 
 	<a href="http://translate.smartstore.com/">Translations</a>
 </p>
+
 <br/>
 <p align="center">
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
@@ -33,10 +34,11 @@ A comprehensive set of tools for CRM & CMS, Sales, Marketing, Payment & Shipping
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity Framework Core 9` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
 
 * :house: **Website:** [http://www.smartstore.com](http://www.smartstore.com)
+* :orange_book: **Developer Guide:** [Smartstore Developer Guide in English](https://smartstore.gitbook.io/developer-guide)
+* :blue_book: **User Guide:** [Smartstore User Guide in English](https://smartstore.atlassian.net/wiki/spaces/SMNET60/pages/2511044691/Getting+Started)
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * :mega: **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * :earth_americas: **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
-* :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET60/pages/2511044691/Getting+Started)
 * ▶️ **Azure Marketplace:** [https://azuremarketplace.microsoft.com](https://azuremarketplace.microsoft.com/marketplace/apps/smartstore-ag.smartstorenet?tab=Overview)
 <p>&nbsp;</p>
 
@@ -113,9 +115,9 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity
 
 ### Upgrade from Smartstore.NET 4.2
 
-Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 7` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), all you need to do is replace the application files on your server - except for the `App_Data` directory - and **all your data will automatically be transferred to the new system**. [See the documentation for detailed information on installing or upgrading your store](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
+Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 7` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), all you need to do is replace the application files on your server - except for the `App_Data` directory - and **all your data will automatically be transferred to the new system**. [See the documentation for detailed information on installing or upgrading your store](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
- :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should migrate Smartstore.NET to version 4.2 first and then upgrade to Smartstore 5.
+ :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should migrate Smartstore.NET to version 4.2 first and then upgrade to Smartstore 5+.
 
 ### Visual Studio
 
