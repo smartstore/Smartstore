@@ -5,24 +5,28 @@ The service layer encapsulates business operations and orchestrates data access 
 Services run in the same dependency injection scope as controllers and tasks. They work with domain entities and leave presentation concerns to higher layers.
 
 ## Keep services purposeful
-- Only introduce a service when logic spans multiple repositories or requires cross‑cutting concerns like caching or messaging.
-- Do not wrap a single repository call in a service method; expose the repository directly instead.
+
+* Only introduce a service when logic spans multiple repositories or requires cross‑cutting concerns like caching or messaging.
+* Do not wrap a single repository call in a service method; expose the repository directly instead.
 
 ## Design clean interfaces
-- Pair interfaces with implementations (e.g., `IProductService`/`ProductService`) so features can be swapped or mocked.
-- Keep methods cohesive and asynchronous. Suffix async methods with `Async` and accept a `CancellationToken` for I/O operations.
-- Separate read models from commands when it improves clarity.
+
+* Pair interfaces with implementations (e.g., `IProductService`/`ProductService`) so features can be swapped or mocked.
+* Keep methods cohesive and asynchronous. Suffix async methods with `Async` and accept a `CancellationToken` for I/O operations.
 
 ## Minimize dependencies
-- Inject only required collaborators through the constructor and avoid the service locator pattern.
-- Never inject controllers, Razor helpers, or other presentation types.
-- Prefer working with domain models and repositories from `SmartDbContext`.
+
+* Inject only required collaborators through the constructor and avoid the service locator pattern.
+* Never inject controllers, Razor helpers, or other presentation types.
+* Prefer working with domain models and repositories from `SmartDbContext`.
 
 ## Avoid service chains
-- Services should be stateless and independent. When one service needs functionality from another, extract a shared helper or domain method.
-- Fetch data in batches rather than looping over items and calling another service per item.
+
+* Services should be stateless and independent. When one service needs functionality from another, extract a shared helper or domain method.
+* Fetch data in batches rather than looping over items and calling another service per item.
 
 ## Example implementation
+
 A minimal service reveals the interface, uses asynchronous data access, caching, and the optional logger property:
 
 ```csharp
@@ -57,14 +61,15 @@ public class PriceService : IPriceService
 ```
 
 ## Logging and caching
-- Expose an optional logger so the container can inject a contextual instance:
 
-  ```csharp
-  public ILogger Logger { get; set; } = NullLogger.Instance;
-  ```
+*   Expose an optional logger so the container can inject a contextual instance:
 
-- Use `ICache` for expensive queries and invalidate entries when underlying data changes.
+    ```csharp
+    public ILogger Logger { get; set; } = NullLogger.Instance;
+    ```
+* Use `ICache` for expensive queries and invalidate entries when underlying data changes.
 
 ## Testing
-- Keep interfaces small to simplify mocking and unit testing.
-- Avoid static state unless it is thread‑safe and intentionally shared.
+
+* Keep interfaces small to simplify mocking and unit testing.
+* Avoid static state unless it is thread‑safe and intentionally shared.
