@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Localization;
+using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Models.Orders
 {
@@ -6,6 +7,7 @@ namespace Smartstore.Web.Models.Orders
     public partial class SubmitReturnRequestModel : ModelBase
     {
         public int OrderId { get; set; }
+
         public List<OrderItemModel> Items { get; set; } = [];
 
         [LocalizedDisplay("*ReturnReason")]
@@ -18,6 +20,9 @@ namespace Smartstore.Web.Models.Orders
         [LocalizedDisplay("*Comments")]
         public string Comments { get; set; }
 
+        public bool HasItemsToReturn
+            => Items.Any(x => x.Quantity > 0);
+
         public partial class OrderItemModel : EntityModelBase
         {
             public int ProductId { get; set; }
@@ -27,7 +32,11 @@ namespace Smartstore.Web.Models.Orders
 
             public string AttributeInfo { get; set; }
             public Money UnitPrice { get; set; }
+
             public int Quantity { get; set; }
+            public int ReturnedQuantity { get; set; }
+
+            public ImageModel Image { get; set; }
         }
     }
 }

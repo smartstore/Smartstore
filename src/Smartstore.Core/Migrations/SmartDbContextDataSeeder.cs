@@ -127,6 +127,31 @@ namespace Smartstore.Core.Data.Migrations
 
             // This a workaround/fallback for missing string resources in plugins with duplicate permission names:
             builder.AddOrUpdate("Plugins.Permissions.DisplayName.Display", "Display", "Anzeigen");
+
+            // Return requests
+            builder.AddOrUpdate("ReturnRequests.NoItemsSubmitted",
+                "Your return request has not been submitted. Please select the required quantity to return.",
+                "Ihr Rücksendewunsch wurde nicht übermittelt. Bitte wählen Sie die erforderliche Rücksendemenge aus.");
+
+            builder.AddOrUpdate("ReturnRequests.ReturnsNotPossible",
+                "Returns are not possible for this order.",
+                "Für diesen Auftrag ist eine Rücksendung von Artikeln nicht möglich.");
+
+            builder.AddOrUpdate("ReturnRequests.Products.Quantity")
+                .Value("en", "Quantity to return");
+
+            builder.AddOrUpdate("ReturnRequests.WhyReturning")
+                .Value("de", "Warum möchten Sie diese Artikel zurücksenden?");
+            builder.AddOrUpdate("ReturnRequests.SelectProduct(s)")
+                .Value("de", "Welche Produkte möchten Sie zurücksenden?");
+
+            builder.AddOrUpdate("ReturnRequests.Title",
+                "Returnable items from order no. {0}",
+                "Retournierbare Artikel aus Auftrag Nr. {0}");
+
+            builder.AddOrUpdate("ReturnRequests.Products.RequestAlreadyExists",
+                "A return request already exists for this item.",
+                "Zu diesem Artikel existiert bereits ein Rücksendewunsch.");
         }
     }
 }

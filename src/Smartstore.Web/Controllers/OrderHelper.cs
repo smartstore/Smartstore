@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using Humanizer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
@@ -85,7 +84,7 @@ namespace Smartstore.Web.Controllers
 
         public static string OrderDetailsPrintViewPath => "/{theme}/Views/Order/Details.Print.cshtml";
 
-        private async Task<ImageModel> PrepareOrderItemImageModelAsync(
+        public async Task<ImageModel> PrepareOrderItemImageModelAsync(
             Product product,
             int pictureSize,
             string productName,
