@@ -68,19 +68,19 @@ public async Task<JsonResult> ProductImportProgress(int id)
 
 ```javascript
 $(function () {
-    $("#btn-start-product-import").on('click', function (e) {
+    $("#btn-start-product-import").on('click', (e) => {
         // Start throbber and display notifications.
         $.throbber.show({
             message: `
                 <div id="import-message">@T("Plugins.Smartstore.ProductImport.Wait").Value</div>
-                <div id="import-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0"></div>`
+                <div id="import-progress" class="mt-2 mb-4"></div>`
             });
 
-        window.setInterval(checkProductCreationProgress, 1500);
+        window.setInterval(checkImportProgress, 1500);
         return false;
     });
 
-    function checkProductCreationProgress() {
+    function checkImportProgress() {
         $.ajax({
             cache: false,
             type: 'POST',
@@ -92,8 +92,7 @@ $(function () {
                     $("#import-progress").html(data.ProgressMessage);
                 }
             },
-            error: function (xhr, ajaxOptions, thrownError) { },
-            complete: function () { }
+            error: function (xhr, ajaxOptions, thrownError) { }
         });
     }
 });
