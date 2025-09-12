@@ -1,7 +1,7 @@
 # Page Builder & Blocks
 
 ## Overview
-Smartstore's Page Builder lets editors compose "stories" by arranging content blocks on a responsive grid. Each story is stored in the database and rendered into the configured [widget zone](/framework/content/widgets#zones). Blocks encapsulate pieces of content such as HTML snippets, images or product listings. Blocks can be dragged, configured and reordered in the Page Builder UI.
+Smartstore's Page Builder lets editors compose "stories" by arranging content blocks on a responsive grid. Each story is stored in the database and rendered into the configured [widget zone](widgets.md#zones). Blocks encapsulate pieces of content such as HTML snippets, images or product listings. Blocks can be dragged, configured and reordered in the Page Builder UI.
 
 ## Block architecture
 Every block model implements `IBlock` and carries a `[Block]` attribute that supplies metadata like a system name, label and FontAwesome icon. A matching `IBlockHandler` drives the block's lifecycle: creating instances, loading and saving the serialized model and rendering it. Most handlers inherit from `BlockHandlerBase<TBlock>` which offers hooks like `BeforeRender`, `AfterSaveAsync` and `CloneAsync` in addition to default load and save logic. Registered blocks expose their metadata through `IBlockMetadata` so the Page Builder can list them grouped by module.
