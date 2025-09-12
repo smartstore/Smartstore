@@ -2,6 +2,8 @@
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.AI
@@ -31,26 +33,6 @@ namespace Smartstore.Core.AI
 
         public abstract bool IsActive();
 
-        public abstract bool Supports(AIProviderFeatures feature);
-
-        public bool SupportsTextCreation
-            => Supports(AIProviderFeatures.TextGeneration);
-
-        public bool SupportsTextTranslation
-            => Supports(AIProviderFeatures.Translation);
-
-        public bool SupportsImageCreation
-            => Supports(AIProviderFeatures.ImageGeneration);
-
-        public bool SupportsImageAnalysis
-            => Supports(AIProviderFeatures.ImageAnalysis);
-
-        public bool SuportsThemeVarCreation
-            => Supports(AIProviderFeatures.ThemeVarGeneration);
-
-        public bool SupportsAssistance
-            => Supports(AIProviderFeatures.Assistance);
-
         public virtual string[] GetPreferredModelNames(AIChatTopic topic)
             => null;
 
@@ -78,6 +60,12 @@ namespace Smartstore.Core.AI
             => throw new NotSupportedException();
 
         #region Utilities
+
+        protected virtual AIMetadata LoadMetadata(IAIMetadataLoader loader, IModuleDescriptor module)
+        {
+            var file = module.ContentRoot.GetFile("metadata.json");
+            return loader.LoadMetadata(file);
+        }
 
         protected virtual async Task<string> ProcessChatAsync(
             AIChat chat,

@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using Newtonsoft.Json;
+
 namespace Smartstore.Core.AI.Metadata
 {
     /// <summary>
@@ -27,6 +29,7 @@ namespace Smartstore.Core.AI.Metadata
         /// <summary>
         /// Specifies the capabilities of this provider (e.g. text generation, image generation, translation etc.).
         /// </summary>
+        [JsonConverter(typeof(AIProviderFeaturesConverter))]
         public AIProviderFeatures Capabilities { get; set; }
 
         /// <summary>

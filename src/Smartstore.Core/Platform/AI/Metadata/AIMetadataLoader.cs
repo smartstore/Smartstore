@@ -1,8 +1,9 @@
 ﻿#nullable enable
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Smartstore.ComponentModel;
 using Smartstore.IO;
 
 namespace Smartstore.Core.AI.Metadata
@@ -11,34 +12,30 @@ namespace Smartstore.Core.AI.Metadata
     {
         private readonly IMemoryCache _cache;
         private readonly IApplicationContext _appContext;
-        private readonly JsonSerializerOptions _serializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Converters =
-            {
-                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-            }
-        };
+        private readonly JsonSerializerSettings _serializerSettings;
 
         public AIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
         {
             _cache = cache;
             _appContext = appContext;
+
+            _serializerSettings = JsonConvert.DefaultSettings!();
+            _serializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
+            _serializerSettings.ContractResolver = new SmartContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            };
         }
 
-        public AIMetadata LoadMetadata(string rootPath)
+        public AIMetadata LoadMetadata(IFile file)
         {
-            Guard.NotEmpty(rootPath);
+            Guard.NotNull(file);
 
-            var path = PathUtility.Join(rootPath, "metadata.json");
-            
-            var result = _cache.GetOrCreate(path.ToLower(), entry =>
+            var result = _cache.GetOrCreate(file.SubPath.ToLower(), entry =>
             {
-                var file = _appContext.ContentRoot.GetFile(path);
                 if (!file.Exists)
                 {
-                    throw new InvalidOperationException("Invalid root path.");
+                    throw new InvalidOperationException($"Metadata file {file.SubPath} does not exist.");
                 }
 
                 var json = file.ReadAllText();
@@ -49,7 +46,7 @@ namespace Smartstore.Core.AI.Metadata
 
                 // Obtain a change token from the file provider whose
                 // callback is triggered when the file is modified.
-                var changeToken = _appContext.ContentRoot.Watch(path);
+                var changeToken = file.FileSystem.Watch(file.SubPath);
                 if (changeToken != null)
                 {
                     entry.AddExpirationToken(changeToken);
@@ -63,7 +60,7 @@ namespace Smartstore.Core.AI.Metadata
 
         protected AIMetadata? Deserialize(string json)
         {
-            return JsonSerializer.Deserialize<AIMetadata>(json, _serializerOptions);
+            return JsonConvert.DeserializeObject<AIMetadata>(json, _serializerSettings);
         }
     }
 }

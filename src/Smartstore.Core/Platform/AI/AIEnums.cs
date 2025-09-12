@@ -1,9 +1,6 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Smartstore.Core.AI
+﻿namespace Smartstore.Core.AI
 {
     [Flags]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AIProviderFeatures
     {
         None = 0,
@@ -11,37 +8,31 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Generate new text content (e.g. product descriptions, articles).
         /// </summary>
-        [JsonPropertyName("text")]
         TextGeneration = 1 << 0,
 
         /// <summary>
         /// Translate text between different languages.
         /// </summary>
-        [JsonPropertyName("translation")]
         Translation = 1 << 1,
 
         /// <summary>
         /// Generate images from text prompts.
         /// </summary>
-        [JsonPropertyName("image")]
         ImageGeneration = 1 << 2,
 
         /// <summary>
         /// Analyze and interpret images (vision capabilities).
         /// </summary>
-        [JsonPropertyName("vision")]
         ImageAnalysis = 1 << 3,
 
         /// <summary>
         /// Generate theme variables.
         /// </summary>
-        [JsonPropertyName("themevar")]
         ThemeVarGeneration = 1 << 4,
 
         /// <summary>
         /// Provide general assistant functionality (QA, reasoning, planning).
         /// </summary>
-        [JsonPropertyName("assistance")]
         Assistance = 1 << 5
     }
 

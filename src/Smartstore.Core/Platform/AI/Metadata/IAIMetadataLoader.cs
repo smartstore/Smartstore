@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.AI.Metadata
+﻿using Smartstore.IO;
+
+namespace Smartstore.Core.AI.Metadata
 {
     /// <summary>
     /// Loads and caches AI metadata.
@@ -8,8 +10,8 @@
         /// <summary>
         /// Loads and caches the metadata from the given root path.
         /// </summary>
-        /// <param name="rootPath">The app relative root path to the provider folder or directly to metadata.json.</param>"
+        /// <param name="file">metadata.json in the root of a module folder.</param>"
         /// <exception cref="InvalidOperationException"></exception>
-        AIMetadata LoadMetadata(string rootPath);
+        AIMetadata LoadMetadata(IFile file);
     }
 }

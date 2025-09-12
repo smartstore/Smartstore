@@ -19,13 +19,6 @@ namespace Smartstore.Core.AI
         bool IsActive();
 
         /// <summary>
-        /// Gets a value indicating whether the provider supports the given feature.
-        /// </summary>
-        /// <param name="feature">The AI provider feature.</param>
-        /// <returns>True if the provider supports the feature; otherwise, false.</returns>
-        bool Supports(AIProviderFeatures feature);
-
-        /// <summary>
         /// Gets the names of the preferred AI models for the given topic.
         /// </summary>
         /// <param name="topic">The AI chat topic.</param>
