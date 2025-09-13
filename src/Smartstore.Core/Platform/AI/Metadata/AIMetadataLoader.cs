@@ -30,12 +30,13 @@ namespace Smartstore.Core.AI.Metadata
         public AIMetadata LoadMetadata(IFile file)
         {
             Guard.NotNull(file);
-
-            var result = _cache.GetOrCreate(file.SubPath.ToLower(), entry =>
+            
+            var cacheKey = (file.PhysicalPath ?? file.SubPath).ToLower();
+            var result = _cache.GetOrCreate(cacheKey, entry =>
             {
                 if (!file.Exists)
                 {
-                    throw new InvalidOperationException($"Metadata file {file.SubPath} does not exist.");
+                    throw new InvalidOperationException($"Metadata file {cacheKey} does not exist.");
                 }
 
                 var json = file.ReadAllText();

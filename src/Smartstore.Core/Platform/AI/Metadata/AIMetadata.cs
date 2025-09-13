@@ -85,16 +85,26 @@ namespace Smartstore.Core.AI.Metadata
         /// Gets all text models.
         /// </summary>
         public IEnumerable<AIModelEntry> GetTextModels()
-        {
-            return Models.Where(x => x.Type == AIOutputType.Text && !x.Deprecated).OrderByDescending(x => x.Preferred);
-        }
+            => GetModels(AIOutputType.Text);
 
         /// <summary>
         /// Gets all image models.
         /// </summary>
         public IEnumerable<AIModelEntry> GetImageModels()
+            => GetModels(AIOutputType.Image);
+
+        /// <summary>
+        /// Gets all models for the given topic.
+        /// </summary>
+        public IEnumerable<AIModelEntry> GetModels(AIChatTopic topic)
+            => GetModels(topic == AIChatTopic.Image ? AIOutputType.Image : AIOutputType.Text);
+
+        /// <summary>
+        /// Gets all models for the given output type.
+        /// </summary>
+        public IEnumerable<AIModelEntry> GetModels(AIOutputType type)
         {
-            return Models.Where(x => x.Type == AIOutputType.Image && !x.Deprecated).OrderByDescending(x => x.Preferred);
+            return Models.Where(x => x.Type == type && !x.Deprecated).OrderByDescending(x => x.Preferred);
         }
 
         /// <summary>

@@ -33,12 +33,6 @@ namespace Smartstore.Core.AI
 
         public abstract bool IsActive();
 
-        public virtual string[] GetPreferredModelNames(AIChatTopic topic)
-            => null;
-
-        public virtual string[] GetDefaultModelNames()
-            => ["default"];
-
         public virtual AIMetadata Metadata { get; protected set; }
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)

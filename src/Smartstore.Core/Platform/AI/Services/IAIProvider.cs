@@ -19,20 +19,6 @@ namespace Smartstore.Core.AI
         bool IsActive();
 
         /// <summary>
-        /// Gets the names of the preferred AI models for the given topic.
-        /// </summary>
-        /// <param name="topic">The AI chat topic.</param>
-        /// <returns>An array of preferred AI model names.</returns>
-        string[]? GetPreferredModelNames(AIChatTopic topic);
-
-        /// <summary>
-        /// Gets the default AI model names.
-        /// To be used when GetPreferredModelNames returns null.
-        /// </summary>
-        /// <returns>An array of default AI model names.</returns>
-        string[] GetDefaultModelNames();
-
-        /// <summary>
         /// Gets the metadata associated with the current AI provider, mapped from metadata.json.
         /// </summary>
         AIMetadata Metadata { get; }
