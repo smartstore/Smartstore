@@ -54,6 +54,7 @@ namespace Smartstore.Core.Installation
                 _xmlResourceManager ??= new XmlResourceManager(
                     Context,
                     NullRequestCache.Instance,
+                    NullCache.Instance,
                     null,
                     null,
                     Logger,

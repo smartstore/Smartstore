@@ -30,6 +30,7 @@ namespace Smartstore.Core.Localization
 
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
+        private readonly ICacheManager _cacheManager;
         private readonly ILanguageService _languageService;
         private readonly ILocalizationService _localizationService;
         private readonly ILogger _logger;
@@ -41,6 +42,7 @@ namespace Smartstore.Core.Localization
         public XmlResourceManager(
             SmartDbContext db,
             IRequestCache requestCache,
+            ICacheManager cacheManager,
             ILanguageService languageService,
             ILocalizationService localizationService,
             ILogger logger,
@@ -51,6 +53,7 @@ namespace Smartstore.Core.Localization
         {
             _db = db;
             _requestCache = requestCache;
+            _cacheManager = cacheManager;
             _languageService = languageService;
             _localizationService = localizationService;
             _logger = logger;
@@ -607,6 +610,7 @@ namespace Smartstore.Core.Localization
             }
 
             var success = false;
+            var numUpdated = 0;
 
             try
             {
@@ -664,7 +668,7 @@ namespace Smartstore.Core.Localization
                 }
 
                 // 3. Import resources.
-                await ImportResourcesFromXmlAsync(language, xmlDoc);
+                numUpdated = await ImportResourcesFromXmlAsync(language, xmlDoc);
 
                 // 4. Save import info.
                 var result = new ResourceSetImportInfo
@@ -705,6 +709,11 @@ namespace Smartstore.Core.Localization
             }
             finally
             {
+                if (numUpdated > 0)
+                {
+                    await _cacheManager.ClearAsync();
+                }
+
                 if (_asyncState.Contains<LanguageDownloadState>())
                 {
                     _asyncState.Remove<LanguageDownloadState>();
