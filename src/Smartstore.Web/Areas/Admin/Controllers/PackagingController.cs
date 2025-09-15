@@ -40,6 +40,12 @@ namespace Smartstore.Controllers
 
                 using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
 
+                if (!SmartstoreVersion.IsAssumedCompatible(package.Descriptor.MinAppVersion))
+                {
+                    message = T("Admin.Packaging.IsIncompatible", SmartstoreVersion.CurrentFullVersion);
+                    return Json(new { fileName = file.FileName, message, returnUrl });
+                }
+
                 var isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme;
                 if (isTheme != expectTheme)
                 {
@@ -58,7 +64,7 @@ namespace Smartstore.Controllers
                 // ===> Install package now
                 var result = await _packageInstaller.InstallPackageAsync(package);
 
-                message = T("Admin.Packaging.InstallSuccess" + (isTheme ? ".Theme" : ""), result.Name).ToString();
+                message = T("Admin.Packaging.InstallSuccess" + (isTheme ? ".Theme" : string.Empty), result.Name).ToString();
                 return Json(new { success = true, file = file.Name, message, returnUrl });
             }
             catch (Exception ex)
