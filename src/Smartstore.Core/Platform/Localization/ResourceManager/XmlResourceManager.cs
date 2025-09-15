@@ -30,7 +30,7 @@ namespace Smartstore.Core.Localization
 
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
-        private readonly ICacheManager _cacheManager;
+        private readonly ICacheManager _cache;
         private readonly ILanguageService _languageService;
         private readonly ILocalizationService _localizationService;
         private readonly ILogger _logger;
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Localization
         public XmlResourceManager(
             SmartDbContext db,
             IRequestCache requestCache,
-            ICacheManager cacheManager,
+            ICacheManager cache,
             ILanguageService languageService,
             ILocalizationService localizationService,
             ILogger logger,
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Localization
         {
             _db = db;
             _requestCache = requestCache;
-            _cacheManager = cacheManager;
+            _cache = cache;
             _languageService = languageService;
             _localizationService = localizationService;
             _logger = logger;
@@ -711,7 +711,8 @@ namespace Smartstore.Core.Localization
             {
                 if (numUpdated > 0)
                 {
-                    await _cacheManager.ClearAsync();
+                    // Clear cache manually because hooking was disabled for this code unit.
+                    await _cache.ClearAsync();
                 }
 
                 if (_asyncState.Contains<LanguageDownloadState>())
