@@ -11,6 +11,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
@@ -152,6 +153,7 @@ namespace Smartstore.Web.Controllers
 
             model.OrderId = order.Id;
 
+            var language = Services.WorkContext.WorkingLanguage;
             var customer = Services.WorkContext.CurrentCustomer;
             var customerCurrency = await _db.Currencies
                 .AsNoTracking()
@@ -162,22 +164,20 @@ namespace Smartstore.Web.Controllers
             var catalogSettings = await Services.SettingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
 
             var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
-            var existingRequestsQuantities = customer.ReturnRequests
+            var allExistingRequests = customer.ReturnRequests
                 .Where(x => orderItemIds.Contains(x.OrderItemId))
-                .GroupBy(x => x.OrderItemId)
-                .Select(rr => new
+                .Select(rr => new CustomerReturnRequestModel
                 {
-                    OrderItemId = rr.Key,
-                    Quantity = rr.Sum(x => x.Quantity)
+                    Quantity = rr.Quantity,
+                    OrderItemId = rr.OrderItemId,
+                    ReturnRequestStatus = rr.ReturnRequestStatus.GetLocalizedEnum(language.Id),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(rr.CreatedOnUtc, DateTimeKind.Utc)
                 })
-                .ToDictionarySafe(x => x.OrderItemId, x => x.Quantity);
+                .ToMultimap(x => x.OrderItemId, x => x);
 
             foreach (var oi in order.OrderItems)
             {
-                var quantity = Math.Max(0, existingRequestsQuantities.TryGetValue(oi.Id, out var returnedQuantity)
-                    ? oi.Quantity - returnedQuantity
-                    : oi.Quantity);
-
+                var returnRequests = allExistingRequests.TryGetValues(oi.Id, out var tmp) ? tmp.ToList() : [];
                 var oiModel = new SubmitReturnRequestModel.OrderItemModel
                 {
                     Id = oi.Id,
@@ -185,8 +185,8 @@ namespace Smartstore.Web.Controllers
                     ProductName = oi.Product.GetLocalized(x => x.Name),
                     ProductSeName = await oi.Product.GetActiveSlugAsync(),
                     AttributeInfo = HtmlUtility.FormatPlainText(HtmlUtility.ConvertHtmlToPlainText(oi.AttributeDescription)),
-                    Quantity = quantity,
-                    ReturnedQuantity = returnedQuantity
+                    Quantity = Math.Max(oi.Quantity - returnRequests.Sum(x => x.Quantity), 0),
+                    ReturnRequests = returnRequests
                 };
 
                 oiModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(oiModel.ProductSeName, oi);

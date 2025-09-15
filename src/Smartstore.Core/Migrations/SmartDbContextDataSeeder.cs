@@ -150,8 +150,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Retournierbare Artikel aus Auftrag Nr. {0}");
 
             builder.AddOrUpdate("ReturnRequests.Products.RequestAlreadyExists",
-                "A return request already exists for this item.",
-                "Zu diesem Artikel existiert bereits ein Rücksendewunsch.");
+                "There are already return requests for this item.",
+                "Zu diesem Artikel gibt es bereits Rücksendewünsche.");
         }
     }
 }

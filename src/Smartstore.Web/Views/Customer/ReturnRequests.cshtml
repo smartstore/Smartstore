@@ -25,7 +25,7 @@
                         <dd class="col-sm-8">
                             <a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
                         </dd>
-                        <dt class="col-sm-4 fwn text-muted">@T("Products.Qty")</dt>
+                        <dt class="col-sm-4 fwn text-muted">@T("ReturnRequests.Products.Quantity")</dt>
                         <dd class="col-sm-8">@item.Quantity</dd>
                         <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Reason")</dt>
                         <dd class="col-sm-8">@item.ReturnReason</dd>
@@ -33,7 +33,7 @@
                         <dd class="col-sm-8">@item.ReturnAction</dd>
                         <dt class="col-sm-4 fwn text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
                         <dd class="col-sm-8">
-                            <time asp-for="@item.CreatedOn"></time>
+                            <time asp-for="@item.CreatedOn" sm-format="f"></time>
                         </dd>
                         @if (item.Comments.HasValue())
                         {

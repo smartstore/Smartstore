@@ -607,7 +607,7 @@ namespace Smartstore.Web.Controllers
 
                 if (orderItem != null)
                 {
-                    var itemModel = new CustomerReturnRequestsModel.ReturnRequestModel
+                    var itemModel = new CustomerReturnRequestModel
                     {
                         Id = returnRequest.Id,
                         ReturnRequestStatus = returnRequest.ReturnRequestStatus.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id),
@@ -615,6 +615,7 @@ namespace Smartstore.Web.Controllers
                         ProductName = orderItem.Product.GetLocalized(x => x.Name),
                         ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
                         Quantity = returnRequest.Quantity,
+                        OrderItemId = returnRequest.OrderItemId,
                         ReturnAction = returnRequest.RequestedAction,
                         ReturnReason = returnRequest.ReasonForReturn,
                         Comments = returnRequest.CustomerComments,

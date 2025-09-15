@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Localization;
+using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Models.Orders
@@ -32,11 +33,10 @@ namespace Smartstore.Web.Models.Orders
 
             public string AttributeInfo { get; set; }
             public Money UnitPrice { get; set; }
-
             public int Quantity { get; set; }
-            public int ReturnedQuantity { get; set; }
 
             public ImageModel Image { get; set; }
+            public List<CustomerReturnRequestModel> ReturnRequests { get; set; }
         }
     }
 }
