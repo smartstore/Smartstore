@@ -12,7 +12,7 @@
 </p>
 <p align="center">
 	<a href="#try-it-online">Try Online</a> ∙
-    <a href="https://smartstore.gitbook.io/developer-guide">Dev Guide</a> ∙ 
+    <a href="https://dev.smartstore.com">Dev Guide</a> ∙ 
 	<a href="http://community.smartstore.com">Forum</a> ∙ 
 	<a href="http://community.smartstore.com/marketplace">Marketplace</a> ∙ 
 	<a href="http://translate.smartstore.com/">Translations</a>
@@ -34,7 +34,7 @@ A comprehensive set of tools for CRM & CMS, Sales, Marketing, Payment & Shipping
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity Framework Core 9` and Domain Driven Design approach - makes it easy to extend, extremely flexible and basically fun to work with ;-)
 
 * :house: **Website:** [http://www.smartstore.com](http://www.smartstore.com)
-* :orange_book: **Developer Guide:** [Smartstore Developer Guide in English](https://smartstore.gitbook.io/developer-guide)
+* :orange_book: **Developer Guide:** [Smartstore Developer Guide in English](https://dev.smartstore.com/)
 * :blue_book: **User Guide:** [Smartstore User Guide in English](https://smartstore.atlassian.net/wiki/spaces/SMNET60/pages/2511044691/Getting+Started)
 * :speech_balloon: **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * :mega: **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
