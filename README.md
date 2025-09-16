@@ -92,7 +92,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity
 * Wallet: allows full or partial payment of orders via credit account
 * TinyImage: achieves ultra-high image compression rates (up to 80%!) and enables WebP support
 * Preview Mode: virtually test themes and stores more easily
-* RESTful WebApi (coming soon)
+* RESTful WebApi
 <p>&nbsp;</p>
 
 ## Getting Started
@@ -101,21 +101,21 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity
 
 #### Supported operating systems
 
-* Windows 10 (or higher) / Windows Server 2012 R2 (or higher)
-* Ubuntu 14.04+
+* Windows 10 (or higher) / Windows Server 2016 (or higher)
+* Ubuntu 18.04+
 * Debian 11+
 * Mac OS X 10.11+
 
 #### Supported database systems
 
-- Microsoft SQL Server 2008 Express (or higher)
+- Microsoft SQL Server 2016 Express (or higher)
 - MySQL 8.0+
 - PostgreSQL 11+
 - SQLite 3.31+
 
 ### Upgrade from Smartstore.NET 4.2
 
-Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 7` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), all you need to do is replace the application files on your server - except for the `App_Data` directory - and **all your data will automatically be transferred to the new system**. [See the documentation for detailed information on installing or upgrading your store](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
+Smartstore 5+ is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 9` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), all you need to do is replace the application files on your server - except for the `App_Data` directory - and **all your data will automatically be transferred to the new system**. [See the documentation for detailed information on installing or upgrading your store](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
  :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should migrate Smartstore.NET to version 4.2 first and then upgrade to Smartstore 5+.
 
