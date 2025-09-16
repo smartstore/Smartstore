@@ -1046,7 +1046,7 @@ namespace Smartstore.Admin.Controllers
         #region Performance settings
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting(false)]
+        [LoadSetting(hasStoreScope: false)]
         public async Task<IActionResult> PerformanceSettings(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
         {
             var model = new PerformanceSettingsModel();
@@ -1059,7 +1059,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting(false), FormValueRequired("save")]
+        [HttpPost, SaveSetting(hasStoreScope: false), FormValueRequired("save")]
         public async Task<IActionResult> PerformanceSettings(
             PerformanceSettingsModel model,
             PerformanceSettings performanceSettings,
