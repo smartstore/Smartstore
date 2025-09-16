@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Configuration;
@@ -11,23 +10,36 @@ namespace Smartstore.Web.Modelling.Settings
     public class LoadSettingAttribute : TypeFilterAttribute
     {
         public LoadSettingAttribute()
-            : this(true)
+            : this(true, true)
         {
         }
 
-        public LoadSettingAttribute(bool bindParameterFromStore)
-            : this(typeof(LoadSettingFilter), bindParameterFromStore)
+        public LoadSettingAttribute(bool hasStoreScope)
+            : this(typeof(LoadSettingFilter), true, hasStoreScope)
         {
         }
 
-        protected LoadSettingAttribute(Type filterType, bool bindParameterFromStore)
+        public LoadSettingAttribute(bool bindParameterFromStore, bool hasStoreScope)
+            : this(typeof(LoadSettingFilter), bindParameterFromStore, hasStoreScope)
+        {
+        }
+
+        protected LoadSettingAttribute(Type filterType, bool bindParameterFromStore, bool hasStoreScope)
             : base(filterType)
         {
             BindParameterFromStore = bindParameterFromStore;
+            HasStoreScope = hasStoreScope;
             Arguments = [this];
         }
 
         public bool BindParameterFromStore { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the settings have a store scope.
+        /// If <c>true</c> (default), the settings are loaded by using the current admin area store scope. 
+        /// If <c>false</c>, the settings are loaded with a store ID of 0.
+        /// </summary>
+        public bool HasStoreScope { get; set; } = true;
     }
 
     internal class LoadSettingFilter : IAsyncActionFilter
@@ -64,7 +76,7 @@ namespace Smartstore.Web.Modelling.Settings
             _storeId = GetActiveStoreScopeConfiguration();
             _settingHelper.Contextualize(_storeId);
 
-            Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
+            bool predicate(ParameterDescriptor x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(context.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
             {
@@ -184,7 +196,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         protected int GetActiveStoreScopeConfiguration()
         {
-            var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var storeId = _attribute.HasStoreScope ? _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration : 0;
             if (storeId > 0)
             {
                 var store = _services.StoreContext.GetStoreById(storeId);

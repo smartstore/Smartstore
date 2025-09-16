@@ -1046,12 +1046,9 @@ namespace Smartstore.Admin.Controllers
         #region Performance settings
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        [LoadSetting]
+        [LoadSetting(false)]
         public async Task<IActionResult> PerformanceSettings(PerformanceSettings performanceSettings, ResiliencySettings resiliencySettings)
         {
-            // These settings have no store scope configuration.
-            Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration = 0;
-
             var model = new PerformanceSettingsModel();
 
             // Map entities to model
@@ -1062,7 +1059,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost, SaveSetting, FormValueRequired("save")]
+        [HttpPost, SaveSetting(false), FormValueRequired("save")]
         public async Task<IActionResult> PerformanceSettings(
             PerformanceSettingsModel model,
             PerformanceSettings performanceSettings,
