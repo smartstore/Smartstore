@@ -69,8 +69,6 @@ namespace Smartstore.Core.Localization
         {
             Guard.NotNull(language);
 
-            // TODO: (core) Replace XmlTextWriter with Xml Linq approach.
-
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             var stringWriter = new StringWriter(sb);
             using var xmlWriter = new XmlTextWriter(stringWriter);

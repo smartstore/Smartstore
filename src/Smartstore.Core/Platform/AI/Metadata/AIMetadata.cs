@@ -67,44 +67,33 @@ namespace Smartstore.Core.AI.Metadata
         #region Query models
 
         /// <summary>
-        /// Gets the preferred model for the given topic.
-        /// </summary>
-        public AIModelEntry? GetPreferredModel(AIChatTopic topic)
-            => GetPreferredModel(topic == AIChatTopic.Image ? AIOutputType.Image : AIOutputType.Text);
-
-        /// <summary>
-        /// Gets the preferred model for the given output type.
-        /// </summary>
-        public AIModelEntry? GetPreferredModel(AIOutputType outputType)
-        {
-            return Models.FirstOrDefault(x => x.Preferred && x.Type == outputType && !x.Deprecated)
-                ?? Models.FirstOrDefault(x => x.Type == outputType && !x.Deprecated);
-        }
-
-        /// <summary>
         /// Gets all text models.
         /// </summary>
-        public IEnumerable<AIModelEntry> GetTextModels()
-            => GetModels(AIOutputType.Text);
+        /// <param name="preferred">If true, returns only preferred models. If false, returns all other models. If null, returns all undeprecated models.</param>
+        public IEnumerable<AIModelEntry> GetTextModels(bool? preferred = null)
+            => GetModels(AIOutputType.Text, preferred);
 
         /// <summary>
         /// Gets all image models.
         /// </summary>
-        public IEnumerable<AIModelEntry> GetImageModels()
-            => GetModels(AIOutputType.Image);
+        /// <param name="preferred">If true, returns only preferred models. If false, returns all other models. If null, returns all undeprecated models.</param>
+        public IEnumerable<AIModelEntry> GetImageModels(bool? preferred = null)
+            => GetModels(AIOutputType.Image, preferred);
 
         /// <summary>
         /// Gets all models for the given topic.
         /// </summary>
-        public IEnumerable<AIModelEntry> GetModels(AIChatTopic topic)
-            => GetModels(topic == AIChatTopic.Image ? AIOutputType.Image : AIOutputType.Text);
+        /// <param name="preferred">If true, returns only preferred models. If false, returns all other models. If null, returns all undeprecated models.</param>
+        public IEnumerable<AIModelEntry> GetModels(AIChatTopic topic, bool? preferred = null)
+            => GetModels(topic == AIChatTopic.Image ? AIOutputType.Image : AIOutputType.Text, preferred);
 
         /// <summary>
         /// Gets all models for the given output type.
         /// </summary>
-        public IEnumerable<AIModelEntry> GetModels(AIOutputType type)
+        /// <param name="preferred">If true, returns only preferred models. If false, returns all other models. If null, returns all undeprecated models.</param>
+        public IEnumerable<AIModelEntry> GetModels(AIOutputType type, bool? preferred = null)
         {
-            return Models.Where(x => x.Type == type && !x.Deprecated).OrderByDescending(x => x.Preferred);
+            return Models.Where(x => x.Type == type && !x.Deprecated && (preferred == null || x.Preferred == preferred.Value)).OrderByDescending(x => x.Preferred);
         }
 
         /// <summary>
