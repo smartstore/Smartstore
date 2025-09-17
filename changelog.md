@@ -17,6 +17,7 @@
 ### New Features
 
 - #1370 Add a payment provider for **easyCredit purchase on account**.
+- #934 Add cart rules property to Page Builder stories to dynamically toggle their visibility.
 - #1381 Add a compare price to attribute combinations.
 - #1386 Customer roles: Extend the permission tree so that nodes with descendants show whether descendant permissions have been granted.
 - New Rule Builder rules:
