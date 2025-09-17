@@ -21,7 +21,7 @@
 <br/>
 
 <p align="center">
-  <img src="https://smartstore.com/media/7934/catalog/sm6-devices.png" alt="Smartstore Demoshop" />
+  <img src="https://smartstore.com/media/7934/catalog/sm6-devices_small.png" alt="Smartstore Demoshop" />
 </p>
 <br/>
 
