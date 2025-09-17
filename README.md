@@ -19,8 +19,9 @@
 </p>
 
 <br/>
+
 <p align="center">
-  <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
+  <img src="https://smartstore.com/media/7934/catalog/sm6-devices.png" alt="Smartstore Demoshop" />
 </p>
 
 Smartstore is a cross-platform, modular, scalable and ultra-fast open source all-in-one eCommerce platform based on ASP.NET Core 9, Entity Framework, Vue.js, Sass, Bootstrap and more.
