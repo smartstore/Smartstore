@@ -578,7 +578,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         var customer = Services.WorkContext.CurrentCustomer;
                         var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as RuleExpression;
-                        var match = await ((ICartRuleProvider)provider).RuleMatchesAsync([expression], LogicalRuleOperator.And);
+                        var match = await ((ICartRuleProvider)provider).RuleMatchesAsync([expression], LogicalRuleOperator.Or);
 
                         message = T(match ? "Admin.Rules.Execute.MatchCart" : "Admin.Rules.Execute.DoesNotMatchCart", customer.Username.NullEmpty() ?? customer.Email);
                     }
