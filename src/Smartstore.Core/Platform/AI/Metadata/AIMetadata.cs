@@ -35,7 +35,7 @@ namespace Smartstore.Core.AI.Metadata
         /// <summary>
         /// List of LLM models available under this provider.
         /// </summary>
-        public IReadOnlyList<AIModelEntry> Models { get; set; } = [];
+        public AIModelCollection Models { get; set; } = default!;
 
         #endregion
 
@@ -97,16 +97,25 @@ namespace Smartstore.Core.AI.Metadata
         }
 
         /// <summary>
+        /// Gets all models that support vision (image analysis).
+        /// </summary>
+        /// <param name="preferred">If true, returns only preferred models. If false, returns all other models. If null, returns all undeprecated models.</param>
+        public IEnumerable<AIModelEntry> GetVisionModels(bool? preferred = null)
+        {
+            return Models.Where(x => x.Vision && !x.Deprecated && (preferred == null || x.Preferred == preferred.Value)).OrderByDescending(x => x.Preferred);
+        }
+
+        /// <summary>
         /// Gets a model by its ID.
         /// </summary>
         /// <param name="mapDeprecated">If true, tries to resolve deprecated models to their alias.</param>
         public AIModelEntry? GetModelById(string modelId, bool mapDeprecated = true)
         {
-            var model = Models.FirstOrDefault(x => x.Id == modelId);
+            var model = Models.FindModel(modelId);
             if (model != null && model.Deprecated && model.Alias.HasValue() && mapDeprecated)
             {
-                // Try to resolve alias
-                model = Models.FirstOrDefault(x => x.Id == model.Alias);
+                // Try to resolve by alias
+                model = Models.FindModel(model.Alias);
             }
 
             return model;
