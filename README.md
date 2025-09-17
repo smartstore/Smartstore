@@ -64,7 +64,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 9`, `Entity
 
 
 <p>
-  <img src="assets/sm5-screens.png" alt="Smartstore Screenshots" />
+  <img src="https://smartstore.com/media/7936/catalog/smartstore-6-details-small.png" alt="Smartstore Screenshots" />
 </p>
 
 
