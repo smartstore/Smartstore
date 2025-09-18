@@ -226,9 +226,9 @@ class AccessKit {
             const href = trigger.getAttribute('href') ?? '';
             let target = null;
 
-            if (href.startsWith('#')) {
+            if (href.startsWith('#') || href.startsWith('.')) {
                 // Classic Skip‑Link: #id
-                target = document.getElementById(href.slice(1));
+                target = document.querySelector(href);
             }
             else {
                 // Find next element sibling of container
