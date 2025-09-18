@@ -55,12 +55,6 @@ namespace Smartstore.Core.AI
 
         #region Utilities
 
-        protected virtual AIMetadata LoadMetadata(IAIMetadataLoader loader, IModuleDescriptor module)
-        {
-            var file = module.ContentRoot.GetFile("metadata.json");
-            return loader.LoadMetadata(file);
-        }
-
         protected virtual async Task<string> ProcessChatAsync(
             AIChat chat,
             AIProviderSettingsBase settings,
@@ -212,16 +206,6 @@ namespace Smartstore.Core.AI
 
             // Add the entire answer to the chat.
             chat.AddMessages(answers);
-        }
-
-        protected static string ValidateModelName(string modelName, string[] supportedModelNames)
-        {
-            if (modelName.IsEmpty() || !supportedModelNames.Any(x => x.EqualsNoCase(modelName)))
-            {
-                return supportedModelNames[0];
-            }
-
-            return modelName;
         }
 
         #endregion

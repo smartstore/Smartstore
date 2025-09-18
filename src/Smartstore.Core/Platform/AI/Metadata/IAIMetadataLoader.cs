@@ -1,6 +1,4 @@
-﻿using Smartstore.IO;
-
-namespace Smartstore.Core.AI.Metadata
+﻿namespace Smartstore.Core.AI.Metadata
 {
     /// <summary>
     /// Loads and caches AI metadata.
@@ -8,10 +6,10 @@ namespace Smartstore.Core.AI.Metadata
     public interface IAIMetadataLoader
     {
         /// <summary>
-        /// Loads and caches the metadata from the given root path.
+        /// Loads and caches the metadata for the given <paramref name="moduleSystemName"/>.
         /// </summary>
-        /// <param name="file">metadata.json in the root of a module folder.</param>"
+        /// <param name="moduleSystemName">The AI modules's system name to load metadata.json from.</param>"
         /// <exception cref="InvalidOperationException"></exception>
-        AIMetadata LoadMetadata(IFile file);
+        AIMetadata LoadMetadata(string moduleSystemName);
     }
 }

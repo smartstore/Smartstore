@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Smartstore.Core.AI.Metadata
 {
@@ -19,9 +20,21 @@ namespace Smartstore.Core.AI.Metadata
             _innerCollection = new AIModelKeyedCollection(entries);
         }
 
+        public bool TryFindModel(string? id, [NotNullWhen(true)] out AIModelEntry? entry)
+        {
+            entry = null;
+
+            if (id != null && _innerCollection.TryGetValue(id, out entry))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public AIModelEntry? FindModel(string? id)
         {
-            if (id != null && _innerCollection.TryGetValue(id, out var entry))
+            if (TryFindModel(id, out var entry))
             {
                 return entry;
             }

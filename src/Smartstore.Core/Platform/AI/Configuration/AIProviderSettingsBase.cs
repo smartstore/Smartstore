@@ -38,23 +38,23 @@ namespace Smartstore.Core.AI
         public float TopP { get; set; } = 1;
 
         /// <summary>
-        /// Gets or sets the names of the offered AI models to generate text.
+        /// Gets or sets the names of the preferred custom AI models to generate text.
         /// The available AI models depend on the used AI provider.
         /// </summary>
-        /// <example>chatgpt-4o-latest</example>
+        /// <example>chatgpt-5</example>
         public string[] TextModelNames { get; set; }
 
         /// <summary>
-        /// Gets or sets the names of the offered AI models to create images.
+        /// Gets or sets the names of the preferred custom AI models to create images.
         /// The available AI models depend on the used AI provider.
         /// </summary>
-        /// <example>dall-e-3</example>
+        /// <example>gpt-image-1</example>
         public string[] ImageModelNames { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the AI model used to analyze images.
+        /// Gets or sets the name of the AI model used to analyze images (vision).
         /// </summary>
-        /// <example>chatgpt-4o-latest</example>
+        /// <example>gpt-4o</example>
         public string ImageAnalyzerModelName { get; set; }
     }
 }

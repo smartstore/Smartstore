@@ -50,5 +50,10 @@ namespace Smartstore.Core.AI.Metadata
         /// Suggested replacement model ID for deprecated models.
         /// </summary>
         public string? Alias { get; set; }
+
+        /// <summary>
+        /// User-defined custom model (not provided by metadata.json).
+        /// </summary>
+        public bool IsCustom { get; set; }
     }
 }

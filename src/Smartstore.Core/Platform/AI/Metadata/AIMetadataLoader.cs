@@ -4,7 +4,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Smartstore.ComponentModel;
-using Smartstore.IO;
 
 namespace Smartstore.Core.AI.Metadata
 {
@@ -27,16 +26,19 @@ namespace Smartstore.Core.AI.Metadata
             };
         }
 
-        public AIMetadata LoadMetadata(IFile file)
+        public AIMetadata LoadMetadata(string moduleSystemName)
         {
-            Guard.NotNull(file);
-            
-            var cacheKey = (file.PhysicalPath ?? file.SubPath).ToLower();
+            Guard.NotEmpty(moduleSystemName);
+
+            var cacheKey = "aimetadata:" + moduleSystemName;
+
             var result = _cache.GetOrCreate(cacheKey, entry =>
             {
+                var module = _appContext.ModuleCatalog.GetModuleByName(moduleSystemName) ?? throw new InvalidOperationException($"Module {moduleSystemName} does not exist.");
+                var file = module.ContentRoot.GetFile("metadata.json");
                 if (!file.Exists)
                 {
-                    throw new InvalidOperationException($"Metadata file {cacheKey} does not exist.");
+                    throw new InvalidOperationException($"Metadata file for {moduleSystemName} not found.");
                 }
 
                 var json = file.ReadAllText();

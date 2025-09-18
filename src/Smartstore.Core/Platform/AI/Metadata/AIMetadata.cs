@@ -121,6 +121,26 @@ namespace Smartstore.Core.AI.Metadata
             return model;
         }
 
+        public string ValidateModelName(string modelName, AIOutputType type)
+        {
+            if (!Models.TryFindModel(modelName, out var modelEntry) || modelEntry.Type != type)
+            {
+                return GetModels(type, preferred: true).FirstOrDefault()!.Id;
+            }
+
+            return modelName;
+        }
+
+        public string ValidateVisionModelName(string modelName)
+        {
+            if (!Models.TryFindModel(modelName, out var modelEntry) || modelEntry.Type != AIOutputType.Text || !modelEntry.Vision)
+            {
+                return GetVisionModels(preferred: true).FirstOrDefault()!.Id;
+            }
+
+            return modelName;
+        }
+
         #endregion
     }
 }
