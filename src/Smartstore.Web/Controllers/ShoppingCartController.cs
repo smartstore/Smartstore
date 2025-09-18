@@ -976,16 +976,29 @@ namespace Smartstore.Web.Controllers
         {
             var fullCart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id, activeOnly: null);
             var cart = fullCart.WithActiveItemsOnly();
-            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+            var applied = false;
+            string message = null;
 
-            var (applied, discount) = await _orderCalculationService.ApplyDiscountCouponAsync(cart, discountCouponCode);
-            await _db.SaveChangesAsync();
+            await ApplyCheckoutAttributes(query, cart);
+
+            try
+            {
+                Discount discount;
+                (applied, discount) = await _orderCalculationService.ApplyDiscountCouponAsync(cart, discountCouponCode);
+                await _db.SaveChangesAsync();
+
+                message = applied
+                    ? T("ShoppingCart.DiscountCouponCode.Applied")
+                    : T(discount == null ? "ShoppingCart.DiscountCouponCode.WrongDiscount" : "ShoppingCart.DiscountCouponCode.NoMoreDiscount");
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
 
             var model = await fullCart.MapAsync();
             model.DiscountBox.IsWarning = !applied;
-            model.DiscountBox.Message = applied
-                ? T("ShoppingCart.DiscountCouponCode.Applied")
-                : T(discount == null ? "ShoppingCart.DiscountCouponCode.WrongDiscount" : "ShoppingCart.DiscountCouponCode.NoMoreDiscount");
+            model.DiscountBox.Message = message;
 
             var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
             var cartHtml = await InvokePartialViewAsync("CartItems", model);
@@ -1034,13 +1047,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ApplyGiftCardCoupon(ProductVariantQuery query, string giftCardCouponCode)
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
-            var checkoutAttributeSelection = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-            if (cart.Customer.GenericAttributes.CheckoutAttributes != checkoutAttributeSelection)
-            {
-                cart.Customer.GenericAttributes.CheckoutAttributes = checkoutAttributeSelection;
-                await _db.SaveChangesAsync();
-            }
+            await ApplyCheckoutAttributes(query, cart);
 
             var (success, message) = await ApplyGiftCardCouponInternal(cart, giftCardCouponCode);
 
@@ -1071,7 +1078,7 @@ namespace Smartstore.Web.Controllers
                 return (false, T("ShoppingCart.GiftCardCouponCode.WrongGiftCard"));
             }
 
-            var keyLock = _lockProvider.GetLock($"shoppingcart.applygiftcard:{giftCardCouponCode}");
+            var keyLock = _lockProvider.GetLock($"shoppingcart.applygiftcardcoupon:{giftCardCouponCode}");
             if (await keyLock.IsHeldAsync())
             {
                 return (false, $"Gift card coupon code {giftCardCouponCode} is currently being processed by another request.");
@@ -1258,6 +1265,20 @@ namespace Smartstore.Web.Controllers
             }
 
             return (options, []);
+        }
+
+        private async Task<bool> ApplyCheckoutAttributes(ProductVariantQuery query, ShoppingCart cart)
+        {
+            var checkoutAttributeSelection = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+            if (cart.Customer.GenericAttributes.CheckoutAttributes != checkoutAttributeSelection)
+            {
+                cart.Customer.GenericAttributes.CheckoutAttributes = checkoutAttributeSelection;
+                await _db.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
         }
 
         private string GetCartItemSelectionLink(ShoppingCart cart)

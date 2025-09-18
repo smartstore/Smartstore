@@ -192,6 +192,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _roundingHelper,
                 _requestCache,
                 ProviderManager,
+                null,
                 _checkoutAttributeMaterializer,
                 _workContext,
                 _storeContext,

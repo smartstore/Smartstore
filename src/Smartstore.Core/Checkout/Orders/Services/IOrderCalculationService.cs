@@ -116,6 +116,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// Also returns the discount to which <paramref name="couponCode"/> belongs.
         /// <c>null</c> if either the discount or the <paramref name="couponCode"/> is invalid.
         /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <paramref name="couponCode"/> is currently being processed by another request from the cart holder.
+        /// </exception>
         Task<(bool Applied, Discount AppliedDiscount)> ApplyDiscountCouponAsync(ShoppingCart cart, string couponCode);
 
         /// <summary>
