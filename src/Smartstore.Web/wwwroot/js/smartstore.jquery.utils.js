@@ -296,7 +296,11 @@
 
                 var self = $(this);
                 var grid = self[0];
-                var allItems = self.find(".card");
+
+                if (typeof itemSelector === "function") {
+                    callback = itemSelector;
+                    itemSelector = undefined;
+                }
 
                 var viewport = ResponsiveBootstrapToolkit;
                 if (viewport.is('<=sm')) {
@@ -306,8 +310,99 @@
 
                 self.addClass("masonry-grid");
 
-                // first call so aos can be initialized correctly
                 var hasResized = false;
+
+                function getGridItems() {
+                    var items = self.children().filter(function () {
+                        return this.nodeType === 1;
+                    });
+
+                    if (!items.length) {
+                        items = self.find(".card");
+                    }
+
+                    return items;
+                }
+
+                function resolveInnerItem(item) {
+                    if (typeof itemSelector !== "string" || !itemSelector.length) {
+                        return item;
+                    }
+
+                    if (item.matches && item.matches(itemSelector)) {
+                        return item;
+                    }
+
+                    try {
+                        var inner = item.querySelector(itemSelector);
+                        if (inner) {
+                            return inner;
+                        }
+                    }
+                    catch (e) {
+                        // ignore selector errors and fall back to the grid item itself
+                    }
+
+                    return item;
+                }
+
+                function computeGridMetrics() {
+                    var style = window.getComputedStyle(grid);
+                    var rowHeight = parseFloat(style.getPropertyValue("grid-auto-rows")) || 0;
+                    if (!rowHeight) {
+                        var templateRows = style.getPropertyValue("grid-template-rows");
+                        if (templateRows) {
+                            rowHeight = parseFloat(templateRows.split(" ")[0]) || 0;
+                        }
+                    }
+                    var rowGap = parseFloat(style.getPropertyValue("grid-row-gap")) || parseFloat(style.getPropertyValue("row-gap")) || 0;
+
+                    return {
+                        rowHeight: rowHeight,
+                        rowGap: rowGap
+                    };
+                }
+
+                function measureItemHeight(item) {
+                    var rect = item.getBoundingClientRect();
+                    var style = window.getComputedStyle(item);
+                    var marginTop = parseFloat(style.marginTop) || 0;
+                    var marginBottom = parseFloat(style.marginBottom) || 0;
+                    return rect.height + marginTop + marginBottom;
+                }
+
+                function resizeGridItem(item, metrics) {
+                    var innerItem = resolveInnerItem(item);
+
+                    if (hasResized) {
+                        item.style.removeProperty("grid-row-end");
+                        if (innerItem !== item) {
+                            innerItem.style.removeProperty("height");
+                        }
+                    }
+
+                    if (!metrics.rowHeight) {
+                        return;
+                    }
+
+                    var totalHeight = measureItemHeight(item);
+                    var denominator = metrics.rowHeight + metrics.rowGap;
+                    var rowSpan = denominator > 0 ? Math.max(Math.round((totalHeight + metrics.rowGap) / denominator), 1) : 1;
+                    item.style.gridRowEnd = "span " + rowSpan;
+
+                    if (innerItem !== item) {
+                        innerItem.style.height = "100%";
+                    }
+                }
+
+                function resizeAllGridItems() {
+                    var metrics = computeGridMetrics();
+                    getGridItems().each(function () {
+                        resizeGridItem(this, metrics);
+                    });
+                    hasResized = true;
+                }
+
                 resizeAllGridItems();
 
                 self.imagesLoaded(function () {
@@ -317,33 +412,10 @@
 
                     if (typeof callback === 'function') {
                         _.defer(function () {
-                            callback.call(this);
+                            callback.call(grid);
                         });
                     }
                 });
-
-                function resizeGridItem(item) {
-                    var innerItem = item.querySelector(itemSelector);
-                    var computedStyle = window.getComputedStyle(grid);
-                    var rowHeight = parseInt(computedStyle.getPropertyValue('grid-auto-rows'));
-                    var rowGap = parseInt(computedStyle.getPropertyValue('grid-row-gap'));
-
-                    if (hasResized) {
-                        item.style.gridRowEnd = undefined;
-                        innerItem.style.height = "";
-                    }
-
-                    var rowSpan = Math.ceil((innerItem.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
-                    item.style.gridRowEnd = "span " + rowSpan;
-                    innerItem.style.height = "100%";
-                }
-
-                function resizeAllGridItems() {
-                    allItems.each(function () {
-                        resizeGridItem($(this)[0]);
-                    });
-                    hasResized = true;
-                }
 
                 var timeout;
 
