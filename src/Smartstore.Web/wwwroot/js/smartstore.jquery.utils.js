@@ -333,7 +333,7 @@
                         innerItem.style.height = "";
                     }
 
-                    var rowSpan = Math.ceil((innerItem.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
+                    var rowSpan = Math.ceil(innerItem.getBoundingClientRect().height / (rowHeight + rowGap));
                     item.style.gridRowEnd = "span " + rowSpan;
                     innerItem.style.height = "100%";
                 }
