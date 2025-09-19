@@ -8,7 +8,7 @@
                 <div class="mb-2">
                     @Html.Raw(address.FormattedAddress)
                 </div>
-                <div class="email">
+                <div sm-if="address.Email.HasValue()" class="email">
                     @T("Order.Email"): @address.Email
                 </div>
                 <div sm-if="address.PhoneNumber.HasValue()" class="phone">

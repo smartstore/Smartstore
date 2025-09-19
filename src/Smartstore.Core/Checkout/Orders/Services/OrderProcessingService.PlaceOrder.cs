@@ -168,6 +168,8 @@ namespace Smartstore.Core.Checkout.Orders
                 return (warnings, cart);
             }
 
+            var isGuest = customer.IsGuest();
+
             // Check whether guest checkout is allowed.
             if (!_orderSettings.AnonymousCheckoutAllowed && !customer.IsRegistered())
             {
@@ -263,7 +265,7 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         warnings.Add(T("Order.BillingAddressMissing"));
                     }
-                    else if (!customer.BillingAddress.Email.IsEmail())
+                    else if (isGuest && !customer.BillingAddress.Email.IsEmail())
                     {
                         warnings.Add(T("Common.Error.InvalidEmail"));
                     }
@@ -280,7 +282,7 @@ namespace Smartstore.Core.Checkout.Orders
                         warnings.Add(T("Order.ShippingAddressMissing"));
                         throw new Exception();
                     }
-                    else if (!customer.ShippingAddress.Email.IsEmail())
+                    else if (isGuest && !customer.ShippingAddress.Email.IsEmail())
                     {
                         warnings.Add(T("Common.Error.InvalidEmail"));
                     }

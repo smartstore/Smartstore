@@ -312,6 +312,9 @@ namespace Smartstore.Web.Controllers
             var customerCurrency = context?.Currencies?.Get(o.CustomerCurrencyCode) ??
                 await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == o.CustomerCurrencyCode);
 
+            await _db.LoadReferenceAsync(o, x => x.Customer, false, q => q.Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole));
+
             var model = new OrderDetailsModel
             {
                 Order = o,
@@ -338,7 +341,7 @@ namespace Smartstore.Web.Controllers
 
                 if (o.ShippingAddress != null)
                 {
-                    model.ShippingAddress = await MapperFactory.MapAsync<Address, AddressModel>(o.ShippingAddress);
+                    model.ShippingAddress = await o.ShippingAddress.MapAsync(o.Customer);
                 }
 
                 // Shipments (only already shipped).
@@ -367,7 +370,7 @@ namespace Smartstore.Web.Controllers
 
             if (o.BillingAddress != null)
             {
-                model.BillingAddress = await MapperFactory.MapAsync<Address, AddressModel>(o.BillingAddress);
+                model.BillingAddress = await o.BillingAddress.MapAsync(o.Customer);
             }
 
             model.VatNumber = o.VatNumber;

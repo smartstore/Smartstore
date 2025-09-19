@@ -71,7 +71,7 @@
             <span asp-validation-for="Email"></span>
         </div>
     </div>
-    <div sm-if="Model.ValidateEmailAddress" class="adminRow">
+    <div sm-if="Model.EmailEnabled && Model.ValidateEmailAddress" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="EmailMatch" />
         </div>

@@ -416,7 +416,7 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                await model.MapAsync(address);
+                await model.MapAsync(address, customer);
                 customer.Addresses.Add(address);
                 await _db.SaveChangesAsync();
 

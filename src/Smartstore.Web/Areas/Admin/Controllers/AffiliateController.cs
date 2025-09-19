@@ -29,6 +29,7 @@ namespace Smartstore.Admin.Controllers
                 if (!excludeProperties)
                 {
                     model.Active = affiliate.Active;
+                    // INFO: Customer parameter not required here yet.
                     await affiliate.Address.MapAsync(model.Address);
                 }
             }
@@ -46,6 +47,7 @@ namespace Smartstore.Admin.Controllers
             model.Address.PhoneEnabled = true;
             model.Address.PhoneRequired = true;
             model.Address.FaxEnabled = true;
+            model.Address.EmailEnabled = true;
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
         }
 

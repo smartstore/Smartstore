@@ -179,6 +179,7 @@ namespace Smartstore.Web.Api.Controllers
             {
                 var entity = await Entities
                     .AsNoTracking()
+                    .IncludeCustomer()
                     .IgnoreQueryFilters()
                     .IncludeBillingAddress()
                     .IncludeOrderItems()
@@ -299,11 +300,12 @@ namespace Smartstore.Web.Api.Controllers
             try
             {
                 var entity = await GetRequiredById(id, q => q
+                    .IncludeCustomer()
                     .Include(x => x.ShippingAddress)
                     .Include(x => x.BillingAddress)
                     .Include(x => x.Shipments));
 
-                var (content, fileName) = await _orderHelper.Value.GeneratePdfAsync(new[] { entity });
+                var (content, fileName) = await _orderHelper.Value.GeneratePdfAsync([entity]);
 
                 return File(content, MediaTypeNames.Application.Pdf, fileName);
             }

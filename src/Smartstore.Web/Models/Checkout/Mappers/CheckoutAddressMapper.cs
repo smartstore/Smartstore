@@ -72,7 +72,7 @@ namespace Smartstore.Web.Models.Checkout
 
             foreach (var address in addresses)
             {
-                to.ExistingAddresses.Add(await address.MapAsync());
+                to.ExistingAddresses.Add(await address.MapAsync(cart.Customer));
             }
 
             to.ActionName = shipping ? CheckoutActionNames.ShippingAddress : CheckoutActionNames.BillingAddress;
@@ -80,7 +80,7 @@ namespace Smartstore.Web.Models.Checkout
             to.IsShippingRequired = cart.IsShippingRequired;
 
             // New address.
-            await new Address().MapAsync(to.NewAddress);
+            await new Address().MapAsync(to.NewAddress, cart.Customer);
 
             to.NewAddress.CountryId = selectedCountryId;
             to.NewAddress.Email = _workContext.CurrentCustomer.Email;

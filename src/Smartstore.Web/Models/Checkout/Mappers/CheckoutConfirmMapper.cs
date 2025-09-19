@@ -117,7 +117,7 @@ namespace Smartstore.Web.Models.Checkout
 
                 if (customer.BillingAddress != null && isBillingAddresRequired)
                 {
-                    to.OrderReviewData.BillingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.BillingAddress);
+                    to.OrderReviewData.BillingAddress = await customer.BillingAddress.MapAsync(customer);
                 }
 
                 if (to.OrderReviewData.IsShippable)
@@ -127,7 +127,7 @@ namespace Smartstore.Web.Models.Checkout
 
                     if (customer.ShippingAddress != null)
                     {
-                        to.OrderReviewData.ShippingAddress = await MapperFactory.MapAsync<Address, AddressModel>(customer.ShippingAddress);
+                        to.OrderReviewData.ShippingAddress = await customer.ShippingAddress.MapAsync(customer);
                     }
                 }
             }

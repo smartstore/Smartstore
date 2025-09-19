@@ -52,7 +52,7 @@
                                                 <span class="bidi-embed">@item.LastName</span>
                                             </strong>
                                         </div>
-                                        <div class="email">
+                                        <div sm-if="item.EmailEnabled" class="email">
                                             <span>@T("Address.Fields.Email"):</span>
                                             <span>@item.Email</span>
                                         </div>

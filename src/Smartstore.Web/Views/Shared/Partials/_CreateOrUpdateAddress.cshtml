@@ -128,14 +128,14 @@
 
     <div><hr /></div>
 
-    <div class="form-group row">
+    <div sm-if="Model.EmailEnabled" class="form-group row">
         <label asp-for="Email" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
             <input asp-for="Email" sm-required="true" autocomplete="email" />
             <span asp-validation-for="Email"></span>
         </div>
     </div>
-    <div sm-if="Model.ValidateEmailAddress" class="form-group row">
+    <div sm-if="Model.EmailEnabled && Model.ValidateEmailAddress" class="form-group row">
         <label asp-for="EmailMatch" class="col-@(breakpoint)-3 col-form-label required"></label>
         <div class="col-@(breakpoint)-9">
             <input asp-for="EmailMatch" sm-required="true" autocomplete="email" />

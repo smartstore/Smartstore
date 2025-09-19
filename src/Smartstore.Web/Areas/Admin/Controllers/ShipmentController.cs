@@ -476,6 +476,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (order.ShippingAddressId.HasValue)
                 {
+                    // INFO: Customer parameter not required here yet.
                     await order.ShippingAddress.MapAsync(model.ShippingAddress);
                 }
 

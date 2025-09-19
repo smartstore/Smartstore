@@ -11,7 +11,7 @@
             <div class="mb-2">
                 @Html.Raw(address.FormattedAddress)
             </div>
-            <div class="email">
+            <div sm-if="address.EmailEnabled && address.Email.HasValue()" class="email">
                 <span class="pr-1">@T("Order.Email"):</span>
                 <span>@address.Email</span>
             </div>

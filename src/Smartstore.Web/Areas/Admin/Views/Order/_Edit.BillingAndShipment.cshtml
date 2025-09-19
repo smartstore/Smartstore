@@ -24,7 +24,7 @@
                 <div class="mb-2">
                     @Html.Raw(billTo.FormattedAddress)
                 </div>
-                <div sm-if="billTo.Email.HasValue()" class="email">
+                <div sm-if="billTo.EmailEnabled && billTo.Email.HasValue()" class="email">
                     @T("Order.Email"): @billTo.Email
                 </div>
                 <div sm-if="billTo.PhoneEnabled && billTo.PhoneNumber.HasValue()" class="phone">
@@ -52,7 +52,7 @@
                     <div class="mb-2">
                         @Html.Raw(shipTo.FormattedAddress)
                     </div>
-                    <div class="email">
+                    <div sm-if="shipTo.EmailEnabled && shipTo.Email.HasValue()" class="email">
                         @T("Order.Email"): @shipTo.Email
                     </div>
                     <div sm-if="shipTo.PhoneEnabled && shipTo.PhoneNumber.HasValue()" class="phone">

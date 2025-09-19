@@ -52,7 +52,7 @@
                         <span id="caddr-fullname@(id)" class="sr-only">@address.FullName</span>
                     </div>
                     <div class="mb-2">
-                        <div class="email">
+                        <div sm-if="address.EmailEnabled" class="email">
                             <span>@T("Address.Fields.Email")</span>: @address.Email
                         </div>
                         <div sm-if="address.PhoneEnabled" class="phone">

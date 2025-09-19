@@ -11,9 +11,10 @@ namespace Smartstore.Web.Models.Common
     {
         public static async Task<List<AddressModel>> MapAsync(this IEnumerable<Address> entities,
             Customer customer = null,
-            bool defaultAddressesEnabled = false)
+            bool defaultAddressesEnabled = false,
+            bool? emailEnabled = null)
         {
-            var models = entities.SelectAwait(async x => await x.MapAsync(customer, defaultAddressesEnabled));
+            var models = entities.SelectAwait(async x => await x.MapAsync(customer, defaultAddressesEnabled, emailEnabled));
 
             if (defaultAddressesEnabled)
             {
@@ -41,10 +42,11 @@ namespace Smartstore.Web.Models.Common
         /// <returns>New <see cref="AddressModel"/>.</returns>
         public static async Task<AddressModel> MapAsync(this Address entity, 
             Customer customer = null,
-            bool defaultAddressesEnabled = false)
+            bool defaultAddressesEnabled = false,
+            bool? emailEnabled = null)
         {
             var model = new AddressModel();
-            await MapAsync(entity, model, customer, defaultAddressesEnabled);
+            await MapAsync(entity, model, customer, defaultAddressesEnabled, emailEnabled);
 
             return model;
         }
@@ -57,24 +59,27 @@ namespace Smartstore.Web.Models.Common
         public static async Task MapAsync(this Address entity, 
             AddressModel model, 
             Customer customer = null,
-            bool defaultAddressesEnabled = false)
+            bool defaultAddressesEnabled = false,
+            bool? emailEnabled = null)
         {
             dynamic parameters = new ExpandoObject();
             parameters.Customer = customer;
             parameters.DefaultAddressesEnabled = defaultAddressesEnabled;
+            parameters.EmailEnabled = emailEnabled;
 
             await MapperFactory.MapAsync(entity, model, parameters);
         }
 
-
         public static async Task MapAsync(this AddressModel model,
             Address entity,
             Customer customer = null,
-            bool applyDefaultAddresses = false)
+            bool applyDefaultAddresses = false,
+            bool? emailEnabled = null)
         {
             dynamic parameters = new ExpandoObject();
             parameters.Customer = customer;
             parameters.ApplyDefaultAddresses = applyDefaultAddresses;
+            parameters.EmailEnabled = emailEnabled;
 
             await MapperFactory.MapAsync(model, entity, parameters);
         }
@@ -125,6 +130,9 @@ namespace Smartstore.Web.Models.Common
 
             if (customer != null)
             {
+                // INFO: Admin should be allowed to modify/delete the email. Parameter and model property
+                // should be removed later when implementing #1399 because an address should never contain an email.
+                to.EmailEnabled = (parameters?.EmailEnabled as bool?) ?? customer.IsGuest();
                 to.IsDefaultBillingAddress = from.Id == customer.GenericAttributes.DefaultBillingAddressId;
                 to.IsDefaultShippingAddress = from.Id == customer.GenericAttributes.DefaultShippingAddressId;
             }

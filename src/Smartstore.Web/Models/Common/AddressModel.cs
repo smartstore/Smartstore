@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
+using AngleSharp.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Common.Configuration;
@@ -27,7 +28,6 @@ namespace Smartstore.Web.Models.Common
         public string LastName { get; set; }
         public bool LastNameEnabled { get; set; } = true;
 
-        [Required]
         [LocalizedDisplay("*Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
@@ -210,15 +210,18 @@ namespace Smartstore.Web.Models.Common
                 RuleFor(x => x.FaxNumber).NotEmpty();
             }
 
-            RuleFor(x => x.Email).EmailAddressStrict();
-
-            if (addressSettings.ValidateEmailAddress)
+            When(x => x.EmailEnabled, () =>
             {
-                RuleFor(x => x.EmailMatch)
-                    .NotEmpty()
-                    .Equal(x => x.Email)
-                    .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
-            }
+                RuleFor(x => x.Email).EmailAddressStrict();
+
+                if (addressSettings.ValidateEmailAddress)
+                {
+                    RuleFor(x => x.EmailMatch)
+                        .NotEmpty()
+                        .Equal(x => x.Email)
+                        .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
+                }
+            });
 
             When(x => x.CountryId != null && x.DefaultAddressesEnabled, () =>
             {
