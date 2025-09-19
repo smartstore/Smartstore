@@ -226,13 +226,17 @@ class AccessKit {
             const href = trigger.getAttribute('href') ?? '';
             let target = null;
 
-            if (href.startsWith('#') || href.startsWith('.')) {
-                // Classic Skip‑Link: #id
+            if (['#', '.', '['].includes(href[0])) {
+                // Classic Skip‑Link: selector
                 target = document.querySelector(href);
             }
-            else {
+
+            if (!target) {
                 // Find next element sibling of container
                 let pointer = trigger.parentElement;
+                if (pointer.matches('.skip-content-container')) {
+                    pointer = pointer.parentElement;
+                }
                 while (pointer && !pointer.nextElementSibling) {
                     pointer = pointer.parentElement;
                 }
