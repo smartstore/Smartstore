@@ -1,5 +1,8 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
+using Newtonsoft.Json;
+
 namespace Smartstore.Core.AI.Metadata
 {
     /// <summary>
@@ -9,6 +12,16 @@ namespace Smartstore.Core.AI.Metadata
     {
         Text,
         Image
+    }
+
+    /// <summary>
+    /// Represents the performance level of an AI model.
+    /// </summary>
+    public enum AIModelPerformanceLevel
+    {
+        Fast,
+        Balanced,
+        DeepReasoning
     }
 
     /// <summary>
@@ -50,6 +63,20 @@ namespace Smartstore.Core.AI.Metadata
         /// Suggested replacement model ID for deprecated models.
         /// </summary>
         public string? Alias { get; set; }
+
+        /// <summary>
+        /// The performance level of the model.
+        /// </summary>
+        [DefaultValue(AIModelPerformanceLevel.Balanced)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public AIModelPerformanceLevel Level { get; set; }
+
+        /// <summary>
+        /// Indicates whether the model supports streaming responses.
+        /// </summary>
+        [DefaultValue(true)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public bool Stream { get; set; }
 
         /// <summary>
         /// User-defined custom model (not provided by metadata.json).
