@@ -30,7 +30,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 }
             }
 
-            var match = expression.HasListsMatch(skus, StringComparer.InvariantCultureIgnoreCase);
+            var match = expression.HasListsMatch(skus, comparer: StringComparer.InvariantCultureIgnoreCase);
             return match;
         }
     }

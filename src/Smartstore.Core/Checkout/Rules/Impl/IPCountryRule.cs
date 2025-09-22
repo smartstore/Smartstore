@@ -25,7 +25,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
             countryIsoCode ??= _countryLookup.LookupCountry(context.Customer?.LastIpAddress)?.IsoCode?.NullEmpty();
 
-            var match = expression.HasListMatch(countryIsoCode ?? string.Empty, StringComparer.InvariantCultureIgnoreCase);
+            var match = expression.HasListMatch(countryIsoCode ?? string.Empty, comparer: StringComparer.InvariantCultureIgnoreCase);
             return Task.FromResult(match);
         }
     }

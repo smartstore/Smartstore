@@ -220,6 +220,7 @@ namespace Smartstore.Core.Checkout.Rules
             {
                 Name = "CartItemQuantity",
                 DisplayName = T("Admin.Rules.FilterDescriptor.CartItemQuantity"),
+                GroupKey = "ShoppingCart",
                 RuleType = RuleType.String,
                 ProcessorType = typeof(CartItemQuantityRule),
                 Operators = [RuleOperator.IsEqualTo]
@@ -238,6 +239,7 @@ namespace Smartstore.Core.Checkout.Rules
             {
                 Name = "CartItemFromCategoryQuantity",
                 DisplayName = T("Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity"),
+                GroupKey = "ShoppingCart",
                 RuleType = RuleType.String,
                 ProcessorType = typeof(CartItemFromCategoryQuantityRule),
                 Operators = [RuleOperator.IsEqualTo]
@@ -311,100 +313,6 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(PaymentMethodRule),
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.PaymentMethod) { Multiple = true }
                 },
-
-                new()
-                {
-                    Name = "CartTotal",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.CartTotal"),
-                    RuleType = RuleType.Money,
-                    ProcessorType = typeof(CartTotalRule)
-                },
-                new()
-                {
-                    Name = "CartSubtotal",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.CartSubtotal"),
-                    RuleType = RuleType.Money,
-                    ProcessorType = typeof(CartSubtotalRule)
-                },
-                new()
-                {
-                    Name = "CartWeightRule",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.CartWeightRule"),
-                    RuleType = RuleType.Money,
-                    ProcessorType = typeof(CartWeightRule),
-                    Metadata = { ["postfix"] = baseWeightName }
-                },
-                new()
-                {
-                    Name = "CartProductCount",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.CartProductCount"),
-                    RuleType = RuleType.Int,
-                    ProcessorType = typeof(CartProductCountRule)
-                },
-                cartItemQuantity,
-                cartItemFromCategoryQuantity,
-                new()
-                {
-                    Name = "ProductInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(ProductInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "VariantInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.VariantInCart"),
-                    RuleType = RuleType.StringArray,
-                    ProcessorType = typeof(VariantInCartRule),
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "ProductFromCategoryInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromCategoryInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(ProductFromCategoryInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "AllProductsFromCategoryInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromCategoryInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(AllProductsFromCategoryInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "ProductFromManufacturerInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromManufacturerInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(ProductFromManufacturerInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "AllProductsFromManufacturerInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromManufacturerInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(AllProductsFromManufacturerInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
-                    IsComparingSequences = true
-                },
-                new()
-                {
-                    Name = "ProductWithDeliveryTimeInCart",
-                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart"),
-                    RuleType = RuleType.IntArray,
-                    ProcessorType = typeof(ProductWithDeliveryTimeInCartRule),
-                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.DeliveryTime) { Multiple = true },
-                    IsComparingSequences = true
-                },
                 new()
                 {
                     Name = "ProductInWishlist",
@@ -436,6 +344,121 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(RuleSetRule),
                     Operators = [RuleOperator.IsEqualTo, RuleOperator.IsNotEqualTo],
                     SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.CartRule),
+                },
+
+                new()
+                {
+                    Name = "CartTotal",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.CartTotal"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.Money,
+                    ProcessorType = typeof(CartTotalRule)
+                },
+                new()
+                {
+                    Name = "CartSubtotal",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.CartSubtotal"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.Money,
+                    ProcessorType = typeof(CartSubtotalRule)
+                },
+                new()
+                {
+                    Name = "CartWeightRule",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.CartWeightRule"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.Money,
+                    ProcessorType = typeof(CartWeightRule),
+                    Metadata = { ["postfix"] = baseWeightName }
+                },
+                new()
+                {
+                    Name = "CartProductCount",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.CartProductCount"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.Int,
+                    ProcessorType = typeof(CartProductCountRule)
+                },
+                cartItemQuantity,
+                cartItemFromCategoryQuantity,
+                new()
+                {
+                    Name = "ProductInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ProductInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Product) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "VariantInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.VariantInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.StringArray,
+                    ProcessorType = typeof(VariantInCartRule),
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "ProductFromCategoryInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromCategoryInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ProductFromCategoryInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "ProductInCategoryTreeCartRule",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductInCategoryTreeCartRule"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ProductInCategoryTreeCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "AllProductsFromCategoryInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromCategoryInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(AllProductsFromCategoryInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Category) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "ProductFromManufacturerInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductFromManufacturerInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ProductFromManufacturerInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "AllProductsFromManufacturerInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.AllProductsFromManufacturerInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(AllProductsFromManufacturerInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.Manufacturer) { Multiple = true },
+                    IsComparingSequences = true
+                },
+                new()
+                {
+                    Name = "ProductWithDeliveryTimeInCart",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ProductWithDeliveryTimeInCart"),
+                    GroupKey = "ShoppingCart",
+                    RuleType = RuleType.IntArray,
+                    ProcessorType = typeof(ProductWithDeliveryTimeInCartRule),
+                    SelectList = new RemoteRuleValueSelectList(KnownRuleOptionDataSourceNames.DeliveryTime) { Multiple = true },
+                    IsComparingSequences = true
                 },
 
                 new()

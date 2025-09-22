@@ -34,7 +34,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                     .Select(x => _legacyAuthenticationNamesMap.Get(x.ProviderSystemName.EmptyNull()) ?? x.ProviderSystemName)
                     .ToArray();
 
-                var match = expression.HasListsMatch(authenticationMethods, StringComparer.InvariantCultureIgnoreCase);
+                var match = expression.HasListsMatch(authenticationMethods, comparer: StringComparer.InvariantCultureIgnoreCase);
                 return match;
             }
 

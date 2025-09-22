@@ -45,7 +45,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                     paymentMethods.AddRange(orders.Select(x => x.PaymentMethodSystemName));
                 }
 
-                var match = expression.HasListsMatch(paymentMethods, StringComparer.InvariantCultureIgnoreCase);
+                var match = expression.HasListsMatch(paymentMethods, comparer: StringComparer.InvariantCultureIgnoreCase);
                 return match;
             }
         }

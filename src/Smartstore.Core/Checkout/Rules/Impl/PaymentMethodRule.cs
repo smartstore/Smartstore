@@ -8,7 +8,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var paymentMethod = context.Customer.GenericAttributes.Get<string>(SystemCustomerAttributeNames.SelectedPaymentMethod, context.Store.Id);
-            var match = expression.HasListMatch(paymentMethod.NullEmpty(), StringComparer.InvariantCultureIgnoreCase);
+            var match = expression.HasListMatch(paymentMethod.NullEmpty(), comparer: StringComparer.InvariantCultureIgnoreCase);
 
             return Task.FromResult(match);
         }
