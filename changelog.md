@@ -39,6 +39,7 @@
   * Activated file browser (MediaManager)
   * Responsive video embed
 * Theming: `.art-drop` should adopt `$art-active-border-color`
+- #1016 Don't ask registered customers for email when entering billing or shipping address.
 - #1327 Product rules/MegaSearch: Consider start and end dates of a discount when applying the "HasDiscount" rule.
 - Allow new attribute options to be added when assigning specification attributes to a product.
 - EasyCredit: Do not hide the installment calculator if EasyCredit is not offered at checkout due to cart rules.

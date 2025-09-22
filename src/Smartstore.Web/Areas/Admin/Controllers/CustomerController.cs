@@ -1167,6 +1167,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if (customer.IsGuest() && !model.Address.Email.IsEmail())
+            {
+                ModelState.AddModelError($"{nameof(model.Address)}.{nameof(model.Address.Email)}", T("Admin.Customers.Customers.Fields.Email.Required"));
+            }
+
             if (ModelState.IsValid)
             {
                 var address = new Address();
@@ -1182,9 +1187,8 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction(nameof(Edit), new { id = customer.Id });
             }
 
-            model.CustomerId = customer.Id;
-
             await PrepareAddressModelAsync(model, customer, new Address());
+            model.CustomerId = customer.Id;
 
             return View(model);
         }
@@ -1229,6 +1233,11 @@ namespace Smartstore.Admin.Controllers
             if (address == null)
             {
                 return NotFound();
+            }
+
+            if (customer.IsGuest() && !model.Address.Email.IsEmail())
+            {
+                ModelState.AddModelError($"{nameof(model.Address)}.{nameof(model.Address.Email)}", T("Admin.Customers.Customers.Fields.Email.Required"));
             }
 
             if (ModelState.IsValid)

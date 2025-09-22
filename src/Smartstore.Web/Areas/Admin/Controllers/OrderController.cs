@@ -1371,6 +1371,7 @@ namespace Smartstore.Admin.Controllers
             };
 
             await address.MapAsync(model.Address, order.Customer, emailEnabled: true);
+            model.Username = order.Customer.Username;
 
             return View(model);
         }
@@ -1393,6 +1394,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            if (order.Customer.IsGuest() && !model.Address.Email.IsEmail())
+            {
+                ModelState.AddModelError($"{nameof(model.Address)}.{nameof(model.Address.Email)}", T("Admin.Customers.Customers.Fields.Email.Required"));
+            }
+
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model.Address, address);
@@ -1408,6 +1414,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             await address.MapAsync(model.Address, order.Customer, emailEnabled: true);
+            model.Username = order.Customer.Username;
 
             return View(model);
         }

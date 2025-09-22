@@ -1,11 +1,12 @@
 ﻿@model OrderAddressModel
 
 @{
-    ViewBag.Title = T("Admin.Orders.Address.EditAddress");
+    ViewBag.Title = T("Admin.Customers.Customers.Addresses.EditAddress").Value.Grow(Model.Username, " - ");
 }
 
-<form asp-action="AddressEdit" method="post">
-    <input type="hidden" asp-for="OrderId" />
+<div asp-validation-summary="All"></div>
+
+<form asp-action="AddressEdit" method="post" asp-route-addressId="@Model.Address.Id" asp-route-orderId="@Model.OrderId">
     <div class="section-header">
         <div class="title">
             <a sm-backto asp-action="Edit" asp-controller="Order" asp-route-id="@Model.OrderId" title="@T("Admin.Orders.Address.BackToOrder")"></a>
