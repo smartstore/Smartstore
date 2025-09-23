@@ -111,34 +111,53 @@ namespace Smartstore.Core.AI.Metadata
         /// <param name="mapDeprecated">If true, tries to resolve deprecated models to their alias.</param>
         public AIModelEntry? GetModelById(string modelId, bool mapDeprecated = true)
         {
-            var model = Models.FindModel(modelId);
-            if (model != null && model.Deprecated && model.Alias.HasValue() && mapDeprecated)
+            if (Models.TryFindModel(modelId, out var modelEntry) && modelEntry.Deprecated && modelEntry.Alias.HasValue() && mapDeprecated)
             {
                 // Try to resolve by alias
-                model = Models.FindModel(model.Alias);
+                modelEntry = Models.FindModel(modelEntry.Alias);
             }
 
-            return model;
+            return modelEntry;
         }
 
-        public string ValidateModelName(string modelName, AIOutputType type)
+        public string ValidateModelName(string modelId, AIOutputType type)
         {
-            if (!Models.TryFindModel(modelName, out var modelEntry) || modelEntry.Type != type)
+            if (!Models.TryFindModel(modelId, out var modelEntry) || modelEntry.Type != type)
             {
                 return GetModels(type, preferred: true).FirstOrDefault()!.Id;
             }
 
-            return modelName;
+            if (modelEntry != null && modelEntry.Deprecated && modelEntry.Alias.HasValue())
+            {
+                // Always map deprecated models when validating
+                var aliasEntry = Models.FindModel(modelEntry.Alias);
+                if (aliasEntry != null && aliasEntry.Type == type && !aliasEntry.Deprecated)
+                {
+                    modelId = aliasEntry.Id;
+                }
+            }
+
+            return modelId;
         }
 
-        public string ValidateVisionModelName(string modelName)
+        public string ValidateVisionModelName(string modelId)
         {
-            if (!Models.TryFindModel(modelName, out var modelEntry) || modelEntry.Type != AIOutputType.Text || !modelEntry.Vision)
+            if (!Models.TryFindModel(modelId, out var modelEntry) || modelEntry.Type != AIOutputType.Text || !modelEntry.Vision)
             {
                 return GetVisionModels(preferred: true).FirstOrDefault()!.Id;
             }
 
-            return modelName;
+            if (modelEntry != null && modelEntry.Deprecated && modelEntry.Alias.HasValue())
+            {
+                // Always map deprecated models when validating
+                var aliasEntry = Models.FindModel(modelEntry.Alias);
+                if (aliasEntry != null && aliasEntry.Type == AIOutputType.Text && modelEntry.Vision && !aliasEntry.Deprecated)
+                {
+                    modelId = aliasEntry.Id;
+                }
+            }
+
+            return modelId;
         }
 
         #endregion

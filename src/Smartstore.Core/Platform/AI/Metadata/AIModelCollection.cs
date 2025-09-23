@@ -54,6 +54,9 @@ namespace Smartstore.Core.AI.Metadata
         public void Clear()
             => _innerCollection.Clear();
 
+        public bool ContainsKey(string key)
+            => _innerCollection.Contains(key);
+
         public bool Contains(AIModelEntry item)
             => _innerCollection.Contains(item.Id);
 
