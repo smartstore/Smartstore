@@ -41,7 +41,7 @@ namespace Smartstore.Core.AI
         /// Gets or sets the names of the preferred custom AI models to generate text.
         /// The available AI models depend on the used AI provider.
         /// </summary>
-        /// <example>chatgpt-5</example>
+        /// <example>gpt-5</example>
         public string[] TextModelNames { get; set; }
 
         /// <summary>
@@ -50,6 +50,20 @@ namespace Smartstore.Core.AI
         /// </summary>
         /// <example>gpt-image-1</example>
         public string[] ImageModelNames { get; set; }
+
+        /// <summary>
+        /// Specifies the names of preferred custom text generation models that are not listed in metadata.json.
+        /// The available AI models depend on the used AI provider.
+        /// </summary>
+        /// <example>gpt-5</example>
+        public string[] CustomTextModels { get; set; }
+
+        /// <summary>
+        /// Specifies the names of preferred custom image generation models that are not listed in metadata.json.
+        /// The available AI models depend on the used AI provider.
+        /// </summary>
+        /// <example>gpt-image-1</example>
+        public string[] CustomImageModels { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the AI model used to analyze images (vision).

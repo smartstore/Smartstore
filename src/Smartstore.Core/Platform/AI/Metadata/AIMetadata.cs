@@ -120,6 +120,10 @@ namespace Smartstore.Core.AI.Metadata
             return modelEntry;
         }
 
+        #endregion
+
+        #region Edit & validate models
+
         public string ValidateModelName(string modelId, AIOutputType type)
         {
             if (!Models.TryFindModel(modelId, out var modelEntry) || modelEntry.Type != type)
@@ -158,6 +162,24 @@ namespace Smartstore.Core.AI.Metadata
             }
 
             return modelId;
+        }
+
+        public string[] MergeTextModels(string[] customModelNames)
+        {
+            return MergeModels(GetTextModels(), customModelNames);
+        }
+
+        public string[] MergeImageModels(string[] customModelNames)
+        {
+            return MergeModels(GetImageModels(), customModelNames);
+        }
+
+        public string[] MergeModels(IEnumerable<AIModelEntry> models, string[] customModelNames)
+        {
+            return models
+                .Select(x => x.Id)
+                .Union(customModelNames)
+                .ToArray();
         }
 
         #endregion

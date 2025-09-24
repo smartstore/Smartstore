@@ -27,7 +27,7 @@ namespace Smartstore.Core.AI.Metadata
     /// <summary>
     /// Represents a single LLM model entry in the catalog.
     /// </summary>
-    public class AIModelEntry
+    public class AIModelEntry : ICloneable<AIModelEntry>
     {
         /// <summary>
         /// Model identifier (e.g. "gpt-5", "gemini-2.5-pro").
@@ -82,5 +82,13 @@ namespace Smartstore.Core.AI.Metadata
         /// User-defined custom model (not provided by metadata.json).
         /// </summary>
         public bool IsCustom { get; set; }
+
+        /// <inheritdoc/>
+        public AIModelEntry Clone()
+            => (AIModelEntry)MemberwiseClone();
+
+        /// <inheritdoc/>
+        object ICloneable.Clone()
+            => MemberwiseClone();
     }
 }
