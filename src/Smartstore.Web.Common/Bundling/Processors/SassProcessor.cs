@@ -29,9 +29,10 @@ namespace Smartstore.Web.Bundling.Processors
 
                 if (assetFileProvider != null)
                 {
+                    var importedFiles = new HashSet<string>();
                     sassOptions.TryImport ??= (ref string file, string parentPath, out string scss, out string map) =>
                     {
-                        return OnTryImportSassFile(assetFileProvider, ref file, parentPath, out scss, out map);
+                        return OnTryImportSassFile(assetFileProvider, importedFiles, ref file, parentPath, out scss, out map);
                     };
                 }
 
@@ -76,7 +77,13 @@ namespace Smartstore.Web.Bundling.Processors
             values["StoreId"] = storeContext.CurrentStore.Id.ToString();
         }
 
-        private static bool OnTryImportSassFile(IAssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
+        private static bool OnTryImportSassFile(
+            IAssetFileProvider fileProvider,
+            ISet<string> importedFiles,
+            ref string file, 
+            string parentPath, 
+            out string scss, 
+            out string map)
         {
             map = null;
             scss = null;
@@ -118,8 +125,17 @@ namespace Smartstore.Web.Bundling.Processors
 
             file = subPath;
 
-            using var stream = importFile.CreateReadStream();
-            scss = stream.AsString();
+            if (importedFiles.Contains(importFile.PhysicalPath))
+            {
+                // Prevent dupe imports
+                scss = string.Empty;
+            }
+            else
+            {
+                importedFiles.Add(importFile.PhysicalPath);
+                using var stream = importFile.CreateReadStream();
+                scss = stream.AsString();
+            }
 
             return true;
         }
