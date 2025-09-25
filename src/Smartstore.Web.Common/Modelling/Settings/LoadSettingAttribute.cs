@@ -6,7 +6,7 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Web.Modelling.Settings
 {
-    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
     public class LoadSettingAttribute : TypeFilterAttribute
     {
         public LoadSettingAttribute()
