@@ -17,9 +17,12 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
+            var title = File.File.GetLocalized(x => x.Title)?.Value.NullEmpty();
+
             output.Attributes.SetAttribute("src", Src);
             output.AppendCssClass("file-preview");
-            output.Attributes.SetAttributeNoReplace("title", () => File.File.GetLocalized(x => x.Title)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("title", title);
+            output.Attributes.SetAttributeNoReplace("aria-label", title);
             output.Attributes.SetAttributeNoReplace("preload", "metadata");
 
             if (!output.Attributes.ContainsName("controls"))
