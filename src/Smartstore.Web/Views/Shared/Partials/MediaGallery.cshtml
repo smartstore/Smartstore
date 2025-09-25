@@ -68,9 +68,11 @@
 
     <!-- Picture -->
     <div class="gal-cell">
-        <div class="gal">
+        <div class="gal" role="list" aria-label="@T("Aria.Label.MediaGallery")">
             @if (Model.Files.Count > 0)
             {
+                var linkTitle = T("Common.EnlargeView");
+
                 for (int i = 0; i < Model.Files.Count; i++)
                 {
                     var file = Model.Files[i];
@@ -78,8 +80,11 @@
                     var attrValue = file.GetUrl(Model.ImageSize);
                     var srcAttributes = new AttributeDictionary { [attrName] = attrValue };
 
-                    <div class="gal-item">
-                        <a class="gal-item-viewport" href="@file.GetUrl()"
+                    <div class="gal-item" role="listitem">
+                        <a href="@file.GetUrl()" 
+                           class="gal-item-viewport"
+                           title="@linkTitle"
+                           aria-label="@linkTitle"
                            data-thumb-image="@file.GetUrl(Model.ThumbSize)"
                            data-medium-image="@file.GetUrl(Model.ImageSize)"
                            data-picture-id="@file.Id">
@@ -119,7 +124,7 @@
             }
             else if (Model.FallbackUrl.HasValue())
             {
-                <div class="gal-item">
+                <div class="gal-item" role="listitem">
                     <div class="gal-item-viewport no-picture" data-content="@T("Common.NoImageAvail")">
                         <img class="gal-item-content" src="@Model.FallbackUrl" alt="@Model.DefaultAlt" />
                     </div>

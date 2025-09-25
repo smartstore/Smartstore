@@ -156,6 +156,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("ReturnRequests.Products.RequestAlreadyExists",
                 "There are already return requests for this item.",
                 "Zu diesem Artikel gibt es bereits Rücksendewünsche.");
+
+            builder.AddOrUpdate("Common.EnlargeView", "Enlarge view", "Ansicht vergrößern");
         }
     }
 }
