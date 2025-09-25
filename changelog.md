@@ -66,7 +66,9 @@
   - The background image should not overlap the menu item content.
   - The link count in a single column often exceeds the configured setting.
 - After applying a discount code or moving a product to the wish list, deactivated shopping cart products were not displayed.
-- #1367 PageBuilder: Do not hide the setting that displays the manufacturer's name in slider product lists.
+- **PageBuilder**
+  - #1367 Do not hide the setting that displays the manufacturer's name in slider product lists.
+  - Video in a video block was not rendering in Chrome.
 - Fixed missing log entry and notification for a payment exception.
 - **Stripe** 
 	- Orders were created after the 3D Secure check, even though the payment was declined.
