@@ -164,22 +164,55 @@ namespace Smartstore.Core.AI.Metadata
             return modelId;
         }
 
-        public string[] MergeTextModels(string[] customModelNames)
+        public string[] MergeTextModels(string[] preferredModelNames)
         {
-            return MergeModels(GetTextModels(), customModelNames);
+            return MergeModels(GetTextModels(), preferredModelNames);
         }
 
-        public string[] MergeImageModels(string[] customModelNames)
+        public string[] MergeImageModels(string[] preferredModelNames)
         {
-            return MergeModels(GetImageModels(), customModelNames);
+            return MergeModels(GetImageModels(), preferredModelNames);
         }
 
-        public string[] MergeModels(IEnumerable<AIModelEntry> models, string[] customModelNames)
+        public string[] MergeModels(IEnumerable<AIModelEntry> models, string[] preferredModelNames)
         {
             return models
                 .Select(x => x.Id)
-                .Union(customModelNames)
+                .Union(preferredModelNames)
                 .ToArray();
+        }
+
+        public IEnumerable<AIModelEntry> MergeModels(AIOutputType outputType, string[] preferredModelNames)
+        {
+            if (preferredModelNames.IsNullOrEmpty())
+            {
+                return GetModels(outputType);
+            }
+            
+            var mergedModels = new List<AIModelEntry>();
+
+            foreach (var modelName in preferredModelNames.Distinct())
+            {
+                var modelEntry = GetModelById(modelName);
+                if (modelEntry != null && modelEntry.Type == outputType)
+                {
+                    mergedModels.Add(modelEntry);
+                }
+                else
+                {
+                    mergedModels.Add(new AIModelEntry
+                    {
+                        Id = modelName,
+                        Type = outputType,
+                        Preferred = true,
+                        IsCustom = true
+                    });
+                }
+            }
+
+            mergedModels.AddRange(GetModels(outputType, preferred: false));
+
+            return mergedModels;
         }
 
         #endregion
