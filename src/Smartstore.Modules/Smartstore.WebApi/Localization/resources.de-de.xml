@@ -13,7 +13,9 @@
         <Value>
             <![CDATA[<ul>
 			<li>Nur registrierte Kunden (siehe Liste unten) mit einem öffentlichen und einem geheimen Schlüssel zur API haben Zugriff.</li>
-			<li>Sie können den Zugriff für einen Kunden durch Löschen der Schlüssel endgültig oder durch <b>Nicht erlauben</b> zeitweise unterbinden.</li>
+            <li>Die Authentifizierung erfolgt mit <span class="fwm">Basic Authentification</span>, bei der der öffentliche Schlüssel als Benutzername
+            und der geheime Schlüssel als Passwort zu verwenden sind.</li>
+			<li>Sie können den Zugriff für einen Kunden durch Löschen der Schlüssel endgültig oder durch <span class="fwm">Nicht erlauben</span> zeitweise unterbinden.</li>
 			<li>Die Rechte der jeweiligen Kundengruppe gelten auch bei Zugriffen über die API.</li>
 			</ul>]]>
         </Value>
