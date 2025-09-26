@@ -323,7 +323,14 @@
                 });
 
                 function resizeGridItem(item) {
-                    var innerItem = item.querySelector(itemSelector);
+                    let innerItem;
+                    if (itemSelector.length) {
+                        innerItem = item.querySelector(itemSelector);
+                    }
+                    else {
+                        innerItem = item.firstElementChild;
+                    }
+                    
                     var computedStyle = window.getComputedStyle(grid);
                     var rowHeight = parseInt(computedStyle.getPropertyValue('grid-auto-rows'));
                     var rowGap = parseInt(computedStyle.getPropertyValue('grid-row-gap'));
