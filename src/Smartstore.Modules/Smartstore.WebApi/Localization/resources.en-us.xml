@@ -13,8 +13,8 @@
         <Value>
             <![CDATA[<ul>
 			<li>Only registered customers (see list below) with a public and a secret key for the API have access to it.</li>
-            <li>Authentication is performed using <span class="fwm">Basic Authentication</span>, where the public key is used as the user name 
-            and the secret key as the password.</li>
+            <li>Authentication is performed using <a href="https://dev.smartstore.com/framework/web-api/authentication" class="alert-link">Basic Authentication</a>,
+            where the public key is used as the user name and the secret key as the password.</li>
 			<li>You can remove the access for a customer permanently by deleting the keys or temporary by disallowing them.</li>
 			<li>The rights of the respective customer group are valid for the API too.</li>
 			</ul>]]>
