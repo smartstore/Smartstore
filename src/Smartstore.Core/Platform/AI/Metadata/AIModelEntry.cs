@@ -27,7 +27,7 @@ namespace Smartstore.Core.AI.Metadata
     /// <summary>
     /// Represents a single LLM model entry in the catalog.
     /// </summary>
-    public class AIModelEntry : ICloneable<AIModelEntry>
+    public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
     {
         /// <summary>
         /// Model identifier (e.g. "gpt-5", "gemini-2.5-pro").
@@ -90,5 +90,17 @@ namespace Smartstore.Core.AI.Metadata
         /// <inheritdoc/>
         object ICloneable.Clone()
             => MemberwiseClone();
+
+        public override string ToString()
+            => $"{Id}, Preferred: {Preferred}";
+
+        public override bool Equals(object? other)
+            => Equals(other as AIModelEntry);
+
+        public bool Equals(AIModelEntry? other)
+            => other != null && Id == other.Id;
+
+        public override int GetHashCode()
+            => Id.GetHashCode();
     }
 }

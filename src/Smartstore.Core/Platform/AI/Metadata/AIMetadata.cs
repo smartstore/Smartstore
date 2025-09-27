@@ -164,39 +164,41 @@ namespace Smartstore.Core.AI.Metadata
             return modelId;
         }
 
-        public string[] MergeTextModels(string[] preferredModelNames)
+        public AIModelCollection MergeTextModels(string[] preferredModelNames)
         {
-            return MergeModels(GetTextModels(), preferredModelNames);
+            return MergeModels(AIOutputType.Text, preferredModelNames);
         }
 
-        public string[] MergeImageModels(string[] preferredModelNames)
+        public AIModelCollection MergeImageModels(string[] preferredModelNames)
         {
-            return MergeModels(GetImageModels(), preferredModelNames);
+            return MergeModels(AIOutputType.Image, preferredModelNames);
         }
 
-        public string[] MergeModels(IEnumerable<AIModelEntry> models, string[] preferredModelNames)
-        {
-            return models
-                .Select(x => x.Id)
-                .Union(preferredModelNames)
-                .ToArray();
-        }
-
-        public IEnumerable<AIModelEntry> MergeModels(AIOutputType outputType, string[] preferredModelNames)
+        public AIModelCollection MergeModels(AIOutputType outputType, string[] preferredModelNames)
         {
             if (preferredModelNames.IsNullOrEmpty())
             {
-                return GetModels(outputType);
+                return [.. GetModels(outputType)];
             }
             
-            var mergedModels = new List<AIModelEntry>();
+            var mergedModels = new AIModelCollection();
 
             foreach (var modelName in preferredModelNames.Distinct())
             {
                 var modelEntry = GetModelById(modelName);
                 if (modelEntry != null && modelEntry.Type == outputType)
                 {
-                    mergedModels.Add(modelEntry);
+                    if (modelEntry.Preferred)
+                    {
+                        mergedModels.Add(modelEntry);
+                    }
+                    else
+                    {
+                        // Clone and mark as preferred
+                        var cloned = modelEntry.Clone();
+                        cloned.Preferred = true;
+                        mergedModels.Add(cloned);
+                    }
                 }
                 else
                 {
@@ -210,7 +212,15 @@ namespace Smartstore.Core.AI.Metadata
                 }
             }
 
-            mergedModels.AddRange(GetModels(outputType, preferred: false));
+            var otherModels = GetModels(outputType, preferred: false);
+
+            foreach (var modelEntry in otherModels)
+            {
+                if (!mergedModels.Contains(modelEntry))
+                {
+                    mergedModels.Add(modelEntry);
+                }
+            }
 
             return mergedModels;
         }
