@@ -2,8 +2,6 @@
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using Smartstore.Engine.Modularity;
-using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.AI
@@ -34,6 +32,15 @@ namespace Smartstore.Core.AI
         public abstract bool IsActive();
 
         public virtual AIMetadata Metadata { get; protected set; }
+
+        public virtual AIModelCollection GetModels(AIChatTopic topic)
+        {
+            var outputType = topic == AIChatTopic.Image ? AIOutputType.Image : AIOutputType.Text;
+            return Metadata?.MergeModels(outputType, GetPreferredModelNames(outputType));
+        }
+
+        protected virtual string[] GetPreferredModelNames(AIOutputType outputType)
+            => [];
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
             => throw new NotImplementedException();

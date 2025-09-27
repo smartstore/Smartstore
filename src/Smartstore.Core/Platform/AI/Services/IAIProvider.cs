@@ -24,6 +24,11 @@ namespace Smartstore.Core.AI
         AIMetadata Metadata { get; }
 
         /// <summary>
+        /// Gets the AI models available for the specified topic.
+        /// </summary>
+        AIModelCollection GetModels(AIChatTopic topic);
+
+        /// <summary>
         /// Starts or continues an AI conversation.
         /// Adds the latest answer to the chat.
         /// </summary>

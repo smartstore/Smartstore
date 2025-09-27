@@ -207,6 +207,7 @@ namespace Smartstore.Core.AI.Metadata
                         Id = modelName,
                         Type = outputType,
                         Preferred = true,
+                        Level = AIModelPerformanceLevel.Balanced,
                         IsCustom = true
                     });
                 }
