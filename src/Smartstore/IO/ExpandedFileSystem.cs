@@ -13,10 +13,10 @@ namespace Smartstore.IO
     {
         private readonly PathString _pathPrefix;
 
-        public ExpandedFileSystem(string pathPrefix, IFileSystem inner)
+        public ExpandedFileSystem(string pathPrefix, IFileSystem inner, bool ensureDirectoryExists = false)
         {
-            Guard.NotEmpty(pathPrefix, nameof(pathPrefix));
-            Guard.NotNull(inner, nameof(inner));
+            Guard.NotEmpty(pathPrefix);
+            Guard.NotNull(inner);
 
             // No leading or trailing slash
             PathPrefix = PathUtility.NormalizeRelativePath(pathPrefix).TrimEnd('/');
@@ -24,6 +24,11 @@ namespace Smartstore.IO
 
             InnerProvider = inner;
             Root = Path.GetFullPath(Path.Combine(inner.Root, PathPrefix)).EnsureEndsWith(Path.DirectorySeparatorChar);
+
+            if (ensureDirectoryExists)
+            {
+                inner.TryCreateDirectory(PathPrefix);
+            }
         }
 
         public string PathPrefix { get; }

@@ -28,7 +28,7 @@ namespace Smartstore.IO
                 throw new ArgumentException("CompositeFileSystem must contain at least one item.", nameof(fileSystems));
             }
 
-            _fileSystems = fileSystems.ToArray();
+            _fileSystems = [.. fileSystems];
             _root = _fileSystems[0].Root;
 
             if (_fileSystems.Length == 1)

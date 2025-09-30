@@ -43,7 +43,7 @@ namespace Smartstore.Web.Bootstrapping
             assetFileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
             assetFileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
             assetFileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
-            assetFileProvider.AddFileProvider("exchange/", new DataExchangeFileProvider(appContext));
+            assetFileProvider.AddFileProvider("exchange/", new ExpandedFileSystem("exchange", appContext.TenantRoot, true));
 
             builder.RegisterInstance<IAssetFileProvider>(assetFileProvider);
             builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().SingleInstance();

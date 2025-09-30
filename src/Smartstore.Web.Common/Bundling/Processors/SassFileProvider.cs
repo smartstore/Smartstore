@@ -16,7 +16,7 @@ namespace Smartstore.Web.Bundling.Processors
 
         public SassFileProvider(IApplicationContext appContext)
         {
-            _appContext = Guard.NotNull(appContext, nameof(appContext));
+            _appContext = Guard.NotNull(appContext);
         }
 
         public IDirectoryContents GetDirectoryContents(string subpath)
