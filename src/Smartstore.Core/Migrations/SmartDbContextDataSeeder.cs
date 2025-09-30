@@ -158,6 +158,11 @@ namespace Smartstore.Core.Data.Migrations
                 "Zu diesem Artikel gibt es bereits Rücksendewünsche.");
 
             builder.AddOrUpdate("Common.EnlargeView", "Enlarge view", "Ansicht vergrößern");
+
+            builder.AddOrUpdate("Admin.Catalog.Categories.Products.AddNew", "Assign products", "Produkte zuordnen");
+            builder.AddOrUpdate("Admin.Catalog.Categories.ProductsHaveBeenAssignedToCategory",
+                "{0} of {1} products have been assigned to the category.",
+                "{0} von {1} Produkten wurden der Warengruppe zugeordnet.");
         }
     }
 }

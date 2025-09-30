@@ -14,14 +14,13 @@
           preserve-grid-state="true"
           onrowclass="productCategoriesGrid_onRowClass">
     <datasource read="@Url.Action("ProductCategoryList", new { categoryId = parentModel.Id })" 
-                insert="@Url.Action("ProductCategoryInsert", new { categoryId = parentModel.Id })"
                 update="@Url.Action("ProductCategoryUpdate")"
                 delete="@Url.Action("ProductCategoryDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false" />
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
+            <button id="assign-products-to-categories" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Catalog.Categories.Products.AddNew")</span>
             </button>
@@ -71,10 +70,38 @@
     </columns>
 </datagrid>
 
+<entity-picker icon-css-class="fa fa-plus"
+               dialog-title="@T("Admin.Catalog.Categories.Products.AddNew")"
+               onselectioncompleted="assignProductsToCategory"
+               class="assign-products-picker hide" />
+
 <script sm-target-zone="scripts" data-origin="product-categories-grid">
+    $(function () {
+        $(document).on('click', '#assign-products-to-categories', () => {
+            $('.assign-products-picker').trigger('click');
+            return false;
+        });
+    });
+
     function productCategoriesGrid_onRowClass(row) {
         return {
             "text-muted": !row.Published
         };
+    }
+
+    function assignProductsToCategory(ids) {
+        $({}).ajax({
+            type: 'POST',
+            url: '@Url.Action("AssignProducts")',
+            data: {
+                "categoryId": @parentModel.Id,
+                "selectedProductIds": ids
+            },
+            success: function () {
+                window["product-categories-grid"].$children[0].read();
+                //$('#entpicker-product-dialog').entityPicker('clearSelection');
+            }
+        });
+        return true;
     }
 </script>

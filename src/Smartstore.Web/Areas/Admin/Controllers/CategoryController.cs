@@ -505,33 +505,6 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Category.EditProduct)]
-        public async Task<IActionResult> ProductCategoryInsert(CategoryProductModel model, int categoryId)
-        {
-            var success = false;
-
-            if (!await _db.ProductCategories.AnyAsync(x => x.CategoryId == categoryId && x.ProductId == model.ProductId))
-            {
-                _db.ProductCategories.Add(new ProductCategory
-                {
-                    CategoryId = categoryId,
-                    ProductId = model.ProductId,
-                    IsFeaturedProduct = model.IsFeaturedProduct,
-                    DisplayOrder = model.DisplayOrder
-                });
-
-                await _db.SaveChangesAsync();
-                success = true;
-            }
-            else
-            {
-                NotifyError(T("Admin.Catalog.Categories.Products.NoDuplicatesAllowed"));
-            }
-
-            return Json(new { success });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Catalog.Category.EditProduct)]
         public async Task<IActionResult> ProductCategoryUpdate(CategoryProductModel model)
         {
             var success = false;
@@ -577,6 +550,47 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = success, Count = numDeleted });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.EditProduct)]
+        public async Task<IActionResult> AssignProducts(int categoryId, int[] selectedProductIds)
+        {
+            var numAdded = 0;
+            var numSelectedProductIds = selectedProductIds?.Length ?? 0;
+
+            if (numSelectedProductIds > 0)
+            {
+                var existingMappings = await _db.ProductCategories
+                    .Where(x => x.CategoryId == categoryId)
+                    .Select(x => new { x.ProductId, x.DisplayOrder })
+                    .ToListAsync();
+                var displayOrder = existingMappings.Count > 0 ? existingMappings.Max(x => x.DisplayOrder) : 0;
+
+                foreach (var productId in selectedProductIds.Distinct())
+                {
+                    if (!existingMappings.Any(x => x.ProductId == productId))
+                    {
+                        _db.ProductCategories.Add(new()
+                        {
+                            CategoryId = categoryId,
+                            ProductId = productId,
+                            DisplayOrder = ++displayOrder
+                        });
+                        ++numAdded;
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+            }
+
+            var notifyType = numAdded == 0
+                ? NotifyType.Error
+                : (numAdded == numSelectedProductIds ? NotifyType.Success : NotifyType.Warning);
+
+            Services.Notifier.Add(notifyType, T("Admin.Catalog.Categories.ProductsHaveBeenAssignedToCategory", numAdded, numSelectedProductIds));
+
+            return new EmptyResult();
         }
 
         [HttpPost]

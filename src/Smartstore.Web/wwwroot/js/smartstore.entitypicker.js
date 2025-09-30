@@ -24,13 +24,13 @@
             return this.each(function () {
                 fillList(this, options);
             });
-        },
-
-        itemClick: function () {
-            return this.each(function () {
-                itemClick(this);
-            });
         }
+
+        //itemClick: function () {
+        //    return this.each(function () {
+        //        itemClick(this);
+        //    });
+        //},
     };
 
     $.fn.entityPicker = function (method) {
@@ -159,6 +159,11 @@
         }
 
         if (dialog.length) {
+            if (!opt.targetInput) {
+                // Clear selection if there is no target for selected values.
+                dialog.find('input[name=Selected]').val('');
+            }
+
             showAndFocusDialog();
         }
         else {
