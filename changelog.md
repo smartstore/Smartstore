@@ -18,11 +18,12 @@
 ### New Features
 
 - #1370 Add a payment provider for **easyCredit purchase on account**.
-- #934 Add cart rules property to PageBuilder stories to dynamically toggle their visibility.
 - #1381 Add a compare price to attribute combinations.
 - #1386 Customer roles: Extend the permission tree so that nodes with descendants show whether descendant permissions have been granted.
+- **AI**: File-based provider metadata used to store and organize information about LLM models.
+- #934 Add cart rules property to PageBuilder stories to dynamically toggle their visibility.
 - #1264 Batch-assign products to categories.
-- New Rule Builder rules:
+- New **Rule Builder** rules:
   - #1372 Cart rule for the total cart weight.
   - Cart rule that checks whether a product from a category or one of its subcategories is in the shopping cart.
   - Cart rule to check that all products in the shopping cart are from the specified categories.

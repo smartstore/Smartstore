@@ -38,22 +38,9 @@ namespace Smartstore.Core.AI
         public float TopP { get; set; } = 1;
 
         /// <summary>
-        /// Gets or sets the names of the preferred custom AI models to generate text.
-        /// The available AI models depend on the used AI provider.
-        /// </summary>
-        /// <example>gpt-5</example>
-        public string[] TextModelNames { get; set; }
-
-        /// <summary>
-        /// Gets or sets the names of the preferred custom AI models to create images.
-        /// The available AI models depend on the used AI provider.
-        /// </summary>
-        /// <example>gpt-image-1</example>
-        public string[] ImageModelNames { get; set; }
-
-        /// <summary>
         /// Specifies the names of preferred text generation models. 
         /// May also contain custom models that are not listed in metadata.json.
+        /// Leave empty to use the provider's default preferred models.
         /// The available AI models depend on the used AI provider.
         /// </summary>
         public string[] PreferredTextModels { get; set; }
@@ -61,6 +48,7 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Specifies the names of preferred image generation models.
         /// May also contain custom models that are not listed in metadata.json.
+        /// Leave empty to use the provider's default preferred models.
         /// The available AI models depend on the used AI provider.
         /// </summary>
         public string[] PreferredImageModels { get; set; }
@@ -70,5 +58,21 @@ namespace Smartstore.Core.AI
         /// </summary>
         /// <example>gpt-4o</example>
         public string ImageAnalyzerModelName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the names of the preferred custom AI models to generate text.
+        /// The available AI models depend on the used AI provider.
+        /// </summary>
+        /// <example>gpt-5</example>
+        [Obsolete("Use PreferredTextModels instead. This property will be removed in a future version.")]
+        public string[] TextModelNames { get; set; }
+
+        /// <summary>
+        /// Gets or sets the names of the preferred custom AI models to create images.
+        /// The available AI models depend on the used AI provider.
+        /// </summary>
+        /// <example>gpt-image-1</example>
+        [Obsolete("Use PreferredImageModels instead. This property will be removed in a future version.")]
+        public string[] ImageModelNames { get; set; }
     }
 }
