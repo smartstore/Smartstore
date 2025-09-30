@@ -42,9 +42,9 @@ namespace Smartstore.PayPal.Services
                     // Info: it's save to use € here directly, because PayPal offers Pay Upon Invoice only in Germany.
                     var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(request.Cart);
                     if (cartTotal.Total.HasValue 
-                        && cartTotal.Total.Value.Amount >= settings.PayUponInvoiceLimit
-                        && cartTotal.Total.Value.Amount <= 5
-                        && _services.WorkContext.WorkingCurrency.CurrencyCode == "EUR")
+                        && (cartTotal.Total.Value.Amount >= settings.PayUponInvoiceLimit
+                        || cartTotal.Total.Value.Amount <= 5
+                        || _services.WorkContext.WorkingCurrency.CurrencyCode != "EUR"))
                     {
                         return true;
                     }
