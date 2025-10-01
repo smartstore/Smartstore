@@ -12,31 +12,31 @@
 
 // List view of postitems
 .postlist {
-    .postlist-item {
-        overflow: hidden;
-
-        &.unpublished {
-            opacity: 0.5;
-        }
-    }
-
     .post-date {
         font-size: $font-size-sm;
     }
+}
 
-    .postlist-item-centered-picture {
-        --img-aspect-ratio: 0.5;
+.postlist-item {
+    overflow: hidden;
+
+    &.unpublished {
+        opacity: 0.5;
+    }
+}
+
+.postlist-item-centered-picture {
+    --img-aspect-ratio: 0.5;
+    display: block;
+    overflow: hidden;
+    margin-bottom: 0;
+    border-radius: var(--border-radius-md);
+
+    > img {
+        object-fit: cover;
         display: block;
-        overflow: hidden;
-        margin-bottom: 0;
-        border-radius: var(--border-radius-md);
-
-        > img {
-            object-fit: cover;
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+        width: 100%;
+        height: 100%;
     }
 }
 
