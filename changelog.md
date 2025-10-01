@@ -51,6 +51,7 @@
 - Added option for queued email grid to filter for subject.
 - #1122 AI: Replace the Betalgo library with the official OpenAI .NET library.
 - #1393 Missing bubble help hints in the backend address editor template.
+- Public export files have been moved to a new tenant folder for data exchange.
 - Return Requests:
   - #1196 Avoid duplicate return requests for a product.
   - The quantity to return reflects the number of products that have already been returned.
