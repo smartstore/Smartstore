@@ -137,11 +137,6 @@ namespace Smartstore.Core.DataExchange.Export
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         /// <summary>
-        /// The name of the wwwroot subfolder where export files are to be exported to be publicly accessible.
-        /// </summary>
-        public static string PublicDirectoryName => "exchange";
-
-        /// <summary>
         /// The page size for loading data from database during export.
         /// </summary>
         public static int PageSize => 100;

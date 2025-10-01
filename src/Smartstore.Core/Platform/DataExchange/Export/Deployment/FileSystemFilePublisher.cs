@@ -2,14 +2,9 @@
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
-    public class FileSystemFilePublisher : IFilePublisher
+    public class FileSystemFilePublisher(IApplicationContext appContext) : IFilePublisher
     {
-        private readonly IApplicationContext _appContext;
-
-        public FileSystemFilePublisher(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
+        private readonly IApplicationContext _appContext = appContext;
 
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
@@ -28,7 +23,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             await source.FileSystem.CopyDirectoryAsync(source, target);
 
-            context.Log.Info($"Export data files are copied to {target.SubPath}.");
+            context.Log.Info($"Copied export data files to {target.SubPath}.");
         }
     }
 }

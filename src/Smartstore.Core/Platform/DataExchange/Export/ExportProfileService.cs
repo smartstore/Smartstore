@@ -19,10 +19,13 @@ namespace Smartstore.Core.DataExchange.Export
 {
     public partial class ExportProfileService : AsyncDbSaveHook<ExportProfile>, IExportProfileService
     {
-        const string FileNamePattern = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
+        const string PublicDirName = "exchange";
         const string ExportFileRoot = "ExportProfiles";
+        const string FileNamePattern = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
 
-        private static readonly Regex _regexFolderName = new(".*/ExportProfiles/?", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        [GeneratedRegex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+        private static partial Regex FolderNameRegex();
+        private static readonly Regex FolderName = FolderNameRegex();
 
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
@@ -72,7 +75,7 @@ namespace Smartstore.Core.DataExchange.Export
                     // Map legacy folder names. Examples:
                     // ~/App_Data/ExportProfiles/smartstorecategorycsv
                     // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
-                    newFolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+                    newFolderName = FolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
 
                     if (newFolderName.IsEmpty())
                     {
@@ -119,7 +122,7 @@ namespace Smartstore.Core.DataExchange.Export
             // ~/App_Data/ExportProfiles/smartstorecategorycsv
             // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
             var root = _appContext.TenantRoot;
-            var path = PathUtility.Join(ExportFileRoot, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
+            var path = PathUtility.Join(ExportFileRoot, FolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
             var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
@@ -132,53 +135,55 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
         {
-            if (deployment != null)
+            if (deployment == null)
             {
-                if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+                return null;
+            }
+
+            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+            {
+                var path = PathUtility.Join(PublicDirName, deployment.SubFolder);
+                var dir = await _appContext.TenantRoot.GetDirectoryAsync(path);
+
+                if (createIfNotExists)
                 {
-                    var webRoot = _appContext.WebRoot;
-                    var path = PathUtility.Join(DataExporter.PublicDirectoryName, deployment.SubFolder);
-                    var dir = await webRoot.GetDirectoryAsync(path);
-
-                    if (createIfNotExists)
-                    {
-                        await dir.CreateAsync();
-                    }
-
-                    return dir;
+                    await dir.CreateAsync();
                 }
-                else if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
+
+                return dir;
+            }
+            
+            if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
+            {
+                // Any file system path is allowed.
+                var fullPath = deployment.FileSystemPath;
+
+                if (!PathUtility.IsAbsolutePhysicalPath(fullPath))
                 {
-                    // Any file system path is allowed.
-                    var fullPath = deployment.FileSystemPath;
-
-                    if (!PathUtility.IsAbsolutePhysicalPath(fullPath))
-                    {
-                        fullPath = CommonHelper.MapPath(PathUtility.NormalizeRelativePath(fullPath));
-                    }
-
-                    if (!Directory.Exists(fullPath))
-                    {
-                        if (!createIfNotExists)
-                        {
-                            return null;
-                        }
-
-                        try
-                        {
-                            Directory.CreateDirectory(fullPath);
-                        }
-                        catch
-                        {
-                            return null;
-                        }
-                    }
-
-                    // 'fullPath' must exist for LocalFileSystem (otherwise exception)!
-                    var root = new LocalFileSystem(fullPath);
-
-                    return await root.GetDirectoryAsync(null);
+                    fullPath = CommonHelper.MapPath(PathUtility.NormalizeRelativePath(fullPath));
                 }
+
+                if (!Directory.Exists(fullPath))
+                {
+                    if (!createIfNotExists)
+                    {
+                        return null;
+                    }
+
+                    try
+                    {
+                        Directory.CreateDirectory(fullPath);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+
+                // 'fullPath' must exist for LocalFileSystem (otherwise exception)!
+                var root = new LocalFileSystem(fullPath);
+
+                return await root.GetDirectoryAsync(null);
             }
 
             return null;
@@ -186,7 +191,12 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task<string> GetDeploymentDirectoryUrlAsync(ExportDeployment deployment, Store store = null)
         {
-            if (deployment != null && deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+            if (deployment == null)
+            {
+                return null;
+            }
+
+            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
             {
                 if (store == null)
                 {
@@ -206,7 +216,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 // Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
                 // so that IIS application path can be prepended if applicable. 
-                var path = WebHelper.ToAppRelativePath(PathUtility.Join(DataExporter.PublicDirectoryName, deployment.SubFolder));
+                var path = WebHelper.ToAppRelativePath(PathUtility.Join(PublicDirName, deployment.SubFolder));
 
                 return store.GetAbsoluteUrl(_urlHelper.Value.Content(path).EnsureEndsWith('/'));
             }
@@ -403,9 +413,9 @@ namespace Smartstore.Core.DataExchange.Export
 
             async Task<string> CreateUniquePublicDirectory(string defaultName)
             {
-                var webRoot = _appContext.WebRoot;
-                var uniqueName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, defaultName);
-                _ = await webRoot.TryCreateDirectoryAsync(PathUtility.Join(DataExporter.PublicDirectoryName, uniqueName));
+                var root = _appContext.TenantRoot;
+                var uniqueName = root.CreateUniqueDirectoryName(PublicDirName, defaultName);
+                _ = await root.TryCreateDirectoryAsync(PathUtility.Join(PublicDirName, uniqueName));
                 return uniqueName;
             }
         }
@@ -428,7 +438,7 @@ namespace Smartstore.Core.DataExchange.Export
             var directory = await GetExportDirectoryAsync(profile);
             var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
 
-            if (profile.Deployments.Any())
+            if (profile.Deployments.Count > 0)
             {
                 _db.ExportDeployments.RemoveRange(deployments);
             }
@@ -461,11 +471,10 @@ namespace Smartstore.Core.DataExchange.Export
         {
             var numFiles = 0;
             var numFolders = 0;
-            var webRoot = _appContext.WebRoot;
             var tenantRoot = _appContext.TenantRoot;
             var directories = new List<IDirectory>
             {
-                await webRoot.GetDirectoryAsync(DataExporter.PublicDirectoryName),
+                await tenantRoot.GetDirectoryAsync(PublicDirName),
                 await tenantRoot.GetDirectoryAsync(ExportFileRoot)
             };
 

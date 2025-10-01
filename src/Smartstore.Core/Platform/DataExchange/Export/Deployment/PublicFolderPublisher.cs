@@ -2,14 +2,9 @@
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
-    public class PublicFolderPublisher : IFilePublisher
+    public class PublicFolderPublisher(IApplicationContext appContext) : IFilePublisher
     {
-        private readonly IApplicationContext _appContext;
-
-        public PublicFolderPublisher(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
+        private readonly IApplicationContext _appContext = appContext;
 
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
@@ -23,7 +18,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             if (context.CreateZipArchive)
             {
-                if (context?.ZipFile?.Exists ?? false)
+                // INFO: Even if it exists, Context.ZipFile.Exists may be "false" here.
+                if (context.ZipFile != null)
                 {
                     var zipFile = await source.Parent.GetFileAsync(context.ZipFile.Name);
 
@@ -44,13 +40,10 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             }
             else
             {
-                // Ugly, but the only way I got it to work with CopyDirectoryAsync.
-                var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
-                var newPath = PathUtility.Join(webRootDir.Name, deploymentDir.SubPath);
+                var target = _appContext.ContentRoot.AttachEntry(deploymentDir);
+                await source.FileSystem.CopyDirectoryAsync(source, target);
 
-                await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
-
-                context.Log.Info($"Export data files are copied to {newPath}.");
+                context.Log.Info($"Copied export data files to {deploymentDir.SubPath}.");
             }
         }
     }
