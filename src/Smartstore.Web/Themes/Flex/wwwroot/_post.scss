@@ -12,7 +12,7 @@
 
 // List view of postitems
 .postlist {
-    .postitem {
+    .postlist-item {
         overflow: hidden;
 
         &.unpublished {
@@ -24,7 +24,7 @@
         font-size: $font-size-sm;
     }
 
-    .postitem-centered-picture {
+    .postlist-item-centered-picture {
         --img-aspect-ratio: 0.5;
         display: block;
         overflow: hidden;
