@@ -1,47 +1,35 @@
 ﻿using Microsoft.Extensions.FileProviders;
-using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Engine.Modularity
 {
-    /// <summary>
-    /// Marker interface for asset file provider.
-    /// </summary>
-    public interface IAssetFileProvider : IFileProvider
-    {
-    }
-
     public class AssetFileProvider : ModularFileProvider, IAssetFileProvider
     {
         private readonly IFileSystem _webRoot;
-        private readonly Dictionary<string, Func<string, IApplicationContext, IFileProvider>> _providers = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IFileProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Func<string, IApplicationContext, IFileProvider>> _segmentedProviders = new(StringComparer.OrdinalIgnoreCase);
 
         public AssetFileProvider(IFileSystem webRoot)
         {
             _webRoot = Guard.NotNull(webRoot);
         }
 
-        /// <summary>
-        /// Adds a file provider for a given path prefix.
-        /// </summary>
-        /// <param name="pathPrefix">Path prefix, e.g.: "themes/", "modules/" etc.</param>
         public void AddFileProvider(string pathPrefix, IFileProvider provider)
         {
-            AddFileProvider(pathPrefix, (a, b) => Guard.NotNull(provider));
+            Guard.NotEmpty(pathPrefix);
+            Guard.NotNull(provider);
+
+            pathPrefix = pathPrefix.TrimStart('/').EnsureEndsWith('/');
+            _providers[pathPrefix] = provider;
         }
 
-        /// <summary>
-        /// Adds a file provider resolver delegate for a given path prefix.
-        /// </summary>
-        /// <param name="pathPrefix">Path prefix, e.g.: "themes/", "modules/" etc.</param>
-        /// <param name="resolver">The provider resolver delegate. First string argument provides the next path token.</param>
-        public void AddFileProvider(string pathPrefix, Func<string, IApplicationContext, IFileProvider> resolver)
+        public void AddSegmentedFileProvider(string pathPrefix, Func<string, IApplicationContext, IFileProvider> resolver)
         {
             Guard.NotEmpty(pathPrefix);
             Guard.NotNull(resolver);
 
             pathPrefix = pathPrefix.TrimStart('/').EnsureEndsWith('/');
-            _providers[pathPrefix] = resolver;
+            _segmentedProviders[pathPrefix] = resolver;
         }
 
         protected override IFileProvider ResolveFileProvider(ref string path)
@@ -56,7 +44,8 @@ namespace Smartstore.Web.Bundling
                 var firstSegment = path2[..(index + 1)].ToLowerInvariant();
                 var lenBase = firstSegment.Length;
 
-                if (_providers.TryGetValue(firstSegment, out var resolver))
+                // First check complex providers (that require segment)
+                if (_segmentedProviders.TryGetValue(firstSegment, out var resolver))
                 {
                     // Get next segment, this time without leading slash, e.g. "Flex"
                     var nextSegment = path2[(index + 1)..];
@@ -77,6 +66,14 @@ namespace Smartstore.Web.Bundling
                             return provider;
                         }
                     }
+                }
+
+                // Then check simple providers (no segment required)
+                if (_providers.TryGetValue(firstSegment, out var simpleProvider))
+                {
+                    // Simple provider found - just strip the prefix and return
+                    path = path2[lenBase..];
+                    return simpleProvider;
                 }
             }
 

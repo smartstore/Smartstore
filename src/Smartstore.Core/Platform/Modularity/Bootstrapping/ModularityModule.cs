@@ -14,6 +14,8 @@ using Smartstore.Core.AI;
 using Smartstore.Core.Widgets;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
+using Microsoft.Extensions.FileProviders;
+using Smartstore.Core.Theming;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -143,6 +145,14 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IAIProvider>(type, systemName, registration);
             }
+
+            // Configure & register multi file provider for static assets
+            var assetFileProvider = new AssetFileProvider(_appContext.WebRoot);
+
+            assetFileProvider.AddSegmentedFileProvider("themes/", ResolveThemeFileProvider);
+            assetFileProvider.AddSegmentedFileProvider("modules/", ResolveModuleFileProvider);
+
+            builder.RegisterInstance<IAssetFileProvider>(assetFileProvider);
         }
 
         #region Helpers
@@ -297,6 +307,24 @@ namespace Smartstore.Core.Bootstrapping
             else if (typeof(IAIProvider).IsAssignableFrom(implType))
             {
                 return "AI";
+            }
+
+            return null;
+        }
+
+        private static IFileProvider ResolveThemeFileProvider(string themeName, IApplicationContext appContext)
+        {
+            var themeRegistry = appContext.Services.Resolve<IThemeRegistry>();
+            return themeRegistry?.GetThemeDescriptor(themeName)?.WebRoot;
+        }
+
+        private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
+        {
+            var module = appContext.ModuleCatalog.GetModuleByName(moduleName, false);
+            if (module != null)
+            {
+                // Don't allow theme companion modules serving static files by "/modules" path
+                return module.Theme.IsEmpty() ? module.WebRoot : null;
             }
 
             return null;

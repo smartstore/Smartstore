@@ -4,6 +4,8 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -26,6 +28,16 @@ namespace Smartstore.Core.Bootstrapping
             {
                 var cc = c.Resolve<IComponentContext>();
                 return key => cc.ResolveKeyed<IEntityImporter>(key);
+            });
+        }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
+            {
+                var appContext = builder.ApplicationContext;
+                var assetFileProvider = app.ApplicationServices.GetRequiredService<IAssetFileProvider>();
+                assetFileProvider.AddFileProvider("exchange/", new ExpandedFileSystem("exchange", appContext.TenantRoot, true));
             });
         }
     }

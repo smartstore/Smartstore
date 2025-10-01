@@ -1,9 +1,8 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Smartstore.Core.Theming;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Bundling.Processors;
@@ -17,35 +16,8 @@ namespace Smartstore.Web.Bootstrapping
             RunAfter<MvcStarter>();
         }
 
-        private static IFileProvider ResolveThemeFileProvider(string themeName, IApplicationContext appContext)
-        {
-            var themeRegistry = appContext.Services.Resolve<IThemeRegistry>();
-            return themeRegistry?.GetThemeDescriptor(themeName)?.WebRoot;
-        }
-
-        private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
-        {
-            var module = appContext.ModuleCatalog.GetModuleByName(moduleName, false);
-            if (module != null)
-            {
-                // Don't allow theme companion modules serving static files by "/modules" path
-                return module.Theme.IsEmpty() ? module.WebRoot : null;
-            }
-
-            return null;
-        }
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            // Configure & register asset file provider
-            var assetFileProvider = new AssetFileProvider(appContext.WebRoot);
-
-            assetFileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
-            assetFileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
-            assetFileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
-            assetFileProvider.AddFileProvider("exchange/", new ExpandedFileSystem("exchange", appContext.TenantRoot, true));
-
-            builder.RegisterInstance<IAssetFileProvider>(assetFileProvider);
             builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().SingleInstance();
             builder.RegisterType<BundleContextAccessor>().As<IBundleContextAccessor>().SingleInstance();
 
@@ -72,9 +44,12 @@ namespace Smartstore.Web.Bootstrapping
 
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
+                var assetFileProvider = app.ApplicationServices.GetRequiredService<IAssetFileProvider>();
+                assetFileProvider.AddFileProvider(".app/", new SassFileProvider(builder.ApplicationContext));
+
                 app.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IAssetFileProvider>(),
+                    FileProvider = assetFileProvider,
                     ContentTypeProvider = MimeTypes.ContentTypeProvider
                 });
             });

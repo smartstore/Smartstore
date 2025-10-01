@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Theming;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Bootstrapping

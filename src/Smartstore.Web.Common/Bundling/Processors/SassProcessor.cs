@@ -2,6 +2,7 @@
 using SharpScss;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Web.Bundling.Processors

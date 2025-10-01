@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Net;
-using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Razor
 {
