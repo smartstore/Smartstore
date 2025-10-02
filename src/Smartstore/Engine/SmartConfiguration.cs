@@ -179,6 +179,11 @@ namespace Smartstore.Engine
         public int SmtpServerTimeout { get; set; } = 5000;
 
         /// <summary>
+        /// Defines whether customer can be assigned to a blog post in order to display his avatar.
+        /// </summary>
+        public bool? EnableCustomerAvatarsInBlog { get; set; }
+
+        /// <summary>
         /// Gets or sets Google configuration options. 
         /// </summary>
         public GoogleConfiguration Google { get; set; } = new();
