@@ -1,0 +1,19 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model CollectionGroupListModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.CollectionGroups").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form id="collection-groups-form">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-bars-staggered"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+    </div>
+</form>
+
+<partial name="_Grid.CollectionGroups" model="null" />

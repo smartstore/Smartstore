@@ -17,7 +17,7 @@ namespace Smartstore.Core.Common.Services
             Guard.NotEmpty(entityName);
 
             var existingGroups = await _db.CollectionGroups
-                .ApplyEntityFilter([entityId], entityName)
+                .ApplyEntityFilter(entityName, [entityId], true)
                 .ToListAsync();
             var displayOrder = existingGroups.Count > 0 ? existingGroups.Max(x => x.DisplayOrder) : 0;
 
