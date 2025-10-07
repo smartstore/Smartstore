@@ -16,5 +16,6 @@ namespace Smartstore.Core.Data
         public DbSet<StateProvince> StateProvinces { get; set; }
         public DbSet<PriceLabel> PriceLabels { get; set; }
         public DbSet<CollectionGroup> CollectionGroups { get; set; }
+        public DbSet<CollectionGroupMapping> CollectionGroupMappings { get; set; }
     }
 }

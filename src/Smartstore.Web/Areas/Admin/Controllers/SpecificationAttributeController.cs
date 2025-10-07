@@ -441,7 +441,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> SpecificationAttributeOptionEditPopup(string btnId, string formId, int id)
         {
             var option = await _db.SpecificationAttributeOptions
-                .Include(x => x.CollectionGroup)
+                .Include(x => x.CollectionGroupMapping)
+                .ThenInclude(x => x.CollectionGroup)
                 .FindByIdAsync(id, false);
             if (option == null)
             {
@@ -459,9 +460,7 @@ namespace Smartstore.Admin.Controllers
 
             var collectionGroups = await _db.CollectionGroups
                 .AsNoTracking()
-                .Where(x => x.EntityName == nameof(SpecificationAttributeOption))
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name)
+                .ApplyEntityFilter(nameof(SpecificationAttributeOption), true)
                 .ToListAsync();
             
             ViewBag.CollectionGroups = collectionGroups
@@ -469,7 +468,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     Text = x.Name,
                     Value = x.Name,
-                    Selected = x.Name.EqualsNoCase(option.CollectionGroup?.Name)
+                    Selected = option.CollectionGroupMapping != null && option.CollectionGroupMapping.CollectionGroupId == x.Id
                 })
                 .ToList();
 

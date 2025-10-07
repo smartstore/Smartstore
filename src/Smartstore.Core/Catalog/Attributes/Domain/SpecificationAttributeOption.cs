@@ -16,9 +16,9 @@ namespace Smartstore.Core.Catalog.Attributes
                 .WithMany(c => c.SpecificationAttributeOptions)
                 .HasForeignKey(c => c.SpecificationAttributeId);
 
-            builder.HasOne(c => c.CollectionGroup)
+            builder.HasOne(c => c.CollectionGroupMapping)
                 .WithMany()
-                .HasForeignKey(c => c.CollectionGroupId)
+                .HasForeignKey(c => c.CollectionGroupMappingId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
@@ -76,16 +76,16 @@ namespace Smartstore.Core.Catalog.Attributes
         [StringLength(100)]
         public string Color { get; set; }
 
-        public int? CollectionGroupId { get; set; }
+        public int? CollectionGroupMappingId { get; set; }
 
-        private CollectionGroup _collectionGroup;
+        private CollectionGroupMapping _collectionGroupMapping;
         /// <summary>
-        /// Gets or sets an optional collection group.
+        /// Gets or sets an optional collection group mapping.
         /// </summary>
-        public CollectionGroup CollectionGroup
+        public CollectionGroupMapping CollectionGroupMapping
         {
-            get => _collectionGroup ?? LazyLoader.Load(this, ref _collectionGroup);
-            set => _collectionGroup = value;
+            get => _collectionGroupMapping ?? LazyLoader.Load(this, ref _collectionGroupMapping);
+            set => _collectionGroupMapping = value;
         }
 
         private ICollection<ProductSpecificationAttribute> _productSpecificationAttributes;

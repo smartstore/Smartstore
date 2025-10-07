@@ -6,10 +6,11 @@ namespace Smartstore.Core.Common.Services
     {
         /// <summary>
         /// Applies a new collection group name to <paramref name="entity"/>.
+        /// Adds a <see cref="CollectionGroup"/> if none exists for <paramref name="collectionGroupName"/>.
         /// </summary>
         /// <param name="entity">The entity to apply the new collection group name to.</param>
         /// <param name="collectionGroupName">The new collection group name to apply.</param>
-        /// <returns><c>true</c> <see cref="IGroupedEntity.CollectionGroupId"/> has been updated, otherwise <c>false</c>.</returns>
+        /// <returns><c>true</c> <see cref="IGroupedEntity.CollectionGroupMappingId"/> has been updated, otherwise <c>false</c>.</returns>
         Task<bool> ApplyCollectionGroupNameAsync<TEntity>(TEntity entity, string? collectionGroupName)
             where TEntity : BaseEntity, IGroupedEntity;
     }

@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services
 {
@@ -10,36 +9,68 @@ namespace Smartstore.Core.Common.Services
         public async Task<bool> ApplyCollectionGroupNameAsync<TEntity>(TEntity entity, string collectionGroupName)
             where TEntity : BaseEntity, IGroupedEntity
         {
+            if (entity.Id == 0)
+            {
+                return false;
+            }
+
             if (collectionGroupName.IsEmpty())
             {
-                entity.CollectionGroupId = null;
+                if (entity.CollectionGroupMappingId != null)
+                {
+                    // Delete mapping.
+                    await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, true);
+
+                    _db.CollectionGroupMappings.Remove(entity.CollectionGroupMapping);
+                    await _db.SaveChangesAsync();
+                    return true;
+                }
+
+                return false;
+            }
+
+            var entityName = entity.GetEntityName();
+            var existingGroup = await _db.CollectionGroups
+                .AsNoTracking()
+                .Include(x => x.CollectionGroupMappings)
+                .FirstOrDefaultAsync(x => x.Name == collectionGroupName && x.EntityName == entityName);
+
+            if (existingGroup == null)
+            {
+                // Add collection group.
+                var displayOrder = await _db.CollectionGroups
+                    .Where(x => x.EntityName == entityName)
+                    .MaxAsync(x => (int?)x.DisplayOrder) ?? 0;
+
+                existingGroup = new CollectionGroup
+                {
+                    EntityName = entityName,
+                    Name = collectionGroupName,
+                    DisplayOrder = ++displayOrder
+                };
+
+                _db.CollectionGroups.Add(existingGroup);
+                await _db.SaveChangesAsync();
+            }
+
+            var existingMapping = existingGroup.CollectionGroupMappings.FirstOrDefault(x => x.EntityId == entity.Id);
+            if (existingMapping == null)
+            {
+                // Add mapping.
+                existingMapping = new CollectionGroupMapping
+                {
+                    CollectionGroupId = existingGroup.Id,
+                    EntityId = entity.Id
+                };
+
+                _db.CollectionGroupMappings.Add(existingMapping);
+                await _db.SaveChangesAsync();
                 return true;
             }
 
-            if (entity.Id != 0)
+            if (entity.CollectionGroupMappingId != existingMapping.Id)
             {
-                var entityName = entity.GetEntityName();
-                var existingCollectionGroup = await _db.CollectionGroups
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.EntityName == entityName && x.Name == collectionGroupName);
-
-                if (existingCollectionGroup == null)
-                {
-                    existingCollectionGroup = new CollectionGroup
-                    {
-                        EntityName = nameof(SpecificationAttributeOption),
-                        Name = collectionGroupName,
-                        Published = true,
-                        DisplayOrder = await _db.CollectionGroups.MaxAsync(x => (int?)x.DisplayOrder) ?? 1
-                    };
-
-                    _db.CollectionGroups.Add(existingCollectionGroup);
-                    await _db.SaveChangesAsync();
-
-                    // TODO: Add mapping... EntityId = entity.Id
-                }
-
-                entity.CollectionGroupId = existingCollectionGroup.Id;
+                entity.CollectionGroupMappingId = existingMapping.Id;
                 return true;
             }
 

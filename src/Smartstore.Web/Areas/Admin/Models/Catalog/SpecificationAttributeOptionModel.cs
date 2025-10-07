@@ -67,20 +67,22 @@ namespace Smartstore.Admin.Models.Catalog
         IMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>,
         IMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>
     {
+        private readonly SmartDbContext _db;
         private readonly ICollectionGroupService _collectionGroupService;
 
-        public SpecificationAttributeOptionMapper(ICollectionGroupService collectionGroupService)
+        public SpecificationAttributeOptionMapper(SmartDbContext db, ICollectionGroupService collectionGroupService)
         {
+            _db = db;
             _collectionGroupService = collectionGroupService;
         }
 
-        public Task MapAsync(SpecificationAttributeOption from, SpecificationAttributeOptionModel to, dynamic parameters = null)
+        public async Task MapAsync(SpecificationAttributeOption from, SpecificationAttributeOptionModel to, dynamic parameters = null)
         {
+            await _db.LoadReferenceAsync(from, x => x.CollectionGroupMapping, false, q => q.Include(x => x.CollectionGroup));
+
             MiniMapper.Map(from, to);
             to.PictureId = from.MediaFileId;
-            to.CollectionGroupName = from.CollectionGroup?.Name;
-
-            return Task.CompletedTask;
+            to.CollectionGroupName = from.CollectionGroupMapping?.CollectionGroup?.Name;
         }
 
         public async Task MapAsync(SpecificationAttributeOptionModel from, SpecificationAttributeOption to, dynamic parameters = null)

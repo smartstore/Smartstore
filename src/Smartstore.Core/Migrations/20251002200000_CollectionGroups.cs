@@ -13,28 +13,33 @@ namespace Smartstore.Core.Migrations
     {
         public override void Up()
         {
-            const string tableName = nameof(CollectionGroup);
+            const string groupTableName = nameof(CollectionGroup);
+            const string mappingTableName = nameof(CollectionGroupMapping);
             const string specOptionTableName = nameof(SpecificationAttributeOption);
-            const string specOptionColumnName = nameof(SpecificationAttributeOption.CollectionGroupId);
+            const string specOptionColumnName = nameof(SpecificationAttributeOption.CollectionGroupMappingId);
 
-            if (!Schema.Table(tableName).Exists())
+            if (!Schema.Table(groupTableName).Exists())
             {
-                Create.Table(tableName)
+                Create.Table(groupTableName)
                     .WithIdColumn()
                     .WithColumn(nameof(CollectionGroup.EntityName)).AsString(100).NotNullable()
-                    .WithColumn(nameof(CollectionGroup.EntityId)).AsInt32().NotNullable()
+                        .Indexed()
                     .WithColumn(nameof(CollectionGroup.Name)).AsString(400).NotNullable()
                         .Indexed()
                     .WithColumn(nameof(CollectionGroup.Published)).AsBoolean().NotNullable()
                     .WithColumn(nameof(CollectionGroup.DisplayOrder)).AsInt32().NotNullable()
                         .Indexed();
+            }
 
-                Create.Index()
-                    .OnTable(tableName)
-                    .OnColumn(nameof(CollectionGroup.EntityName)).Ascending()
-                    .OnColumn(nameof(CollectionGroup.EntityId)).Ascending()
-                    .WithOptions()
-                    .NonClustered();
+            if (!Schema.Table(mappingTableName).Exists())
+            {
+                Create.Table(mappingTableName)
+                    .WithIdColumn()
+                    .WithColumn(nameof(CollectionGroupMapping.CollectionGroupId)).AsInt32().NotNullable()
+                        .Indexed()
+                        .ForeignKey(groupTableName, nameof(BaseEntity.Id))
+                        .OnDelete(Rule.Cascade)
+                    .WithColumn(nameof(CollectionGroupMapping.EntityId)).AsInt32().NotNullable();
             }
 
             if (!Schema.Table(specOptionTableName).Column(specOptionColumnName).Exists())
@@ -43,7 +48,7 @@ namespace Smartstore.Core.Migrations
                     .AsInt32()
                     .Nullable()
                     .Indexed()
-                    .ForeignKey(tableName, nameof(BaseEntity.Id))
+                    .ForeignKey(mappingTableName, nameof(BaseEntity.Id))
                     .OnDelete(Rule.SetNull);
             }
         }
