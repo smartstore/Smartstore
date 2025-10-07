@@ -9,13 +9,14 @@
 <datagrid id="collection-group-grid"
           allow-resize="true" 
           allow-row-selection="true"
-          allow-edit="true" 
           allow-column-reordering="true"
           onrowclass="collectionGroupGrid_onRowClass">
     <datasource read="@Url.Action("CollectionGroupList", "CollectionGroup")"
                 delete="@Url.Action("CollectionGroupDelete", "CollectionGroup")" />
     <sorting enabled="true">
+        <sort by="EntityName" />
         <sort by="DisplayOrder" />
+        <sort by="Name" />
     </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
@@ -23,12 +24,6 @@
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
             </button>
-        </toolbar-group>
-        <toolbar-group>
-            <a href="#" class="add-collection-group btn btn-primary btn-flat">
-                <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")…</span>
-            </a>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
@@ -59,7 +54,6 @@
                 <div class="text-truncate" :title="item.value">{{ item.row.LocalizedEntityName }}</div>
             </display-template>
         </column>
-        <column for="EntityId" halign="center" type="string" />
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
     </columns>
@@ -77,12 +71,6 @@
     }
 
     $(function () {
-        $(document).on('click', '.add-collection-group', (e) => {
-            e.preventDefault();
-            openPopup('@Url.Action("CreateCollectionGroupPopup", "CollectionGroup")?btnId=btnRefresh&formId=collection-groups-form');
-            return false;
-        });
-
         $(document).on('click', '.collection-group-item', (e) => {
             e.preventDefault();
             const url = '@Url.Content("~/Admin/CollectionGroup/EditCollectionGroupPopup/")' + $(this).data('key') + '?btnId=btnRefresh&formId=collection-groups-form';

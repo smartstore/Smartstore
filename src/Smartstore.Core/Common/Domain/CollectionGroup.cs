@@ -4,9 +4,21 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Core.Common
 {
     /// <summary>
+    /// Represents an entity that can be grouped by name.
+    /// </summary>
+    public interface IGroupedEntity
+    {
+        /// <summary>
+        /// Gets or sets the identifier of an optional <see cref="CollectionGroup"/>.
+        /// </summary>
+        int? CollectionGroupId { get; set; }
+    }
+
+    /// <summary>
     /// Represents a group of entities, like a group of specification attributes.
     /// </summary>
-    [Index(nameof(EntityId), nameof(EntityName))]
+    [Index(nameof(EntityName), nameof(EntityId))]
+    [Index(nameof(Name))]
     [Index(nameof(DisplayOrder))]
     public partial class CollectionGroup : BaseEntity, ILocalizedEntity, IDisplayedEntity, IDisplayOrder
     {

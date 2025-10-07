@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 
@@ -14,13 +15,18 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.SpecificationAttribute)
                 .WithMany(c => c.SpecificationAttributeOptions)
                 .HasForeignKey(c => c.SpecificationAttributeId);
+
+            builder.HasOne(c => c.CollectionGroup)
+                .WithMany()
+                .HasForeignKey(c => c.CollectionGroupId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
     /// <summary>
     /// Represents a specification attribute option.
     /// </summary>
-    public partial class SpecificationAttributeOption : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias
+    public partial class SpecificationAttributeOption : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias, IGroupedEntity
     {
         /// <summary>
         /// Gets or sets the specification attribute identifier.
@@ -69,6 +75,18 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         [StringLength(100)]
         public string Color { get; set; }
+
+        public int? CollectionGroupId { get; set; }
+
+        private CollectionGroup _collectionGroup;
+        /// <summary>
+        /// Gets or sets an optional collection group.
+        /// </summary>
+        public CollectionGroup CollectionGroup
+        {
+            get => _collectionGroup ?? LazyLoader.Load(this, ref _collectionGroup);
+            set => _collectionGroup = value;
+        }
 
         private ICollection<ProductSpecificationAttribute> _productSpecificationAttributes;
         /// <summary>

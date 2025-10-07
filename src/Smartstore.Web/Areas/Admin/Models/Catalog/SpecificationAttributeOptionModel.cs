@@ -2,6 +2,7 @@
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -36,7 +37,10 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Picture")]
         public int PictureId { get; set; }
 
-        public List<SpecificationAttributeOptionLocalizedModel> Locales { get; set; } = new();
+        [LocalizedDisplay("*CollectionGroup")]
+        public string CollectionGroupName { get; set; }
+
+        public List<SpecificationAttributeOptionLocalizedModel> Locales { get; set; } = [];
     }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.")]
@@ -59,25 +63,32 @@ namespace Smartstore.Admin.Models.Catalog
         }
     }
 
-    [Mapper(Lifetime = ServiceLifetime.Singleton)]
     public class SpecificationAttributeOptionMapper :
         IMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>,
         IMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>
     {
-        public Task MapAsync(SpecificationAttributeOptionModel from, SpecificationAttributeOption to, dynamic parameters = null)
-        {
-            MiniMapper.Map(from, to);
-            to.MediaFileId = from.PictureId;
+        private readonly ICollectionGroupService _collectionGroupService;
 
-            return Task.CompletedTask;
+        public SpecificationAttributeOptionMapper(ICollectionGroupService collectionGroupService)
+        {
+            _collectionGroupService = collectionGroupService;
         }
 
         public Task MapAsync(SpecificationAttributeOption from, SpecificationAttributeOptionModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
             to.PictureId = from.MediaFileId;
+            to.CollectionGroupName = from.CollectionGroup?.Name;
 
             return Task.CompletedTask;
+        }
+
+        public async Task MapAsync(SpecificationAttributeOptionModel from, SpecificationAttributeOption to, dynamic parameters = null)
+        {
+            MiniMapper.Map(from, to);
+            to.MediaFileId = from.PictureId;
+
+            await _collectionGroupService.ApplyCollectionGroupNameAsync(to, from.CollectionGroupName);
         }
     }
 }

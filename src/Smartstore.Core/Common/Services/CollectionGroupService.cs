@@ -1,68 +1,49 @@
-﻿using Smartstore.Core.Data;
+﻿using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class CollectionGroupService
+    public partial class CollectionGroupService(SmartDbContext db) : ICollectionGroupService
     {
-        private readonly SmartDbContext _db;
+        private readonly SmartDbContext _db = db;
 
-        public CollectionGroupService(SmartDbContext db)
+        public async Task<bool> ApplyCollectionGroupNameAsync<TEntity>(TEntity entity, string collectionGroupName)
+            where TEntity : BaseEntity, IGroupedEntity
         {
-            _db = db;
-        }
-
-        public async Task UpdateCollectionGroupsAsync(int entityId, string entityName, IEnumerable<string> groupNames)
-        {
-            Guard.NotZero(entityId);
-            Guard.NotEmpty(entityName);
-
-            var existingGroups = await _db.CollectionGroups
-                .ApplyEntityFilter(entityName, [entityId], true)
-                .ToListAsync();
-            var displayOrder = existingGroups.Count > 0 ? existingGroups.Max(x => x.DisplayOrder) : 0;
-
-            // Check whether to remove all groups.
-            if (groupNames.IsNullOrEmpty() && existingGroups.Count > 0)
+            if (collectionGroupName.IsEmpty())
             {
-                _db.CollectionGroups.RemoveRange(existingGroups);
-                await _db.SaveChangesAsync();
-                return;
+                entity.CollectionGroupId = null;
+                return true;
             }
 
-            // Groups to remove.
-            var toRemove = new List<CollectionGroup>();
-            var newNames = new HashSet<string>(groupNames
-                .Select(x => x.TrimSafe())
-                .Where(x => x.HasValue()),
-                StringComparer.OrdinalIgnoreCase);
-
-            foreach (var existingGroup in existingGroups)
+            if (entity.Id != 0)
             {
-                if (!newNames.Any(existingGroup.Name.EqualsNoCase))
+                var entityName = entity.GetEntityName();
+                var existingCollectionGroup = await _db.CollectionGroups
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.EntityName == entityName && x.Name == collectionGroupName);
+
+                if (existingCollectionGroup == null)
                 {
-                    toRemove.Add(existingGroup);
-                }
-            }
-
-            if (toRemove.Count > 0)
-            {
-                _db.CollectionGroups.RemoveRange(toRemove);
-            }
-
-            // Groups to add.
-            foreach (var name in newNames)
-            {
-                if (!toRemove.Any(x => x.Name.EqualsNoCase(name)) && !existingGroups.Any(x => x.Name.Equals(name)))
-                {
-                    _db.CollectionGroups.Add(new()
+                    existingCollectionGroup = new CollectionGroup
                     {
-                        Name = name,
-                        DisplayOrder = ++displayOrder
-                    });
+                        EntityName = nameof(SpecificationAttributeOption),
+                        Name = collectionGroupName,
+                        Published = true,
+                        DisplayOrder = await _db.CollectionGroups.MaxAsync(x => (int?)x.DisplayOrder) ?? 1
+                    };
+
+                    _db.CollectionGroups.Add(existingCollectionGroup);
+                    await _db.SaveChangesAsync();
+
+                    // TODO: Add mapping... EntityId = entity.Id
                 }
+
+                entity.CollectionGroupId = existingCollectionGroup.Id;
+                return true;
             }
 
-            await _db.SaveChangesAsync();
+            return false;
         }
     }
 }

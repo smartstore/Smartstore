@@ -1,4 +1,5 @@
-﻿using Smartstore.Admin.Models.Catalog;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
@@ -439,7 +440,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Attribute.Read)]
         public async Task<IActionResult> SpecificationAttributeOptionEditPopup(string btnId, string formId, int id)
         {
-            var option = await _db.SpecificationAttributeOptions.FindByIdAsync(id, false);
+            var option = await _db.SpecificationAttributeOptions
+                .Include(x => x.CollectionGroup)
+                .FindByIdAsync(id, false);
             if (option == null)
             {
                 return NotFound();
@@ -453,6 +456,22 @@ namespace Smartstore.Admin.Controllers
                 locale.Name = option.GetLocalized(x => x.Name, languageId, false, false);
                 locale.Alias = option.GetLocalized(x => x.Alias, languageId, false, false);
             });
+
+            var collectionGroups = await _db.CollectionGroups
+                .AsNoTracking()
+                .Where(x => x.EntityName == nameof(SpecificationAttributeOption))
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
+                .ToListAsync();
+            
+            ViewBag.CollectionGroups = collectionGroups
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Name,
+                    Selected = x.Name.EqualsNoCase(option.CollectionGroup?.Name)
+                })
+                .ToList();
 
             ViewBag.btnId = btnId;
             ViewBag.formId = formId;

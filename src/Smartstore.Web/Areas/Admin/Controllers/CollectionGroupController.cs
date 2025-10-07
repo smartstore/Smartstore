@@ -1,6 +1,9 @@
-﻿using Smartstore.Admin.Models.Common;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -9,13 +12,10 @@ namespace Smartstore.Admin.Controllers
     public class CollectionGroupController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ILocalizedEntityService _localizedEntityService;
 
-        public CollectionGroupController(SmartDbContext db,
-            ILocalizedEntityService localizedEntityService)
+        public CollectionGroupController(SmartDbContext db)
         {
             _db = db;
-            _localizedEntityService = localizedEntityService;
         }
 
         [Permission(Permissions.Configuration.CollectionGroup.Read)]
@@ -28,7 +28,10 @@ namespace Smartstore.Admin.Controllers
                 .Distinct()
                 .ToListAsync();
 
-            ViewBag.EntityNames = entityNames.OrderBy(x => x).ToList();
+            ViewBag.EntityNames = entityNames
+                .OrderBy(x => x)
+                .Select(x => new SelectListItem { Text = x, Value = x })
+                .ToList();
 
             return View(model);
         }
@@ -39,14 +42,19 @@ namespace Smartstore.Admin.Controllers
         {
             var query = _db.CollectionGroups.AsNoTracking();
 
+            if (model.EntityName.HasValue())
+            {
+                query = query.Where(x => x.EntityName == model.EntityName);
+            }
             if (model.Published != null)
             {
                 query = query.Where(x => x.Published == model.Published.Value);
             }
 
             var collectionGroups = await _db.CollectionGroups
-                .AsNoTracking()
-                .ApplyEntityFilter(model.EntityName, model.EntityId != null ? [model.EntityId.Value] : null, true)
+                .OrderBy(x => x.EntityName)
+                .ThenBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -77,49 +85,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, entities.Count });
         }
 
-        [Permission(Permissions.Configuration.CollectionGroup.Create)]
-        public IActionResult CreateCollectionGroupPopup(string btnId, string formId)
-        {
-            var model = new CollectionGroupModel();
-            AddLocales(model.Locales);
-
-            ViewBag.BtnId = btnId;
-            ViewBag.FormId = formId;
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.CollectionGroup.Create)]
-        public async Task<IActionResult> CreateCollectionGroupPopup(CollectionGroupModel model, string btnId, string formId)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var collectionGroup = await MapperFactory.MapAsync<CollectionGroupModel, CollectionGroup>(model);
-                    _db.CollectionGroups.Add(collectionGroup);
-                    await _db.SaveChangesAsync();
-
-                    await UpdateLocalesAsync(collectionGroup, model);
-                    await _db.SaveChangesAsync();
-
-                    NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                    return View(model);
-                }
-
-                ViewBag.RefreshPage = true;
-                ViewBag.BtnId = btnId;
-                ViewBag.FormId = formId;
-            }
-
-            return View(model);
-        }
-
         [Permission(Permissions.Configuration.CollectionGroup.Read)]
         public async Task<IActionResult> EditCollectionGroupPopup(int id, string btnId, string formId)
         {
@@ -129,7 +94,8 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = await MapperFactory.MapAsync<CollectionGroup, CollectionGroupModel>(collectionGroup);
+            var mapper = MapperFactory.GetMapper<CollectionGroup, CollectionGroupModel>();
+            var model = await mapper.MapAsync(collectionGroup);
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -156,8 +122,8 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
+                    var mapper = MapperFactory.GetMapper<CollectionGroupModel, CollectionGroup>();
                     await MapperFactory.MapAsync(model, collectionGroup);
-                    await UpdateLocalesAsync(collectionGroup, model);
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -174,15 +140,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
-        }
-
-
-        private async Task UpdateLocalesAsync(CollectionGroup collectionGroup, CollectionGroupModel model)
-        {
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedValueAsync(collectionGroup, x => x.Name, localized.Name, localized.LanguageId);
-            }
         }
     }
 }
