@@ -161,6 +161,20 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Categories.ProductsHaveBeenAssignedToCategory",
                 "{0} of {1} products have been assigned to the category.",
                 "{0} von {1} Produkten wurden der Warengruppe zugeordnet.");
+
+            builder.AddOrUpdate("Enums.PostIntroVisibility.Hidden", "Don't show", "Nicht anzeigen");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.TwoLines", "2 lines maximum", "Maximal zweizeilig");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.ThreeLines", "3 lines maximum", "Maximal dreizeilig");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.FullText", "Show completely", "Komplett anzeigen");
+
+            builder.AddOrUpdate("Enums.PostListColumns.Two", "2 columns", "2 Spalten");
+            builder.AddOrUpdate("Enums.PostListColumns.Three", "3 columns", "3 Spalten");
+
+            builder.Delete(
+                "Admin.Configuration.Settings.Blog.PostsPageSize",
+                "Admin.Configuration.Settings.Blog.PostsPageSize.Hint");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.PostsPageSize", "Posts per page", "Beiträge pro Seite");
         }
     }
 }
