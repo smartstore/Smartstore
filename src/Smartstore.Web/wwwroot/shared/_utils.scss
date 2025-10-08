@@ -539,3 +539,10 @@ table th {
 .last-mb-0:last-child {
 	margin-bottom: 0 !important;
 }
+
+.line-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--line-clamp, 3);
+    overflow: hidden;
+}
