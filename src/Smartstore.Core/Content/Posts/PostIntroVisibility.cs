@@ -1,5 +1,11 @@
 ﻿namespace Smartstore.Core.Content.Posts
 {
+    /// <summary>
+    /// Specifies the visibility options for displaying the introductory text of a post.
+    /// </summary>
+    /// <remarks>This enumeration defines the levels of visibility for the introductory text, ranging from
+    /// hidden to fully visible. Use these values to control how much of the intro text is displayed in the user
+    /// interface.</remarks>
     public enum PostIntroVisibility
     {
         /// <summary>

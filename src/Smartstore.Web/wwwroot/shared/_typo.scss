@@ -220,6 +220,29 @@ a.link-overlay {
 }
 
 
+// Line clamp
+// ======================================
+
+.line-clamp, 
+.line-clamp-1, 
+.line-clamp-2, 
+.line-clamp-3, 
+.line-clamp-4, 
+.line-clamp-5 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--line-clamp, 3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.line-clamp-1 { --line-clamp: 1; }
+.line-clamp-2 { --line-clamp: 2; }
+.line-clamp-3 { --line-clamp: 3; }
+.line-clamp-4 { --line-clamp: 4; }
+.line-clamp-5 { --line-clamp: 5; }
+
+
 // Misc typo stuff
 // ======================================
 

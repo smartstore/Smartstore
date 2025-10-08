@@ -163,12 +163,12 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} von {1} Produkten wurden der Warengruppe zugeordnet.");
 
             builder.AddOrUpdate("Enums.PostIntroVisibility.Hidden", "Don't show", "Nicht anzeigen");
-            builder.AddOrUpdate("Enums.PostIntroVisibility.TwoLines", "2 lines maximum", "Maximal zweizeilig");
-            builder.AddOrUpdate("Enums.PostIntroVisibility.ThreeLines", "3 lines maximum", "Maximal dreizeilig");
-            builder.AddOrUpdate("Enums.PostIntroVisibility.FullText", "Show completely", "Komplett anzeigen");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.TwoLines", "Two lines maximum", "Maximal zweizeilig");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.ThreeLines", "Three lines maximum", "Maximal dreizeilig");
+            builder.AddOrUpdate("Enums.PostIntroVisibility.FullText", "Show all", "Komplett anzeigen");
 
-            builder.AddOrUpdate("Enums.PostListColumns.Two", "2 columns", "2 Spalten");
-            builder.AddOrUpdate("Enums.PostListColumns.Three", "3 columns", "3 Spalten");
+            builder.AddOrUpdate("Enums.PostListColumns.Two", "Two columns", "2 Spalten");
+            builder.AddOrUpdate("Enums.PostListColumns.Three", "Three columns", "3 Spalten");
 
             builder.Delete(
                 "Admin.Configuration.Settings.Blog.PostsPageSize",
