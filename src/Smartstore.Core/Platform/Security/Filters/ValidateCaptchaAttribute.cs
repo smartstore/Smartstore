@@ -23,7 +23,7 @@ namespace Smartstore.Core.Security
         public ValidateCaptchaAttribute()
             : base(typeof(ValidateCaptchaFilter))
         {
-            Arguments = new object[] { this };
+            Arguments = [this];
         }
 
         /// <summary>
