@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Common;
+using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
@@ -41,7 +43,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CollectionGroupList(GridCommand command, CollectionGroupListModel model)
         {
             var query = _db.CollectionGroups.AsNoTracking();
-
             if (model.EntityName.HasValue())
             {
                 query = query.Where(x => x.EntityName == model.EntityName);
@@ -51,7 +52,7 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.Published == model.Published.Value);
             }
 
-            var collectionGroups = await _db.CollectionGroups
+            var collectionGroups = await query
                 .OrderBy(x => x.EntityName)
                 .ThenBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name)
@@ -59,10 +60,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var mapper = MapperFactory.GetMapper<CollectionGroup, CollectionGroupModel>();
-            var models = await collectionGroups
-                .SelectAwait(async x => await mapper.MapAsync(x))
-                .AsyncToList();
+            var models = await collectionGroups.MapAsync(_db);
 
             return Json(new GridModel<CollectionGroupModel>
             {
@@ -88,7 +86,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.CollectionGroup.Read)]
         public async Task<IActionResult> EditCollectionGroupPopup(int id, string btnId, string formId)
         {
-            var collectionGroup = await _db.CollectionGroups.FindByIdAsync(id, false);
+            var collectionGroup = await _db.CollectionGroups
+                .Include(x => x.CollectionGroupMappings)
+                .FindByIdAsync(id, false);
             if (collectionGroup == null)
             {
                 return NotFound();
@@ -112,7 +112,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.CollectionGroup.Update)]
         public async Task<IActionResult> EditCollectionGroupPopup(CollectionGroupModel model, string btnId, string formId)
         {
-            var collectionGroup = await _db.CollectionGroups.FindByIdAsync(model.Id);
+            var collectionGroup = await _db.CollectionGroups
+                .Include(x => x.CollectionGroupMappings)
+                .FindByIdAsync(model.Id);
             if (collectionGroup == null)
             {
                 return NotFound();
@@ -123,7 +125,7 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var mapper = MapperFactory.GetMapper<CollectionGroupModel, CollectionGroup>();
-                    await MapperFactory.MapAsync(model, collectionGroup);
+                    await mapper.MapAsync(model, collectionGroup);
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));

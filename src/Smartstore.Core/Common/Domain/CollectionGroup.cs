@@ -5,11 +5,12 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Core.Common
 {
     /// <summary>
-    /// Represents a group of entities, like a group of specification attributes.
+    /// Represents a group of entities, like a group of specification attribute options.
     /// </summary>
     [Index(nameof(EntityName))]
     [Index(nameof(Name))]
     [Index(nameof(DisplayOrder))]
+    [LocalizedEntity(nameof(Published))]
     public partial class CollectionGroup : BaseEntity, ILocalizedEntity, IDisplayedEntity, IDisplayOrder
     {
         public string[] GetDisplayNameMemberNames() => [nameof(Name)];

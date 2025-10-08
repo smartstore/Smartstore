@@ -332,16 +332,22 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> SpecificationAttributeOptionList(GridCommand command, int specificationAttributeId, SpecificationAttributeModel model)
         {
             var mapper = MapperFactory.GetMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>();
-            var query = _db.SpecificationAttributeOptions.AsNoTracking();
+            var query = _db.SpecificationAttributeOptions
+                .Include(x => x.CollectionGroupMapping)
+                .ThenInclude(x => x.CollectionGroup)
+                .AsNoTracking();
 
             if (model.SearchName.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
             }
-
             if (model.SearchAlias.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);
+            }
+            if (model.SearchCollectionGroupName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.CollectionGroupMapping.CollectionGroup.Name, model.SearchCollectionGroupName);
             }
 
             var options = await query

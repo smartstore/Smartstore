@@ -13,6 +13,9 @@ namespace Smartstore.Core.Common
         /// </summary>
         int? CollectionGroupMappingId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the mapping to a <see cref="CollectionGroup"/>.
+        /// </summary>
         CollectionGroupMapping CollectionGroupMapping { get; set; }
     }
 

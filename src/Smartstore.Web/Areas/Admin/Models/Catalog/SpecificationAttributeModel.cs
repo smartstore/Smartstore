@@ -34,6 +34,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Alias")]
         public string SearchAlias { get; set; }
 
+        [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.CollectionGroup")]
+        public string SearchCollectionGroupName { get; set; }
+
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 

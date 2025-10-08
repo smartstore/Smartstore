@@ -70,7 +70,11 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Permissions.DisplayName.CollectionGroup", "Collection Groups", "Gruppierungen");
             builder.AddOrUpdate("Admin.Configuration.CollectionGroups", "Collection Groups", "Gruppierungen");
 
-            builder.AddOrUpdate("Admin.Common.EntityId", "Object ID", "Objekt-ID");
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.CollectionGroup",
+                "Collection Group",
+                "Gruppierung",
+                "Specifies an optional collection group. The option is then indented in the group.",
+                "Legt eine optionale Gruppierung fest. Die Option wird dadurch in der Gruppe eingerückt dargestellt.");
 
             builder.AddOrUpdate("Admin.Configuration.CollectionGroup.Name",
                 "Name",
@@ -78,11 +82,11 @@ namespace Smartstore.Core.Migrations
                 "Specifies the name of the collection group.",
                 "Legt den Namen der Gruppierung fest.");
 
-            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.CollectionGroup",
-                "Collection Group",
-                "Gruppierung",
-                "Specifies an optional collection group. The option is then indented in the group.",
-                "Legt eine optionale Gruppierung fest. Die Option wird dadurch in der Gruppe eingerückt dargestellt.");
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroup.NumberOfAssignments",
+                "Assignments",
+                "Zuordnungen",
+                "The number of objects assigned to the group.",
+                "Die Anzahl der Objekte, die der Gruppierung zugeordnet sind.");
         }
     }
 }

@@ -14,25 +14,33 @@ namespace Smartstore.Core.Common.Services
                 return false;
             }
 
+            if (entity.CollectionGroupMappingId != null)
+            {
+                await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, true, q => q.Include(x => x.CollectionGroup));
+            }
+
+            var mapping = entity.CollectionGroupMapping;
+
             if (collectionGroupName.IsEmpty())
             {
-                if (entity.CollectionGroupMappingId != null)
+                if (mapping != null)
                 {
-                    // Delete mapping.
-                    await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, true);
-
-                    _db.CollectionGroupMappings.Remove(entity.CollectionGroupMapping);
-                    await _db.SaveChangesAsync();
-                    return true;
+                    _db.CollectionGroupMappings.Remove(mapping);
                 }
 
+                return mapping != null;
+            }
+
+            // Perf: Exit if the new name is the old one.
+            if (mapping?.CollectionGroup?.Name == collectionGroupName)
+            {
                 return false;
             }
 
+            var updated = true;
             var entityName = entity.GetEntityName();
             var existingGroup = await _db.CollectionGroups
                 .AsNoTracking()
-                .Include(x => x.CollectionGroupMappings)
                 .FirstOrDefaultAsync(x => x.Name == collectionGroupName && x.EntityName == entityName);
 
             if (existingGroup == null)
@@ -53,28 +61,24 @@ namespace Smartstore.Core.Common.Services
                 await _db.SaveChangesAsync();
             }
 
-            var existingMapping = existingGroup.CollectionGroupMappings.FirstOrDefault(x => x.EntityId == entity.Id);
-            if (existingMapping == null)
+            if (mapping != null)
             {
-                // Add mapping.
-                existingMapping = new CollectionGroupMapping
+                // Update mapping. A different collection group may be selected.
+                updated = mapping.CollectionGroupId != existingGroup.Id;
+
+                mapping.CollectionGroupId = existingGroup.Id;
+            }
+            else
+            {
+                // Add mapping. Entity is not assigned to any collection group.
+                entity.CollectionGroupMapping = new CollectionGroupMapping
                 {
                     CollectionGroupId = existingGroup.Id,
                     EntityId = entity.Id
                 };
-
-                _db.CollectionGroupMappings.Add(existingMapping);
-                await _db.SaveChangesAsync();
-                return true;
             }
 
-            if (entity.CollectionGroupMappingId != existingMapping.Id)
-            {
-                entity.CollectionGroupMappingId = existingMapping.Id;
-                return true;
-            }
-
-            return false;
+            return updated;
         }
     }
 }

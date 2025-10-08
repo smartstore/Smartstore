@@ -54,6 +54,7 @@
                 <div class="text-truncate" :title="item.value">{{ item.row.LocalizedEntityName }}</div>
             </display-template>
         </column>
+        <column for="NumberOfAssignments" halign="center" sortable="false" format="{0:N0}" />
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
     </columns>
@@ -62,6 +63,8 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
+
+<input type="submit" id="btnRefreshCollectionGroups" name="btnRefreshCollectionGroups" class="d-none" />
 
 <script sm-target-zone="scripts" sm-minify="true" data-origin="collection-group-grid">
     function collectionGroupGrid_onRowClass(row) {
@@ -73,14 +76,14 @@
     $(function () {
         $(document).on('click', '.collection-group-item', (e) => {
             e.preventDefault();
-            const url = '@Url.Content("~/Admin/CollectionGroup/EditCollectionGroupPopup/")' + $(this).data('key') + '?btnId=btnRefresh&formId=collection-groups-form';
+            const url = '@Url.Content("~/Admin/CollectionGroup/EditCollectionGroupPopup/")' + $(e.target).data('key') + '?btnId=btnRefreshCollectionGroups&formId=collection-groups-form';
             openPopup(url);
             return true;
         });
 
         // Refresh grid after popup edit dialog was closed.
-        $(document).on('click', '#btnRefresh', () => {
-            window["collection-group-grid"].$children[0].read();
+        $(document).on('click', '#btnRefreshCollectionGroups', () => {
+            window['collection-group-grid'].$children[0].read();
             return false;
         });
     });
