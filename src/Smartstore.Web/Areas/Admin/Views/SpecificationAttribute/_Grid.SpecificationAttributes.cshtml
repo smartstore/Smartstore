@@ -5,6 +5,7 @@
 }
 
 <datagrid id="specification-attributes-grid"
+          version="2"
           allow-resize="true"
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
@@ -48,6 +49,7 @@
             </display-template>
         </column>
         <column for="Alias" />
+        <column for="CollectionGroupName" entity-member="CollectionGroupMapping.CollectionGroup.Name" />
         <column for="Essential" halign="center" />
         <column for="NumberOfOptions" halign="center" sortable="false" readonly="true" format="{0:N0}" />
         <column for="DisplayOrder" halign="center" />

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Common.Services
 
             if (entity.CollectionGroupMappingId != null)
             {
-                await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, true, q => q.Include(x => x.CollectionGroup));
+                await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, false, q => q.Include(x => x.CollectionGroup));
             }
 
             var mapping = entity.CollectionGroupMapping;

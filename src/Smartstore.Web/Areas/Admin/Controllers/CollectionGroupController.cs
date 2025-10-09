@@ -7,6 +7,8 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
+using Smartstore.Data;
+using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -18,6 +20,44 @@ namespace Smartstore.Admin.Controllers
         public CollectionGroupController(SmartDbContext db)
         {
             _db = db;
+        }
+
+        // AJAX.
+        public async Task<IActionResult> AllCollectionGroups(string entityName, string selectedName)
+        {
+            Guard.NotEmpty(entityName);
+
+            var query = _db.CollectionGroups
+                .AsNoTracking()
+                .Where(x => x.EntityName == entityName)
+                .OrderBy(x => x.Name);
+
+            var pager = new FastPager<CollectionGroup>(query, 1000);
+            var unpublishedStr = T("Common.Unpublished").Value;
+            var allGroups = new List<dynamic>();
+
+            while ((await pager.ReadNextPageAsync<CollectionGroup>()).Out(out var collectionGroups))
+            {
+                foreach (var group in collectionGroups)
+                {
+                    dynamic obj = new { group.Id, group.Name, group.Published };
+                    allGroups.Add(obj);
+                }
+            }
+
+            var data = allGroups
+                .OrderBy(x => x.Name)
+                .Select(x => new ChoiceListItem
+                {
+                    Id = x.Name,
+                    Text = x.Name,
+                    Selected = selectedName != null && x.Name == selectedName,
+                    Title = !x.Published ? unpublishedStr : null,
+                    CssClass = !x.Published ? "choice-item-unavailable" : null
+                })
+                .ToList();
+
+            return new JsonResult(data);
         }
 
         [Permission(Permissions.Configuration.CollectionGroup.Read)]

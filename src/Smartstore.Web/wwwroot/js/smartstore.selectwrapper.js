@@ -44,9 +44,10 @@
 
     $.fn.select2.amd.define('select2/data/lazyAdapter', [
         'select2/data/array',
-        'select2/utils'
+        'select2/utils',
+        'select2/data/tags'
     ],
-        function (ArrayData, Utils) {
+        function (ArrayData, Utils, Tags) {
 
             function LazyAdapter($element, options) {
                 this._isInitialized = false;
@@ -135,7 +136,8 @@
                 this._isInitialized = true;
             };
 
-            return LazyAdapter;
+            // INFO: This enables addding tags when using lazy-loading.
+            return Utils.Decorate(LazyAdapter, Tags);
         }
     );
 
@@ -443,7 +445,7 @@
                     initLoad(sel, opts.lazy.url);
                 }
 
-                // url specified: load data remotely (lazily on first open)...               
+                // URL specified: load data remotely (lazily on first open)...
                 opts.dataAdapter = $.fn.select2.amd.require('select2/data/lazyAdapter');
             }
             else if (sel.data('remote-url')) {

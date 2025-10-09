@@ -15,8 +15,8 @@ namespace Smartstore.Core.Migrations
         {
             const string groupTableName = nameof(CollectionGroup);
             const string mappingTableName = nameof(CollectionGroupMapping);
-            const string specOptionTableName = nameof(SpecificationAttributeOption);
-            const string specOptionColumnName = nameof(SpecificationAttributeOption.CollectionGroupMappingId);
+            const string specAttributeTableName = nameof(SpecificationAttribute);
+            const string specAttributeColumnName = nameof(SpecificationAttribute.CollectionGroupMappingId);
 
             if (!Schema.Table(groupTableName).Exists())
             {
@@ -42,9 +42,9 @@ namespace Smartstore.Core.Migrations
                     .WithColumn(nameof(CollectionGroupMapping.EntityId)).AsInt32().NotNullable();
             }
 
-            if (!Schema.Table(specOptionTableName).Column(specOptionColumnName).Exists())
+            if (!Schema.Table(specAttributeTableName).Column(specAttributeColumnName).Exists())
             {
-                Create.Column(specOptionColumnName).OnTable(specOptionTableName)
+                Create.Column(specAttributeColumnName).OnTable(specAttributeTableName)
                     .AsInt32()
                     .Nullable()
                     .Indexed()
@@ -70,11 +70,11 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Permissions.DisplayName.CollectionGroup", "Collection Groups", "Gruppierungen");
             builder.AddOrUpdate("Admin.Configuration.CollectionGroups", "Collection Groups", "Gruppierungen");
 
-            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.CollectionGroup",
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Fields.CollectionGroup",
                 "Collection Group",
                 "Gruppierung",
-                "Specifies an optional collection group. The option is then indented in the group.",
-                "Legt eine optionale Gruppierung fest. Die Option wird dadurch in der Gruppe eingerückt dargestellt.");
+                "Specifies a collection group (optional). Grouped attributes are indented in the frontend.",
+                "Legt eine Gruppierung fest (optional). Gruppierte Attribute werden im Frontend eingerückt dargestellt.");
 
             builder.AddOrUpdate("Admin.Configuration.CollectionGroup.Name",
                 "Name",

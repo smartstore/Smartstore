@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 
@@ -15,18 +14,13 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.SpecificationAttribute)
                 .WithMany(c => c.SpecificationAttributeOptions)
                 .HasForeignKey(c => c.SpecificationAttributeId);
-
-            builder.HasOne(c => c.CollectionGroupMapping)
-                .WithMany()
-                .HasForeignKey(c => c.CollectionGroupMappingId)
-                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
     /// <summary>
     /// Represents a specification attribute option.
     /// </summary>
-    public partial class SpecificationAttributeOption : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias, IGroupedEntity
+    public partial class SpecificationAttributeOption : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
         /// <summary>
         /// Gets or sets the specification attribute identifier.
@@ -75,18 +69,6 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         [StringLength(100)]
         public string Color { get; set; }
-
-        public int? CollectionGroupMappingId { get; set; }
-
-        private CollectionGroupMapping _collectionGroupMapping;
-        /// <summary>
-        /// Gets or sets an optional collection group mapping.
-        /// </summary>
-        public CollectionGroupMapping CollectionGroupMapping
-        {
-            get => _collectionGroupMapping ?? LazyLoader.Load(this, ref _collectionGroupMapping);
-            set => _collectionGroupMapping = value;
-        }
 
         private ICollection<ProductSpecificationAttribute> _productSpecificationAttributes;
         /// <summary>
