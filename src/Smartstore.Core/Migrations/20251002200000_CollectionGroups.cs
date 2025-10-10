@@ -70,17 +70,29 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate("Permissions.DisplayName.CollectionGroup", "Collection Groups", "Gruppierungen");
             builder.AddOrUpdate("Admin.Configuration.CollectionGroups", "Collection Groups", "Gruppierungen");
 
+            builder.AddOrUpdate("Common.Entity.SpecificationAttribute", "Specification attribute", "Spezifikationsattribut");
+
+            // Typo.
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Added")
+                .Value("de", "Das Attribut wurde erfolgreich hinzugefügt.");
+
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Fields.CollectionGroup",
                 "Collection Group",
                 "Gruppierung",
-                "Specifies a collection group (optional). Grouped attributes are indented in the frontend.",
-                "Legt eine Gruppierung fest (optional). Gruppierte Attribute werden im Frontend eingerückt dargestellt.");
+                "Specifies the name of a collection group (optional). Grouped attributes are indented in the frontend.",
+                "Legt den Namen einer Gruppierung fest (optional). Gruppierte Attribute werden im Frontend eingerückt dargestellt.");
 
             builder.AddOrUpdate("Admin.Configuration.CollectionGroup.Name",
                 "Name",
                 "Name",
                 "Specifies the name of the collection group.",
                 "Legt den Namen der Gruppierung fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroup.EntityName",
+                "Object",
+                "Objekt",
+                "The name of the object assigned to the group.",
+                "Der Name des Objekts, das der Gruppierung zugeordnet ist.");
 
             builder.AddOrUpdate("Admin.Configuration.CollectionGroup.NumberOfAssignments",
                 "Assignments",

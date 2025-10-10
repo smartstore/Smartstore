@@ -18,10 +18,10 @@ namespace Smartstore.Admin.Models.Common
 
         public List<CollectionGroupLocalizedModel> Locales { get; set; } = [];
 
-        [LocalizedDisplay("Admin.Common.Entity")]
+        [LocalizedDisplay("*EntityName")]
         public string EntityName { get; set; }
 
-        [LocalizedDisplay("Admin.Common.Entity")]
+        [LocalizedDisplay("*EntityName")]
         public string LocalizedEntityName { get; set; }
 
         [LocalizedDisplay("*NumberOfAssignments")]

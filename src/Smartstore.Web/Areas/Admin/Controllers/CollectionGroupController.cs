@@ -72,7 +72,11 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.EntityNames = entityNames
                 .OrderBy(x => x)
-                .Select(x => new SelectListItem { Text = x, Value = x })
+                .Select(x => new SelectListItem 
+                { 
+                    Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true), 
+                    Value = x 
+                })
                 .ToList();
 
             return View(model);

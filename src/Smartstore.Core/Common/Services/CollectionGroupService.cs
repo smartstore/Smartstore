@@ -14,7 +14,7 @@ namespace Smartstore.Core.Common.Services
                 return false;
             }
 
-            if (entity.CollectionGroupMappingId != null)
+            if (entity.CollectionGroupMappingId != null && entity.CollectionGroupMapping == null)
             {
                 await _db.LoadReferenceAsync(entity, x => x.CollectionGroupMapping, false, q => q.Include(x => x.CollectionGroup));
             }
