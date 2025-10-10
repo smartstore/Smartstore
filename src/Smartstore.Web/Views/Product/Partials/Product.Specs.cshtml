@@ -11,38 +11,88 @@
         return;
     }
 
-    var grouped = Model.GroupBy(x => x.SpecificationAttributeName);
+    var sortNaturally = CatalogSettings.SortAttributesNaturally;
+    var tableCaption = T("Products.Specs");
+    var otherTitle = T("Products.Specs.AdditionalFeatures").Value;
+    var otherAttributes = Model.Where(x => !x.IsGrouped);
+    var groupedAttributes = Model
+        .Where(x => x.IsGrouped)
+        .GroupBy(x => x.CollectionGroupName);
 }
 
-<div class="pd-specs table-responsive">
-    <table class="table pd-specs-table">
-        <caption class="sr-only">@T("Products.Specs")</caption>
-        <tbody>
-            @foreach (var grp in grouped)
-            {
-                var count = grp.Count();
-                <tr attr-class='(grp.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
-                    <th scope="row" class="pd-spec-name" sm-language-attributes-for="grp.Key">@grp.Key</th>
-                    <td class="pd-spec-value">
-                        @if (count == 1)
-                        {
-                            var option = grp.First().SpecificationAttributeOption;
-                            <span sm-language-attributes-for="option">@option</span>
-                        }
-                        else if (count > 1)
-                        {
-                            <ul class="mb-0 pl-3">
-                                @foreach (var item in grp
-                                    .OrderBy(x => x.DisplayOrder)
-                                    .ThenNaturalBy(CatalogSettings.SortAttributesNaturally ? x => x.SpecificationAttributeOption : null))
-                                {
-                                    <li class="pb-1"><span sm-language-attributes-for="item.SpecificationAttributeOption">@item.SpecificationAttributeOption</span></li>
-                                }
-                            </ul>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="pd-specs">
+    @foreach (var grp in groupedAttributes)
+    {
+        await AttributeGroup(grp.Key, grp
+            .OrderBy(x => x.CollectionGroupDisplayOrder)
+            .ThenNaturalBy(sortNaturally ? x => x.CollectionGroupName : null));
+    }
+    @if (otherTitle.HasValue() && groupedAttributes.Any())
+    {
+        await AttributeGroup(otherTitle, otherAttributes);
+    }
+    else
+    {
+        await AttributeTable(tableCaption, otherAttributes);
+    }
 </div>
+
+@{
+    async Task AttributeGroup(string title, IEnumerable<ProductSpecificationModel> attributes)
+    {
+        if (!attributes.Any())
+        {
+            return;
+        }
+        <div class="pd-specs-group block mb-1">
+            <div class="block-title">
+                <h4>@title</h4>
+            </div>
+            <div class="pd-specs-group-body block-body pt-1">
+                @{
+                    await AttributeTable(title, attributes);
+                }
+            </div>
+        </div>
+    }
+
+    async Task AttributeTable(string caption, IEnumerable<ProductSpecificationModel> attributes)
+    {
+        if (!attributes.Any())
+        {
+            return;
+        }
+        <div class="table-responsive">
+            <table class="table pd-specs-table">
+                <caption class="sr-only">@caption</caption>
+                <tbody>
+                    @foreach (var grp in attributes.GroupBy(x => x.SpecificationAttributeName))
+                    {
+                        var count = grp.Count();
+                        <tr attr-class='(grp.FirstOrDefault()?.Essential ?? false, "pd-spec-essential")'>
+                            <th scope="row" class="pd-spec-name" sm-language-attributes-for="grp.Key">@grp.Key</th>
+                            <td class="pd-spec-value">
+                                @if (count == 1)
+                                {
+                                    var option = grp.First().SpecificationAttributeOption;
+                                    <span sm-language-attributes-for="option">@option</span>
+                                }
+                                else if (count > 1)
+                                {
+                                    <ul class="mb-0 pl-3">
+                                        @foreach (var item in grp
+                                            .OrderBy(x => x.DisplayOrder)
+                                            .ThenNaturalBy(sortNaturally ? x => x.SpecificationAttributeOption : null))
+                                        {
+                                            <li class="pb-1"><span sm-language-attributes-for="item.SpecificationAttributeOption">@item.SpecificationAttributeOption</span></li>
+                                        }
+                                    </ul>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

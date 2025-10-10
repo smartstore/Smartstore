@@ -99,6 +99,8 @@ namespace Smartstore.Core.Migrations
                 "Zuordnungen",
                 "The number of objects assigned to the group.",
                 "Die Anzahl der Objekte, die der Gruppierung zugeordnet sind.");
+
+            builder.AddOrUpdate("Products.Specs.AdditionalFeatures", "Additional features", "Weitere Merkmale");
         }
     }
 }
