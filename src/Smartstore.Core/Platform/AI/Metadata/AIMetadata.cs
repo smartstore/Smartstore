@@ -124,7 +124,7 @@ namespace Smartstore.Core.AI.Metadata
 
         #region Edit & validate models
 
-        public string ValidateModelName(string modelId, AIOutputType type)
+        public string ValidateModelId(string modelId, AIOutputType type)
         {
             if (!Models.TryFindModel(modelId, out var modelEntry) || modelEntry.Type != type)
             {
@@ -144,7 +144,7 @@ namespace Smartstore.Core.AI.Metadata
             return modelId;
         }
 
-        public string ValidateVisionModelName(string modelId)
+        public string ValidateVisionModelId(string modelId)
         {
             if (!Models.TryFindModel(modelId, out var modelEntry) || modelEntry.Type != AIOutputType.Text || !modelEntry.Vision)
             {
@@ -164,26 +164,26 @@ namespace Smartstore.Core.AI.Metadata
             return modelId;
         }
 
-        public AIModelCollection MergeTextModels(string[] preferredModelNames)
+        public AIModelCollection MergeTextModels(string[] preferredModelIds)
         {
-            return MergeModels(AIOutputType.Text, preferredModelNames);
+            return MergeModels(AIOutputType.Text, preferredModelIds);
         }
 
-        public AIModelCollection MergeImageModels(string[] preferredModelNames)
+        public AIModelCollection MergeImageModels(string[] preferredModelIds)
         {
-            return MergeModels(AIOutputType.Image, preferredModelNames);
+            return MergeModels(AIOutputType.Image, preferredModelIds);
         }
 
-        public AIModelCollection MergeModels(AIOutputType outputType, string[] preferredModelNames)
+        public AIModelCollection MergeModels(AIOutputType outputType, string[] preferredModelIds)
         {
-            if (preferredModelNames.IsNullOrEmpty())
+            if (preferredModelIds.IsNullOrEmpty())
             {
                 return [.. GetModels(outputType)];
             }
             
             var mergedModels = new AIModelCollection();
 
-            foreach (var modelName in preferredModelNames.Distinct())
+            foreach (var modelName in preferredModelIds.Distinct())
             {
                 var modelEntry = GetModelById(modelName);
                 if (modelEntry != null && modelEntry.Type == outputType)

@@ -35,6 +35,11 @@ namespace Smartstore.Core.AI.Metadata
         public string Id { get; set; } = default!;
 
         /// <summary>
+        /// Model name (e.g. "GPT-5", "Gemini 2.5 Pro").
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
         /// Model type: "text" or "image".
         /// </summary>
         public AIOutputType Type { get; set; }
