@@ -57,6 +57,7 @@
   - #1196 Avoid duplicate return requests for a product.
   - The quantity to return reflects the number of products that have already been returned.
   - Display information about products that have already been returned, including their current status.
+- Web API: Allow guest customers to be created.
 
 
 ### Bugfixes
