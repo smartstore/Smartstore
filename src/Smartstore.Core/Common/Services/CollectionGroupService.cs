@@ -1,10 +1,19 @@
-﻿using Smartstore.Core.Data;
+﻿using System.Security;
+using Smartstore.Core.Data;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class CollectionGroupService(SmartDbContext db) : ICollectionGroupService
+    public partial class CollectionGroupService : ICollectionGroupService
     {
-        private readonly SmartDbContext _db = db;
+        private readonly SmartDbContext _db;
+        private readonly IPermissionService _permissionService;
+
+        public CollectionGroupService(SmartDbContext db, IPermissionService permissionService)
+        {
+            _db = db;
+            _permissionService = permissionService;
+        }
 
         public async Task<bool> ApplyCollectionGroupNameAsync<TEntity>(TEntity entity, string collectionGroupName)
             where TEntity : BaseEntity, IGroupedEntity
@@ -45,6 +54,11 @@ namespace Smartstore.Core.Common.Services
 
             if (existingGroup == null)
             {
+                if (!await _permissionService.AuthorizeAsync(Permissions.Configuration.CollectionGroup.Create))
+                {
+                    throw new SecurityException(await _permissionService.GetUnauthorizedMessageAsync(Permissions.Configuration.CollectionGroup.Create));
+                }
+
                 // Add collection group.
                 var displayOrder = await _db.CollectionGroups
                     .Where(x => x.EntityName == entityName)

@@ -17,15 +17,15 @@
     var otherAttributes = Model.Where(x => !x.IsGrouped);
     var groupedAttributes = Model
         .Where(x => x.IsGrouped)
+        .OrderBy(x => x.CollectionGroupDisplayOrder)
+        .ThenNaturalBy(sortNaturally ? x => x.CollectionGroupName : null)
         .GroupBy(x => x.CollectionGroupName);
 }
 
 <div class="pd-specs">
     @foreach (var grp in groupedAttributes)
     {
-        await AttributeGroup(grp.Key, grp
-            .OrderBy(x => x.CollectionGroupDisplayOrder)
-            .ThenNaturalBy(sortNaturally ? x => x.CollectionGroupName : null));
+        await AttributeGroup(grp.Key, grp);
     }
     @if (otherTitle.HasValue() && groupedAttributes.Any())
     {

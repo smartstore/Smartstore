@@ -55,6 +55,7 @@
                 public const string Self = "configuration.collectiongroup";
                 public const string Read = "configuration.collectiongroup.read";
                 public const string Update = "configuration.collectiongroup.update";
+                public const string Create = "configuration.collectiongroup.create";
                 public const string Delete = "configuration.collectiongroup.delete";
             }
         }
