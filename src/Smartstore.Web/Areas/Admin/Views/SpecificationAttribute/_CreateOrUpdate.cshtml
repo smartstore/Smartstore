@@ -1,4 +1,5 @@
-﻿@using Smartstore.Core.Search.Facets
+﻿@using Smartstore.Core.Catalog.Attributes
+@using Smartstore.Core.Search.Facets
 
 @model SpecificationAttributeModel
 
@@ -12,14 +13,28 @@
 
 <tabstrip id="specificationattribute-edit" sm-nav-style="Material">
 	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
-		<div sm-if="Model.Id != 0" class="adminContent">
-            <div class="adminRow">
+		<div class="adminContent">
+            <div sm-if="Model.Id != 0" class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Id" />
                 </div>
                 <div class="adminData">
                     <input asp-for="Id" sm-plaintext="true" readonly />
                     <span asp-validation-for="Id"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CollectionGroupName" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="CollectionGroupName" 
+                            data-placeholder="@T("Common.Unspecified")"
+                            data-select-url="@Url.Action("AllCollectionGroups", "CollectionGroup", new { entityName = nameof(SpecificationAttribute), selectedName = Model.CollectionGroupName, area = "Admin" })"
+                            data-select-init-load="@Model.CollectionGroupName.HasValue().ToString().ToLower()"
+                            data-allow-clear="true"
+                            data-tags="true"></select>
+                    <span asp-validation-for="CollectionGroupName"></span>
                 </div>
             </div>
         </div>

@@ -4,7 +4,8 @@
     var parentModel = ViewData["Parent"] as SpecificationAttributeModel;
 }
 
-<datagrid id="specification-attribute-options-grid" class="h-100"
+<datagrid id="specification-attribute-options-grid"
+          class="h-100"
           allow-resize="true"
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
@@ -62,23 +63,23 @@
 
 <script sm-target-zone="scripts" data-origin="specification-attribute-edit">
     $(function() {
-        $(document).on('click', '.add-specification-attribute-option', function (e) {
+        $(document).on('click', '.add-specification-attribute-option', (e) => {
             e.preventDefault();
-            var url = '@Url.Action("SpecificationAttributeOptionCreatePopup", new { specificationAttributeId = parentModel.Id, btnId = "btnRefreshOptions", formId = "specification-attribute-form" })';
+            const url = '@Url.Action("SpecificationAttributeOptionCreatePopup", new { specificationAttributeId = parentModel.Id, btnId = "btnRefreshOptions", formId = "specification-attribute-form" })';
             openPopup(url, true);
             return false;
         });
 
-        $(document).on('click', '.edit-specification-attribute-option', function (e) {
+        $(document).on('click', '.edit-specification-attribute-option', (e) => {
             e.preventDefault();
-            var url = '@Url.Content("~/Admin/SpecificationAttribute/SpecificationAttributeOptionEditPopup/")' + $(this).data("id");
-            openPopup(url + "?btnId=btnRefreshOptions&formId=specification-attribute-form", true);
+            const url = '@Url.Content("~/Admin/SpecificationAttribute/SpecificationAttributeOptionEditPopup/")' + $(e.target).data('id') + '?btnId=btnRefreshOptions&formId=specification-attribute-form';
+            openPopup(url, true);
             return false;
         });
 
         // Refresh grid after popup edit dialog was closed.
-        $(document).on('click', '#btnRefreshOptions', function () {
-            window["specification-attribute-options-grid"].$children[0].read();
+        $(document).on('click', '#btnRefreshOptions', () => {
+            window['specification-attribute-options-grid'].$children[0].read();
             return false;
         });
     });

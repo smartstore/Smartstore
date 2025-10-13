@@ -381,6 +381,7 @@ namespace Smartstore.Core.Catalog.Products
                 .AsNoTracking()
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
+                .ThenInclude(x => x.CollectionGroupMapping.CollectionGroup)
                 .Where(x => ids.Contains(x.ProductId) && (essentialAttributes == null || x.SpecificationAttributeOption.SpecificationAttribute.Essential == essentialAttributes.Value))
                 .OrderBy(x => x.ProductId)
                 .OrderBy(x => x.DisplayOrder);

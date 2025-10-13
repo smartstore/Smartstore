@@ -1,19 +1,32 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
+    internal class SpecificationAttributeMap : IEntityTypeConfiguration<SpecificationAttribute>
+    {
+        public void Configure(EntityTypeBuilder<SpecificationAttribute> builder)
+        {
+            builder.HasOne(c => c.CollectionGroupMapping)
+                .WithMany()
+                .HasForeignKey(c => c.CollectionGroupMappingId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
     /// <summary>
     /// Represents a specification attribute.
     /// </summary>
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
     [Index(nameof(Essential), Name = "IX_EssentialAttribute")]
     [LocalizedEntity("ShowOnProductPage or AllowFiltering")]
-    public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
+    public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias, IGroupedEntity
     {
         /// <summary>
         /// Gets or sets the name.
@@ -66,6 +79,18 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Only effective in accordance with MegaSearchPlus module.
         /// </summary>
         public bool IndexOptionNames { get; set; }
+
+        public int? CollectionGroupMappingId { get; set; }
+
+        private CollectionGroupMapping _collectionGroupMapping;
+        /// <summary>
+        /// Gets or sets an optional collection group mapping.
+        /// </summary>
+        public CollectionGroupMapping CollectionGroupMapping
+        {
+            get => _collectionGroupMapping ?? LazyLoader.Load(this, ref _collectionGroupMapping);
+            set => _collectionGroupMapping = value;
+        }
 
         private ICollection<SpecificationAttributeOption> _specificationAttributeOptions;
         /// <summary>

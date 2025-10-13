@@ -1,0 +1,16 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model CollectionGroupListModel
+
+@{
+    var entityNames = ViewBag.EntityNames as List<SelectListItem>;
+}
+
+<div sm-if="entityNames.Count > 1" class="form-group">
+    <smart-label asp-for="EntityName" />
+    <select asp-for="EntityName" asp-items="entityNames" asp-placeholder="@T("Common.Unspecified")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="Published" />
+    <editor asp-for="Published" />
+</div>

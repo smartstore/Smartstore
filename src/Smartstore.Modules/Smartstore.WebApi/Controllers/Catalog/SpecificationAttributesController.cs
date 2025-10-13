@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿using Microsoft.AspNetCore.OData.Formatter;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -8,6 +10,13 @@ namespace Smartstore.Web.Api.Controllers
     [WebApiGroup(WebApiGroupNames.Catalog)]
     public class SpecificationAttributesController : WebApiController<SpecificationAttribute>
     {
+        private readonly Lazy<ICollectionGroupService> _collectionGroupService;
+
+        public SpecificationAttributesController(Lazy<ICollectionGroupService> collectionGroupService)
+        {
+            _collectionGroupService = collectionGroupService;
+        }
+
         [HttpGet("SpecificationAttributes"), ApiQueryable]
         [Permission(Permissions.Catalog.Attribute.Read)]
         public IQueryable<SpecificationAttribute> Get()
@@ -56,5 +65,39 @@ namespace Smartstore.Web.Api.Controllers
         {
             return DeleteAsync(key);
         }
+
+        #region Actions and functions
+
+        /// <summary>
+        /// Applies a collection group name to a specification attribute.
+        /// </summary>
+        /// <param name="collectionGroupName">
+        /// The new collection group name to apply. Adds a CollectionGroup if one does not already exist with this name.
+        /// </param>
+        [HttpPost("SpecificationAttributes({key})/ApplyCollectionGroupName"), ApiQueryable]
+        [Permission(Permissions.Catalog.Attribute.Update)]
+        [Produces(Json)]
+        [ProducesResponseType(typeof(SpecificationAttribute), Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> ApplyCollectionGroupName(int key,
+            [FromODataBody] string collectionGroupName)
+        {
+            try
+            {
+                var entity = await GetRequiredById(key, q => q.Include(x => x.CollectionGroupMapping.CollectionGroup));
+
+                await _collectionGroupService.Value.ApplyCollectionGroupNameAsync(entity, collectionGroupName);
+                await Db.SaveChangesAsync();
+
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        #endregion
     }
 }

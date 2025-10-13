@@ -1,0 +1,90 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model CollectionGroupModel
+
+@{
+    var parentModel = ViewData["Parent"] as CollectionGroupListModel;
+}
+
+<datagrid id="collection-group-grid"
+          allow-resize="true" 
+          allow-row-selection="true"
+          allow-column-reordering="true"
+          onrowclass="collectionGroupGrid_onRowClass">
+    <datasource read="@Url.Action("CollectionGroupList", "CollectionGroup")"
+                delete="@Url.Action("CollectionGroupDelete", "CollectionGroup")" />
+    <sorting enabled="true">
+        <sort by="EntityName" />
+        <sort by="DisplayOrder" />
+        <sort by="Name" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-can"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.CollectionGroups.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <div class="d-block">
+                    <a href="#" class="collection-group-item text-truncate" :data-key="item.row.Id">
+                        {{ item.value }}
+                    </a>
+                </div>
+            </display-template>
+        </column>
+        <column for="EntityName">
+            <display-template>
+                <div class="text-truncate" :title="item.value">{{ item.row.LocalizedEntityName }}</div>
+            </display-template>
+        </column>
+        <column for="NumberOfAssignments" halign="center" sortable="false" format="{0:N0}" />
+        <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="collection-group-item" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefreshCollectionGroups" name="btnRefreshCollectionGroups" class="d-none" />
+
+<script sm-target-zone="scripts" sm-minify="true" data-origin="collection-group-grid">
+    function collectionGroupGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Published
+        };
+    }
+
+    $(function () {
+        $(document).on('click', '.collection-group-item', (e) => {
+            e.preventDefault();
+            const url = '@Url.Content("~/Admin/CollectionGroup/EditCollectionGroupPopup/")' + $(e.target).data('key') + '?btnId=btnRefreshCollectionGroups&formId=collection-groups-form';
+            openPopup(url);
+            return true;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshCollectionGroups', () => {
+            window['collection-group-grid'].$children[0].read();
+            return false;
+        });
+    });
+</script>

@@ -1366,43 +1366,37 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(ctx);
 
             var product = ctx.Product;
-            var batchContext = ctx.BatchContext;
             var cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
 
             return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
-                List<ProductSpecificationAttribute> attrs;
+                // INFO: Use navigation properties because data is only required on product detail page.
+                // See also CatalogHelper.ProductSummary.MapProductSpecificationModels.
+                await _db.LoadCollectionAsync(product, x => x.ProductSpecificationAttributes, false, 
+                    q => q.Include(x => x.SpecificationAttributeOption.SpecificationAttribute.CollectionGroupMapping.CollectionGroup));
 
-                if (_db.IsCollectionLoaded(product, x => x.ProductSpecificationAttributes))
-                {
-                    attrs = product.ProductSpecificationAttributes
-                        .Where(x =>
-                            (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
-                            (x.ShowOnProductPage == true))
-                        .ToList();
-                }
-                else
-                {
-                    attrs = (await batchContext.SpecificationAttributes.GetOrLoadAsync(product.Id))
-                        .Where(x =>
-                            (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
-                            (x.ShowOnProductPage == true))
-                        .ToList();
-                }
-
-                return attrs
-                    .OrderBy(x => x.DisplayOrder)
-                    .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.DisplayOrder)
-                    .ThenBy(x => x.SpecificationAttributeOption.SpecificationAttribute.Name)
-                    .Select(x => new ProductSpecificationModel
-                    {
-                        SpecificationAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
-                        SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
-                        SpecificationAttributeOption = x.SpecificationAttributeOption.GetLocalized(x => x.Name),
-                        Essential = x.SpecificationAttributeOption.SpecificationAttribute.Essential,
-                        DisplayOrder = x.SpecificationAttributeOption.DisplayOrder
-                    })
+                var result =
+                    (from x in product.ProductSpecificationAttributes
+                     let option = x.SpecificationAttributeOption
+                     let attr = option.SpecificationAttribute
+                     let collGroup = attr.CollectionGroupMapping?.CollectionGroup
+                     let isGrouped = collGroup?.Published ?? false
+                     where (x.ShowOnProductPage == null && attr.ShowOnProductPage == true) || x.ShowOnProductPage == true
+                     orderby x.DisplayOrder, attr.DisplayOrder, attr.Name
+                     select new ProductSpecificationModel
+                     {
+                         IsGrouped = isGrouped,
+                         CollectionGroupName = isGrouped ? collGroup.GetLocalized(y => y.Name) : null,
+                         CollectionGroupDisplayOrder = isGrouped ? collGroup.DisplayOrder : 0,
+                         SpecificationAttributeId = attr.Id,
+                         SpecificationAttributeName = attr.GetLocalized(y => y.Name),
+                         SpecificationAttributeOption = option.GetLocalized(y => y.Name),
+                         Essential = attr.Essential,
+                         DisplayOrder = option.DisplayOrder
+                     })
                     .ToList();
+
+                return result;
             });
         }
 

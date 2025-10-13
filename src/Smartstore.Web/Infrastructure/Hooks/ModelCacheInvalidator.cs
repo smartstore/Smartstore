@@ -259,7 +259,7 @@ namespace Smartstore.Web.Infrastructure.Hooks
             {
                 await _cache.RemoveByPatternAsync(PRODUCT_SPECS_PATTERN_KEY);
             }
-            else if (entity is ProductSpecificationAttribute)
+            else if (entity is ProductSpecificationAttribute || entity is CollectionGroup)
             {
                 await _cache.RemoveByPatternAsync(PRODUCT_SPECS_PATTERN_KEY);
             }

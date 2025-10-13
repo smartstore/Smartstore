@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Search.Facets;
 
@@ -12,6 +13,9 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*SearchAlias")]
         public string SearchAlias { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.CollectionGroup")]
+        public string SearchCollectionGroupName { get; set; }
 
         [LocalizedDisplay("*SearchAllowFiltering")]
         public bool? SearchAllowFiltering { get; set; }
@@ -39,6 +43,9 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Alias")]
         public string Alias { get; set; }
+
+        [LocalizedDisplay("*CollectionGroup")]
+        public string CollectionGroupName { get; set; }
 
         [LocalizedDisplay("*Essential")]
         public bool Essential { get; set; }
@@ -90,6 +97,28 @@ namespace Smartstore.Admin.Models.Catalog
         public SpecificationAttributeValidator(SmartDbContext db)
         {
             ApplyEntityRules<SpecificationAttribute>(db);
+        }
+    }
+
+    public class SpecificationAttributeMapper(SmartDbContext db) :
+        IMapper<SpecificationAttribute, SpecificationAttributeModel>,
+        IMapper<SpecificationAttributeModel, SpecificationAttribute>
+    {
+        private readonly SmartDbContext _db = db;
+
+        public async Task MapAsync(SpecificationAttribute from, SpecificationAttributeModel to, dynamic parameters = null)
+        {
+            await _db.LoadReferenceAsync(from, x => x.CollectionGroupMapping, false, q => q.Include(x => x.CollectionGroup));
+
+            MiniMapper.Map(from, to);
+            to.CollectionGroupName = from.CollectionGroupMapping?.CollectionGroup?.Name;
+        }
+
+        public Task MapAsync(SpecificationAttributeModel from, SpecificationAttribute to, dynamic parameters = null)
+        {
+            MiniMapper.Map(from, to);
+
+            return Task.CompletedTask;
         }
     }
 }

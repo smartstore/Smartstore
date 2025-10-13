@@ -1,6 +1,7 @@
 ﻿using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
@@ -15,11 +16,15 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly ICollectionGroupService _collectionGroupService;
 
-        public SpecificationAttributeController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
+        public SpecificationAttributeController(SmartDbContext db, 
+            ILocalizedEntityService localizedEntityService,
+            ICollectionGroupService collectionGroupService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
+            _collectionGroupService = collectionGroupService;
         }
 
         // AJAX.
@@ -132,28 +137,31 @@ namespace Smartstore.Admin.Controllers
         {
             var language = Services.WorkContext.WorkingLanguage;
             var mapper = MapperFactory.GetMapper<SpecificationAttribute, SpecificationAttributeModel>();
-            var query = _db.SpecificationAttributes.AsNoTracking();
+            var query = _db.SpecificationAttributes
+                .Include(x => x.CollectionGroupMapping)
+                .ThenInclude(x => x.CollectionGroup)
+                .AsNoTracking();
 
             if (model.SearchName.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
             }
-
             if (model.SearchAlias.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);
             }
-
+            if (model.SearchCollectionGroupName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.CollectionGroupMapping.CollectionGroup.Name, model.SearchCollectionGroupName);
+            }
             if (model.SearchAllowFiltering.HasValue)
             {
                 query = query.Where(x => x.AllowFiltering == model.SearchAllowFiltering.Value);
             }
-
             if (model.SearchShowOnProductPage.HasValue)
             {
                 query = query.Where(x => x.ShowOnProductPage == model.SearchShowOnProductPage.Value);
             }
-
             if (model.SearchEssential.HasValue)
             {
                 query = query.Where(x => x.Essential == model.SearchEssential.Value);
@@ -241,6 +249,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
+                await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
                 await ApplyLocales(model, attribute);
                 await _db.SaveChangesAsync();
 
@@ -258,7 +267,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Attribute.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var attribute = await _db.SpecificationAttributes.FindByIdAsync(id, false);
+            var attribute = await _db.SpecificationAttributes
+                .Include(x => x.CollectionGroupMapping)
+                .ThenInclude(x => x.CollectionGroup)
+                .FindByIdAsync(id, false);
             if (attribute == null)
             {
                 return NotFound();
@@ -280,7 +292,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Attribute.Update)]
         public async Task<IActionResult> Edit(SpecificationAttributeModel model, bool continueEditing)
         {
-            var attribute = await _db.SpecificationAttributes.FindByIdAsync(model.Id);
+            var attribute = await _db.SpecificationAttributes
+                .Include(x => x.CollectionGroupMapping)
+                .ThenInclude(x => x.CollectionGroup)
+                .FindByIdAsync(model.Id);
             if (attribute == null)
             {
                 return NotFound();
@@ -291,6 +306,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<SpecificationAttributeModel, SpecificationAttribute>();
                 await mapper.MapAsync(model, attribute);
 
+                await _collectionGroupService.ApplyCollectionGroupNameAsync(attribute, model.CollectionGroupName);
                 await ApplyLocales(model, attribute);
 
                 await _db.SaveChangesAsync();
@@ -337,7 +353,6 @@ namespace Smartstore.Admin.Controllers
             {
                 query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
             }
-
             if (model.SearchAlias.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);

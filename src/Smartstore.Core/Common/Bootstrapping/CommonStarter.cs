@@ -22,6 +22,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultWebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
             builder.RegisterType<PreviewModeCookie>().As<IPreviewModeCookie>().InstancePerLifetimeScope();
+            builder.RegisterType<CollectionGroupService>().As<ICollectionGroupService>().InstancePerLifetimeScope();
 
             // Rule options provider.
             builder.RegisterType<CommonRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();

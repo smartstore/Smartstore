@@ -105,12 +105,13 @@
 
             <siteMapNode id="payment-methods" icon="bi:credit-card" title="Payment methods" resKey="Admin.Configuration.Payment.Methods" permissionNames="configuration.paymentmethod" controller="Payment" action="Providers" area="Admin" />
 
-            <siteMapNode id="list-settings" icon="bi:view-list" title="Lists" resKey="Admin.Configuration.Lists" permissionNames="configuration.deliverytime, configuration.measure">
+            <siteMapNode id="list-settings" icon="bi:view-list" title="Lists" resKey="Admin.Configuration.Lists" permissionNames="configuration.deliverytime, configuration.measure, configuration.pricelabel, configuration.collectiongroup">
                 <siteMapNode id="delivery-times" xicon="calendar" title="Delivery Times" resKey="Admin.Configuration.DeliveryTimes" permissionNames="configuration.deliverytime" controller="DeliveryTime" action="List" area="Admin" />
                 <siteMapNode id="quantity-units" xicon="gift" title="Quantity Units" resKey="Admin.Configuration.QuantityUnit" permissionNames="configuration.measure" controller="QuantityUnit" action="List" area="Admin" />
                 <siteMapNode id="weights" title="Weights" resKey="Admin.Configuration.Measures.Weights" permissionNames="configuration.measure" controller="Measure" action="Weights" area="Admin" />
                 <siteMapNode id="dimensions" title="Dimensions" resKey="Admin.Configuration.Measures.Dimensions" permissionNames="configuration.measure" controller="Measure" action="Dimensions" area="Admin" />
                 <siteMapNode id="price-labels" title="Price Labels" resKey="Admin.Configuration.PriceLabels" permissionNames="configuration.pricelabel" controller="PriceLabel" action="List" area="Admin" />
+                <siteMapNode id="collection-groups" title="Collection Groups" resKey="Admin.Configuration.CollectionGroups" permissionNames="configuration.collectiongroup" controller="CollectionGroup" action="List" area="Admin" />
             </siteMapNode>
 
             <siteMapNode id="email-accounts" icon="bi:envelope" title="EmailAccounts" resKey="Admin.Configuration.EmailAccounts" permissionNames="configuration.emailaccount" controller="EmailAccount" action="List" area="Admin" />

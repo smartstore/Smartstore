@@ -148,7 +148,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // Specification attributes
 // =====================================================
 
-.pd-specs-table tr:first-child th {
+.pd-specs-table tr:first-child > * {
     border-top-width: 0;
 }
 

@@ -1068,6 +1068,7 @@ namespace Smartstore.Core.DataExchange.Export
                     _writer.WriteElementString(nameof(ProductSpecificationAttribute.DisplayOrder), entityPsa.DisplayOrder.ToString());
 
                     dynamic option = psa.SpecificationAttributeOption;
+                    dynamic attribute = option.SpecificationAttribute;
                     SpecificationAttributeOption entitySao = option.Entity;
                     SpecificationAttribute entitySa = option.SpecificationAttribute.Entity;
 
@@ -1084,8 +1085,8 @@ namespace Smartstore.Core.DataExchange.Export
 
                     _writer.WriteStartElement("SpecificationAttribute");
                     _writer.WriteElementString(nameof(SpecificationAttribute.Id), entitySa.Id.ToString());
-                    _writer.WriteElementString(nameof(SpecificationAttribute.Name), (string)option.SpecificationAttribute.Name);
-                    _writer.WriteElementString(nameof(SpecificationAttribute.Alias), (string)option.SpecificationAttribute.Alias);
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Name), (string)attribute.Name);
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Alias), (string)attribute.Alias);
                     _writer.WriteElementString(nameof(SpecificationAttribute.Essential), entitySa.Essential.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.DisplayOrder), entitySa.DisplayOrder.ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.AllowFiltering), entitySa.AllowFiltering.ToString());
@@ -1094,7 +1095,25 @@ namespace Smartstore.Core.DataExchange.Export
                     _writer.WriteElementString(nameof(SpecificationAttribute.FacetTemplateHint), ((int)entitySa.FacetTemplateHint).ToString());
                     _writer.WriteElementString(nameof(SpecificationAttribute.IndexOptionNames), entitySa.IndexOptionNames.ToString());
 
-                    WriteLocalized(option.SpecificationAttribute);
+                    WriteLocalized(attribute);
+
+                    if (attribute.CollectionGroupMapping != null && attribute.CollectionGroupMapping.CollectionGroup != null)
+                    {
+                        var collGroup = attribute.CollectionGroupMapping.CollectionGroup;
+                        CollectionGroup entityCollGroup = collGroup.Entity;
+
+                        _writer.WriteStartElement("CollectionGroupMapping");
+                        _writer.WriteStartElement("CollectionGroup");
+                        _writer.WriteElementString(nameof(CollectionGroup.Id), entityCollGroup.Id.ToString());
+                        _writer.WriteElementString(nameof(CollectionGroup.Name), (string)collGroup.Name);
+                        _writer.WriteElementString(nameof(CollectionGroup.Published), entityCollGroup.Published.ToString());
+                        _writer.WriteElementString(nameof(CollectionGroup.DisplayOrder), entityCollGroup.DisplayOrder.ToString());
+
+                        WriteLocalized(collGroup);
+
+                        _writer.WriteEndElement();
+                        _writer.WriteEndElement();
+                    }
 
                     _writer.WriteEndElement();  // SpecificationAttribute
                     _writer.WriteEndElement();  // SpecificationAttributeOption

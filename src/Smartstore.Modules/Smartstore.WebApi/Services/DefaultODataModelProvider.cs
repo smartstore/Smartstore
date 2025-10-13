@@ -40,6 +40,8 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Address>("Addresses");
             builder.EntitySet<CheckoutAttribute>("CheckoutAttributes");
             builder.EntitySet<CheckoutAttributeValue>("CheckoutAttributeValues");
+            builder.EntitySet<CollectionGroup>("CollectionGroups");
+            builder.EntitySet<CollectionGroupMapping>("CollectionGroupMappings");
             builder.EntitySet<Country>("Countries");
             builder.EntitySet<Currency>("Currencies");
             builder.EntitySet<CustomerRoleMapping>("CustomerRoleMappings");
@@ -87,7 +89,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<TierPrice>("TierPrices");
             builder.EntitySet<UrlRecord>("UrlRecords");
 
-            // INFO: functions specified directly on the ODataModelBuilder (instead of entity type or collection)
+            // INFO: Functions specified directly on the ODataModelBuilder (instead of entity type or collection)
             // are called unbound functions (like static operations on the service).
 
             BuildCategories(builder);
@@ -104,6 +106,7 @@ namespace Smartstore.Web.Api
             BuildRecurringPayments(builder);
             BuildShipments(builder);
             BuildShoppingCartItems(builder);
+            BuildSpecificationAttributes(builder);
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)
@@ -595,6 +598,17 @@ namespace Smartstore.Web.Api
                 .Required();
             deleteCart.Parameter<int>("storeId")
                 .HasDefaultValue("0")
+                .Optional();
+        }
+
+        private static void BuildSpecificationAttributes(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<SpecificationAttribute>("SpecificationAttributes");
+
+            set.EntityType
+                .Action(nameof(SpecificationAttributesController.ApplyCollectionGroupName))
+                .ReturnsFromEntitySet(set)
+                .Parameter<string>("collectionGroupName")
                 .Optional();
         }
     }
