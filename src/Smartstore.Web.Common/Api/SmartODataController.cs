@@ -545,14 +545,15 @@ namespace Smartstore.Web.Api
         protected ODataErrorResult ErrorResult(
             Exception ex = null,
             string message = null,
-            int statusCode = StatusCodes.Status422UnprocessableEntity)
+            int statusCode = StatusCodes.Status422UnprocessableEntity,
+            ICollection<ODataErrorDetail> details = null)
         {
             if (ex != null && ex is ODataErrorException oex)
             {
                 return ODataErrorResult(oex.Error);
             }
 
-            return ODataErrorResult(ODataHelper.CreateError(message ?? ex.Message, statusCode, ex));                
+            return ODataErrorResult(ODataHelper.CreateError(message ?? ex.Message, statusCode, ex, details));
         }
 
         protected NotFoundODataResult NotFound(int id, string entityName = null)

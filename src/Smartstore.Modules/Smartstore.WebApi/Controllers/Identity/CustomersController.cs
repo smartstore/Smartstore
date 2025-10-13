@@ -3,6 +3,7 @@ using Microsoft.OData;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -14,15 +15,18 @@ namespace Smartstore.Web.Api.Controllers
     {
         private readonly Lazy<ICustomerService> _customerService;
         private readonly Lazy<UserManager<Customer>> _userManager;
+        private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<CustomerSettings> _customerSettings;
 
         public CustomersController(
             Lazy<ICustomerService> customerService,
             Lazy<UserManager<Customer>> userManager,
+            Lazy<IWebHelper> webHelper,
             Lazy<CustomerSettings> customerSettings)
         {
             _customerService = customerService;
             _userManager = userManager;
+            _webHelper = webHelper;
             _customerSettings = customerSettings;
         }
 
@@ -128,6 +132,15 @@ namespace Smartstore.Web.Api.Controllers
                 model.CustomerGuid = Guid.NewGuid();
             }
 
+            if (model.Username.IsEmpty() && model.Email.IsEmpty())
+            {
+                // Create a guest customer.
+                var clientIdent = _webHelper.Value.GetClientIdent();
+                var guest = await _customerService.Value.CreateGuestCustomerAsync(clientIdent);
+
+                return Created(guest);
+            }
+
             var result = await _userManager.Value.CreateAsync(model);
             if (result.Succeeded)
             {
@@ -135,7 +148,7 @@ namespace Smartstore.Web.Api.Controllers
             }
             else
             {
-                throw new ODataErrorException(CreateError(result));
+                return ODataErrorResult(CreateError(result));
             }
         }
 
