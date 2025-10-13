@@ -80,12 +80,11 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public bool IndexOptionNames { get; set; }
 
+        /// <inheritdoc />
         public int? CollectionGroupMappingId { get; set; }
 
         private CollectionGroupMapping _collectionGroupMapping;
-        /// <summary>
-        /// Gets or sets an optional collection group mapping.
-        /// </summary>
+        /// <inheritdoc />
         public CollectionGroupMapping CollectionGroupMapping
         {
             get => _collectionGroupMapping ?? LazyLoader.Load(this, ref _collectionGroupMapping);

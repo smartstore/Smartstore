@@ -2,6 +2,13 @@
 
 @model CollectionGroupListModel
 
+@{ 
+    // TODO: (mg) Terminology: Gruppierung --> Gruppe. Alternatives: Attributgruppe (!), Anzeigegruppe (!), Layoutgruppe, Abschnitt/Section, Segment
+    // TODO: (mg) Needs brief explanation for what groups are good for.
+    // TODO: (mg) Smarter permission seeding. In my case, collection groups were totally hidden because the required permissions were not set.
+}
+
+
 @{
     ViewBag.Title = T("Admin.Configuration.CollectionGroups").Value;
     Assets.BodyAttributes.AppendCssClass("spa-layout");

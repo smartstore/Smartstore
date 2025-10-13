@@ -140,7 +140,7 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
         color: darken($success, 10%);
     }
     &.pd-outofstock {
-        font-weight: bold;
+        font-weight: $font-weight-bold;
         color: $danger;
     } 
 }
@@ -148,17 +148,27 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 // Specification attributes
 // =====================================================
 
-.pd-specs-table tr:first-child > * {
+.pd-specs-group .pd-specs-table {
+    //font-size: 90%;
+    font-size: $font-size-sm;
+}
+
+.pd-specs-table tr:first-child > :is(td, th) {
     border-top-width: 0;
 }
 
 .pd-spec-name {
     font-weight: $font-weight-medium;
+    padding-inline-start: 0 !important;
     width: 20%;
 
     @include media-breakpoint-down(md) {
         width: 40%;
     }
+}
+
+.pd-spec-value {
+    padding-inline-end: 0 !important;
 }
 
 // Reviews

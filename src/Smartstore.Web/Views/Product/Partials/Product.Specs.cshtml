@@ -26,10 +26,12 @@
     @foreach (var grp in groupedAttributes)
     {
         await AttributeGroup(grp.Key, grp);
+        //await AttributeTable(tableCaption, otherAttributes);
     }
     @if (otherTitle.HasValue() && groupedAttributes.Any())
     {
         await AttributeGroup(otherTitle, otherAttributes);
+        //await AttributeTable(tableCaption, otherAttributes);
     }
     else
     {
@@ -45,8 +47,8 @@
             return;
         }
         <div class="pd-specs-group block mb-1">
-            <div class="block-title">
-                <h4>@title</h4>
+            <div class="block-title border-0 py-2">
+                <h4 class="h5 fwb">@title</h4>
             </div>
             <div class="pd-specs-group-body block-body pt-1">
                 @{

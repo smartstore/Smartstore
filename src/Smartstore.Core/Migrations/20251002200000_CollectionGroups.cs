@@ -22,13 +22,14 @@ namespace Smartstore.Core.Migrations
             {
                 Create.Table(groupTableName)
                     .WithIdColumn()
-                    .WithColumn(nameof(CollectionGroup.EntityName)).AsString(100).NotNullable()
-                        .Indexed()
                     .WithColumn(nameof(CollectionGroup.Name)).AsString(400).NotNullable()
                         .Indexed()
-                    .WithColumn(nameof(CollectionGroup.Published)).AsBoolean().NotNullable()
+                    .WithColumn(nameof(CollectionGroup.EntityName)).AsString(100).NotNullable()
+                        .Indexed()
                     .WithColumn(nameof(CollectionGroup.DisplayOrder)).AsInt32().NotNullable()
-                        .Indexed();
+                        .Indexed()
+                    // TODO: (mg) Are you sure?
+                    .WithColumn(nameof(CollectionGroup.Published)).AsBoolean().NotNullable();
             }
 
             if (!Schema.Table(mappingTableName).Exists())
