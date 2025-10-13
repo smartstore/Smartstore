@@ -574,6 +574,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             var option = productSpecificationAttribute.SpecificationAttributeOption;
             var attribute = option.SpecificationAttribute;
+            var collGroupMapping = attribute.CollectionGroupMapping;
 
             dynamic result = new DynamicEntity(productSpecificationAttribute);
             dynamic dynAttribute = new DynamicEntity(attribute);
@@ -591,6 +592,27 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynOption.Alias = ctx.GetTranslation(option, nameof(option.Alias), option.Alias);
             dynOption._Localized = GetLocalized(ctx, option, x => x.Alias);
+
+            if (collGroupMapping != null)
+            {
+                dynamic dynCollGroupMapping = new DynamicEntity(collGroupMapping);
+
+                var collGroup = collGroupMapping.CollectionGroup;
+                if (collGroup != null)
+                {
+                    dynamic dynCollGroup = new DynamicEntity(collGroup);
+                    dynCollGroup.Name = ctx.GetTranslation(collGroup, nameof(collGroup.Name), collGroup.Name);
+                    dynCollGroup._Localized = GetLocalized(ctx, collGroup, x => x.Name);
+
+                    dynCollGroupMapping.CollectionGroup = dynCollGroup;
+                }
+
+                dynAttribute.CollectionGroupMapping = dynCollGroupMapping;
+            }
+            else
+            {
+                dynAttribute.CollectionGroupMapping = null;
+            }
 
             dynOption.SpecificationAttribute = dynAttribute;
             result.SpecificationAttributeOption = dynOption;
