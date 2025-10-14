@@ -28,8 +28,6 @@ namespace Smartstore.Core.Migrations
                         .Indexed()
                     .WithColumn(nameof(CollectionGroup.DisplayOrder)).AsInt32().NotNullable()
                         .Indexed()
-                    // TODO: (mg) Are you sure?
-                    // RE: This was requested by MH but it's not required for specification attributes.
                     .WithColumn(nameof(CollectionGroup.Published)).AsBoolean().NotNullable();
             }
 

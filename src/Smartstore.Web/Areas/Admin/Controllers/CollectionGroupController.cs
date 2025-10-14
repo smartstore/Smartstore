@@ -7,6 +7,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
@@ -243,13 +244,21 @@ namespace Smartstore.Admin.Controllers
 
         private List<SelectListItem> GetEntityNames()
         {
-            return [.. Services.ApplicationContext.TypeScanner
-                .FindTypes(typeof(IGroupedEntity))
-                .Select(x => new SelectListItem
-                {
-                    Text = Services.Localization.GetResource("Common.Entity." + x.Name, 0, false, string.Empty, true),
-                    Value = x.Name
-                })];
+            var entityNames = Services.Cache.Get("CollectionGroup:EntityNames", () =>
+            {
+                return Services.ApplicationContext.TypeScanner
+                    .FindTypes<IGroupedEntity>()
+                    .Select(x => NamedEntity.GetEntityName(x))
+                    .ToArray();
+            });
+
+            return entityNames
+                .Select(x => new SelectListItem 
+                { 
+                    Text = Services.Localization.GetResource("Common.Entity." + x, 0, false, string.Empty, true), 
+                    Value = x 
+                })
+                .ToList();
         }
     }
 }
