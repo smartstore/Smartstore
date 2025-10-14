@@ -36,19 +36,11 @@ namespace Smartstore.Admin.Models.Common
         }
     }
 
-    public class CollectionGroupMapper :
+    public class CollectionGroupMapper(ILocalizationService localizationService) :
         IMapper<CollectionGroupModel, CollectionGroup>,
         IMapper<CollectionGroup, CollectionGroupModel>
     {
-        private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly ILocalizationService _localizationService;
-
-        public CollectionGroupMapper(ILocalizedEntityService localizedEntityService,
-            ILocalizationService localizationService)
-        {
-            _localizedEntityService = localizedEntityService;
-            _localizationService = localizationService;
-        }
+        private readonly ILocalizationService _localizationService = localizationService;
 
         public Task MapAsync(CollectionGroup from, CollectionGroupModel to, dynamic parameters = null)
         {
@@ -68,14 +60,11 @@ namespace Smartstore.Admin.Models.Common
             return Task.CompletedTask;
         }
 
-        public async Task MapAsync(CollectionGroupModel from, CollectionGroup to, dynamic parameters = null)
+        public Task MapAsync(CollectionGroupModel from, CollectionGroup to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
 
-            foreach (var localized in from.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedValueAsync(to, x => x.Name, localized.Name, localized.LanguageId);
-            }
+            return Task.CompletedTask;
         }
     }
 }

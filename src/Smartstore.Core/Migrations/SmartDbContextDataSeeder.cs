@@ -175,6 +175,39 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Configuration.Settings.Blog.PostsPageSize.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.PostsPageSize", "Posts per page", "Beiträge pro Seite");
+
+            // Collection Groups
+            builder.AddOrUpdate("Permissions.DisplayName.CollectionGroup", "Display groups", "Anzeigegruppen");
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroups", "Display groups", "Anzeigegruppen");
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroups.Add", "Add display group", "Anzeigegruppe hinzufügen");
+
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroups.Info",
+                "Display groups can be used to organize lists, such as lists of specification attributes, and present them more clearly.",
+                "Mit Hilfe von Anzeigegruppen können Listen, wie etwa eine Liste von Spezifikationsattributen, gruppiert und somit übersichtlicher dargestellt werden.");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.Fields.CollectionGroup",
+                "Display Group",
+                "Anzeigegruppe",
+                "Specifies the name of a display group (optional). This causes the attributes to be displayed in groups in the frontend.",
+                "Legt den Namen einer Anzeigegruppe fest (optional). Dadurch werden die Attribute im Frontend gruppiert angezeigt.");
+
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroup.Name",
+                "Name",
+                "Name",
+                "Specifies the name of the display group.",
+                "Legt den Namen der Anzeigegruppe fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroup.EntityName",
+                "Object",
+                "Objekt",
+                "The name of the object assigned to the display group.",
+                "Der Name des Objekts, das der Anzeigegruppe zugeordnet ist.");
+
+            builder.AddOrUpdate("Admin.Configuration.CollectionGroup.NumberOfAssignments",
+                "Assignments",
+                "Zuordnungen",
+                "The number of objects assigned to the display group.",
+                "Die Anzahl der Objekte, die der Anzeigegruppe zugeordnet sind.");
         }
     }
 }

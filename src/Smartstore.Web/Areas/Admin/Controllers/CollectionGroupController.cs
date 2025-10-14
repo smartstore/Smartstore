@@ -16,10 +16,12 @@ namespace Smartstore.Admin.Controllers
     public class CollectionGroupController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly ILocalizedEntityService _localizedEntityService;
 
-        public CollectionGroupController(SmartDbContext db)
+        public CollectionGroupController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
+            _localizedEntityService = localizedEntityService;
         }
 
         // AJAX.
@@ -127,6 +129,49 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, entities.Count });
         }
 
+        [Permission(Permissions.Configuration.CollectionGroup.Create)]
+        public IActionResult CreateCollectionGroupPopup(string btnId, string formId)
+        {
+            var model = new CollectionGroupModel();
+            AddLocales(model.Locales);
+
+            ViewBag.EntityNames = GetEntityNames();
+            ViewBag.BtnId = btnId;
+            ViewBag.FormId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.CollectionGroup.Create)]
+        public async Task<IActionResult> CreateCollectionGroupPopup(CollectionGroupModel model, string btnId, string formId)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<CollectionGroupModel, CollectionGroup>();
+                    var collectionGroup = await mapper.MapAsync(model);
+                    _db.CollectionGroups.Add(collectionGroup);
+                    await _db.SaveChangesAsync();
+
+                    await UpdateLocales(model, collectionGroup);
+                    await _db.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                ViewBag.EntityNames = GetEntityNames();
+                ViewBag.RefreshPage = true;
+                ViewBag.BtnId = btnId;
+                ViewBag.FormId = formId;
+            }
+
+            return View(model);
+        }
+
         [Permission(Permissions.Configuration.CollectionGroup.Read)]
         public async Task<IActionResult> EditCollectionGroupPopup(int id, string btnId, string formId)
         {
@@ -170,6 +215,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var mapper = MapperFactory.GetMapper<CollectionGroupModel, CollectionGroup>();
                     await mapper.MapAsync(model, collectionGroup);
+                    await UpdateLocales(model, collectionGroup);
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -177,7 +223,6 @@ namespace Smartstore.Admin.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
-                    return View(model);
                 }
 
                 ViewBag.RefreshPage = true;
@@ -186,6 +231,25 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        private async Task UpdateLocales(CollectionGroupModel model, CollectionGroup collectionGroup)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(collectionGroup, x => x.Name, localized.Name, localized.LanguageId);
+            }
+        }
+
+        private List<SelectListItem> GetEntityNames()
+        {
+            return [.. Services.ApplicationContext.TypeScanner
+                .FindTypes(typeof(IGroupedEntity))
+                .Select(x => new SelectListItem
+                {
+                    Text = Services.Localization.GetResource("Common.Entity." + x.Name, 0, false, string.Empty, true),
+                    Value = x.Name
+                })];
         }
     }
 }

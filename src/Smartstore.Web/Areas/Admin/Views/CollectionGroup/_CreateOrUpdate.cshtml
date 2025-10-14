@@ -4,7 +4,6 @@
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
-<input asp-for="EntityName" type="hidden" />
 
 @(Html.LocalizedEditor<CollectionGroupModel, CollectionGroupLocalizedModel>("collection-group-localized",
     @<div class="adminContent">
@@ -35,16 +34,31 @@
 ))
 
 <div class="adminContent">
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="LocalizedEntityName" />
+    @if (Model.Id == 0)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EntityName" />
+            </div>
+            <div class="adminData">
+                <select asp-for="EntityName" asp-items="ViewBag.EntityNames"></select>
+                <span asp-validation-for="EntityName"></span>
+            </div>
         </div>
-        <div class="adminData">
-            <input asp-for="LocalizedEntityName" sm-plaintext="true" readonly />
-            <span asp-validation-for="LocalizedEntityName"></span>
+    }
+    else
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LocalizedEntityName" />
+            </div>
+            <div class="adminData">
+                <input asp-for="EntityName" type="hidden" />
+                <input asp-for="LocalizedEntityName" sm-plaintext="true" readonly />
+            </div>
         </div>
-    </div>
-    <div class="adminRow">
+    }
+    <div sm-if="Model.Id != 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="NumberOfAssignments" />
         </div>

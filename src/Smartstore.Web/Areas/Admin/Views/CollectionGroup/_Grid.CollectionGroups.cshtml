@@ -25,6 +25,12 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat add-collection-group">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
         <zone name="datagrid_toolbar_omega"></zone>
@@ -74,6 +80,13 @@
     }
 
     $(function () {
+        $(document).on('click', '.add-collection-group', (e) => {
+            e.preventDefault();
+            const url = '@Url.Content("~/Admin/CollectionGroup/CreateCollectionGroupPopup/")?btnId=btnRefreshCollectionGroups&formId=collection-groups-form';
+            openPopup(url);
+            return false;
+        });
+
         $(document).on('click', '.collection-group-item', (e) => {
             e.preventDefault();
             const url = '@Url.Content("~/Admin/CollectionGroup/EditCollectionGroupPopup/")' + $(e.target).data('key') + '?btnId=btnRefreshCollectionGroups&formId=collection-groups-form';
