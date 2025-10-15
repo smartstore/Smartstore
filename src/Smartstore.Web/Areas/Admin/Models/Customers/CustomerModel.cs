@@ -204,7 +204,7 @@ namespace Smartstore.Admin.Models.Customers
             public string Message { get; set; }
 
             [LocalizedDisplay("Common.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
+            public DateTime? CreatedOn { get; set; }
         }
 
         [LocalizedDisplay("Admin.Customers.Customers.SendEmail.")]
