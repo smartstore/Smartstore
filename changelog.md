@@ -84,6 +84,7 @@
 - AmazonPay: Do not apply the customer email address for guests.
 - Payment methods with rules are missing on the customer edit page when changing the preferred payment method.
 - Verify balanced parentheses in data grid search filter expressions, preventing runaway memory usage from malformed search terms.
+- Do not display the default date value when adding reward points via backend grid.
 
 
 ## Smartstore 6.2.0
