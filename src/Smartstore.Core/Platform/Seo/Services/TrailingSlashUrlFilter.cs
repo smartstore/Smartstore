@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Seo
 {
@@ -45,6 +46,12 @@ namespace Smartstore.Core.Seo
             if (httpContext.GetRouteValueAs<string>("area").HasValue())
             {
                 // Apply rule to public store only.
+                return;
+            }
+
+            if (MimeTypes.TryMapNameToMimeType(pathValue.TrimEnd('/'), out _))
+            {
+                // Don't apply rule to static file requests.
                 return;
             }
 
