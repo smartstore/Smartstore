@@ -58,6 +58,7 @@
   - The quantity to return reflects the number of products that have already been returned.
   - Display information about products that have already been returned, including their current status.
 - Web API: Allow guest customers to be created.
+- Trailing slash URL rule: Don't apply rule to static file requests (e.g. robots.txt).
 
 
 ### Bugfixes
