@@ -62,6 +62,15 @@ namespace Smartstore.Core.AI
 
         #region Utilities
 
+        protected float? ClampTemperature(float temperature)
+        {
+            if (temperature == 1) return null;
+            if (temperature < 0) return 0;
+            if (temperature > 2) return 2;
+
+            return (float?)Math.Round(temperature, 1);
+        }
+
         protected virtual async Task<string> ProcessChatAsync(
             AIChat chat,
             AIProviderSettingsBase settings,

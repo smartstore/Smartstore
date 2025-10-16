@@ -77,6 +77,6 @@ namespace Smartstore.Core.AI
         /// <param name="cancelToken">The cancellation token.</param>
         /// <returns>The analysis result.</returns>
         /// <exception cref="AIException">Thrown when an error occurs during image analysis.</exception>
-        Task<string> AnalyzeImageAsync(MediaFile file, AIChat chat, CancellationToken cancelToken = default);
+        Task<string?> AnalyzeImageAsync(MediaFile file, AIChat chat, CancellationToken cancelToken = default);
     }
 }
