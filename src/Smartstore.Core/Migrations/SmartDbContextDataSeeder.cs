@@ -208,6 +208,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Zuordnungen",
                 "The number of objects assigned to the display group.",
                 "Die Anzahl der Objekte, die der Anzeigegruppe zugeordnet sind.");
+
+            builder.AddOrUpdate("Common.DontShowDialogAgain", "Do not show this dialog again", "Diesen Dialog nicht mehr anzeigen");
         }
     }
 }
