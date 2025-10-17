@@ -47,11 +47,12 @@ namespace Smartstore.Engine
             ApplicationInitializerMiddleware.Initialized += (s, e) => IsInitialized = true;
 
             // Assembly resolver event.
-            _referenceResolvers = new IModuleReferenceResolver[]
-            {
+            _referenceResolvers =
+            [
                 new ModuleReferenceResolver(application),
-                new AppBaseReferenceResolver(application)
-            };
+                new AppBaseReferenceResolver(application),
+                new BaseModuleReferenceResolver(application)
+            ];
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
 
             return new EngineStarter(this);
@@ -62,6 +63,12 @@ namespace Smartstore.Engine
             if (Application.ModuleCatalog == null)
             {
                 // Too early: don't try to resolve assemblies before the module catalog is built.
+                return null;
+            }
+
+            if (args.Name.EndsWithNoCase(".resources"))
+            {
+                // Don't try to locate resource DLLs
                 return null;
             }
 

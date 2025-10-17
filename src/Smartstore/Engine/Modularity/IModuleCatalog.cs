@@ -48,6 +48,14 @@ namespace Smartstore.Engine.Modularity
         /// <param name="installedOnly">Return the module only if it is installed/loaded.</param>
         /// <returns>Descriptor</returns>
         IModuleDescriptor? GetModuleByTheme(string? themeName, bool installedOnly = true);
+
+        /// <summary>
+        /// Gets a module by its physical path.
+        /// </summary>
+        /// <param name="physicalPath">The physical name.</param>
+        /// <param name="installedOnly">Return the module only if it is installed/loaded.</param>
+        /// <returns>Descriptor</returns>
+        IModuleDescriptor? GetModuleByPath(string? physicalPath, bool installedOnly = true);
     }
 
     public static class IModuleCatalogExtensions

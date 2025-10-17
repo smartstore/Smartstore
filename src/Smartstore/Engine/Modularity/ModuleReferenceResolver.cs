@@ -26,12 +26,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="name">Name of assembly to resolve.</param>
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            if (_appContext.ModuleCatalog == null)
-            {
-                return null;
-            }
-
-            var module = _appContext.ModuleCatalog.GetModuleByAssembly(requestingAssembly);
+            var module = _appContext.ModuleCatalog?.GetModuleByAssembly(requestingAssembly);
 
             if (module != null)
             {

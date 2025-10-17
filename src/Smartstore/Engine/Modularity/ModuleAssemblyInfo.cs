@@ -12,7 +12,7 @@ namespace Smartstore.Engine.Modularity
 
         public ModuleAssemblyInfo(IModuleDescriptor descriptor)
         {
-            Descriptor = Guard.NotNull(descriptor, nameof(descriptor));
+            Descriptor = Guard.NotNull(descriptor);
 
             var mainAssemblyPath = Path.Combine(descriptor.PhysicalPath, descriptor.AssemblyName);
             LoadContext = new ModuleAssemblyLoadContext(mainAssemblyPath);
