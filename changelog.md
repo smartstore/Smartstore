@@ -35,6 +35,7 @@
   - #1341 Enable the selection of product images to be exported.
   - Export more shipping data (handling time, length, width and height of a product).
 - EmailReminder: Added Google Reviews to the review reminder.
+- #1411 **Pixlr**: The user should decide on a session basis whether to open the express or full editor.
 
 ### Improvements
 
