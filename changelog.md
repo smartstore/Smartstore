@@ -2,6 +2,10 @@
 
 ## Smartstore 6.2.1
 
+### Breaking Changes
+
+- (DEV) Added `IEventMessage` marker interface and enforced it across the pub/sub pipeline to standardize and validate event contracts.
+
 ### WCAG (Web Content Accessibility Guidelines)
 
 - Added **Skip list** button for all product, category, tag, blog and news listings.
