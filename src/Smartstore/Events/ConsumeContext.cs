@@ -9,7 +9,7 @@ namespace Smartstore.Events
     /// the message. There may be other context data in future.
     /// </summary>
     /// <typeparam name="TMessage">Type of message.</typeparam>
-    public class ConsumeContext<TMessage>
+    public class ConsumeContext<TMessage> : IEventMessage where TMessage : IEventMessage
     {
         public ConsumeContext(TMessage message)
         {

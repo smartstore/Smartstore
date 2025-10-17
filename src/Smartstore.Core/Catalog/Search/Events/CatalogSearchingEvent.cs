@@ -1,11 +1,12 @@
 ﻿using Smartstore.Core.Search;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Search
 {
     /// <summary>
     /// An event that is fired before searching the catalog for products.
     /// </summary>
-    public class CatalogSearchingEvent
+    public class CatalogSearchingEvent : IEventMessage
     {
         public CatalogSearchingEvent(CatalogSearchQuery query, bool direct)
         {
@@ -27,7 +28,7 @@ namespace Smartstore.Core.Catalog.Search
     /// <summary>
     /// An event that is fired after the catalog has been searched for products.
     /// </summary>
-    public class CatalogSearchedEvent
+    public class CatalogSearchedEvent : IEventMessage
     {
         public CatalogSearchedEvent(CatalogSearchQuery query, CatalogSearchResult result)
         {

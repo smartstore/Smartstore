@@ -1,4 +1,5 @@
 ﻿using DotLiquid;
+using Smartstore.Events;
 
 namespace Smartstore.Templating
 {
@@ -7,7 +8,7 @@ namespace Smartstore.Templating
     /// By subscribing to this event, implementors can inject custom
     /// content to specific template zones.
     /// </summary>
-    public sealed class TemplateZoneRenderingEvent
+    public sealed class TemplateZoneRenderingEvent : IEventMessage
     {
         private IList<Snippet> _snippets;
 

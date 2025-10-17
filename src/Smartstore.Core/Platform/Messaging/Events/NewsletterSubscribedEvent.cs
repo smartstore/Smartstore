@@ -1,10 +1,12 @@
-﻿namespace Smartstore.Core.Messaging.Events
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Messaging.Events
 {
-    public class NewsletterSubscribedEvent : IEquatable<NewsletterSubscribedEvent>
+    public class NewsletterSubscribedEvent : IEventMessage, IEquatable<NewsletterSubscribedEvent>
     {
         public NewsletterSubscribedEvent(string email)
         {
-            Guard.NotEmpty(email, nameof(email));
+            Guard.NotEmpty(email);
 
             Email = email;
         }

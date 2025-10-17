@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Components
 {
-    public abstract class ViewComponentEventBase
+    public abstract class ViewComponentEventBase : IEventMessage
     {
         protected ViewComponentEventBase(ViewComponentContext context)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context);
 
             ViewComponentContext = context;
         }

@@ -1,10 +1,12 @@
-﻿namespace Smartstore.Core.Messaging.Events
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published after the creation of a single message model part has been completed.
     /// </summary>
     /// <typeparam name="T">Type of source entity</typeparam>
-    public class MessageModelPartCreatedEvent<T> where T : class
+    public class MessageModelPartCreatedEvent<T> : IEventMessage where T : class
     {
         public MessageModelPartCreatedEvent(T source, dynamic part)
         {

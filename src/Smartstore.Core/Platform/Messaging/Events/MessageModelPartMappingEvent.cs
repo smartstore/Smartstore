@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Messaging.Events
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published when a system mapper is missing for a particular model type (e.g. a custom entity in a module).
@@ -6,7 +8,7 @@
     /// The result model should be assigned to the <see cref="Result"/> property. If this property
     /// is still <c>null</c>, the source is used as model part instead.
     /// </summary>
-    public class MessageModelPartMappingEvent
+    public class MessageModelPartMappingEvent : IEventMessage
     {
         public MessageModelPartMappingEvent(object source, MessageContext messageContext)
         {

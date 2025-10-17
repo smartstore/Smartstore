@@ -1,8 +1,9 @@
 ﻿using Smartstore.Collections;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuBuiltEvent
+    public class MenuBuiltEvent : IEventMessage
     {
         public MenuBuiltEvent(string name, TreeNode<MenuItem> root)
         {

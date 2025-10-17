@@ -9,7 +9,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Engine.Initialization
 {
-    public sealed class ApplicationInitializedEvent
+    public sealed class ApplicationInitializedEvent : IEventMessage
     {
         public HttpContext HttpContext { get; init; }
     }

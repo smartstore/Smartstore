@@ -1,9 +1,11 @@
-﻿namespace Smartstore.Core.Messaging.Events
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published after the message model has been completely created.
     /// </summary>
-    public class MessageModelCreatedEvent
+    public class MessageModelCreatedEvent : IEventMessage
     {
         public MessageModelCreatedEvent(MessageContext messageContext, TemplateModel model)
         {

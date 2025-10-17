@@ -1,15 +1,17 @@
-﻿namespace Smartstore.Core.DataExchange.Import.Events
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.DataExchange.Import.Events
 {
     /// <summary>
     /// An event that is fired after an import of a data batch.
     /// </summary>
     /// <typeparam name="TEntity">The entity type to be imported.</typeparam>
-    public class ImportBatchExecutedEvent<TEntity> where TEntity : BaseEntity
+    public class ImportBatchExecutedEvent<TEntity> : IEventMessage where TEntity : BaseEntity
     {
         public ImportBatchExecutedEvent(ImportExecuteContext context, IEnumerable<ImportRow<TEntity>> batch)
         {
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(batch, nameof(batch));
+            Guard.NotNull(context);
+            Guard.NotNull(batch);
 
             Context = context;
             Batch = batch;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
@@ -7,7 +8,7 @@ namespace Smartstore.Core.Content.Media.Imaging
     /// by the media middleware with data from HttpContent.Request.QueryString.
     /// This event implies that a thumbnail is about to be created.
     /// </summary>
-    public class ImageQueryCreatedEvent
+    public class ImageQueryCreatedEvent : IEventMessage
     {
         public ImageQueryCreatedEvent(ProcessImageQuery query, HttpContext httpContext, string mimeType, string extension)
         {

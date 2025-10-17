@@ -1,11 +1,12 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Events;
 
 namespace Smartstore.Core.DataExchange.Export.Events
 {
     /// <summary>
     /// An event that is fired before an entity is exported.
     /// </summary>
-    public class RowExportingEvent
+    public class RowExportingEvent : IEventMessage
     {
         /// <summary>
         /// A dynamic object which wraps and extents the actual entity, e.g. <see cref="Product"/>.

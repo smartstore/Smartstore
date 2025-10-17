@@ -1,11 +1,13 @@
-﻿namespace Smartstore.Core.Search.Indexing
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Search.Indexing
 {
-    public class IndexSegmentProcessedEvent
+    public class IndexSegmentProcessedEvent : IEventMessage
     {
         public IndexSegmentProcessedEvent(string scope, IEnumerable<IIndexOperation> operations, bool isRebuild)
         {
-            Guard.NotEmpty(scope, nameof(scope));
-            Guard.NotNull(operations, nameof(operations));
+            Guard.NotEmpty(scope);
+            Guard.NotNull(operations);
 
             Scope = scope;
             IsRebuild = isRebuild;

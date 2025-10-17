@@ -1,11 +1,13 @@
-﻿namespace Smartstore.Core.Common
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Common
 {
     /// <summary>
     /// An event that is published immediately before the final deletion of ISoftDeletable entities.
     /// The event is usually part of deleting recycle bin items.
     /// </summary>
     /// <typeparam name="TEntity">The entity type to be deleted.</typeparam>
-    public class PermanentDeletionRequestedEvent<TEntity>
+    public class PermanentDeletionRequestedEvent<TEntity> : IEventMessage
         where TEntity : BaseEntity, ISoftDeletable
     {
         public PermanentDeletionRequestedEvent(int[] entityIds)

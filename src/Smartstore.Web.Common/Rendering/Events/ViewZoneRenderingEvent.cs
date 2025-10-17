@@ -1,10 +1,11 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Rendering.Events
 {
-    public class ViewZoneRenderingEvent
+    public class ViewZoneRenderingEvent : IEventMessage
     {
         public ViewZoneRenderingEvent(IWidgetZone zone, ZoneHtmlContent content, ViewContext viewContext)
         {

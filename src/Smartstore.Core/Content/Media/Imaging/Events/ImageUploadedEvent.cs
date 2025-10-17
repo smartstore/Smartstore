@@ -1,4 +1,5 @@
-﻿using Smartstore.Imaging;
+﻿using Smartstore.Events;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
@@ -11,7 +12,7 @@ namespace Smartstore.Core.Content.Media.Imaging
     /// <remarks>
     /// A subscriber should NOT resize the image. But if you do - and you shouldn't :-) - , don't forget to set <see cref="ResultImage"/>.
     /// </remarks>
-    public class ImageUploadedEvent
+    public class ImageUploadedEvent : IEventMessage
     {
         public ImageUploadedEvent(ProcessImageQuery query, IImageInfo info)
         {

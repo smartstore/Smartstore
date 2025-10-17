@@ -1,10 +1,12 @@
-﻿namespace Smartstore.Core.Search.Indexing
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Search.Indexing
 {
-    public class IndexingCompletedEvent
+    public class IndexingCompletedEvent : IEventMessage
     {
         public IndexingCompletedEvent(IndexInfo indexInfo, bool success, bool wasRebuilt)
         {
-            Guard.NotNull(indexInfo, nameof(indexInfo));
+            Guard.NotNull(indexInfo);
 
             IndexInfo = indexInfo;
             Success = success;

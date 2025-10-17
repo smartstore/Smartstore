@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Content.Media.Imaging
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Content.Media.Imaging
 {
     /// <summary>
     /// Will be fired after a file has been saved.
@@ -7,7 +9,7 @@
     /// In order to include <paramref name="entityName"/> when uploading in the backend, 
     /// this event is currently not fired in all cases of saving a media file.
     /// </remarks>
-    public class MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityName)
+    public class MediaSavedEvent(MediaFileInfo mediaFileInfo, string entityName) : IEventMessage
     {
         /// <summary>
         /// The media file info of the saved image.

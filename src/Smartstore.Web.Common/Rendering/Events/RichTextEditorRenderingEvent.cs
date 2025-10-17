@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Rendering.Events
 {
@@ -7,7 +8,7 @@ namespace Smartstore.Web.Rendering.Events
     /// Can be used to inject custom widgets into the editor's common resources zone, 
     /// which is located at the end of the document.
     /// </summary>
-    public class RichTextEditorRenderingEvent(string flavor, ViewContext viewContext)
+    public class RichTextEditorRenderingEvent(string flavor, ViewContext viewContext) : IEventMessage
     {
         /// <summary>
         /// The rich text editor flavor, e.g. "summernote".

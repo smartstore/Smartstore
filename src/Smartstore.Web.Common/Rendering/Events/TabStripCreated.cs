@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Events;
 using Smartstore.Web.Rendering.Builders;
 using Smartstore.Web.TagHelpers.Shared;
 
 namespace Smartstore.Web.Rendering.Events
 {
-    public class TabStripCreated
+    public class TabStripCreated : IEventMessage
     {
         public TabStripCreated(TabStripTagHelper tabStrip, TagHelperContext context)
         {

@@ -29,7 +29,7 @@ namespace Smartstore.Events
             ConsumerDescriptor descriptor,
             IConsumer consumer,
             TMessage message,
-            CancellationToken cancelToken = default) where TMessage : class
+            CancellationToken cancelToken = default) where TMessage : IEventMessage
         {
             var d = descriptor;
             var p = descriptor.WithEnvelope ? (object)CreateConsumeContext(message) : message;
@@ -113,7 +113,7 @@ namespace Smartstore.Events
             }
         }
 
-        protected internal virtual ConsumeContext<TMessage> CreateConsumeContext<TMessage>(TMessage message)
+        protected internal virtual ConsumeContext<TMessage> CreateConsumeContext<TMessage>(TMessage message) where TMessage : IEventMessage
         {
             var envelope = new ConsumeContext<TMessage>(message);
 

@@ -9,6 +9,6 @@
             ConsumerDescriptor descriptor,
             IConsumer consumer,
             TMessage message,
-            CancellationToken cancelToken = default) where TMessage : class;
+            CancellationToken cancelToken = default) where TMessage : IEventMessage;
     }
 }

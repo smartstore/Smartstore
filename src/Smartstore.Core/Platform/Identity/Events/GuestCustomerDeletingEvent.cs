@@ -1,9 +1,11 @@
-﻿namespace Smartstore.Core.Identity
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Identity
 {
     /// <summary>
     /// An event message that will be published before guest customers are deleted.
     /// </summary>
-    public class GuestCustomerDeletingEvent
+    public class GuestCustomerDeletingEvent : IEventMessage
     {
         public GuestCustomerDeletingEvent(
             DateTime? registrationFrom,

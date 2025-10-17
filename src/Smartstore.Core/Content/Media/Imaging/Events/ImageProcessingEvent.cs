@@ -1,11 +1,12 @@
-﻿using Smartstore.Imaging;
+﻿using Smartstore.Events;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
     /// <summary>
     /// Published before processing begins, but after the source has been loaded.
     /// </summary>
-    public class ImageProcessingEvent
+    public class ImageProcessingEvent : IEventMessage
     {
         public ImageProcessingEvent(ProcessImageQuery query, IImage image)
         {

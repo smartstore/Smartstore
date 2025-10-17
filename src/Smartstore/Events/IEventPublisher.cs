@@ -9,14 +9,14 @@
         /// Publishes an event messages.
         /// </summary>
         /// <param name="message">The message instance. Can be of any type.</param>
-        Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class;
+        Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : IEventMessage;
     }
 
     public sealed class NullEventPublisher : IEventPublisher
     {
         public static NullEventPublisher Instance { get; } = new NullEventPublisher();
 
-        public Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class
+        public Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : IEventMessage
         {
             return Task.CompletedTask;
         }
@@ -29,7 +29,7 @@
         /// NOTE: Avoid calling this method, call the Async counterpart instead.
         /// </summary>
         /// <param name="message">The message instance. Can be of any type.</param>
-        public static void Publish<T>(this IEventPublisher publisher, T message) where T : class
+        public static void Publish<T>(this IEventPublisher publisher, T message) where T : IEventMessage
         {
             publisher.PublishAsync(message).Await();
         }

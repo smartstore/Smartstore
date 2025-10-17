@@ -3,7 +3,7 @@ using Smartstore.Events;
 
 namespace Smartstore
 {
-    public class FileManagerUrlRequested
+    public class FileManagerUrlRequested : IEventMessage
     {
         public IUrlHelper UrlHelper { get; init; }
         public string Url { get; set; }

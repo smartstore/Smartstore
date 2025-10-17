@@ -1,6 +1,8 @@
-﻿namespace Smartstore.Core.Catalog.Products
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductClonedEvent
+    public class ProductClonedEvent : IEventMessage
     {
         public ProductClonedEvent(Product source, Product clone)
         {

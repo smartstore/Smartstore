@@ -1,11 +1,12 @@
 ﻿using Smartstore.Core.Identity;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart.Events
 {
     /// <summary>
     /// Represents a rendering order totals event
     /// </summary>
-    public class RenderingOrderTotalsEvent
+    public class RenderingOrderTotalsEvent : IEventMessage
     {
         /// <summary>
         /// Gets the customer

@@ -1,13 +1,14 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart.Events
 {
     /// <summary>
     /// Represents a validating cart event.
     /// </summary>
-    public class ValidatingCartEvent
+    public class ValidatingCartEvent : IEventMessage
     {
         /// <summary>
         /// Creates a new <see cref="ValidatingCartEvent"/>.

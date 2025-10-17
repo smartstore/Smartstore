@@ -22,7 +22,7 @@ namespace Smartstore.Core.Catalog.Categories
         Hierarchy
     }
 
-    public class CategoryTreeChangedEvent(CategoryTreeChangeReason reason)
+    public class CategoryTreeChangedEvent(CategoryTreeChangeReason reason) : IEventMessage
     {
         public CategoryTreeChangeReason Reason { get; private set; } = reason;
     }

@@ -1,6 +1,8 @@
-﻿namespace Smartstore.Core.Theming
+﻿using Smartstore.Events;
+
+namespace Smartstore.Core.Theming
 {
-    public class ThemeSwitchedEvent
+    public class ThemeSwitchedEvent : IEventMessage
     {
         public string OldTheme { get; init; }
         public string NewTheme { get; init; }
