@@ -131,9 +131,27 @@
         if (window.EventBroker === undefined || window._ === undefined)
             return;
 
-        var notify = function (msg) {
-            if (!msg)
-                return;
+        const isLikelyJsonString = (input) => {
+            if (typeof input !== "string") return false;
+            const s = input.trim();
+            if (!(s.startsWith("{") || s.startsWith("["))) return false;
+            return true;
+        }
+
+        const notify = function (msg) {
+            if (!msg) return;
+
+            if (isLikelyJsonString(msg)) {
+                try {
+                    const obj = JSON.parse(msg);
+                    msg = obj;
+                }
+                catch { }
+            }
+
+            if (typeof msg === "object") {
+                msg = dumpObjectToHtml(msg);
+            }
 
             EventBroker.publish("message", {
                 text: msg,
@@ -468,5 +486,145 @@
     window.getAntiforgeryToken = function () {
         return $('meta[name="__rvt"]').attr("content") || $('input[name="__RequestVerificationToken"]').val();
     };
+
+    /**
+     * Render a JSON object as an HTML tree using <div> rows.
+     *  - One <div> per entry/row.
+     *  - Indentation via `padding-inline-start: depth * indentPx`.
+     *  - Property name wrapped in <span class="fwm">, followed by ":" and the value.
+     *  - If the value is an object or array, it is rendered on the next line with increased indentation.
+     *
+     * @param {unknown} payload        JSON value or a JSON string
+     * @param {Object}  options
+     * @param {number}  [options.maxDepth=8]       Maximum nesting levels to expand
+     * @param {number}  [options.maxArrayItems=200] Maximum number of array items to render
+     * @param {boolean} [options.sortKeys=true]     Sort object keys alphabetically
+     * @param {number}  [options.indentPx=16]       Indentation in pixels per level
+     * @returns {string} HTML string (no <pre>, safe-escaped content)
+     */
+    function dumpObjectToHtml(obj, options = {}) {
+        if (!$.isPlainObject(obj)) {
+            throw new Error("Payload must be a plain object.");
+        }
+
+        const opts = {
+            maxDepth: 8,
+            maxArrayItems: 200,
+            sortKeys: true,
+            indentPx: 16,
+            ...options
+        };
+
+        /** Cache for circular reference detection (object -> path). */
+        const seen = new WeakMap();
+
+        /**
+         * Create one row: `<div style="padding-inline-start:Xpx"><span class="fwm">name</span>: value?`
+         * If `valueText` is undefined, we emit only `name:` to indicate a nested structure follows.
+         */
+        const makeLine = (depth, name, valueOrEmpty) =>
+            `<div style="padding-inline-start:${depth * opts.indentPx}px"><span class="fwm">${name.escapeHtml()}</span>${valueOrEmpty !== undefined ? `:&nbsp;${valueOrEmpty.escapeHtml()}` : ":"}</div>`;
+
+        /**
+         * Render a (name, value) pair. Complex values (objects/arrays) render:
+         *   - a header line "name:" at current depth
+         *   - then their children one level deeper
+         */
+        function renderValue(name, value, depth, path) {
+            const lines = [];
+
+            // Inline primitives and common special types
+            if (value === null) { lines.push(makeLine(depth, name, "null")); return lines; }
+            const t = typeof value;
+            if (t === "string" || t === "number" || t === "boolean" || t === "bigint" || t === "undefined" || t === "symbol") {
+                lines.push(makeLine(depth, name, t === "string" ? `"${value}"` : String(value)));
+                return lines;
+            }
+            if (value instanceof Date) { lines.push(makeLine(depth, name, `Date(${isNaN(value.getTime()) ? "Invalid" : value.toISOString()})`)); return lines; }
+            if (value instanceof RegExp) { lines.push(makeLine(depth, name, value.toString())); return lines; }
+            if (typeof value === "function") { lines.push(makeLine(depth, name, `[Function ${value.name || "anonymous"}]`)); return lines; }
+
+            // Circular reference guard
+            if (typeof value === "object") {
+                if (seen.has(value)) {
+                    lines.push(makeLine(depth, name, `[Circular ~ ${seen.get(value)}]`));
+                    return lines;
+                }
+                seen.set(value, path.join("."));
+            }
+
+            // Arrays: show "name:" line, then entries as children
+            if (Array.isArray(value)) {
+                lines.push(makeLine(depth, name)); // nur "Name:"
+                if (depth >= opts.maxDepth) { lines.push(makeLine(depth + 1, "[…]", `Array length=${value.length}`)); return lines; }
+                const lim = Math.min(value.length, opts.maxArrayItems);
+                for (let i = 0; i < lim; i++) {
+                    lines.push(...renderValue(`[${i}]`, value[i], depth + 1, path.concat(`[${i}]`)));
+                }
+                if (value.length > lim) lines.push(makeLine(depth + 1, "...", `(${value.length - lim} more)`));
+                return lines;
+            }
+
+            // Map/Set: represented similar to objects/arrays
+            if (value instanceof Map) {
+                lines.push(makeLine(depth, name)); // nur "Name:"
+                if (depth >= opts.maxDepth) { lines.push(makeLine(depth + 1, "[Map]", `size=${value.size}`)); return lines; }
+                let i = 0;
+                for (const [k, v] of value.entries()) {
+                    if (i++ >= opts.maxArrayItems) { lines.push(makeLine(depth + 1, "...", "(truncated)")); break; }
+                    lines.push(...renderValue(String(k), v, depth + 1, path.concat(String(k))));
+                }
+                return lines;
+            }
+            if (value instanceof Set) {
+                lines.push(makeLine(depth, name));
+                if (depth >= opts.maxDepth) { lines.push(makeLine(depth + 1, "[Set]", `size=${value.size}`)); return lines; }
+                let i = 0;
+                for (const v of value.values()) {
+                    if (i++ >= opts.maxArrayItems) { lines.push(makeLine(depth + 1, "...", "(truncated)")); break; }
+                    lines.push(...renderValue(`[${i - 1}]`, v, depth + 1, path.concat(`[${i - 1}]`)));
+                }
+                return lines;
+            }
+
+            // Plain object: show "name:" line, then each key as a child row
+            const keys = Object.keys(value);
+            lines.push(makeLine(depth, name));
+            if (depth >= opts.maxDepth) { lines.push(makeLine(depth + 1, "{…}", `keys=${keys.length}`)); return lines; }
+            const list = opts.sortKeys ? keys.sort() : keys;
+            if (list.length === 0) {
+                lines.push(makeLine(depth + 1, "{ }", "empty"));
+                return lines;
+            }
+            for (const k of list) {
+                lines.push(...renderValue(k, value[k], depth + 1, path.concat(k)));
+            }
+            return lines;
+        }
+
+        // Top-level rendering:
+        //  - For objects: render only children (no artificial root label).
+        //  - For arrays: render a "$:" root header and the entries beneath it (keeps consistent labeling).
+        let html;
+        if (obj !== null && typeof obj === "object") {
+            const lines = [];
+            if (Array.isArray(obj)) {
+                lines.push(...renderValue("$", obj, 0, ["$"])); // root label for arrays
+            }
+            else {
+                const objKeys = Object.keys(obj);
+                const list = opts.sortKeys ? objKeys.sort() : objKeys;
+                for (const k of list) lines.push(...renderValue(k, obj[k], 0, [k]));
+            }
+            html = `<div class="json-dump small">${lines.join("")}</div>`;
+        }
+        else {
+            html = `<div class="json-dump small">${makeLine(0, "value", String(obj))}</div>`;
+        }
+
+        return html;
+    }
+
+    window.dumpObjectToHtml = dumpObjectToHtml;
 
 })(jQuery, this, document);
