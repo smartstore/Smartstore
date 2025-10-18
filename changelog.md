@@ -21,11 +21,13 @@
 
 ### New Features
 
+- **AI**
+  - Added **Anthropic Claude** AI provider.
+  - File-based provider metadata used to store and organize information about LLM models.
 - #112 Visually group specification attributes on product detail page.
 - #1370 Add a payment provider for **easyCredit purchase on account**.
 - #1381 Add a compare price to attribute combinations.
 - #1386 Customer roles: Extend the permission tree so that nodes with descendants show whether descendant permissions have been granted.
-- **AI**: File-based provider metadata used to store and organize information about LLM models.
 - #934 Add cart rules property to PageBuilder stories to dynamically toggle their visibility.
 - #1264 Batch-assign products to categories.
 - New **Rule Builder** rules:
