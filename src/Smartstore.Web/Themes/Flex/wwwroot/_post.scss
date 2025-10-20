@@ -2,7 +2,7 @@
 
 // Shared
 .post-date {
-    color: $text-muted;
+    color: var(--blog-post-date-color, $text-muted);
 }
 
 // Details view of post
@@ -40,9 +40,13 @@
     }
 }
 
+.postlist-item-overlay {
+    position: absolute;
+    z-index: 3;
+}
+
 // Comments
-// TODO: (mh) Always use .post or .postlist prefix. TBD with MC.
-.comment-item {
+.post-comment-item {
     padding: 1.5rem 0;
     border-bottom: 1px solid rgba($black, 0.12);
 
@@ -51,7 +55,7 @@
     }
 }
 
-.comment-list-title {
+.post-comment-list-title {
     border-bottom-width: 0 !important;
     margin-bottom: 0 !important;
 }
