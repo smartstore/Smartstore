@@ -2,6 +2,7 @@
 
 // Shared
 .post-date {
+    // TODO: (mh) This here must be blog-agnostic.
     color: var(--blog-post-date-color, $text-muted);
 }
 
@@ -55,7 +56,7 @@
     }
 }
 
-.post-comment-list-title {
+.post-commentlist-title {
     border-bottom-width: 0 !important;
     margin-bottom: 0 !important;
 }
