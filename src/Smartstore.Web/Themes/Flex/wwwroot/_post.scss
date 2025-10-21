@@ -46,6 +46,15 @@
     z-index: 3;
 }
 
+.postlist-item-overlay-tags {
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+.postlist-item-tag {
+    --badge-ring-opacity: 0.4;
+}
+
 // Comments
 .post-comment-item {
     padding: 1.5rem 0;
