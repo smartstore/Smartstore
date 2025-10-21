@@ -11,6 +11,7 @@
   // scss-docs-start badge-css-vars
   --badge-padding-x: #{$badge-padding-x};
   --badge-padding-y: #{$badge-padding-y};
+  --badge-content-shift: #{$badge-content-shift};
   --badge-font-size: #{$badge-font-size};
   --badge-font-weight: #{$badge-font-weight};
   --badge-line-height: 1.25;
@@ -25,7 +26,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.375em;
-  padding: var(--badge-padding-y) var(--badge-padding-x);
+  padding-top: calc(var(--badge-padding-y) + var(--badge-content-shift));
+  padding-bottom: calc(var(--badge-padding-y) - var(--badge-content-shift));
+  padding-inline: var(--badge-padding-x);
   font-size: #{cssmax(12px, var(--badge-font-size))};
   font-weight: var(--badge-font-weight);
   line-height: cssmax(16px, calc(var(--badge-line-height) * 1em));
