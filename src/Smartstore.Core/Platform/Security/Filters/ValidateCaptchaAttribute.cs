@@ -6,15 +6,6 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Security
 {
-    public class GoogleRecaptchaApiResponse
-    {
-        [JsonProperty("success")]
-        public bool Success { get; set; }
-
-        [JsonProperty("error-codes")]
-        public List<string> ErrorCodes { get; set; }
-    }
-
     /// <summary>
     /// Checks whether captcha is valid and - if not - outputs a notification.
     /// </summary>
