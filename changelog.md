@@ -24,6 +24,7 @@
 - **AI**
   - Added **Anthropic Claude** AI provider.
   - File-based provider metadata used to store and organize information about LLM models.
+  - **Gemini**: Support image generation using `gemini-2.5-flash-image`.
 - #112 Visually group specification attributes on product detail page.
 - #1370 Add a payment provider for **easyCredit purchase on account**.
 - #1381 Add a compare price to attribute combinations.
