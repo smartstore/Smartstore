@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using SharpScss;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
@@ -24,19 +25,26 @@ namespace Smartstore.Web.Bundling.Processors
                 var assetFileProvider = fileProvider as IAssetFileProvider;
                 var sassOptions = new ScssOptions
                 {
-                    InputFile = assetFileProvider != null ? asset.Path : fileProvider.GetFileInfo(asset.Path).PhysicalPath,
-                    OutputStyle = context.Options.EnableMinification == true ? ScssOutputStyle.Compressed : ScssOutputStyle.Nested
+                    InputFile = assetFileProvider != null 
+                        ? NormalizeSlash(asset.Path)
+                        : fileProvider.GetFileInfo(asset.Path).PhysicalPath,
+
+                    OutputStyle = context.Options.EnableMinification == true 
+                        ? ScssOutputStyle.Compressed 
+                        : ScssOutputStyle.Nested  
                 };
 
                 if (assetFileProvider != null)
                 {
-                    var importedFiles = new HashSet<string>();
+                    var importedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     sassOptions.TryImport ??= (ref string file, string parentPath, out string scss, out string map) =>
                     {
                         return OnTryImportSassFile(assetFileProvider, importedFiles, ref file, parentPath, out scss, out map);
                     };
                 }
 
+                // We pass the content (data) + input file (virtual),
+                // so that relative imports are calculated correctly.
                 var result = Scss.ConvertToCss(asset.Content, sassOptions);
 
                 context.IncludedFiles.AddRange(result.IncludedFiles);
@@ -81,64 +89,106 @@ namespace Smartstore.Web.Bundling.Processors
         private static bool OnTryImportSassFile(
             IAssetFileProvider fileProvider,
             ISet<string> importedFiles,
-            ref string file, 
-            string parentPath, 
-            out string scss, 
+            ref string file,
+            string parentPath,
+            out string scss,
             out string map)
         {
+            // Defaults
             map = null;
             scss = null;
 
-            if (!file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase))
+            // Normalize requested and parent
+            var parentNorm = NormalizeSlash(parentPath);
+            var requestedRaw = NormalizeSlash(file);
+
+            // Decide base path: absolute import ignores parent, relative uses parent's dir
+            var isAbsolute = requestedRaw.StartsWith('/');
+            var basePath = isAbsolute ? string.Empty : GetParentDirectory(parentNorm);
+
+            // Always work with ".scss"
+            var requestedWithExt = requestedRaw.EnsureEndsWith(".scss");
+
+            // Build candidates with a *stable* preference:
+            // 1) partial (_name.scss), 2) direct (name.scss), 3) dir index (index.scss), 4) partial index (_index.scss)
+            static IEnumerable<string> EnumerateCandidates(string basePath, string requestedWithExt)
             {
-                file += ".scss";
+                var slashIndex = requestedWithExt.LastIndexOf('/');
+                var partial = slashIndex >= 0
+                    ? requestedWithExt.Substring(0, slashIndex + 1) + "_" + requestedWithExt[(slashIndex + 1)..]
+                    : "_" + requestedWithExt;
+
+                // 1) prefer partial: _name.scss
+                yield return PathUtility.Combine(basePath, partial);
+
+                // 2) direct: name.scss
+                yield return PathUtility.Combine(basePath, requestedWithExt);
             }
 
-            var parentDir = parentPath.Substring(0, Path.GetDirectoryName(parentPath).Length + 1);
-            var subPath = PathUtility.Combine(parentDir, file);
-            var importFile = fileProvider.GetFileInfo(subPath);
-            if (!importFile.Exists && file[0] != '_')
-            {
-                if (file[0] == '_')
-                {
-                    return false;
-                }
-                else
-                {
-                    var slashIndex = file.LastIndexOf('/');
-                    if (slashIndex > -1)
-                    {
-                        file = file.Substring(0, slashIndex + 1) + "_" + file.Substring(slashIndex + 1);
-                    }
-                    else
-                    {
-                        file = "_" + file;
-                    }
+            IFileInfo importFile = default!;
+            string canonicalSubPath = null!;
 
-                    subPath = PathUtility.Combine(parentDir, file);
-                    importFile = fileProvider.GetFileInfo(subPath);
-                    if (!importFile.Exists)
-                    {
-                        return false;
-                    }
-                }
+            foreach (var sub in EnumerateCandidates(basePath, requestedWithExt))
+            {
+                var subPath = NormalizeSlash(sub);
+                var fi = fileProvider.GetFileInfo(subPath);
+                if (!fi.Exists) continue;
+
+                importFile = fi;
+                canonicalSubPath = subPath;   // what we will report back to Sass for sourcemaps
+                break;
             }
 
-            file = subPath;
+            // Not found in our provider -> real miss: allow other importers
+            if (importFile == null || !importFile.Exists)
+            {
+                return false;
+            }    
 
-            if (importedFiles.Contains(importFile.PhysicalPath))
+            // Stable dedupe key: prefer PhysicalPath; fallback to canonicalSubPath
+            var key = ComputeImportKey(importFile.PhysicalPath, canonicalSubPath);
+
+            // IMPORTANT:
+            //  - Never return empty SCSS; that triggers a fallback load and duplicates.
+            //  - Also avoid re-setting 'file' here; keep it as-is to prevent any resolution quirks.
+            if (importedFiles.Contains(key))
             {
-                // Prevent dupe imports
-                scss = string.Empty;
+                // No-op SCSS comment so the import is considered satisfied.
+                scss = "/* deduped: " + canonicalSubPath + " */\n";
+                // Do NOT change 'file' on dedupe (leave whatever the caller passed in).
+                return true;
             }
-            else
+
+            // Load content from our provider; LibSass will NOT load it again.
+            using (var stream = importFile.CreateReadStream())
             {
-                importedFiles.Add(importFile.PhysicalPath);
-                using var stream = importFile.CreateReadStream();
                 scss = stream.AsString();
             }
 
+            importedFiles.Add(key);
+
+            // Report canonical path so subsequent relatives resolve consistently
+            file = canonicalSubPath;
+
             return true;
+        }
+
+        private static string NormalizeSlash(string path)
+            => path.Replace('\\', '/');
+
+        private static string GetParentDirectory(string importerPath)
+        {
+            // Return directory with trailing slash. Works with virtual paths too.
+            var dir = Path.GetDirectoryName(importerPath)?.Replace('\\', '/') ?? string.Empty;
+            return dir.EnsureEndsWith('/');
+        }
+
+        private static string ComputeImportKey(string physicalPath, string canonicalSubPath)
+        {
+            // Use physical if available; else use canonical virtual path.
+            var key = string.IsNullOrEmpty(physicalPath) ? canonicalSubPath : physicalPath;
+            key = key.Replace('\\', '/');
+            return key;
         }
     }
 }
