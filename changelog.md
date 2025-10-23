@@ -92,6 +92,7 @@
 	- Set selected payment method on customer level was missing when using *Link* cart button. 
 	- Restored setting of correct payment status.
 - AmazonPay: Do not apply the customer email address for guests.
+- #1423 PostFinance: Avoid "The provided security token is invalid" error due to security token expiration.
 - Payment methods with rules are missing on the customer edit page when changing the preferred payment method.
 - Verify balanced parentheses in data grid search filter expressions, preventing runaway memory usage from malformed search terms.
 - Do not display the default date value when adding reward points via backend grid.
