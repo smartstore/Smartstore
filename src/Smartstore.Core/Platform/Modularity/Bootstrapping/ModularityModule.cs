@@ -16,6 +16,7 @@ using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Theming;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -144,6 +145,7 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IAIProvider>(type, systemName, registration);
+                RegisterAsSpecificProvider<ICaptchaProvider>(type, systemName, registration);
             }
 
             // Configure & register multi file provider for static assets
@@ -177,8 +179,7 @@ namespace Smartstore.Core.Bootstrapping
 
         private static string GetSystemName(Type type, IModuleDescriptor descriptor)
         {
-            var attr = type.GetAttribute<SystemNameAttribute>(false);
-            if (attr != null)
+            if (type.TryGetAttribute<SystemNameAttribute>(false, out var attr))
             {
                 return attr.Name;
             }
@@ -194,8 +195,7 @@ namespace Smartstore.Core.Bootstrapping
 
         private static int GetDisplayOrder(Type type, IModuleDescriptor descriptor)
         {
-            var attr = type.GetAttribute<OrderAttribute>(false);
-            if (attr != null)
+            if (type.TryGetAttribute<OrderAttribute>(false, out var attr))
             {
                 return attr.Order;
             }
@@ -210,8 +210,7 @@ namespace Smartstore.Core.Bootstrapping
 
         private static bool GetIsHidden(Type type)
         {
-            var attr = type.GetAttribute<IsHiddenAttribute>(false);
-            if (attr != null)
+            if (type.TryGetAttribute<IsHiddenAttribute>(false, out var attr))
             {
                 return attr.IsHidden;
             }
@@ -219,10 +218,9 @@ namespace Smartstore.Core.Bootstrapping
             return false;
         }
 
-        private ExportFeatures GetExportFeature(Type type)
+        private static ExportFeatures GetExportFeature(Type type)
         {
-            var attr = type.GetAttribute<ExportFeaturesAttribute>(false);
-            if (attr != null)
+            if (type.TryGetAttribute<ExportFeaturesAttribute>(false, out var attr))
             {
                 return attr.Features;
             }
@@ -235,8 +233,7 @@ namespace Smartstore.Core.Bootstrapping
             string name = null;
             string description = name;
 
-            var attr = type.GetAttribute<FriendlyNameAttribute>(false);
-            if (attr != null)
+            if (type.TryGetAttribute<FriendlyNameAttribute>(false, out var attr))
             {
                 name = attr.Name;
                 description = attr.Description;
@@ -255,19 +252,18 @@ namespace Smartstore.Core.Bootstrapping
             return (name, description);
         }
 
-        private string[] GetDependentWidgets(Type type)
+        private static string[] GetDependentWidgets(Type type)
         {
             if (!typeof(IActivatableWidget).IsAssignableFrom(type))
             {
                 // don't let widgets depend on other widgets
-                var attr = type.GetAttribute<DependentWidgetsAttribute>(false);
-                if (attr != null)
+                if (type.TryGetAttribute<DependentWidgetsAttribute>(false, out var attr))
                 {
                     return attr.WidgetSystemNames;
                 }
             }
 
-            return Array.Empty<string>();
+            return [];
         }
 
         private static string ProviderTypeToKnownGroupName(Type implType)
