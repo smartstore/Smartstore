@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Utilities;
+using Smartstore.Engine.Modularity;
+//using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Public
 {
@@ -13,18 +16,21 @@ namespace Smartstore.Web.TagHelpers.Public
 
         private readonly CaptchaSettings _captchaSettings;
         private readonly IWorkContext _workContext;
-        private readonly SmartConfiguration _appConfig;
+        private readonly IProviderManager _providerManager;
+        //private readonly SmartConfiguration _appConfig;
         private readonly Localizer T;
 
         public CaptchaTagHelper(
             CaptchaSettings captchaSettings, 
-            IWorkContext workContext, 
-            SmartConfiguration appConfig,
+            IWorkContext workContext,
+            IProviderManager providerManager,
+            //SmartConfiguration appConfig,
             Localizer localizer)
         {
             _captchaSettings = captchaSettings;
             _workContext = workContext;
-            _appConfig = appConfig;
+            _providerManager = providerManager;
+            //_appConfig = appConfig;
             T = localizer;
         }
 
@@ -36,9 +42,35 @@ namespace Smartstore.Web.TagHelpers.Public
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        [HtmlAttributeNotBound]
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
+
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (!Enabled || !_captchaSettings.CanDisplayCaptcha)
+            if (!Enabled || !_captchaSettings.Enabled)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            var captchaProvider = _providerManager.GetProvider<ICaptchaProvider>(_captchaSettings.ProviderSystemName)?.Value;
+            if (captchaProvider == null || !captchaProvider.IsConfigured)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            var captchaContext = new CaptchaContext(ViewContext.HttpContext, _workContext.WorkingLanguage);
+            var widget = await captchaProvider.CreateWidgetAsync(captchaContext);
+            if (widget == null)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            var html = await widget.InvokeAsync(ViewContext);
+            if (!html.HasContent())
             {
                 output.SuppressOutput();
                 return;
@@ -49,31 +81,48 @@ namespace Smartstore.Web.TagHelpers.Public
             output.Attributes.SetAttribute("role", "region");
             output.Attributes.SetAttribute("aria-label", T("Common.SecurityPrompt").Value);
 
-            var widgetUrl = _appConfig.Google.RecaptchaWidgetUrl;
-            var ident = CommonHelper.GenerateRandomDigitCode(5);
-            var elementId = "recaptcha" + ident;
-            var siteKey = _captchaSettings.ReCaptchaPublicKey;
-            var callbackName = "recaptchaOnload" + ident;
-
-            var url = "{0}?onload={1}&render=explicit&hl={2}".FormatInvariant(
-                widgetUrl,
-                callbackName,
-                _workContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower()
-            );
-
-            var script = new[]
-            {
-                "<script>",
-                "	var {0} = function() {{".FormatInvariant(callbackName),
-                "		renderGoogleRecaptcha('{0}', '{1}', {2});".FormatInvariant(elementId, siteKey, _captchaSettings.UseInvisibleReCaptcha.ToString().ToLower()),
-                "	};",
-                "</script>",
-                "<div id='{0}' class='g-recaptcha' data-sitekey='{1}'></div>".FormatInvariant(elementId, siteKey),
-                "<script src='{0}' async defer></script>".FormatInvariant(url),
-            }.StrJoin("");
-
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.Content.SetHtmlContent(script);
+            output.Content.SetHtmlContent(html);
         }
+
+        //public override void Process(TagHelperContext context, TagHelperOutput output)
+        //{
+        //    if (!Enabled || !_captchaSettings.CanDisplayCaptcha)
+        //    {
+        //        output.SuppressOutput();
+        //        return;
+        //    }
+
+        //    output.TagName = "div";
+        //    output.AppendCssClass("captcha-box");
+        //    output.Attributes.SetAttribute("role", "region");
+        //    output.Attributes.SetAttribute("aria-label", T("Common.SecurityPrompt").Value);
+
+        //    var widgetUrl = _appConfig.Google.RecaptchaWidgetUrl;
+        //    var ident = CommonHelper.GenerateRandomDigitCode(5);
+        //    var elementId = "recaptcha" + ident;
+        //    var siteKey = _captchaSettings.ReCaptchaPublicKey;
+        //    var callbackName = "recaptchaOnload" + ident;
+
+        //    var url = "{0}?onload={1}&render=explicit&hl={2}".FormatInvariant(
+        //        widgetUrl,
+        //        callbackName,
+        //        _workContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower()
+        //    );
+
+        //    var script = new[]
+        //    {
+        //        "<script>",
+        //        "	var {0} = function() {{".FormatInvariant(callbackName),
+        //        "		renderGoogleRecaptcha('{0}', '{1}', {2});".FormatInvariant(elementId, siteKey, _captchaSettings.UseInvisibleReCaptcha.ToString().ToLower()),
+        //        "	};",
+        //        "</script>",
+        //        "<div id='{0}' class='g-recaptcha' data-sitekey='{1}'></div>".FormatInvariant(elementId, siteKey),
+        //        "<script src='{0}' async defer></script>".FormatInvariant(url),
+        //    }.StrJoin("");
+
+        //    output.TagMode = TagMode.StartTagAndEndTag;
+        //    output.Content.SetHtmlContent(script);
+        //}
     }
 }

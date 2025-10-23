@@ -10,24 +10,34 @@ namespace Smartstore.Core.Security
     [SystemName(SystemName)]
     [FriendlyName("Google reCAPTCHA")]
     [Order(0)]
-    internal class GoogleRecaptchaProvider : ICaptchaProvider
+    internal class GoogleRecaptchaProvider : ICaptchaProvider //, IConfigurable
     {
         internal const string SystemName = "Captcha.GoogleRecaptcha";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GoogleRecaptchaSettings _settings;
 
-        public GoogleRecaptchaProvider(IHttpClientFactory httpClientFactory, GoogleRecaptchaSettings settings)
+        public GoogleRecaptchaProvider(IHttpClientFactory httpClientFactory, GoogleRecaptchaSettings settings, CaptchaSettings legacySettings)
         {
             _httpClientFactory = httpClientFactory;
             _settings = settings;
+
+            // TEMP only
+            _settings.SecretKey = legacySettings.ReCaptchaPrivateKey;
+            _settings.SiteKey = legacySettings.ReCaptchaPublicKey;
+            _settings.VerifyUrl = EngineContext.Current.Application.AppConfiguration.Google.RecaptchaVerifyUrl;
+            _settings.WidgetUrl = EngineContext.Current.Application.AppConfiguration.Google.RecaptchaWidgetUrl;
+            if (legacySettings.UseInvisibleReCaptcha)
+            {
+                _settings.Size = "invisible";
+            }
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public bool IsConfigured => _settings.SiteKey.HasValue() && _settings.SecretKey.HasValue();
 
-        public bool IsInvisible => _settings.IsInvisible;
+        public bool IsInvisible => _settings.Size == "invisible";
 
         public Task<Widget> CreateWidgetAsync(CaptchaContext context)
         {
@@ -53,7 +63,7 @@ namespace Smartstore.Core.Security
                 "       renderGoogleRecaptcha('{0}', '{1}', {2});".FormatInvariant(elementId, _settings.SiteKey, IsInvisible.ToString().ToLowerInvariant()),
                 "   };",
                 "</script>",
-                "<div id='{0}' class='g-recaptcha' data-sitekey='{1}'></div>".FormatInvariant(elementId, _settings.SiteKey),
+                $"<div id='{elementId}' class='g-recaptcha' data-sitekey='{_settings.SiteKey}' data-theme='{_settings.Theme}' data-size='{_settings.Size}'></div>",
                 "<script src='{0}' async defer></script>".FormatInvariant(url)
             }.StrJoin(string.Empty);
 

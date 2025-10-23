@@ -15,6 +15,19 @@ namespace Smartstore.Core.Security
 
         public string SecretKey { get; set; }
 
-        public bool IsInvisible { get; set; }
+        /// <summary>
+        /// v2 | v3
+        /// </summary>
+        public string Version { get; set; } = "v2";
+
+        /// <summary>
+        /// dark | light
+        /// </summary>
+        public string Theme { get; set; } = "light";
+
+        /// <summary>
+        /// normal | compact | invisible
+        /// </summary>
+        public string Size { get; set; } = "normal";
     }
 }

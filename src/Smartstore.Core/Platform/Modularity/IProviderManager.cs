@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Configuration;
+﻿#nullable enable
+
+using Smartstore.Core.Configuration;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -10,12 +12,12 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// Gets a provider of type <typeparamref name="TProvider"/> by system name.
         /// </summary>
-        Provider<TProvider> GetProvider<TProvider>(string systemName, int storeId = 0) where TProvider : IProvider;
+        Provider<TProvider>? GetProvider<TProvider>(string? systemName, int storeId = 0) where TProvider : IProvider;
 
         /// <summary>
         /// Gets a provider by system name.
         /// </summary>
-        Provider<IProvider> GetProvider(string systemName, int storeId = 0);
+        Provider<IProvider>? GetProvider(string systemName, int storeId = 0);
 
         /// <summary>
         /// Enumerates all providers of type <typeparamref name="TProvider"/> lazily without instantiating them.

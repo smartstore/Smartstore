@@ -30,7 +30,7 @@ namespace Smartstore.Core.Security
         /// <summary>
         /// Validates the CAPTCHA challenge and returns the validation result.
         /// </summary>
-        Task<CaptchaValidationResult> ValidateAsync(CaptchaContext context, CancellationToken cancelToken);
+        Task<CaptchaValidationResult> ValidateAsync(CaptchaContext context, CancellationToken cancelToken = default);
     }
 
     #region Context and Result Classes
