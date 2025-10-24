@@ -43,6 +43,45 @@ namespace Smartstore.Core.AI
             => [];
 
         public virtual Task<string> ChatAsync(AIChat chat, CancellationToken cancelToken = default)
+        {
+            if (chat == null || !chat.HasMessages())
+            {
+                return null;
+            }
+
+            if (chat.Topic == AIChatTopic.Image)
+            {
+                if (!chat.Metadata.TryGetAndConvertValue<int[]>("UploadFileIds", out var uploadFileIds) || uploadFileIds.IsNullOrEmpty())
+                {
+                    throw new AIException("Please provide file identifiers through chat metadata \"UploadFileIds\" for a chat of AIChatTopic.Image.");
+                }
+
+                if (!chat.Metadata.TryGetAndConvertValue<AIImageFormat>("ImageFormat", out var imageFormat))
+                {
+                    imageFormat = AIImageFormat.Horizontal;
+                }
+
+                return ImageChatAsync(chat, uploadFileIds, imageFormat, cancelToken);
+            }
+            else
+            {
+                return TextChatAsync(chat, cancelToken);
+            }
+        }
+
+        /// <summary>
+        /// Starts or continues a text-to-text AI conversation. Adds the latest answer to the chat.
+        /// </summary>
+        /// <returns>AI text answer.</returns>
+        protected virtual Task<string> TextChatAsync(AIChat chat, CancellationToken cancelToken = default)
+            => throw new NotImplementedException();
+
+        /// <summary>
+        /// Starts or continues a text-to-image AI conversation, including source image(s), to create an image.
+        /// </summary>
+        /// <param name="uploadFileIds">Identifiers of the source file(s) to be uploaded.</param>
+        /// <returns>Local URL of a temporary file.</returns>
+        protected virtual Task<string> ImageChatAsync(AIChat chat, int[] uploadFileIds, AIImageFormat imageFormat, CancellationToken cancelToken = default)
             => throw new NotImplementedException();
 
         public virtual IAsyncEnumerable<AIChatCompletionResponse> ChatAsStreamAsync(
