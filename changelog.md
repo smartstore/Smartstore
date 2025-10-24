@@ -74,10 +74,10 @@
 
 - ChatGPT: Fixed image creation errors "Invalid value".
 - Attribute combination image could not be selected on product edit page.
-- PostFinance: Fixed the issue where the amount paid sometimes differs from the order total.
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
 - EntityPicker did not remove unselected items from preselection in append mode.
+- MegaSearch: Consider customer roles and stores restrictions when getting top entities.
 - **MegaMenu** 
   - The background image should not overlap the menu item content.
   - The link count in a single column often exceeds the configured setting.
@@ -91,8 +91,10 @@
 	- Orders were created after the 3D Secure check, even though the payment was declined.
 	- Set selected payment method on customer level was missing when using *Link* cart button. 
 	- Restored setting of correct payment status.
+- **PostFinance**
+  - Fixed an issue where the amount paid sometimes differs from the order total.
+  - #1423 Avoid "The provided security token is invalid" error due to security token expiration.
 - AmazonPay: Do not apply the customer email address for guests.
-- #1423 PostFinance: Avoid "The provided security token is invalid" error due to security token expiration.
 - Payment methods with rules are missing on the customer edit page when changing the preferred payment method.
 - Verify balanced parentheses in data grid search filter expressions, preventing runaway memory usage from malformed search terms.
 - Do not display the default date value when adding reward points via backend grid.
