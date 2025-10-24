@@ -77,7 +77,7 @@
 - #1361 Add a migration to consolidate duplicate `ActivityLogType` entries.
 - Fixed unnecessary single navigation dot in slick slider.
 - EntityPicker did not remove unselected items from preselection in append mode.
-- MegaSearch: Consider customer roles and stores restrictions when getting top entities.
+- MegaSearch: Take customer roles and store restrictions into account when selecting the top entities.
 - **MegaMenu** 
   - The background image should not overlap the menu item content.
   - The link count in a single column often exceeds the configured setting.
