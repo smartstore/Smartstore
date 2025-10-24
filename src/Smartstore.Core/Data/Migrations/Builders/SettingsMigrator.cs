@@ -35,12 +35,12 @@ namespace Smartstore.Core.Data.Migrations
                 foreach (var entry in operations)
                 {
                     bool isPattern = entry.KeyIsGroup;
-                    if (!await HasSettingsAsync(entry.Key, isPattern))
+                    if (!await HasSettingsAsync(entry.Key, entry.StoreId, isPattern))
                     {
                         continue; // nothing to delete
                     }
 
-                    var dbSettings = await GetSettingsAsync(entry.Key, isPattern);
+                    var dbSettings = await GetSettingsAsync(entry.Key, entry.StoreId, isPattern);
                     _settings.RemoveRange(dbSettings);
                 }
 
@@ -59,6 +59,7 @@ namespace Smartstore.Core.Data.Migrations
                         continue;
                     }
 
+                    // TODO: (mc) toAdd never gets filled. Hmmm, investigate.
                     var existing = toAdd.FirstOrDefault(x => x.Name.Equals(entry.Key, StringComparison.InvariantCultureIgnoreCase));
                     if (existing != null)
                     {
@@ -66,7 +67,7 @@ namespace Smartstore.Core.Data.Migrations
                         continue;
                     }
 
-                    if (await HasSettingsAsync(entry.Key, false))
+                    if (await HasSettingsAsync(entry.Key, entry.StoreId, false))
                     {
                         continue; // skip existing (we don't perform updates here)
                     }
@@ -75,7 +76,7 @@ namespace Smartstore.Core.Data.Migrations
                     {
                         Name = entry.Key,
                         Value = entry.Value,
-                        StoreId = 0
+                        StoreId = entry.StoreId ?? 0
                     });
                 }
 
@@ -88,7 +89,7 @@ namespace Smartstore.Core.Data.Migrations
             {
                 foreach (var entry in entries.Where(x => x.Operation == SettingEntryOperation.Update))
                 {
-                    var existingSettings = await GetSettingsAsync(entry.Key, false);
+                    var existingSettings = await GetSettingsAsync(entry.Key, entry.StoreId, false);
 
                     foreach (var setting in existingSettings)
                     {
@@ -103,13 +104,13 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        private Task<bool> HasSettingsAsync(string key, bool isPattern = false)
-            => BuildQuery(key, isPattern).AnyAsync();
+        private Task<bool> HasSettingsAsync(string key, int? storeId, bool isPattern = false)
+            => BuildQuery(key, storeId, isPattern).AnyAsync();
 
-        private Task<List<Setting>> GetSettingsAsync(string key, bool isPattern = false)
-            => BuildQuery(key, isPattern).ToListAsync();
+        private Task<List<Setting>> GetSettingsAsync(string key, int? storeId, bool isPattern = false)
+            => BuildQuery(key, storeId, isPattern).ToListAsync();
 
-        private IQueryable<Setting> BuildQuery(string key, bool isPattern = false)
+        private IQueryable<Setting> BuildQuery(string key, int? storeId, bool isPattern = false)
         {
             var query = _settings.AsQueryable();
             if (isPattern)
@@ -119,6 +120,11 @@ namespace Smartstore.Core.Data.Migrations
             else
             {
                 query = query.Where(x => x.Name.Equals(key));
+            }
+
+            if (storeId.HasValue)
+            {
+                query = query.Where(x => x.StoreId == storeId.Value);
             }
 
             return query;

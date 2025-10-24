@@ -7,6 +7,7 @@ namespace Smartstore.Core.Data.Migrations
     {
         public string Key { get; set; }
         public string Value { get; set; }
+        public int? StoreId { get; set; }
         public string DefaultValue { get; set; }
         public bool KeyIsGroup { get; set; }
         public SettingEntryOperation Operation { get; set; }
@@ -55,14 +56,15 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Adds a setting if it doesn't exist yet.
         /// </summary>
-        public void Add<TValue>(string key, TValue value)
+        public void Add<TValue>(string key, TValue value, int? storeId = null)
         {
             Guard.NotEmpty(key);
 
             _entries.Add(new SettingEntry 
             { 
                 Key = key.Trim(), 
-                Value = value.Convert(string.Empty), 
+                Value = value.Convert(string.Empty),
+                StoreId = storeId,
                 Operation = SettingEntryOperation.Add 
             });
         }
