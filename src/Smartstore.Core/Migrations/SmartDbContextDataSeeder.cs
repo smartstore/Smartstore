@@ -278,12 +278,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.PostListColumns.Two", "Two columns", "2 Spalten");
             builder.AddOrUpdate("Enums.PostListColumns.Three", "Three columns", "3 Spalten");
 
-            builder.AddOrUpdate("Enums.AspectRatio.AR1by1", "Square (1:1)", "Quadratisch (1:1)");
-            builder.AddOrUpdate("Enums.AspectRatio.AR4by3", "Standard (4:3)", "Standard (4:3)");
-            builder.AddOrUpdate("Enums.AspectRatio.AR16by9", "Widescreen (16:9)", "Breitbild (16:9)");
-            builder.AddOrUpdate("Enums.AspectRatio.AR16by10", "Modern Widescreen (16:10)", "Modernes Breitbild (16:10)");
-            builder.AddOrUpdate("Enums.AspectRatio.AR21by9", "Cinema Format (21:9)", "Kinoformat (21:9)");
-
             builder.Delete(
                 "Admin.Configuration.Settings.Blog.PostsPageSize",
                 "Admin.Configuration.Settings.Blog.PostsPageSize.Hint");
