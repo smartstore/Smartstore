@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
+using Smartstore.Http;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Security
@@ -10,7 +11,7 @@ namespace Smartstore.Core.Security
     [SystemName(SystemName)]
     [FriendlyName("Google reCAPTCHA")]
     [Order(0)]
-    internal class GoogleRecaptchaProvider : ICaptchaProvider //, IConfigurable
+    internal class GoogleRecaptchaProvider : ICaptchaProvider, IConfigurable
     {
         internal const string SystemName = "Captcha.GoogleRecaptcha";
 
@@ -35,9 +36,14 @@ namespace Smartstore.Core.Security
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public bool IsConfigured => _settings.SiteKey.HasValue() && _settings.SecretKey.HasValue();
+        public bool IsConfigured 
+            => _settings.SiteKey.HasValue() && _settings.SecretKey.HasValue();
 
-        public bool IsInvisible => _settings.Size == "invisible";
+        public bool IsInvisible 
+            => _settings.Size == "invisible";
+
+        public RouteInfo GetConfigurationRoute()
+            => new("GoogleRecaptcha", "Security", new { area = "Admin" });
 
         public Task<Widget> CreateWidgetAsync(CaptchaContext context)
         {

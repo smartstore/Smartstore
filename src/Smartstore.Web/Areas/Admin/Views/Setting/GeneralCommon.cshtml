@@ -416,7 +416,7 @@
                     </div>
                 </div>
                 <div class="adminRow">
-                    <div class="alert alert-info">
+                    <div class="alert alert-info mb-0 mt-3">
                         @Html.Raw(T("Admin.Configuration.Settings.General.Common.Captcha.Hint"))
                     </div>
                 </div>
@@ -430,6 +430,28 @@
                     </div>
                 </div>
                 <div id="pnlCaptchaSettings">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ProviderSystemName" />
+                        </div>
+                        <div class="adminData">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <setting-editor asp-for="CaptchaSettings.ProviderSystemName">
+                                        <select asp-for="CaptchaSettings.ProviderSystemName" asp-items="ViewBag.CaptchaProviders"></select>
+                                    </setting-editor>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
+                                        <bootstrap-icon name="gear" />
+                                        <span>@T("Admin.Common.Configure")...</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <span asp-validation-for="CaptchaSettings.ProviderSystemName"></span>
+                        </div>
+                    </div>
                     <div class="adminRow">
                         <div class="adminTitle">
                             <smart-label asp-for="CaptchaSettings.ShowOn" />

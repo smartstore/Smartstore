@@ -78,10 +78,47 @@ namespace Smartstore.Core.Data.Migrations
 
                 if (group.Any())
                 {
-                    //context.Settings.RemoveRange(group);
-                    //hasChanges = true;
+                    context.Settings.RemoveRange(group);
+                    hasChanges = true;
                 }
             }
+
+            // Move reCAPTCHA settings from CaptchaSettings to GoogleRecaptchaSettings
+            var existingCaptchaSettings = await context.Settings
+                .Where(x => x.Name.StartsWith(nameof(CaptchaSettings)) && x.Name.Contains("recaptcha"))
+                .ToListAsync(cancelToken);
+
+            await context.MigrateSettingsAsync(builder =>
+            {
+                foreach (var group in existingCaptchaSettings.GroupBy(x => x.StoreId))
+                {
+                    foreach (var setting in group)
+                    {
+                        var newSettingName = "GoogleRecaptchaSettings.";
+                        var newValue = setting.Value;
+
+                        if (setting.Name.EndsWithNoCase("ReCaptchaPublicKey"))
+                        {
+                            newSettingName += nameof(GoogleRecaptchaSettings.SiteKey);
+                        }
+                        else if (setting.Name.EndsWithNoCase("ReCaptchaPrivateKey"))
+                        {
+                            newSettingName += nameof(GoogleRecaptchaSettings.SecretKey);
+                        }
+                        else if (setting.Name.EndsWithNoCase("UseInvisibleReCaptcha"))
+                        {
+                            newSettingName += nameof(GoogleRecaptchaSettings.Size);
+                            newValue = setting.Value.ToBool() ? "invisible" : "normal";
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        builder.Add(newSettingName, newValue, group.Key);
+                    }
+                }
+            });
 
             if (hasChanges)
             {
@@ -340,6 +377,12 @@ namespace Smartstore.Core.Data.Migrations
                 "CAPTCHA auf folgenden Seiten aktivieren",
                 "Select the pages on which CAPTCHA should be enabled.",
                 "Wählen Sie die Seiten aus, auf denen CAPTCHA aktiviert werden soll.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ProviderSystemName", "Provider", "Anbieter");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.General.Common.Captcha.Hint",
+                "A CAPTCHA is an automated test that distinguishes real users from bots, e.g., via a brief challenge or an invisible risk check. It protects forms and logins from spam and abuse.",
+                "Ein CAPTCHA ist ein automatisierter Test, der echte Nutzer von Bots unterscheidet, z. B. durch eine kurze Aufgabe oder eine unsichtbare Risikoprüfung. Es schützt Formulare und Logins vor Spam und Missbrauch.");
 
             #endregion
         }

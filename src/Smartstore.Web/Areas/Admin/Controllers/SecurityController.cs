@@ -1,4 +1,8 @@
-﻿using Smartstore.Web.Models;
+﻿using Smartstore.Admin.Models;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Security;
+using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -43,6 +47,27 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             return Json(data);
+        }
+
+        [LoadSetting]
+        public IActionResult GoogleRecaptcha(GoogleRecaptchaSettings settings)
+        {
+            var model = MiniMapper.Map<GoogleRecaptchaSettings, GoogleRecaptchaModel>(settings);
+            return View(model);
+        }
+
+        [HttpPost, SaveSetting]
+        public IActionResult GoogleRecaptcha(GoogleRecaptchaModel model, GoogleRecaptchaSettings settings)
+        {
+            if (!ModelState.IsValid)
+            {
+                return GoogleRecaptcha(settings);
+            }
+
+            ModelState.Clear();
+            MiniMapper.Map(model, settings);
+
+            return RedirectToAction(nameof(GoogleRecaptcha));
         }
     }
 }

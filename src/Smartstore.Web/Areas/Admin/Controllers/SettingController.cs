@@ -12,6 +12,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -21,15 +22,18 @@ namespace Smartstore.Admin.Controllers
     public partial class SettingController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly IProviderManager _providerManager;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly Lazy<IMediaTracker> _mediaTracker;
 
         public SettingController(
             SmartDbContext db,
+            IProviderManager providerManager,
             ILocalizedEntityService localizedEntityService,
             Lazy<IMediaTracker> mediaTracker)
         {
             _db = db;
+            _providerManager = providerManager;
             _localizedEntityService = localizedEntityService;
             _mediaTracker = mediaTracker;
         }
@@ -277,6 +281,15 @@ namespace Smartstore.Admin.Controllers
                 new() { Text = "noindex, follow", Value = "noindex, follow" },
                 new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
+
+            ViewBag.CaptchaProviders = _providerManager.GetAllProviders<ICaptchaProvider>()
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Metadata.SystemName,
+                    Text = x.Metadata.FriendlyName,
+                    Selected = x.Metadata.SystemName == captchaSettings.ProviderSystemName
+                })
+                .ToList();
 
             var selectedTargets = captchaSettings?.ShowOn ?? [];
             var captchaTargetOptions = CaptchaSettings.Targets.GetDisplayResourceKeys()

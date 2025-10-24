@@ -190,6 +190,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CaptchaEnabled")]
             public bool Enabled { get; set; }
 
+            [LocalizedDisplay("*ProviderSystemName")]
+            public bool ProviderSystemName { get; set; }
+
             [LocalizedDisplay("*CaptchaShowOnTargets")]
             public string[] ShowOn { get; set; } = [];
 
@@ -438,6 +441,10 @@ namespace Smartstore.Admin.Models
                 .NotEmpty()
                 .When(x => x.Enabled)
                 .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
+
+            RuleFor(x => x.ProviderSystemName)
+                .NotEmpty()
+                .When(x => x.Enabled);
         }
     }
 }
