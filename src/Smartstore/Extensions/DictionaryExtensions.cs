@@ -188,6 +188,12 @@ namespace Smartstore
             return Guard.NotNull(instance).TryGetValue(key, out var val) ? val : default;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static TValue? Get<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> instance, TKey key) where TKey : notnull
+        //{
+        //    return Guard.NotNull(instance).TryGetValue(key, out var val) ? val : default;
+        //}
+
         public static bool TryGetValueAs<TValue>(this IDictionary<string, object?> source, string key, [MaybeNullWhen(false)] out TValue? value)
         {
             Guard.NotNull(source);

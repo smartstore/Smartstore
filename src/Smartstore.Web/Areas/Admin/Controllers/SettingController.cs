@@ -117,7 +117,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareGeneralCommonConfigurationModelAsync(emailAccountSettings);
+            await PrepareGeneralCommonConfigurationModelAsync(captchaSettings, emailAccountSettings);
 
             return View(model);
         }
@@ -234,7 +234,7 @@ namespace Smartstore.Admin.Controllers
             return Content(result);
         }
 
-        private async Task PrepareGeneralCommonConfigurationModelAsync(EmailAccountSettings emailAccountSettings)
+        private async Task PrepareGeneralCommonConfigurationModelAsync(CaptchaSettings captchaSettings, EmailAccountSettings emailAccountSettings)
         {
             ViewBag.AvailableTimeZones = Services.DateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(Services.DateTimeHelper.DefaultStoreTimeZone.Id);
@@ -277,6 +277,21 @@ namespace Smartstore.Admin.Controllers
                 new() { Text = "noindex, follow", Value = "noindex, follow" },
                 new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
+
+            var selectedTargets = captchaSettings?.ShowOn ?? [];
+            var captchaTargetOptions = CaptchaSettings.Targets.GetDisplayResourceKeys()
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Key,
+                    Text = T(x.Value).Value
+                })
+                .ToList();
+
+            ViewBag.CaptchaShowOnOptions = new MultiSelectList(
+                captchaTargetOptions, 
+                nameof(SelectListItem.Value), 
+                nameof(SelectListItem.Text), 
+                selectedTargets);
 
             SelectListItem CreateItem(string resourceKey)
             {

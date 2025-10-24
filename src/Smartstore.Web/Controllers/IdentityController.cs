@@ -100,7 +100,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [AllowAnonymous, NeverAuthorize]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnLoginPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.Login)]
         [ValidateAntiForgeryToken, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
@@ -231,7 +231,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous, NeverAuthorize]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnRegistrationPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.Registration)]
         [ValidateAntiForgeryToken, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(RegisterModel model, string captchaError, string returnUrl = null)
@@ -517,7 +517,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, DisallowRobot]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnPasswordRecoveryPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.PasswordRecovery)]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         [FormValueRequired("send-email")]
         public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, string captchaError)

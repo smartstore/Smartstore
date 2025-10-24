@@ -235,7 +235,7 @@ namespace Smartstore.Core.Configuration
             {
                 var prop = fastProp.Property;
 
-                // Get properties we can read and write to
+                // Handle only properties we can read and write to
                 if (!prop.CanWrite)
                 {
                     continue;

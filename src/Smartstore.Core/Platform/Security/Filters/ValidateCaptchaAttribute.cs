@@ -12,18 +12,20 @@ namespace Smartstore.Core.Security
     /// </summary>
     public sealed class ValidateCaptchaAttribute : TypeFilterAttribute
     {
-        public ValidateCaptchaAttribute()
+        public ValidateCaptchaAttribute(string targetName)
             : base(typeof(ValidateCaptchaFilter))
         {
             Arguments = [this];
+            CaptchaTargetName = targetName;
         }
 
         /// <summary>
-        /// Gets or sets the name of the <see cref="CaptchaSettings"/> property that indicates 
-        /// whether the captcha is displayed ("ShowOnContactUsPage" for example).
-        /// Avoids unnecessary validation requests and "invalid-input-response" error if the captcha is not displayed at all.
+        /// Gets or sets the name of the CAPTCHA target that indicates 
+        /// whether the CAPTCHA is displayed ("PasswordRecovery" for example).
+        /// Avoids unnecessary validation requests and "invalid-input-response" error if the CAPTCHA is not active at all.
+        /// <see cref="CaptchaSettings.Targets.All"/> contains all valid targets.
         /// </summary>
-        public string CaptchaSettingName { get; set; }
+        public string CaptchaTargetName { get; set; }
     }
 
     internal class ValidateCaptchaFilter : IAsyncActionFilter
@@ -180,17 +182,9 @@ namespace Smartstore.Core.Security
 
         private bool IsCaptchaActive()
         {
-            if (_attribute.CaptchaSettingName.HasValue())
+            if (_attribute.CaptchaTargetName.HasValue())
             {
-                var pi = _captchaSettings.GetType().GetProperty(_attribute.CaptchaSettingName);
-                if (pi != null)
-                {
-                    var propValue = pi.GetValue(_captchaSettings);
-                    if (propValue is bool displayCaptcha)
-                    {
-                        return displayCaptcha;
-                    }
-                }
+                return _captchaSettings.IsActiveTarget(_attribute.CaptchaTargetName);
             }
 
             return true;

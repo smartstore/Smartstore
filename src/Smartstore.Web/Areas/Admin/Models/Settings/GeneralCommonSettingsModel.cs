@@ -190,38 +190,8 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*CaptchaEnabled")]
             public bool Enabled { get; set; }
 
-            [LocalizedDisplay("*CaptchaShowOnLoginPage")]
-            public bool ShowOnLoginPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnRegistrationPage")]
-            public bool ShowOnRegistrationPage { get; set; }
-
-            [LocalizedDisplay("*ShowOnPasswordRecoveryPage")]
-            public bool ShowOnPasswordRecoveryPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnContactUsPage")]
-            public bool ShowOnContactUsPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnEmailWishlistToFriendPage")]
-            public bool ShowOnEmailWishlistToFriendPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnEmailProductToFriendPage")]
-            public bool ShowOnEmailProductToFriendPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnAskQuestionPage")]
-            public bool ShowOnAskQuestionPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnBlogCommentPage")]
-            public bool ShowOnBlogCommentPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnNewsCommentPage")]
-            public bool ShowOnNewsCommentPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnForumPage")]
-            public bool ShowOnForumPage { get; set; }
-
-            [LocalizedDisplay("*CaptchaShowOnProductReviewPage")]
-            public bool ShowOnProductReviewPage { get; set; }
+            [LocalizedDisplay("*CaptchaShowOnTargets")]
+            public string[] ShowOn { get; set; } = [];
 
             [LocalizedDisplay("*reCaptchaPublicKey")]
             public string ReCaptchaPublicKey { get; set; }

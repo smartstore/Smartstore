@@ -560,7 +560,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("Reviews")]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnProductReviewPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.ProductReview)]
         [GdprConsent]
         public async Task<IActionResult> ReviewsAdd(int id, ProductReviewsModel model, string captchaError)
         {
@@ -760,7 +760,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("AskQuestion")]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnAskQuestionPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.ProductInquiry)]
         [ValidateHoneypot, GdprConsent]
         public async Task<IActionResult> AskQuestionSend(ProductAskQuestionModel model, string captchaError)
         {
@@ -869,7 +869,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("EmailAFriend")]
-        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnEmailProductToFriendPage))]
+        [ValidateCaptcha(CaptchaSettings.Targets.ShareProduct)]
         [GdprConsent]
         public async Task<IActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
         {

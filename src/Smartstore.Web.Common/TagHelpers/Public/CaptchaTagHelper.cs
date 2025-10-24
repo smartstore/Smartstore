@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Public
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (!Enabled || !_captchaSettings.Enabled)
+            if (!Enabled || !_captchaSettings.Enabled || _captchaSettings.ShowOn.Length == 0)
             {
                 output.SuppressOutput();
                 return;
