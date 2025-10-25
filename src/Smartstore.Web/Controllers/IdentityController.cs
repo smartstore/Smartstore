@@ -89,7 +89,7 @@ namespace Smartstore.Web.Controllers
             {
                 CustomerLoginType = _customerSettings.CustomerLoginType,
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
-                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage,
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage,
             };
 
             ViewBag.ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
@@ -176,7 +176,7 @@ namespace Smartstore.Web.Controllers
 
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
-            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
 
             return View(model);
         }
@@ -510,7 +510,7 @@ namespace Smartstore.Web.Controllers
         {
             var model = new PasswordRecoveryModel
             {
-                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnPasswordRecoveryPage
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
             };
 
             return View(model);
@@ -550,7 +550,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnPasswordRecoveryPage;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
 
             return View(model);
         }
@@ -732,7 +732,7 @@ namespace Smartstore.Web.Controllers
 
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
-            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnRegistrationPage;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnRegistrationPage;
 
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);

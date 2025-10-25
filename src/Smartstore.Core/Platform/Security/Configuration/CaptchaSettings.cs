@@ -8,15 +8,6 @@ namespace Smartstore.Core.Security
 
         public bool Enabled { get; set; }
 
-        // TODO: (mg) (captcha) Migrate to GoogleRecaptchaSettings.SiteKey and remove later
-        public string ReCaptchaPublicKey { get; set; }
-
-        // TODO: (mg) (captcha) Migrate to GoogleRecaptchaSettings.SecretKey and remove later
-        public string ReCaptchaPrivateKey { get; set; }
-
-        // TODO: (mg) (captcha) Migrate to GoogleRecaptchaSettings.IsInvisible and remove later
-        public bool UseInvisibleReCaptcha { get; set; }
-
         private string[] _showOn = [];
         public string[] ShowOn
         {
@@ -35,9 +26,6 @@ namespace Smartstore.Core.Security
                     .ToArray();
             }
         }
-
-        // TODO: (mg) (captcha) Remove later
-        public bool CanDisplayCaptcha => Enabled && ReCaptchaPublicKey.HasValue() && ReCaptchaPrivateKey.HasValue();
 
         #region Backward compatibility
 
@@ -89,7 +77,7 @@ namespace Smartstore.Core.Security
                 ProductReview
             ];
 
-            public static IReadOnlyDictionary<string, string> GetLegacySettingNames()
+            public static IDictionary<string, string> GetLegacySettingNames()
             {
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -108,7 +96,7 @@ namespace Smartstore.Core.Security
             }
 
             const string ResPrefix = "Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnTargets.Option.";
-            public static IReadOnlyDictionary<string, string> GetDisplayResourceKeys()
+            public static IDictionary<string, string> GetDisplayResourceKeys()
             {
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {

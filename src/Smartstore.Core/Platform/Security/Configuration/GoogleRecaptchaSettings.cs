@@ -29,5 +29,7 @@ namespace Smartstore.Core.Security
         /// normal | compact | invisible
         /// </summary>
         public string Size { get; set; } = "normal";
+
+        public float ScoreThreshold { get; set; } = 0.5f;
     }
 }

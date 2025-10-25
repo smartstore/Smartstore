@@ -191,19 +191,10 @@ namespace Smartstore.Admin.Models
             public bool Enabled { get; set; }
 
             [LocalizedDisplay("*ProviderSystemName")]
-            public bool ProviderSystemName { get; set; }
+            public string ProviderSystemName { get; set; }
 
             [LocalizedDisplay("*CaptchaShowOnTargets")]
             public string[] ShowOn { get; set; } = [];
-
-            [LocalizedDisplay("*reCaptchaPublicKey")]
-            public string ReCaptchaPublicKey { get; set; }
-
-            [LocalizedDisplay("*reCaptchaPrivateKey")]
-            public string ReCaptchaPrivateKey { get; set; }
-
-            [LocalizedDisplay("*UseInvisibleReCaptcha")]
-            public bool UseInvisibleReCaptcha { get; set; }
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
@@ -430,18 +421,8 @@ namespace Smartstore.Admin.Models
 
     public partial class CaptchaSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.CaptchaSettingsModel, CaptchaSettings>
     {
-        public CaptchaSettingsValidator(Localizer T)
+        public CaptchaSettingsValidator()
         {
-            RuleFor(x => x.ReCaptchaPublicKey)
-                .NotEmpty()
-                .When(x => x.Enabled)
-                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
-
-            RuleFor(x => x.ReCaptchaPrivateKey)
-                .NotEmpty()
-                .When(x => x.Enabled)
-                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
-
             RuleFor(x => x.ProviderSystemName)
                 .NotEmpty()
                 .When(x => x.Enabled);

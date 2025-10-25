@@ -1,3 +1,4 @@
+using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Security;
 using Smartstore.Data.Migrations;
@@ -15,115 +16,9 @@ namespace Smartstore.Core.Data.Migrations
             await MigrateSettingsAsync(context, cancelToken);
         }
 
-        public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        public Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            await MigrateCaptchaSettings(context, cancelToken);
-        }
-
-        private async Task MigrateCaptchaSettings(SmartDbContext context, CancellationToken cancelToken = default)
-        {
-            var legacySettingNames = CaptchaSettings.Targets.GetLegacySettingNames();
-            var legacyKeys = legacySettingNames.Keys
-                .Select(name => $"{nameof(CaptchaSettings)}.{name}")
-                .ToArray();
-
-            var legacySettings = await context.Settings
-                .Where(x => legacyKeys.Contains(x.Name))
-                .ToListAsync(cancelToken);
-
-            if (legacySettings.Count == 0)
-            {
-                return;
-            }
-
-            var startIndex = nameof(CaptchaSettings).Length + 1;
-            var showOnSettingName = $"{nameof(CaptchaSettings)}.{nameof(CaptchaSettings.ShowOn)}";
-            var existingShowOnSettings = await context.Settings
-                .Where(x => x.Name == showOnSettingName)
-                .ToListAsync(cancelToken);
-
-            var showOnLookup = existingShowOnSettings.ToDictionary(x => x.StoreId);
-            var hasChanges = false;
-
-            foreach (var group in legacySettings.GroupBy(x => x.StoreId))
-            {
-                var activeTargets = group
-                    .Where(x => x.Value.Equals(bool.TrueString, StringComparison.OrdinalIgnoreCase))
-                    .Select(x => legacySettingNames[x.Name[startIndex..]])
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToArray();
-
-                if (showOnLookup.TryGetValue(group.Key, out var showOnSetting))
-                {
-                    var newValue = activeTargets.Convert<string>();
-                    if (!string.Equals(showOnSetting.Value, newValue, StringComparison.Ordinal))
-                    {
-                        showOnSetting.Value = newValue;
-                        hasChanges = true;
-                    }
-                }
-                else if (activeTargets.Length > 0)
-                {
-                    var newSetting = new Setting
-                    {
-                        Name = showOnSettingName,
-                        StoreId = group.Key,
-                        Value = activeTargets.Convert<string>()
-                    };
-
-                    context.Settings.Add(newSetting);
-                    showOnLookup[group.Key] = newSetting;
-                    hasChanges = true;
-                }
-
-                if (group.Any())
-                {
-                    context.Settings.RemoveRange(group);
-                    hasChanges = true;
-                }
-            }
-
-            // Move reCAPTCHA settings from CaptchaSettings to GoogleRecaptchaSettings
-            var existingCaptchaSettings = await context.Settings
-                .Where(x => x.Name.StartsWith(nameof(CaptchaSettings)) && x.Name.Contains("recaptcha"))
-                .ToListAsync(cancelToken);
-
-            await context.MigrateSettingsAsync(builder =>
-            {
-                foreach (var group in existingCaptchaSettings.GroupBy(x => x.StoreId))
-                {
-                    foreach (var setting in group)
-                    {
-                        var newSettingName = "GoogleRecaptchaSettings.";
-                        var newValue = setting.Value;
-
-                        if (setting.Name.EndsWithNoCase("ReCaptchaPublicKey"))
-                        {
-                            newSettingName += nameof(GoogleRecaptchaSettings.SiteKey);
-                        }
-                        else if (setting.Name.EndsWithNoCase("ReCaptchaPrivateKey"))
-                        {
-                            newSettingName += nameof(GoogleRecaptchaSettings.SecretKey);
-                        }
-                        else if (setting.Name.EndsWithNoCase("UseInvisibleReCaptcha"))
-                        {
-                            newSettingName += nameof(GoogleRecaptchaSettings.Size);
-                            newValue = setting.Value.ToBool() ? "invisible" : "normal";
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        builder.Add(newSettingName, newValue, group.Key);
-                    }
-                }
-            });
-
-            if (hasChanges)
-            {
-                await context.SaveChangesAsync(cancelToken);
-            }
+            return Task.CompletedTask;
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -318,67 +213,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Anzahl der Objekte, die der Anzeigegruppe zugeordnet sind.");
 
             builder.AddOrUpdate("Common.DontShowDialogAgain", "Do not show this dialog again", "Diesen Dialog nicht mehr anzeigen");
-
-            #region Captcha
-
-            var resPrefix = "Admin.Configuration.Settings.GeneralCommon.";
-            builder.Delete(
-                resPrefix + "CaptchaShowOnLoginPage",
-                resPrefix + "CaptchaShowOnLoginPage.Hint",
-                resPrefix + "CaptchaShowOnRegistrationPage",
-                resPrefix + "CaptchaShowOnRegistrationPage.Hint",
-                resPrefix + "ShowOnPasswordRecoveryPage",
-                resPrefix + "ShowOnPasswordRecoveryPage.Hint",
-                resPrefix + "CaptchaShowOnContactUsPage",
-                resPrefix + "CaptchaShowOnContactUsPage.Hint",
-                resPrefix + "CaptchaShowOnEmailWishlistToFriendPage",
-                resPrefix + "CaptchaShowOnEmailWishlistToFriendPage.Hint",
-                resPrefix + "CaptchaShowOnEmailProductToFriendPage",
-                resPrefix + "CaptchaShowOnEmailProductToFriendPage.Hint",
-                resPrefix + "CaptchaShowOnAskQuestionPage",
-                resPrefix + "CaptchaShowOnAskQuestionPage.Hint",
-                resPrefix + "CaptchaShowOnBlogCommentPage",
-                resPrefix + "CaptchaShowOnBlogCommentPage.Hint",
-                resPrefix + "CaptchaShowOnNewsCommentPage",
-                resPrefix + "CaptchaShowOnNewsCommentPage.Hint",
-                resPrefix + "CaptchaShowOnForumPage",
-                resPrefix + "CaptchaShowOnForumPage.Hint",
-                resPrefix + "CaptchaShowOnProductReviewPage",
-                resPrefix + "CaptchaShowOnProductReviewPage.Hint");
-
-            resPrefix = "Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnTargets.Option.";
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.Login, "Login", "Login");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.Registration, "Registration", "Registrierung");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.PasswordRecovery, "Password recovery", "Passwort-Wiederherstellung");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ContactUs, "Contact us", "Kontakt");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ShareWishlist, "Share wishlist", "Wunschliste teilen");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ShareProduct, "Share product", "Produkt teilen");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ProductInquiry, "Product inquiry", "Produktanfrage");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.BlogComment, "Blog comment", "Blog-Kommentar");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.NewsComment, "News comment", "News-Kommentar");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.Forum, "Forum", "Forum");
-            builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ProductReview, "Product review", "Produkt-Bewertung");
-
-            // Fix Captcha --> CAPTCHA
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabled",
-                "CAPTCHA enabled",
-                "CAPTCHA aktivieren",
-                "Enables global bot protection via CAPTCHA.",
-                "Aktiviert den globalen Bot-Schutz durch CAPTCHA.");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnTargets",
-                "Enable CAPTCHA on the following pages",
-                "CAPTCHA auf folgenden Seiten aktivieren",
-                "Select the pages on which CAPTCHA should be enabled.",
-                "Wählen Sie die Seiten aus, auf denen CAPTCHA aktiviert werden soll.");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.ProviderSystemName", "Provider", "Anbieter");
-
-            builder.AddOrUpdate("Admin.Configuration.Settings.General.Common.Captcha.Hint",
-                "A CAPTCHA is an automated test that distinguishes real users from bots, e.g., via a brief challenge or an invisible risk check. It protects forms and logins from spam and abuse.",
-                "Ein CAPTCHA ist ein automatisierter Test, der echte Nutzer von Bots unterscheidet, z. B. durch eine kurze Aufgabe oder eine unsichtbare Risikoprüfung. Es schützt Formulare und Logins vor Spam und Missbrauch.");
-
-            #endregion
         }
     }
 }

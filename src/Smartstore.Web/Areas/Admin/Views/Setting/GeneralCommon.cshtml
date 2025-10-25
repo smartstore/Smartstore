@@ -416,7 +416,7 @@
                     </div>
                 </div>
                 <div class="adminRow">
-                    <div class="alert alert-info mb-0 mt-3">
+                    <div class="alert alert-info mb-0 mt-3 w-100">
                         @Html.Raw(T("Admin.Configuration.Settings.General.Common.Captcha.Hint"))
                     </div>
                 </div>
@@ -437,9 +437,7 @@
                         <div class="adminData">
                             <div class="row g-2">
                                 <div class="col">
-                                    <setting-editor asp-for="CaptchaSettings.ProviderSystemName">
-                                        <select asp-for="CaptchaSettings.ProviderSystemName" asp-items="ViewBag.CaptchaProviders"></select>
-                                    </setting-editor>
+                                    <select asp-for="CaptchaSettings.ProviderSystemName" asp-items="ViewBag.CaptchaProviders"></select>
                                 </div>
                                 <div class="col-auto">
                                     <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
@@ -461,36 +459,6 @@
                                 <select asp-for="CaptchaSettings.ShowOn" asp-items="ViewBag.CaptchaShowOnOptions" multiple="multiple"></select>
                             </setting-editor>
                             <span asp-validation-for="CaptchaSettings.ShowOn"></span>
-                        </div>
-                    </div>
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="CaptchaSettings.UseInvisibleReCaptcha" />
-                        </div>
-                        <div class="adminData wide">
-                            <setting-editor asp-for="CaptchaSettings.UseInvisibleReCaptcha"></setting-editor>
-                            <span asp-validation-for="CaptchaSettings.UseInvisibleReCaptcha"></span>
-                            <span id="UseInvisibleReCaptchaWarning" class="d-none ml-2 text-warning">
-                                @T("Admin.Configuration.Settings.GeneralCommon.ReCaptchaTypeChangeWarning")
-                            </span>
-                        </div>
-                    </div>
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="CaptchaSettings.ReCaptchaPublicKey" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="CaptchaSettings.ReCaptchaPublicKey"></setting-editor>
-                            <span asp-validation-for="CaptchaSettings.ReCaptchaPublicKey"></span>
-                        </div>
-                    </div>
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="CaptchaSettings.ReCaptchaPrivateKey" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="CaptchaSettings.ReCaptchaPrivateKey"></setting-editor>
-                            <span asp-validation-for="CaptchaSettings.ReCaptchaPrivateKey"></span>
                         </div>
                     </div>
                 </div>
@@ -1105,16 +1073,6 @@
 					$('#TestSeoNameCreationResult').html('<p class="alert alert-info">' + resp + '</p>');
 				}
 			});
-        });
-
-        // Show warning when ReCaptcha type changed.
-        $('#@(Html.IdFor(x => x.CaptchaSettings.UseInvisibleReCaptcha))').change(function () {
-            var publicKey = $('#@(Html.IdFor(x => x.CaptchaSettings.ReCaptchaPublicKey))').val();
-            var privateKey = $('#@(Html.IdFor(x => x.CaptchaSettings.ReCaptchaPrivateKey))').val();
-
-            if (!_.isEmpty(publicKey) && !_.isEmpty(privateKey)) {
-                $('#UseInvisibleReCaptchaWarning').removeClass('d-none');
-            }
         });
 	});
 </script>

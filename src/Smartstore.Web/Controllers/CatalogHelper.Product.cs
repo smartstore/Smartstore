@@ -1409,7 +1409,7 @@ namespace Smartstore.Web.Controllers
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
             model.CanReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
-            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage;
             model.ShowVerfiedPurchaseBadge = _catalogSettings.ShowVerfiedPurchaseBadge;
 
             await _db.LoadCollectionAsync(product, x => x.ProductReviews, false, q => q

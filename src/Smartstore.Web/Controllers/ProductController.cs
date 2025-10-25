@@ -831,7 +831,7 @@ namespace Smartstore.Web.Controllers
                 SenderName = customer.GetFullName(),
                 SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
                 SenderPhone = customer.GenericAttributes.Phone,
-                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnAskQuestionPage,
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnAskQuestionPage,
                 SelectedAttributes = string.Empty,
                 ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
                 IsQuoteRequest = product.CallForPrice
@@ -920,7 +920,7 @@ namespace Smartstore.Web.Controllers
                 ProductSeName = await product.GetActiveSlugAsync(),
                 YourEmailAddress = Services.WorkContext.CurrentCustomer.Email,
                 AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend,
-                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnEmailProductToFriendPage
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage
             };
 
             return model;

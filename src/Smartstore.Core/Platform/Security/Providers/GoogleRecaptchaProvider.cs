@@ -18,20 +18,10 @@ namespace Smartstore.Core.Security
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GoogleRecaptchaSettings _settings;
 
-        public GoogleRecaptchaProvider(IHttpClientFactory httpClientFactory, GoogleRecaptchaSettings settings, CaptchaSettings legacySettings)
+        public GoogleRecaptchaProvider(IHttpClientFactory httpClientFactory, GoogleRecaptchaSettings settings)
         {
             _httpClientFactory = httpClientFactory;
             _settings = settings;
-
-            // TEMP only
-            _settings.SecretKey = legacySettings.ReCaptchaPrivateKey;
-            _settings.SiteKey = legacySettings.ReCaptchaPublicKey;
-            _settings.VerifyUrl = EngineContext.Current.Application.AppConfiguration.Google.RecaptchaVerifyUrl;
-            _settings.WidgetUrl = EngineContext.Current.Application.AppConfiguration.Google.RecaptchaWidgetUrl;
-            if (legacySettings.UseInvisibleReCaptcha)
-            {
-                _settings.Size = "invisible";
-            }
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -58,7 +48,7 @@ namespace Smartstore.Core.Security
             var elementId = "recaptcha" + ident;
             var callbackName = "recaptchaOnload" + ident;
             var url = "{0}?onload={1}&render=explicit&hl={2}".FormatInvariant(
-                _settings.WidgetUrl,
+                _settings.WidgetUrl.NullEmpty() ?? GoogleRecaptchaSettings.DefaultWidgetUrl,
                 callbackName,
                 context.Language?.UniqueSeoCode.EmptyNull().ToLowerInvariant());
 
@@ -99,7 +89,7 @@ namespace Smartstore.Core.Security
             var client = _httpClientFactory.CreateClient();
 
             var url = "{0}?secret={1}&response={2}".FormatInvariant(
-                _settings.VerifyUrl,
+                _settings.VerifyUrl.NullEmpty() ?? GoogleRecaptchaSettings.DefaultVerifyUrl,
                 _settings.SecretKey.UrlEncode(),
                 token.UrlEncode());
 
