@@ -197,8 +197,6 @@ namespace Smartstore.Engine
 
         public class GoogleConfiguration
         {
-            public string RecaptchaWidgetUrl { get; set; } = "https://www.google.com/recaptcha/api.js";
-            public string RecaptchaVerifyUrl { get; set; } = "https://www.google.com/recaptcha/api/siteverify";
             public string MapsUrl { get; set; } = "https://maps.google.com/maps?hl={0}&q={1}";
         }
 

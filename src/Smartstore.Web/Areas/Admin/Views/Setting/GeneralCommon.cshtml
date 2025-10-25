@@ -440,7 +440,8 @@
                                     <select asp-for="CaptchaSettings.ProviderSystemName" asp-items="ViewBag.CaptchaProviders"></select>
                                 </div>
                                 <div class="col-auto">
-                                    <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
+                                    <button type="button" id="btn-configure-captcha" class="btn btn-secondary" 
+                                       onclick="javascript:openPopup('@(Url.Action("GoogleRecaptcha", "Security"))'); return false;">
                                         <bootstrap-icon name="gear" />
                                         <span>@T("Admin.Common.Configure")...</span>
                                     </button>

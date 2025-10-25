@@ -1,0 +1,110 @@
+﻿@using Smartstore.Admin.Models.Security
+
+@model GoogleRecaptchaModel
+
+@{
+    ViewBag.Title = "Google reCAPTCHA";
+    Layout = "_AdminPopupLayout";
+}
+
+<form asp-action="GoogleRecaptcha">
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="alert alert-info w-100 alert-dismissible">
+        @Html.Raw(T("Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.Info"))
+        <button type="button" class="btn-close" data-dismiss="alert"></button>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SiteKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SiteKey"></setting-editor>
+                <span asp-validation-for="SiteKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SecretKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SecretKey"></setting-editor>
+                <span asp-validation-for="SecretKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Version" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Version"></setting-editor>
+                <span asp-validation-for="Version"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Theme" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Theme"></setting-editor>
+                <span asp-validation-for="Theme"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Size" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Size"></setting-editor>
+                <span asp-validation-for="Size"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ScoreThreshold" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ScoreThreshold"></setting-editor>
+                <span asp-validation-for="ScoreThreshold"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WidgetUrl" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="WidgetUrl"></setting-editor>
+                <span asp-validation-for="WidgetUrl"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="VerifyUrl" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="VerifyUrl"></setting-editor>
+                <span asp-validation-for="VerifyUrl"></span>
+            </div>
+        </div>
+    </div>
+</form>

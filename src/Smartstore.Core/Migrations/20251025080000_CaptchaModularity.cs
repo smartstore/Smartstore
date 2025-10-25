@@ -96,8 +96,8 @@ namespace Smartstore.Core.Migrations
 
             resPrefix = "Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.";
             builder.AddOrUpdate(resPrefix + "Info",
-                "Manage keys and domains in the <a class='fwm' href='https://www.google.com/recaptcha/admin'>reCAPTCHA Admin Console</a>. Bei v3 erfolgt die Bewertung unsichtbar per Score; Step-Up-Prüfungen sind optional möglich.",
-                "Keys und Domains verwalten Sie in der <a class='fwm' href='https://www.google.com/recaptcha/admin'>reCAPTCHA Admin Console</a>. v3 runs invisibly with a risk score; optional step-up challenges can be enabled if needed.");
+                "Manage keys and domains in the <a class='fwm' href='https://www.google.com/recaptcha/admin'>reCAPTCHA Admin Console</a>. v3 runs invisibly with a risk score; optional step-up challenges can be enabled if needed.",
+                "Keys und Domains verwalten Sie in der <a class='fwm' href='https://www.google.com/recaptcha/admin'>reCAPTCHA Admin Console</a>. Bei v3 erfolgt die Bewertung unsichtbar per Score; Step-Up-Prüfungen sind optional möglich.");
             builder.AddOrUpdate(resPrefix + "WidgetUrl",
                 "Widget URL",
                 "Widget-URL",

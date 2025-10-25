@@ -1,6 +1,3 @@
-using Smartstore.Collections;
-using Smartstore.Core.Configuration;
-using Smartstore.Core.Security;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations

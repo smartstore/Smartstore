@@ -1,4 +1,5 @@
 ﻿using Smartstore.Admin.Models;
+using Smartstore.Admin.Models.Security;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Web.Modelling.Settings;

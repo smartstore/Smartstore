@@ -2,7 +2,7 @@
 using FluentValidation;
 using Smartstore.Core.Security;
 
-namespace Smartstore.Admin.Models
+namespace Smartstore.Admin.Models.Security
 {
     [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.")]
     public class GoogleRecaptchaModel : ModelBase
