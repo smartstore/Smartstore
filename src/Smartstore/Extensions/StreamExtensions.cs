@@ -113,8 +113,8 @@ namespace Smartstore
 
         public static MemoryStream WriteString(this MemoryStream stream, string value, bool seekToBegin = true)
         {
-            Guard.NotNull(stream, nameof(stream));
-            Guard.NotNull(value, nameof(value));
+            Guard.NotNull(stream);
+            Guard.NotNull(value);
 
             using var writer = new StreamWriter(stream, Encoding.Unicode, 1024, true);
 
@@ -183,8 +183,8 @@ namespace Smartstore
 
         public static async Task<bool> CopyToFileAsync(this Stream stream, IFile destinationFile, bool leaveOpen = true)
         {
-            Guard.NotNull(stream, nameof(stream));
-            Guard.NotNull(destinationFile, nameof(destinationFile));
+            Guard.NotNull(stream);
+            Guard.NotNull(destinationFile);
 
             try
             {
@@ -229,8 +229,8 @@ namespace Smartstore
 
         private static async Task<bool> ContentsEqualInternal(Stream src, Stream other, bool? forceLengthCompare, bool async)
         {
-            Guard.NotNull(src, nameof(src));
-            Guard.NotNull(other, nameof(other));
+            Guard.NotNull(src);
+            Guard.NotNull(other);
 
             if (src == other)
             {
