@@ -264,6 +264,38 @@ namespace Smartstore.Core.AI
             chat.AddMessages(answers);
         }
 
+        // TODO: (mg) Remove after testing the new overload
+        ///// <summary>
+        ///// Creates a temporary image file from <paramref name="imageData"/> in <paramref name="tempDirectory"/>.
+        ///// </summary>
+        ///// <param name="tempDirectory">Directory where to create the temp file.</param>
+        ///// <param name="mimeType">Mime type of the. "png" if <c>null</c>.</param>
+        ///// <returns>Temp file or <c>null</c> if the file cannot be created.</returns>
+        //protected virtual async Task<IFile> CreateTempImageFileAsync(
+        //    byte[] imageData, 
+        //    IDirectory tempDirectory, 
+        //    string mimeType = null,
+        //    CancellationToken cancelToken = default)
+        //{
+        //    Guard.NotNull(tempDirectory);
+
+        //    if (!imageData.IsNullOrEmpty())
+        //    {
+        //        var extension = MimeTypes.MapMimeTypeToExtension(mimeType).OrDefault("png");
+        //        var fileName = Path.GetRandomFileName() + '.' + extension;
+        //        var path = PathUtility.Join(tempDirectory.SubPath, fileName);
+
+        //        using var stream = new MemoryStream(imageData);
+        //        var file = await tempDirectory.FileSystem.CreateFileAsync(path, stream, true, cancelToken);
+        //        if (file?.Exists == true)
+        //        {
+        //            return file;
+        //        }
+        //    }
+
+        //    return null;
+        //}
+
         /// <summary>
         /// Creates a temporary image file from <paramref name="imageData"/> in <paramref name="tempDirectory"/>.
         /// </summary>
@@ -271,25 +303,27 @@ namespace Smartstore.Core.AI
         /// <param name="mimeType">Mime type of the. "png" if <c>null</c>.</param>
         /// <returns>Temp file or <c>null</c> if the file cannot be created.</returns>
         protected virtual async Task<IFile> CreateTempImageFileAsync(
-            byte[] imageData, 
-            IDirectory tempDirectory, 
+            BinaryData imageData,
+            IDirectory tempDirectory,
             string mimeType = null,
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(tempDirectory);
 
-            if (!imageData.IsNullOrEmpty())
+            if (imageData == null || imageData.IsEmpty)
             {
-                var extension = MimeTypes.MapMimeTypeToExtension(mimeType).OrDefault("png");
-                var fileName = Path.GetRandomFileName() + '.' + extension;
-                var path = PathUtility.Join(tempDirectory.SubPath, fileName);
+                return null;
+            }
 
-                using var stream = new MemoryStream(imageData);
-                var file = await tempDirectory.FileSystem.CreateFileAsync(path, stream, true, cancelToken);
-                if (file?.Exists == true)
-                {
-                    return file;
-                }
+            var extension = MimeTypes.MapMimeTypeToExtension(mimeType).OrDefault("png");
+            var fileName = Path.GetRandomFileName() + '.' + extension;
+            var path = PathUtility.Join(tempDirectory.SubPath, fileName);
+
+            using var imageStream = imageData.ToStream();
+            var file = await tempDirectory.FileSystem.CreateFileAsync(path, imageStream, true, cancelToken);
+            if (file?.Exists == true)
+            {
+                return file;
             }
 
             return null;
