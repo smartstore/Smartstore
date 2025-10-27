@@ -547,6 +547,14 @@ namespace Smartstore.Core.Checkout.Rules
                 },
                 new()
                 {
+                    Name = "CustomerNewsletterSubscription",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.SubscribedToNewsletter"),
+                    GroupKey = "Common.Entity.Customer",
+                    RuleType = RuleType.Boolean,
+                    ProcessorType = typeof(CustomerNewsletterSubscriptionRule)
+                },
+                new()
+                {
                     Name = "Affiliate",
                     DisplayName = T("Admin.Rules.FilterDescriptor.Affiliate"),
                     GroupKey = "Common.Entity.Customer",

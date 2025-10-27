@@ -101,6 +101,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.ProductInCategoryTreeCartRule",
                 "Product from category or subcategories in cart",
                 "Produkt aus Kategorie oder Unterkategorien im Warenkorb");
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.SubscribedToNewsletter",
+                "Subscribed to newsletter",
+                "Newsletter abonniert");
 
             builder.AddOrUpdate("LinkBuilder.LinkTarget", 
                 "Define the target attribute for the link.", 
