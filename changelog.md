@@ -35,6 +35,7 @@
   - #1372 Cart rule for the total cart weight.
   - Cart rule that checks whether a product from a category or one of its subcategories is in the shopping cart.
   - Cart rule to check that all products in the shopping cart are from the specified categories.
+  - #1425 Cart rule that is fulfilled when the customer is subscribed to the newsletter.
 - #1357 Pricing: Add a setting that takes tiered prices of products into account, that are assigned by an attribute of type "linked product".
 - #690 Apple Sign-In support
 - FileManager: Enabled language dependent tabs
