@@ -2,6 +2,7 @@
 using Smartstore.Core.AI.Prompting;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.AI
@@ -80,7 +81,7 @@ namespace Smartstore.Core.AI
         /// Starts or continues a text-to-image AI conversation, including source image(s), to create an image.
         /// </summary>
         /// <param name="uploadFileIds">Identifiers of the source file(s) to be uploaded.</param>
-        /// <returns>Local URL of a temporary file.</returns>
+        /// <returns>Path of a temporary image file.</returns>
         protected virtual Task<string> ImageChatAsync(AIChat chat, int[] uploadFileIds, AIImageFormat imageFormat, CancellationToken cancelToken = default)
             => throw new NotImplementedException();
 
@@ -101,7 +102,7 @@ namespace Smartstore.Core.AI
 
         #region Utilities
 
-        protected float? ClampTemperature(float temperature)
+        protected static float? ClampTemperature(float temperature)
         {
             if (temperature == 1) return null;
             if (temperature < 0) return 0;
@@ -261,6 +262,37 @@ namespace Smartstore.Core.AI
 
             // Add the entire answer to the chat.
             chat.AddMessages(answers);
+        }
+
+        /// <summary>
+        /// Creates a temporary image file from <paramref name="imageData"/> in <paramref name="tempDirectory"/>.
+        /// </summary>
+        /// <param name="tempDirectory">Directory where to create the temp file.</param>
+        /// <param name="mimeType">Mime type of the. "png" if <c>null</c>.</param>
+        /// <returns>Temp file or <c>null</c> if the file cannot be created.</returns>
+        protected virtual async Task<IFile> CreateTempImageFileAsync(
+            byte[] imageData, 
+            IDirectory tempDirectory, 
+            string mimeType = null,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(tempDirectory);
+
+            if (!imageData.IsNullOrEmpty())
+            {
+                var extension = MimeTypes.MapMimeTypeToExtension(mimeType).OrDefault("png");
+                var fileName = Path.GetRandomFileName() + '.' + extension;
+                var path = PathUtility.Join(tempDirectory.SubPath, fileName);
+
+                using var stream = new MemoryStream(imageData);
+                var file = await tempDirectory.FileSystem.CreateFileAsync(path, stream, true, cancelToken);
+                if (file?.Exists == true)
+                {
+                    return file;
+                }
+            }
+
+            return null;
         }
 
         #endregion

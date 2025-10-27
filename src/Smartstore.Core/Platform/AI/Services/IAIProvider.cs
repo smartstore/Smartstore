@@ -30,11 +30,11 @@ namespace Smartstore.Core.AI
 
         /// <summary>
         /// Starts or continues an AI conversation.
-        /// Adds the latest answer to the chat.
+        /// Adds the latest answer to the chat if the chat is not of type <see cref="AIChatTopic.Image"/>.
         /// </summary>
         /// <param name="chat">The AI chat.</param>
         /// <param name="cancelToken">The cancellation token.</param>
-        /// <returns>The latest answer.</returns>
+        /// <returns>The latest answer or the path of a temporary image file if the chat is of type <see cref="AIChatTopic.Image"/>.</returns>
         /// <exception cref="AIException">Thrown when an error occurs during the AI conversation.</exception>
         Task<string?> ChatAsync(AIChat chat, CancellationToken cancelToken = default);
 
@@ -65,7 +65,7 @@ namespace Smartstore.Core.AI
         /// <param name="model">The AI image model.</param>
         /// <param name="numImages">The number of images to be generated. 1 by default.</param>
         /// <param name="cancelToken">The cancellation token.</param>
-        /// <returns>An array of URL(s) of the generated image(s).</returns>
+        /// <returns>An array of paths of temporary image files.</returns>
         /// <exception cref="AIException">Thrown when an error occurs during image generation.</exception>
         Task<string[]?> CreateImagesAsync(IAIImageModel model, int numImages = 1, CancellationToken cancelToken = default);
 
