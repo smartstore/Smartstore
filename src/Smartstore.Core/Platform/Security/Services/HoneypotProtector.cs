@@ -102,6 +102,9 @@ namespace Smartstore.Core.Security
             }
             catch
             {
+                // Any issue while deserializing the token should be considered suspicious
+                // because legitimate requests always carry a valid honeypot payload.
+                isBot = true;
             }
 
             return isBot;
