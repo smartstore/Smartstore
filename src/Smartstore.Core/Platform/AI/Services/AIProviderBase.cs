@@ -52,9 +52,9 @@ namespace Smartstore.Core.AI
 
             if (chat.Topic == AIChatTopic.Image)
             {
-                if (!chat.Metadata.TryGetAndConvertValue<int[]>("UploadFileIds", out var uploadFileIds) || uploadFileIds.IsNullOrEmpty())
+                if (!chat.Metadata.TryGetAndConvertValue<int[]>("SourceFileIds", out var fileIds) || fileIds.IsNullOrEmpty())
                 {
-                    throw new AIException("Please provide file identifiers through chat metadata \"UploadFileIds\" for a chat of AIChatTopic.Image.");
+                    throw new AIException("Please provide file identifiers through chat metadata \"SourceFileIds\" for a chat of AIChatTopic.Image.");
                 }
 
                 if (!chat.Metadata.TryGetAndConvertValue<AIImageFormat>("ImageFormat", out var imageFormat))
@@ -62,7 +62,7 @@ namespace Smartstore.Core.AI
                     imageFormat = AIImageFormat.Horizontal;
                 }
 
-                return ImageChatAsync(chat, uploadFileIds, imageFormat, cancelToken);
+                return ImageChatAsync(chat, fileIds, imageFormat, cancelToken);
             }
             else
             {
@@ -80,9 +80,9 @@ namespace Smartstore.Core.AI
         /// <summary>
         /// Starts or continues a text-to-image AI conversation, including source image(s), to create an image.
         /// </summary>
-        /// <param name="uploadFileIds">Identifiers of the source file(s) to be uploaded.</param>
+        /// <param name="fileIds">Identifiers of the source file(s) to be uploaded.</param>
         /// <returns>Path of a temporary image file.</returns>
-        protected virtual Task<string> ImageChatAsync(AIChat chat, int[] uploadFileIds, AIImageFormat imageFormat, CancellationToken cancelToken = default)
+        protected virtual Task<string> ImageChatAsync(AIChat chat, int[] fileIds, AIImageFormat imageFormat, CancellationToken cancelToken = default)
             => throw new NotImplementedException();
 
         public virtual IAsyncEnumerable<AIChatCompletionResponse> ChatAsStreamAsync(

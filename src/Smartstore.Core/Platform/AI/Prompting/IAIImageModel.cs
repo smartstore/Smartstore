@@ -20,12 +20,24 @@
         string ModelName { get; }
 
         /// <summary>
-        /// e.g. photo, painting, illustration
+        /// Specifies the image creation format.
+        /// </summary>
+        AIImageFormat Format { get; }
+
+        /// <summary>
+        /// Specifies an image style.
+        /// </summary>
+        string Style { get; }
+
+        #region Image creation prompt engineering
+
+        /// <summary>
+        /// E.g. photo, painting, illustration
         /// </summary>
         string Medium { get; }
 
         /// <summary>
-        /// e.g. shop, indoors, outdoors, living room, kitchen, city, forest, beach, pedestal, etc
+        /// E.g. shop, indoors, outdoors, living room, kitchen, city, forest, beach, pedestal, etc
         /// </summary>
         string Environment { get; }
 
@@ -50,14 +62,20 @@
         /// </summary>
         string Composition { get; }
 
-        /// <summary>
-        /// Specifies the image creation format.
-        /// </summary>
-        AIImageFormat Format { get; }
+        #endregion
+
+        #region Image editing
 
         /// <summary>
-        /// Specifies an image style.
+        /// Gets the IDs of the source files used for image editing.
         /// </summary>
-        string Style { get; }
+        public int[] SourceFileIds { get; }
+
+        /// <summary>
+        /// Gets the ID of the file to be overwritten. If <c>null</c> a new file will be created.
+        /// </summary>
+        public int? OverwriteFileId { get; }
+
+        #endregion
     }
 }
