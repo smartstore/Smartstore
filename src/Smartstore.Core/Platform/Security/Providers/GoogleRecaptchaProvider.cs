@@ -47,6 +47,7 @@ namespace Smartstore.Core.Security
             var ident = CommonHelper.GenerateRandomDigitCode(5);
             var elementId = "recaptcha" + ident;
             var callbackName = "recaptchaOnload" + ident;
+            var theme = _settings.UseDarkTheme ? "dark" : "light";
             var url = "{0}?onload={1}&render=explicit&hl={2}".FormatInvariant(
                 _settings.WidgetUrl.NullEmpty() ?? GoogleRecaptchaSettings.DefaultWidgetUrl,
                 callbackName,
@@ -59,7 +60,7 @@ namespace Smartstore.Core.Security
                 "       renderGoogleRecaptcha('{0}', '{1}', {2});".FormatInvariant(elementId, _settings.SiteKey, IsInvisible.ToString().ToLowerInvariant()),
                 "   };",
                 "</script>",
-                $"<div id='{elementId}' class='g-recaptcha' data-sitekey='{_settings.SiteKey}' data-theme='{_settings.Theme}' data-size='{_settings.Size}'></div>",
+                $"<div id='{elementId}' class='g-recaptcha' data-sitekey='{_settings.SiteKey}' data-theme='{theme}' data-size='{_settings.Size}'></div>",
                 "<script src='{0}' async defer></script>".FormatInvariant(url)
             }.StrJoin(string.Empty);
 

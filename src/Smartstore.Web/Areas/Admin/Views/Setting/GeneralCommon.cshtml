@@ -437,7 +437,17 @@
                         <div class="adminData">
                             <div class="row g-2">
                                 <div class="col">
-                                    <select asp-for="CaptchaSettings.ProviderSystemName" asp-items="ViewBag.CaptchaProviders"></select>
+                                    <select asp-for="CaptchaSettings.ProviderSystemName">
+                                        @foreach (var cpm in Model.CaptchaSettings.AvailableProviders)
+                                        {
+                                            <option value="@cpm.SystemName"
+                                                    data-configured="@cpm.IsConfigured.ToString().ToLower()"
+                                                    data-configure-url="@cpm.ConfigureUrl"
+                                                    attr-selected='(cpm.SystemName == Model.CaptchaSettings.ProviderSystemName, "selected")'>
+                                                @cpm.FriendlyName
+                                            </option>
+                                        }
+                                    </select>
                                 </div>
                                 <div class="col-auto">
                                     <button type="button" id="btn-configure-captcha" class="btn btn-secondary" 

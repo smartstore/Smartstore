@@ -23,17 +23,20 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IProviderManager _providerManager;
+        private readonly ICaptchaManager _captchaManager;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly Lazy<IMediaTracker> _mediaTracker;
 
         public SettingController(
             SmartDbContext db,
             IProviderManager providerManager,
+            ICaptchaManager captchaManager,
             ILocalizedEntityService localizedEntityService,
             Lazy<IMediaTracker> mediaTracker)
         {
             _db = db;
             _providerManager = providerManager;
+            _captchaManager = captchaManager;
             _localizedEntityService = localizedEntityService;
             _mediaTracker = mediaTracker;
         }
@@ -121,7 +124,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareGeneralCommonConfigurationModelAsync(captchaSettings, emailAccountSettings);
+            await PrepareGeneralCommonConfigurationModelAsync(model);
 
             return View(model);
         }
@@ -238,7 +241,7 @@ namespace Smartstore.Admin.Controllers
             return Content(result);
         }
 
-        private async Task PrepareGeneralCommonConfigurationModelAsync(CaptchaSettings captchaSettings, EmailAccountSettings emailAccountSettings)
+        private async Task PrepareGeneralCommonConfigurationModelAsync(GeneralCommonSettingsModel model)
         {
             ViewBag.AvailableTimeZones = Services.DateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(Services.DateTimeHelper.DefaultStoreTimeZone.Id);
@@ -250,7 +253,7 @@ namespace Smartstore.Admin.Controllers
                 .ToListAsync();
 
             ViewBag.EmailAccounts = emailAccounts
-                .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString(), Selected = x.Id == emailAccountSettings.DefaultEmailAccountId })
+                .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString(), Selected = x.Id == model.EmailAccountSettings.DefaultEmailAccountId })
                 .ToList();
 
             ViewBag.Salutations = new List<SelectListItem>
@@ -282,16 +285,19 @@ namespace Smartstore.Admin.Controllers
                 new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
 
-            ViewBag.CaptchaProviders = _providerManager.GetAllProviders<ICaptchaProvider>()
-                .Select(x => new SelectListItem
+            model.CaptchaSettings.AvailableProviders = _captchaManager.ListProviders()
+                .Select(x => new GeneralCommonSettingsModel.CaptchaProviderModel
                 {
-                    Value = x.Metadata.SystemName,
-                    Text = x.Metadata.FriendlyName,
-                    Selected = x.Metadata.SystemName == captchaSettings.ProviderSystemName
+                    SystemName = x.Metadata.SystemName,
+                    FriendlyName = x.Metadata.FriendlyName,
+                    IsConfigured = x.Value.IsConfigured,
+                    ConfigureUrl = x.Metadata.IsConfigurable
+                        ? Url.Action(((IConfigurable)x.Value).GetConfigurationRoute())
+                        : null
                 })
                 .ToList();
 
-            var selectedTargets = captchaSettings?.ShowOn ?? [];
+            var selectedTargets = model.CaptchaSettings.ShowOn ?? [];
             var captchaTargetOptions = CaptchaSettings.Targets.GetDisplayResourceKeys()
                 .Select(x => new SelectListItem
                 {

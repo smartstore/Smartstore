@@ -29,19 +29,16 @@ namespace Smartstore.Core.Security
     internal class ValidateCaptchaFilter : IAsyncActionFilter
     {
         private readonly ValidateCaptchaAttribute _attribute;
-        private readonly CaptchaSettings _captchaSettings;
-        private readonly IProviderManager _providerManager;
+        private readonly ICaptchaManager _captchaManager;
 
         public ValidateCaptchaFilter(
             ValidateCaptchaAttribute attribute,
-            CaptchaSettings captchaSettings,
             ILogger<ValidateCaptchaFilter> logger,
             Localizer localizer,
-            IProviderManager providerManager)
+            ICaptchaManager captchaManager)
         {
             _attribute = attribute;
-            _captchaSettings = captchaSettings;
-            _providerManager = providerManager;
+            _captchaManager = captchaManager;
 
             Logger = logger;
             T = localizer;
@@ -54,41 +51,40 @@ namespace Smartstore.Core.Security
         {
             var valid = false;
 
-            ICaptchaProvider captchaProvider = null;
+            Provider<ICaptchaProvider> captchaProvider = null;
 
             try
             {
-                if (_captchaSettings.Enabled && context.HttpContext.Request.HasFormContentType && IsCaptchaActive())
+                if (
+                    context.HttpContext.Request.HasFormContentType
+                    && IsCaptchaActive() 
+                    && _captchaManager.IsConfigured(out captchaProvider))
                 {
-                    captchaProvider = _providerManager.GetProvider<ICaptchaProvider>(_captchaSettings.ProviderSystemName)?.Value;
-                    if (captchaProvider != null && captchaProvider.IsConfigured)
-                    {
-                        var captchaContext = new CaptchaContext(context.HttpContext);
-                        var result = await captchaProvider.ValidateAsync(captchaContext);
+                    var captchaContext = new CaptchaContext(context.HttpContext);
+                    var result = await captchaProvider.Value.ValidateAsync(captchaContext);
 
-                        if (result.Success)
+                    if (result.Success)
+                    {
+                        valid = true;
+                    }
+                    else if (result.Messages.Count > 0)
+                    {
+                        foreach (var message in result.Messages)
                         {
-                            valid = true;
-                        }
-                        else if (result.Messages.Count > 0)
-                        {
-                            foreach (var message in result.Messages)
+                            var text = T("Common.CaptchaCheckFailed", message.Code).Value;
+                            if (message.Level == CaptchaValidationMessageLevel.Warning)
                             {
-                                var text = T("Common.CaptchaCheckFailed", message.Code).Value;
-                                if (message.Level == CaptchaValidationMessageLevel.Warning)
-                                {
-                                    Logger.Warn(text);
-                                }
-                                else
-                                {
-                                    Logger.Error(text);
-                                }
+                                Logger.Warn(text);
+                            }
+                            else
+                            {
+                                Logger.Error(text);
                             }
                         }
-                        else
-                        {
-                            Logger.Error(T("Common.CaptchaUnableToVerify").Value);
-                        }
+                    }
+                    else
+                    {
+                        Logger.Error(T("Common.CaptchaUnableToVerify").Value);
                     }
                 }
             }
@@ -100,21 +96,14 @@ namespace Smartstore.Core.Security
             // This will push the result value into a parameter in our action method.
             context.ActionArguments["captchaValid"] = valid;
 
-            context.ActionArguments["captchaError"] = !valid && captchaProvider?.IsConfigured == true
-                ? T(captchaProvider?.IsInvisible == true ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
+            context.ActionArguments["captchaError"] = !valid && captchaProvider?.Value.IsConfigured == true
+                ? T(captchaProvider?.Value.IsInvisible == true ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
                 : null;
 
             await next();
         }
 
         private bool IsCaptchaActive()
-        {
-            if (_attribute.CaptchaTargetName.HasValue())
-            {
-                return _captchaSettings.IsActiveTarget(_attribute.CaptchaTargetName);
-            }
-
-            return true;
-        }
+            => _attribute.CaptchaTargetName.IsEmpty() || _captchaManager.IsActiveTarget(_attribute.CaptchaTargetName);
     }
 }

@@ -125,7 +125,7 @@ namespace Smartstore.Core.Migrations
                 "Mindest-Score (0–1) für 'Bestanden'; höher = strenger. Standard: 0,5.");
             builder.AddOrUpdate(resPrefix + "Version", "Version", "Version");
 
-            builder.AddOrUpdate(resPrefix + "Theme", "Theme", "Theme");
+            builder.AddOrUpdate(resPrefix + "UseDarkTheme", "Use dark theme", "Dunkles Design verwenden");
             builder.AddOrUpdate(resPrefix + "Theme.Light", "Light", "Hell");
             builder.AddOrUpdate(resPrefix + "Theme.Dark", "Dark", "Dunkel");
 

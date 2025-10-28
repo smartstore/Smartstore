@@ -7,12 +7,6 @@ namespace Smartstore.Admin.Models.Security
     [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.")]
     public class GoogleRecaptchaModel : ModelBase
     {
-        [LocalizedDisplay("*WidgetUrl")]
-        public string WidgetUrl { get; set; }
-
-        [LocalizedDisplay("*VerifyUrl")]
-        public string VerifyUrl { get; set; }
-
         [LocalizedDisplay("*SiteKey")]
         public string SiteKey { get; set; }
 
@@ -22,8 +16,8 @@ namespace Smartstore.Admin.Models.Security
         [LocalizedDisplay("*Version")]
         public string Version { get; set; }
 
-        [LocalizedDisplay("*Theme")]
-        public string Theme { get; set; }
+        [LocalizedDisplay("*UseDarkTheme")]
+        public bool UseDarkTheme { get; set; }
 
         [LocalizedDisplay("*Size")]
         public string Size { get; set; }
@@ -34,6 +28,12 @@ namespace Smartstore.Admin.Models.Security
         [AdditionalMetadata("max", 1)]
         [AdditionalMetadata("step", 0.1)]
         public float ScoreThreshold { get; set; }
+
+        [LocalizedDisplay("*WidgetUrl")]
+        public string WidgetUrl { get; set; }
+
+        [LocalizedDisplay("*VerifyUrl")]
+        public string VerifyUrl { get; set; }
     }
 
     public partial class GoogleRecaptchaSettingsValidator : SettingModelValidator<GoogleRecaptchaModel, GoogleRecaptchaSettings>
@@ -41,10 +41,9 @@ namespace Smartstore.Admin.Models.Security
         public GoogleRecaptchaSettingsValidator()
         {
             RuleFor(x => x.Version).NotEmpty();
-            RuleFor(x => x.Theme).NotEmpty();
             RuleFor(x => x.Size).NotEmpty();
-            RuleFor(x => x.SiteKey).Length(40);
-            RuleFor(x => x.SecretKey).Length(40);
+            RuleFor(x => x.SiteKey).NotEmpty().Length(40);
+            RuleFor(x => x.SecretKey).NotEmpty().Length(40);
         }
     }
 }

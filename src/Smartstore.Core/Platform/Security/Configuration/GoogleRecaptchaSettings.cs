@@ -20,10 +20,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         public string Version { get; set; } = "v2";
 
-        /// <summary>
-        /// dark | light
-        /// </summary>
-        public string Theme { get; set; } = "light";
+        public bool UseDarkTheme { get; set; }
 
         /// <summary>
         /// normal | compact | invisible

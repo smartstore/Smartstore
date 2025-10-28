@@ -195,6 +195,16 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*CaptchaShowOnTargets")]
             public string[] ShowOn { get; set; } = [];
+
+            public List<CaptchaProviderModel> AvailableProviders { get; set; } = new();
+        }
+
+        public class CaptchaProviderModel
+        {
+            public string SystemName { get; set; }
+            public string FriendlyName { get; set; }
+            public bool IsConfigured { get; set; }
+            public string ConfigureUrl { get; set; }
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]

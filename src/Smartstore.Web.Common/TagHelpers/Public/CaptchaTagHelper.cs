@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Engine.Modularity;
-
 namespace Smartstore.Web.TagHelpers.Public
 {
     [OutputElementHint("div")]
@@ -13,20 +11,17 @@ namespace Smartstore.Web.TagHelpers.Public
     {
         const string EnabledAttributeName = "sm-enabled";
 
-        private readonly CaptchaSettings _captchaSettings;
         private readonly IWorkContext _workContext;
-        private readonly IProviderManager _providerManager;
+        private readonly ICaptchaManager _captchaManager;
         private readonly Localizer T;
 
         public CaptchaTagHelper(
-            CaptchaSettings captchaSettings, 
             IWorkContext workContext,
-            IProviderManager providerManager,
+            ICaptchaManager captchaManager,
             Localizer localizer)
         {
-            _captchaSettings = captchaSettings;
             _workContext = workContext;
-            _providerManager = providerManager;
+            _captchaManager = captchaManager;
             T = localizer;
         }
 
@@ -44,21 +39,14 @@ namespace Smartstore.Web.TagHelpers.Public
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (!Enabled || !_captchaSettings.Enabled || _captchaSettings.ShowOn.Length == 0)
-            {
-                output.SuppressOutput();
-                return;
-            }
-
-            var captchaProvider = _providerManager.GetProvider<ICaptchaProvider>(_captchaSettings.ProviderSystemName)?.Value;
-            if (captchaProvider == null || !captchaProvider.IsConfigured)
+            if (!Enabled || !_captchaManager.IsConfigured(out var captchaProvider))
             {
                 output.SuppressOutput();
                 return;
             }
 
             var captchaContext = new CaptchaContext(ViewContext.HttpContext, _workContext.WorkingLanguage);
-            var widget = await captchaProvider.CreateWidgetAsync(captchaContext);
+            var widget = await captchaProvider.Value.CreateWidgetAsync(captchaContext);
             if (widget == null)
             {
                 output.SuppressOutput();
