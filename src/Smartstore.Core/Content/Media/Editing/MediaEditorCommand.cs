@@ -36,6 +36,11 @@ namespace Smartstore.Core.Content.Media.Editing
         public string? IconClass { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the icon library used for rendering icons (fa or bi). Default: fa.
+        /// </summary>
+        public string IconLibrary { get; set; } = "fa";
+
+        /// <summary>
         /// Gets or sets the URL for the command icon.
         /// </summary>
         public string? IconUrl { get; set; }

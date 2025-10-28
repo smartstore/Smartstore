@@ -34,16 +34,21 @@ namespace Smartstore.Core.Content.Media.Editing
         Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(bool forToolbar);
     }
 
+    /// <inheritdoc />
     public abstract class MediaEditorBase : IMediaEditor
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        /// <inheritdoc />
         public abstract string Name { get; }
 
+        /// <inheritdoc />
         public virtual int Order { get; } = 0;
 
+        /// <inheritdoc />
         public abstract bool IsActive();
 
+        /// <inheritdoc />
         public abstract Task<IEnumerable<MediaEditorCommand>> GetCommandsAsync(bool forToolbar);
     }
 }
