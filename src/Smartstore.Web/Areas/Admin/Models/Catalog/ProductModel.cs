@@ -709,8 +709,10 @@ namespace Smartstore.Admin.Models.Catalog
 
     public partial class ProductVariantAttributeValueModelValidator : SmartValidator<ProductModel.ProductVariantAttributeValueModel>
     {
-        public ProductVariantAttributeValueModelValidator()
+        public ProductVariantAttributeValueModelValidator(SmartDbContext db)
         {
+            ApplyEntityRules<ProductVariantAttributeValue>(db);
+
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
         }

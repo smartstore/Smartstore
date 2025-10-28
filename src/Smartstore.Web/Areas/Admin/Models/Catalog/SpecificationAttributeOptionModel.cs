@@ -51,11 +51,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string Alias { get; set; }
     }
 
-    public partial class SpecificationAttributeOptionValidator : AbstractValidator<SpecificationAttributeOptionModel>
+    public partial class SpecificationAttributeOptionValidator : SmartValidator<SpecificationAttributeOptionModel>
     {
-        public SpecificationAttributeOptionValidator()
+        public SpecificationAttributeOptionValidator(SmartDbContext db)
         {
-            RuleFor(x => x.Name).NotEmpty();
+            ApplyEntityRules<SpecificationAttributeOption>(db);
         }
     }
 

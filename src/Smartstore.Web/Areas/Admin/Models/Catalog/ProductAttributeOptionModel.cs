@@ -79,10 +79,12 @@ namespace Smartstore.Admin.Models.Catalog
         public string Alias { get; set; }
     }
 
-    public partial class ProductAttributeOptionModelValidator : AbstractValidator<ProductAttributeOptionModel>
+    public partial class ProductAttributeOptionModelValidator : SmartValidator<ProductAttributeOptionModel>
     {
-        public ProductAttributeOptionModelValidator()
+        public ProductAttributeOptionModelValidator(SmartDbContext db)
         {
+            ApplyEntityRules<ProductAttributeOption>(db);
+
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Quantity).GreaterThan(0).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
         }
