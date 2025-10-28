@@ -264,43 +264,12 @@ namespace Smartstore.Core.AI
             chat.AddMessages(answers);
         }
 
-        // TODO: (mg) Remove after testing the new overload
-        ///// <summary>
-        ///// Creates a temporary image file from <paramref name="imageData"/> in <paramref name="tempDirectory"/>.
-        ///// </summary>
-        ///// <param name="tempDirectory">Directory where to create the temp file.</param>
-        ///// <param name="mimeType">Mime type of the. "png" if <c>null</c>.</param>
-        ///// <returns>Temp file or <c>null</c> if the file cannot be created.</returns>
-        //protected virtual async Task<IFile> CreateTempImageFileAsync(
-        //    byte[] imageData, 
-        //    IDirectory tempDirectory, 
-        //    string mimeType = null,
-        //    CancellationToken cancelToken = default)
-        //{
-        //    Guard.NotNull(tempDirectory);
-
-        //    if (!imageData.IsNullOrEmpty())
-        //    {
-        //        var extension = MimeTypes.MapMimeTypeToExtension(mimeType).OrDefault("png");
-        //        var fileName = Path.GetRandomFileName() + '.' + extension;
-        //        var path = PathUtility.Join(tempDirectory.SubPath, fileName);
-
-        //        using var stream = new MemoryStream(imageData);
-        //        var file = await tempDirectory.FileSystem.CreateFileAsync(path, stream, true, cancelToken);
-        //        if (file?.Exists == true)
-        //        {
-        //            return file;
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
         /// <summary>
         /// Creates a temporary image file from <paramref name="imageData"/> in <paramref name="tempDirectory"/>.
         /// </summary>
+        /// <param name="imageData">AI image data.</param>
         /// <param name="tempDirectory">Directory where to create the temp file.</param>
-        /// <param name="mimeType">Mime type of the. "png" if <c>null</c>.</param>
+        /// <param name="mimeType">Mime type of the AI image. "png" if <c>null</c>.</param>
         /// <returns>Temp file or <c>null</c> if the file cannot be created.</returns>
         protected virtual async Task<IFile> CreateTempImageFileAsync(
             BinaryData imageData,
