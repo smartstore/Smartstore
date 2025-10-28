@@ -34,7 +34,12 @@
                 return;
             }
 
-            let params = {
+            const sourceFileIds = _.map(window.mediaApp.selectedFiles.filter(f => f.type === 'image'), (f) => {
+                return f.id;
+            });
+
+            const params = {
+                sourceFileIds
             };
 
             openDialog(el, params, false);
@@ -192,10 +197,19 @@
     }
 
     function getDialogUrl(baseUrl, params) {
-        let queryString = _.map(params, (value, key) => {
-            return encodeURIComponent(key) + "=" + encodeURIComponent(value);
-        }).join("&");
+        const qs = [];
 
-        return baseUrl + (baseUrl.includes('?') ? '&' : '?') + queryString;
+        $.each(params, function (key, value) {
+            if (Array.isArray(value)) {
+                value.forEach(v => {
+                    qs.push(`${encodeURIComponent(key)}=${encodeURIComponent(v)}`);
+                });
+            }
+            else {
+                qs.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+            }
+        });
+
+        return baseUrl + (baseUrl.includes('?') ? '&' : '?') + qs.join('&');
     }
 })(jQuery, this, document);
