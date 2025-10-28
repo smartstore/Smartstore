@@ -213,6 +213,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Anzahl der Objekte, die der Anzeigegruppe zugeordnet sind.");
 
             builder.AddOrUpdate("Common.DontShowDialogAgain", "Do not show this dialog again", "Diesen Dialog nicht mehr anzeigen");
+
+            builder.AddOrUpdate("Admin.AI.EditImage", "Edit image", "Bild bearbeiten");
         }
     }
 }

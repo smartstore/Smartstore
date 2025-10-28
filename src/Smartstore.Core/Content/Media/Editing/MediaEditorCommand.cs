@@ -59,6 +59,12 @@ namespace Smartstore.Core.Content.Media.Editing
         public string[] SupportedFileExtensions { get; set; } = [];
 
         /// <summary>
+        /// Gets or sets a value indicating whether this command supports execution when multiple items are selected.
+        /// If <c>false</c> (default), the command is disabled when more than one file is selected.
+        /// </summary>
+        public bool SupportsMultiSelection { get; set; }
+
+        /// <summary>
         /// Gets or sets HTML attributes.
         /// </summary>
         public IDictionary<string, object?>? HtmlAttributes { get; set; }

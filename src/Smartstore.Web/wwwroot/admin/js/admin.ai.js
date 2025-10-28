@@ -26,6 +26,20 @@
             openDialog(tool, params, true);
         });
 
+        $(document).on('click', '.ai-edit-image', (e) => {
+            e.preventDefault();
+
+            const el = $(e.target).closest('.ai-edit-image');
+            if (el.length === 0) {
+                return;
+            }
+
+            let params = {
+            };
+
+            openDialog(el, params, false);
+        });
+
         // Text creation
         $(document).on('click', '.ai-text-composer', function (e) {
             e.preventDefault();
