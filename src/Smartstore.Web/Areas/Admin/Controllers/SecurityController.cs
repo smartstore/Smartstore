@@ -51,24 +51,39 @@ namespace Smartstore.Admin.Controllers
         }
 
         [LoadSetting]
-        public IActionResult GoogleRecaptcha(GoogleRecaptchaSettings settings)
+        public IActionResult GoogleRecaptcha(GoogleRecaptchaSettings settings, string btnId)
         {
             var model = MiniMapper.Map<GoogleRecaptchaSettings, GoogleRecaptchaModel>(settings);
+            ViewBag.BtnId = btnId;
             return View(model);
         }
 
-        [HttpPost, SaveSetting]
-        public IActionResult GoogleRecaptcha(GoogleRecaptchaModel model, GoogleRecaptchaSettings settings)
+        [SaveSetting]
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        public IActionResult GoogleRecaptcha(GoogleRecaptchaModel model, GoogleRecaptchaSettings settings, string btnId, bool continueEditing)
         {
+            ViewBag.BtnId = btnId;
+
             if (!ModelState.IsValid)
             {
-                return GoogleRecaptcha(settings);
+                return GoogleRecaptcha(settings, btnId);
             }
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            return RedirectToAction(nameof(GoogleRecaptcha));
+            ViewBag.RefreshPage = true;
+            ViewBag.CloseWindow = !continueEditing;
+
+            return View(model);
+        }
+
+        public IActionResult CheckCaptchaConfigured(string systemName)
+        {
+            var captchaManager = Services.Resolve<ICaptchaManager>();
+            var configured = captchaManager.GetProviderBySystemName(systemName)?.Value?.IsConfigured == true;
+
+            return Json(new { configured });
         }
     }
 }

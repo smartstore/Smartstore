@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Security
+@using Smartstore.Core.Security
 
 @model GoogleRecaptchaModel
 
@@ -7,9 +8,10 @@
     Layout = "_AdminPopupLayout";
 }
 
-<form asp-action="GoogleRecaptcha">
+<form asp-action="GoogleRecaptcha" asp-route-btnId="@ViewBag.BtnId">
     <div class="section-header">
         <div class="title">
+            <img src="https://www.gstatic.com/images/icons/material/product/2x/recaptcha_48dp.png" />
             @ViewBag.Title
         </div>
         <div class="options">
@@ -92,7 +94,7 @@
                 <smart-label asp-for="WidgetUrl" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="WidgetUrl"></setting-editor>
+                <input asp-for="WidgetUrl" placeholder="@GoogleRecaptchaSettings.DefaultWidgetUrl" />
                 <span asp-validation-for="WidgetUrl"></span>
             </div>
         </div>
@@ -101,7 +103,7 @@
                 <smart-label asp-for="VerifyUrl" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="VerifyUrl"></setting-editor>
+                <input asp-for="VerifyUrl" placeholder="@GoogleRecaptchaSettings.DefaultVerifyUrl" />
                 <span asp-validation-for="VerifyUrl"></span>
             </div>
         </div>

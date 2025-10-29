@@ -215,6 +215,9 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.DontShowDialogAgain", "Do not show this dialog again", "Diesen Dialog nicht mehr anzeigen");
 
             builder.AddOrUpdate("Admin.AI.EditImage", "Edit image", "Bild bearbeiten");
+
+            builder.AddOrUpdate("Admin.Common.Configured", "Configured", "Konfiguriert");
+            builder.AddOrUpdate("Admin.Common.NotConfigured", "Not configured", "Nicht konfiguriert");
         }
     }
 }

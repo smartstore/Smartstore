@@ -7,9 +7,9 @@ namespace Smartstore.Core.Security
         public const string DefaultWidgetUrl = "https://www.google.com/recaptcha/api.js";
         public const string DefaultVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
 
-        public string WidgetUrl { get; set; } = DefaultWidgetUrl;
+        public string WidgetUrl { get; set; }
 
-        public string VerifyUrl { get; set; } = DefaultVerifyUrl;
+        public string VerifyUrl { get; set; }
 
         public string SiteKey { get; set; }
 

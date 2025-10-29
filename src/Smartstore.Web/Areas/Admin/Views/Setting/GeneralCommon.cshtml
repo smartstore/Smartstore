@@ -437,7 +437,7 @@
                         <div class="adminData">
                             <div class="row g-2">
                                 <div class="col">
-                                    <select asp-for="CaptchaSettings.ProviderSystemName">
+                                    <select asp-for="CaptchaSettings.ProviderSystemName" class="noskin">
                                         @foreach (var cpm in Model.CaptchaSettings.AvailableProviders)
                                         {
                                             <option value="@cpm.SystemName"
@@ -450,8 +450,8 @@
                                     </select>
                                 </div>
                                 <div class="col-auto">
-                                    <button type="button" id="btn-configure-captcha" class="btn btn-secondary" 
-                                       onclick="javascript:openPopup('@(Url.Action("GoogleRecaptcha", "Security"))'); return false;">
+                                    <button type="button" class="d-none" id="btn-refresh-captcha"></button>
+                                    <button type="button" id="btn-configure-captcha" class="btn btn-secondary">
                                         <bootstrap-icon name="gear" />
                                         <span>@T("Admin.Common.Configure")...</span>
                                     </button>
@@ -1075,7 +1075,53 @@
 </form>
 
 <script sm-target-zone="scripts" data-origin="settings-general-common">
-    $(function() {
+    const formatCaptchaProviderOption = (item, select) => {
+        if (!item.element) return item.text;
+
+        const isConfigured = toBool(item.element.getAttribute('data-configured'));
+        const badgeClass = isConfigured ? 'badge-success' : 'badge-warning badge-outline';
+        const label = isConfigured ? @T("Admin.Common.Configured").JsValue : @T("Admin.Common.NotConfigured").JsValue;
+
+        return $(`
+            <div class="hstack justify-content-between w-100">
+                <span>${item.text}</span>
+                <span class="badge badge-pill ${badgeClass}">${label}</span>
+            </div>`);
+    };
+
+    $(function () {
+        const selectCaptchaProvider = $('#@Html.IdFor(model => model.CaptchaSettings.ProviderSystemName)');
+
+        $(selectCaptchaProvider).selectWrapper({
+            minimumResultsForSearch: 16,
+            templateResult: formatCaptchaProviderOption,
+            templateSelection: formatCaptchaProviderOption
+        });
+
+        // Open CAPTCHA configuration dialog
+        $('#btn-configure-captcha').on('click', (e) => {
+            e.preventDefault();
+            const selectCaptchaProvider = $('#@Html.IdFor(model => model.CaptchaSettings.ProviderSystemName)');
+            const configureUrl = selectCaptchaProvider.find('option[selected]').data('configure-url');
+            if (configureUrl) {
+                openPopup(modifyUrl(configureUrl, 'btnId', 'btn-refresh-captcha'));
+            }
+        });
+
+        $('#btn-refresh-captcha').on('click', (e) => {
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("CheckCaptchaConfigured", "Security")',
+                dataType: 'json',
+                data: { systemName: selectCaptchaProvider.val() },
+                success: function (data) {
+                    selectCaptchaProvider.find('option[selected]').data('configured', data.configured);
+                    selectCaptchaProvider.trigger('change');
+                }
+            });
+        });
+
 		// Test creation of SEO names.
 		$('#TestSeoNameCreationButton').click(function () {
             $(this).closest('form').ajax({

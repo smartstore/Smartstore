@@ -19,6 +19,14 @@ namespace Smartstore.Core.Security
         Provider<ICaptchaProvider>? GetCurrentProvider();
 
         /// <summary>
+        /// Retrieves a CAPTCHA provider based on its system name.
+        /// </summary>
+        /// <param name="systemName">The unique system name of the CAPTCHA provider to retrieve. Cannot be null or empty.</param>
+        /// <returns>A <see cref="Provider{ICaptchaProvider}"/> instance representing the CAPTCHA provider if found; otherwise,
+        /// <see langword="null"/>.</returns>
+        Provider<ICaptchaProvider>? GetProviderBySystemName(string systemName);
+
+        /// <summary>
         /// Retrieves a collection of available CAPTCHA providers.
         /// </summary>
         /// <remarks>Each provider in the collection implements the <see cref="ICaptchaProvider"/>

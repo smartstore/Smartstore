@@ -17,6 +17,9 @@ namespace Smartstore.Core.Security
         public Provider<ICaptchaProvider> GetCurrentProvider()
             => _providerManager.GetProvider<ICaptchaProvider>(_captchaSettings.ProviderSystemName);
 
+        public Provider<ICaptchaProvider> GetProviderBySystemName(string systemName)
+            => _providerManager.GetProvider<ICaptchaProvider>(systemName);
+
         public IEnumerable<Provider<ICaptchaProvider>> ListProviders()
             => _providerManager.GetAllProviders<ICaptchaProvider>().OrderBy(x => x.Metadata.DisplayOrder);
 
