@@ -1,4 +1,5 @@
-﻿using Smartstore.Admin.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Admin.Models;
 using Smartstore.Admin.Models.Security;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
@@ -54,7 +55,7 @@ namespace Smartstore.Admin.Controllers
         public IActionResult GoogleRecaptcha(GoogleRecaptchaSettings settings, string btnId)
         {
             var model = MiniMapper.Map<GoogleRecaptchaSettings, GoogleRecaptchaModel>(settings);
-            ViewBag.BtnId = btnId;
+            PrepareGoogleRecaptchaModel(model, btnId);
             return View(model);
         }
 
@@ -62,20 +63,38 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         public IActionResult GoogleRecaptcha(GoogleRecaptchaModel model, GoogleRecaptchaSettings settings, string btnId, bool continueEditing)
         {
-            ViewBag.BtnId = btnId;
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return GoogleRecaptcha(settings, btnId);
+                ModelState.Clear();
+
+                MiniMapper.Map(model, settings);
+
+                ViewBag.RefreshPage = true;
+                ViewBag.CloseWindow = !continueEditing;
             }
 
-            ModelState.Clear();
-            MiniMapper.Map(model, settings);
-
-            ViewBag.RefreshPage = true;
-            ViewBag.CloseWindow = !continueEditing;
+            PrepareGoogleRecaptchaModel(model, btnId);
 
             return View(model);
+        }
+
+        private void PrepareGoogleRecaptchaModel(GoogleRecaptchaModel model, string btnId)
+        {
+            ViewBag.BtnId = btnId;
+
+            ViewBag.AvailableVersions = new SelectList(new List<SelectListItem>
+            {
+                new() { Value = "v2", Text = "v2" },
+                new() { Value = "v3", Text = "v3" }
+            }, "Value", "Text", model.Version);
+
+            var resPrefix = "Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.Size.";
+            ViewBag.AvailableSizes = new SelectList(new List<SelectListItem>
+            {
+                new() { Value = "normal", Text = T(resPrefix + "Normal") },
+                new() { Value = "compact", Text = T(resPrefix + "Compact") },
+                new() { Value = "invisible", Text = T(resPrefix + "Invisible") }
+            }, "Value", "Text", model.Size);
         }
 
         public IActionResult CheckCaptchaConfigured(string systemName)

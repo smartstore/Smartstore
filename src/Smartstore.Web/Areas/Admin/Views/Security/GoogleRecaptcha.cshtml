@@ -11,7 +11,7 @@
 <form asp-action="GoogleRecaptcha" asp-route-btnId="@ViewBag.BtnId">
     <div class="section-header">
         <div class="title">
-            <img src="https://www.gstatic.com/images/icons/material/product/2x/recaptcha_48dp.png" />
+            <img src="https://www.gstatic.com/images/icons/material/product/2x/recaptcha_48dp.png" height="32" />
             @ViewBag.Title
         </div>
         <div class="options">
@@ -58,7 +58,9 @@
                 <smart-label asp-for="Version" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="Version"></setting-editor>
+                <setting-editor asp-for="Version">
+                    <select asp-for="Version" asp-items="ViewBag.AvailableVersions"></select>
+                </setting-editor>
                 <span asp-validation-for="Version"></span>
             </div>
         </div>
@@ -75,7 +77,9 @@
                 <smart-label asp-for="Size" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="Size"></setting-editor>
+                <setting-editor asp-for="Size">
+                    <select asp-for="Size" asp-items="ViewBag.AvailableSizes"></select>
+                </setting-editor>
                 <span asp-validation-for="Size"></span>
             </div>
         </div>
