@@ -136,10 +136,10 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (filter is IRangeSearchFilter rf)
                 {
-                    // Has any category.
                     if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                     {
-                        return query.Where(x => x.ProductCategories.Count > 0);
+                        // Has any category.
+                        return query.Where(p => p.ProductCategories.Any(pc => !pc.Category.Deleted));
                     }
                 }
                 else
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Catalog.Search
                             if (categoryIds.Length == 1 && context.CategoryId == 0)
                             {
                                 // Has no category.
-                                return query.Where(x => x.ProductCategories.Count == 0);
+                                return query.Where(p => !p.ProductCategories.Any(pc => !pc.Category.Deleted));
                             }
                             else
                             {
@@ -176,10 +176,10 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (filter is IRangeSearchFilter rf)
                 {
-                    // Has any manufacturer.
                     if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                     {
-                        return query.Where(x => x.ProductManufacturers.Count > 0);
+                        // Has any manufacturer.
+                        return query.Where(p => p.ProductManufacturers.Any(pm => !pm.Manufacturer.Deleted));
                     }
                 }
                 else
@@ -200,7 +200,7 @@ namespace Smartstore.Core.Catalog.Search
                             if (manufacturerIds.Length == 1 && context.ManufacturerId == 0)
                             {
                                 // Has no manufacturer.
-                                return query.Where(x => x.ProductManufacturers.Count == 0);
+                                return query.Where(p => !p.ProductManufacturers.Any(pm => !pm.Manufacturer.Deleted));
                             }
                             else
                             {
