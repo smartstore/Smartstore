@@ -174,8 +174,36 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.PostListColumns.Three", "Three columns", "3 Spalten");
 
             builder.Delete(
+                "Admin.ContentManagement.Blog.BlogPosts.Fields",
                 "Admin.Configuration.Settings.Blog.PostsPageSize",
-                "Admin.Configuration.Settings.Blog.PostsPageSize.Hint");
+                "Admin.Configuration.Settings.Blog.PostsPageSize.Hint",
+                "Admin.ContentManagement.Blog.Heading.Display",
+                "Admin.ContentManagement.Blog.Heading.Publish",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Picture",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Picture.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewDisplayType",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewDisplayType.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewPicture",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewPicture.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.SectionBg",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.SectionBg.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.DisplayTagsInPreview",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.DisplayTagsInPreview.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Title",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Title.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Intro",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Intro.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Body",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Body.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Tags",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Tags.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.AllowComments",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.AllowComments.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.StartDate",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.StartDate.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.EndDate",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.EndDate.Hint",
+                "Admin.ContentManagement.Blog.BlogPosts.Fields.Comments");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.PostsPageSize", "Posts per page", "Beiträge pro Seite");
 
