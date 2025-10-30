@@ -361,46 +361,6 @@
         };
     };
 
-    window.renderGoogleRecaptcha = function (containerId, sitekey, invisible) {
-        var frm = $('#' + containerId).closest('form');
-
-        if (frm.length === 0)
-            return;
-
-        var holderId = grecaptcha.render(containerId, {
-            sitekey: sitekey,
-            size: invisible ? 'invisible' : undefined,
-            badge: 'bottomleft',
-            callback: function (token) {
-                if (invisible) {
-                    if (frm.data('ajax')) {
-                        frm.find("#g-recaptcha-response").val(token);
-                        frm.trigger('recaptchasuccess');
-                    }
-                    else if (frm) {
-                        frm[0].submit();
-                    }
-                }
-            }
-        });
-
-        if (invisible) {
-            // if form has attr data-ajax
-            if (frm.data('ajax')) {
-                frm.on('ajaxsubmit', function (e) {
-                    grecaptcha.execute(holderId);
-                });
-            }
-
-            frm.on('submit', function (e) {
-                if ($.validator === undefined || frm.valid() == true) {
-                    e.preventDefault();
-                    grecaptcha.execute(holderId);
-                }
-            });
-        }
-    };
-
     window.rememberFormFields = function (contextId, storageId) {
         var context = document.getElementById(contextId);
         var rememberFields = context.querySelectorAll('input.remember, select.remember, textarea.remember');

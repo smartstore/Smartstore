@@ -327,3 +327,11 @@ fieldset.content-group {
 	outline: 1px solid $input-focus-border-color;
 	outline-offset: -2px;
 }
+
+
+// Google reCAPTCHA
+// ------------------------------------------------------
+
+.grecaptcha-badge-hidden .grecaptcha-badge {
+    display: none !important;
+}

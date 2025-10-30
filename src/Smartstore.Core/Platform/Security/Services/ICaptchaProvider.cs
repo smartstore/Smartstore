@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -21,6 +22,11 @@ namespace Smartstore.Core.Security
         /// Gets a value indicating whether the CAPTCHA widget is invisible.
         /// </summary>
         bool IsInvisible { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the CAPTCHA is non-interactive (e.g.: reCAPTCHA v2 invisible OR reCAPTCHA v3).
+        /// </summary>
+        bool IsNonInteractive { get; }
 
         /// <summary>
         /// Creates the widget instance that displays the CAPTCHA challenge.
@@ -45,6 +51,12 @@ namespace Smartstore.Core.Security
     public sealed class CaptchaContext(HttpContext httpContext, Language? language = null)
     {
         public HttpContext HttpContext { get; set; } = httpContext;
+
+        public IPageAssetBuilder AssetBuilder
+            => HttpContext.RequestServices.GetRequiredService<IPageAssetBuilder>();
+
+        public IUrlHelper Url
+            => HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
 
         public Language? Language { get; set; } = language;
     }

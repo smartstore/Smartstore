@@ -64,15 +64,7 @@
                 <span asp-validation-for="Version"></span>
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="UseDarkTheme" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="UseDarkTheme"></setting-editor>
-            </div>
-        </div>
-        <div class="adminRow">
+        <div class="adminRow d-none" data-version="v2">
             <div class="adminTitle">
                 <smart-label asp-for="Size" />
             </div>
@@ -83,7 +75,26 @@
                 <span asp-validation-for="Size"></span>
             </div>
         </div>
-        <div class="adminRow">
+        <div class="adminRow d-none" data-version="v2" id="pnl-use-dark-theme">
+            <div class="adminTitle">
+                <smart-label asp-for="UseDarkTheme" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseDarkTheme"></setting-editor>
+            </div>
+        </div>
+        <div class="adminRow d-none" data-version="v2" id="pnl-badge-position">
+            <div class="adminTitle">
+                <smart-label asp-for="BadgePosition" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="BadgePosition">
+                    <select asp-for="BadgePosition" asp-items="ViewBag.AvailableBadgePositions"></select>
+                </setting-editor>
+                <span asp-validation-for="BadgePosition"></span>
+            </div>
+        </div>
+        <div class="adminRow d-none" data-version="v3">
             <div class="adminTitle">
                 <smart-label asp-for="ScoreThreshold" />
             </div>
@@ -92,6 +103,8 @@
                 <span asp-validation-for="ScoreThreshold"></span>
             </div>
         </div>
+
+        <hr />
 
         <div class="adminRow">
             <div class="adminTitle">
@@ -113,3 +126,21 @@
         </div>
     </div>
 </form>
+
+<script sm-target-zone="scripts" data-origin="GoogleRecaptcha">
+    $(function () {
+        // Switch Version
+        $('#@(Html.IdFor(x => x.Version))').on('change', function () {
+            $('.adminRow[data-version="v2"]').toggleClass('d-none', $(this).val() == 'v3');
+            $('.adminRow[data-version="v3"]').toggleClass('d-none', $(this).val() == 'v2');
+            $('#@(Html.IdFor(x => x.Size))').trigger('change');
+        }).trigger('change');
+
+        // Show BadgePosition if v2/Size=invisible
+        $('#@(Html.IdFor(x => x.Size))').on('change', function () {
+            var isV3 = $('#@(Html.IdFor(x => x.Version))').val() == 'v3';
+            $('#pnl-use-dark-theme').toggleClass('d-none', isV3 || $(this).val() == 'invisible');
+            $('#pnl-badge-position').toggleClass('d-none', isV3 || $(this).val() != 'invisible');
+		}).trigger('change');
+    });
+</script>

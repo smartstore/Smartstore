@@ -6,10 +6,19 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Core.Security
 {
     /// <summary>
-    /// Checks whether captcha is valid and - if not - outputs a notification.
+    /// Attribute that enables provider-agnostic CAPTCHA validation via the ValidateCaptchaFilter.
+    /// Only carries the logical "target name" to decide whether CAPTCHA is active for the current action.
     /// </summary>
     public sealed class ValidateCaptchaAttribute : TypeFilterAttribute
     {
+        /// <summary>
+        /// Creates a new attribute instance for the given logical target.
+        /// Example targets could be "PasswordRecovery", "ContactUs", etc.
+        /// </summary>
+        /// <param name="targetName">
+        /// Logical target name used by ICaptchaManager to determine whether CAPTCHA is active.
+        /// Pass an empty string to always validate when a provider is configured.
+        /// </param>
         public ValidateCaptchaAttribute(string targetName)
             : base(typeof(ValidateCaptchaFilter))
         {
@@ -18,14 +27,22 @@ namespace Smartstore.Core.Security
         }
 
         /// <summary>
-        /// Gets or sets the name of the CAPTCHA target that indicates 
-        /// whether the CAPTCHA is displayed ("PasswordRecovery" for example).
-        /// Avoids unnecessary validation requests and "invalid-input-response" error if the CAPTCHA is not active at all.
+        /// Gets or sets the logical CAPTCHA target name that indicates whether CAPTCHA is active
+        /// for the current action. This avoids unnecessary validation when CAPTCHA is disabled
+        /// for the given target. Use empty string to always validate.
         /// <see cref="CaptchaSettings.Targets.All"/> contains all valid targets.
         /// </summary>
         public string CaptchaTargetName { get; set; }
     }
 
+    /// <summary>
+    /// MVC action filter that validates CAPTCHA in a provider-agnostic way.
+    /// - Only runs when: request has a form, target is active, and a provider is configured.
+    /// - Pushes two values into ActionArguments:
+    ///     "captchaValid" : bool  -> indicates whether validation succeeded
+    ///     "captchaError" : string? -> localized message suitable for UI (null when valid or not configured)
+    /// - Logs warnings/errors based on validation messages returned by the provider.
+    /// </summary>
     internal class ValidateCaptchaFilter : IAsyncActionFilter
     {
         private readonly ValidateCaptchaAttribute _attribute;
@@ -50,7 +67,6 @@ namespace Smartstore.Core.Security
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var valid = false;
-
             Provider<ICaptchaProvider> captchaProvider = null;
 
             try
@@ -93,11 +109,13 @@ namespace Smartstore.Core.Security
                 Logger.ErrorsAll(ex);
             }
 
-            // This will push the result value into a parameter in our action method.
+            // Expose validation outcome to the action
             context.ActionArguments["captchaValid"] = valid;
 
+            // Provide a user-facing error string only when a provider is configured but validation failed
+            var nonInteractive = (captchaProvider?.Value?.IsNonInteractive == true);
             context.ActionArguments["captchaError"] = !valid && captchaProvider?.Value.IsConfigured == true
-                ? T(captchaProvider?.Value.IsInvisible == true ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
+                ? T(nonInteractive ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
                 : null;
 
             await next();

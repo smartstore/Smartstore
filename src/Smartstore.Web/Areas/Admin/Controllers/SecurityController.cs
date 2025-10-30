@@ -95,6 +95,15 @@ namespace Smartstore.Admin.Controllers
                 new() { Value = "compact", Text = T(resPrefix + "Compact") },
                 new() { Value = "invisible", Text = T(resPrefix + "Invisible") }
             }, "Value", "Text", model.Size);
+
+            resPrefix = "Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.BadgePosition.";
+            ViewBag.AvailableBadgePositions = new SelectList(new List<SelectListItem>
+            {
+                new() { Value = "bottomleft", Text = T(resPrefix + "BottomLeft") },
+                new() { Value = "bottomright", Text = T(resPrefix + "BottomRight") },
+                new() { Value = "inline", Text = T(resPrefix + "Inline") },
+                new() { Value = "hide", Text = T(resPrefix + "Hide") },
+            }, "Value", "Text", model.BadgePosition);
         }
 
         public IActionResult CheckCaptchaConfigured(string systemName)

@@ -60,7 +60,12 @@ namespace Smartstore.Core.Migrations
                 resPrefix + "reCaptchaPrivateKey.Hint",
                 resPrefix + "UseInvisibleReCaptcha",
                 resPrefix + "UseInvisibleReCaptcha.Hint",
-                resPrefix + "CaptchaEnabledNoKeys");
+                resPrefix + "CaptchaEnabledNoKeys",
+                "Common.ReCaptchaCheckFailed");
+
+            builder.AddOrUpdate("Common.CaptchaCheckFailed",
+                "A CAPTCHA check failed with the error {0}.",
+                "Eine CAPTCHA-Prüfung ist fehlgeschlagen. Grund: {0}.");
 
             resPrefix = "Admin.Configuration.Settings.GeneralCommon.CaptchaShowOnTargets.Option.";
             builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.Login, "Login", "Login");
@@ -76,6 +81,10 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate(resPrefix + CaptchaSettings.Targets.ProductReview, "Product review", "Produkt-Bewertung");
 
             // Fix Captcha --> CAPTCHA
+            builder.AddOrUpdate("Common.WrongInvisibleCaptcha",
+                "CAPTCHA failed. Please try again.",
+                "CAPTCHA ist fehlgeschlagen. Bitte versuchen Sie es erneut.");
+
             builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabled",
                 "CAPTCHA enabled",
                 "CAPTCHA aktivieren",
@@ -126,13 +135,25 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate(resPrefix + "Version", "Version", "Version");
 
             builder.AddOrUpdate(resPrefix + "UseDarkTheme", "Use dark theme", "Dunkles Design verwenden");
-            builder.AddOrUpdate(resPrefix + "Theme.Light", "Light", "Hell");
-            builder.AddOrUpdate(resPrefix + "Theme.Dark", "Dark", "Dunkel");
 
             builder.AddOrUpdate(resPrefix + "Size", "Size", "Größe");
             builder.AddOrUpdate(resPrefix + "Size.Normal", "Normal", "Normal");
             builder.AddOrUpdate(resPrefix + "Size.Compact", "Compact", "Kompakt");
             builder.AddOrUpdate(resPrefix + "Size.Invisible", "Invisible", "Unsichtbar");
+
+            builder.AddOrUpdate(resPrefix + "BadgePosition", 
+                "Badge position", 
+                "Badge Position",
+                "When the badge is hidden, a notice with links to Google's privacy policy and terms of service will be displayed in plain sight.",
+                "Wenn das Badge verborgen wird, wird in Sichtweite ein Hinweis mit Links zur Google-Datenschutzrichtlinie und zu den Nutzungsbedingungen angezeigt.");
+            builder.AddOrUpdate(resPrefix + "BadgePosition.BottomLeft", "Floating at bottom left", "Unten links schwebend");
+            builder.AddOrUpdate(resPrefix + "BadgePosition.BottomRight", "Floating at bottom right", "Unten rechts schwebend");
+            builder.AddOrUpdate(resPrefix + "BadgePosition.Inline", "Inline within the form flow", "Inline innerhalb des Formulars");
+            builder.AddOrUpdate(resPrefix + "BadgePosition.Hide", "Hide (but show disclaimer)", "Ausblenden (aber Richtlinien anzeigen)");
+
+            builder.AddOrUpdate(resPrefix + "HiddenBadgeLegalNotice",
+                "<div class=\"grecaptcha-disclaimer alert alert-info\">This site is protected by <strong>reCAPTCHA</strong> and the Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Terms of Service</a> apply.</div>",
+                "<div class=\"grecaptcha-disclaimer alert alert-info\">Diese Website ist durch  <strong>reCAPTCHA</strong> und die Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Datenschutzrichtlinie</a> und den <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Nutzungsbedingungen</a> von Google geschützt.</div>");
         }
 
         private async Task MigrateCaptchaSettings(SmartDbContext db, CancellationToken cancelToken = default)

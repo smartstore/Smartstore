@@ -22,6 +22,9 @@ namespace Smartstore.Admin.Models.Security
         [LocalizedDisplay("*Size")]
         public string Size { get; set; }
 
+        [LocalizedDisplay("*BadgePosition")]
+        public string BadgePosition { get; set; }
+
         [LocalizedDisplay("*ScoreThreshold")]
         [UIHint("Range"), Range(0, 1)]
         [AdditionalMetadata("min", 0)]

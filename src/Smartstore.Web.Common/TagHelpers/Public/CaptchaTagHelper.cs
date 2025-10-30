@@ -3,8 +3,15 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+
 namespace Smartstore.Web.TagHelpers.Public
 {
+    /// <summary>
+    /// TagHelper that renders a provider-agnostic CAPTCHA container.
+    /// - Wraps the widget HTML emitted by the active ICaptchaProvider.
+    /// - Adds normalized attributes and ARIA for accessibility.
+    /// - Does not contain any provider-specific logic.
+    /// </summary>
     [OutputElementHint("div")]
     [HtmlTargetElement("captcha", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class CaptchaTagHelper : TagHelper
@@ -26,9 +33,8 @@ namespace Smartstore.Web.TagHelpers.Public
         }
 
         /// <summary>
-        /// Whether the captcha box should be rendered. Defaults to <c>true</c>.
-        /// NOTE: The captcha box is never rendered if captchas are disabled by global settings
-        /// or if given settings are invalid.
+        /// Controls whether the CAPTCHA box should be rendered.
+        /// Note: If captcha is globally disabled or misconfigured, nothing is rendered regardless of this flag.
         /// </summary>
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
@@ -39,20 +45,23 @@ namespace Smartstore.Web.TagHelpers.Public
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (!Enabled || !_captchaManager.IsConfigured(out var captchaProvider))
+            // Do not render when disabled or when no provider is configured.
+            if (!Enabled || !_captchaManager.IsConfigured(out var provider))
             {
                 output.SuppressOutput();
                 return;
             }
 
+            var captchaProvider = provider.Value;
             var captchaContext = new CaptchaContext(ViewContext.HttpContext, _workContext.WorkingLanguage);
-            var widget = await captchaProvider.Value.CreateWidgetAsync(captchaContext);
+            var widget = await captchaProvider.CreateWidgetAsync(captchaContext);
             if (widget == null)
             {
                 output.SuppressOutput();
                 return;
             }
 
+            // Ask the provider to create its widget (HTML fragment).
             var html = await widget.InvokeAsync(ViewContext);
             if (!html.HasContent())
             {
@@ -60,13 +69,41 @@ namespace Smartstore.Web.TagHelpers.Public
                 return;
             }
 
+            // Prepare the outer container
             output.TagName = "div";
+            output.TagMode = TagMode.StartTagAndEndTag;
+
+            // Base class for styling and to make it discoverable by the client bootstrap
             output.AppendCssClass("captcha-box");
+
+            // Accessibility: mark as region and provide a localized label
             output.Attributes.SetAttribute("role", "region");
             output.Attributes.SetAttribute("aria-label", T("Common.SecurityPrompt").Value);
 
-            output.TagMode = TagMode.StartTagAndEndTag;
+            // Provider metadata (agnostic): expose system name and mode for the generic client bootstrap
+            var systemName = provider.Metadata.SystemName;
+            output.Attributes.SetAttribute("data-captcha-provider", systemName);
+
+            // Derive a normalized mode purely from the standard contract
+            // - "interactive"  : visible widget (e.g., v2 checkbox)
+            // - "invisible"    : v2 invisible
+            // - "score"        : v3 (non-interactive, score-based)
+            var mode = captchaProvider.IsNonInteractive
+                ? (captchaProvider.IsInvisible ? "invisible" : "score")
+                : "interactive";
+
+            output.Attributes.SetAttribute("data-captcha-mode", mode);
+
+            // Finally emit the provider HTML (placeholder div for v2, hidden input for v3, etc.)
             output.Content.SetHtmlContent(html);
+
+            // Register required CAPTCHA bootstrapper
+            captchaContext.AssetBuilder.AppendHeadScriptFiles("/js/smartstore.captcha.js");
+
+            // INFO:
+            // Any provider-specific client config (e.g., element id, site key) should be emitted
+            // by the provider inside the HTML fragment (e.g., <script type="application/json" class="captcha-config">...).
+            // The generic captcha-bootstrap.js will read it and initialize the correct adapter.
         }
     }
 }
