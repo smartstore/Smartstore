@@ -103,6 +103,10 @@ namespace Smartstore.Core.Security
                         Logger.Error(T("Common.CaptchaUnableToVerify").Value);
                     }
                 }
+                else
+                {
+                    valid = true;
+                }
             }
             catch (Exception ex)
             {
@@ -114,11 +118,17 @@ namespace Smartstore.Core.Security
 
             // Provide a user-facing error string only when a provider is configured but validation failed
             var nonInteractive = (captchaProvider?.Value?.IsNonInteractive == true);
-            context.ActionArguments["captchaError"] = !valid && captchaProvider?.Value.IsConfigured == true
+            var captchaError = !valid && captchaProvider?.Value.IsConfigured == true
                 ? T(nonInteractive ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
                 : null;
+            context.ActionArguments["captchaError"] = captchaError;
 
             await next();
+
+            if (!valid && captchaError.HasValue())
+            {
+                context.ModelState.AddModelError(string.Empty, captchaError);
+            }
         }
 
         private bool IsCaptchaActive()

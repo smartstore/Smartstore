@@ -818,7 +818,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("send-email")]
         [ValidateCaptcha(CaptchaSettings.Targets.ShareWishlist)]
         [GdprConsent]
-        public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
+        public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model)
         {
             if (!_shoppingCartSettings.EmailWishlistEnabled || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
@@ -830,11 +830,6 @@ namespace Smartstore.Web.Controllers
             if (wishlist.Items.Length == 0)
             {
                 return RedirectToRoute("Homepage");
-            }
-
-            if (_captchaSettings.ShowOnEmailWishlistToFriendPage && captchaError.HasValue())
-            {
-                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             // Check whether the current customer is guest and is allowed to email wishlist.

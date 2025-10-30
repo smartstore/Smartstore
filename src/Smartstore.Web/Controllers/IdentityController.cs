@@ -103,13 +103,8 @@ namespace Smartstore.Web.Controllers
         [ValidateCaptcha(CaptchaSettings.Targets.Login)]
         [ValidateAntiForgeryToken, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl)
         {
-            if (_captchaSettings.ShowOnLoginPage && captchaError.HasValue())
-            {
-                ModelState.AddModelError(string.Empty, captchaError);
-            }
-
             if (!Url.IsLocalUrl(returnUrl))
             {
                 returnUrl = string.Empty;
@@ -234,7 +229,7 @@ namespace Smartstore.Web.Controllers
         [ValidateCaptcha(CaptchaSettings.Targets.Registration)]
         [ValidateAntiForgeryToken, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
-        public async Task<IActionResult> Register(RegisterModel model, string captchaError, string returnUrl = null)
+        public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
         {
             // Check whether registration is allowed.
             if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -249,11 +244,6 @@ namespace Smartstore.Web.Controllers
                 // await _signInManager.SignOutAsync();
 
                 return RedirectToRoute("RegisterResult", new { message = T("Account.Register.Result.AlreadyRegistered").Value });
-            }
-
-            if (_captchaSettings.ShowOnRegistrationPage && captchaError.HasValue())
-            {
-                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             // TODO: (mh) Password validation is already performed in the UserManager.AddPasswordAsync method. Refactor workflow.
@@ -520,13 +510,8 @@ namespace Smartstore.Web.Controllers
         [ValidateCaptcha(CaptchaSettings.Targets.PasswordRecovery)]
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         [FormValueRequired("send-email")]
-        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, string captchaError)
+        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
         {
-            if (_captchaSettings.ShowOnPasswordRecoveryPage && captchaError.HasValue())
-            {
-                ModelState.AddModelError(string.Empty, captchaError);
-            }
-
             if (ModelState.IsValid)
             {
                 var customer = await _userManager.FindByEmailAsync(model.Email);

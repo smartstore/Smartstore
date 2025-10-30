@@ -42,7 +42,7 @@ namespace Smartstore.Core.Security
         public bool ShowOnProductReviewPage => IsActiveTarget(Targets.ProductReview);
 
         public bool IsActiveTarget(string target)
-            => _showOn.Contains(target, StringComparer.OrdinalIgnoreCase);
+            => Enabled && (target.IsEmpty() || _showOn.Contains(target, StringComparer.OrdinalIgnoreCase));
 
         #endregion
 

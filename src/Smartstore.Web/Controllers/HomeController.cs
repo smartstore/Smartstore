@@ -106,13 +106,8 @@ namespace Smartstore.Web.Controllers
         [ValidateCaptcha(CaptchaSettings.Targets.ContactUs)]
         [ValidateHoneypot, GdprConsent]
         [LocalizedRoute("/contactus", Name = "ContactUs")]
-        public async Task<IActionResult> ContactUsSend(ContactUsModel model, string captchaError)
+        public async Task<IActionResult> ContactUsSend(ContactUsModel model)
         {
-            if (_captchaSettings.ShowOnContactUsPage && captchaError.HasValue())
-            {
-                ModelState.AddModelError(string.Empty, captchaError);
-            }
-
             if (ModelState.IsValid)
             {
                 var customer = Services.WorkContext.CurrentCustomer;
