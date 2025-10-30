@@ -68,20 +68,22 @@ namespace Smartstore.Core.Security
             script = $"<script src='{context.Url.Content(scriptUrl)}' async defer></script>";
             assetBuilder.AddHtmlContent("scripts", new HtmlString(script), scriptUrl);
 
+            var isHiddenBadge = (!isV3 && _settings.Size.EqualsNoCase("invisible") && _settings.BadgePosition.EqualsNoCase("hide"))
+                || (isV3 && _settings.HideBadgeV3);
+
             var content = new HtmlContentBuilder();
 
             if (!isV3)
             {
                 // v2: render explicit widget placeholder
                 var elementId = "recaptcha" + CommonHelper.GenerateRandomDigitCode(5);
-                var isHiddenBadge = _settings.Size.EqualsNoCase("invisible") && _settings.BadgePosition.EqualsNoCase("hide");
-
+                
                 var element = new TagBuilder("div");
                 element.Attributes["id"] = elementId;
                 element.Attributes["data-sitekey"] = _settings.SiteKey;
                 element.Attributes["data-theme"] = theme;
                 element.Attributes["data-size"] = _settings.Size;
-                element.Attributes["class"] = "g-recaptcha" + (isHiddenBadge ? " grecaptcha-badge-hidden" : string.Empty);
+                element.Attributes["class"] = "g-recaptcha";
 
                 if (isHiddenBadge)
                 {
@@ -107,14 +109,26 @@ namespace Smartstore.Core.Security
                 // v3: no visible widget; ensure hidden response field exists and expose config
                 content.AppendHtmlLine("<input type='hidden' id='g-recaptcha-response' name='g-recaptcha-response' value='' />");
 
+                if (isHiddenBadge)
+                {
+                    // Invisible badge: we need to render the legally required notice here.
+                    content.AppendHtmlLine(T("Admin.Configuration.Settings.GeneralCommon.GoogleRecaptcha.HiddenBadgeLegalNotice").Value);
+                }
+
                 // Provide minimal JSON config for the adapter
                 var cfg = new
                 {
                     siteKey = _settings.SiteKey,
                     defaultAction = _settings.DefaultAction,
-                    scoreThreshold = _settings.ScoreThreshold
+                    scoreThreshold = _settings.ScoreThreshold,
+                    hideBadge = _settings.HideBadgeV3,
                 };
                 content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonConvert.SerializeObject(cfg)}</script>");
+            }
+
+            if (isHiddenBadge)
+            {
+                context.AssetBuilder.BodyAttributes.AddInValue("class", ' ', "grecaptcha-badge-hidden", false);
             }
 
             return Task.FromResult<Widget>(new HtmlWidget(content));

@@ -149,7 +149,7 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate(resPrefix + "BadgePosition.BottomLeft", "Floating at bottom left", "Unten links schwebend");
             builder.AddOrUpdate(resPrefix + "BadgePosition.BottomRight", "Floating at bottom right", "Unten rechts schwebend");
             builder.AddOrUpdate(resPrefix + "BadgePosition.Inline", "Inline within the form flow", "Inline innerhalb des Formulars");
-            builder.AddOrUpdate(resPrefix + "BadgePosition.Hide", "Hide (but show disclaimer)", "Ausblenden (aber Richtlinien anzeigen)");
+            builder.AddOrUpdate(resPrefix + "BadgePosition.Hide", "Hide badge (but show disclaimer)", "Badge verstecken (aber Richtlinien anzeigen)");
 
             builder.AddOrUpdate(resPrefix + "HiddenBadgeLegalNotice",
                 "<div class=\"grecaptcha-disclaimer alert alert-info\">This site is protected by <strong>reCAPTCHA</strong> and the Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Terms of Service</a> apply.</div>",

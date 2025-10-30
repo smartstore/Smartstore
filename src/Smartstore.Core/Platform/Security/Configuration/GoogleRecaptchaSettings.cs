@@ -31,6 +31,7 @@ namespace Smartstore.Core.Security
         /// bottomright | bottomleft | inline | hide (only v2/Size=invisible)
         /// </summary>
         public string BadgePosition { get; set; } = "bottomright";
+        public bool HideBadgeV3 { get; set; }
 
         /// <summary>
         /// Min. score for v3 (0.0 – 1.0). Default: 0.5
