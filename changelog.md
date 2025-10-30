@@ -100,6 +100,7 @@
 - Verify balanced parentheses in data grid search filter expressions, preventing runaway memory usage from malformed search terms.
 - Do not display the default date value when adding reward points via backend grid.
 - Avoid HTTP error 500, which can be caused by an attribute alias that is too long.
+- When filtering products without category assignment, deleted categories must not be included.
 
 
 ## Smartstore 6.2.0
