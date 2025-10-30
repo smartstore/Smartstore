@@ -807,8 +807,7 @@ namespace Smartstore.Web.Controllers
 
             var model = new WishlistEmailAFriendModel
             {
-                YourEmailAddress = customer.Email,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailWishlistToFriendPage
+                YourEmailAddress = customer.Email
             };
 
             return View(model);
@@ -842,7 +841,6 @@ namespace Smartstore.Web.Controllers
             {
                 // If we got this far, something failed, redisplay form.
                 ModelState.AddModelError(string.Empty, T("Common.Error.Sendmail"));
-                model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailWishlistToFriendPage;
 
                 return View(model);
             }

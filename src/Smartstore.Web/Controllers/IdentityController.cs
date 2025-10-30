@@ -89,7 +89,6 @@ namespace Smartstore.Web.Controllers
             {
                 CustomerLoginType = _customerSettings.CustomerLoginType,
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage,
             };
 
             ViewBag.ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
@@ -171,7 +170,6 @@ namespace Smartstore.Web.Controllers
 
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
 
             return View(model);
         }
@@ -498,11 +496,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         public IActionResult PasswordRecovery()
         {
-            var model = new PasswordRecoveryModel
-            {
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
-            };
-
+            var model = new PasswordRecoveryModel();
             return View(model);
         }
 
@@ -533,9 +527,6 @@ namespace Smartstore.Web.Controllers
 
                 return View(model);
             }
-
-            // If we got this far something failed. Redisplay form.
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
 
             return View(model);
         }
@@ -717,7 +708,7 @@ namespace Smartstore.Web.Controllers
 
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnRegistrationPage;
+            model.DisplayCaptcha = _captchaSettings.IsActiveTarget(CaptchaSettings.Targets.Registration);
 
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);

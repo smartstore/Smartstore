@@ -19,7 +19,6 @@ namespace Smartstore.Web.Models.Cart
         public string PersonalMessage { get; set; }
 
         public bool SuccessfullySent { get; set; }
-        public bool DisplayCaptcha { get; set; }
         public string Result { get; set; }
     }
 

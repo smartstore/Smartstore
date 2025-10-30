@@ -17,6 +17,7 @@ namespace Smartstore.Web.TagHelpers.Public
     public class CaptchaTagHelper : TagHelper
     {
         const string EnabledAttributeName = "sm-enabled";
+        const string TargetAttributeName = "sm-target";
 
         private readonly IWorkContext _workContext;
         private readonly ICaptchaManager _captchaManager;
@@ -33,11 +34,18 @@ namespace Smartstore.Web.TagHelpers.Public
         }
 
         /// <summary>
-        /// Controls whether the CAPTCHA box should be rendered.
+        /// Controls whether the CAPTCHA box should be rendered. This option precedes <see cref="Target"/>.
         /// Note: If captcha is globally disabled or misconfigured, nothing is rendered regardless of this flag.
         /// </summary>
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the CAPTCHA target (see <see cref="CaptchaSettings.Targets"/>).
+        /// If target is not active, nothing is rendered, regardless of <see cref="Enabled"/>.
+        /// </summary>
+        [HtmlAttributeName(TargetAttributeName)]
+        public string Target { get; set; }
 
         [HtmlAttributeNotBound]
         [ViewContext]
@@ -45,8 +53,8 @@ namespace Smartstore.Web.TagHelpers.Public
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            // Do not render when disabled or when no provider is configured.
-            if (!Enabled || !_captchaManager.IsConfigured(out var provider))
+            // Do not render when disabled, target is inactive or when no provider is configured.
+            if (!Enabled || !_captchaManager.IsActiveTarget(Target) || !_captchaManager.IsConfigured(out var provider))
             {
                 output.SuppressOutput();
                 return;

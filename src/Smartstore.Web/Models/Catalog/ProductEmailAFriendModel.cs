@@ -26,8 +26,6 @@ namespace Smartstore.Web.Models.Catalog
         public string PersonalMessage { get; set; }
 
         public bool AllowChangedCustomerEmail { get; set; }
-
-        public bool DisplayCaptcha { get; set; }
     }
     public class ProductEmailAFriendValidator : SmartValidator<ProductEmailAFriendModel>
     {

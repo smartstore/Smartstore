@@ -27,8 +27,6 @@ namespace Smartstore.Web.Models.Identity
 
         [LocalizedDisplay("*RememberMe")]
         public bool RememberMe { get; set; }
-
-        public bool DisplayCaptcha { get; set; }
     }
 
     public class LoginValidator : SmartValidator<LoginModel>

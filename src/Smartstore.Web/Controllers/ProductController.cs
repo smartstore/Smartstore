@@ -38,7 +38,6 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
-        private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly PrivacySettings _privacySettings;
         private readonly PaymentSettings _paymentSettings;
@@ -64,7 +63,6 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             CatalogHelper helper,
             IBreadcrumb breadcrumb,
-            CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
             PrivacySettings privacySettings,
             PaymentSettings paymentSettings,
@@ -89,7 +87,6 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _helper = helper;
             _breadcrumb = breadcrumb;
-            _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
             _privacySettings = privacySettings;
             _paymentSettings = paymentSettings;
@@ -821,7 +818,6 @@ namespace Smartstore.Web.Controllers
                 SenderName = customer.GetFullName(),
                 SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
                 SenderPhone = customer.GenericAttributes.Phone,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnAskQuestionPage,
                 SelectedAttributes = string.Empty,
                 ProductUrl = await _productUrlHelper.Value.GetAbsoluteProductUrlAsync(product.Id, slug, selection),
                 IsQuoteRequest = product.CallForPrice
@@ -904,8 +900,7 @@ namespace Smartstore.Web.Controllers
                 ProductName = product.GetLocalized(x => x.Name),
                 ProductSeName = await product.GetActiveSlugAsync(),
                 YourEmailAddress = Services.WorkContext.CurrentCustomer.Email,
-                AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage
+                AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend
             };
 
             return model;

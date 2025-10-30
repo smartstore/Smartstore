@@ -123,12 +123,12 @@ namespace Smartstore.Core.Security
                 : null;
             context.ActionArguments["captchaError"] = captchaError;
 
-            await next();
-
             if (!valid && captchaError.HasValue())
             {
                 context.ModelState.AddModelError(string.Empty, captchaError);
             }
+
+            await next();
         }
 
         private bool IsCaptchaActive()

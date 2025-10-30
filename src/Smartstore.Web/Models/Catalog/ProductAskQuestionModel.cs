@@ -29,8 +29,6 @@ namespace Smartstore.Web.Models.Catalog
         public string SelectedAttributes { get; set; }
         public string ProductUrl { get; set; }
         public bool IsQuoteRequest { get; set; }
-
-        public bool DisplayCaptcha { get; set; }
     }
 
     public class ProductAskQuestionValidator : SmartValidator<ProductAskQuestionModel>
