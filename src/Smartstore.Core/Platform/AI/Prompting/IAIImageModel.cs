@@ -71,11 +71,6 @@
         /// </summary>
         public int[] SourceFileIds { get; }
 
-        /// <summary>
-        /// Gets the ID of the file to be overwritten. If <c>null</c> a new file will be created.
-        /// </summary>
-        public int? OverwriteFileId { get; }
-
         #endregion
     }
 }
