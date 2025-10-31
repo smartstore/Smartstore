@@ -58,8 +58,12 @@
         form.__captchaV3Bound = true;
 
         form.addEventListener('submit', (e) => {
+            // Re-entrancy guard: when set, allow normal pipeline (incl. unobtrusive) to proceed
+            if (form.__captchaResubmit === true) return;
+
             // Let native validity run first; do nothing if invalid
             if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
+
             e.preventDefault();
             disableSubmitTemporarily(form);
 
@@ -68,7 +72,16 @@
                     ensureResponseInput(form).value = token;
                     // Provider-agnostic hint for servers that compare actions
                     ensureActionInput(form, action);
-                    form.submit();
+
+                    // If unobtrusive AJAX is enabled, trigger a jQuery submit with a reentrancy guard
+                    const isUnobtrusive = !!(form.getAttribute('data-ajax') || (window.jQuery && jQuery(form).data('ajax')));
+                    if (isUnobtrusive && window.jQuery) {
+                        form.__captchaResubmit = true; // guard ON
+                        try { jQuery(form).trigger('submit'); } finally { form.__captchaResubmit = false; } // guard OFF
+                    } else {
+                        // Fallback: native submit
+                        form.submit();
+                    }
                 }, function () {
                     // Soft failure: allow form submit without token or show a message depending on policy
                 });
@@ -109,9 +122,20 @@
                 theme: theme,
                 badge: badge,
                 callback: (token) => {
-                    if (form) {
-                        ensureResponseInput(form).value = token;
-                        if (size === 'invisible') form.submit();
+                    if (!form) return;
+                    ensureResponseInput(form).value = token;
+
+                    const isInvisible = (size === 'invisible');
+                    if (isInvisible) {
+                        var isUnobtrusive = !!(form.getAttribute('data-ajax') || (window.jQuery && jQuery(form).data('ajax')));
+                        if (isUnobtrusive && window.jQuery) {
+                            // Resubmit through jQuery to keep unobtrusive AJAX pipeline
+                            form.__captchaResubmit = true;
+                            try { jQuery(form).trigger('submit'); } finally { form.__captchaResubmit = false; }
+                        }
+                        else {
+                            form.submit();
+                        }
                     }
                 },
                 'expired-callback': () => {
@@ -123,6 +147,9 @@
             if (size === 'invisible' && form && !form.__captchaV2InvisibleBound) {
                 form.__captchaV2InvisibleBound = true;
                 form.addEventListener('submit', (e) => {
+                    // Allow pass-through on the guarded resubmit
+                    if (form.__captchaResubmit === true) return;
+
                     if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
                     e.preventDefault();
                     disableSubmitTemporarily(form);
