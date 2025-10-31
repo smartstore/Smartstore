@@ -101,7 +101,10 @@ namespace Smartstore.Apple
             var parameters = ecdsaImport.ExportParameters(includePrivateParameters: true);
             using var ecdsa = ECDsa.Create(parameters);
 
-            var credentials = new SigningCredentials(new ECDsaSecurityKey(ecdsa) { KeyId = settings.KeyId }, SecurityAlgorithms.EcdsaSha256);
+            var credentials = new SigningCredentials(new ECDsaSecurityKey(ecdsa) { KeyId = settings.KeyId }, SecurityAlgorithms.EcdsaSha256)
+            {
+                CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+            };
 
             var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
