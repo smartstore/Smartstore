@@ -152,8 +152,8 @@ namespace Smartstore.Core.Migrations
             builder.AddOrUpdate(resPrefix + "BadgePosition.Hide", "Hide badge (but show disclaimer)", "Badge verstecken (aber Richtlinien anzeigen)");
 
             builder.AddOrUpdate(resPrefix + "HiddenBadgeLegalNotice",
-                "<div class=\"grecaptcha-disclaimer alert alert-info\">This site is protected by <strong>reCAPTCHA</strong> and the Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Terms of Service</a> apply.</div>",
-                "<div class=\"grecaptcha-disclaimer alert alert-info\">Diese Website ist durch  <strong>reCAPTCHA</strong> und die Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Datenschutzrichtlinie</a> und den <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Nutzungsbedingungen</a> von Google geschützt.</div>");
+                "<div class=\"captcha-disclaimer grecaptcha-disclaimer alert alert-info\">This site is protected by <strong>reCAPTCHA</strong> and the Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Terms of Service</a> apply.</div>",
+                "<div class=\"captcha-disclaimer grecaptcha-disclaimer alert alert-info\">Diese Website ist durch  <strong>reCAPTCHA</strong> und die Google <a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Datenschutzrichtlinie</a> und den <a href=\"https://policies.google.com/terms\" rel=\"noopener\" target=\"_blank\">Nutzungsbedingungen</a> von Google geschützt.</div>");
         }
 
         private async Task MigrateCaptchaSettings(SmartDbContext db, CancellationToken cancelToken = default)

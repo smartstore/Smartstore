@@ -1102,9 +1102,11 @@
         $('#btn-configure-captcha').on('click', (e) => {
             e.preventDefault();
             const selectCaptchaProvider = $('#@Html.IdFor(model => model.CaptchaSettings.ProviderSystemName)');
-            const configureUrl = selectCaptchaProvider.find('option[selected]').data('configure-url');
+            let configureUrl = selectCaptchaProvider.find('option[selected]').data('configure-url');
             if (configureUrl) {
-                openPopup(modifyUrl(configureUrl, 'btnId', 'btn-refresh-captcha'));
+                configureUrl = modifyUrl(configureUrl, 'btnId', 'btn-refresh-captcha');
+                configureUrl = modifyUrl(configureUrl, 'popup', 'true');
+                openPopup(configureUrl);
             }
         });
 

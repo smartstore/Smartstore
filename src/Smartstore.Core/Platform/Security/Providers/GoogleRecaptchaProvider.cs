@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using System.Text;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -94,7 +93,7 @@ namespace Smartstore.Core.Security
                 content.AppendLine(element);
 
                 // Provide minimal JSON config for the adapter
-                var cfg = new
+                var config = new
                 {
                     siteKey = _settings.SiteKey,
                     size = _settings.Size,
@@ -102,7 +101,7 @@ namespace Smartstore.Core.Security
                     theme,
                     elementId
                 };
-                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonConvert.SerializeObject(cfg)}</script>");
+                content.AppendHtmlLine($"<script type='application/json' class='captcha-config'>{JsonConvert.SerializeObject(config)}</script>");
             }
             else
             {
@@ -147,7 +146,6 @@ namespace Smartstore.Core.Security
             }
 
             var token = context.HttpContext.Request.Form["g-recaptcha-response"].ToString();
-
             if (token.IsEmpty())
             {
                 result.Messages.Add(new CaptchaValidationMessage("missing-input-response", CaptchaValidationMessageLevel.Warning));
@@ -161,9 +159,9 @@ namespace Smartstore.Core.Security
 
             using var content = new FormUrlEncodedContent(
 [
-                new KeyValuePair<string,string>("secret", _settings.SecretKey),
-                new KeyValuePair<string,string>("response", token),
-                new KeyValuePair<string,string>("remoteip", context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty)
+                new KeyValuePair<string, string>("secret", _settings.SecretKey),
+                new KeyValuePair<string, string>("response", token),
+                new KeyValuePair<string, string>("remoteip", context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty)
             ]);
 
 
@@ -171,8 +169,8 @@ namespace Smartstore.Core.Security
 
             try
             {
-                using var resp = await client.PostAsync(verifyUrl, content, cancelToken);
-                var json = await resp.Content.ReadAsStringAsync(cancelToken);
+                using var response = await client.PostAsync(verifyUrl, content, cancelToken);
+                var json = await response.Content.ReadAsStringAsync(cancelToken);
                 payload = JsonConvert.DeserializeObject<GoogleRecaptchaApiResponse>(json);
             }
             catch
