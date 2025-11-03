@@ -1,29 +1,72 @@
-﻿/* Focus trap
- * * TODO: (wcag) (mh) 
-        - Docs  
-        - alert2
-        - What else must be trapped?
-    */
+﻿/**
+ * Focus Trap Module
+ * 
+ * Manages keyboard focus within modal dialogs and offcanvas elements to ensure WCAG 2.1 compliance. 
+ * Prevents focus from escaping trapped containers and provides proper keyboard navigation (Tab/Shift+Tab wrapping).
+ * 
+ * Automatically activates for:
+ * - Bootstrap modals (shown.bs.modal / hidden.bs.modal)
+ * - Offcanvas elements (shown.sm.offcanvas / hidden.sm.offcanvas)
+ * - Offcanvas layers (shown.sm.offcanvaslayer)
+ */
 (() => {
     let onRelease = null;
     let lastActiveElement = null;
 
-    // TODO: (wcag) (mh) We also have classes .disabled
-    // Determine visible & focusable nodes in the container 
+    /**
+     * Selector for potentially focusable elements.
+     * Actual focusability is determined by the focusables() function.
+     */
     const selectors = [
         'a[href]',
-        'button:not([disabled])',
-        'input:not([disabled]):not([type="hidden"])',
-        'select:not([disabled])',
-        'textarea:not([disabled])',
-        '[tabindex]:not([tabindex="-1"])'
-     ].join(',');
+        'button',
+        'input',
+        'select',
+        'textarea',
+        '[tabindex]'
+    ].join(',');
 
+    /**
+     * Gets all actually focusable elements within a container.
+     * Filters out elements that are:
+     * - Hidden (display: none, visibility: hidden, hidden attribute)
+     * - Disabled (disabled attribute, .disabled class, aria-disabled)
+     * - Not tabbable (tabindex="-1", type="hidden")
+     * - iFrames (to prevent focus escaping into iframe context)
+     * - Matching the exclude selector
+     * 
+     * @param {HTMLElement} c - Container element to search within
+     * @param {string} [excludeSel] - Optional CSS selector for elements to exclude
+     * @returns {HTMLElement[]} Array of focusable elements
+     */
     const focusables = (c, excludeSel) =>
-        [...c.querySelectorAll(selectors)].filter((el) =>
-            el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden' && (!excludeSel || !el.closest(excludeSel))
-        );
+        [...c.querySelectorAll(selectors)].filter((el) => {
+            // Visibility checks
+            if (el.offsetParent === null) return false;
+            if (getComputedStyle(el).visibility === 'hidden') return false;
+            if (el.hasAttribute('hidden')) return false;
+            if (el.getAttribute('aria-hidden') === 'true') return false;
 
+            // Disabled checks
+            if (el.disabled) return false;
+            if (el.classList.contains('disabled')) return false;
+            if (el.hasAttribute('aria-disabled')) return false;
+
+            // Special exclusions
+            if (el.type === 'hidden') return false;
+            if (el.getAttribute('tabindex') === '-1') return false;
+            if (el.tagName === 'IFRAME') return false;
+
+            // Exclude selector
+            if (excludeSel && el.closest(excludeSel)) return false;
+
+            return true;
+        });
+
+    /**
+    * Initializes focus trap for offcanvas elements.
+    * Listens to jQuery-triggered events and manages ARIA attributes.
+    */
     function initOffCanvasTrap() {
         // INFO: Jquery must be used here, because original event is namespaced & triggered via Jquery.
         $(document).on('shown.sm.offcanvas', (e) => {
@@ -61,13 +104,39 @@
         });
     }
 
+    /**
+     * Activates a focus trap within the specified container.
+     * 
+     * Features:
+     * - Traps keyboard focus within the container
+     * - Enables Tab/Shift+Tab wrapping (cycles through focusable elements)
+     * - Prevents focus from leaving the container
+     * - Removes iframes from tab order to prevent focus escape
+     * - Restores focus to the previously active element on release
+     * 
+     * Only one focus trap can be active at a time. Activating a new trap automatically releases the previous one.
+     * 
+     * @param {HTMLElement} container - The container element to trap focus within
+     * @param {Object} [options] - Configuration options
+     * @param {string} [options.initial] - CSS selector for element to receive initial focus
+     * @param {string} [options.exclude] - CSS selector for elements to exclude from focus trap
+     */
     function activate(container, { initial, exclude } = {}) {
-        // TODO: (wcag) (mh) What about modals with embedded iframes?
         // There can only be one active focus trap at a time.
         if (onRelease)
             onRelease();               
 
         lastActiveElement = document.activeElement;
+
+        // Disable jumping into iframes. They are considered as focus sinks.
+        const iframes = container.querySelectorAll('iframe');
+        const iframeTabindices = new Map();
+
+        iframes.forEach(iframe => {
+            const originalTabindex = iframe.getAttribute('tabindex');
+            iframeTabindices.set(iframe, originalTabindex);
+            iframe.setAttribute('tabindex', '-1');
+        });
 
         const first = initial ? container.querySelector(initial) : focusables(container, exclude)[0] || container;
 
