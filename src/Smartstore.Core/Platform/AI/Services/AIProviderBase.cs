@@ -47,7 +47,7 @@ namespace Smartstore.Core.AI
         {
             if (chat == null || !chat.HasMessages())
             {
-                return null;
+                return Task.FromResult<string>(null);
             }
 
             if (chat.Topic == AIChatTopic.Image)
