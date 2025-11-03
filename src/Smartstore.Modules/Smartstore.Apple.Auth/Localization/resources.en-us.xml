@@ -15,7 +15,7 @@
                 </ul>
             ]]></Value>
     </LocaleResource>
-    <LocaleResource Name="IisUserProfileWarning">
+    <LocaleResource Name="IISUserProfileWarning">
         <Value>
             <![CDATA[
                 <strong>Note: IIS option <i>Load User Profile</i> is disabled.</strong>

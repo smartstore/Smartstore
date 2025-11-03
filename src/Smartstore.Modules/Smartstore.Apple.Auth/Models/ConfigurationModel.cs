@@ -24,7 +24,7 @@ namespace Smartstore.Apple.Auth.Models
         /// <summary>
         /// Display a warning if IIS "Load User Profile" appears to be disabled.
         /// </summary>
-        public bool DisplayIisUserProfileWarning { get; set; }
+        public bool DisplayIISUserProfileWarning { get; set; }
     }
 }
 

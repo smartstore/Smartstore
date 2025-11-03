@@ -1,4 +1,7 @@
+using System;
+using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Win32;
 using Smartstore.Apple.Auth.Models;
 using Smartstore.Apple.Auth.Services;
 using Smartstore.Caching;
@@ -13,6 +16,8 @@ namespace Smartstore.Apple.Auth.Controllers
     [Route("[area]/apple/auth/{action=index}/{id?}")]
     public class AppleAuthController : AdminController
     {
+        private readonly static Lazy<bool> _shouldEnableIISUserProfile = new(ShouldEnableIISUserProfile);
+
         private readonly IOptionsMonitorCache<AppleAuthenticationOptions> _optionsCache;
         private readonly IProviderManager _providerManager;
         private readonly ICacheManager _cache;
@@ -38,11 +43,7 @@ namespace Smartstore.Apple.Auth.Controllers
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Apple.Auth").Metadata;
 
             // INFO: No invalidation needed as the cache will be cleared on app pool recycle anyway.
-            var displayIisUserProfileWarning = _cache.Get("loaduserprofileenabled", o => {
-                return IISUserProfileStatusHelper.GetStatus() == UserProfileStatus.Disabled;
-            });
-
-            model.DisplayIisUserProfileWarning = displayIisUserProfileWarning;
+            model.DisplayIISUserProfileWarning = _shouldEnableIISUserProfile.Value;
 
             return View(model);
         }
@@ -63,6 +64,31 @@ namespace Smartstore.Apple.Auth.Controllers
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return RedirectToAction(nameof(Configure));
+        }
+
+        private static bool ShouldEnableIISUserProfile()
+        {
+            // Non-Windows: IIS flag does not exist.
+            if (!OperatingSystem.IsWindows())
+            {
+                return false;
+            }
+
+            try
+            {
+                var sid = WindowsIdentity.GetCurrent().User?.Value;
+                if (string.IsNullOrWhiteSpace(sid))
+                {
+                    return false;
+                }
+
+                using var hive = Registry.Users.OpenSubKey(sid, writable: false);
+                return hive == null;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
