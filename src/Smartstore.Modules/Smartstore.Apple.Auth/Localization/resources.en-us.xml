@@ -15,6 +15,25 @@
                 </ul>
             ]]></Value>
     </LocaleResource>
+    <LocaleResource Name="IisUserProfileWarning">
+        <Value>
+            <![CDATA[
+                <strong>Note: IIS option <i>Load User Profile</i> is disabled.</strong>
+                <p>
+                    Without a loaded user profile, sign-ins may fail after an app pool recycle.
+                    Please enable the option in IIS:
+                </p>
+                <ul>
+                  <li>Open IIS Manager → <i>Application Pools</i> → select your app pool</li>
+                  <li>Open <i>Advanced Settings</i>.</li>
+                  <li>Set <i>Load User Profile</i> to <strong>True</strong> and restart the app pool.</li>
+                </ul>
+                <p>
+                    If you don’t have access to IIS or are unsure, please contact your hosting provider/administrator.
+                </p>
+            ]]>
+        </Value>
+    </LocaleResource>
     <LocaleResource Name="Login">
         <Value>Sign in with Apple</Value>
     </LocaleResource>

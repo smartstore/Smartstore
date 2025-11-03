@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Apple.Auth.Models;
+using Smartstore.Apple.Auth.Services;
+using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
@@ -13,11 +15,16 @@ namespace Smartstore.Apple.Auth.Controllers
     {
         private readonly IOptionsMonitorCache<AppleAuthenticationOptions> _optionsCache;
         private readonly IProviderManager _providerManager;
+        private readonly ICacheManager _cache;
 
-        public AppleAuthController(IOptionsMonitorCache<AppleAuthenticationOptions> optionsCache, IProviderManager providerManager)
+        public AppleAuthController(
+            IOptionsMonitorCache<AppleAuthenticationOptions> optionsCache, 
+            IProviderManager providerManager,
+            ICacheManager cache)
         {
             _optionsCache = optionsCache;
             _providerManager = providerManager;
+            _cache = cache;
         }
 
         [HttpGet, LoadSetting]
@@ -29,6 +36,13 @@ namespace Smartstore.Apple.Auth.Controllers
             model.RedirectUrl = $"{host}signin-apple";
 
             ViewBag.Provider = _providerManager.GetProvider("Smartstore.Apple.Auth").Metadata;
+
+            // INFO: No invalidation needed as the cache will be cleared on app pool recycle anyway.
+            var displayIisUserProfileWarning = _cache.Get("loaduserprofileenabled", o => {
+                return IISUserProfileStatusHelper.GetStatus() == UserProfileStatus.Disabled;
+            });
+
+            model.DisplayIisUserProfileWarning = displayIisUserProfileWarning;
 
             return View(model);
         }

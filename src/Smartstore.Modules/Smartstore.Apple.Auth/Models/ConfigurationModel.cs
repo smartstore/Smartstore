@@ -20,6 +20,11 @@ namespace Smartstore.Apple.Auth.Models
 
         [LocalizedDisplay("*RedirectUri")]
         public string RedirectUrl { get; set; }
+
+        /// <summary>
+        /// Display a warning if IIS "Load User Profile" appears to be disabled.
+        /// </summary>
+        public bool DisplayIisUserProfileWarning { get; set; }
     }
 }
 

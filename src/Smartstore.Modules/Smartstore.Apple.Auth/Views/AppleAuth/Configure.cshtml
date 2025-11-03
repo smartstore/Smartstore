@@ -9,7 +9,11 @@
 <div class="alert alert-info alert-dismissible">
     @Html.Raw(T("Plugins.Smartstore.Apple.Auth.AdminInstruction"))
     <button class="btn-close" data-dismiss="alert"></button>
-    </div>
+</div>
+
+<div sm-if="Model.DisplayIisUserProfileWarning" class="alert alert-danger">
+    @Html.Raw(T("Plugins.Smartstore.Apple.Auth.IisUserProfileWarning"))
+</div>
 
 @await Component.InvokeAsync("StoreScope")
 
