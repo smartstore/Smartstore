@@ -12,11 +12,11 @@
 
         public void Track(MenuItem item, bool prepend = false)
         {
-            Guard.NotNull(item, nameof(item));
+            Guard.NotNull(item);
 
             if (_trail == null)
             {
-                _trail = new List<MenuItem>();
+                _trail = [];
             }
 
             if (prepend)

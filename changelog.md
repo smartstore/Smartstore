@@ -49,12 +49,12 @@
 
 * Bumped all `jquery.validate` libraries
 * Asset Bundling: Replaced `DouglasCrockford.JsMin` with `NUglify`.
-* Summernote:
+* **Summernote**
   * Activated file browser (MediaManager)
   * Responsive video embed
-* Blog
-  * New Global Display Options: Grid layout, 2/3 column mode, intro length restriction, aspect ratio setting for grid view.
-  * Mobile Optimization: Pictures will now always be displayed above text on mobile devices.
+* **Blog**
+  * New global display options: Grid layout, 2/3 column mode, intro length restriction, aspect ratio setting for grid view.
+  * Mobile optimization: Pictures will now always be displayed above text on mobile devices.
   * Better control of preview image display by setting the aspect ratio.
   * Better control of detail image display by setting the *Maximum height of the picture*
   * New setting for the *Navigation End Date*
