@@ -52,6 +52,13 @@
 * Summernote:
   * Activated file browser (MediaManager)
   * Responsive video embed
+* Blog
+  * New Global Display Options: Grid layout, 2/3 column mode, intro length restriction, aspect ratio setting for grid view.
+  * Mobile Optimization: Pictures will now always be displayed above text on mobile devices.
+  * Better control of preview image display by setting the aspect ratio.
+  * Better control of detail image display by setting the *Maximum height of the picture*
+  * New setting for the *Navigation End Date*
+  * #1410 Blog posts configured for a single language will no longer return a 404 error when accessed with an unavailable language selection.  
 * Theming: `.art-drop` should adopt `$art-active-border-color`
 - #1016 Don't ask registered customers for email when entering billing or shipping address.
 - #1327 Product rules/MegaSearch: Consider start and end dates of a discount when applying the "HasDiscount" rule.
@@ -69,7 +76,8 @@
 - Web API: Allow guest customers to be created.
 - Convert JSON strings to HTML for notifications.
 - Trailing slash URL rule: Don't apply rule to static file requests (e.g. `robots.txt`).
-
+- #1156 The last items added to the basket must be instantly visible in offcanvas cart.
+- #208 Linkbuilder: Added possibility to define a link target.
 
 ### Bugfixes
 
