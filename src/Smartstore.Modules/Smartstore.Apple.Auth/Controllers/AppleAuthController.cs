@@ -3,7 +3,6 @@ using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using Smartstore.Apple.Auth.Models;
-using Smartstore.Apple.Auth.Services;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;

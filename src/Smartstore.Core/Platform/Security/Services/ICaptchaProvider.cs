@@ -80,7 +80,15 @@ namespace Smartstore.Core.Security
     /// information about the outcome of CAPTCHA validation. Instances of this class are immutable.</remarks>
     public sealed class CaptchaValidationMessage(string code, CaptchaValidationMessageLevel level)
     {
+        public CaptchaValidationMessage(string code, string? detail, CaptchaValidationMessageLevel level)
+            : this(code, level)
+        {
+            Detail = detail;
+        }
+
         public string Code { get; } = code;
+
+        public string? Detail { get; set; }
 
         public CaptchaValidationMessageLevel Level { get; } = level;
     }
