@@ -1117,7 +1117,7 @@
                 dataType: 'json',
                 data: { systemName: selectCaptchaProvider.val() },
                 success: function (data) {
-                    selectCaptchaProvider.find(':selected').data('configured', data.configured);
+                    selectCaptchaProvider.find(':selected').attr('data-configured', data.configured);
                     selectCaptchaProvider.trigger('change');
                 }
             });
