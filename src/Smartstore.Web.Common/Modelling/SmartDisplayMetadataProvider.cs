@@ -26,7 +26,7 @@ namespace Smartstore.Web.Modelling
             }
 
             // Collect resource keys from parent (type) level and property level
-            var parentDisplayAttribute = context.Key.ContainerType?.GetAttribute<LocalizedDisplayAttribute>(false);
+            var parentDisplayAttribute = context.Key.ContainerType?.GetAttribute<LocalizedDisplayAttribute>(true);
             var parentNameKey = parentDisplayAttribute?.Name;
             var nameKey = displayAttribute.Name;
 
