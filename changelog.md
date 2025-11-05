@@ -23,6 +23,7 @@
 
 - **AI**
   - Added **Anthropic Claude** AI provider.
+  - Edit images in the Media Manager using a text prompt and selected images.
   - File-based provider metadata used to store and organize information about LLM models.
   - **Gemini**: Support image generation using `gemini-2.5-flash-image`.
 - **CAPTCHA**
