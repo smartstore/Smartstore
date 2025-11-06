@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
-using AngleSharp.Dom;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Smartstore.ComponentModel;
@@ -35,27 +35,12 @@ namespace Smartstore.Core.AI.Metadata
 
             var result = _cache.GetOrCreate(cacheKey, entry =>
             {
-                //var module = _appContext.ModuleCatalog.GetModuleByName(moduleSystemName) ?? throw new InvalidOperationException($"Module {moduleSystemName} does not exist.");
-                //var file = module.ContentRoot.GetFile("metadata.json");
-                //if (!file.Exists)
-                //{
-                //    throw new InvalidOperationException($"Metadata file for {moduleSystemName} not found.");
-                //}
-
-                //var json = file.ReadAllText();
-                //if (Deserialize(json) is not AIMetadata metadata)
-                //{
-                //    throw new InvalidOperationException("Failed to deserialize AIMetadata.");
-                //}
-
-                var metadata = LoadMetadataCore(moduleSystemName);
-                //// Obtain a change token from the file provider whose
-                //// callback is triggered when the file is modified.
-                //var changeToken = file.FileSystem.Watch(file.SubPath);
-                //if (changeToken != null)
-                //{
-                //    entry.AddExpirationToken(changeToken);
-                //}
+                var (metadata, changeToken) = LoadMetadataCore(moduleSystemName);
+                if (changeToken != null)
+                {
+                    // Register the change token to invalidate the cache entry when the file changes.
+                    entry.AddExpirationToken(changeToken);
+                }
 
                 return metadata;
             });
@@ -63,7 +48,7 @@ namespace Smartstore.Core.AI.Metadata
             return result!;
         }
 
-        protected virtual AIMetadata LoadMetadataCore(string moduleSystemName)
+        protected virtual (AIMetadata, IChangeToken?) LoadMetadataCore(string moduleSystemName)
         {
             var module = _appContext.ModuleCatalog.GetModuleByName(moduleSystemName) ?? throw new InvalidOperationException($"Module {moduleSystemName} does not exist.");
             var file = module.ContentRoot.GetFile("metadata.json");
@@ -78,10 +63,14 @@ namespace Smartstore.Core.AI.Metadata
                 throw new InvalidOperationException("Failed to deserialize AIMetadata.");
             }
 
-            return metadata;
+            // Obtain a change token from the file provider whose
+            // callback is triggered when the file is modified.
+            var changeToken = file.FileSystem.Watch(file.SubPath);
+
+            return (metadata, changeToken);
         }
 
-        protected AIMetadata? Deserialize(string json)
+        protected virtual AIMetadata? Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<AIMetadata>(json, _serializerSettings);
         }
