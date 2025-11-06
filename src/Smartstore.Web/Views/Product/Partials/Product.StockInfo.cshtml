@@ -27,9 +27,11 @@
 
     if (!isBundleItem)
     {
-        var availability = displayStock ? (Model.IsAvailable ? "InStock" : "OutOfStock")
-                : (!showAttributes  ? "InStock" 
-                    : (Model.IsAvailable ? "InStock" : "SoldOut"));
+        var availability = displayStock 
+            ? (Model.IsAvailable ? "InStock" : "OutOfStock")
+            : (!showAttributes  
+                ? "InStock" 
+                : (Model.IsAvailable ? "InStock" : "SoldOut"));
 
         <meta itemprop="availability" content="https://schema.org/@availability" />
     }
