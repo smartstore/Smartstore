@@ -20,7 +20,7 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(type).As<IAIPromptGenerator>().Keyed<IAIPromptGenerator>(type).InstancePerLifetimeScope();
             }
 
-            builder.RegisterType<AIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
+            builder.RegisterType<JsonAIMetadataLoader>().As<IAIMetadataLoader>().SingleInstance();
             builder.RegisterType<DefaultAIChatCache>().As<IAIChatCache>().SingleInstance();
             builder.RegisterType<AIMessageBuilder>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<AIMessageResources>().AsSelf().InstancePerLifetimeScope();

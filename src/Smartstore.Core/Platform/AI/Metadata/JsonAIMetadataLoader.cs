@@ -7,13 +7,13 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.AI.Metadata
 {
-    public class AIMetadataLoader : IAIMetadataLoader
+    public class JsonAIMetadataLoader : IAIMetadataLoader
     {
         private readonly IMemoryCache _cache;
         private readonly IApplicationContext _appContext;
         private readonly JsonSerializerSettings _serializerSettings;
 
-        public AIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
+        public JsonAIMetadataLoader(IMemoryCache cache, IApplicationContext appContext)
         {
             _cache = cache;
             _appContext = appContext;
