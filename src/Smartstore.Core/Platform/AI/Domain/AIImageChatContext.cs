@@ -17,8 +17,9 @@ namespace Smartstore.Core.AI
         /// </summary>
         public AIImageFormat ImageFormat { get; set; }
 
-        // TODO: (mg) Unfortunately, CurrentImagePath is not sufficient due to the regenerate button (prompt to image association).
-        // The image path associated with the prompt must be sent with each request.
-        //public string? CurrentImagePath { get; set; }
+        /// <summary>
+        /// The temporary file path of the current AI-generated image.
+        /// </summary>
+        public string? CurrentImagePath { get; set; }
     }
 }
