@@ -205,6 +205,7 @@ namespace Smartstore.Admin.Models
             public string FriendlyName { get; set; }
             public bool IsConfigured { get; set; }
             public string ConfigureUrl { get; set; }
+            public string IconUrl { get; set; }
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]

@@ -23,6 +23,7 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IProviderManager _providerManager;
+        private readonly Lazy<ModuleManager> _moduleManager;
         private readonly ICaptchaManager _captchaManager;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly Lazy<IMediaTracker> _mediaTracker;
@@ -30,12 +31,14 @@ namespace Smartstore.Admin.Controllers
         public SettingController(
             SmartDbContext db,
             IProviderManager providerManager,
+            Lazy<ModuleManager> moduleManager,
             ICaptchaManager captchaManager,
             ILocalizedEntityService localizedEntityService,
             Lazy<IMediaTracker> mediaTracker)
         {
             _db = db;
             _providerManager = providerManager;
+            _moduleManager = moduleManager;
             _captchaManager = captchaManager;
             _localizedEntityService = localizedEntityService;
             _mediaTracker = mediaTracker;
@@ -284,7 +287,7 @@ namespace Smartstore.Admin.Controllers
                 new() { Text = "noindex, follow", Value = "noindex, follow" },
                 new() { Text = "noindex, nofollow", Value = "noindex, nofollow" }
             };
-
+            
             model.CaptchaSettings.AvailableProviders = _captchaManager.ListProviders()
                 .Select(x => new GeneralCommonSettingsModel.CaptchaProviderModel
                 {
@@ -293,7 +296,11 @@ namespace Smartstore.Admin.Controllers
                     IsConfigured = x.Value.IsConfigured,
                     ConfigureUrl = x.Metadata.IsConfigurable
                         ? Url.Action(((IConfigurable)x.Value).GetConfigurationRoute())
-                        : null
+                        : null,
+                    IconUrl = x.Metadata.ModuleDescriptor != null
+                        ? _moduleManager.Value.GetIconUrl(x.Metadata.ModuleDescriptor, x.Metadata.SystemName)
+                        // Is "Captcha.GoogleRecaptcha" built-in provider
+                        : "https://www.gstatic.com/images/icons/material/product/2x/recaptcha_16dp.png"
                 })
                 .ToList();
 
