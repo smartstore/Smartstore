@@ -33,7 +33,7 @@ namespace Smartstore.Core.AI
         /// Adds the latest answer to the chat if the chat is not of type <see cref="AIChatTopic.Image"/>.
         /// </summary>
         /// <remarks>
-        /// For <see cref="AIChatTopic.Image"/>, the IDs of images can be passed as an int array via the metadata with the key "SourceFileIds".
+        /// For <see cref="AIChatTopic.Image"/>, context information can be passed via the metadata with the key <see cref="KnownAIChatMetadataKeys.ImageChatContext"/>.
         /// </remarks>
         /// <param name="chat">The AI chat.</param>
         /// <returns>

@@ -69,7 +69,12 @@
         /// <summary>
         /// Gets the IDs of the source files used for image editing.
         /// </summary>
-        public int[] SourceFileIds { get; }
+        int[] SourceFileIds { get; }
+
+        /// <summary>
+        /// Gets the temporary file path of the AI-generated image associated with current <see cref="Prompt"/>.
+        /// </summary>
+        string ImagePath { get; }
 
         #endregion
     }
