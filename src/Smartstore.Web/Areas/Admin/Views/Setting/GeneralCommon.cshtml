@@ -1076,16 +1076,16 @@
 </form>
 
 <script sm-target-zone="scripts" data-origin="settings-general-common">
-    const formatCaptchaProviderOption = (item, select, x, y) => {
+    const formatCaptchaProviderOption = (item, select) => {
         if (!item.element) return item.text;
-        console.log(item, x, y);
+
         const isConfigured = toBool(item.element.getAttribute('data-configured'));
         const badgeClass = isConfigured ? 'badge-success' : 'badge-warning badge-outline';
         const iconUrl = item.element.getAttribute('data-icon-url');
         const label = isConfigured ? @T("Admin.Common.Configured").JsValue : @T("Admin.Common.NotConfigured").JsValue;
 
         return $(`
-            <div class="hstack justify-content-between pl-3 w-100">
+            <div class="hstack justify-content-between w-100">
                 <span class="select2-option choice-item">
                     <img src="${iconUrl}" class="choice-item-img" style="border-width: 0" />
                     <span>${item.text}</span>
