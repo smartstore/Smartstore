@@ -324,45 +324,59 @@
                             }
                             else {
                                 // Add small item button to open detail page.
-                                preHtml += '<span class="select2-item-btn">';
-                                preHtml += '<a href="' + item.url.replace('__id__', item.id) + '" class="btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle prevent-selection"' + attr('title', item.urlTitle) + '>';
-                                preHtml += '<i class="fa fa-ellipsis fa-fw prevent-selection"></i></a>';
-                                preHtml += '</span>';
+                                preHtml += `
+                                    <span class="select2-item-btn">
+                                        <a href="${item.url.replace('__id__', item.id)}" class="btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle prevent-selection"${attr('title', item.urlTitle)}>
+                                        <i class="fa fa-ellipsis fa-fw prevent-selection"></i></a>
+                                    </span>`;
                             }
                         }
 
                         if (!_.isEmpty(description)) {
-                            postHtml += '<span class="select2-item-description muted">' + description + '</span>'
+                            postHtml += `<span class="select2-item-description text-muted">${description}</span>`;
                         }
-                    }
+                    }           
+
+                    let html = [];
 
                     if (imageUrl) {
-                        const img = `<img src="${imageUrl}" class="choice-item-img" alt="${text}" />`;
-                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '>' + img + text + '</span>' + postHtml);
+                        html.push(`<span class="select2-option choice-item${classes}"${attr('title', title)}>
+                            <img src="${imageUrl}" class="choice-item-img" alt="${text}" />
+                            ${text}
+                        </span>`);
                     }
                     else if (color) {
-                        return $(preHtml + '<span class="select2-option choice-item' + classes + '"' + attr('title', title) + '><span class="choice-item-color" style="background-color: ' + color + '"></span>' + text + '</span>' + postHtml);
+                        html.push(`<span class="select2-option choice-item${classes}"${attr('title', title)}>
+                            <span class="choice-item-color" style="background-color: ${color}"></span>
+                            ${text}
+                        </span>`);
                     }
                     else if (hint && isResult) {
-                        return $(preHtml + '<span class="select2-option' + classes + '"><span' + attr('title', title) + '>' + text + '</span><span class="option-hint muted float-right">' + hint + '</span></span>' + postHtml);
+                        html.push(`<span class="select2-option${classes}">
+                            <span${attr('title', title)}>${text}</span>
+                            <span class="option-hint muted float-right">${hint}</span>
+                        </span>`);
                     }
                     else if (icon) {
-                        let html = ['<span class="select2-option' + classes + '"' + attr('title', title) + '>'];
+                        preHtml = '';
+                        html.push(`<span class="select2-option${classes}"${attr('title', title)}>`);
                         let icons = _.isArray(icon) ? icon : [icon];
                         let len = icons.length;
                         for (i = 0; i < len; i++) {
                             let iconClass = icons[i] + " fa-fw mr-2 fs-h6";
-                            html.push('<i class="' + iconClass + '" style="font-size: 16px;"></i>');
+                            html.push(`<i class="${iconClass}" style="font-size: 16px;"></i>`);
                         }
 
                         html.push(text);
                         html.push('</span>');
-
-                        return $(html.join('') + postHtml);
                     }
                     else {
-                        return $(preHtml + '<span class="select2-option' + classes + '"' + attr('title', title) + '>' + text + '</span>' + postHtml);
+                        html.push(`<span class="select2-option${classes}"${attr('title', title)}>
+                            ${text}
+                        </span>`);
                     }
+
+                    return $(preHtml + html.join('') + postHtml);
                 }
                 catch (e) {
                     console.log(e);
@@ -374,10 +388,10 @@
             var opts = {
                 allowClear: !!placeholder, // assuming that a placeholder indicates nullability
                 placeholder: placeholder,
-                templateResult: function (item) {
+                templateResult: (item) => {
                     return renderSelectItem(item, true);
                 },
-                templateSelection: function (item) {
+                templateSelection: (item) => {
                     return renderSelectItem(item, false);
                 },
                 closeOnSelect: !sel.prop('multiple'), //|| sel.data("tags"),
