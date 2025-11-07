@@ -16,10 +16,5 @@ namespace Smartstore.Core.AI
         /// The image format of the generated AI image.
         /// </summary>
         public AIImageFormat ImageFormat { get; set; }
-
-        /// <summary>
-        /// The temporary file path of the current AI-generated image.
-        /// </summary>
-        public string? CurrentImagePath { get; set; }
     }
 }
