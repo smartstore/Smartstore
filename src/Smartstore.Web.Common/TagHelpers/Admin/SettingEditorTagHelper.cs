@@ -52,22 +52,37 @@ namespace Smartstore.Web.TagHelpers.Admin
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
-                var additionalViewData = new RouteValueDictionary { ["postfix"] = Postfix };
-
-                if (output.Attributes.TryGetAttribute("placeholder", out var placeholder))
+                var additionalViewData = new RouteValueDictionary();
+                if (Postfix.HasValue())
                 {
-                    additionalViewData["placeholder"] = placeholder.ValueAsString();
+                    additionalViewData["postfix"] = Postfix;
                 }
 
-                if (output.Attributes.TryGetAttribute("data-toggler-for", out var togglerFor))
+                if (output.Attributes != null && output.Attributes.Count > 0)
                 {
-                    // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
-                    additionalViewData["htmlAttributes"] = output.Attributes.TryGetAttribute("data-toggler-reverse", out var reverse)
-                        ? new { data_toggler_for = togglerFor.ValueAsString(), data_toggler_reverse = reverse.ValueAsString() }
-                        : new { data_toggler_for = togglerFor.ValueAsString() };
+                    var htmlAttributes = new Dictionary<string, object>();
+
+                    foreach (var attr in output.Attributes)
+                    {
+                        htmlAttributes[attr.Name] = attr.ValueAsString();
+
+                        if (attr.Name == "placeholder")
+                        {
+                            additionalViewData["placeholder"] = attr.ValueAsString();
+                        }
+                    }
+
+                    additionalViewData["htmlAttributes"] = htmlAttributes;
                 }
 
-                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
+                if (additionalViewData.Count > 0)
+                {
+                    output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
+                }
+                else
+                {
+                    output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
+                }
             }
 
             var data = _settingHelper.Data;
