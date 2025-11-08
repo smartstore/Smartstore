@@ -42,7 +42,7 @@ label.required,
     max-height: var(--choice-item-size);
     padding: 0;
     border-radius: 0.2em;
-    border: 1px solid rgba($black, 0.125);
+    border: var(--choice-item-border-width, 1px) solid rgba($black, 0.125);
     margin-inline-end: 0.5rem;
     margin-top: calc((var(--choice-item-line-height) * 1em - var(--choice-item-size)) * 0.5);
     align-self: flex-start;

@@ -53,15 +53,16 @@
 .select2-results__option {
     position: relative;
 
-    > .select2-option,
-    > .select2-item-description {
-        position: relative;
-        display: block;
-        vertical-align: middle;
+    > :is(.select2-option, .select2-item-description) {
         font-size: $font-size-sm;
         word-break: break-word;
         // padding for checkmark
         padding-inline-start: 20px;
+    }
+
+    .select2-item-description {
+        position: relative;
+        display: block;
     }
 
     > .select2-option {

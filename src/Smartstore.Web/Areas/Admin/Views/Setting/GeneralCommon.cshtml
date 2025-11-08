@@ -437,13 +437,15 @@
                         <div class="adminData">
                             <div class="row g-2">
                                 <div class="col">
-                                    <select asp-for="CaptchaSettings.ProviderSystemName" class="noskin">
+                                    <select asp-for="CaptchaSettings.ProviderSystemName">
                                         @foreach (var cpm in Model.CaptchaSettings.AvailableProviders)
                                         {
                                             <option value="@cpm.SystemName"
-                                                    data-configured="@cpm.IsConfigured.ToString().ToLower()"
+                                                    data-imageurl="@Url.Content(cpm.IconUrl)"
+                                                    data-item-style="--choice-item-border-width: 0"
+                                                    data-hint="@T("Admin.Common." + (cpm.IsConfigured ? "Configured" : "NotConfigured"))"
+                                                    data-hint-class="badge badge-pill @(cpm.IsConfigured ? "badge-success" : "badge-warning badge-outline")"
                                                     data-configure-url="@cpm.ConfigureUrl"
-                                                    data-icon-url="@Url.Content(cpm.IconUrl)"
                                                     attr-selected='(cpm.SystemName == Model.CaptchaSettings.ProviderSystemName, "selected")'>
                                                 @cpm.FriendlyName
                                             </option>
@@ -1076,32 +1078,8 @@
 </form>
 
 <script sm-target-zone="scripts" data-origin="settings-general-common">
-    const formatCaptchaProviderOption = (item, select) => {
-        if (!item.element) return item.text;
-
-        const isConfigured = toBool(item.element.getAttribute('data-configured'));
-        const badgeClass = isConfigured ? 'badge-success' : 'badge-warning badge-outline';
-        const iconUrl = item.element.getAttribute('data-icon-url');
-        const label = isConfigured ? @T("Admin.Common.Configured").JsValue : @T("Admin.Common.NotConfigured").JsValue;
-
-        return $(`
-            <div class="hstack justify-content-between w-100">
-                <span class="select2-option choice-item">
-                    <img src="${iconUrl}" class="choice-item-img" style="border-width: 0" />
-                    <span>${item.text}</span>
-                </span>
-                <span class="badge badge-pill ${badgeClass}">${label}</span>
-            </div>`);
-    };
-
     $(function () {
         const selectCaptchaProvider = $('#@Html.IdFor(model => model.CaptchaSettings.ProviderSystemName)');
-
-        $(selectCaptchaProvider).selectWrapper({
-            minimumResultsForSearch: 16,
-            templateResult: formatCaptchaProviderOption,
-            templateSelection: formatCaptchaProviderOption
-        });
 
         // Open CAPTCHA configuration dialog
         $('#btn-configure-captcha').on('click', (e) => {
@@ -1122,7 +1100,9 @@
                 dataType: 'json',
                 data: { systemName: selectCaptchaProvider.val() },
                 success: function (data) {
-                    selectCaptchaProvider.find(':selected').attr('data-configured', data.configured);
+                    selectCaptchaProvider.find(':selected')
+                        .attr('data-hint', data.configured ? @T("Admin.Common.Configured").JsValue : @T("Admin.Common.NotConfigured").JsValue)
+                        .attr('data-hint-class', 'badge badge-pill ' + (data.configured ? 'badge-success' : 'badge-warning badge-outline'));
                     selectCaptchaProvider.trigger('change');
                 }
             });

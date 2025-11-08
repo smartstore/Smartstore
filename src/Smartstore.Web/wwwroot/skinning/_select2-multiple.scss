@@ -69,7 +69,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
 
-            > i, > img {
+            > :is(i, img) {
                 // Quick fix for icon
                 position: relative;
                 top: 1px;

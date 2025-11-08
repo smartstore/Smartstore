@@ -97,6 +97,15 @@
     }
 }
 
+.select2-option {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-self: stretch;
+    gap: 0.25rem;
+    align-items: flex-start;
+}
+
 .select2-results__group {
     color: inherit;
     display: block;
