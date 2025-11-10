@@ -61,7 +61,7 @@ namespace Smartstore.Google.Analytics
 
                 if (productList.Count > 0)
                 {
-                    var itemsScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, componentName);
+                    var itemsScript = _googleAnalyticsScriptHelper.GetListScript(productList, componentName);
 
                     if (_settings.MinifyScripts)
                     {

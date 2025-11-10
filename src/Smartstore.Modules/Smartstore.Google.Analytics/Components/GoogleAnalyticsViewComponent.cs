@@ -60,11 +60,11 @@ namespace Smartstore.Google.Analytics.Components
                         if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
                         {
                             // Product details page > view_item
-                            specificScript = await _googleAnalyticsScriptHelper.GetViewItemScriptAsync((ProductDetailsModel)model);
+                            specificScript = _googleAnalyticsScriptHelper.GetViewItemScript((ProductDetailsModel)model);
                         }
                         else if (controller.EqualsNoCase("catalog"))
                         {
-                            var catId = 0;
+                            var isCategoryList = false;
                             var productList = new List<ProductSummaryItemModel>();
 
                             // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
@@ -72,7 +72,7 @@ namespace Smartstore.Google.Analytics.Components
                             {
                                 var categoryModel = (CategoryModel)model;
                                 productList = categoryModel.Products.Items;
-                                catId = categoryModel.Id;
+                                isCategoryList = true;
                             }
                             else if (action.EqualsNoCase("manufacturer"))
                             {
@@ -88,7 +88,7 @@ namespace Smartstore.Google.Analytics.Components
                             // If there are no products in the list return just global script.
                             if (productList.Count > 0)
                             {
-                                specificScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
+                                specificScript = _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower(), isCategoryList);
                             }
                         }
                         else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
@@ -97,7 +97,7 @@ namespace Smartstore.Google.Analytics.Components
                             var productList = searchModel.TopProducts.Items;
 
                             specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
-                            specificScript += await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower());
+                            specificScript += _googleAnalyticsScriptHelper.GetListScript(productList, action.ToLower());
                         }
                     }
                     if (_settings.RenderCheckoutScripts)

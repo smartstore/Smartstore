@@ -8,6 +8,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -34,6 +35,7 @@ namespace Smartstore.Google.Analytics.Services
         private readonly IRoundingHelper _roundingHelper;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly IBreadcrumb _breadcrumb;
 
         public GoogleAnalyticsScriptHelper(
             SmartDbContext db,
@@ -47,7 +49,8 @@ namespace Smartstore.Google.Analytics.Services
             ModuleManager moduleManager,
             IRoundingHelper roundingHelper,
             IWorkContext workContext,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            IBreadcrumb breadcrumb)
         {
             _db = db;
             _settings = settings;
@@ -61,6 +64,7 @@ namespace Smartstore.Google.Analytics.Services
             _roundingHelper = roundingHelper;
             _workContext = workContext;
             _storeContext = storeContext;
+            _breadcrumb = breadcrumb;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -96,12 +100,9 @@ namespace Smartstore.Google.Analytics.Services
         /// </summary>
         /// <param name="model">ProductDetailsModel already prepared by product controller for product details view.</param>
         /// <returns>Script part to fire GA event view_item</returns>
-        public async Task<string> GetViewItemScriptAsync(ProductDetailsModel model)
+        public string GetViewItemScript(ProductDetailsModel model)
         {
             var brand = model.Brands.FirstOrDefault();
-            var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync([model.Id])).FirstOrDefault();
-            var categoryId = defaultProductCategory != null ? defaultProductCategory.Category.Id : 0;
-            var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
             var price = _roundingHelper.Round(model.Price.FinalPrice).ToStringInvariant();
             
             var productsScript = GetItemScript(
@@ -111,7 +112,7 @@ namespace Smartstore.Google.Analytics.Services
                 !model.Price.HasDiscount ? "''" : _roundingHelper.Round(model.Price.Saving.SavingAmount.Value).ToStringInvariant(),
                 brand != null ? brand.Name : string.Empty,
                 price,
-                categoryPathScript, addComma: false);
+                GetCategoryPath(), addComma: false);
 
             var eventScript = @$"
                 let pdItem = {productsScript};
@@ -246,7 +247,6 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Builds json properties for the category tree as defined by Google.
         /// </summary>
-        /// <param name="catId">Id of the target category</param>
         /// <returns>
         /// Category path in this form:
         /// 
@@ -255,23 +255,23 @@ namespace Smartstore.Google.Analytics.Services
         /// item_category3: 'Shirts',
         /// item_category4: 'Crew',
         /// item_category5: 'Short sleeve',
-        /// </returns>
-        private async Task<string> GetCategoryPathAsync(int catId)
+        /// </returns
+        private string GetCategoryPath()
         {
             var i = 0;
             var catScript = string.Empty;
-            var catNode = await _categoryService.GetCategoryTreeAsync(catId, true);
-
-            foreach (var node in catNode.Trail)
+            
+            foreach (var node in _breadcrumb.Trail)
             {
-                if (!node.IsRoot && ++i != 5)
+                if (node.EntityName == nameof(Category) && ++i != 5)
                 {
-                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{node.Value.Name.EncodeJsStringUnquoted()}',";
+                    catScript += $"item_category{(i > 1 ? i.ToString() : string.Empty)}: '{node.Text.EncodeJsStringUnquoted()}',";
                 }
             }
 
             return catScript;
         }
+
 
         /// <summary>
         /// Generates partial script for product lists. Used for pages (eg. category, manufacturer) as well as for view components (e.g. HomepageBestsellers, RecentlyViewedProducts)
@@ -279,15 +279,15 @@ namespace Smartstore.Google.Analytics.Services
         /// </summary>
         /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
-        /// <param name="categoryId">First category of the product, when called form category view.</param>
+        /// <param name="isCategory">Defines whether this is called from a category view thus we have to add a category breadcrumb.</param>
         /// <returns>Script part to fire GA event view_item_list</returns>
-        public async Task<string> GetListScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
+        public string GetListScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
         {
             listName = listName.EncodeJsStringUnquoted();
             return @$"
                 let eventData{listName} = {{
                     item_list_name: '{listName}',
-                    {await GetItemsScriptAsync(products, listName, categoryId)}
+                    {GetItemsScript(products, listName, isCategory)}
                 }}
 
                 window.gaListDataStore.push(eventData{listName});
@@ -303,10 +303,10 @@ namespace Smartstore.Google.Analytics.Services
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
         /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private async Task<string> GetItemsScriptAsync(List<ProductSummaryItemModel> products, string listName, int categoryId = 0)
+        private string GetItemsScript(List<ProductSummaryItemModel> products, string listName, bool isCategory = false)
         {
             var productsScript = string.Empty;
-            var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
+            var categoryPathScript = isCategory ? GetCategoryPath() : string.Empty;
 
             var i = 0;
             foreach (var product in products)
