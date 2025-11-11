@@ -275,6 +275,13 @@
                 return '';
             }
 
+            function normalizeText(value) {
+                if (value && value.length > 0) {
+                    value = value.trim();
+                }
+                return value || null;
+            }
+
             function renderSelectItem(item, isResult) {
                 try {
                     var option = $(item.element),
@@ -282,8 +289,6 @@
                         color = option.attr('data-color'),
                         text = item.text,
                         title = '',
-                        preHtml = '',
-                        postHtml = '',
                         classes = item.cssClass || option.data('item-class') || '',
                         styles = item.cssStyle || option.data('item-style') || '',
                         hint = item.hint || option.attr('data-hint'),
@@ -293,16 +298,11 @@
                         truncateText = options.maxTextLength > 0 && text.length > options.maxTextLength,
                         appendHint = !isResult && hint && hint.length > 0;
 
-                    const itemTitle = item.title || option.data('title') || '';
-                    const optionClasses = ['select2-option'];
+                    let itemTitle = item.title || option.data('title') || '';
 
                     if (!isResult && sel.prop('multiple')) {
                         // Should not be applied. Looks ugly for selected options.
                         classes = '';
-                    }
-
-                    if (classes.length > 0) {
-                        optionClasses.push(classes);
                     }
 
                     if (truncateText || appendHint || itemTitle.length > 0) {
@@ -319,87 +319,110 @@
                         text = text.substring(0, options.maxTextLength) + '…';
                     }
 
+                    let preResult = null;
+                    let postResult = null;
+                    let result = $('<span class="select2-option"></span>')
+                        .addClass(classes)
+                        .attr('title', normalizeText(title))
+                        .attr('style', normalizeText(styles));
+
                     if (isResult) {
                         if (!_.isEmpty(item.id) && !_.isEmpty(item.url)) {
                             if (item.id === '-1') {
                                 // Item is a link to open add-entity page.
-                                optionClasses.push('select2-item-link prevent-selection');
+                                result.addClass('select2-item-link prevent-selection');
                             }
                             else {
                                 // Add small item button to open detail page.
-                                preHtml += `<span class="select2-item-btn">
-                                    <a href="${item.url.replace('__id__', item.id)}" class="btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle prevent-selection"${attr('title', item.urlTitle)}>
-                                    <i class="fa fa-ellipsis fa-fw prevent-selection"></i></a>
-                                </span>`;
+                                // From inner to outer.
+                                preResult = $('<i class="fa fa-ellipsis fa-fw prevent-selection"></i>')
+                                    .wrap('<a/>')
+                                    .parent()
+                                    .attr('href', item.url.replace('__id__', item.id))
+                                    .attr('title', item.urlTitle)
+                                    .addClass('btn btn-clear-dark btn-no-border btn-sm btn-icon rounded-circle prevent-selection')
+                                    .wrap('<span class="select2-item-btn">')
+                                    .parent();
                             }
                         }
 
                         if (!_.isEmpty(description)) {
-                            postHtml += `<span class="select2-item-description text-muted">${description}</span>`;
+                            postResult = $('<span/>').addClass('select2-item-description text-muted').html(description);
                         }
-                    }           
-
-                    if (!isResult && hint) {
-                        optionClasses.push('w-100');
                     }
 
-                    let html = [];
-                    let textClass = isResult ? null : 'text-truncate';
-                    let textHtml = `<span${attr('class', textClass)}>${text}</span>`;
+                    if (!isResult && hint) {
+                        result.addClass('w-100');
+                    }
 
-                    // Root opening option SPAN
-                    html.push(`<span class="${optionClasses.join(' ')}"${attr('title', title)}${attr('style', styles)}>`);
+                    let textClass = isResult ? null : 'text-truncate';
+                    let textResult = $('<span/>').addClass(textClass).html(normalizeText(text));
 
                     if (color || imageUrl) {
-                        // Opening .choice-item SPAN
-                        html.push('<span class="choice-item');
-                        if (textClass) html.push(' ' + textClass);
-                        html.push('">');
+                        let choice = $('<span/>')
+                            .addClass('choice-item')
+                            .addClass(textClass)
+                            .appendTo(result);
 
                         // Image...
                         if (imageUrl) {
-                            html.push(`<img src="${imageUrl}" class="choice-item-img" alt="${text}" />`);
+                            $('<img/>')
+                                .attr('src', imageUrl)
+                                .attr('alt', normalizeText(text))
+                                .addClass('choice-item-img')
+                                .appendTo(choice);
                         }
                         // ... or Color
                         else if (color) {
-                            html.push(`<span class="choice-item-color" style="background-color: ${color}"></span>`);
+                            $('<span/>')
+                                .addClass('choice-item-color')
+                                .css('background-color', color)
+                                .appendTo(choice);
                         }
 
                         // Text
-                        html.push(textHtml);
-
-                        // Closing .choice-item SPAN
-                        html.push('</span>');
+                        choice.append(textResult);
                     }
                     else if (icon) {
                         // Icon
-                        preHtml = '';
+                        preResult = null;
                         let icons = _.isArray(icon) ? icon : [icon];
                         let len = icons.length;
                         for (i = 0; i < len; i++) {
                             let iconClass = icons[i] + " fa-fw mr-2 fs-h6";
-                            html.push(`<i class="${iconClass}" style="font-size: 16px;"></i>`);
+                            $('<i/>')
+                                .addClass(iconClass)
+                                .css('font-size', '16px')
+                                .appendTo(result);
                         }
 
                         // Text
-                        html.push(textHtml);
+                        result.append(textResult);
                     }
                     else {
                         // Text
-                        html.push(textHtml);
+                        result.append(textResult);
                     }
 
                     if (hint) {
                         // Hint/Badge
-                        html.push(`<span class="option-hint ml-auto">
-                            <span class="${hintClass}">${hint}</span>
-                        </span>`);
+                        $('<span/>')
+                            .addClass('option-hint ml-auto')
+                            .append($('<span/>').addClass(hintClass).html(hint))
+                            .appendTo(result);
                     }
 
-                    // Root closing option SPAN
-                    html.push('</span>');
-
-                    return $(preHtml + html.join('') + postHtml);
+                    if (preResult || postResult) {
+                        return $(result
+                            .wrap('<div/>')
+                            .before(preResult)
+                            .after(postResult)
+                            .parent()
+                            .html());
+                    }
+                    else {
+                        return result;
+                    }
                 }
                 catch (e) {
                     console.log(e);
