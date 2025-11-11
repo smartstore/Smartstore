@@ -95,13 +95,18 @@
         opacity: 0;
         transition: opacity 0.05s linear;
 
-        > a.btn {
+        + .select2-option {
+            // Padding for edit button
+            padding-inline-end: 22px;
+        }
+
+        > a.prevent-selection {
             color: unset;
             --btn-height: 24px;
             width: 24px;
             height: 24px;
 
-            > i {
+            > i.prevent-selection {
                 width: unset;
             }
         }
