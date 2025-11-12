@@ -25,6 +25,19 @@ namespace Smartstore.Core.AI.Metadata
     }
 
     /// <summary>
+    /// Represents the tools available for AI response generation, allowing for a combination of multiple tools.
+    /// </summary>
+    [Flags]
+    public enum AIResponseTool
+    {
+        None = 0,
+        WebSearch = 1 << 0,
+        ImageGeneration = 1 << 1,
+        CodeAnalysis = 1 << 2,
+        FileSearch = 1 << 3
+    }
+
+    /// <summary>
     /// Represents a single LLM model entry in the catalog.
     /// </summary>
     public class AIModelEntry : ICloneable<AIModelEntry>, IEquatable<AIModelEntry>
@@ -77,6 +90,12 @@ namespace Smartstore.Core.AI.Metadata
         public AIModelPerformanceLevel Level { get; set; }
 
         /// <summary>
+        /// Gets or sets the tools supported by this model.
+        /// </summary>
+        [JsonConverter(typeof(AIResponseToolConverter))]
+        public AIResponseTool Tools { get; set; }
+
+        /// <summary>
         /// Indicates whether the model supports streaming responses.
         /// </summary>
         [DefaultValue(true)]
@@ -87,6 +106,13 @@ namespace Smartstore.Core.AI.Metadata
         /// User-defined custom model (not provided by metadata.json).
         /// </summary>
         public bool IsCustom { get; set; }
+
+        /// <summary>
+        /// Determines whether the specified tool is supported.
+        /// </summary>
+        /// <param name="tool">The tool to check for support.</param>
+        public bool SupportsTool(AIResponseTool tool)
+            => Tools.HasFlag(tool);
 
         /// <inheritdoc/>
         public AIModelEntry Clone()
