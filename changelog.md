@@ -79,7 +79,9 @@
   - #1196 Avoid duplicate return requests for a product.
   - The quantity to return reflects the number of products that have already been returned.
   - Display information about products that have already been returned, including their current status.
-- Web API: Allow guest customers to be created.
+- **Web API**
+  - Allow guest customers to be created.
+  - #1432 Wallet: Use service methods for Web API REST endpoints.
 - Convert JSON strings to HTML for notifications.
 - Trailing slash URL rule: Don't apply rule to static file requests (e.g. `robots.txt`).
 - #1156 The last items added to the basket must be instantly visible in offcanvas cart.
