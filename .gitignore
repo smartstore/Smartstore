@@ -238,3 +238,7 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 
 src/Smartstore.Packager.sln
 Log.txt
+
+# SBOM files
+bom.json
+bom-js.json
