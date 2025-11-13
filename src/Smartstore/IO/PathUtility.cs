@@ -212,6 +212,155 @@ namespace Smartstore.IO
 
         #endregion
 
+        #region Truncate
+
+        /// <summary>
+        /// Shortens a filename to maximum x characters without removing the file extension.
+        /// </summary>
+        /// <param name="fileName">The filename to shorten</param>
+        /// <param name="maxLength">Maximum length of the filename (including extension)</param>
+        /// <returns>Shortened filename or original filename if no shortening is necessary.</returns>
+        public static string? TruncateFileName(string? fileName, int maxLength)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return fileName;
+            }
+
+            if (fileName.Length <= maxLength)
+            {
+                return fileName;
+            }
+
+            // Split filename into base name and extension
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var extension = Path.GetExtension(fileName);
+
+            // If the extension alone is too long, shorten the extension
+            if (extension.Length >= maxLength)
+            {
+                // At least 1 character for name + dot + 1 character extension
+                return fileName[..maxLength];
+            }
+
+            // Calculate available length for the name part
+            var availableNameLength = maxLength - extension.Length;
+
+            // Ensure we have at least 1 character for the name
+            if (availableNameLength < 1) 
+            {
+                availableNameLength = 1;
+            }   
+
+            // Shorten the name part
+            string shortenedName;
+            if (nameWithoutExtension.Length > availableNameLength)
+            {
+                // Use ellipsis for better readability if we have enough space
+                if (availableNameLength > 3)
+                {
+                    shortenedName = nameWithoutExtension[..(availableNameLength - 3)] + "...";
+                }
+                else
+                {
+                    // Very limited space - just truncate
+                    shortenedName = nameWithoutExtension[..availableNameLength];
+                }
+            }
+            else
+            {
+                shortenedName = nameWithoutExtension;
+            }
+
+            return shortenedName + extension;
+        }
+
+        /// <summary>
+        /// Shortens a file path while keeping the filename itself intact.
+        /// </summary>
+        /// <param name="filePath">The complete file path</param>
+        /// <param name="maxLength">Maximum length of the entire path</param>
+        /// <returns>Shortened path or original path if no shortening is needed.</returns>
+        public static string? TruncateFilePath(string? filePath, int maxLength)
+        {
+            if (string.IsNullOrEmpty(filePath) || filePath.Length <= maxLength)
+            {
+                return filePath;
+            }
+
+            var directory = Path.GetDirectoryName(filePath);
+            var fileName = Path.GetFileName(filePath);
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                return TruncateFileName(fileName, maxLength);
+            }
+                
+            // First shorten the filename
+            var shortenedFileName = TruncateFileName(fileName, Math.Min(maxLength, fileName.Length))!;
+
+            // Calculate available length for directory
+            var availableDirLength = maxLength - shortenedFileName.Length - 1; // -1 for path separator
+
+            if (availableDirLength <= 0)
+            {
+                // No space for directory part
+                return shortenedFileName;
+            }
+
+            // Shorten directory part
+            var shortenedDirectory = TruncateDirectoryPath(directory, availableDirLength);
+
+            return Path.Combine(shortenedDirectory, shortenedFileName);
+        }
+
+        private static string TruncateDirectoryPath(string directory, int maxLength)
+        {
+            if (directory.Length <= maxLength)
+            {
+                return directory;
+            }
+
+            // Split directory path into parts
+            var parts = directory.Split(PathSeparators)
+                .Where(p => !string.IsNullOrEmpty(p))
+                .ToArray();
+
+            if (parts.Length == 0)
+            {
+                return directory[..maxLength];
+            }  
+
+            // Try to shorten from the front (keep important directories at the end)
+            var result = string.Empty;
+            for (int i = parts.Length - 1; i >= 0; i--)
+            {
+                var temp = string.Join(Path.DirectorySeparatorChar.ToString(), parts.Skip(i).ToArray());
+                if (temp.Length <= maxLength)
+                {
+                    result = temp;
+                    break;
+                }
+            }
+
+            // If still too long, shorten with ellipsis
+            if (result.Length > maxLength || string.IsNullOrEmpty(result))
+            {
+                if (maxLength > 3)
+                {
+                    result = "..." + directory[^(maxLength - 3)..];
+                }
+                else
+                {
+                    result = directory[..maxLength];
+                } 
+            }
+
+            return result;
+        }
+
+        #endregion
+
         /// <summary>
         /// Determines the relative path from <paramref name="fromPath"/> to <paramref name="toPath"/>
         /// </summary>
