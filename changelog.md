@@ -86,6 +86,7 @@
 - Trailing slash URL rule: Don't apply rule to static file requests (e.g. `robots.txt`).
 - #1156 The last items added to the basket must be instantly visible in offcanvas cart.
 - #208 Linkbuilder: Added possibility to define a link target.
+- #1404 FileManager must not render tab content via AJAX, as search engines must be able to read the content in its entirety.
 
 ### Bugfixes
 
