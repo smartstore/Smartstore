@@ -79,9 +79,7 @@
   - #1196 Avoid duplicate return requests for a product.
   - The quantity to return reflects the number of products that have already been returned.
   - Display information about products that have already been returned, including their current status.
-- **Web API**
-  - Allow guest customers to be created.
-  - #1432 Wallet: Use service methods for Web API REST endpoints.
+- Web API: Allow guest customers to be created.
 - Convert JSON strings to HTML for notifications.
 - Trailing slash URL rule: Don't apply rule to static file requests (e.g. `robots.txt`).
 - #1156 The last items added to the basket must be instantly visible in offcanvas cart.
@@ -112,6 +110,11 @@
 - **PostFinance**
   - Fixed an issue where the amount paid sometimes differs from the order total.
   - #1423 Avoid "The provided security token is invalid" error due to security token expiration.
+- **Wallet**
+  - Fixed formatting of currency amounts in message template.
+  - Save the order ID when editing a wallet entry in the wallet grid on the customer edit page.
+  -	Clicking on the "wallet" link in the notification message produced a 404 error.
+  - #1432 Wallet: Use service methods for Web API REST endpoints.
 - AmazonPay: Do not apply the customer email address for guests.
 - Payment methods with rules are missing on the customer edit page when changing the preferred payment method.
 - Verify balanced parentheses in data grid search filter expressions, preventing runaway memory usage from malformed search terms.
