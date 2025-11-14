@@ -36,6 +36,7 @@ TestResult.xml
 # DNX
 artifacts/
 .artifacts/
+.tools/
 
 *_i.c
 *_p.c
