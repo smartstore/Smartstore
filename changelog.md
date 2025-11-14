@@ -43,7 +43,8 @@
   - Cart rule to check that all products in the shopping cart are from the specified categories.
   - #1425 Cart rule that is fulfilled when the customer is subscribed to the newsletter.
 - #1357 Pricing: Add a setting that takes tiered prices of products into account, that are assigned by an attribute of type "linked product".
-- #690 Apple Sign-In support
+- #690 **Apple Sign-In** support
+- Added support for extensionless static files in `wwwroot/.well-known` directory
 - FileManager: Enabled language dependent tabs
 - **GMC**
   - #1341 Enable the selection of product images to be exported.
