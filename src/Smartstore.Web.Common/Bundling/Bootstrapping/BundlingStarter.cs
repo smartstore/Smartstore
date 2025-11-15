@@ -52,7 +52,7 @@ namespace Smartstore.Web.Bootstrapping
                     FileProvider = assetFileProvider,
                     ContentTypeProvider = MimeTypes.ContentTypeProvider,
                 });
-                
+
                 // Server static files from ".well-known" folder (e.g. for verification files)
                 app.UseStaticFiles(new StaticFileOptions
                 {
@@ -60,7 +60,7 @@ namespace Smartstore.Web.Bootstrapping
                     RequestPath = "/.well-known",
                     ServeUnknownFileTypes = true,
                     // Some text-based verification files have no extension
-                    DefaultContentType = "text/plain" 
+                    DefaultContentType = "text/plain"
                 });
             });
         }

@@ -6,7 +6,7 @@ namespace Smartstore.IO
     {
         const string DefaultMimeType = "application/octet-stream";
 
-        static FileExtensionContentTypeProvider _contentTypeProvider = new SmartFileExtensionContentTypeProvider();
+        private static readonly SmartContentTypeProvider _contentTypeProvider = new();
 
         public static IContentTypeProvider ContentTypeProvider
         {
@@ -79,8 +79,8 @@ namespace Smartstore.IO
 
         public static void Register(string mimeType, string extension)
         {
-            Guard.NotEmpty(mimeType, nameof(mimeType));
-            Guard.NotEmpty(extension, nameof(extension));
+            Guard.NotEmpty(mimeType);
+            Guard.NotEmpty(extension);
 
             MimeKit.MimeTypes.Register(mimeType, extension);
             _contentTypeProvider.Mappings[extension.EnsureStartsWith('.')] = mimeType;
