@@ -25,6 +25,9 @@
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalGooglePay" AppendRootKey="false">
         <Value>Google Pay</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalApplePay" AppendRootKey="false">
+        <Value>Apple Pay</Value>
+    </LocaleResource>
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalCreditCard" AppendRootKey="false">
         <Value>PayPal Creditcard</Value>
     </LocaleResource>
@@ -83,7 +86,14 @@
     <LocaleResource Name="Plugins.Description.Payments.PayPalGooglePay" AppendRootKey="false">
         <Value>
             <![CDATA[
-			    Provides a secure payment process that seamlessly integrates with Google Pay.
+                            Provides a secure payment process that seamlessly integrates with Google Pay.
+            ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalApplePay" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+                            Provides a secure and seamless checkout for Apple Pay users directly on your store.
             ]]>
         </Value>
     </LocaleResource>
@@ -184,7 +194,14 @@
             <LocaleResource Name="PayPalGooglePay" AppendRootKey="false">
                 <Value>
                     <![CDATA[
-				        Pay directly with Google Pay in a secure environment.
+                                        Pay directly with Google Pay in a secure environment.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="PayPalApplePay" AppendRootKey="false">
+                <Value>
+                    <![CDATA[
+                                        Pay directly with Apple Pay without leaving the store.
                       ]]>
                 </Value>
             </LocaleResource>
@@ -577,8 +594,12 @@
             <LocaleResource Name="Error.3DSecure">
                 <Value>An error has occurred when confirming your card with your card provider.</Value>
             </LocaleResource>
+<!-- TODO: Consolidate -->
             <LocaleResource Name="Error.GooglePayTranactionError">
                 <Value>This transaction has failed.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.ApplePayTranactionError">
+                <Value>The Apple Pay transaction has failed.</Value>
             </LocaleResource>
             <LocaleResource Name="CartHasChanged">
                 <Value>Your shopping cart has changed after login. Please confirm your current shopping cart with PayPal.</Value>

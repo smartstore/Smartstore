@@ -36,5 +36,10 @@
         /// Value that indicates whether GooglePay is active. 
         /// </summary>
         public bool IsGooglePayActive { get; set; }
+
+        /// <summary>
+        /// Value that indicates whether Apple Pay is active.
+        /// </summary>
+        public bool IsApplePayActive { get; set; }
     }
 }

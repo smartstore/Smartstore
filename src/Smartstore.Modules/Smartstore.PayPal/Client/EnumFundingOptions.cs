@@ -5,6 +5,7 @@
         paypal,
         sepa,
         paylater,
-        googlepay
+        googlepay,
+        applepay
     }
 }

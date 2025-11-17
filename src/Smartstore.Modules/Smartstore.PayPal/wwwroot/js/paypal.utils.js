@@ -1,6 +1,7 @@
 "use strict";
 
 (function ($, window, document, undefined) {
+
     var PayPalButton = window.PayPalButton = (function () {
         function PayPalButton(buttonContainerSelector, funding) {
             this.buttonContainer = $(buttonContainerSelector);
@@ -240,8 +241,8 @@
                 if (!buttonContainer.length)
                     return;
 
-                await waitFor('paypal');
-                await waitFor('google');
+                await ensureLibraryLoaded('paypal');
+                await ensureLibraryLoaded('google');
 
                 const paymentsClient = getGooglePaymentsClient();
                 const { allowedPaymentMethods } = await getGooglePayConfig();
@@ -265,19 +266,6 @@
         };
 
         let paymentsClient = null, allowedPaymentMethods = null, merchantInfo = null;
-
-        // Function to wait for external scripts to be loaded.
-        function waitFor(name) {
-            return new Promise((resolve) => {
-                (function check() {
-                    if (typeof window[name] !== 'undefined') {
-                        resolve(window[name]);
-                    } else {
-                        setTimeout(check, 100);
-                    }
-                })();
-            });
-        }
 
         function onPaymentAuthorized(paymentData) {
             return new Promise(function (resolve, reject) {
@@ -420,6 +408,138 @@
         return GooglePayPayPalButton;
     })();
 
+    var ApplePayPayPalButton = window.ApplePayPayPalButton = (function () {
+        let buttonContainer = null;
+
+        class ApplePayPayPalButton {
+            constructor() {
+                buttonContainer = $("#paypal-apple-pay-container");
+
+                if (buttonContainer && buttonContainer.html().trim() == '') {
+                    window.ApplePayPayPalButton.onApplePayLoaded();
+                }
+            }
+
+            async onApplePayLoaded() {
+                if (!buttonContainer.length) {
+                    return;
+                }
+
+                await ensureLibraryLoaded('paypal');
+                
+                if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
+                    return;
+                }
+
+                await addApplePayButton();
+            }
+        }
+
+        async function addApplePayButton() {
+            const paymentRequest = await getApplePayPaymentRequest();
+
+            if (!paymentRequest) {
+                return;
+            }
+
+            if (typeof paypal.Applepay !== 'function') {
+                return;
+            }
+
+            const applepay = paypal.Applepay();
+            const button = applepay.Button({
+                onClick: () => onApplePayButtonClicked(applepay, paymentRequest)
+            });
+
+            buttonContainer.append(button);
+        }
+
+        async function onApplePayButtonClicked(applepay, paymentRequest) {
+            try {
+                const orderId = createOrder(buttonContainer.data("create-order-url"), buttonContainer.attr("id"), buttonContainer.data("route-ident"));
+
+                if (!orderId) {
+                    return;
+                }
+
+                const applePayment = await applepay.start({
+                    countryCode: paymentRequest.countryCode,
+                    currencyCode: paymentRequest.currencyCode,
+                    total: {
+                        label: paymentRequest.totalLabel,
+                        amount: paymentRequest.totalAmount
+                    },
+                    requiredBillingContactFields: ["postalAddress", "name", "phone"],
+                    requiredShippingContactFields: paymentRequest.requiresShipping ? ["postalAddress", "name", "phone"] : []
+                });
+
+                await confirmApplePayOrder(orderId, applePayment.token);
+            }
+            catch (err) {
+                console.error(err);
+                displayNotification(buttonContainer.data("transaction-error"), "error");
+            }
+        }
+
+        async function confirmApplePayOrder(orderId, token) {
+            try {
+                const { status } = await paypal.Applepay().confirmOrder({
+                    orderId: orderId,
+                    token: token
+                });
+
+                if (status === "APPROVED" || status === "COMPLETED") {
+                    initTransaction({ orderID: orderId }, buttonContainer);
+                }
+                else if (status === "PAYER_ACTION_REQUIRED") {
+                    paypal
+                        .Applepay()
+                        .initiatePayerAction({ orderId: orderId })
+                        .then(async () => {
+                            initTransaction({ orderID: orderId }, buttonContainer);
+                        });
+                }
+                else {
+                    displayNotification(buttonContainer.data("transaction-error"), "error");
+                }
+            }
+            catch (err) {
+                console.error(err);
+                displayNotification(buttonContainer.data("transaction-error"), "error");
+            }
+        }
+
+        async function getApplePayPaymentRequest() {
+            try {
+                const response = await $.ajax({
+                    type: "POST",
+                    url: buttonContainer.data("get-payment-request-url"),
+                    data: {
+                        routeIdent: buttonContainer.data("route-ident")
+                    },
+                    cache: false
+                });
+
+                if (response && response.success === false) {
+                    displayNotification(response.message, "error");
+                    return null;
+                }
+
+                return response;
+            }
+            catch (err) {
+                console.error(err);
+                displayNotification(buttonContainer.data("transaction-error"), "error");
+            }
+
+            return null;
+        }
+
+        ApplePayPayPalButton.onApplePayLoaded = ApplePayPayPalButton.prototype.onApplePayLoaded;
+
+        return ApplePayPayPalButton;
+    })();
+
     function createOrder(createOrderUrl, paymentSource, routeIdent) {
         var orderId;
         
@@ -465,6 +585,19 @@
                     displayNotification(resp.message, 'error');
                 }
             }
+        });
+    }
+
+    function ensureLibraryLoaded(name) {
+        return new Promise((resolve) => {
+            (function check() {
+                if (typeof window[name] !== 'undefined') {
+                    resolve(window[name]);
+                }
+                else {
+                    setTimeout(check, 100);
+                }
+            })();
         });
     }
 })(jQuery, this, document);

@@ -36,7 +36,8 @@ namespace Smartstore.PayPal.Components
                 ButtonShape = _settings.ButtonShape,
                 Funding = funding,
                 IsSandbox = _settings.UseSandbox,
-                IsGooglePayActive = await _payPalHelper.IsProviderActiveAsync(PayPalConstants.GooglePay)
+                IsGooglePayActive = await _payPalHelper.IsProviderActiveAsync(PayPalConstants.GooglePay),
+                IsApplePayActive = await _payPalHelper.IsProviderActiveAsync(PayPalConstants.ApplePay)
             };
 
             return View(model);

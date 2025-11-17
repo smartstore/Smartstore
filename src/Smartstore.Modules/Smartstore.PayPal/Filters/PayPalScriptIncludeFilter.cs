@@ -60,7 +60,8 @@ namespace Smartstore.PayPal.Filters
                 PayPalConstants.CreditCard,
                 PayPalConstants.PayLater,
                 PayPalConstants.Sepa,
-                PayPalConstants.GooglePay);
+                PayPalConstants.GooglePay,
+                PayPalConstants.ApplePay);
 
             var consented = await _cookieConsentManager.IsCookieAllowedAsync(CookieType.Required);
 
@@ -83,8 +84,9 @@ namespace Smartstore.PayPal.Filters
 
                 // Complete component param according to used providers
                 var googlePayEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.GooglePay);
+                var applePayEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.ApplePay);
                 var creditCardEnabled = await _payPalHelper.IsProviderEnabledAsync(PayPalConstants.CreditCard);
-                scriptUrl += $"&components=messages,buttons,funding-eligibility{(creditCardEnabled? ",hosted-fields" : "")}{(googlePayEnabled ? ",googlepay" : "")}";
+                scriptUrl += $"&components=messages,buttons,funding-eligibility{(creditCardEnabled? ",hosted-fields" : "")}{(googlePayEnabled ? ",googlepay" : "")}{(applePayEnabled ? ",applepay" : "")}";
 
                 if (_settings.Intent == PayPalTransactionType.Authorize)
                 {
@@ -115,6 +117,13 @@ namespace Smartstore.PayPal.Filters
                     var googlePayScriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, "https://pay.google.com/gp/p/js/pay.js");
                     googlePayScriptIncludeTag.Attributes["async"] = "async";
                     _widgetProvider.RegisterHtml("end", googlePayScriptIncludeTag);
+                }
+
+                if (applePayEnabled)
+                {
+                    var applePayScriptIncludeTag = _cookieConsentManager.GenerateScript(consented, CookieType.Required, "https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js");
+                    applePayScriptIncludeTag.Attributes["async"] = "async";
+                    _widgetProvider.RegisterHtml("end", applePayScriptIncludeTag);
                 }
             }
 

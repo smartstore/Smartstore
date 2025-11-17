@@ -21,6 +21,19 @@
     </div>
 }
 
+@if (Model.IsApplePayActive)
+{
+    <div id="paypal-apple-pay-container"
+         data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+         data-get-payment-request-url="@Url.Action("GetApplePayPaymentRequest", "PayPal")"
+         data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
+         data-forward-url="@Url.Action("BillingAddress", "Checkout")"
+         data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
+         data-route-ident="@Model.RouteIdent"
+         data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.ApplePayTranactionError")">
+    </div>
+}
+
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-payment-selection">
     window.Res.PayPal = {

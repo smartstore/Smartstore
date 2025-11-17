@@ -169,6 +169,9 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("google_pay")]
         public PaymentSourceGooglePay PaymentSourceGooglePay;
+
+        [JsonProperty("apple_pay")]
+        public PaymentSourceApplePay PaymentSourceApplePay;
     }
 
     public class ShippingDetail
@@ -273,6 +276,11 @@ namespace Smartstore.PayPal.Client.Messages
     }
 
     public class PaymentSourceGooglePay
+    {
+        public PayPalAttributes Attributes;
+    }
+
+    public class PaymentSourceApplePay
     {
         public PayPalAttributes Attributes;
     }

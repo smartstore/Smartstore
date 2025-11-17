@@ -211,6 +211,9 @@ namespace Smartstore.PayPal.Controllers
                 case "paypal-google-pay-container":
                     selectedPaymentMethod = PayPalConstants.GooglePay;
                     break;
+                case "paypal-apple-pay-container":
+                    selectedPaymentMethod = PayPalConstants.ApplePay;
+                    break;
                 case "paypal-button-container":
                 default:
                     selectedPaymentMethod = PayPalConstants.Standard;
@@ -235,6 +238,19 @@ namespace Smartstore.PayPal.Controllers
             if (selectedPaymentMethod == PayPalConstants.GooglePay)
             {
                 orderMessagePaymentSource.PaymentSourceGooglePay = new PaymentSourceGooglePay
+                {
+                    Attributes = new PayPalAttributes
+                    {
+                        Verification = new VerificationAttribute
+                        {
+                            Method = "SCA_ALWAYS"
+                        }
+                    }
+                };
+            }
+            else if (selectedPaymentMethod == PayPalConstants.ApplePay)
+            {
+                orderMessagePaymentSource.PaymentSourceApplePay = new PaymentSourceApplePay
                 {
                     Attributes = new PayPalAttributes
                     {
@@ -548,28 +564,38 @@ namespace Smartstore.PayPal.Controllers
         [HttpPost]
         public async Task<IActionResult> GetGooglePayTransactionInfo(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
         {
-            // TODO: (mh) What is this huge code for? Seems repetitive. Urgently TBD with MC!
+            var (transactionInfo, errorResult, _) = await BuildGooglePayTransactionInfoAsync(query, useRewardPoints, routeIdent);
+
+            if (errorResult != null)
+            {
+                return Json(errorResult);
+            }
+
+            return Json(transactionInfo);
+        }
+
+        private async Task<(GoogleTransactionInfo Info, object ErrorResult, bool RequiresShipping)> BuildGooglePayTransactionInfoAsync(ProductVariantQuery query, bool? useRewardPoints, string routeIdent)
+        {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
             // Only save cart data when we're on shopping cart page.
-            if (routeIdent == "ShoppingCart.Cart")
+            if (PayPalHelper.IsCartRoute(routeIdent))
             {
-                var warnings = new List<string>();    
+                var warnings = new List<string>();
                 var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
 
                 if (!isCartValid)
                 {
-                    return Json(new { success = false, message = string.Join(Environment.NewLine, warnings) });
+                    return (null, new { success = false, message = string.Join(Environment.NewLine, warnings) }, cart.IsShippingRequired);
                 }
             }
 
             var transactionInfo = new GoogleTransactionInfo
             {
                 CurrencyCode = Services.WorkContext.WorkingCurrency.CurrencyCode,
-                //TransactionId = Guid.NewGuid().ToString(),    // We'll skip this for now.
-                TotalPriceStatus = "ESTIMATED"                  // INFO: Estimated because it is called from basket. Even on payment page a customer could change the shipping method and thus alter the final price.
+                TotalPriceStatus = "ESTIMATED"
             };
 
             var isVatExempt = await _taxService.IsVatExemptAsync(customer);
@@ -582,7 +608,7 @@ namespace Smartstore.PayPal.Controllers
                 var amountInclTax = _roundingHelper.Round(lineItem.Subtotal.Tax.Value.PriceGross);
                 var amountExclTax = _roundingHelper.Round(lineItem.Subtotal.Tax.Value.PriceNet);
                 var convertedUnitPrice = _currencyService.ConvertToWorkingCurrency(isVatExempt ? amountInclTax : amountExclTax);
-                
+
                 var displayItem = new DisplayItem
                 {
                     Label = item.Product.GetLocalized(x => x.Name),
@@ -594,7 +620,6 @@ namespace Smartstore.PayPal.Controllers
                 transactionInfo.DisplayItems = [.. transactionInfo.DisplayItems, displayItem];
             }
 
-            // Display subtotal
             var subtotalDisplayItem = new DisplayItem
             {
                 Label = T("Order.SubTotal"),
@@ -603,7 +628,6 @@ namespace Smartstore.PayPal.Controllers
                 Type = GooglePayItemType.Subtotal
             };
 
-            // Display tax
             (Money tax, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
             var cartTax = _currencyService.ConvertFromPrimaryCurrency(tax.Amount, _primaryCurrency);
             var taxDisplayItem = new DisplayItem
@@ -614,12 +638,10 @@ namespace Smartstore.PayPal.Controllers
                 Type = GooglePayItemType.Tax
             };
 
-            // Display shipping
             var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart, !isVatExempt);
             var shippingTotalAmount = _currencyService.ConvertFromPrimaryCurrency(
-                shippingTotal.ShippingTotal != null ?_roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount) : 0, _primaryCurrency);
+                shippingTotal.ShippingTotal != null ? _roundingHelper.Round(shippingTotal.ShippingTotal.Value.Amount) : 0, _primaryCurrency);
 
-            // Only Price=0 and Status=PENDING when were on cart page.
             var shippingDisplayItem = new DisplayItem
             {
                 Label = T("Order.Shipping"),
@@ -628,7 +650,6 @@ namespace Smartstore.PayPal.Controllers
                 Type = GooglePayItemType.LineItem
             };
 
-            // Discounts
             var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
             var cartTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartTotal.Total != null ? cartTotal.Total.Value.Amount : 0, _primaryCurrency);
             Money orderTotalDiscountAmount = default;
@@ -647,7 +668,7 @@ namespace Smartstore.PayPal.Controllers
 
             var discountDisplayItem = new DisplayItem
             {
-                Label = T("Order.TotalDiscount"),          
+                Label = T("Order.TotalDiscount"),
                 Price = (discountAmount * -1).ToStringInvariant("F"),
                 Status = GooglePayItemStatus.Final,
                 Type = GooglePayItemType.LineItem
@@ -657,10 +678,55 @@ namespace Smartstore.PayPal.Controllers
             transactionInfo.TotalPriceLabel = T("ShoppingCart.ItemTotal");
             transactionInfo.TotalPrice = (cartTotal.Total != null ? cartTotalConverted.Amount : subTotalConverted.Amount).ToStringInvariant("F");
 
-            return Json(transactionInfo);
+            return (transactionInfo, null, cart.IsShippingRequired);
         }
 
         #endregion
+
+        [HttpPost]
+        public async Task<IActionResult> GetApplePayPaymentRequest(ProductVariantQuery query, bool? useRewardPoints, string paymentSource, string routeIdent = "")
+        {
+            // TODO: WTF?!
+            var (transactionInfo, errorResult, requiresShipping) = await BuildGooglePayTransactionInfoAsync(query, useRewardPoints, routeIdent);
+
+            if (errorResult != null)
+            {
+                return Json(errorResult);
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var paymentRequest = new ApplePayPaymentRequest
+            {
+                CountryCode = ResolveApplePayCountryCode(customer),
+                CurrencyCode = transactionInfo.CurrencyCode,
+                TotalAmount = transactionInfo.TotalPrice,
+                TotalLabel = transactionInfo.TotalPriceLabel,
+                RequiresShipping = requiresShipping
+            };
+
+            return Json(paymentRequest);
+        }
+
+        private string ResolveApplePayCountryCode(Customer customer)
+        {
+            var countryCode = customer?.ShippingAddress?.Country?.TwoLetterIsoCode
+                ?? customer?.BillingAddress?.Country?.TwoLetterIsoCode;
+
+            if (!countryCode.HasValue())
+            {
+                var culture = Services.WorkContext.WorkingLanguage?.LanguageCulture;
+                if (culture?.Contains('-') ?? false)
+                {
+                    countryCode = culture.Split('-')[1];
+                }
+                else if (culture.HasValue())
+                {
+                    countryCode = culture;
+                }
+            }
+
+            return countryCode?.ToUpperInvariant() ?? "US";
+        }
 
         [HttpPost]
         [Route("paypal/webhookhandler"), WebhookEndpoint]

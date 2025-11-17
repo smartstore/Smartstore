@@ -23,7 +23,9 @@ namespace Smartstore.PayPal.Filters
             PayPalConstants.Eps,
             PayPalConstants.Ideal,
             PayPalConstants.MyBank,
-            PayPalConstants.Przelewy24
+            PayPalConstants.Przelewy24,
+            PayPalConstants.GooglePay,
+            PayPalConstants.ApplePay
         };
 
         private readonly SmartDbContext _db;
@@ -65,7 +67,8 @@ namespace Smartstore.PayPal.Filters
                 PayPalConstants.Standard,
                 PayPalConstants.PayLater,
                 PayPalConstants.Sepa,
-                PayPalConstants.GooglePay) && !redirectRequired)
+                PayPalConstants.GooglePay,
+                PayPalConstants.ApplePay) && !redirectRequired)
             {
                 await next();
                 return;
@@ -122,6 +125,7 @@ namespace Smartstore.PayPal.Filters
                             || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa
                             || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.PayLater
                             || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay
+                            || firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay
                             ) && firstPaymentMethod.Selected;
 
                         if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.Sepa)
@@ -135,6 +139,10 @@ namespace Smartstore.PayPal.Filters
                         else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.GooglePay)
                         {
                             funding = FundingOptions.googlepay.ToString();
+                        }
+                        else if (firstPaymentMethod.PaymentMethodSystemName == PayPalConstants.ApplePay)
+                        {
+                            funding = FundingOptions.applepay.ToString();
                         }
                     }
 
