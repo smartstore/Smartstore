@@ -55,13 +55,15 @@ namespace Smartstore.PayPal.Controllers
             }
 
             // Convert FundingOptions from settings to Array<int> so the corresponding taghelper in configure view can work with it.
+            // TODO: (mh) This is not int[], it is string[]. Why not just split without conversion?!
             model.FundingsCart = settings.FundingsCart
-                .SplitSafe(",")
+                .SplitSafe(',')
                 .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
                 .ToArray();
 
+            // TODO: (mh) This is not int[], it is string[]. Why not just split without conversion?!
             model.FundingsOffCanvasCart = settings.FundingsOffCanvasCart
-                .SplitSafe(",")
+                .SplitSafe(',')
                 .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
                 .ToArray();
 
@@ -93,8 +95,8 @@ namespace Smartstore.PayPal.Controllers
             MiniMapper.Map(model, settings);
 
             // Convert FundingOptions for cart & OffCanvasCart to comma separated string.
-            var fundingsCart = model.FundingsCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? Array.Empty<string>();
-            var fundingsOffCanvasCart = model.FundingsOffCanvasCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? Array.Empty<string>();
+            var fundingsCart = model.FundingsCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? [];
+            var fundingsOffCanvasCart = model.FundingsOffCanvasCart?.Select(x => x.Convert<FundingOptions>().ToString()) ?? [];
 
             settings.FundingsCart = string.Join(',', fundingsCart);
             settings.FundingsOffCanvasCart = string.Join(',', fundingsOffCanvasCart);

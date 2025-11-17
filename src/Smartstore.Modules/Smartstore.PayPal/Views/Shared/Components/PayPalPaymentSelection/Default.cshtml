@@ -23,6 +23,7 @@
 
 @if (Model.IsApplePayActive)
 {
+    // TODO: (mh) (dry) Code identical to PayPalApplePay/Default.cshtml. Why?
     <div id="paypal-apple-pay-container"
          data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
          data-get-payment-request-url="@Url.Action("GetApplePayPaymentRequest", "PayPal")"

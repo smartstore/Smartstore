@@ -31,6 +31,7 @@ namespace Smartstore.PayPal.Filters
             // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
+                // TODO: (mh) Calling Contains in a comma-separated string is not optimal. Refactor to use a list or enum flags. TBD with MC.
                 var fundings = _settings.FundingsOffCanvasCart;
 
                 // PayPalStandard
