@@ -1,37 +1,53 @@
 ﻿@model PublicPaymentMethodModel
+
+@{
+    var initTransactionUrl = Url.Action("InitTransaction", "PayPal");
+    var createOrderUrl = Url.Action("CreateOrder", "PayPal");
+    var billingAddressUrl = Url.Action("BillingAddress", "Checkout");
+    var confirmUrl = Url.Action("Confirm", "Checkout");
+    var isSandbox = Model.IsSandbox ? "true" : "false";
+
+    var walletBaseAttributes = new AttributeDictionary()
+    {
+        new("data-init-transaction-url", initTransactionUrl),
+        new("data-create-order-url", createOrderUrl),
+        new("data-forward-url", billingAddressUrl),
+        new("data-is-sandbox", isSandbox),
+        new("data-route-ident", Model.RouteIdent)
+    };
+
+    var buttonBaseAttributes = new AttributeDictionary()
+    {
+        new("data-init-transaction-url", initTransactionUrl),
+        new("data-create-order-url", createOrderUrl),
+        new("data-forward-url", Model.IsPaymentSelection ? confirmUrl : billingAddressUrl),
+        new("data-shape", Model.ButtonShape),
+        new("data-color", Model.ButtonColor),
+    };
+
+    if (Model.IsPaymentSelection && !Model.IsSelectedMethod)
+    {
+        buttonBaseAttributes.Add(new KeyValuePair<string, string>("attr-style", "display:none"));
+    }
+}
+
 <!-- Set up a container element for the paypal button -->
-<div id="paypal-button-container"
-     class="paypal-button-container"
-     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
-     data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
-     data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
-     data-shape="@Model.ButtonShape"
-     data-color="@Model.ButtonColor"
-     attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
+<div id="paypal-button-container" class="paypal-button-container" attrs="buttonBaseAttributes"></div>
 
 @if (Model.IsGooglePayActive)
 {
     <div id="paypal-google-pay-container"
-         data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
          data-get-transaction-info-url="@Url.Action("GetGooglePayTransactionInfo", "PayPal")"
-         data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
-         data-forward-url="@Url.Action("BillingAddress", "Checkout")"
-         data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
-         data-route-ident="@Model.RouteIdent">
+         attrs="walletBaseAttributes">
     </div>
 }
 
 @if (Model.IsApplePayActive)
 {
-    // TODO: (mh) (dry) Code identical to PayPalApplePay/Default.cshtml. Why?
     <div id="paypal-apple-pay-container"
-         data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
          data-get-payment-request-url="@Url.Action("GetApplePayPaymentRequest", "PayPal")"
-         data-create-order-url="@Url.Action("CreateOrder", "PayPal")"
-         data-forward-url="@Url.Action("BillingAddress", "Checkout")"
-         data-is-sandbox="@(Model.IsSandbox ? "true" : "false")"
-         data-route-ident="@Model.RouteIdent"
-         data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.ApplePayTranactionError")">
+         data-transaction-error="@T("Plugins.Smartstore.PayPal.Error.ApplePayTranactionError")"
+         attrs="walletBaseAttributes">
     </div>
 }
 
