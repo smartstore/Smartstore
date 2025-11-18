@@ -56,6 +56,8 @@ namespace Smartstore.PayPal.Controllers
 
             // Convert FundingOptions from settings to Array<int> so the corresponding taghelper in configure view can work with it.
             // TODO: (mh) This is not int[], it is string[]. Why not just split without conversion?!
+            // RE: Because we used GetLocalizedEnumSelectList in the view which returns values of type int    
+            // Also if we would change this now we would have to write a migration to convert existing settings in the database.
             model.FundingsCart = settings.FundingsCart
                 .SplitSafe(',')
                 .Select(x => ((int)x.Convert<FundingOptions>()).ToString())
