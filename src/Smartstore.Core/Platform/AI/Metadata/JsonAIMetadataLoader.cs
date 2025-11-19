@@ -74,5 +74,10 @@ namespace Smartstore.Core.AI.Metadata
         {
             return JsonConvert.DeserializeObject<AIMetadata>(json, _serializerSettings);
         }
+
+        public void Invalidate(string moduleSystemName)
+        {
+            _cache.Remove("aimetadata:" + moduleSystemName);
+        }
     }
 }
