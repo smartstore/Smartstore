@@ -42,11 +42,25 @@ namespace Smartstore.Core.AI.Metadata
             return null;
         }
 
+        public void ChangeModelId(AIModelEntry entry, string newId)
+        {
+            Guard.NotNull(entry);
+            Guard.NotEmpty(newId);
+
+            if (!entry.Id.EqualsNoCase(newId))
+            {
+                ((AIModelKeyedCollection)_innerCollection).ChangeEntryKey(entry, newId);
+                entry.Id = newId;
+            }
+        }
+
         #region ICollection<RuleDescriptor>
 
-        public int Count => _innerCollection.Count;
+        public int Count 
+            => _innerCollection.Count;
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly 
+            => false;
 
         public void Add(AIModelEntry item)
             => _innerCollection.Add(item);
@@ -87,6 +101,11 @@ namespace Smartstore.Core.AI.Metadata
             protected override string GetKeyForItem(AIModelEntry item)
             {
                 return item.Id;
+            }
+
+            public void ChangeEntryKey(AIModelEntry entry, string newKey)
+            {
+                ChangeItemKey(entry, newKey);
             }
         }
 
