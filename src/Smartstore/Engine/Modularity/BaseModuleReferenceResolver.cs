@@ -21,7 +21,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="name">Name of assembly to resolve. Most likely located in a base module's directory.</param>
         public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
         {
-            var path = Path.GetDirectoryName(requestingAssembly.Location);
+            var path = Path.GetDirectoryName(requestingAssembly?.Location);
             var module = _appContext.ModuleCatalog?.GetModuleByPath(path);
 
             return LocatePrivateAssembly(module, name);
