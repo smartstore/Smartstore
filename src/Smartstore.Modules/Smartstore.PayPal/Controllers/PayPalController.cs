@@ -348,17 +348,17 @@ namespace Smartstore.PayPal.Controllers
             await _db.SaveChangesAsync();
         }
 
-        private async Task AddAppleAddressesAsync(ApplePayConfirmResult applePayConfirmResult)
+        private async Task AddAppleAddressesAsync(ApplePayConfirmResult result)
         {
             // INFO: If shipping address has no email we skip adding addresses because we can't create valid addresses.
-            if (!applePayConfirmResult.ShippingAddress.EmailAddress.HasValue())
+            if (!result.ShippingAddress.EmailAddress.HasValue())
             {
                 return;
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var billingAddress = await ConvertAppleAddress(applePayConfirmResult.BillingAddress);
-            var shippingAddress = await ConvertAppleAddress(applePayConfirmResult.ShippingAddress);
+            var billingAddress = await ConvertAppleAddress(result.BillingAddress);
+            var shippingAddress = await ConvertAppleAddress(result.ShippingAddress);
 
             // INFO: Billing Address has no e-mail address in most cases
             if (!billingAddress.Email.HasValue())
@@ -383,32 +383,30 @@ namespace Smartstore.PayPal.Controllers
             await _db.SaveChangesAsync();
         }
 
-        private async Task<Address> ConvertAppleAddress(ApplePayAddress applePayAddress)
+        private async Task<Address> ConvertAppleAddress(ApplePayAddress address)
         {
             var country = await _db.Countries
-                .Where(x => x.TwoLetterIsoCode == applePayAddress.CountryCode)
+                .Where(x => x.TwoLetterIsoCode == address.CountryCode)
                 .FirstOrDefaultAsync();
 
             var stateProvince = country != null
                 ? await _db.StateProvinces
-                    .Where(x => x.CountryId == country.Id && x.Abbreviation == applePayAddress.AdministrativeArea)
+                    .Where(x => x.CountryId == country.Id && x.Abbreviation == address.AdministrativeArea)
                     .FirstOrDefaultAsync()
                 : null;
 
-            var address = new Address
+            return new Address
             {
-                Email = applePayAddress?.EmailAddress,
-                Address1 = applePayAddress?.AddressLines != null && applePayAddress.AddressLines.Count > 0 ? applePayAddress.AddressLines[0] : string.Empty,
-                Address2 = applePayAddress?.AddressLines != null && applePayAddress.AddressLines.Count > 1 ? applePayAddress.AddressLines[1] : string.Empty,
-                City = applePayAddress?.Locality,
-                ZipPostalCode = applePayAddress?.PostalCode,
+                Email = address?.EmailAddress,
+                Address1 = address?.AddressLines?.FirstOrDefault().EmptyNull(),
+                Address2 = address?.AddressLines?.ElementAtOrDefault(1).EmptyNull(),
+                City = address?.Locality,
+                ZipPostalCode = address?.PostalCode,
                 CountryId = country?.Id,
                 StateProvinceId = stateProvince?.Id,
-                FirstName = applePayAddress?.GivenName,
-                LastName = applePayAddress?.FamilyName
+                FirstName = address?.GivenName,
+                LastName = address?.FamilyName
             };
-
-            return address;
         }
 
         private static (string FirstName, string LastName) SplitFullName(string fullName)
@@ -797,13 +795,12 @@ namespace Smartstore.PayPal.Controllers
         }
 
         /// <summary>
-        /// Logs a client message. Is needed for Apple Pay where we can't use Chrome devtools because apple pay only works on IOS devices.
+        /// Logs a client message. Is needed for Apple Pay where we can't use Chrome DevTools on mobile devices.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> LogClientMessage(string msg, LogLevel level)
         {
             Logger.Log(level, msg);
-
             return Ok();
         }
 

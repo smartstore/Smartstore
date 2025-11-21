@@ -3,11 +3,8 @@
     public class ApplePayConfirmResult
     {
         public string Id;
-
         public string Status;
-
         public ApplePayAddress BillingAddress;
-
         public ApplePayAddress ShippingAddress;
     }
 
