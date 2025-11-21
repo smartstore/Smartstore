@@ -51,6 +51,7 @@
   - Export more shipping data (handling time, length, width and height of a product).
 - EmailReminder: Added Google Reviews to the review reminder.
 - #1411 **Pixlr**: The user should decide on a session basis whether to open the express or full editor.
+- PayPal: Added support for Apple Pay.
 
 ### Improvements
 
